@@ -1,226 +1,182 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
-import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.flowable.engine.ProcessEngine;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerCredentials;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
+import com.sap.cloudfoundry.client.facade.domain.Staging;
 
-class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
+class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
 
-    @Mock
-    private ProcessEngine processEngine;
+    private static final String APP_NAME = "test-application";
+    private static final String SERVICE_NAME = "test-service";
+    private static final String SERVICE_KEY_NAME = "test-service-key";
+    private static final String SERVICE_KEY_ENV_NAME = "test-service-key-env";
 
-    private String expectedExceptionMessage;
-    private ApplicationServicesUpdateCallback callback;
-
-    public static Stream<Arguments> testExecute() {
+    static Stream<Arguments> testHandleApplicationAttributes() {
         return Stream.of(
-// @formatter:off
-            // (0) Disk quota is 0:
-            Arguments.of("create-app-step-input-00.json", null),
-            // (1) Memory is 0:
-            Arguments.of("create-app-step-input-01.json", null),
-            // (2) Everything is specified properly:
-            Arguments.of("create-app-step-input-02.json", null),
-            // (3) Binding parameters exist, and the services do too:
-            Arguments.of("create-app-step-input-03.json", null),
-            // (4) Binding parameters exist, but the services do not:
-            Arguments.of("create-app-step-input-04.json", "Could not bind service \"application\" to application \"service-2\": 500 Internal Server Error: Something happened!"),
-            // (5) Binding parameters exist, but the services do not and service-2 is optional - so no exception should be thrown:
-            Arguments.of("create-app-step-input-05.json", null),
-            // (6) Service keys to inject are specified:
-            Arguments.of("create-app-step-input-06.json", null),
-            // (7) Service keys to inject are specified but not exist:
-            Arguments.of("create-app-step-input-07.json",
-                    "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service\"")
-// @formatter:on
+//@formatter:off
+                         // (1) Everything is specified properly:
+                         Arguments.of(ImmutableStaging.builder().command("command1").healthCheckType("none").addBuildpack("buildpackUrl").build(),
+                                      128, 256, List.of("example.com", "foo-bar.xyz")),
+                         // (2) Disk quota is 0:
+                         Arguments.of(null, 0, 256, Collections.emptyList()),
+                         // (3) Memory is 0:
+                         Arguments.of(null, 1024, 0, Collections.emptyList())
+//@formatter:on             
         );
     }
 
     @ParameterizedTest
     @MethodSource
-    void testExecute(String stepInput, String expectedExceptionMessage) {
-        initializeParameters(stepInput, expectedExceptionMessage);
-        if (expectedExceptionMessage != null) {
-            assertThrows(SLException.class, () -> step.execute(execution));
-            return;
-        }
+    void testHandleApplicationAttributes(Staging staging, int diskQuota, int memory, List<String> uris) {
+        CloudApplicationExtended application = buildApplication(staging, diskQuota, memory, uris);
+        prepareContext(application, Collections.emptyMap());
+
         step.execute(execution);
+
         assertStepFinishedSuccessfully();
-
-        validateClient();
+        Integer expectedDiskQuota = diskQuota == 0 ? null : diskQuota;
+        Integer expectedMemory = memory == 0 ? null : memory;
+        verify(client).createApplication(APP_NAME, staging, expectedDiskQuota, expectedMemory, uris, null);
+        assertTrue(context.getVariable(Variables.VCAP_APP_PROPERTIES_CHANGED));
     }
 
-    private void loadParameters() {
-        application = stepInput.applications.get(stepInput.applicationIndex);
-        application = ImmutableCloudApplicationExtended.builder()
-                                                       .from(application)
-                                                       .moduleName("test")
-                                                       .build();
+    private CloudApplicationExtended buildApplication(Staging staging, int diskQuota, int memory, List<String> uris) {
+        return ImmutableCloudApplicationExtended.builder()
+                                                .name(APP_NAME)
+                                                .staging(staging)
+                                                .diskQuota(diskQuota)
+                                                .memory(memory)
+                                                .uris(uris)
+                                                .build();
     }
 
-    private void initializeParameters(String stepInput, String expectedExceptionMessage) {
-        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CreateOrUpdateAppStepTest.class), StepInput.class);
-        this.expectedExceptionMessage = expectedExceptionMessage;
-        this.callback = (e, applicationName, serviceName) -> {
-            if (expectedExceptionMessage != null) {
-                throw new RuntimeException(expectedExceptionMessage, e);
-            }
-        };
-        prepareParameters();
+    private void prepareContext(CloudApplicationExtended application, Map<String, Map<String, String>> serviceKeysCredentialsToInject) {
+        context.setVariable(Variables.APP_TO_PROCESS, application);
+        context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysCredentialsToInject);
     }
 
-    private void prepareParameters() {
+    @Test
+    void testCreateApplicationFromDockerImage() {
+        DockerInfo dockerInfo = ImmutableDockerInfo.builder()
+                                                   .image("cloudfoundry/test-app")
+                                                   .credentials(ImmutableDockerCredentials.builder()
+                                                                                          .username("someUser")
+                                                                                          .password("somePassword")
+                                                                                          .build())
+                                                   .build();
+
+        CloudApplicationExtended application = buildApplication(null, 128, 256, Collections.emptyList());
+        application = ImmutableCloudApplicationExtended.copyOf(application)
+                                                       .withDockerInfo(dockerInfo);
+        prepareContext(application, Collections.emptyMap());
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        verify(client).createApplication(APP_NAME, null, 128, 256, Collections.emptyList(), dockerInfo);
+        verify(stepLogger).info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, APP_NAME, dockerInfo.getImage());
+    }
+
+    @Test
+    void testHandleApplicationServices() {
+        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptyList());
+        List<String> services = List.of("service-1", "service-2");
+        application = ImmutableCloudApplicationExtended.copyOf(application)
+                                                       .withServices(services);
+        prepareContext(application, Collections.emptyMap());
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        assertTrue(services.containsAll(context.getVariable(Variables.SERVICES_TO_UNBIND_BIND)));
+    }
+
+    @Test
+    void testHandleApplicationEnv() {
+        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptyList());
+        Map<String, String> applicationEnv = Map.of("restart-policy", "always");
+        application = ImmutableCloudApplicationExtended.copyOf(application)
+                                                       .withEnv(applicationEnv);
+        prepareContext(application, Collections.emptyMap());
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        verify(client).updateApplicationEnv(APP_NAME, applicationEnv);
+        assertTrue(context.getVariable(Variables.USER_PROPERTIES_CHANGED));
+    }
+
+    @Test
+    void testInjectServiceKeysCredentialsInAppEnv() {
+        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptyList());
+        Map<String, String> applicationEnv = Map.of("restart-policy", "always");
+        ServiceKeyToInject serviceKey = new ServiceKeyToInject(SERVICE_KEY_ENV_NAME, SERVICE_NAME, SERVICE_KEY_NAME);
+        application = ImmutableCloudApplicationExtended.copyOf(application)
+                                                       .withEnv(applicationEnv)
+                                                       .withServiceKeysToInject(serviceKey);
+        Map<String, String> serviceKeyCredentials = Map.of("user", "service-key-user", "password", "service-key-password");
+        when(client.getServiceKeys(SERVICE_NAME)).thenReturn(List.of(ImmutableCloudServiceKey.builder()
+                                                                                             .name(SERVICE_KEY_NAME)
+                                                                                             .credentials(serviceKeyCredentials)
+                                                                                             .build()));
+        Map<String, Map<String, String>> serviceKeysToInjectCredentials = Map.of(APP_NAME, serviceKeyCredentials);
+        prepareContext(application, serviceKeysToInjectCredentials);
+
         step.shouldPrettyPrint = () -> false;
-        loadParameters();
-        prepareContext();
-        prepareClient();
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        assertEquals(JsonUtil.toJson(serviceKeyCredentials), context.getVariable(Variables.APP_TO_PROCESS)
+                                                                    .getEnv()
+                                                                    .get(serviceKey.getEnvVarName()));
+        assertEquals(Map.of(SERVICE_KEY_ENV_NAME, JsonUtil.toJson(serviceKeyCredentials)),
+                     context.getVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT)
+                            .get(APP_NAME));
     }
 
-    private void prepareContext() {
-        context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
-        StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, execution);
-        context.setVariable(Variables.SERVICES_TO_BIND, mapToCloudServiceExtended());
-        context.setVariable(Variables.APP_ARCHIVE_ID, "dummy");
-        context.setVariable(Variables.MODULES_INDEX, stepInput.applicationIndex);
-        context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
-    }
+    @Test
+    void testThrowExceptionWhenSpecifiedServiceKeyNotExist() {
+        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptyList());
+        Map<String, String> applicationEnv = Map.of("restart-policy", "always");
+        ServiceKeyToInject serviceKey = new ServiceKeyToInject(SERVICE_KEY_ENV_NAME, SERVICE_NAME, SERVICE_KEY_NAME);
+        application = ImmutableCloudApplicationExtended.copyOf(application)
+                                                       .withEnv(applicationEnv)
+                                                       .withServiceKeysToInject(serviceKey);
+        when(client.getServiceKeys(SERVICE_NAME)).thenReturn(Collections.emptyList());
+        prepareContext(application, Collections.emptyMap());
 
-    private List<CloudServiceInstanceExtended> mapToCloudServiceExtended() {
-        return application.getServices()
-                          .stream()
-                          .map(this::extracted)
-                          .collect(Collectors.toList());
-    }
-
-    private CloudServiceInstanceExtended extracted(String serviceName) {
-        for (SimpleService simpleService : stepInput.services) {
-            if (simpleService.name.equals(serviceName)) {
-                return simpleService.toCloudServiceExtended();
-            }
-        }
-        return ImmutableCloudServiceInstanceExtended.builder()
-                                                    .name(serviceName)
-                                                    .build();
-    }
-
-    private void prepareClient() {
-        for (CloudApplicationExtended cloudApplicationExtended : stepInput.applications) {
-            Mockito.doReturn(ImmutableCloudApplication.builder()
-                                                      .metadata(ImmutableCloudMetadata.builder()
-                                                                                      .guid(UUID.randomUUID())
-                                                                                      .build())
-                                                      .build())
-                   .when(client)
-                   .getApplication(cloudApplicationExtended.getName());
-        }
-
-        for (SimpleService simpleService : stepInput.services) {
-            CloudServiceInstanceExtended service = simpleService.toCloudServiceExtended();
-            if (!service.isOptional()) {
-                Mockito.when(client.getServiceInstance(service.getName()))
-                       .thenReturn(service);
-            }
-        }
-
-        for (Map.Entry<String, String> entry : stepInput.bindingErrors.entrySet()) {
-            String serviceName = entry.getValue();
-            Mockito.doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR,
-                                                        HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                                                        expectedExceptionMessage + "Something happened!"))
-                   .when(client)
-                   .bindServiceInstance(eq(entry.getKey()), eq(serviceName), Mockito.any(), Mockito.any());
-        }
-
-        for (Map.Entry<String, List<CloudServiceKey>> entry : stepInput.existingServiceKeys.entrySet()) {
-            List<CloudServiceKey> serviceKeys = entry.getValue();
-            Mockito.when(client.getServiceKeys(eq(entry.getKey())))
-                   .thenReturn(serviceKeys);
-        }
-    }
-
-    private void validateClient() {
-        Integer diskQuota = (application.getDiskQuota() != 0) ? application.getDiskQuota() : null;
-        Integer memory = (application.getMemory() != 0) ? application.getMemory() : null;
-
-        Mockito.verify(client)
-               .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
-                                  eq(diskQuota), eq(memory), eq(application.getUris()), eq(null));
-        for (String service : application.getServices()) {
-            if (!isOptional(service)) {
-                Mockito.verify(client)
-                       .bindServiceInstance(application.getName(), service,
-                                            getBindingParametersForService(application.getBindingParameters(), service),
-                                            step.getApplicationServicesUpdateCallback(context));
-            }
-        }
-        Mockito.verify(client)
-               .updateApplicationEnv(application.getName(), application.getEnv());
-    }
-
-    private Map<String, Object> getBindingParametersForService(Map<String, Map<String, Object>> bindingParameters, String serviceName) {
-        return bindingParameters == null ? Collections.emptyMap() : bindingParameters.getOrDefault(serviceName, Collections.emptyMap());
-    }
-
-    private boolean isOptional(String service) {
-        for (SimpleService simpleService : stepInput.services) {
-            if (simpleService.name.equals(service)) {
-                return simpleService.isOptional;
-            }
-        }
-        return false;
+        assertThrows(SLException.class, () -> step.execute(execution));
     }
 
     @Override
     protected CreateOrUpdateAppStep createStep() {
-        return new CreateAppStepMock(processEngine);
+        return new CreateOrUpdateAppStep();
     }
 
-    private class CreateAppStepMock extends CreateOrUpdateAppStep {
-
-        public CreateAppStepMock(ProcessEngine processEngine) {
-            super(processEngine);
-        }
-
-        @Override
-        protected JsonNode getBindUnbindServicesCallActivity(ProcessContext context) {
-            return null;
-        }
-
-        @Override
-        protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(ProcessContext context) {
-            return callback;
-        }
-    }
 }
