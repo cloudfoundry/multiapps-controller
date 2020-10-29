@@ -20,8 +20,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "module-1.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "module-1",
+        "path" : ""
+      }
     ],
     "services": [],
     "env": {
@@ -29,17 +33,21 @@
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "module-1",
-    "idleUris": [
-      "foo.localhost",
-      "bar.localhost"
+    "idleRoutes": [
+      {
+        "domain": "localhost",
+        "host": "foo",
+        "path" : ""
+      },
+      {
+        "domain": "localhost",
+        "host": "bar",
+        "path" : ""
+      }
     ],
     "bindingParameters": {},
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
@@ -72,8 +80,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "module-2.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "module-2",
+        "path" : ""
+      }
     ],
     "services": [],
     "env": {
@@ -81,17 +93,21 @@
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "module-2",
-    "idleUris": [
-      "baz.localhost",
-      "qux.localhost"
+    "idleRoutes": [
+      {
+        "domain": "localhost",
+        "host": "baz",
+        "path" : ""
+      },
+      {
+        "domain": "localhost",
+        "host": "qux",
+        "path" : ""
+      }
     ],
     "bindingParameters": {},
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

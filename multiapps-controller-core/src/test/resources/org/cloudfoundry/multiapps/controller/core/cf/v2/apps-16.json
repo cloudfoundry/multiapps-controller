@@ -22,8 +22,12 @@
         "git://github.example.com/xs2-java/java-buildpack.git"
       ]
     },
-    "uris": [
-      "foo.cfapps.neo.ondemand.com"
+    "routes": [
+      {
+        "domain": "cfapps.neo.ondemand.com",
+        "host": "foo",
+        "path" : ""
+      }
     ],
     "services": [],
     "env": {
@@ -31,14 +35,10 @@
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "foo",
-    "idleUris": [],
+    "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

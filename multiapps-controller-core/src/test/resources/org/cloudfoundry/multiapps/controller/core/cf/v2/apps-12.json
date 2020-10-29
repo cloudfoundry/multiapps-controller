@@ -22,8 +22,12 @@
         "git://github.example.com/xs2-java/java-buildpack.git"
       ]
     },
-    "uris": [
-      "foo-custom-route.test-domain"
+    "routes": [
+      {
+        "domain": "test-domain",
+        "host": "foo-custom-route",
+        "path": ""
+      }
     ],
     "services": [],
     "env": {
@@ -31,16 +35,16 @@
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "foo",
-    "idleUris": [
-      "foo-custom-route.test-domain"
+    "idleRoutes": [
+      {
+        "domain": "test-domain",
+        "host": "foo-custom-route",
+        "path": ""
+      }
     ],
     "bindingParameters": {},
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "test-domain"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

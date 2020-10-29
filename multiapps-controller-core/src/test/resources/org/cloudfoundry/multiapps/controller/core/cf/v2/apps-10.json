@@ -20,18 +20,21 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "module-1.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "module-1",
+        "path" : ""
+      }
     ],
     "services": [],
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
     },
     "moduleName": "module-1",
-    "idleUris": [],
+    "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [
       {
         "envVarName": "service-key-1",
@@ -53,9 +56,6 @@
         "serviceName": "service-1",
         "serviceKeyName": "service-key-defined-in-resource-2"
       }
-    ],
-    "domains": [
-      "sofd60245639a"
     ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,

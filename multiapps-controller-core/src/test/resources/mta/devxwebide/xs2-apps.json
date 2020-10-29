@@ -20,8 +20,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "webide.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "webide",
+        "path": ""
+      }
     ],
     "services": [
       "uaa"
@@ -31,14 +35,10 @@
       "destinations": "[{\"name\":\"sapui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"},{\"name\":\"che\",\"url\":\"http://che.sofd60245639a\"}]"
     },
     "moduleName": "webide",
-    "idleUris": [],
+    "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

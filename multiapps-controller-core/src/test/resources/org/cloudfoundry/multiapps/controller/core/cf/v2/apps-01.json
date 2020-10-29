@@ -20,15 +20,19 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "foo.cfapps.neo.ondemand.com/test"
+    "routes": [
+      {
+        "domain": "cfapps.neo.ondemand.com",
+        "host": "foo",
+        "path" : "/test"
+      }
     ],
     "services": [],
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
     },
     "moduleName": "foo",
-    "idleUris": [],
+    "idleRoutes": [],
     "bindingParameters": {
       "bar": {
         "baz": "baz",
@@ -36,11 +40,7 @@
       }
     },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

@@ -1,8 +1,16 @@
 {
   "name": "module-1",
-  "uris": [
-      "tcp://test.domain.com:51051",
-      "tcp://test.domain.com:51053"
-    ],
-  "idleUris": []
+  "routes": [
+    {
+      "domain": "domain.com",
+      "host": "test",
+      "path": "/51051"
+    },
+    {
+      "domain": "domain.com",
+      "host": "test",
+      "path": "/51053"
+    }
+  ],
+  "idleRoutes": []
  }

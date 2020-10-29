@@ -7,7 +7,7 @@
     {
       "moduleName": "bar",
       "appName": "bar",
-      "uris": []
+      "routes": []
     }
   ]
 }

@@ -20,24 +20,32 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "foo.sofd60245639a",
-      "foo.acme.com",
-      "foo.abcd.com"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "foo",
+        "path" : ""
+      },
+      {
+        "domain": "acme.com",
+        "host": "foo",
+        "path" : ""
+      },
+      {
+        "domain": "abcd.com",
+        "host": "foo",
+        "path" : ""
+      }
     ],
     "services": [],
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
     },
     "moduleName": "foo",
-    "idleUris": [],
+    "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

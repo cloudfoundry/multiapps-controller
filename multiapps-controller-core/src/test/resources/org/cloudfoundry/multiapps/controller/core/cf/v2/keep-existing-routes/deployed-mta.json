@@ -7,12 +7,39 @@
     {
       "moduleName": "bar",
       "appName": "bar",
-      "uris": [ "bar.sofd60245639a", "bar.acme.com", "bar.abcd.com" ]
+      "routes": [
+        {
+          "domain": "sofd60245639a",
+          "host": "bar",
+          "path" : ""
+        },
+        {
+          "domain": "acme.com",
+          "host": "bar",
+          "path" : ""
+        },
+        {
+          "domain": "abcd.com",
+          "host": "bar",
+          "path" : ""
+        }
+      ]
     },
     {
       "moduleName": "foo",
       "appName": "foo",
-      "uris": [ "foo.sofd60245639a", "foo.acme.com", "foo.abcd.com" ]
+      "routes": [
+        {
+          "domain": "acme.com",
+          "host": "foo",
+          "path" : ""
+        },
+        {
+          "domain": "abcd.com",
+          "host": "foo",
+          "path" : ""
+        }
+      ]
     }
   ]
 }

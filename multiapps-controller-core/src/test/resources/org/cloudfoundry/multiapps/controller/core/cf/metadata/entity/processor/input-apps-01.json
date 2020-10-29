@@ -23,8 +23,12 @@
         "staticfile_buildpack"
       ]
     },
-    "uris": [
-      "foo.cfapps.neo.ondemand.com"
+    "routes": [
+      {
+   		"host": "foo",
+   		"domain": "cfapps.neo.ondemand.com",
+   		"path": ""
+      }
     ],
     "services": [],
     "env": {
@@ -37,9 +41,10 @@
     },
     "moduleName": "foo",
     "idleUris": [],
-    "bindingParameters": {},
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "cfapps.neo.ondemand.com"
@@ -79,8 +84,12 @@
         "staticfile_buildpack"
       ]
     },
-    "uris": [
-      "bar.cfapps.neo.ondemand.com"
+    "routes": [
+      {
+   		"host": "bar",
+   		"domain": "cfapps.neo.ondemand.com",
+   		"path": ""     
+      }
     ],
     "services": [],
     "env": {
@@ -93,9 +102,10 @@
     },
     "moduleName": "bar",
     "idleUris": [],
-    "bindingParameters": {},
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "cfapps.neo.ondemand.com"
@@ -135,8 +145,12 @@
         "staticfile_buildpack"
       ]
     },
-    "uris": [
-      "baz.cfapps.neo.ondemand.com"
+    "routes": [
+      {
+   		"host": "baz",
+   		"domain": "cfapps.neo.ondemand.com",
+   		"path": ""     
+      }
     ],
     "services": [],
     "env": {
@@ -149,9 +163,10 @@
     },
     "moduleName": "baz",
     "idleUris": [],
-    "bindingParameters": {},
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "cfapps.neo.ondemand.com"

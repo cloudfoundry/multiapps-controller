@@ -20,8 +20,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "module-1.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "module-1",
+        "path" : ""
+      }
     ],
     "services": [
       "user-provided-renamed",
@@ -39,14 +43,10 @@
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "module-1",
-    "idleUris": [],
+    "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

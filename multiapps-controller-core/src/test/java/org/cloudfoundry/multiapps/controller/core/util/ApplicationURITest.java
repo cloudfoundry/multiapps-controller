@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
-import java.util.HashMap;
+import static org.cloudfoundry.multiapps.controller.core.util.TestData.routeSummary;
+
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -11,68 +12,82 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudDomain;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 
 class ApplicationURITest {
 
     private static final String CUSTOM = "custom-";
 
-    static Stream<Arguments> testParameters() {
-        return Stream.of(Arguments.of("https://valid-host.valid-domain", "valid-host", "valid-domain", ""),
-                         Arguments.of("https://valid-domain", "", "valid-domain", ""), Arguments.of("valid-domain", "", "valid-domain", ""),
-                         Arguments.of("https://valid-domain/really/long/path", "", "valid-domain", "/really/long/path"),
-                         Arguments.of("https://valid-host.valid-domain/really/long/path", "valid-host", "valid-domain",
+    static Stream<Arguments> testGetHostDomainPath() {
+        return Stream.of(Arguments.of("https://valid-host.valid-domain", false, "valid-host", "valid-domain", ""),
+                         Arguments.of("https://valid-domain", false, "", "valid-domain", ""),
+                         Arguments.of("valid-domain", true, "", "valid-domain", ""),
+                         Arguments.of("https://valid-domain/really/long/path", false, "", "valid-domain", "/really/long/path"),
+                         Arguments.of("https://valid-host.valid-domain/really/long/path", false, "valid-host", "valid-domain",
                                       "/really/long/path"),
-                         Arguments.of("deploy-service.cfapps.industrycloud-staging.siemens.com", "deploy-service",
-                                      "cfapps.industrycloud-staging.siemens.com", ""));
+                         Arguments.of("deploy-service.cfapps.industrycloud-staging.siemens.com", false, "deploy-service",
+                                      "cfapps.industrycloud-staging.siemens.com", ""),
+                         Arguments.of("everything.is.in.domain/and/path", true, "", "everything.is.in.domain", "/and/path"));
     }
 
     @ParameterizedTest
-    @MethodSource("testParameters")
-    void testGetHostDomainPath(String uri, String expectedHost, String expectedDomain, String expectedPath) {
-        ApplicationURI applicationURI = new ApplicationURI(uri);
+    @MethodSource
+    void testGetHostDomainPath(String uri, boolean noHostname, String expectedHost, String expectedDomain, String expectedPath) {
+        ApplicationURI applicationURI = new ApplicationURI(uri, noHostname);
         Assertions.assertEquals(expectedHost, applicationURI.getHost());
         Assertions.assertEquals(expectedDomain, applicationURI.getDomain());
         Assertions.assertEquals(expectedPath, applicationURI.getPath());
     }
 
+    @SuppressWarnings("serial")
+    static Stream<Arguments> testGetURIParts() {
+        return Stream.of(
+//@formatter:off
+                Arguments.of("host", "domain.com", "/path",
+                             Map.of(SupportedParameters.HOST, "host", 
+                                    SupportedParameters.DOMAIN, "domain.com",
+                                    SupportedParameters.ROUTE_PATH, "/path")),
+                Arguments.of("", "domain.com", "/path",
+                             Map.of(SupportedParameters.DOMAIN, "domain.com", 
+                                    SupportedParameters.ROUTE_PATH, "/path")),
+                Arguments.of(null, "domain.com", "/path",
+                             Map.of(SupportedParameters.DOMAIN, "domain.com", 
+                                    SupportedParameters.ROUTE_PATH, "/path")),
+                Arguments.of("", "domain.only.this.time", "", 
+                             Map.of(SupportedParameters.DOMAIN, "domain.only.this.time")));
+// @formatter:on
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testGetURIParts(String host, String domain, String path, Map<String, Object> expectedParts) {
+        ApplicationURI applicationURIFromSummary = new ApplicationURI(routeSummary(host, domain, path));
+
+        Assertions.assertEquals(expectedParts, applicationURIFromSummary.getURIParts());
+    }
+
     @Test
     void testGetHostDomainWithoutPathFromRoute() {
-        CloudRoute route = createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"), null);
+        CloudRouteSummary route = routeSummary(CUSTOM + "host", CUSTOM + "domain", "");
         ApplicationURI applicationURI = new ApplicationURI(route);
         Assertions.assertEquals(CUSTOM + "host", applicationURI.getHost());
-        Assertions.assertEquals(CUSTOM + "domain", route.getDomain()
-                                                        .getName());
+        Assertions.assertEquals(CUSTOM + "domain", route.getDomain());
         Assertions.assertEquals("", applicationURI.getPath());
     }
 
     @Test
     void testGetHostDomainWithPathFromRoute() {
-        CloudRoute route = createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"), "/" + CUSTOM + "path");
+        CloudRouteSummary route = routeSummary(CUSTOM + "host", CUSTOM + "domain", "/" + CUSTOM + "path");
         ApplicationURI applicationURI = new ApplicationURI(route);
         Assertions.assertEquals(CUSTOM + "host", applicationURI.getHost());
-        Assertions.assertEquals(CUSTOM + "domain", route.getDomain()
-                                                        .getName());
+        Assertions.assertEquals(CUSTOM + "domain", applicationURI.getDomain());
         Assertions.assertEquals("/" + CUSTOM + "path", applicationURI.getPath());
     }
 
     @Test
-    void testGetURIParts() {
-        ApplicationURI applicationURI = new ApplicationURI(createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"), null));
-        Map<String, Object> expectedParts = new HashMap<>();
-        expectedParts.put(SupportedParameters.HOST, CUSTOM + "host");
-        expectedParts.put(SupportedParameters.DOMAIN, CUSTOM + "domain");
-        expectedParts.put(SupportedParameters.ROUTE_PATH, "");
-        Assertions.assertEquals(expectedParts, applicationURI.getURIParts());
-    }
-
-    @Test
     void testGetURIPart() {
-        ApplicationURI applicationURI = new ApplicationURI(createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"),
-                                                                            "/" + CUSTOM + "path"));
+        CloudRouteSummary route = routeSummary(CUSTOM + "host", CUSTOM + "domain", "/" + CUSTOM + "path");
+        ApplicationURI applicationURI = new ApplicationURI(route);
         Assertions.assertEquals(CUSTOM + "host", applicationURI.getURIPart(SupportedParameters.HOST));
         Assertions.assertEquals(CUSTOM + "domain", applicationURI.getURIPart(SupportedParameters.DOMAIN));
         Assertions.assertEquals("/" + CUSTOM + "path", applicationURI.getURIPart(SupportedParameters.ROUTE_PATH));
@@ -81,8 +96,7 @@ class ApplicationURITest {
 
     @Test
     void testURIPart() {
-        ApplicationURI applicationURI = new ApplicationURI(createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"),
-                                                                            CUSTOM + "path"));
+        ApplicationURI applicationURI = new ApplicationURI(routeSummary(CUSTOM + "host", CUSTOM + "domain", CUSTOM + "path"));
         applicationURI.setURIPart(SupportedParameters.HOST, CUSTOM + "host-1");
         applicationURI.setURIPart(SupportedParameters.DOMAIN, CUSTOM + "domain-1");
         applicationURI.setURIPart(SupportedParameters.ROUTE_PATH, "/" + CUSTOM + "path-1");
@@ -94,42 +108,27 @@ class ApplicationURITest {
 
     @Test
     void testToStringWithValidHostAndPath() {
-        ApplicationURI applicationURI = new ApplicationURI(createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"),
-                                                                            "/" + CUSTOM + "path"));
+        ApplicationURI applicationURI = new ApplicationURI(routeSummary(CUSTOM + "host", CUSTOM + "domain", "/" + CUSTOM + "path"));
         String expectedApplicationURI = CUSTOM + "host." + CUSTOM + "domain/" + CUSTOM + "path";
         Assertions.assertEquals(expectedApplicationURI, applicationURI.toString());
     }
 
     @Test
     void testToStringWithValidHostAndWithoutPath() {
-        ApplicationURI applicationURI = new ApplicationURI(createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"), null));
+        ApplicationURI applicationURI = new ApplicationURI(routeSummary(CUSTOM + "host", CUSTOM + "domain", null));
         Assertions.assertEquals(CUSTOM + "host." + CUSTOM + "domain", applicationURI.toString());
     }
 
     @Test
     void testToStringWithoutHostAndWithoutPath() {
-        ApplicationURI applicationURI = new ApplicationURI(createCloudRoute("", createCloudDomain(CUSTOM + "domain"), null));
+        ApplicationURI applicationURI = new ApplicationURI(routeSummary("", CUSTOM + "domain", null));
         Assertions.assertEquals(CUSTOM + "domain", applicationURI.toString());
     }
 
     @Test
     void testGetDomainFromURI() {
         Assertions.assertEquals(CUSTOM + "domain",
-                                ApplicationURI.getDomainFromURI("https://" + CUSTOM + "host." + CUSTOM + "domain/valid"));
-    }
-
-    private static CloudRoute createCloudRoute(String host, CloudDomain domain, String path) {
-        return ImmutableCloudRoute.builder()
-                                  .host(host)
-                                  .domain(domain)
-                                  .path(path)
-                                  .build();
-    }
-
-    private static CloudDomain createCloudDomain(String name) {
-        return ImmutableCloudDomain.builder()
-                                   .name(name)
-                                   .build();
+                                ApplicationURI.getDomainFromURI("https://" + CUSTOM + "host." + CUSTOM + "domain/valid", false));
     }
 
 }

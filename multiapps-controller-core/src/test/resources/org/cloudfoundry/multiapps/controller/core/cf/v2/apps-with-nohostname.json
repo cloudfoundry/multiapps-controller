@@ -22,27 +22,20 @@
         "git://github.example.com/xs2-java/java-buildpack.git"
       ]
     },
-    "routes": [
+    "routes" : [ 
       {
-        "domain": "cfapps.domain.com",
-        "host": "abc",
+        "domain" : "domain.to.test",
+        "host" : "normal-host",
         "path" : ""
-      },
-      {
-        "domain": "cfapps.domain.com",
-        "host": "cba",
+      }, {
+        "domain" : "sub.sub.domain.to.test",
+        "host" : "",
+        "path" : "/with/path"
+      }, {
+        "domain" : "sub.domain.to.test",
+        "host" : "",
         "path" : ""
-      },
-      {
-        "domain": "cfapps.domain.moc",
-        "host": "abc",
-        "path" : ""
-      },
-      {
-        "domain": "cfapps.domain.moc",
-        "host": "cba",
-        "path" : ""
-      }
+      } 
     ],
     "services": [],
     "env": {
@@ -50,7 +43,21 @@
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "foo",
-    "idleRoutes": [],
+    "idleRoutes" : [ 
+      {
+        "domain" : "domain.to.test",
+        "host" : "normal-host",
+        "path" : ""
+      }, {
+        "domain" : "sub.sub.domain.to.test",
+        "host" : "",
+        "path" : "/with/path"
+      }, {
+        "domain" : "sub.domain.to.test",
+        "host" : "",
+        "path" : ""
+      } 
+    ],
     "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
@@ -60,7 +67,7 @@
       "shouldRestartOnUserProvidedChange": true
     },
     "attributesUpdateStrategy": {
-      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingEnv": true,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     }

@@ -20,15 +20,19 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "module-1.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "module-1",
+        "path" : ""
+      }
     ],
     "services": [],
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\",\"no-start\":true}"
     },
     "moduleName": "module-1",
-    "idleUris": [],
+    "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [
       {
@@ -45,11 +49,7 @@
         "limits": {}
       }
     ],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
@@ -82,22 +82,22 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "module-2.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "module-2",
+        "path" : ""
+      }
     ],
     "services": [],
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
     },
     "moduleName": "module-2",
-    "idleUris": [],
+    "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
@@ -130,22 +130,22 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "module-3.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "module-3",
+        "path" : ""
+      }
     ],
     "services": [],
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
     },
     "moduleName": "module-3",
-    "idleUris": [],
+    "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
@@ -178,8 +178,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "module-4.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "module-4",
+        "path" : ""
+      }
     ],
     "services": [],
     "env": {
@@ -187,14 +191,10 @@
       "tasks": "[{\"command\":\"echo 3\",\"memory\":\"256M\",\"name\":\"task-3\"},{\"command\":\"echo 4\",\"memory\":\"512M\",\"name\":\"task-4\"}]"
     },
     "moduleName": "module-4",
-    "idleUris": [],
+    "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

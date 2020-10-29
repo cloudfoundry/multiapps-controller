@@ -1,0 +1,26 @@
+{
+  "name": "module-1",
+  "routes": [
+    {
+      "domain": "testdomain.com",
+      "host": "foo",
+      "path": ""
+    },
+    {
+      "domain": "testdomain.com",
+      "host": "",
+      "path": "/path"
+    },
+    {
+      "domain": "testdomain.com",
+      "host": "bar",
+      "path": "/another/path"
+    },
+    {
+      "domain": "testdomain.com",
+      "host": "",
+      "path": ""
+    }
+  ],
+  "idleRoutes": []
+ }
