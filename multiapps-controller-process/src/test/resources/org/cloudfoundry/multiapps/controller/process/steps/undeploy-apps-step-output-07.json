@@ -1,0 +1,10 @@
+{
+  "expectedRoutesToDelete": [
+    {
+      "domain": "db.example.com"
+    },
+    {
+      "domain": "ui.example.com"
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.SLException;
@@ -23,6 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerCredentials;
@@ -42,19 +44,19 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
 //@formatter:off
                          // (1) Everything is specified properly:
                          Arguments.of(ImmutableStaging.builder().command("command1").healthCheckType("none").addBuildpack("buildpackUrl").build(),
-                                      128, 256, List.of("example.com", "foo-bar.xyz")),
+                                      128, 256, TestData.routeSummarySet("example.com", "foo-bar.xyz")),
                          // (2) Disk quota is 0:
-                         Arguments.of(null, 0, 256, Collections.emptyList()),
+                         Arguments.of(null, 0, 256, Collections.emptySet()),
                          // (3) Memory is 0:
-                         Arguments.of(null, 1024, 0, Collections.emptyList())
+                         Arguments.of(null, 1024, 0, Collections.emptySet())
 //@formatter:on             
         );
     }
 
     @ParameterizedTest
     @MethodSource
-    void testHandleApplicationAttributes(Staging staging, int diskQuota, int memory, List<String> uris) {
-        CloudApplicationExtended application = buildApplication(staging, diskQuota, memory, uris);
+    void testHandleApplicationAttributes(Staging staging, int diskQuota, int memory, Set<CloudRouteSummary> routes) {
+        CloudApplicationExtended application = buildApplication(staging, diskQuota, memory, routes);
         prepareContext(application, Collections.emptyMap());
 
         step.execute(execution);
@@ -62,17 +64,17 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
         assertStepFinishedSuccessfully();
         Integer expectedDiskQuota = diskQuota == 0 ? null : diskQuota;
         Integer expectedMemory = memory == 0 ? null : memory;
-        verify(client).createApplication(APP_NAME, staging, expectedDiskQuota, expectedMemory, uris, null);
+        verify(client).createApplication(APP_NAME, staging, expectedDiskQuota, expectedMemory, routes, null);
         assertTrue(context.getVariable(Variables.VCAP_APP_PROPERTIES_CHANGED));
     }
 
-    private CloudApplicationExtended buildApplication(Staging staging, int diskQuota, int memory, List<String> uris) {
+    private CloudApplicationExtended buildApplication(Staging staging, int diskQuota, int memory, Set<CloudRouteSummary> routes) {
         return ImmutableCloudApplicationExtended.builder()
                                                 .name(APP_NAME)
                                                 .staging(staging)
                                                 .diskQuota(diskQuota)
                                                 .memory(memory)
-                                                .uris(uris)
+                                                .routes(routes)
                                                 .build();
     }
 
@@ -91,7 +93,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
                                                                                           .build())
                                                    .build();
 
-        CloudApplicationExtended application = buildApplication(null, 128, 256, Collections.emptyList());
+        CloudApplicationExtended application = buildApplication(null, 128, 256, Collections.emptySet());
         application = ImmutableCloudApplicationExtended.copyOf(application)
                                                        .withDockerInfo(dockerInfo);
         prepareContext(application, Collections.emptyMap());
@@ -99,13 +101,13 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
-        verify(client).createApplication(APP_NAME, null, 128, 256, Collections.emptyList(), dockerInfo);
+        verify(client).createApplication(APP_NAME, null, 128, 256, Collections.emptySet(), dockerInfo);
         verify(stepLogger).info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, APP_NAME, dockerInfo.getImage());
     }
 
     @Test
     void testHandleApplicationServices() {
-        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptyList());
+        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptySet());
         List<String> services = List.of("service-1", "service-2");
         application = ImmutableCloudApplicationExtended.copyOf(application)
                                                        .withServices(services);
@@ -119,7 +121,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
 
     @Test
     void testHandleApplicationEnv() {
-        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptyList());
+        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptySet());
         Map<String, String> applicationEnv = Map.of("restart-policy", "always");
         application = ImmutableCloudApplicationExtended.copyOf(application)
                                                        .withEnv(applicationEnv);
@@ -134,7 +136,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
 
     @Test
     void testInjectServiceKeysCredentialsInAppEnv() {
-        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptyList());
+        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptySet());
         Map<String, String> applicationEnv = Map.of("restart-policy", "always");
         ServiceKeyToInject serviceKey = new ServiceKeyToInject(SERVICE_KEY_ENV_NAME, SERVICE_NAME, SERVICE_KEY_NAME);
         application = ImmutableCloudApplicationExtended.copyOf(application)
@@ -162,7 +164,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
 
     @Test
     void testThrowExceptionWhenSpecifiedServiceKeyNotExist() {
-        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptyList());
+        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptySet());
         Map<String, String> applicationEnv = Map.of("restart-policy", "always");
         ServiceKeyToInject serviceKey = new ServiceKeyToInject(SERVICE_KEY_ENV_NAME, SERVICE_NAME, SERVICE_KEY_NAME);
         application = ImmutableCloudApplicationExtended.copyOf(application)

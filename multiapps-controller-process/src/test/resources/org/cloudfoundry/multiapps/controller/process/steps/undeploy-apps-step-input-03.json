@@ -2,12 +2,24 @@
   "portBasedRouting":true,
   "appsToDelete": [
     {
-      "uris": [ "https://foo.domain" ],
-      "name": "foo"
+      "name": "foo",
+      "routes": [
+        {
+          "domain": "domain",
+          "host": "foo",
+          "path": ""
+        }
+      ]
     },
     {
-      "uris": [ "https://bar.domain" ],
-      "name": "bar"
+      "name": "bar",
+      "routes": [
+        {
+          "domain": "domain",
+          "host": "bar",
+          "path": ""
+        }
+      ]
     }
   ],
   "appRoutesPerApplication": {

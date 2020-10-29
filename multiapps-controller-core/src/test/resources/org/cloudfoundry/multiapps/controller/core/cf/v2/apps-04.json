@@ -10,8 +10,11 @@
     "instances": 0,
     "memory": 0,
     "diskQuota": 0,
-    "uris": [
-      "module-1.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "module-1"
+      }
     ],
     "services": [
       "techical-user-provider"
@@ -21,8 +24,7 @@
       "TARGET_RUNTIME=tomee"
     ],
     "name": "com.sap.sample.mta.module-1",
-    "bindingParameters" : {},
-    "routes": []
+    "bindingParameters" : {}
   },
   {
     "moduleName": "module-2",
@@ -35,8 +37,12 @@
     "instances": 0,
     "memory": 0,
     "diskQuota": 0,
-    "uris": [
-      "module-2.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "module-2",
+        "path" : ""
+      }
     ],
     "services": [],
     "runningInstances": 0,
@@ -44,7 +50,6 @@
       "TARGET_RUNTIME=tomee"
     ],
     "name": "com.sap.sample.mta.application-2",
-    "bindingParameters" : {},
-    "routes": []
+    "bindingParameters" : {}
   }
 ]

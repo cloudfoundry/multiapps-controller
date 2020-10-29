@@ -20,8 +20,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "test-host.sofd60245639a/test"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "test-host",
+        "path" : "/test"
+      }
     ],
     "services": [],
     "env": {
@@ -29,14 +33,10 @@
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "module-1",
-    "idleUris": [],
+    "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
@@ -69,8 +69,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "module-2.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "module-2",
+        "path": ""
+      }
     ],
     "services": [],
     "env": {
@@ -78,14 +82,10 @@
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "module-2",
-    "idleUris": [],
+    "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

@@ -2,11 +2,11 @@
   "portBasedRouting":false,
   "appsToDelete": [
     {
-      "uris": [],
+      "routes": [],
       "name": "foo"
     },
     {
-      "uris": [],
+      "routes": [],
       "name": "bar"
     }
   ],

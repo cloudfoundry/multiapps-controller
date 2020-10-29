@@ -7,12 +7,12 @@
     {
       "moduleName": "bar",
       "appName": "bar",
-      "uris": []
+      "routes": []
     },
     {
       "moduleName": "foo",
       "appName": "foo",
-      "uris": []
+      "routes": []
     }
   ]
 }

@@ -4,8 +4,8 @@
       "name": "test-app-db",
       "routes": [
         {
-          "domain": "example.com",
-          "host": "test-app-db",
+          "domain": "db.example.com",
+          "host": "",
           "path": ""
         }
       ]
@@ -14,8 +14,8 @@
       "name": "test-app-ui",
       "routes": [
         {
-          "domain": "example.com",
-          "host": "test-app-ui",
+          "domain": "ui.example.com",
+          "host": "",
           "path": ""
         }
       ]
@@ -24,18 +24,18 @@
   "appRoutesPerApplication": {
     "test-app-db": [
       {
-        "host": "test-app-db",
+        "host": "",
         "domain": {
-          "name": "example.com"
+          "name": "db.example.com"
         },
         "appsUsingRoute": 1
       }
     ],
     "test-app-ui": [
       {
-        "host": "test-app-ui",
+        "host": "",
         "domain": {
-          "name": "example.com"
+          "name": "ui.example.com"
         },
         "appsUsingRoute": 1
       }

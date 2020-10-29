@@ -20,8 +20,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "i027947-shine.cfapps.neo.ondemand.com"
+    "routes": [
+      {
+        "domain": "cfapps.neo.ondemand.com",
+        "host": "i027947-shine",
+        "path" : ""
+      }
     ],
     "services": [
       "uaa"
@@ -31,14 +35,12 @@
       "destinations": "[{\"name\":\"xsjs\",\"url\":\"http://i027947-shine-xsjs.cfapps.neo.ondemand.com\"},{\"name\":\"xsodata\",\"url\":\"http://i027947-shine-odata.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     },
     "moduleName": "shine",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
@@ -71,8 +73,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "i027947-shine-xsjs.cfapps.neo.ondemand.com"
+    "routes": [
+      {
+        "domain": "cfapps.neo.ondemand.com",
+        "host": "i027947-shine-xsjs",
+        "path" : ""
+      }
     ],
     "services": [
       "uaa",
@@ -83,14 +89,12 @@
       "HANA_SERVICE_NAME": "shine-database"
     },
     "moduleName": "shine-xsjs",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
@@ -125,8 +129,12 @@
         "git://github.example.com/xs2-java/java-buildpack.git"
       ]
     },
-    "uris": [
-      "i027947-shine-odata.cfapps.neo.ondemand.com"
+    "routes": [
+      {
+        "domain": "cfapps.neo.ondemand.com",
+        "host": "i027947-shine-odata",
+        "path" : ""
+      }
     ],
     "services": [
       "uaa",
@@ -138,14 +146,12 @@
       "TARGET_RUNTIME": "tomcat"
     },
     "moduleName": "shine-odata",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

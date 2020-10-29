@@ -3,14 +3,14 @@
     "name": "foo",
     "v3Metadata": {
       "annotations": {
-        "mta_id": "com.sap.sample.mta",
+        "mta_id": "foo.mtar",
         "mta_version": "1.0.0",
         "mta_module": "{\"name\":\"foo\"}",
         "mta_module_provided_dependencies": "[\"foo\"]",
         "mta_bound_services": "[]"
       },
       "labels": {
-        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+        "mta_id": "eea6b9aae1732740b3a782ea0fa2ff66"
       }
     },
     "memory": 0,
@@ -22,25 +22,30 @@
         "git://github.example.com/xs2-java/java-buildpack.git"
       ]
     },
-    "routes": [
+    "routes" : [ 
       {
-        "domain": "cfapps.domain.com",
-        "host": "abc",
+        "domain" : "domain.to.test",
+        "host" : "normal-host",
+        "path" : ""
+      }, 
+      {
+        "domain" : "sub.sub.domain.to.test",
+        "host" : "",
+        "path" : "/with/path"
+      }, 
+      {
+        "domain" : "sub.domain.to.test",
+        "host" : "",
         "path" : ""
       },
       {
-        "domain": "cfapps.domain.com",
-        "host": "cba",
+        "domain" : "acme.com",
+        "host" : "foo",
         "path" : ""
-      },
+      }, 
       {
-        "domain": "cfapps.domain.moc",
-        "host": "abc",
-        "path" : ""
-      },
-      {
-        "domain": "cfapps.domain.moc",
-        "host": "cba",
+        "domain" : "abcd.com",
+        "host" : "foo",
         "path" : ""
       }
     ],
@@ -50,7 +55,21 @@
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "foo",
-    "idleRoutes": [],
+    "idleRoutes" : [ 
+      {
+        "domain" : "domain.to.test",
+        "host" : "normal-host",
+        "path" : ""
+      }, {
+        "domain" : "sub.sub.domain.to.test",
+        "host" : "",
+        "path" : "/with/path"
+      }, {
+        "domain" : "sub.domain.to.test",
+        "host" : "",
+        "path" : ""
+      } 
+    ],
     "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
@@ -60,9 +79,9 @@
       "shouldRestartOnUserProvidedChange": true
     },
     "attributesUpdateStrategy": {
-      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingEnv": true,
       "shouldKeepExistingServiceBindings": false,
-      "shouldKeepExistingRoutes": false
+      "shouldKeepExistingRoutes": true
     }
   }
 ]

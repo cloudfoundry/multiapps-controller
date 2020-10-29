@@ -20,8 +20,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "www.bestprice.sap.com"
+    "routes": [
+      {
+        "domain": "bestprice.sap.com",
+        "host": "www",
+        "path" : ""
+      }
     ],
     "services": [
       "internal-odata-service"
@@ -33,14 +37,12 @@
       "odata.svc_root": "odata/"
     },
     "moduleName": "web-server",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "bestprice.sap.com"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
@@ -75,8 +77,12 @@
         "nodejs-test"
       ]
     },
-    "uris": [
-      "api.bestprice.sap.com"
+    "routes": [
+      {
+        "domain": "bestprice.sap.com",
+        "host": "api",
+        "path" : ""
+      }
     ],
     "services": [
       "pricing-db-service"
@@ -90,14 +96,12 @@
       "url": "https://marketwatch.il/v2/"
     },
     "moduleName": "pricing",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "bestprice.sap.com"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
@@ -130,8 +134,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "pricing-db.cfapps.neo.ondemand.com"
+    "routes": [
+      {
+        "domain": "cfapps.neo.ondemand.com",
+        "host": "pricing-db",
+        "path" : ""
+      }
     ],
     "services": [
       "pricing-db-service"
@@ -141,14 +149,12 @@
       "default-locale": "zho"
     },
     "moduleName": "pricing-db",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

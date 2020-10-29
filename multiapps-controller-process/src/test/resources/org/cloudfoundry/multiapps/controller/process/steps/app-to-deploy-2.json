@@ -1,7 +1,11 @@
 {
   "name": "module-1",
-  "uris": [
-    "module-1.domain.com"
+  "routes": [
+    {
+      "domain": "domain.com",
+      "host": "module-1",
+      "path": ""
+    }
   ],
-  "idleUris": []
+  "idleRoutes": []
  }

@@ -12,7 +12,7 @@
         "node-hdi-container"
       ],
       "providedDependencyNames": [],
-      "uris": []
+      "routes": []
     }
   ],
   "services": [

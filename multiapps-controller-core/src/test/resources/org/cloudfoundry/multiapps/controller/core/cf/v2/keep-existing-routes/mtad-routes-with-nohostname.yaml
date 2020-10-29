@@ -1,0 +1,18 @@
+_schema-version: "2.0.0"
+ID: foo.mtar
+version: 1.0.0
+
+modules:
+  - name: foo
+    type: java.tomee
+    parameters:
+      # define multiple route parameters
+      routes: 
+        - route: "sub.domain.to.test"
+          no-hostname: true
+        - route: "sub.sub.domain.to.test/with/path"
+          no-hostname: true
+        - route: "normal-host.domain.to.test"
+      keep-existing:
+        env: true
+        routes: true

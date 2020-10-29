@@ -29,9 +29,13 @@
             "staticfile_buildpack"
           ]
         },
-        "uris": [
-          "baz.cfapps.neo.ondemand.com"
-        ],
+	    "routes": [
+	      {
+	   		"host": "baz",
+	   		"domain": "cfapps.neo.ondemand.com",
+	   		"path": ""     
+	      }
+	    ],
         "services": [],
         "env": {
           "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
@@ -80,9 +84,13 @@
             "staticfile_buildpack"
           ]
         },
-        "uris": [
-          "foo.cfapps.neo.ondemand.com"
-        ],
+	    "routes": [
+	      {
+	   		"host": "foo",
+	   		"domain": "cfapps.neo.ondemand.com",
+	   		"path": ""     
+	      }
+	    ],
         "services": [],
         "env": {
           "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
@@ -127,9 +135,13 @@
             "staticfile_buildpack"
           ]
         },
-        "uris": [
-          "bar.cfapps.neo.ondemand.com"
-        ],
+	    "routes": [
+	      {
+	   		"host": "bar",
+	   		"domain": "cfapps.neo.ondemand.com",
+	   		"path": ""     
+	      }
+	    ],
         "services": [],
         "env": {
           "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",

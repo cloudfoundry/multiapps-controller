@@ -20,8 +20,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "di-core.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "di-core",
+        "path": ""
+      }
     ],
     "services": [
       "uaa",
@@ -38,14 +42,12 @@
       "XS_PATH": "/usr/sap/xs2runtime/bin/xs"
     },
     "moduleName": "di-core",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
@@ -80,8 +82,12 @@
         "http://di-core.sofd60245639a/system/builderbp.git/"
       ]
     },
-    "uris": [
-      "di-builder.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "di-builder",
+        "path": ""
+      }
     ],
     "services": [
       "uaa"
@@ -94,14 +100,12 @@
       "XS_PATH": "/usr/sap/xs2runtime/bin/xs"
     },
     "moduleName": "di-builder",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
@@ -134,8 +138,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "di-runner.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "di-runner",
+        "path": ""
+      }
     ],
     "services": [
       "uaa"
@@ -149,14 +157,12 @@
       "XS_PATH": "/usr/sap/xs2runtime/bin/xs"
     },
     "moduleName": "di-runner",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

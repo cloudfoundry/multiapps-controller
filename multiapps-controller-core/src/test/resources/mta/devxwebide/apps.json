@@ -20,8 +20,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "i027947-webide.cfapps.neo.ondemand.com"
+    "routes": [
+      {
+        "domain": "cfapps.neo.ondemand.com",
+        "host": "i027947-webide",
+        "path": ""
+      }
     ],
     "services": [
       "uaa"
@@ -31,14 +35,12 @@
       "destinations": "[{\"name\":\"sapui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"},{\"name\":\"che\",\"url\":\"http://i027947-di-core.cfapps.neo.ondemand.com\"}]"
     },
     "moduleName": "webide",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

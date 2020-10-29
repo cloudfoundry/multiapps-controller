@@ -45,9 +45,9 @@ class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
 
     @Override
     protected void performValidation(CloudApplication cloudApplication) {
-        if (!cloudApplication.getUris()
+        if (!cloudApplication.getRoutes()
                              .isEmpty()) {
-            verify(client).updateApplicationUris(cloudApplication.getName(), Collections.emptyList());
+            verify(client).updateApplicationRoutes(cloudApplication.getName(), Collections.emptySet());
         }
     }
 
@@ -86,7 +86,7 @@ class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
             protected ApplicationRoutesGetter getApplicationRoutesGetter(CloudControllerClient client) {
                 return applicationRoutesGetter;
             }
-            
+
         };
     }
 

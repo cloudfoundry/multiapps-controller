@@ -2,11 +2,13 @@ package org.cloudfoundry.multiapps.controller.core.helpers;
 
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
+import org.cloudfoundry.multiapps.controller.core.util.TestData;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -17,6 +19,7 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
@@ -41,11 +44,11 @@ class ClientHelperTest {
         clientHelper = new ClientHelper(client);
     }
 
-    @Test
-    void testDeleteRoute() {
-        String uri = "https://some-route.next.domain";
-        clientHelper.deleteRoute(uri);
-        ApplicationURI route = new ApplicationURI(uri);
+    @ParameterizedTest
+    @ValueSource(strings = { "https://some-route.next.domain", "host.domain/with/path", "host.domain" })
+    void testDeleteRoute(String uriString) {
+        CloudRouteSummary route = TestData.routeSummary(uriString);
+        clientHelper.deleteRoute(route);
         Mockito.verify(client)
                .deleteRoute(route.getHost(), route.getDomain(), route.getPath());
     }

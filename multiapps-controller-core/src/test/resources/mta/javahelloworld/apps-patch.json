@@ -20,8 +20,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "i027947-java-hello-world.cfapps.neo.ondemand.com"
+    "routes": [
+      {
+        "domain": "cfapps.neo.ondemand.com",
+        "host": "i027947-java-hello-world",
+        "path" : ""
+      }
     ],
     "services": [
       "uaa"
@@ -31,14 +35,12 @@
       "destinations": "[{\"name\":\"java\",\"url\":\"http://i027947-java-hello-world-backend.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     },
     "moduleName": "java-hello-world",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,

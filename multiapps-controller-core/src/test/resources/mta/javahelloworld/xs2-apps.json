@@ -20,8 +20,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "java-hello-world.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "java-hello-world",
+        "path" : ""
+      }
     ],
     "services": [
       "uaa"
@@ -31,14 +35,12 @@
       "destinations": "[{\"name\":\"java\",\"url\":\"http://java-hello-world-backend.sofd60245639a\"},{\"name\":\"ui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     },
     "moduleName": "java-hello-world",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
@@ -71,8 +73,12 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [
-      "java-hello-world-backend.sofd60245639a"
+    "routes": [
+      {
+        "domain": "sofd60245639a",
+        "host": "java-hello-world-backend",
+        "path" : ""
+      }
     ],
     "services": [
       "uaa",
@@ -83,14 +89,12 @@
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "java-hello-world-backend",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
@@ -123,7 +127,7 @@
     "staging": {
       "buildpacks": []
     },
-    "uris": [],
+    "routes": [],
     "services": [
       "java-hdi-container"
     ],
@@ -131,14 +135,12 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\",\"execute-app\":false}"
     },
     "moduleName": "java-hello-world-db",
-    "idleUris": [],
-    "bindingParameters": {},
+    "idleRoutes": [],
+    "bindingParameters": {
+      
+    },
     "tasks": [],
-    "routes": [],
     "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
