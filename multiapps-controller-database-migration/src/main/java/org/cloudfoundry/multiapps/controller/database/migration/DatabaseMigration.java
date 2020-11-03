@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.database.migration;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
 import javax.sql.DataSource;
 
@@ -34,13 +33,11 @@ public class DatabaseMigration {
                                                                                                        .sourceDataSource(sourceDataSource)
                                                                                                        .targetDataSource(targetDataSource)
                                                                                                        .build();
-        Arrays.asList("configuration_entry_sequence", "configuration_subscription_sequence")
-              .stream()
-              .forEach(sequenceMigrationExecutor::executeMigration);
+        sequenceMigrationExecutor.executeMigration("configuration_entry_sequence");
+        sequenceMigrationExecutor.executeMigration("configuration_subscription_sequence");
 
-        Arrays.asList("configuration_registry", "configuration_subscription")
-              .stream()
-              .forEach(tableMigrationExecutor::executeMigration);
+        tableMigrationExecutor.executeMigration("configuration_registry");
+        tableMigrationExecutor.executeMigration("configuration_subscription");
 
         LOGGER.info("Database migration completed.");
     }
