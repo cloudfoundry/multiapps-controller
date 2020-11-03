@@ -249,7 +249,7 @@ public class MtaArchiveBuilder {
 
     private static String readDeploymentDescriptor(Path deploymentDescriptorFile) {
         try {
-            return new String(Files.readAllBytes(deploymentDescriptorFile), StandardCharsets.UTF_8);
+            return Files.readString(deploymentDescriptorFile);
         } catch (IOException e) {
             throw new SLException(e, Messages.FAILED_TO_READ_DEPLOYMENT_DESCRIPTOR_0, deploymentDescriptorFile.toAbsolutePath());
         }

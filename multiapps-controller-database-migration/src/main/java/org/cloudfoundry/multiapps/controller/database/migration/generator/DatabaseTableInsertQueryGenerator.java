@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.database.migration.generator;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.database.migration.metadata.DatabaseTableColumnMetadata;
 import org.cloudfoundry.multiapps.controller.database.migration.metadata.DatabaseTableData;
@@ -19,7 +19,7 @@ public class DatabaseTableInsertQueryGenerator {
         return result.append("INSERT INTO ")
                      .append(tableMetadata.getTableName())
                      .append(OPEN_BRACKET)
-                     .append(generateInsertStatementTableColums(tableMetadata.getTableColumnsMetadata()))
+                     .append(generateInsertStatementTableColumns(tableMetadata.getTableColumnsMetadata()))
                      .append(CLOSING_BRACKET)
                      .append(" VALUES ")
                      .append(OPEN_BRACKET)
@@ -29,16 +29,16 @@ public class DatabaseTableInsertQueryGenerator {
                      .toString();
     }
 
-    private String generateInsertStatementTableColums(List<DatabaseTableColumnMetadata> tableColumnsMetadata) {
+    private String generateInsertStatementTableColumns(List<DatabaseTableColumnMetadata> tableColumnsMetadata) {
         return tableColumnsMetadata.stream()
                                    .map(DatabaseTableColumnMetadata::getColumnName)
                                    .collect(Collectors.joining(DEFAULT_STATEMENT_VALUES_SEPARATOR));
     }
 
     private String generateInsertStatementParameters(int numberOfParameters) {
-        return IntStream.rangeClosed(1, numberOfParameters)
-                        .mapToObj(integer -> DEFAULT_STATEMENT_PARAMETER)
-                        .collect(Collectors.joining(DEFAULT_STATEMENT_VALUES_SEPARATOR));
+        return Stream.generate(() -> DEFAULT_STATEMENT_PARAMETER)
+                     .limit(numberOfParameters)
+                     .collect(Collectors.joining(DEFAULT_STATEMENT_VALUES_SEPARATOR));
     }
 
 }

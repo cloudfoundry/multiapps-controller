@@ -14,15 +14,16 @@ public class ObjectStoreServiceInfoCreator {
         String plan = service.getPlan();
         Map<String, Object> credentials = service.getCredentials()
                                                  .getMap();
-        if (plan.equals(OBJECT_STORE_AWS_PLAN)) {
-            return createServiceInfoForAws(credentials);
-        } else if (plan.equals(OBJECT_STORE_AZURE_PLAN)) {
-            return createServiceInfoForAzure(credentials);
-        } else if (plan.equals(OBJECT_STORE_ALICLOUD_PLAN)) {
-            return createServiceInfoForAliCloud(credentials);
+        switch (plan) {
+            case OBJECT_STORE_AWS_PLAN:
+                return createServiceInfoForAws(credentials);
+            case OBJECT_STORE_AZURE_PLAN:
+                return createServiceInfoForAzure(credentials);
+            case OBJECT_STORE_ALICLOUD_PLAN:
+                return createServiceInfoForAliCloud(credentials);
+            default:
+                throw new IllegalStateException("Unsupported service plan for object store!");
         }
-        throw new IllegalStateException("Unsupported service plan for object store!");
-
     }
 
     private ObjectStoreServiceInfo createServiceInfoForAws(Map<String, Object> credentials) {

@@ -73,10 +73,7 @@ public class ObjectStoreFileStorage implements FileStorage {
                                              .collect(Collectors.toSet());
 
         return fileEntries.stream()
-                          .filter(fileEntry -> {
-                              String id = fileEntry.getId();
-                              return !existingFiles.contains(id);
-                          })
+                          .filter(fileEntry -> !existingFiles.contains(fileEntry.getId()))
                           .collect(Collectors.toList());
     }
 
