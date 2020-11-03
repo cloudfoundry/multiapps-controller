@@ -30,7 +30,7 @@ public class UpdateServicePlanStep extends ServiceStep {
         client.updateServicePlan(service.getName(), service.getPlan());
 
         getStepLogger().debug(Messages.SERVICE_PLAN_FOR_SERVICE_0_UPDATED, service.getName());
-        return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
+        return new MethodExecution<>(null, MethodExecution.ExecutionState.EXECUTING);
     }
 
     @Override
