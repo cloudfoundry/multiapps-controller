@@ -30,7 +30,7 @@ public class UpdateServiceParametersStep extends ServiceStep {
         client.updateServiceParameters(service.getName(), service.getCredentials());
 
         getStepLogger().debug(Messages.SERVICE_UPDATED, service.getName());
-        return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
+        return new MethodExecution<>(null, MethodExecution.ExecutionState.EXECUTING);
     }
 
     @Override
