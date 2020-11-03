@@ -30,7 +30,7 @@ public class UpdateServiceMetadataStep extends ServiceStep {
         client.updateServiceInstanceMetadata(serviceGuid, service.getV3Metadata());
 
         getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_DONE, service.getName());
-        return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
+        return new MethodExecution<>(null, MethodExecution.ExecutionState.EXECUTING);
     }
 
     @Override

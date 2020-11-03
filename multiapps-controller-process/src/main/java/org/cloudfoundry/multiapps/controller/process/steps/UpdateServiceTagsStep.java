@@ -30,7 +30,7 @@ public class UpdateServiceTagsStep extends ServiceStep {
         client.updateServiceTags(service.getName(), service.getTags());
 
         getStepLogger().debug(Messages.SERVICE_TAGS_UPDATED, service.getName());
-        return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
+        return new MethodExecution<>(null, MethodExecution.ExecutionState.EXECUTING);
     }
 
     @Override
