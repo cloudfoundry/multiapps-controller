@@ -87,7 +87,6 @@ public class AuthorizationChecker {
         // TODO a lot of cpu time is lost in the getControllerClient method
         CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName());
         UUID userGuid = UUID.fromString(userInfo.getId());
-        // TODO and some more cpu time in hasPermissions
         CloudSpace space = client.getSpace(orgName, spaceName);
         return hasPermissions(client, getSpaceWithUser(userGuid, space.getGuid()), readOnly);
     }
@@ -117,11 +116,11 @@ public class AuthorizationChecker {
             return true;
         }
         UserRole userRole = refreshUserRole(client, spaceWithUser);
-        if (hasActiveRole(userRole, UserRole.SpaceRole.SPACE_DEVELOPER)) {
+        if (userRole.hasSpaceRole(UserRole.SpaceRole.SPACE_DEVELOPER)) {
             return true;
         }
         return readOnly
-            && (hasActiveRole(userRole, UserRole.SpaceRole.SPACE_AUDITOR) || hasActiveRole(userRole, UserRole.SpaceRole.SPACE_MANAGER));
+            && (userRole.hasSpaceRole(UserRole.SpaceRole.SPACE_AUDITOR) || userRole.hasSpaceRole(UserRole.SpaceRole.SPACE_MANAGER));
     }
 
     private SpaceWithUser getSpaceWithUser(UUID userGuid, UUID spaceGuid) {
@@ -131,11 +130,7 @@ public class AuthorizationChecker {
     private boolean isSpaceDeveloperUsingCache(CloudControllerClient client, SpaceWithUser spaceWithUser) {
         UserRole userRole = userRolesCache.get(spaceWithUser, () -> client.getUserRoleBySpaceGuidAndUserGuid(spaceWithUser.getSpaceGuid(),
                                                                                                              spaceWithUser.getUserGuid()));
-        return hasActiveRole(userRole, UserRole.SpaceRole.SPACE_DEVELOPER);
-    }
-
-    private boolean hasActiveRole(UserRole userRole, UserRole.SpaceRole spaceRole) {
-        return userRole.isActive() && userRole.hasSpaceRole(spaceRole);
+        return userRole.hasSpaceRole(UserRole.SpaceRole.SPACE_DEVELOPER);
     }
 
     private UserRole refreshUserRole(CloudControllerClient client, SpaceWithUser spaceWithUser) {
