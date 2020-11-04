@@ -133,7 +133,7 @@ class AuthorizationCheckerTest {
     }
 
     private void setUpMocks(List<UserRole.SpaceRole> spaceRoles, Exception exception) {
-        UserRole userRole = getUserRole(true, spaceRoles);
+        UserRole userRole = getUserRole(spaceRoles);
         when(client.getUserRoleBySpaceGuidAndUserGuid(SPACE_ID, USER_ID)).thenReturn(userRole);
         setUpException(exception);
         when(clientProvider.getControllerClient(getUserInfo().getName())).thenReturn(client);
@@ -168,9 +168,8 @@ class AuthorizationCheckerTest {
                                   .build();
     }
 
-    private UserRole getUserRole(boolean isActive, List<UserRole.SpaceRole> spaceRoles) {
+    private UserRole getUserRole(List<UserRole.SpaceRole> spaceRoles) {
         return ImmutableUserRole.builder()
-                                .isActive(isActive)
                                 .spaceRoles(spaceRoles)
                                 .build();
     }
