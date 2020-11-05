@@ -21,7 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class RouteValidatorTest {
 
-    private static final RouteValidator validator = new RouteValidator();
+    private static final RouteValidator validator = new RouteValidator(null, false);
 
     static Stream<Arguments> getParameters() {
         return Stream.of(

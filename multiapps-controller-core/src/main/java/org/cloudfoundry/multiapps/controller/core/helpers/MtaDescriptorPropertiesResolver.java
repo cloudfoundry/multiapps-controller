@@ -14,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.ApplicationNameValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.DomainValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.HostValidator;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.IdleRoutesValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.ParameterValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.RestartOnEnvChangeValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesValidator;
@@ -40,8 +41,9 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     public List<ParameterValidator> getValidatorsList() {
-        return Arrays.asList(new HostValidator(), new DomainValidator(), new RoutesValidator(), new TasksValidator(),
-                             new VisibilityValidator(), new RestartOnEnvChangeValidator());
+        return List.of(new HostValidator(), new DomainValidator(), new RoutesValidator(context.getNamespace(), context.applyNamespace()),
+                       new IdleRoutesValidator(context.getNamespace(), context.applyNamespace()), new TasksValidator(),
+                       new VisibilityValidator(), new RestartOnEnvChangeValidator());
     }
 
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {
@@ -118,7 +120,7 @@ public class MtaDescriptorPropertiesResolver {
                 if (routeValue instanceof String) {
                     routeMap.put(SupportedParameters.ROUTE, replacePartsWithIdlePlaceholders((String) routeValue, noHostname));
                 }
-                
+
                 if (routeMap.containsKey(SupportedParameters.NO_HOSTNAME)) {
                     // remove no-hostname value, since it will be ignored for idle routes
                     routeMap.remove(SupportedParameters.NO_HOSTNAME);

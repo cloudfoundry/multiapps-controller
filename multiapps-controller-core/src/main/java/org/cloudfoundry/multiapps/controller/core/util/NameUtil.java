@@ -73,7 +73,7 @@ public class NameUtil {
         return name;
     }
 
-    protected static String computeNamespacedNameWithLength(String name, String namespace, boolean applyNamespace, int maxLength) {
+    public static String computeNamespacedNameWithLength(String name, String namespace, boolean applyNamespace, int maxLength) {
         String prefix = "";
         if (StringUtils.isNotEmpty(namespace) && applyNamespace) {
             prefix = getNamespacePrefix(namespace);

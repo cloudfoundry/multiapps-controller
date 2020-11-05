@@ -14,7 +14,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class ParametersValidatorHelperTest {
 
-    private final List<ParameterValidator> validators = List.of(new HostValidator(), new DomainValidator(), new RoutesValidator(),
+    private final List<ParameterValidator> validators = List.of(new HostValidator(null, false), new DomainValidator(),
+                                                                new RoutesValidator(null, false),
                                                                 new ApplicationNameValidator("namespace", true));
     private final ParametersValidatorHelper validatorHelper = new ParametersValidatorHelper(validators, false);
     private final Module container = Module.createV2();

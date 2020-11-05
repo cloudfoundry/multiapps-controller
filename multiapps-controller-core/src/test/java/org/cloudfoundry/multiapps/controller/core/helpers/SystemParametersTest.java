@@ -9,14 +9,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.HostValidator;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -44,6 +50,7 @@ class SystemParametersTest {
     private static final String DESCRIPTOR_DEFINED_VALUE = "descriptorDefinedValue";
 
     private static final String XS_TYPE = "CF";
+    private static final String NAMESPACE = "productive";
 
     @BeforeEach
     void initialize() throws Exception {
@@ -54,18 +61,10 @@ class SystemParametersTest {
                .thenReturn(TIMESTAMP);
     }
 
-    @Test
-    void testGeneralParametersWithoutReserveTemporaryRoutes() throws Exception {
-        testGeneralParameters(false);
-    }
-
-    @Test
-    void testGeneralParametersWithReserveTemporaryRoutes() throws Exception {
-        testGeneralParameters(true);
-    }
-
-    private void testGeneralParameters(Boolean reserveTemporaryRoutes) throws Exception {
-        SystemParameters testedClass = createSystemParameters(reserveTemporaryRoutes);
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    void testGeneralParameters(boolean reserveTemporaryRoutes) throws Exception {
+        SystemParameters testedClass = createSystemParameters(reserveTemporaryRoutes, false);
         DeploymentDescriptor v2Descriptor = DeploymentDescriptor.createV3();
         testedClass.injectInto(v2Descriptor);
         verifyGeneralParameters(v2Descriptor.getParameters(), reserveTemporaryRoutes);
@@ -73,7 +72,7 @@ class SystemParametersTest {
 
     @Test
     void testDescriptorOverridesDefaults() throws Exception {
-        SystemParameters testedClass = createSystemParameters(false);
+        SystemParameters testedClass = createSystemParameters(false, false);
 
         List<String> descriptorParameterFields = List.of(SupportedParameters.ORGANIZATION_NAME, SupportedParameters.SPACE_NAME,
                                                          SupportedParameters.USER, SupportedParameters.DEFAULT_DOMAIN,
@@ -87,18 +86,22 @@ class SystemParametersTest {
         assertCustomValueMap(descriptorParameterFields, descriptor.getParameters());
     }
 
-    @Test
-    void testModuleParametersWithoutReserveTemporaryRoutes() throws Exception {
-        testModuleParameters(false);
+    static Stream<Arguments> testModuleParameters() {
+        return Stream.of(
+                         // [1] Do not reserve temporary routes and does not apply namespace
+                         Arguments.of(false, false),
+                         // [2] Reserve temporary routes and does not apply namespace
+                         Arguments.of(true, false),
+                         // [3] Do not reserve temporary routes but use namespace
+                         Arguments.of(false, true),
+                         // [4] Reserve temporary routes and apply namespace
+                         Arguments.of(true, true));
     }
 
-    @Test
-    void testModuleParametersWithReserveTemporaryRoutes() throws Exception {
-        testModuleParameters(true);
-    }
-
-    private void testModuleParameters(boolean reserveTemporaryRoutes) throws Exception {
-        SystemParameters testedClass = createSystemParameters(reserveTemporaryRoutes);
+    @ParameterizedTest
+    @MethodSource
+    void testModuleParameters(boolean reserveTemporaryRoutes, boolean applyNamespace) throws Exception {
+        SystemParameters testedClass = createSystemParameters(reserveTemporaryRoutes, applyNamespace);
         Module moduleOne = Module.createV3()
                                  .setName("first");
         Module moduleTwo = Module.createV3()
@@ -109,13 +112,13 @@ class SystemParametersTest {
         testedClass.injectInto(descriptor);
 
         for (Module module : descriptor.getModules()) {
-            verifyModuleParameters(module.getName(), module.getParameters(), reserveTemporaryRoutes);
+            verifyModuleParameters(module.getName(), module.getParameters(), reserveTemporaryRoutes, applyNamespace);
         }
     }
 
     @Test
     void testModuleParametersOverrideSystemParameters() throws Exception {
-        SystemParameters testedClass = createSystemParameters(false);
+        SystemParameters testedClass = createSystemParameters(false, false);
         List<String> fields = List.of(SupportedParameters.PROTOCOL, SupportedParameters.TIMESTAMP, SupportedParameters.INSTANCES,
                                       SupportedParameters.APP_NAME, SupportedParameters.IDLE_DOMAIN, SupportedParameters.DOMAIN);
         Module moduleWithParameters = Module.createV3()
@@ -132,7 +135,7 @@ class SystemParametersTest {
 
     @Test
     void testResourceParameters() throws Exception {
-        SystemParameters testedClass = createSystemParameters(false);
+        SystemParameters testedClass = createSystemParameters(false, false);
         Resource resourceOne = Resource.createV3()
                                        .setName("first");
         Resource resourceTwo = Resource.createV3()
@@ -157,7 +160,7 @@ class SystemParametersTest {
 
     @Test
     void testResourceParametersOverrideSystemParameters() throws Exception {
-        SystemParameters testedClass = createSystemParameters(false);
+        SystemParameters testedClass = createSystemParameters(false, false);
         List<String> fields = List.of(SupportedParameters.SERVICE_NAME, SupportedParameters.DEFAULT_CONTAINER_NAME,
                                       SupportedParameters.DEFAULT_XS_APP_NAME);
         Resource resourceWithParameters = Resource.createV3()
@@ -183,7 +186,8 @@ class SystemParametersTest {
         }
     }
 
-    private void verifyModuleParameters(String moduleName, Map<String, Object> moduleParameters, boolean reserveTemporaryRoutes) {
+    private void verifyModuleParameters(String moduleName, Map<String, Object> moduleParameters, boolean reserveTemporaryRoutes,
+                                        boolean applyNamespace) {
         assertFalse(moduleParameters.containsKey(SupportedParameters.DEFAULT_DOMAIN));
         assertEquals("${default-domain}", moduleParameters.get(SupportedParameters.DOMAIN));
 
@@ -194,6 +198,7 @@ class SystemParametersTest {
             assertFalse(moduleParameters.containsKey(SupportedParameters.IDLE_DOMAIN));
         }
 
+        assertEquals(applyNamespace, ((String) moduleParameters.get(SupportedParameters.DEFAULT_HOST)).startsWith(NAMESPACE));
         assertEquals(moduleName, moduleParameters.get(SupportedParameters.DEFAULT_APP_NAME));
         assertEquals("${default-app-name}", moduleParameters.get(SupportedParameters.APP_NAME));
         assertEquals(1, moduleParameters.get(SupportedParameters.DEFAULT_INSTANCES));
@@ -223,7 +228,7 @@ class SystemParametersTest {
         assertEquals(DEPLOY_SERVICE_URL, descriptorParameters.get(SupportedParameters.DEPLOY_SERVICE_URL));
     }
 
-    private SystemParameters createSystemParameters(boolean reserveTemporaryRoutes) throws MalformedURLException {
+    private SystemParameters createSystemParameters(boolean reserveTemporaryRoutes, boolean applyNamespace) throws MalformedURLException {
         return new SystemParameters.Builder().authorizationEndpoint(AUTHORIZATION_ENDPOINT)
                                              .controllerUrl(new URL(CONTROLLER_URL))
                                              .credentialsGenerator(credentialsGenerator)
@@ -236,6 +241,7 @@ class SystemParametersTest {
                                              .timestampSupplier(timestampSupplier)
                                              .reserveTemporaryRoutes(reserveTemporaryRoutes)
                                              .user(USER_NAME)
+                                             .hostValidator(new HostValidator(applyNamespace ? NAMESPACE : null, applyNamespace))
                                              .build();
     }
 

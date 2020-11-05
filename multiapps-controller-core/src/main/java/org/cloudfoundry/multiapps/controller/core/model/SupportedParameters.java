@@ -124,7 +124,7 @@ public class SupportedParameters {
     public static final String DEFAULT_XS_APP_NAME = "default-xsappname";
     public static final String TYPE = "type";
     public static final String SKIP_SERVICE_UPDATES = "skip-service-updates";
-    
+
     // Configuration reference (new syntax):
     public static final String PROVIDER_NID = "provider-nid";
     public static final String VERSION = "version";
