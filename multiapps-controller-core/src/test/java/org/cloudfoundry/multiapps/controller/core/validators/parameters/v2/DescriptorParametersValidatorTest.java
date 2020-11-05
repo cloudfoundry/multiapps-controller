@@ -22,7 +22,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class DescriptorParametersValidatorTest {
 
     protected static final List<ParameterValidator> PARAMETER_VALIDATORS = List.of(new HostValidator(), new DomainValidator(),
-                                                                                   new TestValidator(), new RouteValidator());
+                                                                                   new TestValidator(), new RouteValidator(null, false));
 
     private final Tester tester = Tester.forClass(getClass());
 

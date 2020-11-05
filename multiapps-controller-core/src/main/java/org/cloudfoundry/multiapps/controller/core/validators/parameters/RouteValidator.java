@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.validators.parameters;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +16,8 @@ public class RouteValidator implements ParameterValidator {
 
     private final List<ParameterValidator> validators;
 
-    public RouteValidator() {
-        this.validators = Arrays.asList(new HostValidator(), new DomainValidator());
+    public RouteValidator(String namespace, boolean applyNamespaceGlobal) {
+        this.validators = List.of(new HostValidator(namespace, applyNamespaceGlobal), new DomainValidator());
     }
 
     @Override
@@ -32,7 +31,7 @@ public class RouteValidator implements ParameterValidator {
         ApplicationURI uri = new ApplicationURI(routeString, noHostname);
         try {
             for (ParameterValidator validator : validators) {
-                correctUriPartIfPresent(uri, validator);
+                correctUriPartIfPresent(uri, validator, context);
             }
         } catch (SLException e) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_ROUTE_NESTED_EXCEPTION, route, e.getMessage());
@@ -47,7 +46,7 @@ public class RouteValidator implements ParameterValidator {
         return correctedRoute;
     }
 
-    protected void correctUriPartIfPresent(ApplicationURI uri, ParameterValidator partValidator) {
+    protected void correctUriPartIfPresent(ApplicationURI uri, ParameterValidator partValidator, Map<String, Object> context) {
         String uriPartName = partValidator.getParameterName();
         Object part = uri.getURIPart(uriPartName);
 
@@ -55,8 +54,8 @@ public class RouteValidator implements ParameterValidator {
             return;
         }
 
-        if (partValidator.canCorrect() && !partValidator.isValid(part, null)) {
-            String correctedPart = (String) partValidator.attemptToCorrect(part, null);
+        if (partValidator.canCorrect() && !partValidator.isValid(part, context)) {
+            String correctedPart = (String) partValidator.attemptToCorrect(part, context);
             uri.setURIPart(uriPartName, correctedPart);
         }
     }
@@ -71,14 +70,14 @@ public class RouteValidator implements ParameterValidator {
         if (routeString.isEmpty()) {
             return false;
         }
-        
+
         boolean noHostname = MapUtil.parseBooleanFlag(context, SupportedParameters.NO_HOSTNAME, false);
 
         ApplicationURI uri = new ApplicationURI(routeString, noHostname);
         Map<String, Object> uriParts = uri.getURIParts();
 
         for (ParameterValidator validator : validators) {
-            if (!partIsValid(validator, uriParts)) {
+            if (!partIsValid(validator, uriParts, context)) {
                 return false;
             }
         }
@@ -90,8 +89,9 @@ public class RouteValidator implements ParameterValidator {
         return true;
     }
 
-    protected boolean partIsValid(ParameterValidator validator, Map<String, Object> uriParts) {
-        return !uriParts.containsKey(validator.getParameterName()) || validator.isValid(uriParts.get(validator.getParameterName()), null);
+    protected boolean partIsValid(ParameterValidator validator, Map<String, Object> uriParts, Map<String, Object> context) {
+        return !uriParts.containsKey(validator.getParameterName())
+            || validator.isValid(uriParts.get(validator.getParameterName()), context);
     }
 
     @Override

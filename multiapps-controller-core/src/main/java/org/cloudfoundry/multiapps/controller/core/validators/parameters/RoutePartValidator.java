@@ -15,17 +15,20 @@ public abstract class RoutePartValidator implements ParameterValidator {
             throw new SLException(getErrorMessage(), routePart);
         }
 
-        String result = (String) routePart;
-        result = NameUtil.getNameWithProperLength(result, getRoutePartMaxLength());
-        result = result.toLowerCase(Locale.US);
+        String result = ((String) routePart).toLowerCase(Locale.US);
         result = result.replaceAll(getRoutePartIllegalCharacters(), "-");
         result = result.replaceAll("^(-*)", "");
         result = result.replaceAll("(-*)$", "");
+        result = modifyAndShortenRoutePart(result, context);
 
         if (!isValid(result, context)) {
             throw new SLException(getErrorMessage(), routePart);
         }
         return result;
+    }
+
+    protected String modifyAndShortenRoutePart(String routePart, Map<String, Object> context) {
+        return NameUtil.getNameWithProperLength(routePart, getRoutePartMaxLength());
     }
 
     @Override

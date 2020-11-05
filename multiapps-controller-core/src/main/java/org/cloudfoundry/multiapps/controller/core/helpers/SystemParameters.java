@@ -24,8 +24,6 @@ public class SystemParameters {
     public static final String DEFAULT_IDLE_URL = "${protocol}://${default-idle-uri}";
     public static final String DEFAULT_URL = "${protocol}://${default-uri}";
 
-    private static final HostValidator HOST_VALIDATOR = new HostValidator();
-
     private final CredentialsGenerator credentialsGenerator;
     private final String targetName;
     private final String organizationName;
@@ -39,6 +37,7 @@ public class SystemParameters {
     private final String deployServiceUrl;
     private final boolean reserveTemporaryRoutes;
     private final Supplier<String> timestampSupplier;
+    private final HostValidator hostValidator;
 
     public SystemParameters(Builder builder) {
         this.targetName = builder.organizationName + " " + builder.spaceName;
@@ -54,6 +53,7 @@ public class SystemParameters {
         this.credentialsGenerator = builder.credentialsGenerator;
         this.reserveTemporaryRoutes = builder.reserveTemporaryRoutes;
         this.timestampSupplier = builder.timestampSupplier;
+        this.hostValidator = builder.hostValidator;
     }
 
     public void injectInto(DeploymentDescriptor descriptor) {
@@ -180,8 +180,8 @@ public class SystemParameters {
     private String getDefaultHost(String moduleName) {
         String host = (targetName + " " + moduleName).replaceAll("\\s", "-")
                                                      .toLowerCase();
-        if (!HOST_VALIDATOR.isValid(host, null)) {
-            return HOST_VALIDATOR.attemptToCorrect(host, null);
+        if (!hostValidator.isValid(host, Collections.emptyMap())) {
+            return hostValidator.attemptToCorrect(host, Collections.emptyMap());
         }
         return host;
     }
@@ -208,6 +208,7 @@ public class SystemParameters {
         private String deployServiceUrl;
         private boolean reserveTemporaryRoutes;
         private Supplier<String> timestampSupplier;
+        private HostValidator hostValidator;
 
         public Builder credentialsGenerator(CredentialsGenerator credentialsGenerator) {
             this.credentialsGenerator = credentialsGenerator;
@@ -266,6 +267,11 @@ public class SystemParameters {
 
         public Builder timestampSupplier(Supplier<String> timestampSupplier) {
             this.timestampSupplier = timestampSupplier;
+            return this;
+        }
+
+        public Builder hostValidator(HostValidator hostValidator) {
+            this.hostValidator = hostValidator;
             return this;
         }
 

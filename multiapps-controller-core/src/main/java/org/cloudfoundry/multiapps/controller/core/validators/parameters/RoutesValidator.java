@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -17,15 +18,15 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 
 public class RoutesValidator implements ParameterValidator {
 
-    private final Map<String, ParameterValidator> validators;
-    private final Set<String> supportedParamsWithoutValidators;
+    protected Map<String, ParameterValidator> validators;
 
-    public RoutesValidator() {
-        this.validators = new HashMap<>();
-        ParameterValidator routeValidator = new RouteValidator();
-        this.validators.put(routeValidator.getParameterName(), routeValidator);
+    public RoutesValidator(String namespace, boolean applyNamespaceGlobal) {
+        initRoutesValidators(namespace, applyNamespaceGlobal);
+    }
 
-        this.supportedParamsWithoutValidators = Set.of(SupportedParameters.NO_HOSTNAME);
+    protected void initRoutesValidators(String namespace, boolean applyNamespaceGlobal) {
+        ParameterValidator routeValidator = new RouteValidator(namespace, applyNamespaceGlobal);
+        this.validators = Map.of(routeValidator.getParameterName(), routeValidator);
     }
 
     @Override
@@ -37,9 +38,11 @@ public class RoutesValidator implements ParameterValidator {
         }
 
         for (Map<String, Object> route : routesList) {
+            Map<String, Object> updatedAllRouteElements = getUpdatedAllRouteElements(route, context);
             boolean hasUnsupportedOrInvalidElement = route.entrySet()
                                                           .stream()
-                                                          .anyMatch(routeElement -> isElementUnsupportedOrInvalid(routeElement, route));
+                                                          .anyMatch(routeElement -> isElementUnsupportedOrInvalid(routeElement,
+                                                                                                                  updatedAllRouteElements));
 
             if (hasUnsupportedOrInvalidElement) {
                 return false;
@@ -50,7 +53,7 @@ public class RoutesValidator implements ParameterValidator {
     }
 
     private boolean isElementUnsupportedOrInvalid(Entry<String, Object> routeElement, final Map<String, Object> allRouteElements) {
-        if (supportedParamsWithoutValidators.contains(routeElement.getKey())) {
+        if (getRelatedParameterNames().contains(routeElement.getKey())) {
             return false;
         }
 
@@ -71,22 +74,42 @@ public class RoutesValidator implements ParameterValidator {
         }
 
         return routesList.stream()
+                         .map(originalElement -> getUpdatedAllRouteElements(originalElement, context))
                          .map(this::attemptToCorrectParameterMap)
                          .collect(Collectors.toList());
     }
 
-    private Map<String, Object> attemptToCorrectParameterMap(Map<String, Object> originalElem) {
+    private Map<String, Object> getUpdatedAllRouteElements(Map<String, Object> routeElement, Map<String, Object> context) {
+        Map<String, Object> updatedAllRouteElements = new HashMap<>(routeElement);
+        Set<String> relatedParameters = getRelatedParameterNames();
+        Map<String, Object> globalParametersValues = relatedParameters.stream()
+                                                                      .filter(relatedParameter -> isGlobalParameterValueNotOverridenInRouteElement(relatedParameter,
+                                                                                                                                                   routeElement,
+                                                                                                                                                   context))
+                                                                      .collect(Collectors.toMap(Function.identity(), context::get));
+        updatedAllRouteElements.putAll(globalParametersValues);
+        return updatedAllRouteElements;
+    }
+
+    private boolean isGlobalParameterValueNotOverridenInRouteElement(String relatedParameter, Map<String, Object> routeElement,
+                                                                     Map<String, Object> context) {
+        return !routeElement.containsKey(relatedParameter) && context.containsKey(relatedParameter);
+    }
+
+    private Map<String, Object> attemptToCorrectParameterMap(Map<String, Object> originalElement) {
         Map<String, Object> result = new TreeMap<>();
-        for (Entry<String, Object> entry : originalElem.entrySet()) {
+        Set<String> supportedParamsWithoutValidators = getRelatedParameterNames();
+        for (Entry<String, Object> entry : originalElement.entrySet()) {
             if (supportedParamsWithoutValidators.contains(entry.getKey())) {
                 result.put(entry.getKey(), entry.getValue());
             }
 
             if (validators.containsKey(entry.getKey())) {
-                Object value = attemptToCorrectParameter(validators.get(entry.getKey()), entry.getValue(), originalElem);
+                Object value = attemptToCorrectParameter(validators.get(entry.getKey()), entry.getValue(), originalElement);
                 result.put(entry.getKey(), value);
             }
         }
+
         return result;
     }
 
@@ -136,6 +159,11 @@ public class RoutesValidator implements ParameterValidator {
     @Override
     public boolean canCorrect() {
         return true;
+    }
+
+    @Override
+    public Set<String> getRelatedParameterNames() {
+        return Set.of(SupportedParameters.NO_HOSTNAME, SupportedParameters.APPLY_NAMESPACE);
     }
 
 }

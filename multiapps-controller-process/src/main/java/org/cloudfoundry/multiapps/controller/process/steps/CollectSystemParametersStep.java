@@ -14,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.core.helpers.CredentialsGenerator;
 import org.cloudfoundry.multiapps.controller.core.helpers.SystemParameters;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.HostValidator;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ReadOnlyParametersChecker;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -95,6 +96,8 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         String authorizationEndpoint = client.getCloudInfo()
                                              .getAuthorizationEndpoint();
         String user = context.getVariable(Variables.USER);
+        String namespace = context.getVariable(Variables.MTA_NAMESPACE);
+        boolean applyNamespace = context.getVariable(Variables.APPLY_NAMESPACE);
 
         URL controllerUrl = configuration.getControllerUrl();
         String deployServiceUrl = configuration.getDeployServiceUrl();
@@ -111,6 +114,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                                              .reserveTemporaryRoutes(reserveTemporaryRoutes)
                                              .credentialsGenerator(credentialsGeneratorSupplier.get())
                                              .timestampSupplier(timestampSupplier)
+                                             .hostValidator(new HostValidator(namespace, applyNamespace))
                                              .build();
     }
 
