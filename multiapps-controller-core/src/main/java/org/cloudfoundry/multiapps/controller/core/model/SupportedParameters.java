@@ -79,6 +79,7 @@ public class SupportedParameters {
     public static final String USER_PROVIDED_ENV = "user-provided";
     public static final String DOCKER = "docker";
     public static final String TIMESTAMP = "timestamp";
+    public static final String ENABLE_PARALLEL_SERVICE_BINDINGS = "enable-parallel-service-bindings";
 
     public static final String EXECUTE_APP = "execute-app";
     public static final String SUCCESS_MARKER = "success-marker";

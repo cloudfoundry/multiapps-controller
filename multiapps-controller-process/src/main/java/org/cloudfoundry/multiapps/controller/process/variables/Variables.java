@@ -557,5 +557,9 @@ public interface Variables {
                                                                                           .type(new TypeReference<Map<String, Object>>() {
                                                                                           })
                                                                                           .build();
+    Variable<Boolean> SHOULD_UNBIND_BIND_SERVICES_IN_PARALLEL = ImmutableSimpleVariable.<Boolean> builder()
+                                                                                       .name("shouldUnbindBindServicesInParallel")
+                                                                                       .defaultValue(true)
+                                                                                       .build();
 
 }
