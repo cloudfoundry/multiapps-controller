@@ -12,7 +12,9 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -35,7 +37,6 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         Module module = context.getVariable(Variables.MODULE_TO_DEPLOY);
         getStepLogger().debug(Messages.BUILDING_CLOUD_APP_MODEL, module.getName());
-
         Module applicationModule = findModuleInDeploymentDescriptor(context, module.getName());
         context.setVariable(Variables.MODULE_TO_DEPLOY, applicationModule);
         CloudApplicationExtended modifiedApp = StepsUtil.getApplicationCloudModelBuilder(context)
@@ -45,10 +46,9 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
                                                        .routes(getApplicationRoutes(context, modifiedApp))
                                                        .build();
         context.setVariable(Variables.APP_TO_PROCESS, modifiedApp);
-
+        determineBindingUnbindingServicesStrategy(context, module);
         buildConfigurationEntries(context, modifiedApp);
         context.setVariable(Variables.TASKS_TO_EXECUTE, modifiedApp.getTasks());
-
         getStepLogger().debug(Messages.CLOUD_APP_MODEL_BUILT);
         return StepPhase.DONE;
     }
@@ -60,9 +60,14 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
                              .findModule(deploymentDescriptor, module);
     }
 
-    @Override
-    protected String getStepErrorMessage(ProcessContext context) {
-        return Messages.ERROR_BUILDING_CLOUD_APP_MODEL;
+    private void determineBindingUnbindingServicesStrategy(ProcessContext context, Module module) {
+        boolean parallelBindingUnbindingEnabled = (boolean) module.getParameters()
+                                                                  .getOrDefault(SupportedParameters.ENABLE_PARALLEL_SERVICE_BINDINGS, true);
+        context.setVariable(Variables.SHOULD_UNBIND_BIND_SERVICES_IN_PARALLEL, parallelBindingUnbindingEnabled);
+        if (!parallelBindingUnbindingEnabled) {
+            getStepLogger().warn(Messages.SERVICES_WILL_BE_BOUND_UNBOUND_SEQUENTIALLY_TO_APPLICATION_0,
+                                 NameUtil.getApplicationName(module));
+        }
     }
 
     private Set<CloudRouteSummary> getApplicationRoutes(ProcessContext context, CloudApplicationExtended modifiedApp) {
@@ -96,6 +101,11 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         getStepLogger().infoWithoutProgressMessage("Building configuration entries for org {0}, space {1}, spaceId {2} and namespace {3}!",
                                                    organizationName, spaceName, spaceGuid, namespace);
         return new ConfigurationEntriesCloudModelBuilder(organizationName, spaceName, spaceGuid, namespace);
+    }
+
+    @Override
+    protected String getStepErrorMessage(ProcessContext context) {
+        return Messages.ERROR_BUILDING_CLOUD_APP_MODEL;
     }
 
 }
