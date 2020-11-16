@@ -82,14 +82,9 @@ public class FileSystemFileStorage implements FileStorage {
     }
 
     @Override
-    public void deleteFilesBySpace(String space) throws FileStorageException {
-        File spaceDirectory = getSpaceDirectory(space).toFile();
-        try {
-            if (spaceDirectory.exists()) {
-                FileUtils.deleteDirectory(spaceDirectory);
-            }
-        } catch (IOException e) {
-            throw new FileStorageException(MessageFormat.format(Messages.ERROR_DELETING_DIRECTORY, spaceDirectory), e);
+    public void deleteFilesBySpaces(List<String> spaces) throws FileStorageException {
+        for (String space : spaces) {
+            deleteFilesBySpace(space);
         }
     }
 
@@ -185,6 +180,17 @@ public class FileSystemFileStorage implements FileStorage {
 
     private Path getFilesPerSpaceDirectory(String space) {
         return Paths.get(storagePath, space, DEFAULT_FILES_STORAGE_PATH);
+    }
+
+    private void deleteFilesBySpace(String space) throws FileStorageException {
+        File spaceDirectory = getSpaceDirectory(space).toFile();
+        try {
+            if (spaceDirectory.exists()) {
+                FileUtils.deleteDirectory(spaceDirectory);
+            }
+        } catch (IOException e) {
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_DELETING_DIRECTORY, spaceDirectory), e);
+        }
     }
 
 }

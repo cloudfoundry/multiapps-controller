@@ -83,8 +83,8 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     @Override
-    public void deleteFilesBySpace(String space) {
-        removeBlobsByFilter(blob -> filterBySpace(blob, space));
+    public void deleteFilesBySpaces(List<String> spaces) {
+        removeBlobsByFilter(blob -> filterBySpaces(blob, spaces));
     }
 
     @Override
@@ -207,13 +207,13 @@ public class ObjectStoreFileStorage implements FileStorage {
         }
     }
 
-    private boolean filterBySpace(StorageMetadata blobMetadata, String space) {
+    private boolean filterBySpaces(StorageMetadata blobMetadata, List<String> spaces) {
         Map<String, String> userMetadata = blobMetadata.getUserMetadata();
         if (CollectionUtils.isEmpty(userMetadata)) {
             return false;
         }
         String spaceParameter = userMetadata.get(Constants.FILE_ENTRY_SPACE.toLowerCase());
-        return space.equals(spaceParameter);
+        return spaces.contains(spaceParameter);
     }
 
     private boolean filterBySpaceAndNamespace(StorageMetadata blobMetadata, String space, String namespace) {

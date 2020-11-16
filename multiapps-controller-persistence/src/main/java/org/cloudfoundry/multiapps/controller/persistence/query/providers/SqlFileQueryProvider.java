@@ -226,14 +226,18 @@ public abstract class SqlFileQueryProvider {
 
     }
 
-    public SqlQuery<Integer> getDeleteBySpaceQuery(String space) {
+    public SqlQuery<Integer> getDeleteBySpacesQuery(List<String> spaces) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
                 statement = connection.prepareStatement(getQuery(DELETE_FILES_BY_SPACE));
-                statement.setString(1, space);
-                int deletedFiles = statement.executeUpdate();
-                logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACE_1, deletedFiles, space));
+                addSpacesAsBatches(statement, spaces);
+                int[] batchResults = statement.executeBatch();
+                int deletedFiles = 0;
+                for (int batchResult : batchResults) {
+                    deletedFiles += batchResult;
+                }
+                logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACES_1, deletedFiles, spaces));
                 return deletedFiles;
             } finally {
                 JdbcUtil.closeQuietly(statement);
@@ -390,6 +394,13 @@ public abstract class SqlFileQueryProvider {
         for (FileEntry entry : entries) {
             statement.setString(1, entry.getId());
             statement.setString(2, entry.getSpace());
+            statement.addBatch();
+        }
+    }
+
+    private void addSpacesAsBatches(PreparedStatement statement, List<String> spaces) throws SQLException {
+        for (String space : spaces) {
+            statement.setString(1, space);
             statement.addBatch();
         }
     }

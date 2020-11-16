@@ -94,7 +94,7 @@ class FileServiceFileStorageTest {
         FileEntry secondFile = addFile(SECOND_FILE_TEST_LOCATION);
         FileEntry fileInOtherSpace = addFile(TEST_FILE_LOCATION, "otherspace", namespace);
 
-        fileStorage.deleteFilesBySpace(spaceId);
+        fileStorage.deleteFilesBySpaces(List.of(spaceId));
         assertFileExists(false, firstFile);
         assertFileExists(false, secondFile);
         assertFileExists(true, fileInOtherSpace);
