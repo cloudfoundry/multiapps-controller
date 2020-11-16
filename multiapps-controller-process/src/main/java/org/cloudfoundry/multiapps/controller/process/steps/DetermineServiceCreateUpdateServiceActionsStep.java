@@ -48,8 +48,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         CloudControllerClient client = context.getControllerClient();
         CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
 
-        context.getStepLogger()
-               .info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
+        getStepLogger().info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
         CloudServiceInstance existingService = client.getServiceInstance(serviceToProcess.getName(), false);
 
         setServiceParameters(context, serviceToProcess);

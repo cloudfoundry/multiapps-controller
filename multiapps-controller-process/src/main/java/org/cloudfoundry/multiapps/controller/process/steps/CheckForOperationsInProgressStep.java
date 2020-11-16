@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -30,15 +30,13 @@ import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
 
     @Inject
-    private ServiceOperationGetter serviceOperationGetter;
+    protected ServiceOperationGetter serviceOperationGetter;
     @Inject
     private ServiceProgressReporter serviceProgressReporter;
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
-        List<CloudServiceInstanceExtended> servicesToProcess = getServicesToProcess(context);
-
-        List<CloudServiceInstanceExtended> existingServices = getExistingServices(context.getControllerClient(), servicesToProcess);
+        Set<CloudServiceInstanceExtended> existingServices = getExistingServicesToProcess(context);
         if (existingServices.isEmpty()) {
             return StepPhase.DONE;
         }
@@ -60,20 +58,18 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
         return StepPhase.POLL;
     }
 
-    protected List<CloudServiceInstanceExtended> getServicesToProcess(ProcessContext context) {
-        return Collections.singletonList(context.getVariable(Variables.SERVICE_TO_PROCESS));
+    protected Set<CloudServiceInstanceExtended> getExistingServicesToProcess(ProcessContext context) {
+        CloudControllerClient client = context.getControllerClient();
+        CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
+        CloudServiceInstanceExtended existingServiceInstance = getExistingService(client, serviceToProcess);
+        if (existingServiceInstance == null) {
+            return Collections.emptySet();
+        }
+        return Set.of(existingServiceInstance);
     }
 
-    private List<CloudServiceInstanceExtended> getExistingServices(CloudControllerClient cloudControllerClient,
-                                                                   List<CloudServiceInstanceExtended> servicesToProcess) {
-        return servicesToProcess.parallelStream()
-                                .map(service -> getExistingService(cloudControllerClient, service))
-                                .filter(Objects::nonNull)
-                                .collect(Collectors.toList());
-    }
-
-    private CloudServiceInstanceExtended getExistingService(CloudControllerClient cloudControllerClient,
-                                                            CloudServiceInstanceExtended service) {
+    protected CloudServiceInstanceExtended getExistingService(CloudControllerClient cloudControllerClient,
+                                                              CloudServiceInstanceExtended service) {
         CloudServiceInstance existingService = cloudControllerClient.getServiceInstance(service.getName(), false);
         if (existingService != null) {
             return ImmutableCloudServiceInstanceExtended.builder()
@@ -84,11 +80,12 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
         return null;
     }
 
-    private Map<CloudServiceInstanceExtended, ServiceOperation>
-            getServicesInProgressState(ProcessContext context, List<CloudServiceInstanceExtended> existingServices) {
+    protected Map<CloudServiceInstanceExtended, ServiceOperation>
+            getServicesInProgressState(ProcessContext context, Set<CloudServiceInstanceExtended> existingServices) {
         Map<CloudServiceInstanceExtended, ServiceOperation> servicesOperation = new HashMap<>();
+        CloudControllerClient client = context.getControllerClient();
         for (CloudServiceInstanceExtended existingService : existingServices) {
-            ServiceOperation lastServiceOperation = serviceOperationGetter.getLastServiceOperation(context, existingService);
+            ServiceOperation lastServiceOperation = serviceOperationGetter.getLastServiceOperation(client, existingService);
             if (isServiceOperationInProgress(lastServiceOperation)) {
                 servicesOperation.put(existingService, lastServiceOperation);
             }
@@ -96,7 +93,7 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
         return servicesOperation;
     }
 
-    private boolean isServiceOperationInProgress(ServiceOperation lastServiceOperation) {
+    protected boolean isServiceOperationInProgress(ServiceOperation lastServiceOperation) {
         return lastServiceOperation != null && lastServiceOperation.getState() == ServiceOperation.State.IN_PROGRESS;
     }
 
