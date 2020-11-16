@@ -75,7 +75,9 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
         boolean contentChanged = detectApplicationFileDigestChanges(context, cloudApp, newApplicationDigest);
         if (contentChanged) {
-            return proceedWithUpload(context, applicationToProcess, moduleFileName);
+            proceedWithUpload(context, applicationToProcess, moduleFileName);
+            attemptToUpdateApplicationDigest(context.getControllerClient(), cloudApp, newApplicationDigest);
+            return StepPhase.POLL;
         }
 
         Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getLatestUnusedPackage(client, cloudApp.getGuid());
@@ -85,13 +87,14 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
         if (latestUnusedPackage.isPresent() && !isCloudPackageInValidState(latestUnusedPackage.get())
             || !isAppStagedCorrectly(context, cloudApp)) {
-            return proceedWithUpload(context, applicationToProcess, moduleFileName);
+            proceedWithUpload(context, applicationToProcess, moduleFileName);
+            return StepPhase.POLL;
         }
         getStepLogger().info(Messages.CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED, applicationToProcess.getName());
         return StepPhase.DONE;
     }
 
-    private StepPhase proceedWithUpload(ProcessContext context, CloudApplicationExtended application, String moduleFileName)
+    private void proceedWithUpload(ProcessContext context, CloudApplicationExtended application, String moduleFileName)
         throws FileStorageException {
         getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, moduleFileName, application.getName());
 
@@ -100,9 +103,9 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
         getStepLogger().info(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, application.getName());
         LOGGER.info(format(Messages.UPLOADED_PACKAGE_0, cloudPackage));
-
+        
         context.setVariable(Variables.CLOUD_PACKAGE, cloudPackage);
-        return StepPhase.POLL;
+        context.setVariable(Variables.APP_CONTENT_CHANGED, true);
     }
 
     private StepPhase useLatestPackage(ProcessContext context, CloudPackage latestUnusedPackage) {
@@ -177,22 +180,13 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                                                        String newApplicationDigest) {
         ApplicationFileDigestDetector digestDetector = new ApplicationFileDigestDetector(appWithUpdatedEnvironment.getEnv());
         String currentApplicationDigest = digestDetector.detectCurrentAppFileDigest();
-        boolean contentChanged = !newApplicationDigest.equals(currentApplicationDigest);
-        if (contentChanged) {
-            attemptToUpdateApplicationDigest(context.getControllerClient(), appWithUpdatedEnvironment, newApplicationDigest);
-        }
-        setAppContentChanged(context, contentChanged);
-        return contentChanged;
+        return !newApplicationDigest.equals(currentApplicationDigest);
     }
 
     private void attemptToUpdateApplicationDigest(CloudControllerClient client, CloudApplication app, String newApplicationDigest) {
         new ApplicationEnvironmentUpdater(app, client).updateApplicationEnvironment(Constants.ENV_DEPLOY_ATTRIBUTES,
                                                                                     Constants.ATTR_APP_CONTENT_DIGEST,
                                                                                     newApplicationDigest);
-    }
-
-    private void setAppContentChanged(ProcessContext context, boolean appContentChanged) {
-        context.setVariable(Variables.APP_CONTENT_CHANGED, appContentChanged);
     }
 
     MonitorUploadStatusCallback getMonitorUploadStatusCallback(ProcessContext context, CloudApplication app, Path file) {
