@@ -105,7 +105,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
     }
 
     private ServiceOperation getLastServiceOperation(ProcessContext context, CloudServiceInstanceExtended service) {
-        return serviceOperationGetter.getLastServiceOperation(context, service);
+        return serviceOperationGetter.getLastServiceOperation(context.getControllerClient(), service);
     }
 
     protected ServiceOperation mapOperationState(StepLogger stepLogger, ServiceOperation lastServiceOperation,

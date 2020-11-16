@@ -67,7 +67,7 @@ class ServiceOperationGetterTest {
         when(client.getServiceInstance(SERVICE_NAME, false)).thenReturn(service);
         when(context.getControllerClient()).thenReturn(client);
 
-        ServiceOperation serviceOperation = serviceOperationGetter.getLastServiceOperation(context, service);
+        ServiceOperation serviceOperation = serviceOperationGetter.getLastServiceOperation(context.getControllerClient(), service);
 
         assertServiceOperation(expectedServiceOperation, serviceOperation);
     }
@@ -100,7 +100,7 @@ class ServiceOperationGetterTest {
         prepareEvents(containsDeleteEvent);
         when(context.getControllerClient()).thenReturn(client);
 
-        ServiceOperation serviceOperation = serviceOperationGetter.getLastServiceOperation(context, service);
+        ServiceOperation serviceOperation = serviceOperationGetter.getLastServiceOperation(context.getControllerClient(), service);
 
         assertEquals(expectedOperation, serviceOperation);
     }

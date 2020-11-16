@@ -19,8 +19,7 @@ public class ServiceOperationGetter {
     private static final String USER_PROVIDED_SERVICE_EVENT_TYPE_DELETE = "audit.user_provided_service_instance.delete";
     private static final String SERVICE_EVENT_TYPE_DELETE = "audit.service_instance.delete";
 
-    public ServiceOperation getLastServiceOperation(ProcessContext context, CloudServiceInstanceExtended service) {
-        CloudControllerClient client = context.getControllerClient();
+    public ServiceOperation getLastServiceOperation(CloudControllerClient client, CloudServiceInstanceExtended service) {
         CloudServiceInstance serviceInstance = client.getServiceInstance(service.getName(), false);
         if (serviceInstance == null) {
             return getLastDeleteServiceOperation(client, service);

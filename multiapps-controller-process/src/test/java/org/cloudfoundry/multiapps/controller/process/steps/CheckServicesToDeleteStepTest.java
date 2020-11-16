@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,6 +36,9 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
 
     @Mock
     private ServiceOperationGetter serviceOperationGetter;
+
+    @Mock
+    private ApplicationConfiguration applicationConfiguration;
 
     static Stream<Arguments> testExecute() {
         return Stream.of(
@@ -65,6 +69,7 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
         List<CloudServiceInstance> services = getServices(existingServiceNames);
         prepareClient(services);
         prepareServiceOperationGetter(servicesOperationState);
+        prepareApplicationConfiguration();
 
         step.execute(execution);
 
@@ -102,6 +107,10 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
             when(serviceOperationGetter.getLastServiceOperation(any(),
                                                                 argThat(new CloudServiceExtendedMatcher(serviceName)))).thenReturn(serviceOperation);
         }
+    }
+
+    private void prepareApplicationConfiguration() {
+        when(applicationConfiguration.getServiceHandlingMaxParallelThreads()).thenReturn(ApplicationConfiguration.DEFAULT_SERVICE_HANDLING_MAX_PARALLEL_THREADS);
     }
 
     private void validateExecution(List<String> expectedServicesOperations, String expectedStatus) {
