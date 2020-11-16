@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.security.data.termination;
 
+import static java.text.MessageFormat.format;
+
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -15,6 +17,7 @@ import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CFOptimizedEventGetter;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
 import org.cloudfoundry.multiapps.controller.core.util.SecurityUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
@@ -37,6 +40,7 @@ public class DataTerminationService {
     private static final String SPACE_DELETE_EVENT_TYPE = "audit.space.delete-request";
     private static final int NUMBER_OF_DAYS_OF_EVENTS = 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(DataTerminationService.class);
+    private static final SafeExecutor SAFE_EXECUTOR = new SafeExecutor(DataTerminationService::log);
 
     @Inject
     private ConfigurationEntryService configurationEntryService;
@@ -53,10 +57,12 @@ public class DataTerminationService {
         assertGlobalAuditorCredentialsExist();
         List<String> deleteSpaceEventsToBeDeleted = getDeleteSpaceEvents();
         for (String spaceId : deleteSpaceEventsToBeDeleted) {
-            deleteConfigurationSubscriptionOrphanData(spaceId);
-            deleteConfigurationEntryOrphanData(spaceId);
-            deleteUserOperationsOrphanData(spaceId);
-            deleteSpaceLeftovers(spaceId);
+            SAFE_EXECUTOR.execute(() -> deleteConfigurationSubscriptionOrphanData(spaceId));
+            SAFE_EXECUTOR.execute(() -> deleteConfigurationEntryOrphanData(spaceId));
+            SAFE_EXECUTOR.execute(() -> deleteUserOperationsOrphanData(spaceId));
+        }
+        if (!deleteSpaceEventsToBeDeleted.isEmpty()) {
+            SAFE_EXECUTOR.execute(() -> deleteSpacesLeftovers(deleteSpaceEventsToBeDeleted));
         }
     }
 
@@ -140,12 +146,16 @@ public class DataTerminationService {
                         .delete();
     }
 
-    private void deleteSpaceLeftovers(String spaceId) {
+    private void deleteSpacesLeftovers(List<String> spaces) {
         try {
-            fileService.deleteBySpace(spaceId);
+            fileService.deleteBySpaces(spaces);
         } catch (FileStorageException e) {
-            throw new SLException(e, Messages.COULD_NOT_DELETE_SPACE_LEFTOVERS);
+            throw new SLException(e, Messages.COULD_NOT_DELETE_SPACES_LEFTOVERS);
         }
+    }
+
+    private static void log(Exception e) {
+        LOGGER.error(format(Messages.ERROR_DURING_DATA_TERMINATION_0, e.getMessage()), e);
     }
 
 }

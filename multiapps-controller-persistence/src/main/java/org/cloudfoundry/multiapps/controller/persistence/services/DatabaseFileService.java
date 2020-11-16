@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -40,8 +41,8 @@ public class DatabaseFileService extends FileService {
     }
 
     @Override
-    public int deleteBySpace(String space) throws FileStorageException {
-        return deleteFileAttributesBySpace(space);
+    public int deleteBySpaces(List<String> spaces) throws FileStorageException {
+        return deleteFileAttributesBySpaces(spaces);
     }
 
     @Override

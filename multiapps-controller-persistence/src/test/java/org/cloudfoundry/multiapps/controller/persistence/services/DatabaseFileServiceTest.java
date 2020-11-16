@@ -135,9 +135,9 @@ class DatabaseFileServiceTest {
     void deleteBySpaceTest() throws Exception {
         addTestFile(SPACE_1, NAMESPACE_1);
         addTestFile(SPACE_1, NAMESPACE_2);
-        int deleteByWrongSpace = fileService.deleteBySpace(SPACE_2);
+        int deleteByWrongSpace = fileService.deleteBySpaces(List.of(SPACE_2));
         assertEquals(0, deleteByWrongSpace);
-        int correctDelete = fileService.deleteBySpace(SPACE_1);
+        int correctDelete = fileService.deleteBySpaces(List.of(SPACE_1));
         assertEquals(2, correctDelete);
         List<FileEntry> listFiles = fileService.listFiles(SPACE_1, null);
         assertEquals(0, listFiles.size());
@@ -219,8 +219,7 @@ class DatabaseFileServiceTest {
     }
 
     private void sweepFiles() throws Exception {
-        fileService.deleteBySpace(SPACE_1);
-        fileService.deleteBySpace(SPACE_2);
+        fileService.deleteBySpaces(List.of(SPACE_1, SPACE_2));
     }
 
     private void tearDownConnection() throws Exception {

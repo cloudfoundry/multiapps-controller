@@ -75,7 +75,7 @@ class FileServiceTest extends DatabaseFileServiceTest {
     void deleteBySpaceTest() throws Exception {
         super.deleteBySpaceTest();
         Mockito.verify(fileStorage)
-               .deleteFilesBySpace(Mockito.eq(SPACE_1));
+               .deleteFilesBySpaces(Mockito.eq(List.of(SPACE_1)));
     }
 
     @Test

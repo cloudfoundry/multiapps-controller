@@ -60,7 +60,7 @@ public final class Messages {
     public static final String STORING_FILE_TO_PATH_0 = "Storing file to path \"{0}\"...";
     public static final String STORED_FILE_0 = "Stored file: \"{0}\"";
     public static final String STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2 = "Stored file \"{0}\" with size {1}";
-    public static final String DELETED_0_FILES_WITH_SPACE_1 = "Deleted {0} files with space \"{1}\".";
+    public static final String DELETED_0_FILES_WITH_SPACES_1 = "Deleted {0} files with spaces \"{1}\".";
     public static final String DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2 = "Deleted {0} files with space \"{1}\" and namespace \"{2}\".";
     public static final String DELETED_0_FILES_MODIFIED_BEFORE_1 = "Deleted {0} files modified before \"{1}\".";
     public static final String DELETED_0_FILES_WITH_ID_1_AND_SPACE_2 = "Deleted {0} files with ID \"{1}\" and space \"{2}\".";

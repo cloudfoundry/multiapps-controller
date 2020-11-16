@@ -1,9 +1,10 @@
 package org.cloudfoundry.multiapps.controller.core.security.data.termination;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -17,7 +18,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
@@ -172,7 +172,7 @@ class DataTerminationServiceTest {
     private void verifyDeleteOrphanUserData(List<String> deletedSpaces, int countOfDeletedSpaces, boolean isExistSubscriptionData,
                                             boolean isExistConfigurationEntryData)
         throws FileStorageException {
-        verify(fileService, atLeast(countOfDeletedSpaces)).deleteBySpace(anyString());
+        verify(fileService, times(countOfDeletedSpaces > 0 ? 1 : 0)).deleteBySpaces(anyList());
         verifyExistSubscriptionData(deletedSpaces, isExistSubscriptionData);
         verifyExistConfigurationEntryData(deletedSpaces, isExistConfigurationEntryData);
 
@@ -213,16 +213,15 @@ class DataTerminationServiceTest {
     }
 
     @Test
-    void testFailToDeleteSpace() throws FileStorageException {
+    void testDoesNotThrowExceptionOnFailToDeleteSpace() throws FileStorageException {
         prepareGlobalAuditorCredentials();
         prepareCfOptimizedEventsGetter(generateDeletedSpaces(1));
         when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
         when(operationService.createQuery()).thenReturn(operationQuery);
-        when(fileService.deleteBySpace(anyString())).thenThrow(new FileStorageException(""));
+        when(fileService.deleteBySpaces(anyList())).thenThrow(new FileStorageException(""));
 
-        Exception exception = assertThrows(SLException.class, () -> dataTerminationService.deleteOrphanUserData());
-        assertEquals(Messages.COULD_NOT_DELETE_SPACE_LEFTOVERS, exception.getMessage());
+        assertDoesNotThrow(() -> dataTerminationService.deleteOrphanUserData());
     }
 
 }
