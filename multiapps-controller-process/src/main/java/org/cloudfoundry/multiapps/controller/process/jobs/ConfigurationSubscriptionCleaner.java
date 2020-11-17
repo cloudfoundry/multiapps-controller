@@ -14,7 +14,7 @@ import org.springframework.core.annotation.Order;
 @Order(40)
 public class ConfigurationSubscriptionCleaner extends OrphanedDataCleaner<ConfigurationSubscription> {
 
-    private ConfigurationSubscriptionService configurationSubscriptionService;
+    private final ConfigurationSubscriptionService configurationSubscriptionService;
 
     @Inject
     public ConfigurationSubscriptionCleaner(ApplicationConfiguration applicationConfiguration,

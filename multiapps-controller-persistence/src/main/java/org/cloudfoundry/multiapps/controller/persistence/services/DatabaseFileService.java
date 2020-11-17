@@ -41,8 +41,8 @@ public class DatabaseFileService extends FileService {
     }
 
     @Override
-    public int deleteBySpaces(List<String> spaces) throws FileStorageException {
-        return deleteFileAttributesBySpaces(spaces);
+    public int deleteBySpaceIds(List<String> spaceIds) throws FileStorageException {
+        return deleteFileAttributesBySpaceIds(spaceIds);
     }
 
     @Override

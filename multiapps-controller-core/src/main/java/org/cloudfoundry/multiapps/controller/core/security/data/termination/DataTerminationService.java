@@ -55,14 +55,14 @@ public class DataTerminationService {
 
     public void deleteOrphanUserData() {
         assertGlobalAuditorCredentialsExist();
-        List<String> deleteSpaceEventsToBeDeleted = getDeleteSpaceEvents();
-        for (String spaceId : deleteSpaceEventsToBeDeleted) {
+        List<String> spaceEventsToBeDeleted = getSpaceDeleteEvents();
+        for (String spaceId : spaceEventsToBeDeleted) {
             SAFE_EXECUTOR.execute(() -> deleteConfigurationSubscriptionOrphanData(spaceId));
             SAFE_EXECUTOR.execute(() -> deleteConfigurationEntryOrphanData(spaceId));
             SAFE_EXECUTOR.execute(() -> deleteUserOperationsOrphanData(spaceId));
         }
-        if (!deleteSpaceEventsToBeDeleted.isEmpty()) {
-            SAFE_EXECUTOR.execute(() -> deleteSpacesLeftovers(deleteSpaceEventsToBeDeleted));
+        if (!spaceEventsToBeDeleted.isEmpty()) {
+            SAFE_EXECUTOR.execute(() -> deleteSpaceIdsLeftovers(spaceEventsToBeDeleted));
         }
     }
 
@@ -72,7 +72,7 @@ public class DataTerminationService {
         }
     }
 
-    private List<String> getDeleteSpaceEvents() {
+    private List<String> getSpaceDeleteEvents() {
         CFOptimizedEventGetter cfOptimizedEventGetter = getCfOptimizedEventGetter();
         return cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeDays(NUMBER_OF_DAYS_OF_EVENTS));
     }
@@ -146,11 +146,11 @@ public class DataTerminationService {
                         .delete();
     }
 
-    private void deleteSpacesLeftovers(List<String> spaces) {
+    private void deleteSpaceIdsLeftovers(List<String> spaceIds) {
         try {
-            fileService.deleteBySpaces(spaces);
+            fileService.deleteBySpaceIds(spaceIds);
         } catch (FileStorageException e) {
-            throw new SLException(e, Messages.COULD_NOT_DELETE_SPACES_LEFTOVERS);
+            throw new SLException(e, Messages.COULD_NOT_DELETE_SPACEIDS_LEFTOVERS);
         }
     }
 

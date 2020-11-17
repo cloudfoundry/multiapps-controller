@@ -32,6 +32,7 @@ class FileServiceFileStorageTest {
     private static final String TEST_FILE_LOCATION = "src/test/resources/pexels-photo-401794.jpeg";
     private static final String SECOND_FILE_TEST_LOCATION = "src/test/resources/pexels-photo-463467.jpeg";
     private static final String DIGEST_METHOD = "MD5";
+    private static final String FAILURE_MESSAGE = "Fail to delete file";
 
     private String spaceId;
     private String namespace;
@@ -89,12 +90,26 @@ class FileServiceFileStorageTest {
     }
 
     @Test
+    void deleteFileWithFailure() {
+        fileStorage = new FileSystemFileStorage(temporaryStorageLocation.toString()) {
+            @Override
+            protected void deleteFilesBySpaceId(String spaceId) throws FileStorageException {
+                throw new FileStorageException(FAILURE_MESSAGE);
+            }
+        };
+
+        FileStorageException exception = assertThrows(FileStorageException.class,
+                                                      () -> fileStorage.deleteFilesBySpaceIds(List.of("foo", "bar", "foo-bar")));
+        assertEquals("Error deleting directires [Fail to delete file, Fail to delete file, Fail to delete file]", exception.getMessage());
+    }
+
+    @Test
     void deleteFilesBySpace() throws Exception {
         FileEntry firstFile = addFile(TEST_FILE_LOCATION);
         FileEntry secondFile = addFile(SECOND_FILE_TEST_LOCATION);
         FileEntry fileInOtherSpace = addFile(TEST_FILE_LOCATION, "otherspace", namespace);
 
-        fileStorage.deleteFilesBySpaces(List.of(spaceId));
+        fileStorage.deleteFilesBySpaceIds(List.of(spaceId));
         assertFileExists(false, firstFile);
         assertFileExists(false, secondFile);
         assertFileExists(true, fileInOtherSpace);

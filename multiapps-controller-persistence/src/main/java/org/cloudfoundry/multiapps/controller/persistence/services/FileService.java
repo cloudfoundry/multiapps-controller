@@ -129,9 +129,9 @@ public class FileService {
         return deleteFileAttributesBySpaceAndNamespace(space, namespace);
     }
 
-    public int deleteBySpaces(List<String> spaces) throws FileStorageException {
-        fileStorage.deleteFilesBySpaces(spaces);
-        return deleteFileAttributesBySpaces(spaces);
+    public int deleteBySpaceIds(List<String> spaceIds) throws FileStorageException {
+        fileStorage.deleteFilesBySpaceIds(spaceIds);
+        return deleteFileAttributesBySpaceIds(spaceIds);
     }
 
     public int deleteModifiedBefore(Date modificationTime) throws FileStorageException {
@@ -183,9 +183,9 @@ public class FileService {
         }
     }
 
-    protected int deleteFileAttributesBySpaces(List<String> spaces) throws FileStorageException {
+    protected int deleteFileAttributesBySpaceIds(List<String> spaceIds) throws FileStorageException {
         try {
-            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteBySpacesQuery(spaces));
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteBySpaceIdsQuery(spaceIds));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
