@@ -101,16 +101,16 @@ class DataTerminationServiceTest {
 
     @ParameterizedTest
     @MethodSource
-    void testDeleteData(int countOfDeletedSpaces, boolean isExistSubscriptionData, boolean isExistConfigurationEntryData)
+    void testDeleteData(int countOfDeletedSpaceIds, boolean isExistSubscriptionData, boolean isExistConfigurationEntryData)
         throws FileStorageException {
         prepareGlobalAuditorCredentials();
-        List<String> deletedSpaces = generateDeletedSpaces(countOfDeletedSpaces);
-        prepareCfOptimizedEventsGetter(deletedSpaces);
-        prepareServices(deletedSpaces, isExistSubscriptionData, isExistConfigurationEntryData);
+        List<String> deletedSpaceIds = generateDeletedSpaceIds(countOfDeletedSpaceIds);
+        prepareCfOptimizedEventsGetter(deletedSpaceIds);
+        prepareServices(deletedSpaceIds, isExistSubscriptionData, isExistConfigurationEntryData);
 
         dataTerminationService.deleteOrphanUserData();
 
-        verifyDeleteOrphanUserData(deletedSpaces, countOfDeletedSpaces, isExistSubscriptionData, isExistConfigurationEntryData);
+        verifyDeleteOrphanUserData(deletedSpaceIds, countOfDeletedSpaceIds, isExistSubscriptionData, isExistConfigurationEntryData);
     }
 
     private void prepareGlobalAuditorCredentials() {
@@ -118,20 +118,20 @@ class DataTerminationServiceTest {
         when(configuration.getGlobalAuditorPassword()).thenReturn(GLOBAL_AUDITOR_PASSWORD);
     }
 
-    private List<String> generateDeletedSpaces(int countOfDeletedSpaces) {
-        return IntStream.range(0, countOfDeletedSpaces)
+    private List<String> generateDeletedSpaceIds(int countOfDeletedSpaceIds) {
+        return IntStream.range(0, countOfDeletedSpaceIds)
                         .mapToObj(counter -> MessageFormat.format("space-{0}", counter))
                         .collect(Collectors.toList());
     }
 
-    private void prepareCfOptimizedEventsGetter(List<String> deletedSpaces) {
-        when(cfOptimizedEventsGetter.findEvents(anyString(), anyString())).thenReturn(deletedSpaces);
+    private void prepareCfOptimizedEventsGetter(List<String> deletedSpaceIds) {
+        when(cfOptimizedEventsGetter.findEvents(anyString(), anyString())).thenReturn(deletedSpaceIds);
     }
 
-    private void prepareServices(List<String> deletedSpaces, boolean isExistSubscriptionData, boolean isExistConfigurationEntryData) {
+    private void prepareServices(List<String> deletedSpaceIds, boolean isExistSubscriptionData, boolean isExistConfigurationEntryData) {
         List<ConfigurationSubscription> subscriptions = generateSubscriptions(isExistSubscriptionData);
         List<ConfigurationEntry> configurationEntries = generatedConfigurationEntries(isExistConfigurationEntryData);
-        deletedSpaces.forEach(deletedSpace -> initializeServiceMocks(subscriptions, configurationEntries, deletedSpace));
+        deletedSpaceIds.forEach(deletedSpace -> initializeServiceMocks(subscriptions, configurationEntries, deletedSpace));
         when(operationService.createQuery()).thenReturn(operationQuery);
     }
 
@@ -169,40 +169,40 @@ class DataTerminationServiceTest {
                                       .list();
     }
 
-    private void verifyDeleteOrphanUserData(List<String> deletedSpaces, int countOfDeletedSpaces, boolean isExistSubscriptionData,
+    private void verifyDeleteOrphanUserData(List<String> deletedSpaceIds, int countOfDeletedSpaceIds, boolean isExistSubscriptionData,
                                             boolean isExistConfigurationEntryData)
         throws FileStorageException {
-        verify(fileService, times(countOfDeletedSpaces > 0 ? 1 : 0)).deleteBySpaces(anyList());
-        verifyExistSubscriptionData(deletedSpaces, isExistSubscriptionData);
-        verifyExistConfigurationEntryData(deletedSpaces, isExistConfigurationEntryData);
+        verify(fileService, times(countOfDeletedSpaceIds > 0 ? 1 : 0)).deleteBySpaceIds(anyList());
+        verifyExistSubscriptionData(deletedSpaceIds, isExistSubscriptionData);
+        verifyExistConfigurationEntryData(deletedSpaceIds, isExistConfigurationEntryData);
 
     }
 
-    private void verifyExistSubscriptionData(List<String> deletedSpaces, boolean isExistSubscriptionData) {
+    private void verifyExistSubscriptionData(List<String> deletedSpaceIds, boolean isExistSubscriptionData) {
         if (isExistSubscriptionData) {
-            verifySubscriptionsDeletedBySpace(deletedSpaces, times(1));
+            verifySubscriptionsDeletedBySpace(deletedSpaceIds, times(1));
             return;
         }
-        verifySubscriptionsDeletedBySpace(deletedSpaces, never());
+        verifySubscriptionsDeletedBySpace(deletedSpaceIds, never());
     }
 
-    private void verifySubscriptionsDeletedBySpace(List<String> deletedSpaces, VerificationMode verificationMode) {
-        for (String deletedSpace : deletedSpaces) {
+    private void verifySubscriptionsDeletedBySpace(List<String> deletedSpaceIds, VerificationMode verificationMode) {
+        for (String deletedSpace : deletedSpaceIds) {
             verify(configurationSubscriptionQuery, verificationMode).deleteAll(deletedSpace);
         }
     }
 
-    private void verifyExistConfigurationEntryData(List<String> deletedSpaces, boolean isExistConfigurationEntryData) {
+    private void verifyExistConfigurationEntryData(List<String> deletedSpaceIds, boolean isExistConfigurationEntryData) {
         if (isExistConfigurationEntryData) {
-            verifyEntriesDeletedBySpace(deletedSpaces, times(1));
+            verifyEntriesDeletedBySpace(deletedSpaceIds, times(1));
             return;
         }
-        verifyEntriesDeletedBySpace(deletedSpaces, never());
+        verifyEntriesDeletedBySpace(deletedSpaceIds, never());
     }
 
-    private void verifyEntriesDeletedBySpace(List<String> deletedSpaces, VerificationMode verificationMode) {
-        for (String deletedSpace : deletedSpaces) {
-            verify(configurationEntryQuery, verificationMode).deleteAll(deletedSpace);
+    private void verifyEntriesDeletedBySpace(List<String> deletedSpaceIds, VerificationMode verificationMode) {
+        for (String deletedSpaceId : deletedSpaceIds) {
+            verify(configurationEntryQuery, verificationMode).deleteAll(deletedSpaceId);
         }
     }
 
@@ -215,11 +215,11 @@ class DataTerminationServiceTest {
     @Test
     void testDoesNotThrowExceptionOnFailToDeleteSpace() throws FileStorageException {
         prepareGlobalAuditorCredentials();
-        prepareCfOptimizedEventsGetter(generateDeletedSpaces(1));
+        prepareCfOptimizedEventsGetter(generateDeletedSpaceIds(1));
         when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
         when(operationService.createQuery()).thenReturn(operationQuery);
-        when(fileService.deleteBySpaces(anyList())).thenThrow(new FileStorageException(""));
+        when(fileService.deleteBySpaceIds(anyList())).thenThrow(new FileStorageException(""));
 
         assertDoesNotThrow(() -> dataTerminationService.deleteOrphanUserData());
     }

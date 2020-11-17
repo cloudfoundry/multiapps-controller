@@ -12,6 +12,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
@@ -226,18 +227,16 @@ public abstract class SqlFileQueryProvider {
 
     }
 
-    public SqlQuery<Integer> getDeleteBySpacesQuery(List<String> spaces) {
+    public SqlQuery<Integer> getDeleteBySpaceIdsQuery(List<String> spaceIds) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
                 statement = connection.prepareStatement(getQuery(DELETE_FILES_BY_SPACE));
-                addSpacesAsBatches(statement, spaces);
+                addSpaceIdsAsBatches(statement, spaceIds);
                 int[] batchResults = statement.executeBatch();
-                int deletedFiles = 0;
-                for (int batchResult : batchResults) {
-                    deletedFiles += batchResult;
-                }
-                logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACES_1, deletedFiles, spaces));
+                int deletedFiles = IntStream.of(batchResults)
+                                            .sum();
+                logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACEIDS_1, deletedFiles, spaceIds));
                 return deletedFiles;
             } finally {
                 JdbcUtil.closeQuietly(statement);
@@ -283,10 +282,8 @@ public abstract class SqlFileQueryProvider {
                 statement = connection.prepareStatement(getQuery(DELETE_FILE_BY_ID_AND_SPACE));
                 addFileEntriesAsBatches(statement, fileEntries);
                 int[] batchResults = statement.executeBatch();
-                int deletedEntries = 0;
-                for (int batchResult : batchResults) {
-                    deletedEntries += batchResult;
-                }
+                int deletedEntries = IntStream.of(batchResults)
+                                              .sum();
                 logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITHOUT_CONTENT, deletedEntries));
                 return deletedEntries;
             } finally {
@@ -398,9 +395,9 @@ public abstract class SqlFileQueryProvider {
         }
     }
 
-    private void addSpacesAsBatches(PreparedStatement statement, List<String> spaces) throws SQLException {
-        for (String space : spaces) {
-            statement.setString(1, space);
+    private void addSpaceIdsAsBatches(PreparedStatement statement, List<String> spaceIds) throws SQLException {
+        for (String spaceId : spaceIds) {
+            statement.setString(1, spaceId);
             statement.addBatch();
         }
     }

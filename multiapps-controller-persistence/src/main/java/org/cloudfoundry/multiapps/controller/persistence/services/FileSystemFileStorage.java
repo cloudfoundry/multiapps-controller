@@ -82,9 +82,17 @@ public class FileSystemFileStorage implements FileStorage {
     }
 
     @Override
-    public void deleteFilesBySpaces(List<String> spaces) throws FileStorageException {
-        for (String space : spaces) {
-            deleteFilesBySpace(space);
+    public void deleteFilesBySpaceIds(List<String> spaceIds) throws FileStorageException {
+        List<String> exceptionMessages = new ArrayList<>();
+        for (String spaceId : spaceIds) {
+            try {
+                deleteFilesBySpaceId(spaceId);
+            } catch (FileStorageException e) {
+                exceptionMessages.add(e.getMessage());
+            }
+        }
+        if (!exceptionMessages.isEmpty()) {
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_DELETING_DIRECTORIES, exceptionMessages));
         }
     }
 
@@ -162,8 +170,7 @@ public class FileSystemFileStorage implements FileStorage {
     private boolean hasContent(FileEntry entry) throws FileStorageException {
         try {
             Path filePath = getFilePath(entry);
-            return filePath.toFile()
-                           .exists();// squid:S3725 - java 8 Files.exists() has poor performance
+            return Files.exists(filePath);
         } catch (IOException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
@@ -182,13 +189,14 @@ public class FileSystemFileStorage implements FileStorage {
         return Paths.get(storagePath, space, DEFAULT_FILES_STORAGE_PATH);
     }
 
-    private void deleteFilesBySpace(String space) throws FileStorageException {
-        File spaceDirectory = getSpaceDirectory(space).toFile();
+    protected void deleteFilesBySpaceId(String spaceId) throws FileStorageException {
+        File spaceDirectory = getSpaceDirectory(spaceId).toFile();
         try {
             if (spaceDirectory.exists()) {
                 FileUtils.deleteDirectory(spaceDirectory);
             }
         } catch (IOException e) {
+            logger.error(MessageFormat.format(Messages.ERROR_DELETING_DIRECTORY, spaceDirectory), e);
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_DELETING_DIRECTORY, spaceDirectory), e);
         }
     }

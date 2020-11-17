@@ -14,7 +14,7 @@ import org.springframework.core.annotation.Order;
 @Order(40)
 public class ConfigurationEntriesCleaner extends OrphanedDataCleaner<ConfigurationEntry> {
 
-    private ConfigurationEntryService configurationEntryService;
+    private final ConfigurationEntryService configurationEntryService;
 
     @Inject
     public ConfigurationEntriesCleaner(ApplicationConfiguration applicationConfiguration,
