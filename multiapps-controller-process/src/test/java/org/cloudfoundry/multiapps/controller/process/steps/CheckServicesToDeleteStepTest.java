@@ -16,13 +16,12 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
@@ -33,9 +32,6 @@ import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesToDeleteStep> {
 
     private static final String TEST_SPACE_ID = "test";
-
-    @Mock
-    private ServiceOperationGetter serviceOperationGetter;
 
     @Mock
     private ApplicationConfiguration applicationConfiguration;
@@ -66,9 +62,7 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
                      Map<String, ServiceOperation.State> servicesOperationState, List<String> expectedServicesOperations,
                      String expectedStatus) {
         prepareContext(serviceNames);
-        List<CloudServiceInstance> services = getServices(existingServiceNames);
-        prepareClient(services);
-        prepareServiceOperationGetter(servicesOperationState);
+        prepareClient(existingServiceNames, servicesOperationState);
         prepareApplicationConfiguration();
 
         step.execute(execution);
@@ -93,19 +87,19 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
 
     }
 
-    private void prepareClient(List<CloudServiceInstance> serviceInstances) {
-        for (CloudServiceInstance serviceInstance : serviceInstances) {
-            when(client.getServiceInstance(serviceInstance.getName(), false)).thenReturn(serviceInstance);
-        }
-    }
-
-    private void prepareServiceOperationGetter(Map<String, ServiceOperation.State> servicesOperationState) {
-        for (String serviceName : servicesOperationState.keySet()) {
-            ServiceOperation serviceOperation = new ServiceOperation(ServiceOperation.Type.DELETE,
-                                                                     "",
-                                                                     servicesOperationState.get(serviceName));
-            when(serviceOperationGetter.getLastServiceOperation(any(),
-                                                                argThat(new CloudServiceExtendedMatcher(serviceName)))).thenReturn(serviceOperation);
+    private void prepareClient(List<String> serviceNames, Map<String, ServiceOperation.State> servicesOperationState) {
+        for (String serviceName: serviceNames) {
+            ServiceOperation lastServiceOperation = new ServiceOperation(ServiceOperation.Type.DELETE,
+                                                                         "",
+                                                                         servicesOperationState.get(serviceName));
+            CloudServiceInstanceExtended returnedService = ImmutableCloudServiceInstanceExtended.builder()
+                                                                                                .metadata(ImmutableCloudMetadata.builder()
+                                                                                                                                .guid(UUID.randomUUID())
+                                                                                                                                .build())
+                                                                                                .name(serviceName)
+                                                                                                .lastOperation(lastServiceOperation)
+                                                                                                .build();
+            when(client.getServiceInstance(serviceName, false)).thenReturn(returnedService);
         }
     }
 
@@ -126,21 +120,4 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
     protected CheckServicesToDeleteStep createStep() {
         return new CheckServicesToDeleteStep();
     }
-
-    private static class CloudServiceExtendedMatcher implements ArgumentMatcher<CloudServiceInstanceExtended> {
-
-        private final String serviceName;
-
-        public CloudServiceExtendedMatcher(String serviceName) {
-            this.serviceName = serviceName;
-        }
-
-        @Override
-        public boolean matches(CloudServiceInstanceExtended service) {
-            return service != null && service.getName()
-                                             .equals(serviceName);
-        }
-
-    }
-
 }
