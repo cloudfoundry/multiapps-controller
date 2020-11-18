@@ -20,7 +20,6 @@ import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ExecutionQuery;
 import org.flowable.job.api.DeadLetterJobQuery;
 import org.flowable.job.api.Job;
-import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -37,7 +36,7 @@ class FlowableFacadeTest {
     private FlowableFacade flowableFacade;
 
     @Mock
-    private DefaultAsyncJobExecutor mockedAsyncExecutor;
+    private MtaAsyncJobExecutor mockedAsyncExecutor;
     @Mock
     private ProcessEngine mockedProcessEngine;
     @Mock

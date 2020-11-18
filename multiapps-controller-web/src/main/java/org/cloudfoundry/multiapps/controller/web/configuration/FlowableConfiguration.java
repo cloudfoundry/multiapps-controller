@@ -8,13 +8,13 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.process.flowable.MtaAsyncJobExecutor;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
 import org.flowable.common.engine.impl.persistence.StrongUuidGenerator;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RuntimeService;
 import org.flowable.job.service.impl.asyncexecutor.AsyncExecutor;
-import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
 import org.flowable.job.service.impl.asyncexecutor.FailedJobCommandFactory;
 import org.flowable.spring.ProcessEngineFactoryBean;
 import org.flowable.spring.SpringProcessEngineConfiguration;
@@ -56,8 +56,11 @@ public class FlowableConfiguration {
     @Inject
     @Bean
     @DependsOn("liquibaseChangelog")
-    public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager,
-                                                                       AsyncExecutor jobExecutor, @Lazy FailedJobCommandFactory abortFailedProcessCommandFactory) {
+    public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource,
+                                                                       PlatformTransactionManager transactionManager,
+                                                                       AsyncExecutor jobExecutor,
+                                                                       @Lazy FailedJobCommandFactory abortFailedProcessCommandFactory,
+                                                                       ApplicationConfiguration configuration) {
         SpringProcessEngineConfiguration processEngineConfiguration = new SpringProcessEngineConfiguration();
         processEngineConfiguration.setDatabaseSchemaUpdate(DATABASE_SCHEMA_UPDATE);
         processEngineConfiguration.setDataSource(dataSource);
@@ -67,28 +70,27 @@ public class FlowableConfiguration {
         processEngineConfiguration.setAsyncExecutor(jobExecutor);
         // By default Flowable will retry failed jobs and we don't want that.
         processEngineConfiguration.setAsyncExecutorNumberOfRetries(0);
+        // In fact these configurations are for AsyncTaskExecutor
+        processEngineConfiguration.setAsyncExecutorThreadPoolQueueSize(configuration.getFlowableJobExecutorQueueCapacity());
+        processEngineConfiguration.setAsyncExecutorMaxPoolSize(configuration.getFlowableJobExecutorMaxThreads());
+        processEngineConfiguration.setAsyncExecutorCorePoolSize(configuration.getFlowableJobExecutorCoreThreads());
+        processEngineConfiguration.setAsyncExecutorSecondsToWaitOnShutdown(JOB_EXECUTOR_SHUTDOWN_AWAIT_TIME_IN_SECONDS);
         processEngineConfiguration.setIdGenerator(new StrongUuidGenerator());
         return processEngineConfiguration;
     }
 
     @Inject
     @Bean
-    public AsyncExecutor jobExecutor(ApplicationConfiguration configuration, String jobExecutorId) {
-        DefaultAsyncJobExecutor jobExecutor = new DefaultAsyncJobExecutor();
-        scale(configuration, jobExecutor);
+    public AsyncExecutor jobExecutor(String jobExecutorId) {
+        MtaAsyncJobExecutor jobExecutor = new MtaAsyncJobExecutor();
         jobExecutor.setAsyncJobLockTimeInMillis(JOB_EXECUTOR_LOCK_TIME_IN_MILLIS);
         jobExecutor.setLockOwner(jobExecutorId);
         jobExecutor.setUnlockOwnedJobs(true);
+        // TODO set to true when root cause of the dead lock is found
+        jobExecutor.setUnlockOwnedExecutions(false);
         jobExecutor.setTenantId(AbstractEngineConfiguration.NO_TENANT_ID);
         jobExecutor.setDefaultAsyncJobAcquireWaitTimeInMillis(ASYNC_JOB_ACQUIRE_WAIT_TIME_IN_MILLIS);
-        jobExecutor.setSecondsToWaitOnShutdown(JOB_EXECUTOR_SHUTDOWN_AWAIT_TIME_IN_SECONDS);
         return jobExecutor;
-    }
-
-    protected void scale(ApplicationConfiguration configuration, DefaultAsyncJobExecutor jobExecutor) {
-        jobExecutor.setQueueSize(configuration.getFlowableJobExecutorQueueCapacity());
-        jobExecutor.setCorePoolSize(configuration.getFlowableJobExecutorCoreThreads());
-        jobExecutor.setMaxPoolSize(configuration.getFlowableJobExecutorMaxThreads());
     }
 
     @Inject

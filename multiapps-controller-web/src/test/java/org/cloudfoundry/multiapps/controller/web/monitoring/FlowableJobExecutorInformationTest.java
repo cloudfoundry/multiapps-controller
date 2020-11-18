@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.concurrent.BlockingQueue;
 
-import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
+import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,7 +19,7 @@ class FlowableJobExecutorInformationTest {
     private static final int UPDATED_JOBS_IN_QUEUE = 1;
 
     @Mock
-    private DefaultAsyncJobExecutor asyncExecutor;
+    private SpringProcessEngineConfiguration processEngineConfiguration;
     @Mock
     private BlockingQueue<Runnable> blockingQueue;
 
@@ -42,7 +42,7 @@ class FlowableJobExecutorInformationTest {
 
     private void prepareJobExecutor(int jobsInQueue) {
         when(blockingQueue.size()).thenReturn(jobsInQueue);
-        when(asyncExecutor.getThreadPoolQueue()).thenReturn(blockingQueue);
+        when(processEngineConfiguration.getAsyncExecutorThreadPoolQueue()).thenReturn(blockingQueue);
     }
 
     @Test
@@ -58,7 +58,7 @@ class FlowableJobExecutorInformationTest {
 
     @Test
     void testGetCurrentJobExecutorQueueSizeExpiredCache() {
-        flowableJobExecutorInformation = new FlowableJobExecutorInformation(asyncExecutor) {
+        flowableJobExecutorInformation = new FlowableJobExecutorInformation(processEngineConfiguration) {
             @Override
             protected void updateTime() {
                 lastUpdateTime = Instant.now()

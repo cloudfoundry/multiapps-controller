@@ -27,7 +27,7 @@
         <httpclient.version>4.5.13</httpclient.version>
         <httpcore.version>4.4.13</httpcore.version>
         <eclipselink.version>2.7.7</eclipselink.version>
-        <flowable.version>6.5.0</flowable.version>
+        <flowable.version>6.6.0</flowable.version>
         <spring.version>5.2.9.RELEASE</spring.version>
         <spring-security.version>5.4.0</spring-security.version>
         <spring-security-oauth2.version>2.5.0.RELEASE</spring-security-oauth2.version>

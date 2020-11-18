@@ -11,6 +11,7 @@ import java.util.Set;
 import org.flowable.bpmn.model.FlowElement;
 import org.flowable.bpmn.model.FlowableListener;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.ReadOnlyDelegateExecution;
 import org.flowable.variable.api.persistence.entity.VariableInstance;
 import org.mockito.Mockito;
 
@@ -389,6 +390,11 @@ public class MockDelegateExecution implements DelegateExecution {
     @Override
     public void setCurrentFlowableListener(FlowableListener currentListener) {
 
+    }
+
+    @Override
+    public ReadOnlyDelegateExecution snapshotReadOnly() {
+        return null;
     }
 
     @Override
