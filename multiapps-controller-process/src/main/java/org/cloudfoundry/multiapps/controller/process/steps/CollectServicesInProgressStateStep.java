@@ -1,14 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
+import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
@@ -16,25 +11,26 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-@Named("checkForOperationsInProgressStep")
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
+public abstract class CollectServicesInProgressStateStep extends AsyncFlowableStep {
 
-    @Inject
     protected ServiceOperationGetter serviceOperationGetter;
-    @Inject
-    private ServiceProgressReporter serviceProgressReporter;
+    protected ServiceProgressReporter serviceProgressReporter;
+
+    CollectServicesInProgressStateStep(ServiceOperationGetter serviceOperationGetter, ServiceProgressReporter serviceProgressReporter) {
+        this.serviceOperationGetter = serviceOperationGetter;
+        this.serviceProgressReporter = serviceProgressReporter;
+    }
+
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
-        List<CloudServiceInstanceExtended> existingServicesInProgress = getExistingServiceInProgress(context);
+        List<CloudServiceInstanceExtended> existingServicesInProgress = getExistingServicesInProgress(context);
         if (existingServicesInProgress.isEmpty()) {
             return StepPhase.DONE;
         }
@@ -50,25 +46,17 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
         return StepPhase.POLL;
     }
 
-    protected List<CloudServiceInstanceExtended> getExistingServiceInProgress(ProcessContext context) {
-        CloudControllerClient client = context.getControllerClient();
-        CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
-        CloudServiceInstanceExtended existingServiceInstance = getExistingService(client, serviceToProcess);
-        if (existingServiceInstance == null || !isServiceOperationInProgress(existingServiceInstance)) {
-            return Collections.emptyList();
-        }
-        return List.of(existingServiceInstance);
-    }
+    protected abstract List<CloudServiceInstanceExtended> getExistingServicesInProgress(ProcessContext context);
 
     protected CloudServiceInstanceExtended getExistingService(CloudControllerClient cloudControllerClient,
-                                                              CloudServiceInstanceExtended service) {
+        CloudServiceInstanceExtended service) {
         CloudServiceInstance existingService = cloudControllerClient.getServiceInstance(service.getName(), false);
         if (existingService != null) {
             return ImmutableCloudServiceInstanceExtended.builder()
-                                                        .from(service)
-                                                        .from(existingService)
-                                                        .metadata(existingService.getMetadata())
-                                                        .build();
+                .from(service)
+                .from(existingService)
+                .metadata(existingService.getMetadata())
+                .build();
         }
         return null;
     }

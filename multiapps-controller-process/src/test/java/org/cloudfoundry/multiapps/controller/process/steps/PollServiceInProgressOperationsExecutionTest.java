@@ -31,7 +31,7 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
-class PollServiceInProgressOperationsExecutionTest extends AsyncStepOperationTest<CheckForOperationsInProgressStep> {
+class PollServiceInProgressOperationsExecutionTest extends AsyncStepOperationTest<CheckServiceOperationStateStep> {
 
     private static final String TEST_SPACE_ID = "test";
     private static final String TEST_PROVIDER = "testProvider";
@@ -169,8 +169,8 @@ class PollServiceInProgressOperationsExecutionTest extends AsyncStepOperationTes
     }
 
     @Override
-    protected CheckForOperationsInProgressStep createStep() {
-        return new CheckForOperationsInProgressStep();
+    protected CheckServiceOperationStateStep createStep() {
+        return new CheckServiceOperationStateStep(serviceOperationGetter, serviceProgressReporter);
     }
 
     @Override
