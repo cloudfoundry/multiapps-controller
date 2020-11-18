@@ -27,11 +27,6 @@ class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<CheckFor
 
     private static final String TEST_SPACE_ID = "test";
 
-    @Mock
-    private ServiceOperationGetter serviceOperationGetter;
-    @Mock
-    private ServiceProgressReporter serviceProgressReporter;
-
     static Stream<Arguments> testExecute() {
         return Stream.of(
                          // (1) Service exist and it is in progress state
@@ -61,28 +56,25 @@ class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<CheckFor
                                                                                                                     .build())
                                                                                     .build();
         prepareContext(service);
-        prepareClient(service, serviceExist);
-        prepareServiceInstanceGetter(service, serviceOperation);
+        prepareClient(service, serviceOperation, serviceExist);
 
         step.execute(execution);
         validateExecution(serviceName, expectedTriggeredServiceOperation, expectedStatus);
     }
 
-    private void prepareClient(CloudServiceInstanceExtended service, boolean serviceExist) {
+    private void prepareClient(CloudServiceInstanceExtended service, ServiceOperation serviceOperation, boolean serviceExist) {
         if (serviceExist) {
-            when(client.getServiceInstance(service.getName(), false)).thenReturn(service);
+            CloudServiceInstanceExtended returnedService = ImmutableCloudServiceInstanceExtended.builder()
+                                                                                                .from(service)
+                                                                                                .lastOperation(serviceOperation)
+                                                                                                .build();
+            when(client.getServiceInstance(service.getName(), false)).thenReturn(returnedService);
         }
     }
 
     protected void prepareContext(CloudServiceInstanceExtended service) {
         context.setVariable(Variables.SPACE_GUID, TEST_SPACE_ID);
         context.setVariable(Variables.SERVICE_TO_PROCESS, service);
-    }
-
-    private void prepareServiceInstanceGetter(CloudServiceInstanceExtended service, ServiceOperation serviceOperation) {
-        if (serviceOperation != null) {
-            when(serviceOperationGetter.getLastServiceOperation(any(), eq(service))).thenReturn(serviceOperation);
-        }
     }
 
     private void validateExecution(String serviceName, ServiceOperation.Type expectedTriggeredServiceOperation, String expectedStatus) {
