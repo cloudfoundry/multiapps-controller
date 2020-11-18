@@ -70,7 +70,7 @@
     <sequenceFlow id="SkipCoUFlow" name="Skip" sourceRef="exclusivegateway2" targetRef="exclusivegateway15"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway14" name="Exclusive Gateway" default="flow88"></exclusiveGateway>
     <exclusiveGateway id="exclusivegateway15" name="Exclusive Gateway" default="flow84"></exclusiveGateway>
-    <serviceTask id="CheckForOperationsInProgressTask" name="Check for operations in Progress" flowable:async="true" flowable:delegateExpression="${checkForOperationsInProgressStep}"></serviceTask>
+    <serviceTask id="CheckServiceOperationStateTask" name="Check for service operations in Progress" flowable:async="true" flowable:delegateExpression="${checkServiceOperationStateStep}"></serviceTask>
     <exclusiveGateway id="exclusivegateway16" name="Exclusive Gateway" default="DetermineActionsFlow"></exclusiveGateway>
     <intermediateCatchEvent id="timerintermediatecatchevent5" name="TimerCatchEvent">
       <timerEventDefinition>
@@ -78,13 +78,13 @@
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="flow20" sourceRef="DetermineServiceCreateUpdateActionsTask" targetRef="exclusivegateway2"></sequenceFlow>
-    <sequenceFlow id="flow19" sourceRef="startevent3" targetRef="CheckForOperationsInProgressTask"></sequenceFlow>
+    <sequenceFlow id="flow19" sourceRef="startevent3" targetRef="CheckServiceOperationStateTask"></sequenceFlow>
     <sequenceFlow id="DetermineActionsFlow" sourceRef="exclusivegateway16" targetRef="DetermineServiceCreateUpdateActionsTask"></sequenceFlow>
     <sequenceFlow id="waitToFinish" name="Wait To Finish" sourceRef="exclusivegateway16" targetRef="timerintermediatecatchevent5">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "POLL")}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="flow85" sourceRef="CheckForOperationsInProgressTask" targetRef="exclusivegateway16"></sequenceFlow>
-    <sequenceFlow id="flow86" sourceRef="timerintermediatecatchevent5" targetRef="CheckForOperationsInProgressTask"></sequenceFlow>
+    <sequenceFlow id="flow85" sourceRef="CheckServiceOperationStateTask" targetRef="exclusivegateway16"></sequenceFlow>
+    <sequenceFlow id="flow86" sourceRef="timerintermediatecatchevent5" targetRef="CheckServiceOperationStateTask"></sequenceFlow>
     <sequenceFlow id="RecreateFlow" name="Recreate" sourceRef="exclusivegateway2" targetRef="DeleteServiceCallActivity">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("RECREATE")}]]></conditionExpression>
     </sequenceFlow>
@@ -205,7 +205,7 @@
       <bpmndi:BPMNShape bpmnElement="exclusivegateway15" id="BPMNShape_exclusivegateway15">
         <omgdc:Bounds height="40.0" width="40.0" x="755.0" y="316.25"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="CheckForOperationsInProgressTask" id="BPMNShape_CheckForOperationsInProgressTask">
+      <bpmndi:BPMNShape bpmnElement="CheckServiceOperationStateTask" id="BPMNShape_CheckServiceOperationStateTask">
         <omgdc:Bounds height="80.0" width="100.0" x="90.0" y="95.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway16" id="BPMNShape_exclusivegateway16">

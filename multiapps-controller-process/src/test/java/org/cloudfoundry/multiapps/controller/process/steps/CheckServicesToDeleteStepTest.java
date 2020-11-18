@@ -118,6 +118,6 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
 
     @Override
     protected CheckServicesToDeleteStep createStep() {
-        return new CheckServicesToDeleteStep();
+        return new CheckServicesToDeleteStep(null, null, applicationConfiguration);
     }
 }

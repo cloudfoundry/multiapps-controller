@@ -12,18 +12,15 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
-import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
 
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
-class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<CheckForOperationsInProgressStep> {
+class CheckServiceOperationStateStepTest extends SyncFlowableStepTest<CheckServiceOperationStateStep> {
 
     private static final String TEST_SPACE_ID = "test";
 
@@ -85,8 +82,8 @@ class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<CheckFor
     }
 
     @Override
-    protected CheckForOperationsInProgressStep createStep() {
-        return new CheckForOperationsInProgressStep();
+    protected CheckServiceOperationStateStep createStep() {
+        return new CheckServiceOperationStateStep(null, null);
     }
 
 }

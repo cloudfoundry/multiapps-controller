@@ -14,26 +14,35 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInsta
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.ForkJoinPoolUtil;
+import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
+import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 @Named("checkServicesToDeleteStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CheckServicesToDeleteStep extends CheckForOperationsInProgressStep {
+public class CheckServicesToDeleteStep extends CollectServicesInProgressStateStep {
 
-    @Inject
     private ApplicationConfiguration applicationConfiguration;
 
+    @Inject
+    CheckServicesToDeleteStep(ServiceOperationGetter serviceOperationGetter,
+                              ServiceProgressReporter serviceProgressReporter,
+                              ApplicationConfiguration applicationConfiguration) {
+        super(serviceOperationGetter, serviceProgressReporter);
+        this.applicationConfiguration = applicationConfiguration;
+    }
+
     @Override
-    protected List<CloudServiceInstanceExtended> getExistingServiceInProgress(ProcessContext context) {
+    protected List<CloudServiceInstanceExtended> getExistingServicesInProgress(ProcessContext context) {
         List<String> servicesToDelete = context.getVariable(Variables.SERVICES_TO_DELETE);
         CloudControllerClient client = context.getControllerClient();
         int maxParallelThreads = getMaxParallelThreads(servicesToDelete);
-        return ForkJoinPoolUtil.execute(maxParallelThreads, () ->  getExistingServicesInProgressInternal(client, servicesToDelete));
+        return ForkJoinPoolUtil.execute(maxParallelThreads, () ->  doGetExistingServicesInProgress(client, servicesToDelete));
     }
 
-    private List<CloudServiceInstanceExtended> getExistingServicesInProgressInternal(CloudControllerClient client, List<String> servicesToDelete) {
+    private List<CloudServiceInstanceExtended> doGetExistingServicesInProgress(CloudControllerClient client, List<String> servicesToDelete) {
         return servicesToDelete.parallelStream()
                                .map(service -> getExistingService(client, buildCloudServiceExtended(service)))
                                .filter(Objects::nonNull)
