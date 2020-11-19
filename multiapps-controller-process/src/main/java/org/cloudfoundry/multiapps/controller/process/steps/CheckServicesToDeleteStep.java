@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -37,6 +38,9 @@ public class CheckServicesToDeleteStep extends CollectServicesInProgressStateSte
     @Override
     protected List<CloudServiceInstanceExtended> getExistingServicesInProgress(ProcessContext context) {
         List<String> servicesToDelete = context.getVariable(Variables.SERVICES_TO_DELETE);
+        if (servicesToDelete.isEmpty()) {
+            return Collections.emptyList();
+        }
         CloudControllerClient client = context.getControllerClient();
         int maxParallelThreads = getMaxParallelThreads(servicesToDelete);
         return ForkJoinPoolUtil.execute(maxParallelThreads, () ->  doGetExistingServicesInProgress(client, servicesToDelete));
