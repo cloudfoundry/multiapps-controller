@@ -186,6 +186,7 @@ public class Messages {
     public static final String WILL_NOT_UPDATE_SERVICE_PARAMS = "Service parameters for service \"{0}\" will not be updated, as the option for skipping service parameter updates is enabled.";
     public static final String WILL_NOT_UPDATE_SERVICE_PLAN = "Service plan for service \"{0}\" will not be updated, as the option for skipping service plan updates is enabled.";
     public static final String WILL_NOT_UPDATE_SERVICE_TAGS = "Service tags for service \"{0}\" will not be updated, as the option for skipping service tags updates is enabled.";
+    public static final String WILL_NOT_REGISTER_EVENT_IN_DYNATRACE = "Will not register process event in dynatrace";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
