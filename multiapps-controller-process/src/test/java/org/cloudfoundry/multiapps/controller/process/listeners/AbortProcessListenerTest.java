@@ -46,7 +46,7 @@ class AbortProcessListenerTest {
         FlowableEngineEntityEvent entityDeletedEvent = mockFlowableEngineEvent(FlowableEngineEntityEvent.class,
                                                                                FlowableEngineEventType.ENTITY_DELETED);
         mockEntity(entityDeletedEvent);
-        Mockito.when(processTypeParser.getProcessType(execution))
+        Mockito.when(processTypeParser.getProcessType(execution, false))
                .thenReturn(ProcessType.DEPLOY);
         abortProcessListenerWithContext.onEvent(entityDeletedEvent);
         Mockito.verify(eventHandler)
@@ -55,7 +55,7 @@ class AbortProcessListenerTest {
 
     @Test
     void testWithProcessCancelledEvent() {
-        Mockito.when(processTypeParser.getProcessType(execution))
+        Mockito.when(processTypeParser.getProcessType(execution, false))
                .thenReturn(ProcessType.DEPLOY);
         abortProcessListenerWithContext.onEvent(mockFlowableEngineEvent(FlowableCancelledEvent.class,
                                                                         FlowableEngineEventType.PROCESS_CANCELLED));

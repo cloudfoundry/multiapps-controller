@@ -34,7 +34,7 @@ class EndProcessListenerTest {
         VariableHandling.set(execution, Variables.CORRELATION_ID, execution.getProcessInstanceId());
         VariableHandling.set(execution, Variables.SPACE_GUID, SPACE_ID);
         VariableHandling.set(execution, Variables.MTA_ID, MTA_ID);
-        Mockito.when(processTypeParser.getProcessType(execution))
+        Mockito.when(processTypeParser.getProcessType(execution, false))
                .thenReturn(PROCESS_TYPE);
         endProcessListener.notifyInternal(execution);
         Mockito.verify(eventHandler)

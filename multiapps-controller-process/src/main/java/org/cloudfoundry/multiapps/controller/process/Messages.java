@@ -20,6 +20,7 @@ public class Messages {
     public static final String INVALID_VALUE_0_FOR_PARAMETER_1_VALID_VALUES_ARE_2 = "Invalid value \"{0}\" for parameter \"{1}\". Valid values are: {2}";
     public static final String ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1 = "There is no file associated with the specified file id \"{0}\" in space \"{1}\"";
     public static final String UNKNOWN_SERVICE_ID = "Unknown service id \"{0}\"";
+    public static final String UNKNWON_SERVICE_ID_FOR_PROCESS_0 = "Unknown service id for process \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_NAME = "Missing service broker name for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_USERNAME = "Missing service broker username for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_PASSWORD = "Missing service broker password for application \"{0}\"";
