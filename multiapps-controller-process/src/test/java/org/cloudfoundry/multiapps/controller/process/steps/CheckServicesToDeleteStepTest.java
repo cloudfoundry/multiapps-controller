@@ -2,8 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -53,6 +51,10 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
                          Arguments.of(List.of("service-1", "service-2", "service-3"), List.of("service-1", "service-2"),
                                       Map.ofEntries(Pair.of("service-1", ServiceOperation.State.SUCCEEDED),
                                                     Pair.of("service-2", ServiceOperation.State.SUCCEEDED)),
+                                      Collections.emptyList(), "DONE"),
+                         // (4) No services to delete
+                         Arguments.of(Collections.emptyList(), Collections.emptyList(),
+                                      Collections.emptyMap(),
                                       Collections.emptyList(), "DONE"));
     }
 
