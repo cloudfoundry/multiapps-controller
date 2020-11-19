@@ -57,7 +57,7 @@ public class AbortProcessListener extends AbstractFlowableEngineEventListener {
                                              event.getProcessInstanceId()));
             return;
         }
-        eventHandler.handle(execution, processTypeParser.getProcessType(execution), Operation.State.ABORTED);
+        eventHandler.handle(execution, processTypeParser.getProcessType(execution, false), Operation.State.ABORTED);
     }
 
     private static boolean hasCorrectEntityType(FlowableEngineEntityEvent event) {

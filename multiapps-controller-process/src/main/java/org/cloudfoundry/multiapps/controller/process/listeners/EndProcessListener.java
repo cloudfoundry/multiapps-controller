@@ -24,7 +24,8 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     protected final ProcessTypeParser processTypeParser;
 
     @Inject
-    public EndProcessListener(OperationInFinalStateHandler eventHandler, DynatracePublisher dynatracePublisher, ProcessTypeParser processTypeParser) {
+    public EndProcessListener(OperationInFinalStateHandler eventHandler, DynatracePublisher dynatracePublisher,
+                              ProcessTypeParser processTypeParser) {
         this.eventHandler = eventHandler;
         this.dynatracePublisher = dynatracePublisher;
         this.processTypeParser = processTypeParser;
@@ -33,19 +34,20 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     @Override
     protected void notifyInternal(DelegateExecution execution) {
         if (isRootProcess(execution)) {
-            eventHandler.handle(execution, processTypeParser.getProcessType(execution), Operation.State.FINISHED);
-            publishDynatraceEvent(execution,  processTypeParser.getProcessType(execution));
+            eventHandler.handle(execution, processTypeParser.getProcessType(execution, false), Operation.State.FINISHED);
+            publishDynatraceEvent(execution, processTypeParser.getProcessType(execution, false));
         }
     }
 
     private void publishDynatraceEvent(DelegateExecution execution, ProcessType processType) {
         DynatraceProcessEvent finishedEvent = ImmutableDynatraceProcessEvent.builder()
-                                                                         .processId(VariableHandling.get(execution, Variables.CORRELATION_ID))
-                                                                         .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
-                                                                         .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
-                                                                         .eventType(DynatraceProcessEvent.EventType.FINISHED)
-                                                                         .processType(processType)
-                                                                         .build();
+                                                                            .processId(VariableHandling.get(execution,
+                                                                                                            Variables.CORRELATION_ID))
+                                                                            .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
+                                                                            .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
+                                                                            .eventType(DynatraceProcessEvent.EventType.FINISHED)
+                                                                            .processType(processType)
+                                                                            .build();
         dynatracePublisher.publishProcessEvent(finishedEvent, getLogger());
     }
 }
