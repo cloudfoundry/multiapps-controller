@@ -21,12 +21,12 @@ import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-
-import com.google.common.collect.Maps;
 
 class ApplicationConfigurationTest {
 
@@ -82,24 +82,11 @@ class ApplicationConfigurationTest {
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_GUID, configuration.getSpaceGuid());
     }
 
-    @Test
-    void testGetSpaceGuidWithEmptyString() {
+    @ParameterizedTest
+    @ValueSource(strings = {"", "invalid", "{}"})
+    void testGetSpaceGuidReturnsDefault(String envValue) {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
-               .thenReturn("");
-        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_GUID, configuration.getSpaceGuid());
-    }
-
-    @Test
-    void testGetSpaceGuidWithInvalidJson() {
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
-               .thenReturn("invalid");
-        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_GUID, configuration.getSpaceGuid());
-    }
-
-    @Test
-    void testGetSpaceGuidWithEmptyMap() {
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
-               .thenReturn("{}");
+               .thenReturn(envValue);
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_GUID, configuration.getSpaceGuid());
     }
 
@@ -480,8 +467,7 @@ class ApplicationConfigurationTest {
     void testGetCloudComponentsValidJson() {
         Map<String, Object> cloudComponentsMap = injectFileInEnvironment(CLOUD_COMPONENTS, ApplicationConfiguration.SUPPORT_COMPONENTS);
         Map<String, Object> cloudComponents = configuration.getCloudComponents();
-        Assertions.assertTrue(Maps.difference(cloudComponentsMap, cloudComponents)
-                                  .areEqual());
+        Assertions.assertEquals(cloudComponents, cloudComponentsMap);
     }
 
     @Test
