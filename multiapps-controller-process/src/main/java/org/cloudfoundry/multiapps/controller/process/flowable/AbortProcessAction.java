@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.flowable;
 
+import static java.text.MessageFormat.format;
+
 import java.util.List;
 
 import javax.inject.Inject;
@@ -7,6 +9,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage;
@@ -14,6 +17,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.P
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessEvent;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.ImmutableDynatraceProcessEvent;
@@ -25,6 +29,7 @@ import org.slf4j.LoggerFactory;
 public class AbortProcessAction extends ProcessAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbortProcessAction.class);
+    private static final SafeExecutor SAFE_EXECUTOR = new SafeExecutor(AbortProcessAction::logDynatraceException);
 
     private final HistoricOperationEventService historicEventService;
     private final OperationService operationService;
@@ -49,7 +54,7 @@ public class AbortProcessAction extends ProcessAction {
         historicEventService.add(ImmutableHistoricOperationEvent.of(superProcessInstanceId, HistoricOperationEvent.EventType.ABORTED));
         historicEventService.add(ImmutableHistoricOperationEvent.of(superProcessInstanceId,
                                                                     HistoricOperationEvent.EventType.ABORT_EXECUTED));
-        publishDynatraceEvent(superProcessInstanceId);
+        SAFE_EXECUTOR.execute(() -> publishDynatraceEvent(superProcessInstanceId));
     }
 
     private void publishDynatraceEvent(String processId) {
@@ -91,4 +96,8 @@ public class AbortProcessAction extends ProcessAction {
         return LOGGER;
     }
 
+    private static void logDynatraceException(Exception e) {
+        LOGGER.warn(format(Messages.WILL_NOT_REGISTER_EVENT_IN_DYNATRACE, e.getMessage()), e);
+    }
+    
 }
