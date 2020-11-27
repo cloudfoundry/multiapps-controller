@@ -2,6 +2,9 @@ package org.cloudfoundry.multiapps.controller.persistence.query.providers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,9 +27,13 @@ import org.cloudfoundry.multiapps.controller.persistence.services.FileContentPro
 import org.cloudfoundry.multiapps.controller.persistence.util.JdbcUtil;
 import org.slf4j.Logger;
 
+import javax.xml.bind.DatatypeConverter;
+
 public abstract class SqlFileQueryProvider {
 
     private static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT_WITHOUT_DIGEST = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST_ALGORITHM, MODIFIED, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String UPDATE_FILE_DIGEST = "UPDATE %s SET DIGEST = ? WHERE FILE_ID = ?";
     private static final String INSERT_FILE_ATTRIBUTES = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_ALL_FILES = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s";
     private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE NAMESPACE=? AND SPACE=?";
@@ -67,6 +74,38 @@ public abstract class SqlFileQueryProvider {
                                                                  .getTime()));
                 setContentBinaryStream(statement, 9, content);
                 return statement.executeUpdate() > 0;
+            } finally {
+                JdbcUtil.closeQuietly(statement);
+            }
+        };
+    }
+
+    public SqlQuery<String> getStoreFileAndComputeDigestQuery(FileEntry entryWithoutDigest, InputStream content) {
+        return (Connection connection) -> {
+            PreparedStatement statement = null;
+            try (DigestInputStream dis = new DigestInputStream(content, MessageDigest.getInstance(Constants.DIGEST_ALGORITHM))) {
+                statement = connection.prepareStatement(getInsertWithContentWithoutDigestQuery());
+                statement.setString(1, entryWithoutDigest.getId());
+                statement.setString(2, entryWithoutDigest.getSpace());
+                statement.setString(3, entryWithoutDigest.getName());
+                setOrNull(statement, 4, entryWithoutDigest.getNamespace());
+                getDataSourceDialect().setBigInteger(statement, 5, entryWithoutDigest.getSize());
+                statement.setString(6, Constants.DIGEST_ALGORITHM);
+                statement.setTimestamp(7, new Timestamp(entryWithoutDigest.getModified()
+                                                                          .getTime()));
+                setContentBinaryStream(statement, 8, dis);
+                statement.executeUpdate();
+
+                String digest = DatatypeConverter.printHexBinary(dis.getMessageDigest()
+                                                                    .digest());
+                statement = connection.prepareStatement(getUpdateDigestQuery());
+                statement.setString(1, digest);
+                statement.setString(2, entryWithoutDigest.getId());
+                statement.executeUpdate();
+
+                return digest;
+            } catch (NoSuchAlgorithmException | IOException e) {
+                throw new IllegalStateException(e.getMessage(), e);
             } finally {
                 JdbcUtil.closeQuietly(statement);
             }
@@ -314,6 +353,14 @@ public abstract class SqlFileQueryProvider {
 
     private String getInsertWithContentQuery() {
         return String.format(INSERT_FILE_ATTRIBUTES_AND_CONTENT, tableName, getContentColumnName());
+    }
+
+    private String getInsertWithContentWithoutDigestQuery() {
+        return String.format(INSERT_FILE_ATTRIBUTES_AND_CONTENT_WITHOUT_DIGEST, tableName, getContentColumnName());
+    }
+
+    private String getUpdateDigestQuery() {
+        return String.format(UPDATE_FILE_DIGEST, tableName);
     }
 
     private String getSelectWithContentQuery() {

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="alter_table_lm_sl_persistence_file">
+        <dropNotNullConstraint tableName="lm_sl_persistence_file" columnName="digest" />
+    </changeSet>
+
+    <changeSet author="sap.com" id="create_new_unlink_file_content_trigger">
+        <preConditions onFail="MARK_RAN">
+            <dbms type="postgresql" />
+        </preConditions>
+        <sqlFile path="sql/delete_unlink_file_content_trigger_v2.sql" relativeToChangelogFile="true" />
+        <sqlFile path="sql/create_unlink_file_content_trigger_v2.sql" relativeToChangelogFile="true" />
+        <rollback>
+            <sqlFile path="sql/delete_unlink_file_content_trigger_v2.sql" relativeToChangelogFile="true" />
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

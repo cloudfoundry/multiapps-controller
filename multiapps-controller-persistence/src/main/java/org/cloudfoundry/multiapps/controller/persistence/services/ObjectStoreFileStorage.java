@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.io.File;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Date;
@@ -27,9 +26,8 @@ import org.jclouds.http.HttpResponseException;
 import org.jclouds.io.Payload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
-
-import com.google.common.net.MediaType;
 
 public class ObjectStoreFileStorage implements FileStorage {
 
@@ -46,19 +44,20 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     @Override
-    public void addFile(FileEntry fileEntry, File file) throws FileStorageException {
+    public void addFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
         String entryName = fileEntry.getId();
         long fileSize = fileEntry.getSize()
                                  .longValue();
         Blob blob = blobStore.blobBuilder(entryName)
-                             .payload(file)
+                             .payload(content)
                              .contentDisposition(fileEntry.getName())
-                             .contentType(MediaType.OCTET_STREAM.toString())
+                             .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                             .contentLength(fileSize)
                              .userMetadata(createFileEntryMetadata(fileEntry))
                              .build();
         try {
             putBlobWithRetries(blob, 3);
-            LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2, fileEntry.getId(), fileSize));
+            LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1, fileEntry.getId(), fileSize));
         } catch (ContainerNotFoundException e) {
             throw new FileStorageException(MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(),
                                                                 fileEntry.getNamespace()));

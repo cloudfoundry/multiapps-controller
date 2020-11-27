@@ -149,7 +149,8 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
             String serviceId = context.getVariable(Variables.SERVICE_ID);
             String mtarName = mtarZip.getFileName()
                                      .toString();
-            FileEntry entry = fileService.addFile(spaceId, serviceId, mtarName, mtarInputStream);
+            long mtarSize = Files.size(mtarZip);
+            FileEntry entry = fileService.addFile(spaceId, serviceId, mtarName, mtarInputStream, mtarSize);
             String uploadedMtarId = entry.getId();
             context.setVariable(Variables.APP_ARCHIVE_ID, uploadedMtarId);
         }

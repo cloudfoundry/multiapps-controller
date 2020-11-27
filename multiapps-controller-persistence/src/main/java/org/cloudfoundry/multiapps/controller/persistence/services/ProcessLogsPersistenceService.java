@@ -18,6 +18,7 @@ import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
+import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -28,7 +29,6 @@ import org.cloudfoundry.multiapps.controller.persistence.query.providers.ByteArr
 @Named("processLogsPersistenceService")
 public class ProcessLogsPersistenceService extends DatabaseFileService {
 
-    private static final String DIGEST_METHOD = "MD5";
     public static final String TABLE_NAME = "process_log";
 
     public ProcessLogsPersistenceService(DataSourceWithDialect dataSourceWithDialect) {
@@ -91,8 +91,9 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         FileInfo localLogFileInfo = ImmutableFileInfo.builder()
                                                      .file(localLog)
                                                      .size(BigInteger.valueOf(localLog.length()))
-                                                     .digest(DigestHelper.computeFileChecksum(localLog.toPath(), DIGEST_METHOD))
-                                                     .digestAlgorithm(DIGEST_METHOD)
+                                                     .digest(DigestHelper.computeFileChecksum(localLog.toPath(),
+                                                                                              Constants.DIGEST_ALGORITHM))
+                                                     .digestAlgorithm(Constants.DIGEST_ALGORITHM)
                                                      .build();
         return createFileEntry(space, namespace, remoteLogName, localLogFileInfo);
     }

@@ -117,7 +117,7 @@ class FileServiceFileStorageTest {
     }
 
     @Test
-    void deleteFilesBySpaceAndNamespace() throws Exception {
+    void deleteFilesBySpaceAndNamespace() {
         assertThrows(UnsupportedOperationException.class, () -> fileStorage.deleteFilesBySpaceAndNamespace(spaceId, namespace));
     }
 
@@ -201,7 +201,9 @@ class FileServiceFileStorageTest {
         Path testFilePath = Paths.get(pathString)
                                  .toAbsolutePath();
         FileEntry fileEntry = createFileEntry(space, namespace);
-        fileStorage.addFile(fileEntry, testFilePath.toFile());
+        try (InputStream content = Files.newInputStream(testFilePath)) {
+            fileStorage.addFile(fileEntry, content);
+        }
         return fileEntry;
     }
 

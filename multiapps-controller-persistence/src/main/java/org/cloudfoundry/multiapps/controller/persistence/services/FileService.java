@@ -1,10 +1,13 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -13,19 +16,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.common.util.DigestHelper;
+import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileInfo;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileInfo;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.ExternalSqlFileQueryProvider;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFileQueryProvider;
 import org.cloudfoundry.multiapps.controller.persistence.util.SqlQueryExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.xml.bind.DatatypeConverter;
 
 public class FileService {
 
@@ -69,7 +72,7 @@ public class FileService {
         // size), which is probably inefficient
         FileInfo fileInfo = null;
         FileEntry fileEntry = null;
-        try (InputStream autoClosedInputStream = inputStream) {
+        try (inputStream) {
             fileInfo = FileUploader.uploadFile(inputStream);
             fileEntry = addFile(space, namespace, name, fileInfo);
         } catch (IOException e) {
@@ -82,13 +85,23 @@ public class FileService {
         return fileEntry;
     }
 
-    public FileEntry addFile(String space, String namespace, String name, File existingFile) throws FileStorageException {
-        try {
-            FileInfo fileInfo = createFileInfo(existingFile);
+    public FileEntry addFile(String space, String namespace, String name, InputStream content, long fileSize) throws FileStorageException {
+        FileEntry entryWithoutDigest = ImmutableFileEntry.builder()
+                                                         .id(generateRandomId())
+                                                         .name(name)
+                                                         .namespace(namespace)
+                                                         .space(space)
+                                                         .size(BigInteger.valueOf(fileSize))
+                                                         .modified(new Timestamp(System.currentTimeMillis()))
+                                                         .build();
+        FileEntry fileEntry = storeFile(entryWithoutDigest, content);
+        logger.debug(MessageFormat.format(Messages.STORED_FILE_0, fileEntry));
+        return fileEntry;
+    }
 
-            return addFile(space, namespace, name, fileInfo);
-        } catch (NoSuchAlgorithmException e) {
-            throw new SLException(Messages.ERROR_CALCULATING_FILE_DIGEST, existingFile.getName(), e);
+    public FileEntry addFile(String space, String namespace, String name, File existingFile) throws FileStorageException {
+        try (InputStream content = new FileInputStream(existingFile)) {
+            return addFile(space, namespace, name, content, existingFile.length());
         } catch (FileNotFoundException e) {
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_FINDING_FILE_TO_UPLOAD, existingFile.getName()), e);
         } catch (IOException e) {
@@ -154,9 +167,23 @@ public class FileService {
         }
     }
 
-    protected void storeFile(FileEntry fileEntry, FileInfo fileInfo) throws FileStorageException {
-        fileStorage.addFile(fileEntry, fileInfo.getFile());
-        storeFileAttributes(fileEntry);
+    protected FileEntry storeFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
+        if (fileEntry.getDigest() != null) {
+            fileStorage.addFile(fileEntry, content);
+            storeFileAttributes(fileEntry);
+            return fileEntry;
+        }
+        try (DigestInputStream dis = new DigestInputStream(content, MessageDigest.getInstance(Constants.DIGEST_ALGORITHM))) {
+            fileStorage.addFile(fileEntry, dis);
+            FileEntry completeFileEntry = ImmutableFileEntry.copyOf(fileEntry)
+                                                            .withDigest(DatatypeConverter.printHexBinary(dis.getMessageDigest()
+                                                                                                            .digest()))
+                                                            .withDigestAlgorithm(Constants.DIGEST_ALGORITHM);
+            storeFileAttributes(completeFileEntry);
+            return completeFileEntry;
+        } catch (NoSuchAlgorithmException | IOException e) {
+            throw new FileStorageException(e);
+        }
     }
 
     protected boolean deleteFileAttribute(String space, String id) throws FileStorageException {
@@ -212,19 +239,13 @@ public class FileService {
         return sqlFileQueryProvider;
     }
 
-    private FileInfo createFileInfo(File existingFile) throws NoSuchAlgorithmException, IOException {
-        return ImmutableFileInfo.builder()
-                                .file(existingFile)
-                                .size(BigInteger.valueOf(existingFile.length()))
-                                .digest(DigestHelper.computeFileChecksum(existingFile.toPath(), FileUploader.DIGEST_METHOD))
-                                .digestAlgorithm(FileUploader.DIGEST_METHOD)
-                                .build();
-    }
-
     private FileEntry addFile(String space, String namespace, String name, FileInfo fileInfo) throws FileStorageException {
-
         FileEntry fileEntry = createFileEntry(space, namespace, name, fileInfo);
-        storeFile(fileEntry, fileInfo);
+        try (InputStream content = fileInfo.getInputStream()) {
+            storeFile(fileEntry, content);
+        } catch (IOException e) {
+            throw new FileStorageException(e);
+        }
         logger.debug(MessageFormat.format(Messages.STORED_FILE_0, fileEntry));
         return fileEntry;
     }

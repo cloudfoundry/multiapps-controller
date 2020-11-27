@@ -8,7 +8,6 @@ public final class Messages {
     // Exception messages:
     public static final String FILE_UPLOAD_FAILED = "Upload of file \"{0}\" to \"{1}\" failed";
     public static final String FILE_NOT_FOUND = "File \"{0}\" not found";
-    public static final String ERROR_CALCULATING_FILE_DIGEST = "Error calculating digest for file {0}: {1}";
     public static final String ERROR_FINDING_FILE_TO_UPLOAD = "Error finding file to upload with name {0}: {1}";
     public static final String ERROR_READING_FILE_CONTENT = "Error reading content of file {0}: {1}";
     public static final String FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST = "File with ID \"{0}\" and space \"{1}\" does not exist.";
@@ -60,7 +59,7 @@ public final class Messages {
     public static final String DELETED_FILE_0_SUCCESSFULLY_1 = "Deleted file with path \"{0}\": {1}";
     public static final String STORING_FILE_TO_PATH_0 = "Storing file to path \"{0}\"...";
     public static final String STORED_FILE_0 = "Stored file: \"{0}\"";
-    public static final String STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2 = "Stored file \"{0}\" with size {1}";
+    public static final String STORED_FILE_0_WITH_SIZE_1 = "Stored file \"{0}\" with size {1}";
     public static final String DELETED_0_FILES_WITH_SPACEIDS_1 = "Deleted {0} files with space ids \"{1}\".";
     public static final String DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2 = "Deleted {0} files with space \"{1}\" and namespace \"{2}\".";
     public static final String DELETED_0_FILES_MODIFIED_BEFORE_1 = "Deleted {0} files modified before \"{1}\".";

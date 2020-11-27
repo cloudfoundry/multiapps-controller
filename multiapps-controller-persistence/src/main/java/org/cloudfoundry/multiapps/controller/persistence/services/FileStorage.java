@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -8,7 +8,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 
 public interface FileStorage {
 
-    void addFile(FileEntry fileEntry, File file) throws FileStorageException;
+    void addFile(FileEntry fileEntry, InputStream content) throws FileStorageException;
 
     List<FileEntry> getFileEntriesWithoutContent(List<FileEntry> fileEntries) throws FileStorageException;
 
