@@ -21,10 +21,6 @@ public class ProcessTypeParser {
 
     public ProcessType getProcessType(DelegateExecution execution) {
         String serviceId = getServiceId(execution);
-        if (serviceId == null) {
-            String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
-            throw new SLException(MessageFormat.format(Messages.UNKNWON_SERVICE_ID_FOR_PROCESS_0, correlationId));
-        }
         switch (serviceId) {
             case Constants.UNDEPLOY_SERVICE_ID:
                 return ProcessType.UNDEPLOY;
@@ -49,8 +45,13 @@ public class ProcessTypeParser {
         }
     }
 
-    public static String getServiceId(DelegateExecution execution) {
-        return VariableHandling.get(execution, Variables.SERVICE_ID);
+    protected String getServiceId(DelegateExecution execution) {
+        String serviceId = VariableHandling.get(execution, Variables.SERVICE_ID);
+        if (serviceId == null) {
+            String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
+            throw new SLException(MessageFormat.format(Messages.UNKNWON_SERVICE_ID_FOR_PROCESS_0, correlationId));
+        }
+        return serviceId;
     }
 
 }
