@@ -23,10 +23,10 @@ import org.slf4j.LoggerFactory;
 
 public class FileUploader {
 
-    public static final String DIGEST_METHOD = "MD5";
     private static final String EXTENSION = "tmp";
     private static final String PREFIX = "fileUpload";
-    private static final Logger logger = LoggerFactory.getLogger(FileUploader.class);
+    private static final int BUFFER_SIZE = 4 * 1024;
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileUploader.class);
 
     private FileUploader() {
     }
@@ -42,7 +42,7 @@ public class FileUploader {
         BigInteger size = BigInteger.valueOf(0);
         MessageDigest digest;
         try {
-            digest = MessageDigest.getInstance(DIGEST_METHOD);
+            digest = MessageDigest.getInstance(Constants.DIGEST_ALGORITHM);
         } catch (NoSuchAlgorithmException e) {
             throw new FileStorageException(e);
         }
@@ -57,27 +57,23 @@ public class FileUploader {
         // store the passed input to the file system
         try (OutputStream outputFileStream = new FileOutputStream(tempFile)) {
             int read = 0;
-            byte[] buffer = new byte[Constants.BUFFER_SIZE];
-            while ((read = is.read(buffer, 0, Constants.BUFFER_SIZE)) > -1) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            while ((read = is.read(buffer)) > -1) {
                 outputFileStream.write(buffer, 0, read);
                 digest.update(buffer, 0, read);
                 size = size.add(BigInteger.valueOf(read));
             }
         } catch (Exception e) {
-            FileUploader.deleteFile(tempFile);
+            deleteFile(tempFile);
             throw new FileStorageException(e);
         }
 
         return ImmutableFileInfo.builder()
                                 .file(tempFile)
                                 .size(size)
-                                .digest(getDigestString(digest.digest()))
-                                .digestAlgorithm(DIGEST_METHOD)
+                                .digest(DatatypeConverter.printHexBinary(digest.digest()))
+                                .digestAlgorithm(Constants.DIGEST_ALGORITHM)
                                 .build();
-    }
-
-    private static String getDigestString(byte[] digest) {
-        return DatatypeConverter.printHexBinary(digest);
     }
 
     public static void removeFile(FileInfo uploadedFile) {
@@ -90,7 +86,7 @@ public class FileUploader {
         try {
             Files.delete(filePath);
         } catch (IOException e) {
-            logger.warn(MessageFormat.format(Messages.FAILED_TO_DELETE_FILE, filePath), e);
+            LOGGER.warn(MessageFormat.format(Messages.FAILED_TO_DELETE_FILE, filePath), e);
         }
     }
 

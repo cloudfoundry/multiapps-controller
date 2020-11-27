@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
@@ -572,7 +573,7 @@ public class ApplicationConfiguration {
 
     private URL getControllerUrlFromEnvironment() {
         String controllerUrlString = environment.getString("CF_API");
-        if (controllerUrlString == null || controllerUrlString.isEmpty()) {
+        if (StringUtils.isEmpty(controllerUrlString)) {
             Map<String, Object> vcapApplicationMap = getVcapApplication();
             controllerUrlString = getControllerUrl(vcapApplicationMap);
         }

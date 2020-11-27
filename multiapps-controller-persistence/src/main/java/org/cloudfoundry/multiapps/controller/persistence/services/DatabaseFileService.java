@@ -1,14 +1,14 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.FileInfo;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.BlobSqlFileQueryProvider;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFileQueryProvider;
 
@@ -65,17 +65,17 @@ public class DatabaseFileService extends FileService {
     }
 
     @Override
-    protected void storeFile(FileEntry fileEntry, FileInfo fileinfo) throws FileStorageException {
-        try (InputStream fileStream = fileinfo.getInputStream()) {
-            storeFileWithContent(fileEntry, fileStream);
-        } catch (IOException e) {
-            logger.debug(e.getMessage(), e);
-        }
-    }
-
-    private boolean storeFileWithContent(FileEntry fileEntry, InputStream fileStream) throws FileStorageException {
+    protected FileEntry storeFile(FileEntry fileEntry, InputStream fileStream) throws FileStorageException {
         try {
-            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileQuery(fileEntry, fileStream));
+            if (fileEntry.getDigest() != null) {
+                getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileQuery(fileEntry, fileStream));
+                return fileEntry;
+            }
+            String digest = getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileAndComputeDigestQuery(fileEntry,
+                                                                                                                      fileStream));
+            return ImmutableFileEntry.copyOf(fileEntry)
+                                     .withDigest(digest)
+                                     .withDigestAlgorithm(Constants.DIGEST_ALGORITHM);
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }

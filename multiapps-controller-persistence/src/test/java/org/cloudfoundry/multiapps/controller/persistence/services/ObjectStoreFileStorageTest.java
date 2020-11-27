@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -19,7 +19,6 @@ import java.util.UUID;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
@@ -30,8 +29,7 @@ import org.jclouds.blobstore.domain.Blob;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import com.google.common.net.MediaType;
+import org.springframework.http.MediaType;
 
 class ObjectStoreFileStorageTest {
 
@@ -161,14 +159,14 @@ class ObjectStoreFileStorageTest {
     private String addBlobWithNoMetadata() throws Exception {
         BlobStore blobStore = blobStoreContext.getBlobStore();
         Path path = Paths.get(TEST_FILE_LOCATION);
-        long fileSize = FileUtils.sizeOf(path.toFile());
+        long fileSize = Files.size(path);
         String id = UUID.randomUUID()
                         .toString();
         Blob blob = blobStore.blobBuilder(id)
-                             .payload(new FileInputStream(path.toFile()))
+                             .payload(Files.newInputStream(path))
                              .contentDisposition(path.getFileName()
                                                      .toString())
-                             .contentType(MediaType.OCTET_STREAM.toString())
+                             .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
                              .contentLength(fileSize)
                              .build();
         blobStore.putBlob(CONTAINER, blob);
@@ -233,7 +231,9 @@ class ObjectStoreFileStorageTest {
                                  .toAbsolutePath();
         FileEntry fileEntry = createFileEntry(space, namespace);
         fileEntry = enrichFileEntry(fileEntry, testFilePath, date);
-        fileStorage.addFile(fileEntry, testFilePath.toFile());
+        try (InputStream content = Files.newInputStream(testFilePath)) {
+            fileStorage.addFile(fileEntry, content);
+        }
         return fileEntry;
     }
 
@@ -250,8 +250,8 @@ class ObjectStoreFileStorageTest {
                                  .build();
     }
 
-    private FileEntry enrichFileEntry(FileEntry fileEntry, Path path, Date date) {
-        long sizeOfFile = FileUtils.sizeOf(path.toFile());
+    private FileEntry enrichFileEntry(FileEntry fileEntry, Path path, Date date) throws IOException {
+        long sizeOfFile = Files.size(path);
         BigInteger bigInteger = BigInteger.valueOf(sizeOfFile);
         return ImmutableFileEntry.builder()
                                  .from(fileEntry)

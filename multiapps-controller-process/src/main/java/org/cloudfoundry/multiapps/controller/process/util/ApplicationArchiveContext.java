@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
 
-import org.cloudfoundry.multiapps.controller.persistence.services.FileUploader;
+import org.cloudfoundry.multiapps.controller.persistence.Constants;
 
 public class ApplicationArchiveContext {
     private final ZipInputStream zipInputStream;
@@ -21,7 +21,7 @@ public class ApplicationArchiveContext {
         this.zipInputStream = new ZipInputStream(inputStream);
         this.moduleFileName = moduleFileName;
         this.maxSizeInBytes = maxSizeInBytes;
-        createDigestCalculator(FileUploader.DIGEST_METHOD);
+        createDigestCalculator(Constants.DIGEST_ALGORITHM);
     }
 
     private void createDigestCalculator(String algorithm) {

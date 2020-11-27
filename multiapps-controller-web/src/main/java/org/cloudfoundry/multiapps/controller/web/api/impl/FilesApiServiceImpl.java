@@ -16,6 +16,7 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.FilesApiService;
@@ -87,7 +88,13 @@ public class FilesApiServiceImpl implements FilesApiService {
             }
 
             try (InputStream in = item.openStream()) {
-                FileEntry entry = fileService.addFile(spaceGuid, namespace, item.getName(), in);
+                FileEntry entry;
+                long fileSize = getFileSizeHeaderValue(request);
+                if (fileSize != -1) {
+                    entry = fileService.addFile(spaceGuid, namespace, item.getName(), in, fileSize);
+                } else {
+                    entry = fileService.addFile(spaceGuid, namespace, item.getName(), in);
+                }
                 uploadedFiles.add(entry);
             }
         }
@@ -107,6 +114,17 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     protected ServletFileUpload getFileUploadServlet() {
         return new ServletFileUpload();
+    }
+
+    private long getFileSizeHeaderValue(HttpServletRequest request) {
+        String fileSizeHeader = request.getHeader("X-File-Size");
+        if (StringUtils.isEmpty(fileSizeHeader)) {
+            return -1L;
+        }
+        if (!StringUtils.isNumeric(fileSizeHeader)) {
+            throw new SLException("Invalid \"X-File-Size\" header: " + fileSizeHeader);
+        }
+        return Long.parseLong(fileSizeHeader);
     }
 
     private FileMetadata parseFileEntry(FileEntry fileEntry) {
