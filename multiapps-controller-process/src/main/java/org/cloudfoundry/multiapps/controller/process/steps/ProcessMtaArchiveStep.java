@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveHelper;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -24,7 +23,6 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
     @Inject
     private OperationService operationService;
-
     @Inject
     protected DescriptorParserFacadeFactory descriptorParserFactory;
 
@@ -35,6 +33,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.PROCESSING_MTA_ARCHIVE);
 
         String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
+        getStepLogger().debug("MTA Archive ID: {0}", appArchiveId);
         processApplicationArchive(context, appArchiveId);
         setMtaIdForProcess(context);
         acquireOperationLock(context);
@@ -49,34 +48,26 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     }
 
     private void processApplicationArchive(ProcessContext context, String appArchiveId) throws FileStorageException {
-        fileService.consumeFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId,
-                                       createDeploymentDescriptorFileContentConsumer(context));
-        fileService.consumeFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId,
-                                       createManifestFileContentConsumer(context, appArchiveId));
+        DeploymentDescriptor descriptor = fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId,
+                                                                         this::extractDeploymentDescriptor);
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
+
+        MtaArchiveHelper helper = fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId,
+                                                                 this::createMtaArchiveHelperFromManifest);
+        MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
+        addMtaArchiveModulesInMtaArchiveElements(context, helper, mtaArchiveElements);
+        addMtaRequiredDependenciesInMtaArchiveElements(helper, mtaArchiveElements);
+        addMtaArchiveResourcesInMtaArchiveElements(helper, mtaArchiveElements);
+        context.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
     }
 
-    private FileContentConsumer createDeploymentDescriptorFileContentConsumer(ProcessContext context) {
-        return appArchiveStream -> {
-            String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, configuration.getMaxMtaDescriptorSize());
-            DescriptorParserFacade descriptorParserFacade = descriptorParserFactory.getInstance();
-            DeploymentDescriptor deploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(descriptorString);
-            context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
-        };
+    private DeploymentDescriptor extractDeploymentDescriptor(InputStream appArchiveStream) {
+        String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, configuration.getMaxMtaDescriptorSize());
+        DescriptorParserFacade descriptorParserFacade = descriptorParserFactory.getInstance();
+        return descriptorParserFacade.parseDeploymentDescriptor(descriptorString);
     }
 
-    private FileContentConsumer createManifestFileContentConsumer(ProcessContext context, String appArchiveId) {
-        return appArchiveStream -> {
-            MtaArchiveHelper helper = createInitializedMtaArchiveHelper(appArchiveStream);
-            getStepLogger().debug("MTA Archive ID: {0}", appArchiveId);
-            MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
-            addMtaArchiveModulesInMtaArchiveElements(context, helper, mtaArchiveElements);
-            addMtaRequiredDependenciesInMtaArchiveElements(helper, mtaArchiveElements);
-            addMtaArchiveResourcesInMtaArchiveElements(helper, mtaArchiveElements);
-            context.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
-        };
-    }
-
-    private MtaArchiveHelper createInitializedMtaArchiveHelper(InputStream appArchiveStream) {
+    private MtaArchiveHelper createMtaArchiveHelperFromManifest(InputStream appArchiveStream) {
         Manifest manifest = ArchiveHandler.getManifest(appArchiveStream, configuration.getMaxManifestSize());
         MtaArchiveHelper helper = getHelper(manifest);
         helper.init();
