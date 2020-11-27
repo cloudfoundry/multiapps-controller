@@ -18,7 +18,7 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveHelper;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessConflictPreventer;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
@@ -55,20 +55,20 @@ class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveSt
         step.conflictPreventerSupplier = service -> mock(ProcessConflictPreventer.class);
     }
 
-    private void prepareFileService() throws Exception {
-        doAnswer(new Answer<Void>() {
+    private <T> void prepareFileService() throws Exception {
+        doAnswer(new Answer<T>() {
 
             @Override
-            public Void answer(InvocationOnMock invocation) throws Exception {
-                String fileId = (String) invocation.getArguments()[1];
-                FileContentConsumer fileContentConsumer = invocation.getArgument(2);
+            public T answer(InvocationOnMock invocation) throws Exception {
+                String fileId = invocation.getArgument(1);
+                int fileIndex = Integer.parseInt(fileId);
+                FileContentProcessor<T> fileContentProcessor = invocation.getArgument(2);
 
-                fileContentConsumer.consume(getClass().getResourceAsStream(input.archiveFileLocations.get(Integer.parseInt(fileId))));
-                return null;
+                return fileContentProcessor.process(getClass().getResourceAsStream(input.archiveFileLocations.get(fileIndex)));
             }
 
         }).when(fileService)
-          .consumeFileContent(any(), any(), any());
+          .processFileContent(any(), any(), any());
     }
 
     @Test
