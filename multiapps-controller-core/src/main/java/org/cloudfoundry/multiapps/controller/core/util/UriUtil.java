@@ -1,7 +1,10 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.text.MessageFormat;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,4 +49,13 @@ public class UriUtil {
                      .map(CloudRouteSummary::toUriString)
                      .collect(Collectors.joining(", "));
     }
+
+    public static void validateUrl(String url) {
+        try {
+            new URL(url).toURI();
+        } catch (URISyntaxException | MalformedURLException e) {
+            throw new IllegalArgumentException(MessageFormat.format(Messages.INVALID_URL, url), e);
+        }
+    }
+
 }

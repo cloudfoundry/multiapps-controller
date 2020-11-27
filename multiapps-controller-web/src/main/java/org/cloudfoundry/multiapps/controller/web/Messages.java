@@ -13,6 +13,7 @@ public final class Messages {
     public static final String ACTION_0_CANNOT_BE_EXECUTED_OVER_OPERATION_1_IN_STATE_2 = "Action \"{0}\" cannot be executed over operation \"{1}\" in state \"{2}\".";
     public static final String OPERATION_0_NOT_FOUND = "Operation \"{0}\" was not found.";
     public static final String TEMPORARY_PROBLEM_WITH_PERSISTENCE_LAYER = "Temporary problem with persistence layer of the service";
+    public static final String FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH = "File URL response did not return Content-Length header";
 
     // Audit log messages
 

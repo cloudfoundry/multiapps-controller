@@ -11,6 +11,6 @@ public interface FilesApiService {
 
     ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid, String namespace);
 
-    ResponseEntity<FileMetadata> uploadFile(HttpServletRequest request, String spaceGuid, String namespace);
+    ResponseEntity<FileMetadata> uploadFile(HttpServletRequest request, String spaceGuid, String namespace, String fileUrl);
 
 }

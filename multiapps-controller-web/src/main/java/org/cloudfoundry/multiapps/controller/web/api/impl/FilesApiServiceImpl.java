@@ -2,7 +2,16 @@ package org.cloudfoundry.multiapps.controller.web.api.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +25,7 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.LimitedInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -23,10 +33,13 @@ import org.cloudfoundry.multiapps.controller.api.FilesApiService;
 import org.cloudfoundry.multiapps.controller.api.model.FileMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableFileMetadata;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
+import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.util.Configuration;
+import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.ServletUtil;
 import org.slf4j.Logger;
@@ -58,11 +71,16 @@ public class FilesApiServiceImpl implements FilesApiService {
     }
 
     @Override
-    public ResponseEntity<FileMetadata> uploadFile(HttpServletRequest request, String spaceGuid, String namespace) {
+    public ResponseEntity<FileMetadata> uploadFile(HttpServletRequest request, String spaceGuid, String namespace, String fileUrl) {
         try {
+            FileEntry fileEntry;
             StopWatch stopWatch = StopWatch.createStarted();
             LOGGER.trace("Received upload request on URI: {}", ServletUtil.decodeUri(request));
-            FileEntry fileEntry = uploadFiles(request, spaceGuid, namespace).get(0);
+            if (StringUtils.isEmpty(fileUrl)) {
+                fileEntry = uploadFiles(request, spaceGuid, namespace).get(0);
+            } else {
+                fileEntry = uploadFileFromUrl(spaceGuid, namespace, fileUrl);
+            }
             FileMetadata file = parseFileEntry(fileEntry);
             AuditLoggingProvider.getFacade()
                                 .logConfigCreate(file);
@@ -71,7 +89,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                          file.getSize(), file.getDigest(), file.getDigestAlgorithm(), stopWatch.getTime());
             return ResponseEntity.status(HttpStatus.CREATED)
                                  .body(file);
-        } catch (FileUploadException | IOException | FileStorageException e) {
+        } catch (FileUploadException | IOException | FileStorageException | InterruptedException e) {
             throw new SLException(e, Messages.COULD_NOT_UPLOAD_FILE_0, e.getMessage());
         }
     }
@@ -138,4 +156,64 @@ public class FilesApiServiceImpl implements FilesApiService {
                                     .namespace(fileEntry.getNamespace())
                                     .build();
     }
+
+    private FileEntry uploadFileFromUrl(String spaceGuid, String namespace, String fileUrl)
+        throws FileStorageException, IOException, InterruptedException {
+        UriUtil.validateUrl(fileUrl);
+        String decodedUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
+        HttpClient client = buildHttpClient();
+
+        HttpResponse<InputStream> response = client.send(buildFetchFileRequest(decodedUrl), BodyHandlers.ofInputStream());
+
+        long fileSize = response.headers()
+                                .firstValueAsLong(Constants.CONTENT_LENGTH)
+                                .orElseThrow(() -> new SLException(Messages.FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH));
+
+        long maxUploadSize = new Configuration().getMaxUploadSize();
+        if (fileSize > maxUploadSize) {
+            throw new SLException(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED, maxUploadSize));
+        }
+
+        String fileName = extractFileName(decodedUrl);
+        FileUtils.validateFileHasExtension(fileName);
+        try (InputStream content = createLimitedInputStream(response.body(), maxUploadSize)) {
+            return fileService.addFile(spaceGuid, namespace, fileName, content, fileSize);
+        }
+    }
+
+    protected HttpClient buildHttpClient() {
+        return HttpClient.newBuilder()
+                         //ssl and authentication configuration can be done here
+                         .version(HttpClient.Version.HTTP_1_1)
+                         .connectTimeout(Duration.ofMinutes(10))
+                         .followRedirects(Redirect.NORMAL)
+                         .build();
+    }
+
+    private HttpRequest buildFetchFileRequest(String decodedUrl) {
+        return HttpRequest.newBuilder()
+                          .GET()
+                          .uri(URI.create(decodedUrl))
+                          .timeout(Duration.ofMinutes(5))
+                          .build();
+    }
+
+    private String extractFileName(String url) {
+        String path = URI.create(url).getPath();
+        if (path.indexOf('/') == -1) {
+            return path;
+        }
+        String[] pathFragments = path.split("/");
+        return pathFragments[pathFragments.length - 1];
+    }
+
+    private InputStream createLimitedInputStream(InputStream source, long maxUploadSize) {
+        return new LimitedInputStream(source, maxUploadSize) {
+            @Override
+            protected void raiseError(long maxSize, long currentSize) {
+                throw new SLException(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED, maxUploadSize));
+            }
+        };
+    }
+
 }

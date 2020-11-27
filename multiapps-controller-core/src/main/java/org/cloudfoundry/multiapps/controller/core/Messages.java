@@ -71,6 +71,7 @@ public final class Messages {
     public static final String DELETING_TEMP_FILE = "Deleting temp file: {0}";
     public static final String ERROR_DELETING_APP_TEMP_FILE = "Error deleting temp application file \"{0}\"";
     public static final String ERROR_DURING_DATA_TERMINATION_0 = "Error during data termination: {0}";
+    public static final String INVALID_URL = "Invalid URL: {0}";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";

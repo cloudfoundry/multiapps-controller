@@ -83,6 +83,11 @@ paths:
         description: "file namespace"
         required: false
         type: "string"
+      - name: "file-url"
+        in: "query"
+        description: "URL reference to a remote file"
+        required: false
+        type: "string"
       responses:
         200:
           description: "successful operation"

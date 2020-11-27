@@ -12,6 +12,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.text.MessageFormat;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.slf4j.Logger;
 
@@ -19,6 +20,7 @@ public class FileUtils {
 
     public static final String PATH_SHOULD_NOT_BE_ABSOLUTE = "Archive entry name \"{0}\" should not be absolute";
     public static final String PATH_SHOULD_BE_NORMALIZED = "Archive entry name \"{0}\" should be normalized";
+    public static final String FILE_DOES_NOT_HAVE_EXTENSION = "File \"{0}\" does not have extension";
 
     private FileUtils() {
     }
@@ -47,6 +49,13 @@ public class FileUtils {
         if (Paths.get(path)
                  .isAbsolute()) {
             throw new IllegalArgumentException(MessageFormat.format(PATH_SHOULD_NOT_BE_ABSOLUTE, path));
+        }
+    }
+
+    public static void validateFileHasExtension(String fileName) {
+        String extension = FilenameUtils.getExtension(fileName);
+        if (StringUtils.isEmpty(extension)) {
+            throw new IllegalArgumentException(MessageFormat.format(FILE_DOES_NOT_HAVE_EXTENSION, fileName));
         }
     }
 
