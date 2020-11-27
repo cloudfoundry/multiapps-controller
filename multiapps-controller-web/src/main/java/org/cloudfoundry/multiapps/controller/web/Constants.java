@@ -11,4 +11,6 @@ public class Constants {
     public static final String CSRF_TOKEN = "X-CSRF-TOKEN";
     public static final String CSRF_PARAM_NAME = "X-CSRF-PARAM";
     public static final String CSRF_HEADER_NAME = "X-CSRF-HEADER";
+    public static final String CONTENT_LENGTH = "Content-Length";
+
 }

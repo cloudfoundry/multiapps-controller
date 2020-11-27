@@ -55,8 +55,9 @@ public class FilesApi {
     public ResponseEntity<FileMetadata>
            uploadFile(HttpServletRequest request,
                       @ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                      @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace) {
-        return delegate.uploadFile(request, spaceGuid, namespace);
+                      @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
+                      @ApiParam(value = "URL reference to a remote file") @RequestParam(name = RequestVariables.FILE_URL, required = false) String fileUrl) {
+        return delegate.uploadFile(request, spaceGuid, namespace, fileUrl);
     }
 
 }

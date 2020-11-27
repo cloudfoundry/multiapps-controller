@@ -25,6 +25,7 @@ public class Constants {
         public static final String MTA_ID = "mtaId";
         public static final String NAMESPACE = "namespace";
         public static final String MTA_NAME = "name";
+        public static final String FILE_URL = "file-url";
     }
 
     public static class QueryVariables {

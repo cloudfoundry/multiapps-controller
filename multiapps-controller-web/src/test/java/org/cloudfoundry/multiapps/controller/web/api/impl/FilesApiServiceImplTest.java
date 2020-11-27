@@ -4,7 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -19,6 +25,7 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.FileMetadata;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
@@ -38,20 +45,21 @@ class FilesApiServiceImplTest {
 
     @Mock
     private FileService fileService;
-
     @Mock
     private HttpServletRequest request;
-
     @Mock
     private FileItemIterator fileItemIterator;
-
     @Mock
     private FileItemStream fileItemStream;
-
     @Mock
     private ServletFileUpload servletFileUpload;
+    @Mock
+    private HttpClient httpClient;
+    @Mock
+    private HttpResponse<InputStream> fileUrlResponse;
 
     private static final long MAX_PERMITTED_SIZE = new Configuration().getMaxUploadSize();
+    private static final String FILE_URL = "http://host.domain/test.mtar?query=true";
 
     @InjectMocks
     private final FilesApiServiceImpl testedClass = new FilesApiServiceImpl() {
@@ -60,6 +68,10 @@ class FilesApiServiceImplTest {
             return servletFileUpload;
         }
 
+        @Override
+        protected HttpClient buildHttpClient() {
+            return httpClient;
+        }
     };
 
     private static final String SPACE_GUID = "896e6be9-8217-4a1c-b938-09b30966157a";
@@ -119,7 +131,7 @@ class FilesApiServiceImplTest {
                                          Mockito.any(InputStream.class)))
                .thenReturn(fileEntry);
 
-        ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID);
+        ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID, null);
 
         Mockito.verify(servletFileUpload)
                .setSizeMax(Mockito.eq(new Configuration().getMaxUploadSize()));
@@ -138,7 +150,75 @@ class FilesApiServiceImplTest {
     void testUploadMtaFileErrorSizeExceeded() throws Exception {
         Mockito.when(servletFileUpload.getItemIterator(Mockito.eq(request)))
                .thenThrow(new SizeLimitExceededException("size limit exceeded", MAX_PERMITTED_SIZE + 1024, MAX_PERMITTED_SIZE));
-        Assertions.assertThrows(SLException.class, () -> testedClass.uploadFile(request, SPACE_GUID, null));
+        Assertions.assertThrows(SLException.class, () -> testedClass.uploadFile(request, SPACE_GUID, null, null));
+    }
+
+    @Test
+    void testUploadFileFromUrl() throws Exception {
+        HttpHeaders headers = HttpHeaders.of(Map.of("Content-Length", List.of("20")), (a, b) -> true);
+        Mockito.when(fileUrlResponse.headers())
+               .thenReturn(headers);
+        Mockito.when(fileUrlResponse.body())
+               .thenReturn(InputStream.nullInputStream());
+
+        Mockito.when(httpClient.send(Mockito.any(), Mockito.eq(BodyHandlers.ofInputStream())))
+               .thenReturn(fileUrlResponse);
+
+        String fileName = "test.mtar";
+        FileEntry fileEntry = createFileEntry(fileName);
+
+        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName),
+                                         Mockito.any(InputStream.class), Mockito.eq(20L)))
+               .thenReturn(fileEntry);
+
+        ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID, FILE_URL);
+
+        Mockito.verify(fileService)
+               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName), Mockito.any(InputStream.class),
+                        Mockito.eq(20L));
+
+        FileMetadata fileMetadata = response.getBody();
+        assertMetadataMatches(fileEntry, fileMetadata);
+    }
+
+    @Test
+    void testFileUrlDoesntReturnContentLength() throws Exception {
+        HttpHeaders headers = HttpHeaders.of(Collections.emptyMap(), (a, b) -> true);
+        Mockito.when(fileUrlResponse.headers())
+               .thenReturn(headers);
+
+        Mockito.when(httpClient.send(Mockito.any(), Mockito.eq(BodyHandlers.ofInputStream())))
+               .thenReturn(fileUrlResponse);
+
+        Assertions.assertThrows(SLException.class, () -> testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID, FILE_URL));
+    }
+
+    @Test
+    void testFileUrlReturnsContentLengthAboveMaxUploadSize() throws Exception {
+        long invalidFileSize = MAX_PERMITTED_SIZE + 1024;
+        String fileSize = Long.toString(invalidFileSize);
+        HttpHeaders headers = HttpHeaders.of(Map.of("Content-Length", List.of(fileSize)), (a, b) -> true);
+        Mockito.when(fileUrlResponse.headers())
+               .thenReturn(headers);
+
+        Mockito.when(httpClient.send(Mockito.any(), Mockito.eq(BodyHandlers.ofInputStream())))
+               .thenReturn(fileUrlResponse);
+
+        Assertions.assertThrows(SLException.class, () -> testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID, FILE_URL));
+    }
+
+    @Test
+    void testUploadFileWithInvalidName() throws Exception {
+        HttpHeaders headers = HttpHeaders.of(Map.of("Content-Length", List.of("20")), (a, b) -> true);
+        Mockito.when(fileUrlResponse.headers())
+               .thenReturn(headers);
+
+        Mockito.when(httpClient.send(Mockito.any(), Mockito.eq(BodyHandlers.ofInputStream())))
+               .thenReturn(fileUrlResponse);
+
+        String fileUrlWithInvalidFileName = "http://host.domain/path/file?query=true";
+        Assertions.assertThrows(IllegalArgumentException.class,
+                                () -> testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID, fileUrlWithInvalidFileName));
     }
 
     private void assertMetadataMatches(FileEntry expected, FileMetadata actual) {
@@ -155,7 +235,7 @@ class FilesApiServiceImplTest {
                                  .id(UUID.randomUUID()
                                          .toString())
                                  .digest(RandomStringUtils.random(32, DIGEST_CHARACTER_TABLE))
-                                 .digestAlgorithm("MD5")
+                                 .digestAlgorithm(Constants.DIGEST_ALGORITHM)
                                  .name(name)
                                  .namespace(NAMESPACE_GUID)
                                  .size(BigInteger.valueOf(new Random().nextInt(1024 * 1024 * 10)))
