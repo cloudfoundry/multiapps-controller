@@ -30,7 +30,6 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.VersionRule;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloudfoundry.client.facade.StartingInfo;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
@@ -380,10 +379,6 @@ public interface Variables {
                                                                   .name("startedTask")
                                                                   .type(Variable.typeReference(CloudTask.class))
                                                                   .build();
-    Variable<StartingInfo> STARTING_INFO = ImmutableJsonBinaryVariable.<StartingInfo> builder()
-                                                                      .name("startingInfo")
-                                                                      .type(Variable.typeReference(StartingInfo.class))
-                                                                      .build();
     Variable<List<ConfigurationSubscription>> SUBSCRIPTIONS_TO_CREATE = ImmutableJsonBinaryVariable.<List<ConfigurationSubscription>> builder()
                                                                                                    .name("subscriptionsToCreate")
                                                                                                    .type(new TypeReference<>() {

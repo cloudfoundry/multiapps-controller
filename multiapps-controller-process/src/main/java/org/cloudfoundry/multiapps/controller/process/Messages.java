@@ -197,7 +197,7 @@ public class Messages {
     public static final String UNBINDING_SERVICE_FROM_APP = "Unbinding service \"{0}\" from application \"{1}\"...";
     public static final String POLLING_SERVICE_OPERATIONS = "Polling service operations...";
     public static final String AUTO_ABORTING_PROCESS_0 = "Auto-aborting process \"{0}\"...";
-    public static final String SOME_INSTANCES_ARE_FLAPPING = "Some instances are flapping. Check the logs of your application for more information.";
+    public static final String SOME_INSTANCES_ARE_DOWN = "Some instances are down. Check the logs of your application for more information.";
     public static final String SOME_INSTANCES_HAVE_CRASHED = "Some instances have crashed. Check the logs of your application for more information.";
     public static final String CLEAN_UP_JOB_STARTED_BY_APPLICATION_INSTANCE_0_AT_1 = "Clean-up job started by application instance {0} at: {1}";
     public static final String CLEAN_UP_JOB_FINISHED_AT_0 = "Clean-up job finished at: {0}";
@@ -455,7 +455,6 @@ public class Messages {
     public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1 = "Binding service instance \"{0}\" to application \"{1}\"...";
     public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_WITH_PARAMETERS_2 = "Binding service instance \"{0}\" to application \"{1}\" with parameters: {2}";
     public static final String CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3 = "Creating application \"{0}\" with memory \"{1}\", URIs \"{2}\" and staging: {3}";
-    public static final String CREATING_APPLICATION_0_WITH_DISK_QUOTA_1_MEMORY_2_URIS_3_AND_STAGING_4 = "Creating application \"{0}\" with disk quota \"{1}\", memory \"{2}\", URIs \"{3}\" and staging: {4}";
     public static final String CREATING_SERVICE_INSTANCE_0 = "Creating service instance: {0}";
     public static final String CREATING_SERVICE_BROKER_0 = "Creating service broker: {0}";
     public static final String CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2 = "Creating service key \"{0}\" for service instance \"{1}\" with parameters: {2}";
@@ -470,6 +469,7 @@ public class Messages {
     public static final String DELETING_SERVICE_BROKER_0 = "Deleting service broker \"{0}\"...";
     public static final String DELETING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1 = "Deleting service key \"{0}\" for service instance \"{1}\"...";
     public static final String GETTING_APPLICATION_0 = "Getting application \"{0}\"...";
+    public static final String GETTING_APPLICATION_0_GUID = "Getting application guid \"{0}\"...";
     public static final String GETTING_ENVIRONMENT_OF_APPLICATION_0 = "Getting environment of application \"{0}\"...";
     public static final String GETTING_EVENTS_FOR_APPLICATION_0 = "Getting events for application \"{0}\"...";
     public static final String GETTING_EVENTS_BY_ACTEE_0 = "Getting events by actee \"{0}\"...";
@@ -553,6 +553,7 @@ public class Messages {
     public static final String GETTING_ROLES_FOR_USER_0_FOR_SPACE_1 = "Getting roles for user: \"0\" for space: \"1\"";
     public static final String REGISTERING_PROCESS_EVENT_IN_DYNATRACE = "Registering process event in dynatrace: \"0\"";
     public static final String REGISTERING_PROCESS_DURATION_IN_DYNATRACE = "Registering process duration in dynatrace: \"0\"";
+    public static final String CREATING_DOCKER_PACKAGE_FOR_APPLICATION_0 = "Creating a docker package for application: \"0\"";
 
     protected Messages() {
     }
