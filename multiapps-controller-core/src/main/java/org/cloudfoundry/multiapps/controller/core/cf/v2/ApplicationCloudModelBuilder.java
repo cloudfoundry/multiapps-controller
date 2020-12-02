@@ -201,7 +201,7 @@ public class ApplicationCloudModelBuilder {
     protected void addBindingParameters(Map<String, Map<String, Object>> result, RequiredDependency dependency, Module module) {
         Resource resource = getResource(dependency.getName());
         if (resource != null) {
-            MapUtil.addNonNull(result, NameUtil.getServiceName(resource), getBindingParameters(dependency, module.getName()));
+            MapUtil.addNonNull(result, resource.getName(), getBindingParameters(dependency, module.getName()));
         }
     }
 
