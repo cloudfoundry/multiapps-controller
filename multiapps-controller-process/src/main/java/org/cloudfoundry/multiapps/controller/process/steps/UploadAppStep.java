@@ -74,8 +74,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             return StepPhase.DONE;
         }
 
-        String newApplicationDigest = getNewApplicationDigest(context, context.getRequiredVariable(Variables.APP_ARCHIVE_ID),
-                                                              moduleFileName);
+        String newApplicationDigest = getNewApplicationDigest(context, moduleFileName);
         CloudApplication cloudApp = client.getApplication(applicationToProcess.getName());
 
         boolean contentChanged = detectApplicationFileDigestChanges(cloudApp, newApplicationDigest);
@@ -104,8 +103,9 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         return client.createDockerPackage(applicationGuid, application.getDockerInfo());
     }
 
-    private String getNewApplicationDigest(ProcessContext context, String appArchiveId, String fileName) throws FileStorageException {
-        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId,
+    private String getNewApplicationDigest(ProcessContext context, String fileName) throws FileStorageException {
+        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID),
+                                              context.getRequiredVariable(Variables.APP_ARCHIVE_ID),
                                               createDigestCalculatorFileContentProcessor(fileName));
     }
 
