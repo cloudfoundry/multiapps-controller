@@ -36,6 +36,7 @@ class FilePartsMergerTest {
             filePartsMerger.cleanUp();
             Assertions.assertFalse(filePartsMerger.getMergedFilePath()
                                                   .toFile()
+                                                  .getAbsoluteFile()
                                                   .exists());
         }
     }
