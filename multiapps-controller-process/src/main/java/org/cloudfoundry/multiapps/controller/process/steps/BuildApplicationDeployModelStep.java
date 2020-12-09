@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.client.v3.processes.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
@@ -25,6 +26,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
+import com.sap.cloudfoundry.client.facade.domain.Staging;
 
 @Named("buildApplicationDeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -41,8 +44,10 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.MODULE_TO_DEPLOY, applicationModule);
         CloudApplicationExtended modifiedApp = StepsUtil.getApplicationCloudModelBuilder(context)
                                                         .build(applicationModule, moduleToDeployHelper);
+        Staging stagingWithUpdatedHealthCheck = modifyHealthCheckType(modifiedApp.getStaging());
         modifiedApp = ImmutableCloudApplicationExtended.builder()
                                                        .from(modifiedApp)
+                                                       .staging(stagingWithUpdatedHealthCheck)
                                                        .routes(getApplicationRoutes(context, modifiedApp))
                                                        .build();
         context.setVariable(Variables.APP_TO_PROCESS, modifiedApp);
@@ -58,6 +63,18 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         return handlerFactory.getDescriptorHandler()
                              .findModule(deploymentDescriptor, module);
+    }
+
+    private Staging modifyHealthCheckType(Staging staging) {
+        String healthCheckType = staging.getHealthCheckType();
+        if (HealthCheckType.NONE.getValue()
+                                .equalsIgnoreCase(healthCheckType)) {
+            getStepLogger().info(Messages.USING_DEPRECATED_HEALTH_CHECK_TYPE_USE_ONE_OF_THE_FOLLOWING, healthCheckType,
+                                 HealthCheckType.values());
+            return ImmutableStaging.copyOf(staging)
+                                   .withHealthCheckType(HealthCheckType.PROCESS.getValue());
+        }
+        return staging;
     }
 
     private void determineBindingUnbindingServicesStrategy(ProcessContext context, Module module) {
