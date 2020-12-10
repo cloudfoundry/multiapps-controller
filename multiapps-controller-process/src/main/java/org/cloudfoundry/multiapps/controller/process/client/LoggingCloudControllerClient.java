@@ -235,12 +235,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public InstancesInfo getApplicationInstances(String applicationName) {
-        logger.debug(Messages.GETTING_INSTANCES_OF_APPLICATION_0, applicationName);
-        return delegate.getApplicationInstances(applicationName);
-    }
-
-    @Override
     public InstancesInfo getApplicationInstances(CloudApplication app) {
         logger.debug(Messages.GETTING_INSTANCES_OF_APPLICATION_0, app.getName());
         return delegate.getApplicationInstances(app);
