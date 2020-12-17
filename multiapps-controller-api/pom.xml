@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.cloudfoundry.multiapps</groupId>
         <artifactId>multiapps-controller-parent</artifactId>
-        <version>1.115.0</version>
+        <version>1.115.1</version>
     </parent>
 
     <dependencies>
