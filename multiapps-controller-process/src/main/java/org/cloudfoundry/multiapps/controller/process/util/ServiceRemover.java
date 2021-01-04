@@ -64,7 +64,8 @@ public class ServiceRemover {
 
     private void deleteServiceKeys(CloudControllerClient client, StepLogger stepLogger, List<CloudServiceKey> serviceKeys) {
         for (CloudServiceKey serviceKey : serviceKeys) {
-            stepLogger.info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, serviceKey.getName(), serviceKey.getName());
+            stepLogger.info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, serviceKey.getName(), serviceKey.getServiceInstance()
+                                                                                                       .getName());
             client.deleteServiceKey(serviceKey);
         }
     }
