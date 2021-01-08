@@ -11,7 +11,8 @@ public class ApplicationProductizationStateUpdaterBasedOnAge extends Application
 
     @Override
     protected boolean hasIdleLabel(DeployedMtaApplication application) {
-        return BlueGreenApplicationNameSuffix.isSuffixContainedIn(application.getName());
+        return !application.getName()
+                           .endsWith(BlueGreenApplicationNameSuffix.LIVE.asSuffix());
     }
 
 }
