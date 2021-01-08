@@ -108,6 +108,16 @@ public class OperationQueryImpl extends AbstractQueryImpl<Operation, OperationQu
     }
 
     @Override
+    public OperationQuery cachedState(Operation.State currentState) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.CURRENT_STATE)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(currentState)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
     public OperationQuery startedBefore(Date startedBefore) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<Date> builder()
                                                                        .attribute(AttributeNames.STARTED_AT)

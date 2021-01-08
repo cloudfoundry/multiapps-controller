@@ -16,7 +16,6 @@ import org.cloudfoundry.multiapps.controller.api.model.OperationMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ParameterMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
@@ -47,8 +46,6 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     protected ProcessTypeParser processTypeParser;
     @Autowired(required = false)
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
-    @Inject
-    protected ApplicationConfiguration configuration;
     @Inject
     private DynatracePublisher dynatracePublisher;
 
@@ -126,6 +123,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
                                                 .user(StepsUtil.determineCurrentUser(execution))
                                                 .hasAcquiredLock(false)
                                                 .namespace(VariableHandling.get(execution, Variables.MTA_NAMESPACE))
+                                                .cachedState(Operation.State.RUNNING)
                                                 .build();
         operationService.add(operation);
     }

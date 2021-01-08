@@ -105,6 +105,8 @@ class ProcessConflictPreventerTest {
                         .equals(false)
             && operation.getState()
                         .equals(Operation.State.ABORTED)
+            && operation.getCachedState()
+                        .equals(Operation.State.ABORTED)
             && operation.getEndedAt() != null;
     }
 

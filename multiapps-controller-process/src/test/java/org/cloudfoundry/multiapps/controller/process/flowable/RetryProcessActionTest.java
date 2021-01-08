@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.flowable;
 
 import java.util.List;
 
+import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
@@ -25,6 +26,7 @@ class RetryProcessActionTest extends ProcessActionTest {
         verifySubprocessesAreExecuted();
         Mockito.verify(historicOperationEventService)
                .add(ImmutableHistoricOperationEvent.of(PROCESS_GUID, HistoricOperationEvent.EventType.RETRIED));
+        assertStateUpdated(Operation.State.RUNNING);
     }
 
     @Test
@@ -36,6 +38,7 @@ class RetryProcessActionTest extends ProcessActionTest {
         verifySubprocessesAreExecuted();
         Mockito.verify(historicOperationEventService)
                .add(ImmutableHistoricOperationEvent.of(PROCESS_GUID, HistoricOperationEvent.EventType.RETRIED));
+        assertStateUpdated(Operation.State.RUNNING);
     }
 
     private void verifySubprocessesAreExecuted() {
@@ -50,8 +53,7 @@ class RetryProcessActionTest extends ProcessActionTest {
         return new RetryProcessAction(flowableFacade,
                                       List.of(new RetryProcessAdditionalAction(flowableFacade, progressMessageService),
                                               new SetRetryPhaseAdditionalProcessAction(flowableFacade)),
-                                      historicOperationEventService,
-                                      cloudControllerClientProvider);
+                                      historicOperationEventService, operationService, cloudControllerClientProvider);
     }
 
 }

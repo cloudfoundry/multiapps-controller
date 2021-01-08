@@ -175,7 +175,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private List<Operation.State> getStates(List<String> statusList) {
         return ListUtils.emptyIfNull(statusList)
                         .stream()
-                        .map(Operation.State::valueOf)
+                        .map(Operation.State::fromValue)
                         .collect(Collectors.toList());
     }
 
@@ -214,12 +214,24 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             Operation operation = operationService.createQuery()
                                                   .processId(operationId)
                                                   .singleResult();
-            operation = operationsHelper.addState(operation);
+            operation = addOperationState(operation);
             operation = operationsHelper.addErrorType(operation);
             return operation;
         } catch (NoResultException e) {
             throw new NotFoundException(e, Messages.OPERATION_0_NOT_FOUND, operationId);
         }
+    }
+
+    private Operation addOperationState(Operation operation) {
+        long startTime = System.currentTimeMillis();
+        operation = operationsHelper.addState(operation);
+        long totalTimeInMillis = System.currentTimeMillis() - startTime;
+        LOGGER.info(MessageFormat.format(Messages.OPERATION_STATE_CALCULATION_TOOK_0, totalTimeInMillis));
+        if (operation.getState() != operation.getCachedState()) {
+            LOGGER.warn(MessageFormat.format(Messages.OPERATION_CACHED_1_AND_COMPUTED_2_STATE_DIFFER_FOR_PROCESS_0,
+                        operation.getProcessId(), operation.getCachedState(), operation.getState()));
+        }
+        return operation;
     }
 
     private List<String> getAvailableActions(Operation operation) {

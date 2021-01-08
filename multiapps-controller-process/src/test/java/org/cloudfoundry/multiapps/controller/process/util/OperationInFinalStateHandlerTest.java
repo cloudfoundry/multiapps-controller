@@ -2,12 +2,17 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.ZonedDateTime;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
+import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.persistence.query.impl.OperationQueryImpl;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
@@ -32,6 +37,10 @@ class OperationInFinalStateHandlerTest {
     private static final String PROCESS_ID = "xxx-yyy-zzz";
     private static final long PROCESS_DURATION = 1000;
 
+    private static final Operation OPERATION = createOperation("1", ProcessType.DEPLOY, "spaceId", "mtaId", "user", true,
+                                                               ZonedDateTime.parse("2010-10-08T10:00:00.000Z[UTC]"),
+                                                               ZonedDateTime.parse("2010-10-14T10:00:00.000Z[UTC]"), State.RUNNING);
+
     private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
 
     @Mock
@@ -46,6 +55,8 @@ class OperationInFinalStateHandlerTest {
     private OperationTimeAggregator operationTimeAggregator;
     @Mock
     private ProcessTime processTime;
+    @Mock
+    private OperationService operationService;
 
     @InjectMocks
     private final OperationInFinalStateHandler eventHandler = new OperationInFinalStateHandler();
@@ -80,11 +91,13 @@ class OperationInFinalStateHandlerTest {
     void testHandle(String archiveIds, String extensionDescriptorIds, boolean keepFiles, String[] expectedFileIdsToSweep) throws Exception {
         prepareContext(archiveIds, extensionDescriptorIds, keepFiles);
         prepareOperationTimeAggregator();
+        prepareOperationService();
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
         verifyDeleteDeploymentFiles(expectedFileIdsToSweep);
         verifyDynatracePublisher();
+
     }
 
     private void prepareContext(String archiveIds, String extensionDescriptorIds, boolean keepFiles) {
@@ -103,11 +116,33 @@ class OperationInFinalStateHandlerTest {
                .thenReturn(PROCESS_DURATION);
     }
 
+    private void prepareOperationService() {
+        OperationQueryImpl operationQuery = Mockito.mock(OperationQueryImpl.class);
+        Mockito.when(operationService.createQuery())
+               .thenReturn(operationQuery);
+        Mockito.when(operationQuery.processId(Mockito.any()))
+               .thenReturn(operationQuery);
+        Mockito.when(operationQuery.singleResult())
+               .thenReturn(OPERATION);
+    }
+
     private void verifyDeleteDeploymentFiles(String[] expectedFileIdsToSweep) throws FileStorageException {
         for (String fileId : expectedFileIdsToSweep) {
             Mockito.verify(fileService)
                    .deleteFile(SPACE_ID, fileId);
         }
+    }
+
+    private void verifyOperationSetState() {
+        Operation updatedOperation = ImmutableOperation.builder()
+                                                       .from(OPERATION)
+                                                       .state(OPERATION_STATE)
+                                                       .cachedState(OPERATION_STATE)
+                                                       .hasAcquiredLock(false)
+                                                       .endedAt(ZonedDateTime.now())
+                                                       .build();
+        Mockito.verify(operationService)
+               .update(updatedOperation, updatedOperation);
     }
 
     private void verifyDynatracePublisher() {
@@ -121,6 +156,22 @@ class OperationInFinalStateHandlerTest {
         assertEquals(PROCESS_TYPE, actualDynatraceEvent.getProcessType());
         assertEquals(OPERATION_STATE, actualDynatraceEvent.getOperationState());
         assertEquals(PROCESS_DURATION, actualDynatraceEvent.getProcessDuration());
+    }
+
+    private static Operation createOperation(String processId, ProcessType type, String spaceId, String mtaId, String user,
+                                             boolean acquiredLock, ZonedDateTime startedAt, ZonedDateTime endedAt, Operation.State state) {
+        return ImmutableOperation.builder()
+                                 .processId(processId)
+                                 .processType(type)
+                                 .spaceId(spaceId)
+                                 .mtaId(mtaId)
+                                 .user(user)
+                                 .hasAcquiredLock(acquiredLock)
+                                 .startedAt(startedAt)
+                                 .endedAt(endedAt)
+                                 .cachedState(state)
+                                 .state(state)
+                                 .build();
     }
 
 }

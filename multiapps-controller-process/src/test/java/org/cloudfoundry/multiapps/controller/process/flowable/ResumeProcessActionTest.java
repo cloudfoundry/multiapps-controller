@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.runtime.Execution;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ class ResumeProcessActionTest extends ProcessActionTest {
         processAction.execute("fake-user", PROCESS_GUID);
         Mockito.verify(flowableFacade, times(2))
                .trigger(EXECUTION_ID, Map.of(Variables.USER.getName(), "fake-user"));
+        assertStateUpdated(Operation.State.RUNNING);
     }
 
     @Test
@@ -29,10 +31,11 @@ class ResumeProcessActionTest extends ProcessActionTest {
         processAction.execute("fake-user", PROCESS_GUID);
         Mockito.verify(flowableFacade)
                .trigger(EXECUTION_ID, Map.of(Variables.USER.getName(), "fake-user"));
+        assertStateUpdated(Operation.State.RUNNING);
     }
 
     @Override
     protected ProcessAction createProcessAction() {
-        return new ResumeProcessAction(flowableFacade, Collections.emptyList(), cloudControllerClientProvider);
+        return new ResumeProcessAction(flowableFacade, Collections.emptyList(), operationService, cloudControllerClientProvider);
     }
 }

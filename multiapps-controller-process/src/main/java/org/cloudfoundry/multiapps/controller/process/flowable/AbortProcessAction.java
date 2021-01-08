@@ -32,7 +32,6 @@ public class AbortProcessAction extends ProcessAction {
     private static final SafeExecutor SAFE_EXECUTOR = new SafeExecutor(AbortProcessAction::logDynatraceException);
 
     private final HistoricOperationEventService historicEventService;
-    private final OperationService operationService;
     private final ProgressMessageService progressMessageService;
     private DynatracePublisher dynatracePublisher;
 
@@ -41,9 +40,8 @@ public class AbortProcessAction extends ProcessAction {
                               HistoricOperationEventService historicEventService, OperationService operationService,
                               CloudControllerClientProvider cloudControllerClientProvider, ProgressMessageService progressMessageService,
                               DynatracePublisher dynatracePublisher) {
-        super(flowableFacade, additionalProcessActions, cloudControllerClientProvider);
+        super(flowableFacade, additionalProcessActions, operationService, cloudControllerClientProvider);
         this.historicEventService = historicEventService;
-        this.operationService = operationService;
         this.progressMessageService = progressMessageService;
         this.dynatracePublisher = dynatracePublisher;
     }
