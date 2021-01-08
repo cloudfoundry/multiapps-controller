@@ -54,7 +54,7 @@ public class OperationsHelper {
             return null;
         }
         HistoricOperationEvent.EventType lastEventType = historicEvents.get(historicEvents.size() - 1)
-                                                .getType();
+                                                                       .getType();
         return toErrorType(lastEventType);
     }
 

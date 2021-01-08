@@ -3,12 +3,15 @@ package org.cloudfoundry.multiapps.controller.process.flowable;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
+import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.persistence.query.impl.OperationQueryImpl;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RuntimeService;
@@ -34,11 +37,15 @@ abstract class ProcessActionTest {
     @Mock
     protected CloudControllerClientProvider cloudControllerClientProvider;
     @Mock
+    protected OperationService operationService;
+    @Mock
     private ProcessEngine processEngine;
     @Mock
     private HistoryService historyService;
     @Mock
     private RuntimeService runtimeService;
+    @Mock
+    private OperationQueryImpl operationQuery;
 
     @BeforeEach
     void initMocks() throws Exception {
@@ -47,6 +54,7 @@ abstract class ProcessActionTest {
         prepareFlowableFacade();
         prepareProcessEngine();
         prepareHistoryService();
+        prepareOperationService();
         processAction = createProcessAction();
     }
 
@@ -92,6 +100,25 @@ abstract class ProcessActionTest {
                .thenReturn(historicVariableInstanceQuery);
         Mockito.when(historyService.createHistoricVariableInstanceQuery())
                .thenReturn(historicVariableInstanceQuery);
+    }
+
+    private void prepareOperationService() {
+        Mockito.when(operationService.createQuery())
+               .thenReturn(operationQuery);
+        Operation operation = ImmutableOperation.builder()
+                                                .build();
+        Mockito.when(operationQuery.singleResult())
+               .thenReturn(operation);
+        Mockito.when(operationQuery.processId(Mockito.anyString()))
+               .thenReturn(operationQuery);
+    }
+
+    protected void assertStateUpdated(Operation.State state) {
+        Operation operation = ImmutableOperation.builder()
+                                                .cachedState(state)
+                                                .build();
+        Mockito.verify(operationService)
+               .update(operation, operation);
     }
 
     protected abstract ProcessAction createProcessAction();

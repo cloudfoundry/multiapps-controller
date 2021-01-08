@@ -131,7 +131,10 @@ class OperationsApiServiceImplTest {
                                                          .getState());
         assertEquals(Operation.State.ABORTED, operations.get(1)
                                                         .getState());
-
+        assertEquals(Operation.State.FINISHED, operations.get(0)
+                                                         .getCachedState());
+        assertEquals(Operation.State.ABORTED, operations.get(1)
+                                                        .getCachedState());
     }
 
     @Test
@@ -152,6 +155,7 @@ class OperationsApiServiceImplTest {
         Operation operation = response.getBody();
         assertEquals(processId, operation.getProcessId());
         assertEquals(Operation.State.FINISHED, operation.getState());
+        assertEquals(Operation.State.FINISHED, operation.getCachedState());
     }
 
     @Test
@@ -377,6 +381,7 @@ class OperationsApiServiceImplTest {
     private Operation createOperation(String processId, Operation.State state, Map<String, Object> parameters) {
         return ImmutableOperation.builder()
                                  .state(state)
+                                 .cachedState(state)
                                  .spaceId(SPACE_GUID)
                                  .processId(processId)
                                  .processType(ProcessType.DEPLOY)

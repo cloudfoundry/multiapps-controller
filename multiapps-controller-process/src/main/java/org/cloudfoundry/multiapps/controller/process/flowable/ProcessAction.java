@@ -5,7 +5,10 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
+import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.util.ClientReleaser;
 import org.cloudfoundry.multiapps.controller.process.util.HistoryUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -15,13 +18,15 @@ public abstract class ProcessAction {
 
     protected final FlowableFacade flowableFacade;
     protected final List<AdditionalProcessAction> additionalProcessActions;
+    protected final OperationService operationService;
     private final CloudControllerClientProvider clientProvider;
 
     @Inject
     protected ProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
-                            CloudControllerClientProvider clientProvider) {
+                            OperationService operationService, CloudControllerClientProvider clientProvider) {
         this.flowableFacade = flowableFacade;
         this.additionalProcessActions = additionalProcessActions;
+        this.operationService = operationService;
         this.clientProvider = clientProvider;
     }
 
@@ -60,5 +65,16 @@ public abstract class ProcessAction {
                           .getRuntimeService()
                           .setVariable(executionId, Variables.USER.getName(), user);
         }
+    }
+
+    protected void updateOperationCachedState(String processId, Operation.State newState) {
+        Operation operation = operationService.createQuery()
+                                              .processId(processId)
+                                              .singleResult();
+        operation = ImmutableOperation.builder()
+                                      .from(operation)
+                                      .cachedState(newState)
+                                      .build();
+        operationService.update(operation, operation);
     }
 }

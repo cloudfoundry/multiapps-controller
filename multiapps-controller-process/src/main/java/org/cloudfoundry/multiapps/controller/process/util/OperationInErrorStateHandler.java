@@ -11,12 +11,15 @@ import javax.inject.Named;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
+import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
@@ -33,14 +36,17 @@ public class OperationInErrorStateHandler {
     private FlowableFacade flowableFacade;
     private HistoricOperationEventService historicOperationEventService;
     private ClientReleaser clientReleaser;
+    private OperationService operationService;
 
     @Inject
     public OperationInErrorStateHandler(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
-                                        HistoricOperationEventService historicOperationEventService, ClientReleaser clientReleaser) {
+                                        HistoricOperationEventService historicOperationEventService, ClientReleaser clientReleaser,
+                                        OperationService operationService) {
         this.progressMessageService = progressMessageService;
         this.flowableFacade = flowableFacade;
         this.historicOperationEventService = historicOperationEventService;
         this.clientReleaser = clientReleaser;
+        this.operationService = operationService;
     }
 
     public void handle(FlowableEngineEvent event, String errorMessage) {
@@ -55,6 +61,7 @@ public class OperationInErrorStateHandler {
     private void handle(FlowableEngineEvent event, HistoricOperationEvent.EventType eventType, String errorMessage) {
         persistEvent(event, eventType);
         persistError(event, errorMessage);
+        persistErrorState(event);
         releaseCloudControllerClient(event);
     }
 
@@ -137,6 +144,18 @@ public class OperationInErrorStateHandler {
                                           .filter(execution -> execution.getActivityId() != null)
                                           .findFirst()
                                           .orElse(null);
+    }
+
+    private void persistErrorState(FlowableEngineEvent event) {
+        String processInstanceId = flowableFacade.getProcessInstanceId(event.getExecutionId());
+        Operation operation = operationService.createQuery()
+                                              .processId(processInstanceId)
+                                              .singleResult();
+        operation = ImmutableOperation.builder()
+                                      .from(operation)
+                                      .cachedState(Operation.State.ERROR)
+                                      .build();
+        operationService.update(operation, operation);
     }
 
     protected Date getCurrentTimestamp() {

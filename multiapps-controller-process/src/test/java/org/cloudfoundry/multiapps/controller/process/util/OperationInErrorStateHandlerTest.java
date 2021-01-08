@@ -9,12 +9,16 @@ import java.util.List;
 
 import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
+import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
 import org.cloudfoundry.multiapps.controller.persistence.query.ProgressMessageQuery;
+import org.cloudfoundry.multiapps.controller.persistence.query.impl.OperationQueryImpl;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
@@ -45,6 +49,10 @@ class OperationInErrorStateHandlerTest {
     private ProcessEngineConfiguration processEngineConfigurationMock;
     @Mock
     private ClientReleaser clientReleaserMock;
+    @Mock
+    private OperationService operationService;
+    @Mock
+    private OperationQueryImpl operationQuery;
 
     private final Date now = DateTime.now()
                                      .toDate();
@@ -55,6 +63,7 @@ class OperationInErrorStateHandlerTest {
                           .close();
         Mockito.when(progressMessageServiceMock.createQuery())
                .thenReturn(progressMessageQuery);
+        prepareOperationService();
     }
 
     @Test
@@ -94,6 +103,7 @@ class OperationInErrorStateHandlerTest {
 
         Mockito.verify(progressMessageServiceMock, Mockito.never())
                .add(Mockito.any());
+        assertErrorStateSet();
     }
 
     @Test
@@ -154,6 +164,7 @@ class OperationInErrorStateHandlerTest {
                                             .text("Unexpected error: test-message")
                                             .timestamp(now)
                                             .build());
+        assertErrorStateSet();
     }
 
     private void getExecutionEntityMock(boolean shouldUseExecutionEntity, ExecutionQuery executionQueryMock) {
@@ -177,11 +188,31 @@ class OperationInErrorStateHandlerTest {
         return null;
     }
 
+    private void prepareOperationService() {
+        Operation operation = ImmutableOperation.builder()
+                                                .build();
+        Mockito.when(operationService.createQuery())
+               .thenReturn(operationQuery);
+        Mockito.when(operationQuery.processId(Mockito.anyString()))
+               .thenReturn(operationQuery);
+        Mockito.when(operationQuery.singleResult())
+               .thenReturn(operation);
+    }
+
+    private void assertErrorStateSet() {
+        Operation updatedOperation = ImmutableOperation.builder()
+                                                       .cachedState(Operation.State.ERROR)
+                                                       .build();
+        Mockito.verify(operationService)
+               .update(updatedOperation, updatedOperation);
+    }
+
     private OperationInErrorStateHandlerMock mockHandler() {
         return new OperationInErrorStateHandlerMock(progressMessageServiceMock,
                                                     flowableFacadeMock,
                                                     historicOperationEventServiceMock,
-                                                    clientReleaserMock).withProcessEngineConfiguration(processEngineConfigurationMock);
+                                                    clientReleaserMock,
+                                                    operationService).withProcessEngineConfiguration(processEngineConfigurationMock);
     }
 
     private class OperationInErrorStateHandlerMock extends OperationInErrorStateHandler {
@@ -190,8 +221,8 @@ class OperationInErrorStateHandlerTest {
 
         public OperationInErrorStateHandlerMock(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
                                                 HistoricOperationEventService historicOperationEventService,
-                                                ClientReleaser clientReleaser) {
-            super(progressMessageService, flowableFacade, historicOperationEventService, clientReleaser);
+                                                ClientReleaser clientReleaser, OperationService operationService) {
+            super(progressMessageService, flowableFacade, historicOperationEventService, clientReleaser, operationService);
         }
 
         public OperationInErrorStateHandlerMock withProcessEngineConfiguration(ProcessEngineConfiguration processEngineConfiguration) {

@@ -46,6 +46,10 @@ public abstract class Operation implements AuditableConfiguration {
             return null;
         }
 
+        public boolean isFinal() {
+            return getFinalStates().contains(this);
+        }
+
         public static List<State> getNonFinalStates() {
             return Arrays.asList(RUNNING, ERROR, ACTION_REQUIRED);
         }
@@ -93,6 +97,9 @@ public abstract class Operation implements AuditableConfiguration {
     @Nullable
     public abstract State getState();
 
+    @Nullable // TODO on next takt, this nullable must be removed + add nonnull constrain in liquibase
+    public abstract State getCachedState();
+
     @Nullable
     public abstract ErrorType getErrorType();
 
@@ -124,6 +131,7 @@ public abstract class Operation implements AuditableConfiguration {
         identifiersList.add(new ConfigurationIdentifier("mta id", getMtaId()));
         identifiersList.add(new ConfigurationIdentifier("user", getUser()));
         identifiersList.add(new ConfigurationIdentifier("state", Objects.toString(getState())));
+        identifiersList.add(new ConfigurationIdentifier("cached state", Objects.toString(getCachedState())));
         identifiersList.add(new ConfigurationIdentifier("error type", Objects.toString(getErrorType())));
         return identifiersList;
     }

@@ -25,6 +25,8 @@ public interface OperationQuery extends Query<Operation, OperationQuery> {
 
     OperationQuery state(Operation.State finalState);
 
+    OperationQuery cachedState(Operation.State cachedState);
+
     OperationQuery startedBefore(Date startedBefore);
 
     OperationQuery endedAfter(Date endedAfter);

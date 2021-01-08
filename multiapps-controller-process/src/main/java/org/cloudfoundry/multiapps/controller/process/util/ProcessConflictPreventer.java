@@ -82,6 +82,7 @@ public class ProcessConflictPreventer {
                                       .from(operation)
                                       .hasAcquiredLock(false)
                                       .state(state)
+                                      .cachedState(state)
                                       .endedAt(ZonedDateTime.now())
                                       .build();
         operationService.update(operation, operation);

@@ -46,8 +46,8 @@ class ProcessActonRegistryTest {
     }
 
     private List<ProcessAction> getProcessActions() {
-        return List.of(new StartProcessAction(null, null, null), new ResumeProcessAction(null, null, null),
-                       new RetryProcessAction(null, null, null, null), new AbortProcessAction(null, null, null, null, null, null, null));
+        return List.of(new StartProcessAction(null, null, null, null), new ResumeProcessAction(null, null, null, null),
+                       new RetryProcessAction(null, null, null, null, null), new AbortProcessAction(null, null, null, null, null, null, null));
     }
 
 }

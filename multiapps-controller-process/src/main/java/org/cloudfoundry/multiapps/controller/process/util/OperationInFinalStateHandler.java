@@ -95,6 +95,7 @@ public class OperationInFinalStateHandler {
         operation = ImmutableOperation.builder()
                                       .from(operation)
                                       .state(state)
+                                      .cachedState(state)
                                       .hasAcquiredLock(false)
                                       .endedAt(ZonedDateTime.now())
                                       .build();
@@ -115,13 +116,13 @@ public class OperationInFinalStateHandler {
         ProcessTime overallProcessTime = operationTimeAggregator.computeOverallProcessTime(correlationId, processTimes);
         
         DynatraceProcessDuration dynatraceProcessDuration = ImmutableDynatraceProcessDuration.builder()
-            .processId(correlationId)
-            .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
-            .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
-            .operationState(state)
-            .processType(processType)
-            .processDuration(overallProcessTime.getProcessDuration())
-            .build();
+                                                                                             .processId(correlationId)
+                                                                                             .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
+                                                                                             .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
+                                                                                             .operationState(state)
+                                                                                             .processType(processType)
+                                                                                             .processDuration(overallProcessTime.getProcessDuration())
+                                                                                             .build();
        dynatracePublisher.publishProcessDuration(dynatraceProcessDuration, LOGGER);
         
         LOGGER.info(format(Messages.TIME_STATISTICS_FOR_OPERATION_0_DURATION_1_DELAY_2, correlationId,

@@ -65,6 +65,7 @@ public class OperationService extends PersistenceService<Operation, OperationDto
                                      .user(dto.getUser())
                                      .hasAcquiredLock(dto.hasAcquiredLock())
                                      .state(toState(dto.getFinalState()))
+                                     .cachedState(toState(dto.getCurrentState()))
                                      .build();
         }
 
@@ -73,7 +74,7 @@ public class OperationService extends PersistenceService<Operation, OperationDto
         }
 
         private Operation.State toState(String operationState) {
-            return operationState == null ? null : Operation.State.valueOf(operationState);
+            return operationState == null ? null : Operation.State.fromValue(operationState);
         }
 
         private ZonedDateTime toZonedDateTime(Date date) {
@@ -90,7 +91,8 @@ public class OperationService extends PersistenceService<Operation, OperationDto
             String mtaId = operation.getMtaId();
             String namespace = operation.getNamespace();
             String user = operation.getUser();
-            String state = toString(operation.getState());
+            String finalState = toString(operation.getState());
+            String currentState = toString(operation.getCachedState());
             boolean acquiredLock = operation.hasAcquiredLock();
             return OperationDto.builder()
                                .processId(processId)
@@ -102,7 +104,8 @@ public class OperationService extends PersistenceService<Operation, OperationDto
                                .namespace(namespace)
                                .user(user)
                                .acquiredLock(acquiredLock)
-                               .finalState(state)
+                               .finalState(finalState)
+                               .currentState(currentState)
                                .build();
         }
 

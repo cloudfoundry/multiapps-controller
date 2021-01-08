@@ -29,8 +29,6 @@ class AbortProcessActionTest extends ProcessActionTest {
     @Mock
     private HistoricOperationEventService historicOperationEventService;
     @Mock
-    private OperationService operationService;
-    @Mock
     private Operation operation;
     @Mock
     private ProgressMessageService progressMessageService;

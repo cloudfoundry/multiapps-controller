@@ -112,6 +112,7 @@ public class OperationsCleaner implements Cleaner {
         Operation abortedOperation = ImmutableOperation.builder()
                                                        .from(operation)
                                                        .state(Operation.State.ABORTED)
+                                                       .cachedState(Operation.State.ABORTED)
                                                        .endedAt(ZonedDateTime.now())
                                                        .hasAcquiredLock(false)
                                                        .build();

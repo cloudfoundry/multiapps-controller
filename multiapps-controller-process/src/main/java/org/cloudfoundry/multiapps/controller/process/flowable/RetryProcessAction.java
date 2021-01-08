@@ -6,10 +6,12 @@ import java.util.ListIterator;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +25,9 @@ public class RetryProcessAction extends ProcessAction {
 
     @Inject
     public RetryProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
-                              HistoricOperationEventService historicOperationEventService,
+                              HistoricOperationEventService historicOperationEventService, OperationService operationService,
                               CloudControllerClientProvider cloudControllerClientProvider) {
-        super(flowableFacade, additionalProcessActions, cloudControllerClientProvider);
+        super(flowableFacade, additionalProcessActions, operationService, cloudControllerClientProvider);
         this.historicOperationEventService = historicOperationEventService;
     }
 
@@ -38,6 +40,7 @@ public class RetryProcessAction extends ProcessAction {
             String subProcessId = subProcessesIdsIterator.previous();
             retryProcess(subProcessId);
         }
+        updateOperationCachedState(superProcessInstanceId, Operation.State.RUNNING);
         historicOperationEventService.add(ImmutableHistoricOperationEvent.of(superProcessInstanceId,
                                                                              HistoricOperationEvent.EventType.RETRIED));
     }
