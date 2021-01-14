@@ -26,10 +26,12 @@ class OperationServiceTest {
 
     private static final Operation OPERATION_1 = createOperation("1", ProcessType.DEPLOY, "spaceId", "mtaId", "user", false,
                                                                  ZonedDateTime.parse("2010-10-08T10:00:00.000Z[UTC]"),
-                                                                 ZonedDateTime.parse("2010-10-14T10:00:00.000Z[UTC]"));
+                                                                 ZonedDateTime.parse("2010-10-14T10:00:00.000Z[UTC]"),
+                                                                 Operation.State.RUNNING);
     private static final Operation OPERATION_2 = createOperation("2", ProcessType.UNDEPLOY, "spaceId1", "mtaId1", "user1", true,
                                                                  ZonedDateTime.parse("2010-10-10T10:00:00.000Z[UTC]"),
-                                                                 ZonedDateTime.parse("2010-10-12T10:00:00.000Z[UTC]"));
+                                                                 ZonedDateTime.parse("2010-10-12T10:00:00.000Z[UTC]"),
+                                                                 Operation.State.RUNNING);
     private final OperationService operationService = createOperationService();
 
     @AfterEach
@@ -169,7 +171,7 @@ class OperationServiceTest {
     }
 
     private static Operation createOperation(String processId, ProcessType type, String spaceId, String mtaId, String user,
-                                             boolean acquiredLock, ZonedDateTime startedAt, ZonedDateTime endedAt) {
+                                             boolean acquiredLock, ZonedDateTime startedAt, ZonedDateTime endedAt, Operation.State state) {
         return ImmutableOperation.builder()
                                  .processId(processId)
                                  .processType(type)
@@ -177,6 +179,7 @@ class OperationServiceTest {
                                  .mtaId(mtaId)
                                  .user(user)
                                  .hasAcquiredLock(acquiredLock)
+                                 .state(state)
                                  .startedAt(startedAt)
                                  .endedAt(endedAt)
                                  .build();

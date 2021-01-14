@@ -67,13 +67,13 @@ public abstract class ProcessAction {
         }
     }
 
-    protected void updateOperationCachedState(String processId, Operation.State newState) {
+    protected void updateOperationState(String processId, Operation.State newState) {
         Operation operation = operationService.createQuery()
                                               .processId(processId)
                                               .singleResult();
         operation = ImmutableOperation.builder()
                                       .from(operation)
-                                      .cachedState(newState)
+                                      .state(newState)
                                       .build();
         operationService.update(operation, operation);
     }

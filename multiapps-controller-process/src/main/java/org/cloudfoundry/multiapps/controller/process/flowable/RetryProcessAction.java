@@ -40,7 +40,7 @@ public class RetryProcessAction extends ProcessAction {
             String subProcessId = subProcessesIdsIterator.previous();
             retryProcess(subProcessId);
         }
-        updateOperationCachedState(superProcessInstanceId, Operation.State.RUNNING);
+        updateOperationState(superProcessInstanceId, Operation.State.RUNNING);
         historicOperationEventService.add(ImmutableHistoricOperationEvent.of(superProcessInstanceId,
                                                                              HistoricOperationEvent.EventType.RETRIED));
     }
