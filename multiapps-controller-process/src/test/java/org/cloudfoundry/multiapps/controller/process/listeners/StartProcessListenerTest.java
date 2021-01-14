@@ -160,7 +160,7 @@ class StartProcessListenerTest {
                                                 .startedAt(START_TIME)
                                                 .user(user)
                                                 .hasAcquiredLock(false)
-                                                .cachedState(Operation.State.RUNNING)
+                                                .state(Operation.State.RUNNING)
                                                 .build();
         Mockito.verify(operationService)
                .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));

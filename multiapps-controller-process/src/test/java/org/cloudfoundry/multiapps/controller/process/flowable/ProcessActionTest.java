@@ -106,6 +106,7 @@ abstract class ProcessActionTest {
         Mockito.when(operationService.createQuery())
                .thenReturn(operationQuery);
         Operation operation = ImmutableOperation.builder()
+                                                .state(Operation.State.RUNNING)
                                                 .build();
         Mockito.when(operationQuery.singleResult())
                .thenReturn(operation);
@@ -115,7 +116,7 @@ abstract class ProcessActionTest {
 
     protected void assertStateUpdated(Operation.State state) {
         Operation operation = ImmutableOperation.builder()
-                                                .cachedState(state)
+                                                .state(state)
                                                 .build();
         Mockito.verify(operationService)
                .update(operation, operation);

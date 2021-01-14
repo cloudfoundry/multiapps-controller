@@ -39,7 +39,7 @@ public class ResumeProcessAction extends ProcessAction {
         for (String processAtReceiveTask : processesAtReceiveTask) {
             triggerProcessInstance(user, processAtReceiveTask);
         }
-        updateOperationCachedState(superProcessInstanceId, Operation.State.RUNNING);
+        updateOperationState(superProcessInstanceId, Operation.State.RUNNING);
     }
 
     private void triggerProcessInstance(String user, String processId) {

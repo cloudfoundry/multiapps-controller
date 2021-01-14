@@ -98,21 +98,11 @@ public class OperationQueryImpl extends AbstractQueryImpl<Operation, OperationQu
     }
 
     @Override
-    public OperationQuery state(Operation.State finalState) {
-        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
-                                                                       .attribute(AttributeNames.FINAL_STATE)
-                                                                       .condition(getCriteriaBuilder()::equal)
-                                                                       .value(finalState)
-                                                                       .build());
-        return this;
-    }
-
-    @Override
-    public OperationQuery cachedState(Operation.State currentState) {
+    public OperationQuery state(Operation.State state) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
                                                                        .attribute(AttributeNames.CURRENT_STATE)
                                                                        .condition(getCriteriaBuilder()::equal)
-                                                                       .value(currentState)
+                                                                       .value(state)
                                                                        .build());
         return this;
     }
@@ -139,28 +129,18 @@ public class OperationQueryImpl extends AbstractQueryImpl<Operation, OperationQu
 
     @Override
     public OperationQuery inNonFinalState() {
-        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
-                                                                       .attribute(AttributeNames.FINAL_STATE)
-                                                                       .condition(getCriteriaBuilder()::equal)
-                                                                       .value(null)
-                                                                       .build());
-        return this;
+        return withStateAnyOf(Operation.State.getNonFinalStates());
     }
 
     @Override
     public OperationQuery inFinalState() {
-        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
-                                                                       .attribute(AttributeNames.FINAL_STATE)
-                                                                       .condition(getCriteriaBuilder()::notEqual)
-                                                                       .value(null)
-                                                                       .build());
-        return this;
+        return withStateAnyOf(Operation.State.getFinalStates());
     }
 
     @Override
     public OperationQuery withStateAnyOf(List<Operation.State> states) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<List<Operation.State>> builder()
-                                                                       .attribute(AttributeNames.FINAL_STATE)
+                                                                       .attribute(AttributeNames.CURRENT_STATE)
                                                                        .condition(Expression::in)
                                                                        .value(states)
                                                                        .build());

@@ -49,6 +49,7 @@ class ProcessConflictPreventerTest {
                                                 .spaceId(testSpaceId)
                                                 .mtaId(testMtaId)
                                                 .hasAcquiredLock(false)
+                                                .state(Operation.State.RUNNING)
                                                 .build();
         when(operationServiceMock.createQuery()
                                  .list()).thenReturn(List.of(operation));
@@ -91,6 +92,7 @@ class ProcessConflictPreventerTest {
                                  .processType(ProcessType.DEPLOY)
                                  .mtaId(testMtaId)
                                  .hasAcquiredLock(false)
+                                 .state(Operation.State.RUNNING)
                                  .build();
     }
 
@@ -104,8 +106,6 @@ class ProcessConflictPreventerTest {
             && operation.hasAcquiredLock()
                         .equals(false)
             && operation.getState()
-                        .equals(Operation.State.ABORTED)
-            && operation.getCachedState()
                         .equals(Operation.State.ABORTED)
             && operation.getEndedAt() != null;
     }

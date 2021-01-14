@@ -29,7 +29,6 @@ public final class Messages {
     public static final String FILE_SERVICE_CLEANUP_FAILED = "FileService: Failed to delete files without content. Reason: \"{0}\"";
 
     // WARN log messages
-    public static final String OPERATION_CACHED_1_AND_COMPUTED_2_STATE_DIFFER_FOR_PROCESS_0 = "Operation cached and computed state differ for process \"{0}\"! Cached state: \"{1}\"; Computed state: \"{2}\".";
 
     // INFO log messages
     public static final String OAUTH_TOKEN_STORE = "Using OAuth token store \"{0}\"";
@@ -42,7 +41,6 @@ public final class Messages {
 
     // DEBUG log messages
     public static final String ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION = "Cannot store access token due to data integrity violation. The exception is ignored as the token and authentication are persisted by another client";
-    public static final String OPERATION_STATE_CALCULATION_TOOK_0 = "Operation state calculation took {0} milliseconds.";
 
     private Messages() {
     }

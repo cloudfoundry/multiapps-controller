@@ -153,7 +153,7 @@ public class OperationInErrorStateHandler {
                                               .singleResult();
         operation = ImmutableOperation.builder()
                                       .from(operation)
-                                      .cachedState(Operation.State.ERROR)
+                                      .state(Operation.State.ERROR)
                                       .build();
         operationService.update(operation, operation);
     }

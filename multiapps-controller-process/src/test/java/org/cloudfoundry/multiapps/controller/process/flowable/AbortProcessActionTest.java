@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Collections;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
@@ -14,7 +15,6 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.P
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.ProgressMessageQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessEvent;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
@@ -28,8 +28,7 @@ class AbortProcessActionTest extends ProcessActionTest {
 
     @Mock
     private HistoricOperationEventService historicOperationEventService;
-    @Mock
-    private Operation operation;
+
     @Mock
     private ProgressMessageService progressMessageService;
     @Mock
@@ -41,7 +40,12 @@ class AbortProcessActionTest extends ProcessActionTest {
 
     private static final String SPACE_ID = "9ba1dfc7-9c2c-40d5-8bf9-fd04fa7a1722";
     private static final String MTA_ID = "my-mta";
-
+    private static final Operation OPERATION = ImmutableOperation.builder()
+                                                                 .mtaId(MTA_ID)
+                                                                 .spaceId(SPACE_ID)
+                                                                 .processType(ProcessType.DEPLOY)
+                                                                 .state(Operation.State.RUNNING)
+                                                                 .build();
     @BeforeEach
     void setUp() {
         prepareOperationService();
@@ -62,12 +66,6 @@ class AbortProcessActionTest extends ProcessActionTest {
         ProcessType processType = ProcessType.DEPLOY;
         Mockito.when(progressMessageQuery.list())
                .thenReturn(List.of(progressMessage));
-        Mockito.when(operation.getMtaId())
-               .thenReturn(MTA_ID);
-        Mockito.when(operation.getSpaceId())
-               .thenReturn(SPACE_ID);
-        Mockito.when(operation.getProcessType())
-               .thenReturn(processType);
         processAction.execute(null, PROCESS_GUID);
         ArgumentCaptor<DynatraceProcessEvent> argumentCaptor = ArgumentCaptor.forClass(DynatraceProcessEvent.class);
         Mockito.verify(dynatracePublisher)
@@ -93,7 +91,7 @@ class AbortProcessActionTest extends ProcessActionTest {
         Mockito.when(mockedOperationQuery.processId(PROCESS_GUID))
                .thenReturn(mockedOperationQuery);
         Mockito.when(mockedOperationQuery.singleResult())
-               .thenReturn(operation);
+               .thenReturn(OPERATION);
         Mockito.when(operationService.createQuery())
                .thenReturn(mockedOperationQuery);
     }

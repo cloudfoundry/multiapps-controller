@@ -32,7 +32,7 @@ public class EnterTestingPhaseListener extends AbstractProcessExecutionListener 
                                               .singleResult();
         operation = ImmutableOperation.builder()
                                       .from(operation)
-                                      .cachedState(Operation.State.ACTION_REQUIRED)
+                                      .state(Operation.State.ACTION_REQUIRED)
                                       .build();
         operationService.update(operation, operation);
     }

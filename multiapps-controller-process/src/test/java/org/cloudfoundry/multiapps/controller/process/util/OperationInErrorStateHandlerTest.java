@@ -190,6 +190,7 @@ class OperationInErrorStateHandlerTest {
 
     private void prepareOperationService() {
         Operation operation = ImmutableOperation.builder()
+                                                .state(Operation.State.RUNNING)
                                                 .build();
         Mockito.when(operationService.createQuery())
                .thenReturn(operationQuery);
@@ -201,7 +202,7 @@ class OperationInErrorStateHandlerTest {
 
     private void assertErrorStateSet() {
         Operation updatedOperation = ImmutableOperation.builder()
-                                                       .cachedState(Operation.State.ERROR)
+                                                       .state(Operation.State.ERROR)
                                                        .build();
         Mockito.verify(operationService)
                .update(updatedOperation, updatedOperation);

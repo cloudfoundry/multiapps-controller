@@ -23,9 +23,7 @@ public interface OperationQuery extends Query<Operation, OperationQuery> {
 
     OperationQuery acquiredLock(Boolean acquiredLock);
 
-    OperationQuery state(Operation.State finalState);
-
-    OperationQuery cachedState(Operation.State cachedState);
+    OperationQuery state(Operation.State state);
 
     OperationQuery startedBefore(Date startedBefore);
 

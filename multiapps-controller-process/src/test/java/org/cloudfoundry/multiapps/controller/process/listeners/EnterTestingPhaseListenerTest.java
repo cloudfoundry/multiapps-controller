@@ -68,7 +68,7 @@ class EnterTestingPhaseListenerTest {
     void testNotifyInternal() {
         listener.notify(execution);
         Operation updatedOperation = ImmutableOperation.builder()
-                                                       .cachedState(Operation.State.ACTION_REQUIRED)
+                                                       .state(Operation.State.ACTION_REQUIRED)
                                                        .build();
         Mockito.verify(operationQuery)
                .processId(execution.getProcessInstanceId());
@@ -83,6 +83,7 @@ class EnterTestingPhaseListenerTest {
         Mockito.when(operationService.createQuery())
                .thenReturn(operationQuery);
         Operation operation = ImmutableOperation.builder()
+                                                .state(Operation.State.RUNNING)
                                                 .build();
         Mockito.when(operationQuery.processId(Mockito.anyString()))
                .thenReturn(operationQuery);

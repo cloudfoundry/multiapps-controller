@@ -522,15 +522,6 @@ definitions:
         - "ERROR"
         - "ABORTED"
         - "ACTION_REQUIRED"
-      cachedState:
-        type: "string"
-        readOnly: true
-        enum:
-        - "RUNNING"
-        - "FINISHED"
-        - "ERROR"
-        - "ABORTED"
-        - "ACTION_REQUIRED"
       errorType:
         type: "string"
         readOnly: true
