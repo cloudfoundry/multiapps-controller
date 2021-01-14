@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.time.ZonedDateTime;
 import java.util.stream.Stream;
@@ -95,9 +96,9 @@ class OperationInFinalStateHandlerTest {
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
+        verifyOperationSetState();
         verifyDeleteDeploymentFiles(expectedFileIdsToSweep);
         verifyDynatracePublisher();
-
     }
 
     private void prepareContext(String archiveIds, String extensionDescriptorIds, boolean keepFiles) {
@@ -134,15 +135,12 @@ class OperationInFinalStateHandlerTest {
     }
 
     private void verifyOperationSetState() {
-        Operation updatedOperation = ImmutableOperation.builder()
-                                                       .from(OPERATION)
-                                                       .state(OPERATION_STATE)
-                                                       .cachedState(OPERATION_STATE)
-                                                       .hasAcquiredLock(false)
-                                                       .endedAt(ZonedDateTime.now())
-                                                       .build();
+        ArgumentCaptor<ImmutableOperation> arg = ArgumentCaptor.forClass(ImmutableOperation.class);
         Mockito.verify(operationService)
-               .update(updatedOperation, updatedOperation);
+               .update(Mockito.any(), arg.capture());
+        Operation updatedOperation = arg.getValue();
+        assertEquals(OPERATION_STATE, updatedOperation.getState());
+        assertFalse(updatedOperation.hasAcquiredLock());
     }
 
     private void verifyDynatracePublisher() {
@@ -169,7 +167,6 @@ class OperationInFinalStateHandlerTest {
                                  .hasAcquiredLock(acquiredLock)
                                  .startedAt(startedAt)
                                  .endedAt(endedAt)
-                                 .cachedState(state)
                                  .state(state)
                                  .build();
     }

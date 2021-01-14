@@ -24,7 +24,6 @@ import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
-import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
@@ -47,7 +46,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.stubbing.Answer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -100,6 +98,7 @@ class OperationsApiServiceImplTest {
 
     private List<Operation> operations;
     private String processId;
+    private List<Operation.State> operationStatesToFilter;
 
     @BeforeEach
     public void initialize() throws Exception {
@@ -131,10 +130,6 @@ class OperationsApiServiceImplTest {
                                                          .getState());
         assertEquals(Operation.State.ABORTED, operations.get(1)
                                                         .getState());
-        assertEquals(Operation.State.FINISHED, operations.get(0)
-                                                         .getCachedState());
-        assertEquals(Operation.State.ABORTED, operations.get(1)
-                                                        .getCachedState());
     }
 
     @Test
@@ -155,7 +150,6 @@ class OperationsApiServiceImplTest {
         Operation operation = response.getBody();
         assertEquals(processId, operation.getProcessId());
         assertEquals(Operation.State.FINISHED, operation.getState());
-        assertEquals(Operation.State.FINISHED, operation.getCachedState());
     }
 
     @Test
@@ -343,12 +337,17 @@ class OperationsApiServiceImplTest {
         return requestMock;
     }
 
+    @SuppressWarnings("unchecked")
     private void setupOperationServiceMock() {
         Mockito.when(operationService.createQuery())
                .thenReturn(operationQuery);
-        OperationQuery operationQueryMock = new MockBuilder<>(operationQuery).on(query -> query.processId(Mockito.any()),
-                                                                                 invocation -> processId = (String) invocation.getArguments()[0])
-                                                                             .build();
+
+        Mockito.doAnswer(invocation -> {
+            processId = (String) invocation.getArguments()[0];
+            return operationQuery;
+        })
+               .when(operationQuery)
+               .processId(Mockito.anyString());
         Mockito.doAnswer(invocation -> {
             Optional<Operation> foundOperation = operations.stream()
                                                            .filter(operation -> operation.getProcessId()
@@ -359,29 +358,35 @@ class OperationsApiServiceImplTest {
             }
             return foundOperation.get();
         })
-               .when(operationQueryMock)
+               .when(operationQuery)
                .singleResult();
+
+        Mockito.doAnswer(invocation -> {
+            operationStatesToFilter = (List<Operation.State>) invocation.getArguments()[0];
+            return operationQuery;
+        })
+               .when(operationQuery)
+               .withStateAnyOf(Mockito.anyList());
+        Mockito.doAnswer(invocation -> operations.stream()
+                                                 .filter(operation -> operationStatesToFilter == null || operationStatesToFilter.contains(operation.getState()))
+                                                 .collect(Collectors.toList()))
+               .when(operationQuery)
+               .list();
     }
 
     @SuppressWarnings("unchecked")
     private void setupOperationsHelperMock() {
-        Mockito.when(operationsHelper.findOperations(Mockito.any(), Mockito.anyList()))
-               .thenAnswer((Answer<List<Operation>>) invocation -> {
-                   List<Operation.State> states = (List<Operation.State>) invocation.getArguments()[1];
-                   return operations.stream()
-                                    .filter(operation -> states.contains(operation.getState()))
-                                    .collect(Collectors.toList());
-               });
-        Mockito.when(operationsHelper.addState(Mockito.any()))
-               .thenAnswer(invocation -> invocation.getArgument(0));
         Mockito.when(operationsHelper.addErrorType(Mockito.any()))
+               .thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(operationsHelper.releaseLockIfNeeded(Mockito.any()))
+               .thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(operationsHelper.releaseLocksIfNeeded(Mockito.any()))
                .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     private Operation createOperation(String processId, Operation.State state, Map<String, Object> parameters) {
         return ImmutableOperation.builder()
                                  .state(state)
-                                 .cachedState(state)
                                  .spaceId(SPACE_GUID)
                                  .processId(processId)
                                  .processType(ProcessType.DEPLOY)

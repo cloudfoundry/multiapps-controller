@@ -85,7 +85,8 @@ public class OperationsCleaner implements Cleaner {
     }
 
     private boolean inFinalState(Operation operation) {
-        return operation.getState() != null;
+        return operation.getState()
+                        .isFinal();
     }
 
     private boolean abortSafely(Operation operation) {
@@ -112,7 +113,6 @@ public class OperationsCleaner implements Cleaner {
         Operation abortedOperation = ImmutableOperation.builder()
                                                        .from(operation)
                                                        .state(Operation.State.ABORTED)
-                                                       .cachedState(Operation.State.ABORTED)
                                                        .endedAt(ZonedDateTime.now())
                                                        .hasAcquiredLock(false)
                                                        .build();

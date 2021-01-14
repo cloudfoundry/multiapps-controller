@@ -191,15 +191,10 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             operationQuery.limitOnSelect(lastRequestedOperationsCount)
                           .orderByStartTime(OrderDirection.DESCENDING);
         }
-        if (!states.isEmpty() && containsOnlyFinishedStates(states)) {
+        if (!states.isEmpty()) {
             operationQuery.withStateAnyOf(states);
         }
-        List<Operation> operations = operationQuery.list();
-        return operationsHelper.findOperations(operations, states);
-    }
-
-    private boolean containsOnlyFinishedStates(List<Operation.State> statusList) {
-        return Collections.disjoint(statusList, Operation.State.getNonFinalStates());
+        return operationsHelper.releaseLocksIfNeeded(operationQuery.list());
     }
 
     @Override
@@ -214,24 +209,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             Operation operation = operationService.createQuery()
                                                   .processId(operationId)
                                                   .singleResult();
-            operation = addOperationState(operation);
             operation = operationsHelper.addErrorType(operation);
-            return operation;
+            return operationsHelper.releaseLockIfNeeded(operation);
         } catch (NoResultException e) {
             throw new NotFoundException(e, Messages.OPERATION_0_NOT_FOUND, operationId);
         }
-    }
-
-    private Operation addOperationState(Operation operation) {
-        long startTime = System.currentTimeMillis();
-        operation = operationsHelper.addState(operation);
-        long totalTimeInMillis = System.currentTimeMillis() - startTime;
-        LOGGER.info(MessageFormat.format(Messages.OPERATION_STATE_CALCULATION_TOOK_0, totalTimeInMillis));
-        if (operation.getState() != operation.getCachedState()) {
-            LOGGER.warn(MessageFormat.format(Messages.OPERATION_CACHED_1_AND_COMPUTED_2_STATE_DIFFER_FOR_PROCESS_0,
-                        operation.getProcessId(), operation.getCachedState(), operation.getState()));
-        }
-        return operation;
     }
 
     private List<String> getAvailableActions(Operation operation) {

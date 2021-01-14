@@ -89,10 +89,12 @@ class OperationsCleanerTest {
         Operation operation1 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_1)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
+                                                 .state(Operation.State.RUNNING)
                                                  .build();
         Operation operation2 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_2)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
+                                                 .state(Operation.State.RUNNING)
                                                  .build();
         List<Operation> operationsList = List.of(operation1, operation2);
         when(operationService.createQuery()).thenReturn(operationQuery);
@@ -110,12 +112,12 @@ class OperationsCleanerTest {
         Operation operation1 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_1)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
-                                                 .state(null)
+                                                 .state(Operation.State.RUNNING)
                                                  .build();
         Operation operation2 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_2)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
-                                                 .state(null)
+                                                 .state(Operation.State.RUNNING)
                                                  .build();
         List<Operation> operationsList = List.of(operation1, operation2);
 
@@ -136,17 +138,17 @@ class OperationsCleanerTest {
         Operation operation1 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_1)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
-                                                 .state(null)
+                                                 .state(Operation.State.RUNNING)
                                                  .build();
         Operation operation2 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_2)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
-                                                 .state(null)
+                                                 .state(Operation.State.RUNNING)
                                                  .build();
         Operation operation3 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_3)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
-                                                 .state(null)
+                                                 .state(Operation.State.RUNNING)
                                                  .build();
         List<Operation> operationsPage1 = List.of(operation1, operation2);
         List<Operation> operationsPage2 = List.of(operation3);
@@ -179,7 +181,7 @@ class OperationsCleanerTest {
         Operation operation3 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_3)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
-                                                 .state(null)
+                                                 .state(Operation.State.RUNNING)
                                                  .build();
         List<Operation> operationsPage1 = List.of(operation1, operation2);
         List<Operation> operationsPage2 = List.of(operation3);

@@ -95,7 +95,6 @@ public class OperationInFinalStateHandler {
         operation = ImmutableOperation.builder()
                                       .from(operation)
                                       .state(state)
-                                      .cachedState(state)
                                       .hasAcquiredLock(false)
                                       .endedAt(ZonedDateTime.now())
                                       .build();
