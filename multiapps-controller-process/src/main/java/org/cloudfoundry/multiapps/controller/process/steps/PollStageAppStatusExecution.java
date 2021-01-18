@@ -65,7 +65,9 @@ public class PollStageAppStatusExecution implements AsyncExecution {
     }
 
     private void bindDropletToApplication(CloudControllerClient client, CloudApplication application) {
-        UUID applicationGuid = client.getApplicationGuid(application.getName());
+        UUID applicationGuid = client.getApplication(application.getName())
+                                     .getMetadata()
+                                     .getGuid();
         applicationStager.bindDropletToApplication(applicationGuid);
     }
 

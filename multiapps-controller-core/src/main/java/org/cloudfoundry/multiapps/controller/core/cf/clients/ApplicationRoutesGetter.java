@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 public class ApplicationRoutesGetter extends CustomControllerClient {
@@ -21,7 +22,9 @@ public class ApplicationRoutesGetter extends CustomControllerClient {
     }
 
     private List<CloudRoute> getRoutesInternal(String appName) {
-        String appRoutesUrl = getAppRoutesUrl(client.getApplicationGuid(appName));
+        CloudApplication app = client.getApplication(appName);
+        String appRoutesUrl = getAppRoutesUrl(app.getMetadata()
+                                                 .getGuid());
         List<Map<String, Object>> resources = getAllResources(appRoutesUrl);
         return toCloudRoutes(resources);
     }
