@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.StartingInfo;
 import com.sap.cloudfoundry.client.facade.UploadStatusCallback;
 import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
@@ -81,10 +82,18 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Set<CloudRouteSummary> routes) {
+    public void createApplication(String applicationName, Staging staging, Integer memory, Set<CloudRouteSummary> routes) {
         logger.debug(Messages.CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3, applicationName, memory,
                      UriUtil.prettyPrintRoutes(routes), SecureSerialization.toJson(staging));
-        delegate.createApplication(applicationName, staging, disk, memory, routes);
+        delegate.createApplication(applicationName, staging, memory, routes);
+    }
+
+    @Override
+    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Set<CloudRouteSummary> routes,
+                                  DockerInfo dockerInfo) {
+        logger.debug(Messages.CREATING_APPLICATION_0_WITH_DISK_QUOTA_1_MEMORY_2_URIS_3_AND_STAGING_4, applicationName, disk, memory,
+                     UriUtil.prettyPrintRoutes(routes), SecureSerialization.toJson(staging));
+        delegate.createApplication(applicationName, staging, disk, memory, routes, dockerInfo);
     }
 
     @Override
@@ -202,12 +211,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public CloudApplication getApplication(UUID guid) {
         logger.debug(Messages.GETTING_APPLICATION_0, guid);
         return delegate.getApplication(guid);
-    }
-
-    @Override
-    public UUID getApplicationGuid(String applicationName) {
-        logger.debug(Messages.GETTING_APPLICATION_0_GUID, applicationName);
-        return delegate.getApplicationGuid(applicationName);
     }
 
     @Override
@@ -463,15 +466,15 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void restartApplication(String applicationName) {
+    public StartingInfo restartApplication(String applicationName) {
         logger.debug(Messages.RESTARTING_APPLICATION_0, applicationName);
-        delegate.restartApplication(applicationName);
+        return delegate.restartApplication(applicationName);
     }
 
     @Override
-    public void startApplication(String applicationName) {
+    public StartingInfo startApplication(String applicationName) {
         logger.debug(Messages.STARTING_APPLICATION_0, applicationName);
-        delegate.startApplication(applicationName);
+        return delegate.startApplication(applicationName);
     }
 
     @Override
@@ -727,12 +730,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public List<CloudPackage> getPackagesForApplication(UUID applicationGuid) {
         logger.debug(Messages.GETTING_PACKAGES_FOR_APPLICATION_0, applicationGuid);
         return delegate.getPackagesForApplication(applicationGuid);
-    }
-
-    @Override
-    public CloudPackage createDockerPackage(UUID applicationGuid, DockerInfo dockerInfo) {
-        logger.debug(Messages.CREATING_DOCKER_PACKAGE_FOR_APPLICATION_0, applicationGuid);
-        return delegate.createDockerPackage(applicationGuid, dockerInfo);
     }
 
     @Override

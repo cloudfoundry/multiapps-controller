@@ -50,8 +50,6 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires spring.core;
     requires spring.security.oauth2;
     requires spring.web;
-    requires reactor.netty;
-    requires io.netty.handler;
 
     requires static java.compiler;
     requires static org.immutables.value;

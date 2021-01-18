@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudControllerClientImpl;
+import com.sap.cloudfoundry.client.facade.StartingInfo;
 import com.sap.cloudfoundry.client.facade.UploadStatusCallback;
 import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
@@ -81,8 +82,14 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Set<CloudRouteSummary> routes) {
-        executeWithRetry(() -> delegate.createApplication(applicationName, staging, disk, memory, routes));
+    public void createApplication(String applicationName, Staging staging, Integer memory, Set<CloudRouteSummary> routes) {
+        executeWithRetry(() -> delegate.createApplication(applicationName, staging, memory, routes));
+    }
+
+    @Override
+    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Set<CloudRouteSummary> routes,
+                                  DockerInfo dockerInfo) {
+        executeWithRetry(() -> delegate.createApplication(applicationName, staging, disk, memory, routes, dockerInfo));
     }
 
     @Override
@@ -143,11 +150,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public CloudApplication getApplication(UUID appGuid) {
         return executeWithRetry(() -> delegate.getApplication(appGuid));
-    }
-
-    @Override
-    public UUID getApplicationGuid(String applicationName) {
-        return executeWithRetry(() -> delegate.getApplicationGuid(applicationName));
     }
 
     @Override
@@ -296,13 +298,13 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void restartApplication(String applicationName) {
-        executeWithRetry(() -> delegate.restartApplication(applicationName));
+    public StartingInfo restartApplication(String applicationName) {
+        return executeWithRetry(() -> delegate.restartApplication(applicationName));
     }
 
     @Override
-    public void startApplication(String applicationName) {
-        executeWithRetry(() -> delegate.startApplication(applicationName));
+    public StartingInfo startApplication(String applicationName) {
+        return executeWithRetry(() -> delegate.startApplication(applicationName));
     }
 
     @Override
@@ -627,11 +629,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public List<CloudPackage> getPackagesForApplication(UUID applicationGuid) {
         return executeWithRetry(() -> delegate.getPackagesForApplication(applicationGuid));
-    }
-
-    @Override
-    public CloudPackage createDockerPackage(UUID applicationGuid, DockerInfo dockerInfo) {
-        return executeWithRetry(() -> delegate.createDockerPackage(applicationGuid, dockerInfo));
     }
 
     @Override

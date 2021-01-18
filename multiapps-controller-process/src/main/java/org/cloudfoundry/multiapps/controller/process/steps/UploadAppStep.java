@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -64,21 +63,17 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
         MtaArchiveElements mtaArchiveElements = context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
         String moduleFileName = mtaArchiveElements.getModuleFileName(applicationToProcess.getModuleName());
-        CloudControllerClient client = context.getControllerClient();
         if (moduleFileName == null) {
             getStepLogger().debug(Messages.NO_CONTENT_TO_UPLOAD);
-            if (applicationToProcess.getDockerInfo() != null) {
-                CloudPackage cloudPackage = createDockerPackage(client, applicationToProcess);
-                context.setVariable(Variables.CLOUD_PACKAGE, cloudPackage);
-            }
             return StepPhase.DONE;
         }
 
         String newApplicationDigest = getNewApplicationDigest(context, context.getRequiredVariable(Variables.APP_ARCHIVE_ID),
                                                               moduleFileName);
+        CloudControllerClient client = context.getControllerClient();
         CloudApplication cloudApp = client.getApplication(applicationToProcess.getName());
 
-        boolean contentChanged = detectApplicationFileDigestChanges(cloudApp, newApplicationDigest);
+        boolean contentChanged = detectApplicationFileDigestChanges(context, cloudApp, newApplicationDigest);
         if (contentChanged) {
             proceedWithUpload(context, applicationToProcess, moduleFileName);
             attemptToUpdateApplicationDigest(context.getControllerClient(), cloudApp, newApplicationDigest);
@@ -99,34 +94,6 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         return StepPhase.DONE;
     }
 
-    private CloudPackage createDockerPackage(CloudControllerClient client, CloudApplicationExtended application) {
-        UUID applicationGuid = client.getApplicationGuid(application.getName());
-        return client.createDockerPackage(applicationGuid, application.getDockerInfo());
-    }
-
-    private String getNewApplicationDigest(ProcessContext context, String appArchiveId, String fileName) throws FileStorageException {
-        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId,
-                                              createDigestCalculatorFileContentProcessor(fileName));
-    }
-
-    private FileContentProcessor<String> createDigestCalculatorFileContentProcessor(String fileName) {
-        return appArchiveStream -> {
-            long maxSize = configuration.getMaxResourceFileSize();
-            ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(appArchiveStream, fileName, maxSize);
-            return applicationArchiveReader.calculateApplicationDigest(applicationArchiveContext);
-        };
-    }
-
-    protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName, long maxSize) {
-        return new ApplicationArchiveContext(appArchiveStream, fileName, maxSize);
-    }
-
-    private boolean detectApplicationFileDigestChanges(CloudApplication appWithUpdatedEnvironment, String newApplicationDigest) {
-        ApplicationFileDigestDetector digestDetector = new ApplicationFileDigestDetector(appWithUpdatedEnvironment.getEnv());
-        String currentApplicationDigest = digestDetector.detectCurrentAppFileDigest();
-        return !newApplicationDigest.equals(currentApplicationDigest);
-    }
-
     private void proceedWithUpload(ProcessContext context, CloudApplicationExtended application, String moduleFileName)
         throws FileStorageException {
         getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, moduleFileName, application.getName());
@@ -136,7 +103,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
         getStepLogger().info(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, application.getName());
         LOGGER.info(format(Messages.UPLOADED_PACKAGE_0, cloudPackage));
-
+        
         context.setVariable(Variables.CLOUD_PACKAGE, cloudPackage);
         context.setVariable(Variables.APP_CONTENT_CHANGED, true);
     }
@@ -166,6 +133,23 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                                                              .getName());
     }
 
+    private String getNewApplicationDigest(ProcessContext context, String appArchiveId, String fileName) throws FileStorageException {
+        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId,
+                                              createDigestCalculatorFileContentProcessor(fileName));
+    }
+
+    private FileContentProcessor<String> createDigestCalculatorFileContentProcessor(String fileName) {
+        return appArchiveStream -> {
+            long maxSize = configuration.getMaxResourceFileSize();
+            ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(appArchiveStream, fileName, maxSize);
+            return applicationArchiveReader.calculateApplicationDigest(applicationArchiveContext);
+        };
+    }
+
+    protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName, long maxSize) {
+        return new ApplicationArchiveContext(appArchiveStream, fileName, maxSize);
+    }
+
     private CloudPackage asyncUploadFiles(ProcessContext context, CloudApplication app, String appArchiveId, String fileName)
         throws FileStorageException {
 
@@ -190,6 +174,13 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     private CloudPackage upload(ProcessContext context, CloudApplication app, Path filePath) {
         return context.getControllerClient()
                       .asyncUploadApplication(app.getName(), filePath, getMonitorUploadStatusCallback(context, app, filePath));
+    }
+
+    private boolean detectApplicationFileDigestChanges(ProcessContext context, CloudApplication appWithUpdatedEnvironment,
+                                                       String newApplicationDigest) {
+        ApplicationFileDigestDetector digestDetector = new ApplicationFileDigestDetector(appWithUpdatedEnvironment.getEnv());
+        String currentApplicationDigest = digestDetector.detectCurrentAppFileDigest();
+        return !newApplicationDigest.equals(currentApplicationDigest);
     }
 
     private void attemptToUpdateApplicationDigest(CloudControllerClient client, CloudApplication app, String newApplicationDigest) {

@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.StartingInfo;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication.State;
 
@@ -36,8 +37,8 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
         if (isStarted(client, app.getName())) {
             stopApp(client, app);
         }
-        startApp(client, app);
-        setStartupPollingInfo(context);
+        StartingInfo startingInfo = startApp(client, app);
+        setStartupPollingInfo(context, startingInfo);
         return StepPhase.POLL;
     }
 
@@ -50,7 +51,8 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
         return context.getVariable(Variables.APP_TO_PROCESS);
     }
 
-    private void setStartupPollingInfo(ProcessContext context) {
+    private void setStartupPollingInfo(ProcessContext context, StartingInfo startingInfo) {
+        context.setVariable(Variables.STARTING_INFO, startingInfo);
         if (context.getVariable(Variables.START_TIME) == null) {
             context.setVariable(Variables.START_TIME, System.currentTimeMillis());
         }
@@ -76,9 +78,9 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
         client.stopApplication(app.getName());
     }
 
-    private void startApp(CloudControllerClient client, CloudApplication app) {
+    private StartingInfo startApp(CloudControllerClient client, CloudApplication app) {
         getStepLogger().info(Messages.STARTING_APP, app.getName());
-        client.startApplication(app.getName());
+        return client.startApplication(app.getName());
     }
 
     @Override
