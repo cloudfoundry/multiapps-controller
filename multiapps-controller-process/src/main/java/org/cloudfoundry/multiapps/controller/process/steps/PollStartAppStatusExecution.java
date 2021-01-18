@@ -20,6 +20,7 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
 import com.sap.cloudfoundry.client.facade.domain.InstanceState;
+import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
 
 public class PollStartAppStatusExecution implements AsyncExecution {
 
@@ -46,8 +47,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         // We're using the app object returned by the controller, because it includes the router port in its URIs, while the app model
         // we've built doesn't.
         CloudApplication app = client.getApplication(appToPoll);
-        List<InstanceInfo> appInstances = client.getApplicationInstances(app)
-                                                .getInstances();
+        List<InstanceInfo> appInstances = getApplicationInstances(client, app);
         StartupStatus status = getStartupStatus(context, app, appInstances);
         ProcessLoggerProvider processLoggerProvider = context.getStepLogger()
                                                              .getProcessLoggerProvider();
@@ -67,29 +67,32 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     private StartupStatus getStartupStatus(ProcessContext context, CloudApplication app, List<InstanceInfo> appInstances) {
         boolean failOnCrashed = context.getVariable(Variables.FAIL_ON_CRASHED);
 
-        int expectedInstances = app.getInstances();
-        long runningInstances = getInstanceCount(appInstances, InstanceState.RUNNING);
-        long downInstances = getInstanceCount(appInstances, InstanceState.DOWN);
-        long crashedInstances = getInstanceCount(appInstances, InstanceState.CRASHED);
-        long startingInstances = getInstanceCount(appInstances, InstanceState.STARTING);
+        if (appInstances != null) {
+            int expectedInstances = app.getInstances();
+            long runningInstances = getInstanceCount(appInstances, InstanceState.RUNNING);
+            long downInstances = getInstanceCount(appInstances, InstanceState.DOWN);
+            long crashedInstances = getInstanceCount(appInstances, InstanceState.CRASHED);
+            long startingInstances = getInstanceCount(appInstances, InstanceState.STARTING);
 
-        String states = composeStatesMessage(appInstances);
+            String states = composeStatesMessage(appInstances);
 
-        context.getStepLogger()
-               .debug(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, app.getName(), runningInstances, expectedInstances, states);
+            context.getStepLogger()
+                   .debug(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, app.getName(), runningInstances, expectedInstances, states);
 
-        if (runningInstances == expectedInstances) {
-            return StartupStatus.STARTED;
+            if (runningInstances == expectedInstances) {
+                return StartupStatus.STARTED;
+            }
+            if (startingInstances > 0) {
+                return StartupStatus.STARTING;
+            }
+            if (downInstances > 0) {
+                return StartupStatus.DOWN;
+            }
+            if (crashedInstances > 0 && failOnCrashed) {
+                return StartupStatus.CRASHED;
+            }
         }
-        if (startingInstances > 0) {
-            return StartupStatus.STARTING;
-        }
-        if (downInstances > 0) {
-            return StartupStatus.DOWN;
-        }
-        if (crashedInstances > 0 && failOnCrashed) {
-            return StartupStatus.CRASHED;
-        }
+
         return StartupStatus.STARTING;
     }
 
@@ -140,6 +143,11 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     private String formatStateString(Map.Entry<String, Long> entry) {
         return format("{0} {1}", entry.getValue(), entry.getKey()
                                                         .toLowerCase());
+    }
+
+    private List<InstanceInfo> getApplicationInstances(CloudControllerClient client, CloudApplication app) {
+        InstancesInfo instancesInfo = client.getApplicationInstances(app);
+        return (instancesInfo != null) ? instancesInfo.getInstances() : null;
     }
 
     private long getInstanceCount(List<InstanceInfo> instances, InstanceState state) {
