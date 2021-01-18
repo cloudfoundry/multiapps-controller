@@ -594,6 +594,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public List<CloudServiceInstance> getServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelector(String labelSelector) {
+        return executeWithRetry(() -> delegate.getServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelector(labelSelector));
+    }
+
+    @Override
     public void updateApplicationMetadata(UUID guid, Metadata metadata) {
         executeWithRetry(() -> delegate.updateApplicationMetadata(guid, metadata));
     }

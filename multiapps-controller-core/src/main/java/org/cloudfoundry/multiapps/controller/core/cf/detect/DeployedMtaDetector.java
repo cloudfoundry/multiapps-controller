@@ -83,12 +83,16 @@ public class DeployedMtaDetector {
     }
 
     private List<DeployedMta> getDeployedMtasByMetadataSelectionCriteria(MtaMetadataCriteria criteria, CloudControllerClient client) {
-        List<CloudEntity> mtaMetadataEntities = mtaMetadataEntityCollectors.stream()
-                                                                           .map(collector -> collector.collect(client, criteria))
+        @SuppressWarnings("unchecked")
+        List<CloudEntity> mtaMetadataEntities = (List<CloudEntity>) mtaMetadataEntityCollectors.stream()
+                                                                           .map(collector -> collect(collector, criteria, client))
                                                                            .flatMap(List::stream)
                                                                            .collect(Collectors.toList());
-
         return mtaMetadataEntityAggregator.aggregate(mtaMetadataEntities);
+    }
+
+    protected <T extends CloudEntity> List<T> collect(MtaMetadataEntityCollector<T> collector, MtaMetadataCriteria criteria, CloudControllerClient client) {
+        return collector.collect(client, criteria);
     }
 
 }

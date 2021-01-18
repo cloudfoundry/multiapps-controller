@@ -28,6 +28,7 @@ import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.cloudfoundry.multiapps.mta.model.Version;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
@@ -40,6 +41,7 @@ public class MtasApiServiceImpl implements MtasApiService {
     private CloudControllerClientProvider clientProvider;
 
     @Inject
+    @Qualifier("deployedMtaRequiredDataOnlyDetector")
     private DeployedMtaDetector deployedMtaDetector;
 
     @Override

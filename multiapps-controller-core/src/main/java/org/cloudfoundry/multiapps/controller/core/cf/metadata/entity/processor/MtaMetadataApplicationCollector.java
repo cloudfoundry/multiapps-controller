@@ -16,4 +16,9 @@ public class MtaMetadataApplicationCollector implements MtaMetadataEntityCollect
     public List<CloudApplication> collect(CloudControllerClient client, MtaMetadataCriteria criteria) {
         return client.getApplicationsByMetadataLabelSelector(criteria.get());
     }
+
+    @Override
+    public List<CloudApplication> collectRequiredDataOnly(CloudControllerClient client, MtaMetadataCriteria criteria) {
+        return collect(client, criteria);
+    }
 }

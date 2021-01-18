@@ -677,6 +677,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
         logger.debug(Messages.GETTING_SERVICE_INSTANCES_BY_METADATA_LABEL_SELECTOR_0, labelSelector);
         return delegate.getServiceInstancesByMetadataLabelSelector(labelSelector);
     }
+    
+    @Override
+    public List<CloudServiceInstance> getServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelector(String labelSelector) {
+        logger.debug(Messages.GETTING_SERVICE_INSTANCES_WITHOUT_AUXILIARY_CONTENT_BY_METADATA_LABEL_SELECTOR_0, labelSelector);
+        return delegate.getServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelector(labelSelector);
+    }
 
     @Override
     public void updateServiceInstanceMetadata(UUID guid, Metadata metadata) {
@@ -729,4 +735,5 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
         return delegate.createDockerPackage(applicationGuid, dockerInfo);
 
     }
+
 }

@@ -10,5 +10,7 @@ import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
 public interface MtaMetadataEntityCollector<T extends CloudEntity> {
 
     List<T> collect(CloudControllerClient client, MtaMetadataCriteria criteria);
+    
+    List<T> collectRequiredDataOnly(CloudControllerClient client, MtaMetadataCriteria criteria);
 
 }
