@@ -33,7 +33,6 @@ import org.cloudfoundry.multiapps.controller.process.util.UrisApplicationAttribu
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
@@ -142,12 +141,13 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         public void handleApplicationAttributes() {
             Integer diskQuota = (app.getDiskQuota() != 0) ? app.getDiskQuota() : null;
             Integer memory = (app.getMemory() != 0) ? app.getMemory() : null;
+
             if (app.getDockerInfo() != null) {
                 context.getStepLogger()
                        .info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, app.getName(), app.getDockerInfo()
                                                                                         .getImage());
             }
-            client.createApplication(app.getName(), app.getStaging(), diskQuota, memory, app.getRoutes());
+            client.createApplication(app.getName(), app.getStaging(), diskQuota, memory, app.getRoutes(), app.getDockerInfo());
             context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, true);
         }
 

@@ -27,7 +27,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     private static final Logger LOGGER = LoggerFactory.getLogger(PollStartAppStatusExecution.class);
 
     enum StartupStatus {
-        STARTING, STARTED, CRASHED, DOWN
+        STARTING, STARTED, CRASHED, FLAPPING
     }
 
     private final RecentLogsRetriever recentLogsRetriever;
@@ -70,7 +70,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         if (appInstances != null) {
             int expectedInstances = app.getInstances();
             long runningInstances = getInstanceCount(appInstances, InstanceState.RUNNING);
-            long downInstances = getInstanceCount(appInstances, InstanceState.DOWN);
+            long flappingInstances = getInstanceCount(appInstances, InstanceState.FLAPPING);
             long crashedInstances = getInstanceCount(appInstances, InstanceState.CRASHED);
             long startingInstances = getInstanceCount(appInstances, InstanceState.STARTING);
 
@@ -85,8 +85,8 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             if (startingInstances > 0) {
                 return StartupStatus.STARTING;
             }
-            if (downInstances > 0) {
-                return StartupStatus.DOWN;
+            if (flappingInstances > 0) {
+                return StartupStatus.FLAPPING;
             }
             if (crashedInstances > 0 && failOnCrashed) {
                 return StartupStatus.CRASHED;
@@ -101,8 +101,8 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             onError(context, Messages.ERROR_STARTING_APP_0_DESCRIPTION_1, app.getName(), Messages.SOME_INSTANCES_HAVE_CRASHED);
             return AsyncExecutionState.ERROR;
         }
-        if (status == StartupStatus.DOWN) {
-            onError(context, Messages.ERROR_STARTING_APP_0_DESCRIPTION_1, app.getName(), Messages.SOME_INSTANCES_ARE_DOWN);
+        if (status == StartupStatus.FLAPPING) {
+            onError(context, Messages.ERROR_STARTING_APP_0_DESCRIPTION_1, app.getName(), Messages.SOME_INSTANCES_ARE_FLAPPING);
             return AsyncExecutionState.ERROR;
         }
         if (status == StartupStatus.STARTED) {

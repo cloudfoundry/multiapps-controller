@@ -64,7 +64,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
         assertStepFinishedSuccessfully();
         Integer expectedDiskQuota = diskQuota == 0 ? null : diskQuota;
         Integer expectedMemory = memory == 0 ? null : memory;
-        verify(client).createApplication(APP_NAME, staging, expectedDiskQuota, expectedMemory, routes);
+        verify(client).createApplication(APP_NAME, staging, expectedDiskQuota, expectedMemory, routes, null);
         assertTrue(context.getVariable(Variables.VCAP_APP_PROPERTIES_CHANGED));
     }
 
@@ -92,11 +92,8 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
                                                                                           .password("somePassword")
                                                                                           .build())
                                                    .build();
-        Staging dockerStaging = ImmutableStaging.builder()
-                                                .dockerInfo(dockerInfo)
-                                                .build();
 
-        CloudApplicationExtended application = buildApplication(dockerStaging, 128, 256, Collections.emptySet());
+        CloudApplicationExtended application = buildApplication(null, 128, 256, Collections.emptySet());
         application = ImmutableCloudApplicationExtended.copyOf(application)
                                                        .withDockerInfo(dockerInfo);
         prepareContext(application, Collections.emptyMap());
@@ -104,7 +101,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
-        verify(client).createApplication(APP_NAME, dockerStaging, 128, 256, Collections.emptySet());
+        verify(client).createApplication(APP_NAME, null, 128, 256, Collections.emptySet(), dockerInfo);
         verify(stepLogger).info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, APP_NAME, dockerInfo.getImage());
     }
 
