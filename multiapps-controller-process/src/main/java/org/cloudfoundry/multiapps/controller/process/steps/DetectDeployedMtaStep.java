@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -22,6 +23,7 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 public class DetectDeployedMtaStep extends SyncFlowableStep {
 
     @Inject
+    @Qualifier("deployedMtaDetector")
     private DeployedMtaDetector deployedMtaDetector;
 
     @Override

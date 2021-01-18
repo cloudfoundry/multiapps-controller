@@ -16,4 +16,9 @@ public class MtaMetadataServiceCollector implements MtaMetadataEntityCollector<C
     public List<CloudServiceInstance> collect(CloudControllerClient client, MtaMetadataCriteria criteria) {
         return client.getServiceInstancesByMetadataLabelSelector(criteria.get());
     }
+    
+    @Override
+    public List<CloudServiceInstance> collectRequiredDataOnly(CloudControllerClient client, MtaMetadataCriteria criteria) {
+        return client.getServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelector(criteria.get());
+    }
 }

@@ -16,7 +16,7 @@ import org.cloudfoundry.multiapps.controller.api.model.Metadata;
 import org.cloudfoundry.multiapps.controller.api.model.Module;
 import org.cloudfoundry.multiapps.controller.api.model.Mta;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
-import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
+import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaRequiredDataOnlyDetector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -54,7 +54,7 @@ class MtasApiServiceImplTest {
     private CloudControllerClient client;
 
     @Mock
-    private DeployedMtaDetector deployedMtaDetector;
+    private DeployedMtaRequiredDataOnlyDetector deployedMtaDetector;
 
     @InjectMocks
     private MtasApiServiceImpl testedClass;
@@ -235,7 +235,7 @@ class MtasApiServiceImplTest {
                                               .boundMtaServices(services)
                                               .build();
     }
-    
+
     private Set<CloudRouteSummary> parseUrisAsRoutes(List<String> uris) {
         return uris.stream()
                    .map(uri -> new ApplicationURI(uri, false).toCloudRouteSummary())

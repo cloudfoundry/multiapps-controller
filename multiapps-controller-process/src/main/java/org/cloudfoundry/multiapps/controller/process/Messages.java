@@ -532,6 +532,7 @@ public class Messages {
     public static final String GETTING_APPLICATIONS_BY_METADATA_LABEL_SELECTOR_0 = "Getting applications by metadata label selector \"{0}\"...";
     public static final String UPDATING_METADATA_OF_APPLICATION_0_TO_1 = "Updating metadata of application \"{0}\" to: {1}";
     public static final String GETTING_SERVICE_INSTANCES_BY_METADATA_LABEL_SELECTOR_0 = "Getting service instances by metadata label selector \"{0}\"...";
+    public static final String GETTING_SERVICE_INSTANCES_WITHOUT_AUXILIARY_CONTENT_BY_METADATA_LABEL_SELECTOR_0 = "Getting service instances without auxiliary content by metadata label selector \"{0}\"...";
     public static final String UPDATING_METADATA_OF_SERVICE_INSTANCE_0_TO_1 = "Updating metadata of service instance \"{0}\" to: {1}";
     public static final String CURRENTLY_USED_PACKAGE_0 = "Currently used package: \"{0}\"";
     public static final String PACKAGES_FOR_APPLICATION_0_ARE_1 = "Packages for application: \"{0}\" are: \"{1}\"";
