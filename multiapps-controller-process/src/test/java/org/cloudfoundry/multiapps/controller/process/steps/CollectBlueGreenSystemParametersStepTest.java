@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 import java.util.Map;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.AuthorizationEndpointGetter;
 import org.cloudfoundry.multiapps.controller.core.helpers.SystemParameters;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -69,7 +71,12 @@ class CollectBlueGreenSystemParametersStepTest extends CollectSystemParametersSt
 
     @Override
     protected CollectBlueGreenSystemParametersStep createStep() {
-        return new CollectBlueGreenSystemParametersStep();
+        return new CollectBlueGreenSystemParametersStep() {
+            @Override
+            protected AuthorizationEndpointGetter getAuthorizationEndpointGetter(CloudControllerClient client) {
+                return authorizationEndpointGetter;
+            }
+        };
     }
 
 }

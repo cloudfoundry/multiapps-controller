@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.AuthorizationEndpointGetter;
 import org.cloudfoundry.multiapps.controller.core.helpers.CredentialsGenerator;
 import org.cloudfoundry.multiapps.controller.core.helpers.SystemParameters;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -93,8 +94,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
     private SystemParameters createSystemParameters(ProcessContext context, CloudControllerClient client, String defaultDomain,
                                                     boolean reserveTemporaryRoutes) {
-        String authorizationEndpoint = client.getCloudInfo()
-                                             .getAuthorizationEndpoint();
+        String authorizationEndpoint = getAuthorizationEndpointGetter(client).getAuthorizationEndpoint();
         String user = context.getVariable(Variables.USER);
         String namespace = context.getVariable(Variables.MTA_NAMESPACE);
         boolean applyNamespace = context.getVariable(Variables.APPLY_NAMESPACE);
@@ -153,6 +153,10 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                                                 .getVersion();
         getStepLogger().info(Messages.DEPLOYED_MTA_VERSION, deployedMtaVersion);
         return DeploymentType.fromVersions(deployedMtaVersion, newMtaVersion);
+    }
+
+    protected AuthorizationEndpointGetter getAuthorizationEndpointGetter(CloudControllerClient client) {
+        return new AuthorizationEndpointGetter(client);
     }
 
 }
