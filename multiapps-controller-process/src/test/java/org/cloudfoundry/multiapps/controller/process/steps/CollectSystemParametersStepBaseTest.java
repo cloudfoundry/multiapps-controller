@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.controller.core.cf.clients.AuthorizationEndpointGetter;
 import org.cloudfoundry.multiapps.controller.core.helpers.CredentialsGenerator;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ReadOnlyParametersChecker;
@@ -16,8 +17,8 @@ import org.cloudfoundry.multiapps.mta.model.VersionRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
-import com.sap.cloudfoundry.client.facade.domain.CloudInfo;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 
 public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableStepTest<CollectSystemParametersStep> {
@@ -40,14 +41,16 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
 
     @Mock
     protected CredentialsGenerator credentialsGenerator;
-
     @Mock
     protected ReadOnlyParametersChecker readOnlyParametersChecker;
+    @Mock
+    protected AuthorizationEndpointGetter authorizationEndpointGetter;
 
     @BeforeEach
     public void setUp() throws MalformedURLException {
         when(configuration.getControllerUrl()).thenReturn(new URL(CONTROLLER_URL));
         when(configuration.getDeployServiceUrl()).thenReturn(MULTIAPPS_CONTROLLER_URL);
+        when(authorizationEndpointGetter.getAuthorizationEndpoint()).thenReturn(AUTHORIZATION_URL);
 
         context.setVariable(Variables.USER, USER);
         context.setVariable(Variables.ORGANIZATION_NAME, ORGANIZATION_NAME);
@@ -70,10 +73,8 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
 
     protected void prepareClient() {
         CloudDomain defaultDomain = mockDefaultDomain();
-        CloudInfo info = mockInfo();
 
         when(client.getDefaultDomain()).thenReturn(defaultDomain);
-        when(client.getCloudInfo()).thenReturn(info);
     }
 
     private CloudDomain mockDefaultDomain() {
@@ -85,15 +86,14 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
         return domain;
     }
 
-    private CloudInfo mockInfo() {
-        CloudInfo info = mock(CloudInfo.class);
-        when(info.getAuthorizationEndpoint()).thenReturn(AUTHORIZATION_URL);
-        return info;
-    }
-
     @Override
     protected CollectSystemParametersStep createStep() {
-        return new CollectSystemParametersStep();
+        return new CollectSystemParametersStep() {
+            @Override
+            protected AuthorizationEndpointGetter getAuthorizationEndpointGetter(CloudControllerClient client) {
+                return authorizationEndpointGetter;
+            }
+        };
     }
 
 }
