@@ -5,7 +5,7 @@ open module org.cloudfoundry.multiapps.controller.client {
     exports org.cloudfoundry.multiapps.controller.client.uaa;
     exports org.cloudfoundry.multiapps.controller.client.util;
 
-    requires transitive cloudfoundry.client;
+    requires transitive org.cloudfoundry.client;
     requires transitive com.sap.cloudfoundry.client.facade;
     requires transitive spring.security.oauth2;
     requires transitive spring.web;

@@ -25,7 +25,6 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
 import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
 import com.sap.cloudfoundry.client.facade.domain.CloudEvent;
-import com.sap.cloudfoundry.client.facade.domain.CloudInfo;
 import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
@@ -465,11 +464,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudInfo getCloudInfo() {
-        return executeWithRetry(delegate::getCloudInfo);
-    }
-
-    @Override
     public List<CloudEvent> getEvents() {
         return executeWithRetry(delegate::getEvents, HttpStatus.NOT_FOUND);
     }
@@ -632,8 +626,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public UserRole getUserRoleBySpaceGuidAndUserGuid(UUID spaceGuid, UUID userGuid) {
-        return executeWithRetry(() -> delegate.getUserRoleBySpaceGuidAndUserGuid(spaceGuid, userGuid));
+    public List<UserRole> getUserRolesBySpaceAndUser(UUID spaceGuid, UUID userGuid) {
+        return executeWithRetry(() -> delegate.getUserRolesBySpaceAndUser(spaceGuid, userGuid));
     }
 
     private void executeWithRetry(Runnable operation, HttpStatus... statusesToIgnore) {

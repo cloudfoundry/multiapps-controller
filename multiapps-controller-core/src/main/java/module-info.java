@@ -45,7 +45,7 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires transitive org.cloudfoundry.multiapps.mta;
     requires transitive spring.security.oauth2;
 
-    requires cloudfoundry.client;
+    requires org.cloudfoundry.client;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
