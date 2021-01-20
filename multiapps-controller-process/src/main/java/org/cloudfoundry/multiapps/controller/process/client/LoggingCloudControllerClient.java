@@ -25,7 +25,6 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
 import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
 import com.sap.cloudfoundry.client.facade.domain.CloudEvent;
-import com.sap.cloudfoundry.client.facade.domain.CloudInfo;
 import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
@@ -700,11 +699,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudInfo getCloudInfo() {
-        return delegate.getCloudInfo();
-    }
-
-    @Override
     public OAuth2AccessToken login() {
         return delegate.login();
     }
@@ -733,8 +727,8 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public UserRole getUserRoleBySpaceGuidAndUserGuid(UUID spaceGuid, UUID userGuid) {
-        logger.debug(Messages.GETTING_ROLES_FOR_USER_0_FOR_SPACE_1, spaceGuid, userGuid);
-        return delegate.getUserRoleBySpaceGuidAndUserGuid(spaceGuid, userGuid);
+    public List<UserRole> getUserRolesBySpaceAndUser(UUID spaceGuid, UUID userGuid) {
+        logger.debug(Messages.GETTING_ROLES_FOR_USER_0_FOR_SPACE_1, userGuid, spaceGuid);
+        return delegate.getUserRolesBySpaceAndUser(spaceGuid, userGuid);
     }
 }

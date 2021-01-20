@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.web.security;
 
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -30,7 +31,7 @@ import com.sap.cloudfoundry.client.facade.domain.UserRole;
 public class AuthorizationChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationChecker.class);
-    private CachedMap<SpaceWithUser, UserRole> userRolesCache = null;
+    private CachedMap<SpaceWithUser, List<UserRole>> userRolesCache = null;
 
     private final CloudControllerClientProvider clientProvider;
     private final ApplicationConfiguration applicationConfiguration;
@@ -115,12 +116,11 @@ public class AuthorizationChecker {
         if (isSpaceDeveloperUsingCache(client, spaceWithUser)) {
             return true;
         }
-        UserRole userRole = refreshUserRole(client, spaceWithUser);
-        if (userRole.hasSpaceRole(UserRole.SpaceRole.SPACE_DEVELOPER)) {
+        List<UserRole> userRoles = refreshUserRoles(client, spaceWithUser);
+        if (userRoles.contains(UserRole.SPACE_DEVELOPER)) {
             return true;
         }
-        return readOnly
-            && (userRole.hasSpaceRole(UserRole.SpaceRole.SPACE_AUDITOR) || userRole.hasSpaceRole(UserRole.SpaceRole.SPACE_MANAGER));
+        return readOnly && (userRoles.contains(UserRole.SPACE_AUDITOR) || userRoles.contains(UserRole.SPACE_MANAGER));
     }
 
     private SpaceWithUser getSpaceWithUser(UUID userGuid, UUID spaceGuid) {
@@ -128,14 +128,14 @@ public class AuthorizationChecker {
     }
 
     private boolean isSpaceDeveloperUsingCache(CloudControllerClient client, SpaceWithUser spaceWithUser) {
-        UserRole userRole = userRolesCache.get(spaceWithUser, () -> client.getUserRoleBySpaceGuidAndUserGuid(spaceWithUser.getSpaceGuid(),
+        List<UserRole> userRoles = userRolesCache.get(spaceWithUser, () -> client.getUserRolesBySpaceAndUser(spaceWithUser.getSpaceGuid(),
                                                                                                              spaceWithUser.getUserGuid()));
-        return userRole.hasSpaceRole(UserRole.SpaceRole.SPACE_DEVELOPER);
+        return userRoles.contains(UserRole.SPACE_DEVELOPER);
     }
 
-    private UserRole refreshUserRole(CloudControllerClient client, SpaceWithUser spaceWithUser) {
-        return userRolesCache.forceRefresh(spaceWithUser, () -> client.getUserRoleBySpaceGuidAndUserGuid(spaceWithUser.getSpaceGuid(),
-                                                                                                         spaceWithUser.getUserGuid()));
+    private List<UserRole> refreshUserRoles(CloudControllerClient client, SpaceWithUser spaceWithUser) {
+        return userRolesCache.forceRefresh(spaceWithUser, () -> client.getUserRolesBySpaceAndUser(spaceWithUser.getSpaceGuid(),
+                                                                                                  spaceWithUser.getUserGuid()));
     }
 
     private boolean hasAdminScope(UserInfo userInfo) {
