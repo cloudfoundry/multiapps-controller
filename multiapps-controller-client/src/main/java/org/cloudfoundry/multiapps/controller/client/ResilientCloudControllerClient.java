@@ -150,11 +150,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public InstancesInfo getApplicationInstances(String applicationName) {
-        return executeWithRetry(() -> delegate.getApplicationInstances(applicationName));
-    }
-
-    @Override
     public InstancesInfo getApplicationInstances(CloudApplication application) {
         return executeWithRetry(() -> delegate.getApplicationInstances(application));
     }
