@@ -64,12 +64,13 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         // Get module sets:
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
         List<DeployedMtaApplication> deployedApplications = (deployedMta != null) ? deployedMta.getApplications() : Collections.emptyList();
-        Set<String> mtaArchiveModules = context.getVariable(Variables.MTA_ARCHIVE_MODULES);
-        getStepLogger().debug(Messages.MTA_ARCHIVE_MODULES, mtaArchiveModules);
+        Set<String> mtaManifestModulesNames = context.getVariable(Variables.MTA_ARCHIVE_MODULES);
+        getStepLogger().debug(Messages.MTA_ARCHIVE_MODULES, mtaManifestModulesNames);
+        List<Module> mtaDescriptorModules = deploymentDescriptor.getModules();
         Set<String> deployedModuleNames = CloudModelBuilderUtil.getDeployedModuleNames(deployedApplications);
         getStepLogger().debug(Messages.DEPLOYED_MODULES, deployedModuleNames);
-        Set<String> mtaModules = context.getVariable(Variables.MTA_MODULES);
-        getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
+        Set<String> mtaModulesForDeployment = context.getVariable(Variables.MTA_MODULES);
+        getStepLogger().debug(Messages.MTA_MODULES, mtaModulesForDeployment);
 
         // Build a map of service keys and save them in the context:
         Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(context).build();
@@ -78,8 +79,9 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, serviceKeys);
 
         // Build a list of applications for deployment and save them in the context:
-        List<Module> modulesCalculatedForDeployment = calculateModulesForDeployment(context, deploymentDescriptor, mtaArchiveModules,
-                                                                                    deployedModuleNames, mtaModules);
+        List<Module> modulesCalculatedForDeployment = calculateModulesForDeployment(context, deploymentDescriptor, mtaDescriptorModules,
+                                                                                    mtaManifestModulesNames, deployedModuleNames,
+                                                                                    mtaModulesForDeployment);
         List<String> moduleJsons = modulesCalculatedForDeployment.stream()
                                                                  .map(SecureSerialization::toJson)
                                                                  .collect(Collectors.toList());
@@ -175,12 +177,13 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     }
 
     private List<Module> calculateModulesForDeployment(ProcessContext context, DeploymentDescriptor deploymentDescriptor,
-                                                       Set<String> mtaArchiveModules, Set<String> deployedModuleNames,
-                                                       Set<String> mtaModules) {
+                                                       List<Module> mtaDescriptorModules, Set<String> mtaManifestModuleNames,
+                                                       Set<String> deployedModuleNames, Set<String> mtaModuleNamesForDeployment) {
         CloudModelBuilderContentCalculator<Module> modulesCloudModelBuilderContentCalculator = getModulesContentCalculator(context,
-                                                                                                                           mtaArchiveModules,
+                                                                                                                           mtaDescriptorModules,
+                                                                                                                           mtaManifestModuleNames,
                                                                                                                            deployedModuleNames,
-                                                                                                                           mtaModules);
+                                                                                                                           mtaModuleNamesForDeployment);
         return modulesCloudModelBuilderContentCalculator.calculateContentForBuilding(getModulesForDeployment(context.getExecution(),
                                                                                                              deploymentDescriptor));
     }
@@ -196,22 +199,28 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         return new ResourcesCloudModelBuilderContentCalculator(resourcesSpecifiedForDeployment, getStepLogger());
     }
 
-    protected ModulesCloudModelBuilderContentCalculator getModulesContentCalculator(ProcessContext context, Set<String> mtaArchiveModules,
+    protected ModulesCloudModelBuilderContentCalculator getModulesContentCalculator(ProcessContext context,
+                                                                                    List<Module> mtaDescriptorModules,
+                                                                                    Set<String> mtaManifestModuleNames,
                                                                                     Set<String> deployedModuleNames,
-                                                                                    Set<String> allMtaModules) {
-        return new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules,
+                                                                                    Set<String> mtaModuleNamesForDeployment) {
+        List<ModulesContentValidator> modulesValidators = getModuleContentValidators(context.getControllerClient(), mtaDescriptorModules,
+                                                                                     mtaModuleNamesForDeployment, deployedModuleNames);
+        return new ModulesCloudModelBuilderContentCalculator(mtaManifestModuleNames,
                                                              deployedModuleNames,
                                                              context.getVariable(Variables.MODULES_FOR_DEPLOYMENT),
                                                              getStepLogger(),
                                                              moduleToDeployHelper,
-                                                             getModuleContentValidators(context.getControllerClient(), allMtaModules,
-                                                                                        deployedModuleNames));
+                                                             modulesValidators);
     }
 
-    private List<ModulesContentValidator> getModuleContentValidators(CloudControllerClient cloudControllerClient, Set<String> allMtaModules,
+    private List<ModulesContentValidator> getModuleContentValidators(CloudControllerClient cloudControllerClient,
+                                                                     List<Module> mtaDescriptorModules,
+                                                                     Set<String> mtaModulesForDeployment,
                                                                      Set<String> deployedModuleNames) {
-        return Arrays.asList(new UnresolvedModulesContentValidator(allMtaModules, deployedModuleNames),
-                             new DeployedAfterModulesContentValidator(cloudControllerClient));
+        return List.of(new UnresolvedModulesContentValidator(mtaModulesForDeployment, deployedModuleNames),
+                       new DeployedAfterModulesContentValidator(cloudControllerClient, getStepLogger(), moduleToDeployHelper,
+                                                                mtaDescriptorModules));
     }
 
     private List<? extends Module> getModulesForDeployment(DelegateExecution execution, DeploymentDescriptor deploymentDescriptor) {
