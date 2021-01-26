@@ -154,8 +154,8 @@ class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeplo
 
         @Override
         protected ModulesCloudModelBuilderContentCalculator
-                  getModulesContentCalculator(ProcessContext context, Set<String> mtaArchiveModules, Set<String> deployedModuleNames,
-                                              Set<String> allMtaModules) {
+                  getModulesContentCalculator(ProcessContext context, List<Module> mtaDescriptorModules, Set<String> mtaManifestModuleNames,
+                                              Set<String> deployedModuleNames, Set<String> allMtaModuleNames) {
             return modulesCloudModelBuilderContentCalculator;
         }
 
