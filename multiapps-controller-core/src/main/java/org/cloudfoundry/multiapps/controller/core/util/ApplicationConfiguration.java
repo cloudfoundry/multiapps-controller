@@ -82,6 +82,7 @@ public class ApplicationConfiguration {
     static final String CFG_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = "CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS";
     static final String CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = "CONTROLLER_CLIENT_CONNECTION_POOL_SIZE";
     static final String CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE = "CONTROLLER_CLIENT_THREAD_POOL_SIZE";
+    static final String CFG_CONTROLLER_CLIENT_RESPONSE_TIMEOUT = "CONTROLLER_CLIENT_RESPONSE_TIMEOUT";
     static final String SAP_INTERNAL_DELIVERY = "SAP_INTERNAL_DELIVERY";
     static final String SUPPORT_COMPONENTS = "SUPPORT_COMPONENTS";
     static final String INTERNAL_SUPPORT_CHANNEL = "INTERNAL_SUPPORT_CHANNEL";
@@ -130,6 +131,7 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(2);
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 192;
     public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 64;
+    public static final int DEFAULT_CONTROLLER_CLIENT_RESPONSE_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(20);
     public static final Boolean DEFAULT_SAP_INTERNAL_DELIVERY = false;
     // Transaction timeout must be greater than Flowable process step timeout because lower value limit execution of the whole process step.
     public static final int DEFAULT_DB_TRANSACTION_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(60);
@@ -179,6 +181,7 @@ public class ApplicationConfiguration {
     private Duration controllerClientConnectTimeout;
     private Integer controllerClientConnectionPoolSize;
     private Integer controllerClientThreadPoolSize;
+    private Duration controllerClientResponseTimeout;
     private String certificateCN;
     private Integer micrometerStepInSeconds;
     private Integer dbTransactionTimeoutInSeconds;
@@ -248,7 +251,7 @@ public class ApplicationConfiguration {
                       CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS, CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
                       CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
                       CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
-                      CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS,
+                      CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, CFG_CONTROLLER_CLIENT_RESPONSE_TIMEOUT, CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS,
                       CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS, CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS);
     }
 
@@ -534,6 +537,13 @@ public class ApplicationConfiguration {
             controllerClientThreadPoolSize = getControllerClientThreadPoolSizeFromEnvironment();
         }
         return controllerClientThreadPoolSize;
+    }
+
+    public Duration getControllerClientResponseTimeout() {
+        if (controllerClientResponseTimeout == null) {
+            controllerClientResponseTimeout = getControllerClientResponseTimeoutFromEnvironment();
+        }
+        return controllerClientResponseTimeout;
     }
 
     public String getCertificateCN() {
@@ -906,6 +916,13 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE);
         LOGGER.info(format(Messages.CONTROLLER_CLIENT_THREAD_POOL_SIZE, value));
         return value;
+    }
+
+    private Duration getControllerClientResponseTimeoutFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_RESPONSE_TIMEOUT,
+                                                       DEFAULT_CONTROLLER_CLIENT_RESPONSE_TIMEOUT_IN_SECONDS);
+        LOGGER.info(format(Messages.CONTROLLER_CLIENT_RESPONSE_TIMEOUT, value));
+        return Duration.ofSeconds(value);
     }
 
     private Integer getMicrometerStepInSecondsFromEnvironment() {
