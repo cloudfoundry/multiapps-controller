@@ -38,6 +38,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
                                                         .connectTimeout(configuration.getControllerClientConnectTimeout())
                                                         .connectionPoolSize(configuration.getControllerClientConnectionPoolSize())
                                                         .threadPoolSize(configuration.getControllerClientThreadPoolSize())
+                                                        .responseTimeout(configuration.getControllerClientResponseTimeout())
                                                         .shouldTrustSelfSignedCertificates(configuration.shouldSkipSslValidation())
                                                         .build();
     }
