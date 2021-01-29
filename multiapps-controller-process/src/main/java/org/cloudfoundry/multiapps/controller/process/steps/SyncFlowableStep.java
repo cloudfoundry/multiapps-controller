@@ -32,6 +32,8 @@ import com.sap.cloudfoundry.client.facade.CloudControllerException;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
 
+import io.netty.handler.timeout.TimeoutException;
+
 public abstract class SyncFlowableStep implements JavaDelegate {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -132,6 +134,12 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     private Exception handleControllerException(Exception e) {
         if (e instanceof CloudOperationException && !(e instanceof CloudServiceBrokerException)) {
             return new CloudControllerException((CloudOperationException) e);
+        }
+        if (e instanceof TimeoutException) {
+            return new SLException(e,
+                                   Messages.TIMEOUT_0_EXCEEDED_WHILE_WAITING_CLOUD_CONTROLLER,
+                                   configuration.getControllerClientResponseTimeout()
+                                                .toSeconds());
         }
         return e;
     }

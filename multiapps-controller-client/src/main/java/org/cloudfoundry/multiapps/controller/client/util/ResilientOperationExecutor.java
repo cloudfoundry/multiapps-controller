@@ -7,6 +7,8 @@ import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.handler.timeout.TimeoutException;
+
 public class ResilientOperationExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResilientOperationExecutor.class);
@@ -47,6 +49,10 @@ public class ResilientOperationExecutor {
     }
 
     protected void handle(RuntimeException e) {
+        if (e instanceof TimeoutException) {
+            LOGGER.warn("Retrying operation that failed with exceeded timeout while waiting response from Cloud Controller", e);
+            return;
+        }
         LOGGER.warn(MessageFormat.format("Retrying operation that failed with message: {0}", e.getMessage()), e);
     }
 

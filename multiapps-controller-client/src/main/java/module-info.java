@@ -17,6 +17,7 @@ open module org.cloudfoundry.multiapps.controller.client {
     requires spring.webflux;
     requires reactor.core;
     requires org.reactivestreams;
+    requires io.netty.handler;
 
     requires static com.fasterxml.jackson.annotation;
     requires static java.compiler;
