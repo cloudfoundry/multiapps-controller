@@ -62,6 +62,7 @@ public class Messages {
     public static final String FLOWABLE_JOB_RETRY_FAILED = "Flowable job retry failed";
     public static final String UNSUPPORTED_ACTION = "Unsupported action: \"{0}\"";
     public static final String NO_PROCESS_ACTION_FOUND = "No process action found for: \"{0}\"";
+    public static final String TIMEOUT_0_EXCEEDED_WHILE_WAITING_CLOUD_CONTROLLER = "Timeout of \"{0}\" seconds exceeded while waiting response from Cloud Controller";
 
     // Audit log messages
 
