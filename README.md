@@ -7,7 +7,7 @@ The CF MultiApps Controller provides the possibility to operate (deploy, update,
 
 # Getting started with MultiApps
 
-You can find more information about what the MultiApps Controller offers in the way of functionality as well as information about creating MTA archives on the [MultiApps Controller Wiki](https://github.com/cloudfoundry-incubator/multiapps-controller/wiki). If you are planning to deploy on the SAP Cloud Platform you can find even more information in the official SAP Help Documentation under [Multitarget Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/c4f0d850b6ba46089a76d53ab805c9e6.html).
+You can find more information about what the MultiApps Controller offers in the way of functionality as well as information about creating MTA archives on the [MultiApps Controller Wiki](https://github.com/cloudfoundry-incubator/multiapps-controller/wiki). If you are planning to deploy on the SAP Business Technology Platform you can find even more information in the official SAP Help Documentation under [Multitarget Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/c4f0d850b6ba46089a76d53ab805c9e6.html).
 
 The project has also provided [schema support](https://github.com/cloudfoundry-incubator/multiapps-controller/wiki/Deployment-Descriptor#editor-schema-support) in the open [Schema Store](http://schemastore.org/json/) which would provide auto-completion, tooltips, syntax checking and more when writing MTA descriptors.
 
@@ -66,7 +66,7 @@ This manifest is located at `multiapps-controller-web/target/manifests/manifest.
 # Deploying
 The CF MultiApps Controller is deployed as a standard application in [Cloud Foundry](https://www.cloudfoundry.org/). So first you have to get access to a [Cloud Foundry](https://www.cloudfoundry.org/) instance, log in and target an organization and space, where the CF deploy service application is to be deployed. 
 
-If you do not have a Cloud Foundry instance you can sign up for SAP Cloud Platform trial [here](https://account.hanatrial.ondemand.com/#/home/welcome).
+If you do not have a Cloud Foundry instance you can sign up for SAP Business Technology Platform trial [here](https://account.hanatrial.ondemand.com/#/home/welcome).
 
 ## Configuration
 The [manifest.xml](multiapps-controller-web/manifests/manifest.yml) located at `multiapps-controller-web/target/manifests/manifest.yml` is used to configure the deployment of the MultiApps Controller to Cloud Foundry as well as some of its functionality.
