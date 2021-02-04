@@ -34,6 +34,7 @@ import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.support.CronSequenceGenerator;
 
 @Named
 @Lazy(false)
@@ -864,7 +865,7 @@ public class ApplicationConfiguration {
 
     private String getCronExpression(String name, String defaultValue) {
         String value = environment.getString(name);
-        if (value != null && org.quartz.CronExpression.isValidExpression(value)) {
+        if (CronSequenceGenerator.isValidExpression(value)) {
             return value;
         }
         LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
