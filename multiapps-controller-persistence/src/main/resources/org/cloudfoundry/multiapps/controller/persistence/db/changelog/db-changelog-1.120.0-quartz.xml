@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="quartz.generated" id="drop_quartz_indexes">
+
+        <preConditions onFail="MARK_RAN">
+            <indexExists indexName="IDX_QRTZ_T_J" tableName="QRTZ_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_T_JG" tableName="QRTZ_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_T_C" tableName="QRTZ_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_T_G" tableName="QRTZ_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_T_STATE" tableName="QRTZ_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_T_N_STATE" tableName="QRTZ_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_T_N_G_STATE" tableName="QRTZ_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_T_NEXT_FIRE_TIME" tableName="QRTZ_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_T_NFT_ST" tableName="QRTZ_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_T_NFT_MISFIRE" tableName="QRTZ_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_T_NFT_ST_MISFIRE" tableName="QRTZ_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_T_NFT_ST_MISFIRE_GRP" tableName="QRTZ_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_FT_TRIG_INST_NAME" tableName="QRTZ_FIRED_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_FT_INST_JOB_REQ_RCVRY" tableName="QRTZ_FIRED_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_FT_J_G" tableName="QRTZ_FIRED_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_FT_JG" tableName="QRTZ_FIRED_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_FT_T_G" tableName="QRTZ_FIRED_TRIGGERS" />
+            <indexExists indexName="IDX_QRTZ_FT_TG" tableName="QRTZ_FIRED_TRIGGERS" />
+        </preConditions>
+
+        <dropIndex indexName="IDX_QRTZ_FT_TG"
+                   tableName="QRTZ_FIRED_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_FT_T_G"
+                   tableName="QRTZ_FIRED_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_FT_JG"
+                   tableName="QRTZ_FIRED_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_FT_J_G"
+                   tableName="QRTZ_FIRED_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_FT_INST_JOB_REQ_RCVRY"
+                   tableName="QRTZ_FIRED_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_FT_TRIG_INST_NAME"
+                   tableName="QRTZ_FIRED_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_T_NFT_ST_MISFIRE_GRP"
+                   tableName="QRTZ_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_T_NFT_ST_MISFIRE"
+                   tableName="QRTZ_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_T_NFT_MISFIRE"
+                   tableName="QRTZ_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_T_NFT_ST"
+                   tableName="QRTZ_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_T_NEXT_FIRE_TIME"
+                   tableName="QRTZ_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_T_N_G_STATE"
+                   tableName="QRTZ_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_T_N_STATE"
+                   tableName="QRTZ_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_T_STATE"
+                   tableName="QRTZ_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_T_G"
+                   tableName="QRTZ_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_T_C"
+                   tableName="QRTZ_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_T_JG"
+                   tableName="QRTZ_TRIGGERS"/>
+
+        <dropIndex indexName="IDX_QRTZ_T_J"
+                   tableName="QRTZ_TRIGGERS"/>
+
+    </changeSet>
+
+    <changeSet author="quartz.generated" id="drop_quartz_foreign_keys">
+
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists
+                    foreignKeyName="FK_QRTZ_CRON_TRIGGERS_QRTZ_TRIGGERS" />
+            <foreignKeyConstraintExists
+                    foreignKeyName="FK_QRTZ_SIMPLE_TRIGGERS_QRTZ_TRIGGERS" />
+            <foreignKeyConstraintExists
+                    foreignKeyName="FK_QRTZ_SIMPROP_TRIGGERS_QRTZ_TRIGGERS" />
+            <foreignKeyConstraintExists
+                    foreignKeyName="FK_QRTZ_TRIGGERS_QRTZ_JOB_DETAILS" />
+        </preConditions>
+
+        <dropForeignKeyConstraint baseTableName="QRTZ_TRIGGERS"
+                                  constraintName="FK_QRTZ_TRIGGERS_QRTZ_JOB_DETAILS"/>
+
+        <dropForeignKeyConstraint baseTableName="QRTZ_SIMPROP_TRIGGERS"
+                                  constraintName="FK_QRTZ_SIMPROP_TRIGGERS_QRTZ_TRIGGERS"/>
+
+        <dropForeignKeyConstraint baseTableName="QRTZ_SIMPLE_TRIGGERS"
+                                  constraintName="FK_QRTZ_SIMPLE_TRIGGERS_QRTZ_TRIGGERS"/>
+
+        <dropForeignKeyConstraint baseTableName="QRTZ_CRON_TRIGGERS"
+                                  constraintName="FK_QRTZ_CRON_TRIGGERS_QRTZ_TRIGGERS"/>
+
+    </changeSet>
+
+    <changeSet author="quartz.generated" id="drop_quartz_tables">
+
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="QRTZ_CALENDARS" />
+            <tableExists tableName="QRTZ_CRON_TRIGGERS" />
+            <tableExists tableName="QRTZ_FIRED_TRIGGERS" />
+            <tableExists tableName="QRTZ_PAUSED_TRIGGER_GRPS" />
+            <tableExists tableName="QRTZ_SCHEDULER_STATE" />
+            <tableExists tableName="QRTZ_LOCKS" />
+            <tableExists tableName="QRTZ_JOB_DETAILS" />
+            <tableExists tableName="QRTZ_SIMPLE_TRIGGERS" />
+            <tableExists tableName="QRTZ_SIMPROP_TRIGGERS" />
+            <tableExists tableName="QRTZ_BLOB_TRIGGERS" />
+            <tableExists tableName="QRTZ_TRIGGERS" />
+        </preConditions>
+
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_TRIGGERS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_BLOB_TRIGGERS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_SIMPROP_TRIGGERS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_SIMPLE_TRIGGERS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_JOB_DETAILS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_LOCKS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_SCHEDULER_STATE"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_PAUSED_TRIGGER_GRPS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_FIRED_TRIGGERS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_CRON_TRIGGERS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_CALENDARS"/>
+    </changeSet>
+
+</databaseChangeLog>
