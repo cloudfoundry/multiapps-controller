@@ -64,7 +64,6 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires org.cloudfoundry.multiapps.controller.api;
     requires org.slf4j;
     requires org.yaml.snakeyaml;
-    requires quartz;
     requires reactor.core;
     requires spring.beans;
     requires spring.context;

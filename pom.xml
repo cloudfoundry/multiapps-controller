@@ -33,7 +33,6 @@
         <spring-security-oauth2.version>2.5.0.RELEASE</spring-security-oauth2.version>
         <spring-security-jwt.version>1.1.1.RELEASE</spring-security-jwt.version>
         <hikari.version>3.4.3</hikari.version>
-        <quartz.version>2.3.2</quartz.version>
         <jackson.version>2.11.2</jackson.version>
         <liquibase.version>4.1.1</liquibase.version>
         <liquibase-slf4j.version>4.0.0</liquibase-slf4j.version>
@@ -668,32 +667,6 @@
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
                 <version>${hikari.version}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
-            <dependency>
-                <groupId>org.quartz-scheduler</groupId>
-                <artifactId>quartz</artifactId>
-                <version>${quartz.version}</version>
-                <exclusions>
-                    <!-- Only used if Quartz needs to create its own DataSource. Since we use create the DataSource ourselves, 
-                        it is not needed. -->
-                    <exclusion>
-                        <groupId>com.mchange</groupId>
-                        <artifactId>c3p0</artifactId>
-                    </exclusion>
-                    <!-- Only used if Quartz needs to create its own DataSource. Since we use create the DataSource ourselves, 
-                        it is not needed. -->
-                    <exclusion>
-                        <groupId>com.zaxxer</groupId>
-                        <artifactId>HikariCP-java7</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz-jobs -->
-            <dependency>
-                <groupId>org.quartz-scheduler</groupId>
-                <artifactId>quartz-jobs</artifactId>
-                <version>${quartz.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.liquibase/liquibase-core -->
             <dependency>

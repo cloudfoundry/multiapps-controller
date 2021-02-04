@@ -19,8 +19,8 @@ class CleanUpJobTest {
         Cleaner cleaner3 = Mockito.mock(Cleaner.class);
         List<Cleaner> cleaners = List.of(cleaner1, cleaner2, cleaner3);
 
-        CleanUpJob cleanUpJob = createCleanUpJob(new ApplicationConfiguration(), cleaners);
-        cleanUpJob.execute(null);
+        CleanUpJob cleanUpJob = createCleanUpJob(getMockedApplicationConfiguration(), cleaners);
+        cleanUpJob.execute();
 
         Mockito.verify(cleaner1)
                .execute(Mockito.any());
@@ -36,6 +36,15 @@ class CleanUpJobTest {
         cleanUpJob.configuration = applicationConfiguration;
         cleanUpJob.cleaners = cleaners;
         return cleanUpJob;
+    }
+
+    private ApplicationConfiguration getMockedApplicationConfiguration() {
+        ApplicationConfiguration configuration = Mockito.mock(ApplicationConfiguration.class);
+        Mockito.when(configuration.getApplicationInstanceIndex())
+               .thenReturn(0);
+        Mockito.when(configuration.getMaxTtlForOldData())
+               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA);
+        return  configuration;
     }
 
 }

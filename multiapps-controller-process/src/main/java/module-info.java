@@ -44,7 +44,6 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires org.eclipse.jgit;
     requires org.joda.time;
     requires org.slf4j;
-    requires quartz;
     requires spring.beans;
     requires spring.context;
     requires spring.core;
