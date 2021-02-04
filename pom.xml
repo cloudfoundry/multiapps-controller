@@ -634,6 +634,12 @@
                 <artifactId>spring-security-web</artifactId>
                 <version>${spring-security.version}</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-resource-server -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-resource-server</artifactId>
+                <version>${spring-security.version}</version>
+            </dependency>
             <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-jwt -->
             <dependency>
                 <groupId>org.springframework.security</groupId>

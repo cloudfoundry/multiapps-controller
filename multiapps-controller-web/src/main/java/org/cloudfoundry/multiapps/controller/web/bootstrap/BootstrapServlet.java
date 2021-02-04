@@ -33,14 +33,14 @@ public class BootstrapServlet extends HttpServlet {
     private static final Logger LOGGER = LoggerFactory.getLogger(BootstrapServlet.class);
 
     @Inject
+    protected ApplicationConfiguration configuration;
+    
+    @Inject
     @Qualifier("dataSource")
     protected DataSource dataSource;
 
     @Inject
     protected ProcessEngine processEngine;
-
-    @Inject
-    protected ApplicationConfiguration configuration;
 
     @Inject
     @Named("fileService")

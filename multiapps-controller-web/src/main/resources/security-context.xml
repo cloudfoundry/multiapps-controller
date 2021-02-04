@@ -10,7 +10,7 @@
         https://www.springframework.org/schema/security/spring-security.xsd
         http://www.springframework.org/schema/security/oauth2
         https://www.springframework.org/schema/security/spring-security-oauth2.xsd">
-
+<!-- 
     <sec:http pattern="/public/**" security="none" />
 
     <sec:http pattern="/**" create-session="ifRequired" entry-point-ref="delegatingAuthenticationEntryPoint"
@@ -47,4 +47,5 @@
 
     <oauth:resource-server id="resourceServerFilter" resource-id="springsec"
         token-services-ref="customTokenServices" />
+         -->
 </beans>
