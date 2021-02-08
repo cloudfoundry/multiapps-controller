@@ -220,6 +220,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public UUID getRequiredServiceInstanceGuid(String name) {
+        return executeWithRetry(() -> delegate.getRequiredServiceInstanceGuid(name));
+    }
+
+    @Override
     public CloudServiceInstance getServiceInstance(String serviceInstanceName) {
         return executeWithRetry(() -> delegate.getServiceInstance(serviceInstanceName));
     }
@@ -232,6 +237,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public List<CloudServiceBinding> getServiceBindings(UUID serviceInstanceGuid) {
         return executeWithRetry(() -> delegate.getServiceBindings(serviceInstanceGuid));
+    }
+
+    @Override
+    public CloudServiceBinding getServiceBindingForApplication(UUID applicationGuid, UUID serviceInstanceGuid) {
+        return executeWithRetry(() -> delegate.getServiceBindingForApplication(applicationGuid, serviceInstanceGuid));
     }
 
     @Override
