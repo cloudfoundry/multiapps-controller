@@ -330,6 +330,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public UUID getRequiredServiceInstanceGuid(String name) {
+        logger.debug(Messages.GETTING_GUID_OF_REQUIRED_SERVICE_INSTANCE_0, name);
+        return delegate.getRequiredServiceInstanceGuid(name);
+    }
+
+    @Override
     public CloudServiceInstance getServiceInstance(String serviceInstanceName) {
         logger.debug(Messages.GETTING_SERVICE_INSTANCE_0, serviceInstanceName);
         return delegate.getServiceInstance(serviceInstanceName);
@@ -345,6 +351,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public List<CloudServiceBinding> getServiceBindings(UUID serviceInstanceGuid) {
         logger.debug(Messages.GETTING_BINDINGS_OF_SERVICE_INSTANCE_0, serviceInstanceGuid);
         return delegate.getServiceBindings(serviceInstanceGuid);
+    }
+
+    @Override
+    public CloudServiceBinding getServiceBindingForApplication(UUID applicationGuid, UUID serviceInstanceGuid) {
+        logger.debug(Messages.GETTING_BINDING_OF_SERVICE_INSTANCE_0_WITH_APPLICATION_1, serviceInstanceGuid, applicationGuid);
+        return delegate.getServiceBindingForApplication(applicationGuid, serviceInstanceGuid);
     }
 
     @Override

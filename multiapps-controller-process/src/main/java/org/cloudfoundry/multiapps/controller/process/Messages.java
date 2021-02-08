@@ -489,8 +489,10 @@ public class Messages {
     public static final String GETTING_ROUTES_WITH_DOMAIN_0 = "Getting routes with domain \"{0}\"...";
     public static final String GETTING_SERVICE_INSTANCE_0 = "Getting service instance \"{0}\"...";
     public static final String GETTING_BINDINGS_OF_SERVICE_INSTANCE_0 = "Getting bindings of service instance \"{0}\"...";
+    public static final String GETTING_BINDING_OF_SERVICE_INSTANCE_0_WITH_APPLICATION_1 = "Getting binding of service instance \"{0}\" with application \"{1}\"...";
     public static final String GETTING_SERVICE_BROKER_0 = "Getting service broker \"{0}\"...";
     public static final String GETTING_SERVICE_BROKERS = "Getting service brokers...";
+    public static final String GETTING_GUID_OF_REQUIRED_SERVICE_INSTANCE_0 = "Getting GUID of required service instance \"{0}\"...";
     public static final String GETTING_PARAMETERS_OF_SERVICE_INSTANCE_0 = "Getting parameters of service instance \"{0}\"...";
     public static final String GETTING_PARAMETERS_OF_SERVICE_BINDING_0 = "Getting parameters of service binding \"{0}\"...";
     public static final String GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0 = "Getting service keys for service instance \"{0}\"...";
