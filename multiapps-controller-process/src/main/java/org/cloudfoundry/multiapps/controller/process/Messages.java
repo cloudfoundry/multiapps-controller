@@ -57,7 +57,6 @@ public class Messages {
     public static final String MERGED_FILE_NOT_DELETED = "Merged file not deleted";
     public static final String FAILED_TO_RETRIEVE_FILE_WITH_ID_0 = "Failed to retrieve file with id \"{0}\"";
     public static final String PARAMETERS_HAVE_READ_ONLY_ELEMENTS = "\"{0}\" parameters have read-only elements \"{1}\"";
-    public static final String APPLICATION_UNBOUND_IN_PARALLEL = "Application {0} was bound to service {1} which was unbound in parallel";
     public static final String ABORT_OPERATION_TIMED_OUT = "Abort operation timed out";
     public static final String FLOWABLE_JOB_RETRY_FAILED = "Flowable job retry failed";
     public static final String UNSUPPORTED_ACTION = "Unsupported action: \"{0}\"";
@@ -326,7 +325,6 @@ public class Messages {
     public static final String SERVICES_TO_CREATE = "Services to create: {0}";
     public static final String CREATED_SERVICE_KEY = "Service key \"{0}\" created";
     public static final String SERVICE_BINDINGS_EXISTS = "Service bindings \"{0}\" exists";
-    public static final String LOOKING_FOR_SERVICE_BINDINGS = "Looking for service binding between application \"{0}\" and service instance \"{1}\". Service bindings: {2}";
     public static final String PREPARING_MODULES_DEPLOYMENT = "Preparing modules deployment...";
     public static final String COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computing modules for next parallel iteration...";
     public static final String COMPUTED_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computed modules for next parallel iteration: {0}";

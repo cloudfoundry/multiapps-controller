@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 
 public class ServiceBindingParametersGetter {
 
@@ -100,8 +98,8 @@ public class ServiceBindingParametersGetter {
 
     public Map<String, Object> getServiceBindingParametersFromExistingInstance(CloudApplication application, String serviceName) {
         CloudControllerClient client = context.getControllerClient();
-        CloudServiceInstance serviceInstance = client.getServiceInstance(serviceName);
-        CloudServiceBinding serviceBinding = getServiceBinding(client, application, serviceInstance);
+        UUID serviceInstanceId = client.getRequiredServiceInstanceGuid(serviceName);
+        CloudServiceBinding serviceBinding = client.getServiceBindingForApplication(application.getGuid(), serviceInstanceId);
 
         try {
             return client.getServiceBindingParameters(getGuid(serviceBinding));
@@ -109,28 +107,11 @@ public class ServiceBindingParametersGetter {
             if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {
                 context.getStepLogger()
                        .warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1,
-                                                   application.getName(), serviceInstance.getName());
+                                                   application.getName(), serviceName);
                 return null;
             }
             throw e;
         }
-    }
-
-    private CloudServiceBinding getServiceBinding(CloudControllerClient client, CloudApplication application,
-                                                  CloudServiceInstance serviceInstance) {
-        List<CloudServiceBinding> serviceBindings = client.getServiceBindings(getGuid(serviceInstance));
-        context.getStepLogger()
-               .debug(Messages.LOOKING_FOR_SERVICE_BINDINGS, getGuid(application), getGuid(serviceInstance),
-                      SecureSerialization.toJson(serviceBindings));
-        for (CloudServiceBinding serviceBinding : serviceBindings) {
-            if (application.getMetadata()
-                           .getGuid()
-                           .equals(serviceBinding.getApplicationGuid())) {
-                return serviceBinding;
-            }
-        }
-        throw new IllegalStateException(MessageFormat.format(Messages.APPLICATION_UNBOUND_IN_PARALLEL, application.getName(),
-                                                             serviceInstance.getName()));
     }
 
     private UUID getGuid(CloudEntity entity) {

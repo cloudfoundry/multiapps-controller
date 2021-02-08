@@ -111,7 +111,7 @@ class ServiceBindingParametersGetterTest {
         CloudServiceInstanceExtended serviceInstance = buildServiceInstance();
         Map<String, Object> bindingParametersToReturn = Map.of("param1", "value1");
         prepareContext(serviceInstance);
-        prepareClient(serviceInstance, bindingParametersToReturn, true);
+        prepareClient(bindingParametersToReturn, true);
 
         Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application,
                                                                                                                                SERVICE_NAME);
@@ -124,9 +124,9 @@ class ServiceBindingParametersGetterTest {
         CloudApplication application = buildApplication(null);
         CloudServiceInstanceExtended serviceInstance = buildServiceInstance();
         prepareContext(serviceInstance);
-        prepareClient(serviceInstance, null, false);
+        prepareClient(null, false);
 
-        assertThrows(IllegalStateException.class,
+        assertThrows(CloudOperationException.class,
                      () -> serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application, SERVICE_NAME));
     }
 
@@ -141,7 +141,7 @@ class ServiceBindingParametersGetterTest {
         CloudApplication application = buildApplication(null);
         CloudServiceInstanceExtended serviceInstance = buildServiceInstance();
         prepareContext(serviceInstance);
-        prepareClient(serviceInstance, null, true);
+        prepareClient(null, true);
         when(client.getServiceBindingParameters(RANDOM_GUID)).thenThrow(new CloudOperationException(httpStatusToReturn));
 
         if (shouldThrowException) {
@@ -196,9 +196,8 @@ class ServiceBindingParametersGetterTest {
         when(fileService.processFileContent(any(), any(), any())).thenReturn(filedProvidedParameters);
     }
 
-    private void prepareClient(CloudServiceInstanceExtended serviceInstance, Map<String, Object> bindingParameters,
-                               boolean serviceBindingExist) {
-        when(client.getServiceInstance(SERVICE_NAME)).thenReturn(serviceInstance);
+    private void prepareClient(Map<String, Object> bindingParameters, boolean serviceBindingExist) {
+        when(client.getRequiredServiceInstanceGuid(SERVICE_NAME)).thenReturn(RANDOM_GUID);
         when(client.getServiceBindingParameters(RANDOM_GUID)).thenReturn(bindingParameters);
         if (serviceBindingExist) {
             CloudServiceBinding serviceBinding = ImmutableCloudServiceBinding.builder()
@@ -207,10 +206,10 @@ class ServiceBindingParametersGetterTest {
                                                                                                              .guid(RANDOM_GUID)
                                                                                                              .build())
                                                                              .build();
-            when(client.getServiceBindings(RANDOM_GUID)).thenReturn(Collections.singletonList(serviceBinding));
+            when(client.getServiceBindingForApplication(RANDOM_GUID, RANDOM_GUID)).thenReturn(serviceBinding);
             return;
         }
-        when(client.getServiceBindings(RANDOM_GUID)).thenReturn(Collections.emptyList());
+        when(client.getServiceBindingForApplication(RANDOM_GUID, RANDOM_GUID)).thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
     }
 
 }
