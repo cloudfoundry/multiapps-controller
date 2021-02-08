@@ -57,7 +57,7 @@ public class ServiceRemover {
         for (CloudServiceBinding binding : serviceBindings) {
             CloudApplication application = client.getApplication(binding.getApplicationGuid());
 
-            stepLogger.info(Messages.UNBINDING_SERVICE_FROM_APP, serviceInstance, application.getName());
+            stepLogger.info(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP, serviceInstance, application.getName());
             client.unbindServiceInstance(application, serviceInstance);
         }
     }
