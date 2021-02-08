@@ -20,17 +20,19 @@ public class UnbindServiceFromApplicationStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
         String service = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
-        getStepLogger().info(Messages.UNBINDING_SERVICE_FROM_APP, service, app.getName());
+        getStepLogger().info(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP, service, app.getName());
 
         CloudControllerClient client = context.getControllerClient();
         client.unbindServiceInstance(app.getName(), service);
+
+        getStepLogger().infoWithoutProgressMessage(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP_FINISHED, service, app.getName());
 
         return StepPhase.DONE;
     }
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
-        return MessageFormat.format(Messages.ERROR_WHILE_UNBINDING_SERVICE_FROM_APPLICATION,
+        return MessageFormat.format(Messages.ERROR_WHILE_UNBINDING_SERVICE_INSTANCE_FROM_APPLICATION,
                                     context.getVariable(Variables.SERVICE_TO_UNBIND_BIND), context.getVariable(Variables.APP_TO_PROCESS)
                                                                                                   .getName());
     }

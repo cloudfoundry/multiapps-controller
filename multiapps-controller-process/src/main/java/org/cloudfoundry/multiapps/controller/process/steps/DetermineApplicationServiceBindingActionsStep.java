@@ -26,11 +26,12 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
     protected StepPhase executeStep(ProcessContext context) throws FileStorageException {
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
         String service = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
-        getStepLogger().debug(Messages.DETERMINE_BIND_UNBIND_OPERATIONS_APPLICATION_0_SERVICE_1, app.getName(), service);
+        getStepLogger().debug(Messages.DETERMINE_BIND_UNBIND_OPERATIONS_APPLICATION_0_SERVICE_INSTANCE_1, app.getName(), service);
 
         if (!isServicePartFromMta(app, service) && !shouldKeepExistingServiceBindings(app)) {
             context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, true);
             context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, false);
+            getStepLogger().debug(Messages.CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE, app.getName(), service, true, false);
             return StepPhase.DONE;
         }
 
@@ -43,19 +44,23 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
             context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, false);
             context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, true);
             context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, bindingParameters);
+            getStepLogger().debug(Messages.CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE, app.getName(), service, false, true);
             return StepPhase.DONE;
         }
 
+        getStepLogger().debug(Messages.CHECK_SHOULD_REBIND_APPLICATION_SERVICE_INSTANCE, app.getName(), service);
         if (shouldRebindService(serviceBindingParametersGetter, existingApp, service, bindingParameters)) {
             context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, true);
             context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, true);
             context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, bindingParameters);
+            getStepLogger().debug(Messages.CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE, app.getName(), service, true, true);
             return StepPhase.DONE;
         }
 
         getStepLogger().info(Messages.WILL_NOT_REBIND_APP_TO_SERVICE, service, app.getName());
         context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, false);
         context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, false);
+        getStepLogger().debug(Messages.CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE, app.getName(), service, false, false);
         return StepPhase.DONE;
     }
 

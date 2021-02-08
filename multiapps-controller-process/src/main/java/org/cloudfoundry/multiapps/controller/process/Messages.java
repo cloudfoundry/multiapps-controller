@@ -146,8 +146,8 @@ public class Messages {
     public static final String ERROR_DELETING_FLOWABLE_PROCESS_WITH_ID = "Error deleting Flowable process with ID \"{0}\"";
     public static final String ERROR_MISSING_DEFAULT_DOMAIN = "Missing default domain in current org";
     public static final String ERROR_WHILE_DETERMINE_BIND_UNBIND_OEPRATIONS_OF_APPLICATION_TO_SERVICE = "Error while determine bind/unbind operations of application \"{0}\" to service \"{1}\"";
-    public static final String ERROR_WHILE_UNBINDING_SERVICE_FROM_APPLICATION = "Error while unbinding service \"{0}\" from application \"{1}\"";
-    public static final String ERROR_WHILE_BINDING_SERVICE_TO_APPLICATION = "Error while binding service \"{0}\" to application \"{1}\"";
+    public static final String ERROR_WHILE_UNBINDING_SERVICE_INSTANCE_FROM_APPLICATION = "Error while unbinding service instance \"{0}\" from application \"{1}\"";
+    public static final String ERROR_WHILE_BINDING_SERVICE_INSTANCE_TO_APPLICATION = "Error while binding service instance \"{0}\" to application \"{1}\"";
     public static final String ERROR_WHILE_DETERMINE_VCAP_SERVICES_PROPERTIES_CHANGED_FOR_APPLICATION = "Error while determine VCAP_SERVICES properties changed for application \"{0}\"";
     public static final String ERROR_UPDATING_MODULE_PARAMETERS = "Error updating modules parameters";
 
@@ -196,7 +196,8 @@ public class Messages {
     public static final String ACQUIRED_LOCK = "Process \"{0}\" acquired lock for operation on MTA \"{1}\"";
     public static final String PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2 = "Process \"{0}\" releasing lock for MTA \"{1}\" in space \"{2}\"";
     public static final String PROCESS_0_RELEASED_LOCK = "Process \"{0}\" released lock successfully!";
-    public static final String UNBINDING_SERVICE_FROM_APP = "Unbinding service \"{0}\" from application \"{1}\"...";
+    public static final String UNBINDING_SERVICE_INSTANCE_FROM_APP = "Unbinding service instance \"{0}\" from application \"{1}\"...";
+    public static final String UNBINDING_SERVICE_INSTANCE_FROM_APP_FINISHED = "Unbinding service instance \"{0}\" from application \"{1}\" finished";
     public static final String POLLING_SERVICE_OPERATIONS = "Polling service operations...";
     public static final String AUTO_ABORTING_PROCESS_0 = "Auto-aborting process \"{0}\"...";
     public static final String SOME_INSTANCES_ARE_DOWN = "Some instances are down. Check the logs of your application for more information.";
@@ -455,6 +456,7 @@ public class Messages {
     public static final String ADDING_DOMAIN_0 = "Adding domain \"{0}\"...";
     public static final String ADDING_ROUTE_WITH_HOST_0_DOMAIN_1_AND_PATH_2 = "Adding route with host \"{0}\", domain \"{1}\" and path \"{2}\"...";
     public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1 = "Binding service instance \"{0}\" to application \"{1}\"...";
+    public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_FINISHED = "Binding service instance \"{0}\" to application \"{1}\" finished";
     public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_WITH_PARAMETERS_2 = "Binding service instance \"{0}\" to application \"{1}\" with parameters: {2}";
     public static final String CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3 = "Creating application \"{0}\" with memory \"{1}\", URIs \"{2}\" and staging: {3}";
     public static final String CREATING_SERVICE_INSTANCE_0 = "Creating service instance: {0}";
@@ -547,7 +549,7 @@ public class Messages {
     public static final String VERIFYING_APPLICATION_0_EXISTS = "Verifying application: \"{0}\" exists";
     public static final String TIME_STATISTICS_FOR_PROCESS_0_OPERATION_1_DURATION_2_DELAY_3 = "Time statistics for process \"{0}\" (part of operation \"{1}\"): duration \"{2}\" ms; delay between steps \"{3}\" ms";
     public static final String TIME_STATISTICS_FOR_OPERATION_0_DURATION_1_DELAY_2 = "Time statistics for operation \"{0}\": duration \"{1}\" ms; delay between steps \"{2}\" ms";
-    public static final String DETERMINE_BIND_UNBIND_OPERATIONS_APPLICATION_0_SERVICE_1 = "Determine bind/unbind operations of application \"{0}\" to service \"{1}\"";
+    public static final String DETERMINE_BIND_UNBIND_OPERATIONS_APPLICATION_0_SERVICE_INSTANCE_1 = "Determine bind/unbind operations of application \"{0}\" to service instance \"{1}\"";
     public static final String VCAP_SERVICES_PROPERTIES_FOR_APPLICATION_CHANGED = "VCAP_SERVICES properties for application \"{0}\" changed: {1}";
     public static final String UPDATED_METADATA_APPLICATION = "Updated metadata of application \"{0}\"";
     public static final String DETERMINE_VCAP_SERVICES_PROPERTIES_CHANGED_FOR_APPLICATION = "Determine VCAP_SERVICES properties changed for application \"{0}\"";
@@ -557,6 +559,8 @@ public class Messages {
     public static final String REGISTERING_PROCESS_EVENT_IN_DYNATRACE = "Registering process event in dynatrace: \"0\"";
     public static final String REGISTERING_PROCESS_DURATION_IN_DYNATRACE = "Registering process duration in dynatrace: \"0\"";
     public static final String CREATING_DOCKER_PACKAGE_FOR_APPLICATION_0 = "Creating a docker package for application: \"0\"";
+    public static final String CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE = "Calculated binding operations between application \"{0}\" and service instance \"{1}\": unbind - {2} bind - {3}";
+    public static final String CHECK_SHOULD_REBIND_APPLICATION_SERVICE_INSTANCE = "Check should rebind application \"{0}\" and service instance \"{1}\"";
 
     protected Messages() {
     }

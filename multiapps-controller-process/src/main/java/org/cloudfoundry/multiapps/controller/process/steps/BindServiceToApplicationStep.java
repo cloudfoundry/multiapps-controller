@@ -33,6 +33,8 @@ public class BindServiceToApplicationStep extends SyncFlowableStep {
         CloudControllerClient client = context.getControllerClient();
         client.bindServiceInstance(app.getName(), service, serviceBindingParameters, getApplicationServicesUpdateCallback(context));
 
+        getStepLogger().infoWithoutProgressMessage(Messages.BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_FINISHED, service, app.getName());
+
         return StepPhase.DONE;
     }
 
@@ -42,7 +44,7 @@ public class BindServiceToApplicationStep extends SyncFlowableStep {
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
-        return MessageFormat.format(Messages.ERROR_WHILE_BINDING_SERVICE_TO_APPLICATION,
+        return MessageFormat.format(Messages.ERROR_WHILE_BINDING_SERVICE_INSTANCE_TO_APPLICATION,
                                     context.getVariable(Variables.SERVICE_TO_UNBIND_BIND), context.getVariable(Variables.APP_TO_PROCESS)
                                                                                                   .getName());
     }
