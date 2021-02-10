@@ -42,7 +42,6 @@ public final class Messages {
 
     // DEBUG log messages
     public static final String ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION = "Cannot store access token due to data integrity violation. The exception is ignored as the token and authentication are persisted by another client";
-    public static final String OPERATION_STATE_CALCULATION_TOOK_0 = "Operation state calculation took {0} milliseconds.";
 
     private Messages() {
     }

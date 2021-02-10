@@ -223,10 +223,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private Operation addOperationState(Operation operation) {
-        long startTime = System.currentTimeMillis();
         operation = operationsHelper.addState(operation);
-        long totalTimeInMillis = System.currentTimeMillis() - startTime;
-        LOGGER.info(MessageFormat.format(Messages.OPERATION_STATE_CALCULATION_TOOK_0, totalTimeInMillis));
         if (operation.getState() != operation.getCachedState()) {
             LOGGER.warn(MessageFormat.format(Messages.OPERATION_CACHED_1_AND_COMPUTED_2_STATE_DIFFER_FOR_PROCESS_0,
                         operation.getProcessId(), operation.getCachedState(), operation.getState()));
