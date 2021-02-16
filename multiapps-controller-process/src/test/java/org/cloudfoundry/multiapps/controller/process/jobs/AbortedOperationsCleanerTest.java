@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.query.HistoricOperationEventQuery;
@@ -28,6 +29,8 @@ class AbortedOperationsCleanerTest {
     private HistoricOperationEventService historicOperationEventService;
     @Mock
     private FlowableFacade flowableFacade;
+    @Mock
+    private ApplicationConfiguration applicationConfiguration;
     @InjectMocks
     private AbortedOperationsCleaner abortedOperationsCleaner;
 
@@ -98,6 +101,8 @@ class AbortedOperationsCleanerTest {
                        .filter(customProcess -> customProcess.isActive)
                        .forEach(customProcess -> Mockito.when(flowableFacade.getProcessInstance(customProcess.processId))
                                                         .thenReturn(Mockito.mock(ProcessInstance.class)));
+        Mockito.when(applicationConfiguration.getAbortedOperationsTtlInSeconds())
+               .thenReturn(30);
 
     }
 

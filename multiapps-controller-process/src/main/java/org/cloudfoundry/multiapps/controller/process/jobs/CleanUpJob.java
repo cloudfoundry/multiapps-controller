@@ -23,6 +23,7 @@ public class CleanUpJob {
 
     public static final Marker LOG_MARKER = MarkerFactory.getMarker("clean-up-job");
     private static final Logger LOGGER = LoggerFactory.getLogger(CleanUpJob.class);
+    private static final int SELECTED_INSTANCE_FOR_CLEAN_UP = 0;
 
     @Inject
     ApplicationConfiguration configuration;
@@ -32,7 +33,7 @@ public class CleanUpJob {
 
     @Scheduled(cron = "#{@applicationConfiguration.getCronExpressionForOldData()}")
     public void execute() {
-        if (configuration.getApplicationInstanceIndex() != 0) {
+        if (configuration.getApplicationInstanceIndex() != SELECTED_INSTANCE_FOR_CLEAN_UP) {
             return;
         }
         LOGGER.info(LOG_MARKER, format(Messages.CLEAN_UP_JOB_STARTED_BY_APPLICATION_INSTANCE_0_AT_1,

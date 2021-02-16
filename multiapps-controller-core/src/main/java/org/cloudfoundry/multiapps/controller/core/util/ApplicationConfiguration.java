@@ -93,6 +93,7 @@ public class ApplicationConfiguration {
     static final String CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS = "DB_TRANSACTION_TIMEOUT_IN_SECONDS";
     static final String CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS = "SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS";
     static final String CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS = "SERVICE_HANDLING_MAX_PARALLEL_THREADS";
+    static final String CFG_ABORTED_OPERATIONS_TTL_IN_MINUTES = "ABORTED_OPERATIONS_TTL_IN_SECONDS";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -138,6 +139,7 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_DB_TRANSACTION_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(60);
     public static final int DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS = 50;
     public static final int DEFAULT_SERVICE_HANDLING_MAX_PARALLEL_THREADS = 20;
+    public static final int DEFAULT_ABORTED_OPERATIONS_TTL_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(30);
     protected final Environment environment;
 
     // Cached configuration settings:
@@ -188,6 +190,7 @@ public class ApplicationConfiguration {
     private Integer dbTransactionTimeoutInSeconds;
     private Integer snakeyamlMaxAliasesForCollections;
     private Integer serviceHandlingMaxParallelThreads;
+    private Integer abortedOperationsTtlInSeconds;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -229,6 +232,7 @@ public class ApplicationConfiguration {
         getFssCacheUpdateTimeoutMinutes();
         getSnakeyamlMaxAliasesForCollections();
         getServiceHandlingMaxParallelThreads();
+        getAbortedOperationsTtlInSeconds();
     }
 
     protected AuditLoggingFacade getAuditLoggingFacade() {
@@ -580,6 +584,13 @@ public class ApplicationConfiguration {
             serviceHandlingMaxParallelThreads = getServiceHandlingMaxParallelThreadsFromEnvironment();
         }
         return serviceHandlingMaxParallelThreads;
+    }
+
+    public Integer getAbortedOperationsTtlInSeconds() {
+        if (abortedOperationsTtlInSeconds == null) {
+            abortedOperationsTtlInSeconds = getAbortedOperationsTtlInSecondsFromEnvironment();
+        }
+        return abortedOperationsTtlInSeconds;
     }
 
     private URL getControllerUrlFromEnvironment() {
@@ -951,6 +962,13 @@ public class ApplicationConfiguration {
                                                                                    DEFAULT_SERVICE_HANDLING_MAX_PARALLEL_THREADS);
         LOGGER.info(format(Messages.SERVICE_HANDLING_MAX_PARALLEL_THREADS, serviceHandlingMaxParallelThreads));
         return serviceHandlingMaxParallelThreads;
+    }
+
+    private Integer getAbortedOperationsTtlInSecondsFromEnvironment() {
+        Integer abortedOperationsTtlInSeconds = environment.getPositiveInteger(CFG_ABORTED_OPERATIONS_TTL_IN_MINUTES,
+                                                                               DEFAULT_ABORTED_OPERATIONS_TTL_IN_SECONDS);
+        LOGGER.info(format(Messages.ABORTED_OPERATIONS_TTL_IN_SECONDS, abortedOperationsTtlInSeconds));
+        return abortedOperationsTtlInSeconds;
     }
 
     public Boolean isInternalEnvironment() {
