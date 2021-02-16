@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -26,17 +27,21 @@ public class AbortedOperationsCleaner implements Cleaner {
 
     private HistoricOperationEventService historicOperationEventService;
     private FlowableFacade flowableFacade;
+    private ApplicationConfiguration applicationConfiguration;
 
     @Inject
-    public AbortedOperationsCleaner(HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade) {
+    public AbortedOperationsCleaner(HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
+                                    ApplicationConfiguration applicationConfiguration) {
         this.historicOperationEventService = historicOperationEventService;
         this.flowableFacade = flowableFacade;
+        this.applicationConfiguration = applicationConfiguration;
     }
 
     @Override
     public void execute(Date expirationTime) {
         Instant instant = Instant.now()
-                                 .minus(30, ChronoUnit.MINUTES);
+                                 .minus(applicationConfiguration.getAbortedOperationsTtlInSeconds(), ChronoUnit.SECONDS);
+        LOGGER.debug(CleanUpJob.LOG_MARKER, MessageFormat.format(Messages.DELETING_OPERATIONS_ABORTED_BEFORE_0, instant));
         List<HistoricOperationEvent> abortedOperations = historicOperationEventService.createQuery()
                                                                                       .type(HistoricOperationEvent.EventType.ABORTED)
                                                                                       .olderThan(new Date(instant.toEpochMilli()))

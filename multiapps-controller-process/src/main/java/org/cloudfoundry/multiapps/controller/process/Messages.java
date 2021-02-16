@@ -425,6 +425,7 @@ public class Messages {
     public static final String DELETING_FILES_MODIFIED_BEFORE_0 = "Deleting files modified before: {0}";
     public static final String DELETING_OPERATIONS_STARTED_BEFORE_0 = "Deleting operations started before: {0}";
     public static final String ABORTING_OPERATION_0 = "Aborting operation \"{0}\"...";
+    public static final String DELETING_OPERATIONS_ABORTED_BEFORE_0 = "Deleting operations aborted before \"{0}\"...";
     public static final String DELETING_PROCESS_LOGS_MODIFIED_BEFORE_0 = "Deleting process logs modified before \"{0}\"...";
     public static final String DELETING_PROGRESS_MESSAGES_STORED_BEFORE_0 = "Deleting progress messages stored before \"{0}\"...";
     public static final String REMOVING_EXPIRED_TOKENS_FROM_TOKEN_STORE = "Removing expired tokens from the token store...";
