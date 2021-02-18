@@ -133,7 +133,8 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(2);
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 192;
     public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 64;
-    public static final int DEFAULT_CONTROLLER_CLIENT_RESPONSE_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(20);
+    // By default GOROUTER aborts all HTTP calls exceeding 15min, so it does not make sense with a higher values
+    public static final int DEFAULT_CONTROLLER_CLIENT_RESPONSE_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(15);
     public static final Boolean DEFAULT_SAP_INTERNAL_DELIVERY = false;
     // Transaction timeout must be greater than Flowable process step timeout because lower value limit execution of the whole process step.
     public static final int DEFAULT_DB_TRANSACTION_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(60);
