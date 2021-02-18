@@ -98,8 +98,7 @@ public class ServiceBindingParametersGetter {
 
     public Map<String, Object> getServiceBindingParametersFromExistingInstance(CloudApplication application, String serviceName) {
         CloudControllerClient client = context.getControllerClient();
-        UUID serviceInstanceId = client.getRequiredServiceInstanceGuid(serviceName);
-        CloudServiceBinding serviceBinding = client.getServiceBindingForApplication(application.getGuid(), serviceInstanceId);
+        CloudServiceBinding serviceBinding = ServiceBindingUtil.getServiceBinding(client, application.getGuid(), serviceName);
 
         try {
             return client.getServiceBindingParameters(getGuid(serviceBinding));

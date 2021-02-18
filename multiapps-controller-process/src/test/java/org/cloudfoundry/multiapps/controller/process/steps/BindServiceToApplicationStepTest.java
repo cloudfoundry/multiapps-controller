@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.client.v2.ClientV2Exception;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
@@ -25,6 +26,7 @@ class BindServiceToApplicationStepTest extends SyncFlowableStepTest<BindServiceT
     private static final String APPLICATION_NAME = "test_application";
     private static final String SERVICE_NAME = "test_service";
     private static final Map<String, Object> BINDING_PARAMETERS = Map.of("test-config", "test-value");
+    private static final int CF_SERVICE_ALREADY_BOUND = 90003;
 
     @Test
     void testBndServiceStep() {
@@ -44,6 +46,16 @@ class BindServiceToApplicationStepTest extends SyncFlowableStepTest<BindServiceT
         context.setVariable(Variables.APP_TO_PROCESS, application);
         context.setVariable(Variables.SERVICE_TO_UNBIND_BIND, SERVICE_NAME);
         context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, BINDING_PARAMETERS);
+    }
+    
+    @Test
+    void testDoNotThrowExceptionWhenServiceAlreadyBound() {
+        ProcessContext customProcessContext = new ProcessContext(execution, stepLogger, clientProvider);
+        customProcessContext.setVariable(Variables.SERVICES_TO_BIND, List.of(ImmutableCloudServiceInstanceExtended.builder()
+                                                                                                                  .name(SERVICE_NAME)
+                                                                                                                  .isOptional(true)
+                                                                                                                  .build()));
+        assertDoesNotThrow(() -> handleServiceAlreadyBoundErrorInCallback(customProcessContext));
     }
 
     @Test
@@ -68,6 +80,19 @@ class BindServiceToApplicationStepTest extends SyncFlowableStepTest<BindServiceT
 
     private void handleErrorInCallback(ProcessContext customProcessContext) {
         new BindServiceToApplicationStep.DefaultApplicationServicesUpdateCallback(customProcessContext).onError(new CloudOperationException(HttpStatus.BAD_GATEWAY),
+                                                                                                                APPLICATION_NAME,
+                                                                                                                SERVICE_NAME);
+    }
+
+    private void handleServiceAlreadyBoundErrorInCallback(ProcessContext customProcessContext) {
+        ClientV2Exception cause = new ClientV2Exception(HttpStatus.BAD_REQUEST.value(),
+                                                        CF_SERVICE_ALREADY_BOUND,
+                                                        "The app is already bound to the service.",
+                                                        "CF-ServiceBindingAppServiceTaken");
+        new BindServiceToApplicationStep.DefaultApplicationServicesUpdateCallback(customProcessContext).onError(new CloudOperationException(HttpStatus.BAD_REQUEST,
+                                                                                                                                            "CF-ServiceBindingAppServiceTaken",
+                                                                                                                                            "The app is already bound to the service.",
+                                                                                                                                            cause),
                                                                                                                 APPLICATION_NAME,
                                                                                                                 SERVICE_NAME);
     }
