@@ -1,11 +1,19 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+
+import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 class UnbindServiceStepFromApplicationTest extends SyncFlowableStepTest<UnbindServiceFromApplicationStep> {
 
@@ -19,7 +27,25 @@ class UnbindServiceStepFromApplicationTest extends SyncFlowableStepTest<UnbindSe
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
-        verify(client).unbindServiceInstance(APPLICATION_NAME, SERVICE_NAME);
+        verify(client).unbindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME), any(ApplicationServicesUpdateCallback.class));
+    }
+
+    @Test
+    void testDoNotThrowExceptionWhenServiceBindingAlreadyDeleted() {
+        ProcessContext customProcessContext = new ProcessContext(execution, stepLogger, clientProvider);
+        assertDoesNotThrow(() -> handleErrorInCallback(customProcessContext, HttpStatus.NOT_FOUND));
+    }
+
+    @Test
+    void testThrowExceptionWhenServerError() {
+        ProcessContext customProcessContext = new ProcessContext(execution, stepLogger, clientProvider);
+        assertThrows(CloudOperationException.class, () -> handleErrorInCallback(customProcessContext, HttpStatus.BAD_GATEWAY));
+    }
+
+    private void handleErrorInCallback(ProcessContext customProcessContext, HttpStatus httpStatus) {
+        new UnbindServiceFromApplicationStep.UnbindServiceFromApplicationCallback(customProcessContext).onError(new CloudOperationException(httpStatus),
+                                                                                                                APPLICATION_NAME,
+                                                                                                                SERVICE_NAME);
     }
 
     private void prepareContext() {

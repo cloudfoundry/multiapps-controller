@@ -458,6 +458,8 @@ public class Messages {
     public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1 = "Binding service instance \"{0}\" to application \"{1}\"...";
     public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_FINISHED = "Binding service instance \"{0}\" to application \"{1}\" finished";
     public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_WITH_PARAMETERS_2 = "Binding service instance \"{0}\" to application \"{1}\" with parameters: {2}";
+    public static final String SERVICE_BINDING_BETWEEN_SERVICE_0_AND_APP_1_ALREADY_CREATED = "Service binding between service instance \"{0}\" and application \"{1}\" already created";
+    public static final String SERVICE_BINDING_BETWEEN_SERVICE_0_AND_APP_1_ALREADY_DELETED = "Service binding between service instance \"{0}\" and application \"{1}\" already deleted";
     public static final String CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3 = "Creating application \"{0}\" with memory \"{1}\", URIs \"{2}\" and staging: {3}";
     public static final String CREATING_SERVICE_INSTANCE_0 = "Creating service instance: {0}";
     public static final String CREATING_SERVICE_BROKER_0 = "Creating service broker: {0}";

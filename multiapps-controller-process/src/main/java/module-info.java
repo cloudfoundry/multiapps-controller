@@ -51,6 +51,7 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires spring.web;
     requires reactor.netty;
     requires io.netty.handler;
+    requires io.netty.transport;
 
     requires static java.compiler;
     requires static org.immutables.value;
