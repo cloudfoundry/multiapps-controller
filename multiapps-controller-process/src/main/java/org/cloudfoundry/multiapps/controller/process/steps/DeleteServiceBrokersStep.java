@@ -81,6 +81,9 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
                     case BAD_GATEWAY:
                         context.setVariable(Variables.SERVICE_OFFERING, name);
                         throw new CloudServiceBrokerException(e);
+                    case CONFLICT:
+                        getStepLogger().warn(Messages.DELETE_OF_SERVICE_BROKERS_FAILED_409, name);
+                        throw new CloudServiceBrokerException(e);
                     default:
                         throw e;
                 }
