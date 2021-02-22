@@ -130,7 +130,7 @@
     <exclusiveGateway id="hasParallelRestartCompletedGateway" name="Has Parallel Restart Completed" default="restartAppsParallelNextIterationFlow"></exclusiveGateway>
     <sequenceFlow id="flow155" sourceRef="computeNextAppsToRestartInParallel" targetRef="restartAppsParallel"></sequenceFlow>
     <sequenceFlow id="flow156" sourceRef="restartAppsParallel" targetRef="hasParallelRestartCompletedGateway"></sequenceFlow>
-    <exclusiveGateway id="shouldDeleteDiscontinuedServicesGateway" name="Should Delete Discontinued Services" default="deleteDiscontinuedServicesFlow"></exclusiveGateway>
+    <exclusiveGateway id="shouldDeleteDiscontinuedServicesGateway" name="Should Delete Discontinued Services" default="doNotDeleteDiscontinuedServicesFlow"></exclusiveGateway>
     <callActivity id="createOrUpdateServicesCallActivity" name="Create or update services" flowable:async="true" calledElement="createOrUpdateServicesSubProcess" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
         <flowable:in source="user" target="user"></flowable:in>
@@ -171,27 +171,19 @@
     <sequenceFlow id="sid-94D842B0-2949-4439-AB30-88A82EAB18EB" sourceRef="deleteRemainingFileParts" targetRef="processArchiveTask"></sequenceFlow>
     <serviceTask id="detectApplicationsToRenameTask" name="Detect apps to rename" flowable:async="true" flowable:delegateExpression="${detectApplicationsToRenameStep}"></serviceTask>
     <sequenceFlow id="flow8" sourceRef="detectDeployedMtaTask" targetRef="detectApplicationsToRenameTask"></sequenceFlow>
-    <serviceTask id="updateModulesAppNames" name="Update Modules App Names
-" flowable:async="true" flowable:delegateExpression="${updateModulesAppNames}"></serviceTask>
+    <serviceTask id="updateModulesAppNames" name="Update Modules App Names " flowable:async="true" flowable:delegateExpression="${updateModulesAppNames}"></serviceTask>
     <callActivity id="sid-C6BBB2C9-B681-4FAE-A33C-57CEF185997B" name="Undeploy Old Apps Call Activity" flowable:async="true" calledElement="undeployAppSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="appsToUndeploy" flowable:elementVariable="appToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="sid-F9C7C5D5-4E9B-4B06-A289-7610B1CE462F" sourceRef="detectApplicationsToRenameTask" targetRef="sid-C6BBB2C9-B681-4FAE-A33C-57CEF185997B"></sequenceFlow>
     <sequenceFlow id="sid-BA0DFB11-8CBB-48ED-A7D0-B1A909BEFD2B" sourceRef="sid-C6BBB2C9-B681-4FAE-A33C-57CEF185997B" targetRef="renameApplicationsTask"></sequenceFlow>
     <serviceTask id="detachServicesFromMtaTask" name="Detach Services from MTA" flowable:async="true" flowable:delegateExpression="${detachServicesFromMtaStep}"></serviceTask>
-    <sequenceFlow id="doNotDeleteDiscontinuedServicesFlow" name="Don't delete services" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="detachServicesFromMtaTask">
-      <extensionElements>
-        <flowable:executionListener event="take" delegateExpression="${doNotDeleteServicesListener}"></flowable:executionListener>
-      </extensionElements>
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServices == false)}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="sid-890512F8-C77F-4A85-B8DA-118BC97F3E05" sourceRef="detachServicesFromMtaTask" targetRef="shouldDeleteDiscontinuedServiceBrokersGateway"></sequenceFlow>
     <sequenceFlow id="flow12" sourceRef="buildDeployModelTask" targetRef="buildUndeployModelTask"></sequenceFlow>
     <sequenceFlow id="flow11" sourceRef="processDescriptorTask" targetRef="buildDeployModelTask"></sequenceFlow>
     <sequenceFlow id="flow50" sourceRef="addDomainsTask" targetRef="createOrUpdateServicesCallActivity"></sequenceFlow>
     <sequenceFlow id="flow49" sourceRef="buildUndeployModelTask" targetRef="addDomainsTask"></sequenceFlow>
     <sequenceFlow id="flow151" sourceRef="computeNextModulesToDeployInParallel" targetRef="deployModulesParallel"></sequenceFlow>
-    <sequenceFlow id="deleteDiscontinuedServicesFlow" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="deleteServicesCallActivity"></sequenceFlow>
     <sequenceFlow id="autoContinueDeploymentFlow" name="Auto continue deployment" sourceRef="shouldAutoContinueDeploymentGateway" targetRef="setValidationPhaseStartedInclusiveGateway">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(empty deployedMta or noConfirm)}]]></conditionExpression>
     </sequenceFlow>
@@ -224,6 +216,14 @@
     <sequenceFlow id="sid-065FFC8D-12B3-4D53-B7F6-A0D2B3EA9420" sourceRef="sid-5B2AE114-1CBF-47C2-82D5-4CB9379C6136" targetRef="restartAppsModeGateway"></sequenceFlow>
     <sequenceFlow id="sid-C1F6D631-7CFC-4226-BE3E-1921D03172B5" sourceRef="sid-5B2AE114-1CBF-47C2-82D5-4CB9379C6136" targetRef="updateModulesAppNames">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${keepOriginalAppNamesAfterDeploy == true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="doNotDeleteDiscontinuedServicesFlow" name="Don't delete services" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="detachServicesFromMtaTask">
+      <extensionElements>
+        <flowable:executionListener event="take" delegateExpression="${doNotDeleteServicesListener}"></flowable:executionListener>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="deleteDiscontinuedServicesFlow" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="deleteServicesCallActivity">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServices == true)}]]></conditionExpression>
     </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_xs2-bg-deploy">
@@ -412,10 +412,10 @@
         <omgdi:waypoint x="629.9999999997672" y="441.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-91F14D78-6B14-407B-8D03-DE7B6EC32F34" id="BPMNEdge_sid-91F14D78-6B14-407B-8D03-DE7B6EC32F34">
-        <omgdi:waypoint x="1181.9499999999487" y="318.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1207.5" y="318.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1207.5" y="435.3883323662563"></omgdi:waypoint>
-        <omgdi:waypoint x="1233.5" y="435.3883323662563"></omgdi:waypoint>
+        <omgdi:waypoint x="1181.9499999999691" y="318.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1207.0" y="318.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1207.0" y="435.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1233.048433569842" y="434.9366448521738"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="autoContinueDeploymentFlow" id="BPMNEdge_autoContinueDeploymentFlow">
         <omgdi:waypoint x="800.3260869565219" y="460.7765217391306"></omgdi:waypoint>
@@ -434,9 +434,9 @@
         <omgdi:waypoint x="184.99999999999224" y="380.7775132275132"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-C1F6D631-7CFC-4226-BE3E-1921D03172B5" id="BPMNEdge_sid-C1F6D631-7CFC-4226-BE3E-1921D03172B5">
-        <omgdi:waypoint x="1253.5" y="415.3883323662563"></omgdi:waypoint>
-        <omgdi:waypoint x="1253.5" y="357.4441661831281"></omgdi:waypoint>
-        <omgdi:waypoint x="1283.0" y="357.4441661831281"></omgdi:waypoint>
+        <omgdi:waypoint x="1253.0" y="414.8883323662563"></omgdi:waypoint>
+        <omgdi:waypoint x="1253.0" y="357.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1283.0" y="357.0"></omgdi:waypoint>
         <omgdi:waypoint x="1283.0" y="294.95000000000005"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow129" id="BPMNEdge_flow129">
@@ -554,13 +554,13 @@
         <omgdi:waypoint x="260.0" y="59.34782608695652"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-1C93DC4B-1489-41A7-AEA0-B6CAB2C6D7A4" id="BPMNEdge_sid-1C93DC4B-1489-41A7-AEA0-B6CAB2C6D7A4">
-        <omgdi:waypoint x="1242.463522036168" y="614.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1125.9499999993052" y="614.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1242.4635220364025" y="614.1299400042886"></omgdi:waypoint>
+        <omgdi:waypoint x="1125.9499999999887" y="613.3530572391516"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="shouldRestartAppsSequentialFlow" id="BPMNEdge_shouldRestartAppsSequentialFlow">
-        <omgdi:waypoint x="1355.0000000000002" y="454.82942009504325"></omgdi:waypoint>
-        <omgdi:waypoint x="1355.0000000000002" y="496.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1559.9999999999359" y="496.15204655673"></omgdi:waypoint>
+        <omgdi:waypoint x="1355.0" y="454.82203645342526"></omgdi:waypoint>
+        <omgdi:waypoint x="1355.0" y="496.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1559.9999999999832" y="496.15204655673"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow68" id="BPMNEdge_flow68">
         <omgdi:waypoint x="177.99999999984323" y="265.0"></omgdi:waypoint>
@@ -588,8 +588,8 @@
         <omgdi:waypoint x="177.9999999999889" y="791.6802405498281"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-065FFC8D-12B3-4D53-B7F6-A0D2B3EA9420" id="BPMNEdge_sid-065FFC8D-12B3-4D53-B7F6-A0D2B3EA9420">
-        <omgdi:waypoint x="1272.5343471810013" y="435.2942729603157"></omgdi:waypoint>
-        <omgdi:waypoint x="1335.0980392156862" y="434.9861264839033"></omgdi:waypoint>
+        <omgdi:waypoint x="1272.9402301665034" y="434.8883323662563"></omgdi:waypoint>
+        <omgdi:waypoint x="1335.0" y="434.8883323662563"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="parallelDeploymentCompletedFlow" id="BPMNEdge_parallelDeploymentCompletedFlow">
         <omgdi:waypoint x="520.9334026622296" y="380.0"></omgdi:waypoint>
@@ -602,9 +602,9 @@
         <omgdi:waypoint x="85.05572625698323" y="772.0558659217877"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="shouldRestartAppsParallelFlow" id="BPMNEdge_shouldRestartAppsParallelFlow">
-        <omgdi:waypoint x="1355.5" y="415.38833236625635"></omgdi:waypoint>
-        <omgdi:waypoint x="1355.5" y="372.5000000000001"></omgdi:waypoint>
-        <omgdi:waypoint x="1395.5364779635947" y="372.5000000000001"></omgdi:waypoint>
+        <omgdi:waypoint x="1355.0" y="414.8883323662563"></omgdi:waypoint>
+        <omgdi:waypoint x="1355.0" y="372.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1395.5364779635947" y="372.2178526038973"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-4B6B0565-AD88-4ADB-95C5-2A77476A7C32" id="BPMNEdge_sid-4B6B0565-AD88-4ADB-95C5-2A77476A7C32">
         <omgdi:waypoint x="734.9499999999999" y="441.00000000000006"></omgdi:waypoint>
