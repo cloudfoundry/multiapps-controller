@@ -2,8 +2,6 @@ package org.cloudfoundry.multiapps.controller.web.monitoring;
 
 public interface MetricsMBean {
 
-    long getUsedFssSpace();
-
     long getUsedContainerSpace();
 
     int getRunningJobExecutorThreads();
