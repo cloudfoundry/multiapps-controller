@@ -151,11 +151,17 @@ public class OperationInErrorStateHandler {
         Operation operation = operationService.createQuery()
                                               .processId(processInstanceId)
                                               .singleResult();
-        operation = ImmutableOperation.builder()
-                                      .from(operation)
-                                      .state(Operation.State.ERROR)
-                                      .build();
-        operationService.update(operation, operation);
+        if (!isOperationAlreadyAborted(operation)) {
+            operation = ImmutableOperation.builder()
+                                          .from(operation)
+                                          .state(Operation.State.ERROR)
+                                          .build();
+            operationService.update(operation, operation);
+        }
+    }
+
+    private boolean isOperationAlreadyAborted(Operation operation) {
+        return Operation.State.ABORTED.equals(operation.getState());
     }
 
     protected Date getCurrentTimestamp() {
