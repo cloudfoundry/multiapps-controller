@@ -90,6 +90,9 @@ public class OperationInFinalStateHandler {
         Operation operation = operationService.createQuery()
                                               .processId(processInstanceId)
                                               .singleResult();
+        if (isOperationAlreadyFinal(operation)) {
+            return;
+        }
         LOGGER.info(format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(), operation.getMtaId(),
                            operation.getSpaceId()));
         operation = ImmutableOperation.builder()
@@ -101,6 +104,11 @@ public class OperationInFinalStateHandler {
         operationService.update(operation, operation);
         LOGGER.debug(format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
         historicOperationEventService.add(ImmutableHistoricOperationEvent.of(processInstanceId, toEventType(state)));
+    }
+
+    private boolean isOperationAlreadyFinal(Operation operation) {
+        return operation.getState()
+                        .isFinal() && !operation.hasAcquiredLock() && operation.getEndedAt() != null;
     }
 
     private HistoricOperationEvent.EventType toEventType(State state) {
