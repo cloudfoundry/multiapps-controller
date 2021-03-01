@@ -89,7 +89,7 @@ class ApplicationStagerTest {
         context.setVariable(Variables.APP_TO_PROCESS, application);
         Mockito.when(client.getBuild(BUILD_GUID))
                .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
-        Mockito.when(client.getApplication(APP_NAME))
+        Mockito.when(client.getApplicationGuid(APP_NAME))
                .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
         try {
             applicationStager.getStagingState();
@@ -98,7 +98,7 @@ class ApplicationStagerTest {
             Mockito.verify(client)
                    .getBuild(BUILD_GUID);
             Mockito.verify(client)
-                   .getApplication(APP_NAME);
+                   .getApplicationGuid(APP_NAME);
         }
     }
 
@@ -111,8 +111,8 @@ class ApplicationStagerTest {
         context.setVariable(Variables.APP_TO_PROCESS, application);
         Mockito.when(client.getBuild(BUILD_GUID))
                .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
-        Mockito.when(client.getApplication(APP_NAME))
-               .thenReturn(application);
+        Mockito.when(client.getApplicationGuid(APP_NAME))
+               .thenReturn(APP_GUID);
         try {
             applicationStager.getStagingState();
             fail("Staging should fail!");
@@ -120,7 +120,7 @@ class ApplicationStagerTest {
             Mockito.verify(client)
                    .getBuild(BUILD_GUID);
             Mockito.verify(client)
-                   .getApplication(APP_NAME);
+                   .getApplicationGuid(APP_NAME);
         }
     }
 

@@ -14,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.mta.model.Module;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 public class ModuleDependencyChecker {
 
@@ -106,6 +107,15 @@ public class ModuleDependencyChecker {
                                                         moduleName, dependencyName));
             return true;
         }
-        return client.getApplication(dependencyName, false) != null;
+        return doesAppExist(dependencyName);
+    }
+
+    private boolean doesAppExist(String appName) {
+        try {
+            client.getApplicationGuid(appName);
+            return true;
+        } catch (CloudOperationException e) {
+            return false;
+        }
     }
 }

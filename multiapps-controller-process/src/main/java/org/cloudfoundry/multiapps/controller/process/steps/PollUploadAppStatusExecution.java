@@ -68,7 +68,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
 
     private void verifyApplicationExists(CloudControllerClient client, String applicationName) {
         LOGGER.debug(format(Messages.VERIFYING_APPLICATION_0_EXISTS, applicationName));
-        client.getApplication(applicationName);
+        client.getApplicationGuid(applicationName);
     }
 
     @Override
