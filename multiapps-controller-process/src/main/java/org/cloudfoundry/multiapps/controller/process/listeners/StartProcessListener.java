@@ -57,6 +57,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
             return;
         }
         String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
+        getStepLogger().info(Messages.OPERATION_ID, correlationId);
         ProcessType processType = processTypeParser.getProcessType(execution);
 
         if (getOperation(correlationId) == null) {

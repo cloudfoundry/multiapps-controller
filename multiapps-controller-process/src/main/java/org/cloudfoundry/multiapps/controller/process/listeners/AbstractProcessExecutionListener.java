@@ -37,19 +37,15 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     private HistoricOperationEventService historicOperationEventService;
     @Inject
     private FlowableFacade flowableFacade;
-	@Inject
+    @Inject
     protected ApplicationConfiguration configuration;
 
     private StepLogger stepLogger;
 
     @Override
     public void notify(DelegateExecution execution) {
+        initializeMustHaveVariables(execution);
         try {
-            String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
-            if (correlationId == null) {
-                correlationId = execution.getProcessInstanceId();
-                VariableHandling.set(execution, Variables.CORRELATION_ID, correlationId);
-            }
             this.stepLogger = createStepLogger(execution);
             notifyInternal(execution);
         } catch (Exception e) {
@@ -57,6 +53,30 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
             throw new SLException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED);
         } finally {
             finalizeLogs(execution);
+        }
+    }
+
+    private void initializeMustHaveVariables(DelegateExecution execution) {
+        try {
+            initializeCorrelationId(execution);
+            initializeTaskId(execution);
+        } catch (Exception e) {
+            LOGGER.error(Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED, e);
+            throw new SLException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED);
+        }
+    }
+
+    private void initializeCorrelationId(DelegateExecution execution) {
+        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
+        if (correlationId == null) {
+            VariableHandling.set(execution, Variables.CORRELATION_ID, execution.getProcessInstanceId());
+        }
+    }
+
+    private void initializeTaskId(DelegateExecution execution) {
+        String taskId = VariableHandling.get(execution, Variables.TASK_ID);
+        if (taskId == null) {
+            VariableHandling.set(execution, Variables.TASK_ID, execution.getCurrentActivityId());
         }
     }
 
@@ -70,12 +90,9 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     }
 
     protected void finalizeLogs(DelegateExecution execution) {
-        processLogsPersister.persistLogs(VariableHandling.get(execution, Variables.CORRELATION_ID), getTaskId(execution));
-    }
-
-    private String getTaskId(DelegateExecution execution) {
+        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
         String taskId = VariableHandling.get(execution, Variables.TASK_ID);
-        return taskId != null ? taskId : execution.getCurrentActivityId();
+        processLogsPersister.persistLogs(correlationId, taskId);
     }
 
     protected StepLogger getStepLogger() {
