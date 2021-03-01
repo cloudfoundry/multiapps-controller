@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="alter_operation_table_add_not_null_constraint_current_state">
+        <addNotNullConstraint tableName="operation"
+                              columnName="current_state"/>
+    </changeSet>
+    <changeSet author="sap.com" id="alter_operation_table_drop_column_final_state">
+        <dropColumn columnName="final_state"
+                    tableName="operation"/>
+    </changeSet>
+</databaseChangeLog>
