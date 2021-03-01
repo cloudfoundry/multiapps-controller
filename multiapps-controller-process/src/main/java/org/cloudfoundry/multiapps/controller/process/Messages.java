@@ -227,6 +227,7 @@ public class Messages {
 
     // Progress messages
 
+    public static final String OPERATION_ID = "Operation ID: {0}";
     public static final String MTA_SCHEMA_VERSION_DETECTED_AS = "Detected MTA schema version: \"{0}\"";
     public static final String DEPLOYING_IN_ORG_0_AND_SPACE_1 = "Deploying in org \"{0}\" and space \"{1}\"";
     public static final String NO_DEPLOYED_MTA_DETECTED = "No deployed MTA detected - this is initial deployment";
