@@ -479,6 +479,7 @@ public class Messages {
     public static final String DELETING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1 = "Deleting service key \"{0}\" for service instance \"{1}\"...";
     public static final String GETTING_APPLICATION_0 = "Getting application \"{0}\"...";
     public static final String GETTING_APPLICATION_0_GUID = "Getting application guid \"{0}\"...";
+    public static final String GETTING_NAME_OF_APPLICATION_WITH_GUID_0 = "Getting name of application with guid \"{0}\"...";
     public static final String GETTING_ENVIRONMENT_OF_APPLICATION_0 = "Getting environment of application \"{0}\"...";
     public static final String GETTING_EVENTS_FOR_APPLICATION_0 = "Getting events for application \"{0}\"...";
     public static final String GETTING_EVENTS_BY_ACTEE_0 = "Getting events by actee \"{0}\"...";

@@ -150,6 +150,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public String getApplicationName(UUID uuid) {
+        return executeWithRetry(() -> delegate.getApplicationName(uuid));
+    }
+
+    @Override
     public InstancesInfo getApplicationInstances(CloudApplication application) {
         return executeWithRetry(() -> delegate.getApplicationInstances(application));
     }
@@ -322,6 +327,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public void unbindServiceInstance(CloudApplication application, CloudServiceInstance serviceInstance) {
         executeWithRetry(() -> delegate.unbindServiceInstance(application, serviceInstance));
+    }
+
+    @Override
+    public void unbindServiceInstance(UUID appGuid, UUID serviceGuid) {
+        executeWithRetry(() -> delegate.unbindServiceInstance(appGuid, serviceGuid));
     }
 
     @Override

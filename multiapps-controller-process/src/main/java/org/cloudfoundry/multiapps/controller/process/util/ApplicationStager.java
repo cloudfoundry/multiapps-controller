@@ -58,7 +58,7 @@ public class ApplicationStager {
     private void checkIfApplicationExists() {
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
         // This will produce an exception with a more meaningful message why the build is missing
-        client.getApplication(app.getName());
+        client.getApplicationGuid(app.getName());
     }
 
     private StagingState getStagingState(CloudBuild build) {

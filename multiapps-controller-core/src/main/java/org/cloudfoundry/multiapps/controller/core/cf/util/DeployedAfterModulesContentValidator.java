@@ -14,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.mta.model.Module;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 public class DeployedAfterModulesContentValidator implements ModulesContentValidator {
 
@@ -69,7 +70,16 @@ public class DeployedAfterModulesContentValidator implements ModulesContentValid
                                                         moduleWithDependency, dependencyModule));
             return true;
         }
-        return client.getApplication(dependencyModule, false) != null;
+        return doesAppExist(dependencyModule);
+    }
+
+    private boolean doesAppExist(String appName) {
+        try {
+            client.getApplicationGuid(appName);
+            return true;
+        } catch (CloudOperationException e) {
+            return false;
+        }
     }
 
     private Set<String> getModuleNames(List<Module> modules) {

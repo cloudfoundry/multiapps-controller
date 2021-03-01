@@ -151,8 +151,7 @@ class ServiceRemoverTest {
 
     private void assertClientOperations(boolean hasServiceBinding, boolean hasServiceKey) {
         int callingUnbindServiceCount = hasServiceBinding ? 1 : 0;
-        verify(client, times(callingUnbindServiceCount)).unbindServiceInstance(any(CloudApplication.class),
-                                                                               any(CloudServiceInstance.class));
+        verify(client, times(callingUnbindServiceCount)).unbindServiceInstance(any(UUID.class), any(UUID.class));
 
         int callingDeleteServiceKeyCount = hasServiceKey ? 1 : 0;
         verify(client, times(callingDeleteServiceKeyCount)).deleteServiceKey(any(CloudServiceKey.class));
@@ -180,8 +179,7 @@ class ServiceRemoverTest {
     }
 
     private void prepareClient(CloudApplication application, CloudServiceInstance serviceInstance, CloudServiceBinding serviceBinding) {
-        when(client.getApplication(application.getMetadata()
-                                              .getGuid())).thenReturn(application);
+        when(client.getApplicationName(application.getGuid())).thenReturn(application.getName());
         when(client.getServiceInstance(anyString())).thenReturn(serviceInstance);
         if (serviceBinding != null) {
             when(client.getServiceBindings(serviceInstance.getMetadata()

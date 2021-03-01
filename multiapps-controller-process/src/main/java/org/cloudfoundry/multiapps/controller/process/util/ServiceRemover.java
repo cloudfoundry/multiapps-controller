@@ -28,7 +28,7 @@ import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 @Named
 public class ServiceRemover {
 
-    private ApplicationConfiguration configuration;
+    private final ApplicationConfiguration configuration;
 
     @Inject
     public ServiceRemover(ApplicationConfiguration configuration) {
@@ -55,10 +55,10 @@ public class ServiceRemover {
         }
         stepLogger.debug(Messages.SERVICE_BINDINGS_EXISTS, SecureSerialization.toJson(serviceBindings));
         for (CloudServiceBinding binding : serviceBindings) {
-            CloudApplication application = client.getApplication(binding.getApplicationGuid());
+            String applicationName = client.getApplicationName(binding.getApplicationGuid());
 
-            stepLogger.info(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP, serviceInstance, application.getName());
-            client.unbindServiceInstance(application, serviceInstance);
+            stepLogger.info(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP, serviceInstance, applicationName);
+            client.unbindServiceInstance(binding.getApplicationGuid(), serviceInstance.getGuid());
         }
     }
 

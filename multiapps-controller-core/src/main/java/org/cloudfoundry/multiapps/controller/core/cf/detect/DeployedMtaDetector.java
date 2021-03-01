@@ -83,8 +83,7 @@ public class DeployedMtaDetector {
     }
 
     private List<DeployedMta> getDeployedMtasByMetadataSelectionCriteria(MtaMetadataCriteria criteria, CloudControllerClient client) {
-        @SuppressWarnings("unchecked")
-        List<CloudEntity> mtaMetadataEntities = (List<CloudEntity>) mtaMetadataEntityCollectors.stream()
+        List<CloudEntity> mtaMetadataEntities = mtaMetadataEntityCollectors.stream()
                                                                            .map(collector -> collect(collector, criteria, client))
                                                                            .flatMap(List::stream)
                                                                            .collect(Collectors.toList());

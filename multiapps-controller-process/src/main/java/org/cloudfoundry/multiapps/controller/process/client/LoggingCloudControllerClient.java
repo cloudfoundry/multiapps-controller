@@ -210,6 +210,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public String getApplicationName(UUID uuid) {
+        logger.debug(Messages.GETTING_NAME_OF_APPLICATION_WITH_GUID_0, uuid.toString());
+        return delegate.getApplicationName(uuid);
+    }
+
+    @Override
     public Map<String, String> getApplicationEnvironment(String applicationName) {
         logger.debug(Messages.GETTING_ENVIRONMENT_OF_APPLICATION_0, applicationName);
         return delegate.getApplicationEnvironment(applicationName);
@@ -502,6 +508,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public void unbindServiceInstance(CloudApplication application, CloudServiceInstance serviceInstance) {
         logger.debug(Messages.UNBINDING_APPLICATION_0_FROM_SERVICE_INSTANCE_1, application.getName(), serviceInstance.getName());
         delegate.unbindServiceInstance(application, serviceInstance);
+    }
+
+    @Override
+    public void unbindServiceInstance(UUID appGuid, UUID serviceGuid) {
+        logger.debug(Messages.UNBINDING_APPLICATION_0_FROM_SERVICE_INSTANCE_1, appGuid, serviceGuid);
+        delegate.unbindServiceInstance(appGuid, serviceGuid);
     }
 
     @Override
