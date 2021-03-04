@@ -62,7 +62,12 @@ public class CreateServiceStep extends ServiceStep {
     }
 
     private boolean serviceExists(CloudServiceInstanceExtended cloudServiceExtended, CloudControllerClient client) {
-        return client.getServiceInstance(cloudServiceExtended.getName(), false) != null;
+        try {
+            client.getRequiredServiceInstanceGuid(cloudServiceExtended.getName());
+            return true;
+        } catch (CloudOperationException e) {
+            return false;
+        }
     }
 
     private MethodExecution<String> createManagedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -76,10 +77,14 @@ class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachServicesF
     }
 
     private void prepareClient(List<SimpleServiceInstance> servicesToDelete) {
-        for (SimpleServiceInstance serviceInstance : servicesToDelete) {
-            Mockito.when(client.getServiceInstance(serviceInstance.name, false))
-                   .thenReturn(createServiceInstance(serviceInstance));
-        }
+        List<String> serviceNames = servicesToDelete.stream()
+                                                    .map(SimpleServiceInstance::getName)
+                                                    .collect(Collectors.toList());
+        List<CloudServiceInstance> serviceInstances = servicesToDelete.stream()
+                                                                      .map(this::createServiceInstance)
+                                                                      .collect(Collectors.toList());
+        Mockito.when(client.getServiceInstancesWithoutAuxiliaryContentByNames(serviceNames))
+               .thenReturn(serviceInstances);
     }
 
     private CloudServiceInstance createServiceInstance(SimpleServiceInstance serviceInstance) {
@@ -106,8 +111,8 @@ class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachServicesF
     @Test
     void testWithMissingService() {
         prepareContext(List.of("service"));
-        Mockito.when(client.getServiceInstance("service", false))
-               .thenReturn(null);
+        Mockito.when(client.getServiceInstancesWithoutAuxiliaryContentByNames(List.of("service")))
+               .thenReturn(Collections.emptyList());
 
         step.execute(execution);
 

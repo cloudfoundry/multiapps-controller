@@ -49,7 +49,7 @@ class UpdateServiceMetadataStepTest extends SyncFlowableStepTest<UpdateServiceMe
     }
 
     private void prepareClient(CloudServiceInstanceExtended serviceToProcess) {
-        when(client.getServiceInstance(SERVICE_NAME)).thenReturn(serviceToProcess);
+        when(client.getRequiredServiceInstanceGuid(SERVICE_NAME)).thenReturn(serviceToProcess.getGuid());
     }
 
     @Override

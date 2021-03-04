@@ -624,6 +624,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public List<CloudServiceInstance> getServiceInstancesWithoutAuxiliaryContentByNames(List<String> names) {
+        return executeWithRetry(() -> delegate.getServiceInstancesWithoutAuxiliaryContentByNames(names));
+    }
+
+    @Override
     public void updateServiceInstanceMetadata(UUID guid, Metadata metadata) {
         executeWithRetry(() -> delegate.updateServiceInstanceMetadata(guid, metadata));
     }

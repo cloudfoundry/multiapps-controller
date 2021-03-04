@@ -24,9 +24,7 @@ public class UpdateServiceMetadataStep extends ServiceStep {
                                                        CloudServiceInstanceExtended service) {
         getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0, service.getName(), service.getResourceName());
 
-        UUID serviceGuid = client.getServiceInstance(service.getName())
-                                 .getMetadata()
-                                 .getGuid();
+        UUID serviceGuid = client.getRequiredServiceInstanceGuid(service.getName());
         client.updateServiceInstanceMetadata(serviceGuid, service.getV3Metadata());
 
         getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_DONE, service.getName());
