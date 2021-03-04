@@ -2,9 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
@@ -29,18 +27,11 @@ public class DetachServicesFromMtaStep extends SyncFlowableStep {
 
         List<String> serviceNamesToDetachFromMta = context.getVariable(Variables.SERVICES_TO_DELETE);
         CloudControllerClient client = context.getControllerClient();
-        List<CloudServiceInstance> servicesToDetachFromMta = getServices(serviceNamesToDetachFromMta, client);
+        List<CloudServiceInstance> servicesToDetachFromMta = client.getServiceInstancesWithoutAuxiliaryContentByNames(serviceNamesToDetachFromMta);
         deleteMtaMetadataFromServices(servicesToDetachFromMta, client);
 
         getStepLogger().debug(Messages.SERVICES_DETACHED_FROM_MTA);
         return StepPhase.DONE;
-    }
-
-    private List<CloudServiceInstance> getServices(List<String> serviceNames, CloudControllerClient client) {
-        return serviceNames.stream()
-                           .map(service -> client.getServiceInstance(service, false))
-                           .filter(Objects::nonNull)
-                           .collect(Collectors.toList());
     }
 
     private void deleteMtaMetadataFromServices(List<CloudServiceInstance> servicesToDetachFromMta, CloudControllerClient client) {
@@ -50,8 +41,7 @@ public class DetachServicesFromMtaStep extends SyncFlowableStep {
                 continue;
             }
             getStepLogger().info(MessageFormat.format(Messages.DETACHING_SERVICE_0_FROM_MTA, serviceToDetachFromMta.getName()));
-            UUID serviceGuid = serviceToDetachFromMta.getMetadata()
-                                                     .getGuid();
+            UUID serviceGuid = serviceToDetachFromMta.getGuid();
             client.updateServiceInstanceMetadata(serviceGuid, getMetadataWithoutMtaFields(serviceMetadata));
         }
     }

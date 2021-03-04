@@ -697,6 +697,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public List<CloudServiceInstance> getServiceInstancesWithoutAuxiliaryContentByNames(List<String> names) {
+        logger.debug(Messages.GETTING_SERVICE_INSTANCES_WITHOUT_AUXILIARY_CONTENT_BY_NAMES_0, names);
+        return delegate.getServiceInstancesWithoutAuxiliaryContentByNames(names);
+    }
+
+    @Override
     public List<CloudServiceInstance> getServiceInstancesByMetadataLabelSelector(String labelSelector) {
         logger.debug(Messages.GETTING_SERVICE_INSTANCES_BY_METADATA_LABEL_SELECTOR_0, labelSelector);
         return delegate.getServiceInstancesByMetadataLabelSelector(labelSelector);

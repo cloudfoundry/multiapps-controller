@@ -1,15 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceInstance;
 
 public class UpdateServiceMetadataExecution implements AsyncExecution {
 
@@ -25,13 +23,8 @@ public class UpdateServiceMetadataExecution implements AsyncExecution {
     }
 
     private void updateMetadata(CloudControllerClient client, CloudServiceInstanceExtended serviceInstance) {
-        CloudMetadata serviceMetadata = client.getServiceInstance(serviceInstance.getName())
-                                              .getMetadata();
-        CloudServiceInstance serviceWithMetadata = ImmutableCloudServiceInstance.copyOf(serviceInstance)
-                                                                                .withMetadata(serviceMetadata);
-        client.updateServiceInstanceMetadata(serviceWithMetadata.getMetadata()
-                                                                .getGuid(),
-                                             serviceWithMetadata.getV3Metadata());
+        UUID serviceInstanceGuid = client.getRequiredServiceInstanceGuid(serviceInstance.getName());
+        client.updateServiceInstanceMetadata(serviceInstanceGuid, serviceInstance.getV3Metadata());
     }
 
     @Override

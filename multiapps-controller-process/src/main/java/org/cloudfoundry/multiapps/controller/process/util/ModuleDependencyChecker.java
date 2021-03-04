@@ -107,10 +107,10 @@ public class ModuleDependencyChecker {
                                                         moduleName, dependencyName));
             return true;
         }
-        return doesAppExist(dependencyName);
+        return appExists(dependencyName);
     }
 
-    private boolean doesAppExist(String appName) {
+    private boolean appExists(String appName) {
         try {
             client.getApplicationGuid(appName);
             return true;

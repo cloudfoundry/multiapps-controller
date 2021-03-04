@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.util.Date;
 import java.util.UUID;
 
 import org.cloudfoundry.client.v3.Metadata;
@@ -15,13 +14,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceInstance;
 
 class UpdateServiceMetadataExecutionTest {
 
+    private static final UUID SERVICE_INSTANCE_GUID = UUID.randomUUID();
     private static final String SERVICE_INSTANCE_NAME = "foo";
     private static final String SERVICE_INSTANCE_PLAN = "bar";
     private static final String SERVICE_INSTANCE_LABEL = "corge";
@@ -31,15 +27,15 @@ class UpdateServiceMetadataExecutionTest {
     @Mock
     private StepLogger stepLogger;
     @Mock
-    private ProcessContext procesContext;
+    private ProcessContext processContext;
 
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        Mockito.when(procesContext.getControllerClient())
+        Mockito.when(processContext.getControllerClient())
                .thenReturn(controllerClient);
-        Mockito.when(procesContext.getStepLogger())
+        Mockito.when(processContext.getStepLogger())
                .thenReturn(stepLogger);
     }
 
@@ -55,28 +51,16 @@ class UpdateServiceMetadataExecutionTest {
                                                                                                     .label(SERVICE_INSTANCE_LABEL)
                                                                                                     .v3Metadata(v3Metadata)
                                                                                                     .build();
-        Mockito.when(procesContext.getVariable(Variables.SERVICE_TO_PROCESS))
+        Mockito.when(processContext.getVariable(Variables.SERVICE_TO_PROCESS))
                .thenReturn(serviceInstanceToCreate);
-
-        CloudMetadata metadata = ImmutableCloudMetadata.builder()
-                                                       .guid(UUID.randomUUID())
-                                                       .createdAt(new Date())
-                                                       .updatedAt(new Date())
-                                                       .build();
-        CloudServiceInstance serviceInstance = ImmutableCloudServiceInstance.builder()
-                                                                            .name(SERVICE_INSTANCE_NAME)
-                                                                            .plan(SERVICE_INSTANCE_PLAN)
-                                                                            .label(SERVICE_INSTANCE_LABEL)
-                                                                            .metadata(metadata)
-                                                                            .build();
-        Mockito.when(controllerClient.getServiceInstance(serviceInstance.getName()))
-               .thenReturn(serviceInstance);
+        Mockito.when(controllerClient.getRequiredServiceInstanceGuid(SERVICE_INSTANCE_NAME))
+               .thenReturn(SERVICE_INSTANCE_GUID);
 
         AsyncExecution asyncExecution = new UpdateServiceMetadataExecution();
-        asyncExecution.execute(procesContext);
+        asyncExecution.execute(processContext);
 
         Mockito.verify(controllerClient)
-               .updateServiceInstanceMetadata(metadata.getGuid(), v3Metadata);
+               .updateServiceInstanceMetadata(SERVICE_INSTANCE_GUID, v3Metadata);
     }
 
 }
