@@ -3,15 +3,18 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
-import org.springframework.core.annotation.Order;
 
-@Named()
-@Order(40)
+/*
+ * This cleaner is heavy because it scans for deleted space events for every configuration subscription.
+ * Annotations are commented because this cleaner is not necessary to be executed.
+ * Uncomment these annotations in case it exists garbage and cleaner should be executed.
+ */
+//@Named()
+//@Order(40)
 public class ConfigurationSubscriptionCleaner extends OrphanedDataCleaner<ConfigurationSubscription> {
 
     private final ConfigurationSubscriptionService configurationSubscriptionService;
