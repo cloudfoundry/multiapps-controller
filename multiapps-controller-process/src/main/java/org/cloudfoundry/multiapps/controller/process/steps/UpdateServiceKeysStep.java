@@ -10,8 +10,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
-import org.cloudfoundry.multiapps.controller.core.util.MethodExecution.ExecutionState;
+import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationExecutor;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -30,7 +29,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
     private ServiceOperationExecutor serviceOperationExecutor;
 
     @Override
-    protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient client,
+    protected OperationExecutionState executeOperation(ProcessContext context, CloudControllerClient client,
                                                        CloudServiceInstanceExtended service) {
         Map<String, List<CloudServiceKey>> serviceKeysMap = context.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
         List<CloudServiceKey> serviceKeys = serviceKeysMap.get(service.getResourceName());
@@ -40,7 +39,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
                                                                                                      getStepLogger());
 
         if (existingServiceKeys == null) {
-            return new MethodExecution<>(null, ExecutionState.FINISHED);
+            return OperationExecutionState.FINISHED;
         }
 
         List<CloudServiceKey> serviceKeysToCreate = getFilteredServiceKeys(serviceKeys, key -> shouldCreate(key, existingServiceKeys));
@@ -60,7 +59,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
 
         createServiceKeys(serviceKeysToCreate, client);
 
-        return new MethodExecution<>(null, ExecutionState.FINISHED);
+        return OperationExecutionState.FINISHED;
     }
 
     @Override

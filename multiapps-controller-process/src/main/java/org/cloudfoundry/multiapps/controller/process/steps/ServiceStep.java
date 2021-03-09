@@ -8,8 +8,7 @@ import javax.inject.Inject;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
-import org.cloudfoundry.multiapps.controller.core.util.MethodExecution.ExecutionState;
+import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
@@ -29,9 +28,8 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
         CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
-        MethodExecution<String> methodExecution = executeOperationAndHandleExceptions(context, serviceToProcess);
-        if (methodExecution.getState()
-                           .equals(ExecutionState.FINISHED)) {
+        OperationExecutionState executionState = executeOperationAndHandleExceptions(context, serviceToProcess);
+        if (executionState == OperationExecutionState.FINISHED) {
             return StepPhase.DONE;
         }
 
@@ -51,7 +49,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
         return Messages.ERROR_SERVICE_OPERATION;
     }
 
-    private MethodExecution<String> executeOperationAndHandleExceptions(ProcessContext context, CloudServiceInstanceExtended service) {
+    private OperationExecutionState executeOperationAndHandleExceptions(ProcessContext context, CloudServiceInstanceExtended service) {
         try {
             return executeOperation(context, context.getControllerClient(), service);
         } catch (CloudOperationException e) {
@@ -60,7 +58,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
         }
     }
 
-    protected abstract MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
+    protected abstract OperationExecutionState executeOperation(ProcessContext context, CloudControllerClient controllerClient,
                                                                 CloudServiceInstanceExtended service);
 
     protected abstract ServiceOperation.Type getOperationType();
