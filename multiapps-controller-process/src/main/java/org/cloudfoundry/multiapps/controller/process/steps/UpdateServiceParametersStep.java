@@ -6,7 +6,7 @@ import java.util.List;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
+import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -19,18 +19,18 @@ import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 public class UpdateServiceParametersStep extends ServiceStep {
 
     @Override
-    protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient client,
+    protected OperationExecutionState executeOperation(ProcessContext context, CloudControllerClient client,
                                                        CloudServiceInstanceExtended service) {
         if (service.shouldSkipParametersUpdate()) {
             getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_PARAMS, service.getName());
-            return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
+            return OperationExecutionState.FINISHED;
         }
         getStepLogger().info(Messages.UPDATING_SERVICE, service.getName());
 
         client.updateServiceParameters(service.getName(), service.getCredentials());
 
         getStepLogger().debug(Messages.SERVICE_UPDATED, service.getName());
-        return new MethodExecution<>(null, MethodExecution.ExecutionState.EXECUTING);
+        return OperationExecutionState.EXECUTING;
     }
 
     @Override

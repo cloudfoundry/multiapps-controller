@@ -7,7 +7,7 @@ import java.util.UUID;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
+import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -20,7 +20,7 @@ import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 public class UpdateServiceMetadataStep extends ServiceStep {
 
     @Override
-    protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient client,
+    protected OperationExecutionState executeOperation(ProcessContext context, CloudControllerClient client,
                                                        CloudServiceInstanceExtended service) {
         getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0, service.getName(), service.getResourceName());
 
@@ -28,7 +28,7 @@ public class UpdateServiceMetadataStep extends ServiceStep {
         client.updateServiceInstanceMetadata(serviceGuid, service.getV3Metadata());
 
         getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_DONE, service.getName());
-        return new MethodExecution<>(null, MethodExecution.ExecutionState.EXECUTING);
+        return OperationExecutionState.EXECUTING;
     }
 
     @Override

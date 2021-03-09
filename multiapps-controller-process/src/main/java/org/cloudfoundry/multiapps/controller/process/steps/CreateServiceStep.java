@@ -7,8 +7,7 @@ import java.util.List;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
-import org.cloudfoundry.multiapps.controller.core.util.MethodExecution.ExecutionState;
+import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper.CloudComponents;
@@ -29,26 +28,26 @@ import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 public class CreateServiceStep extends ServiceStep {
 
     @Override
-    protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
+    protected OperationExecutionState executeOperation(ProcessContext context, CloudControllerClient controllerClient,
                                                        CloudServiceInstanceExtended service) {
         getStepLogger().info(Messages.CREATING_SERVICE_FROM_MTA_RESOURCE, service.getName(), service.getResourceName());
 
         try {
-            MethodExecution<String> createServiceMethodExecution = createCloudService(controllerClient, service);
+            OperationExecutionState executionState = createCloudService(controllerClient, service);
 
             getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());
-            return createServiceMethodExecution;
+            return executionState;
         } catch (CloudOperationException e) {
             processServiceCreationFailure(context, service, e);
         }
 
-        return new MethodExecution<>(null, ExecutionState.FINISHED);
+        return OperationExecutionState.FINISHED;
     }
 
-    private MethodExecution<String> createCloudService(CloudControllerClient client, CloudServiceInstanceExtended service) {
+    private OperationExecutionState createCloudService(CloudControllerClient client, CloudServiceInstanceExtended service) {
         if (serviceExists(service, client)) {
             getStepLogger().info(org.cloudfoundry.multiapps.controller.core.Messages.SERVICE_ALREADY_EXISTS, service.getName());
-            return new MethodExecution<>(null, ExecutionState.FINISHED);
+            return OperationExecutionState.FINISHED;
         }
         if (service.isUserProvided()) {
             return createUserProvidedServiceInstance(client, service);
@@ -56,9 +55,9 @@ public class CreateServiceStep extends ServiceStep {
         return createManagedServiceInstance(client, service);
     }
 
-    private MethodExecution<String> createUserProvidedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {
+    private OperationExecutionState createUserProvidedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {
         client.createUserProvidedServiceInstance(service, service.getCredentials());
-        return new MethodExecution<>(null, ExecutionState.FINISHED);
+        return OperationExecutionState.FINISHED;
     }
 
     private boolean serviceExists(CloudServiceInstanceExtended cloudServiceExtended, CloudControllerClient client) {
@@ -70,13 +69,13 @@ public class CreateServiceStep extends ServiceStep {
         }
     }
 
-    private MethodExecution<String> createManagedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {
+    private OperationExecutionState createManagedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {
         Assert.notNull(service, "Service must not be null");
         Assert.notNull(service.getName(), "Service name must not be null");
         Assert.notNull(service.getLabel(), "Service label must not be null");
         Assert.notNull(service.getPlan(), "Service plan must not be null");
         client.createServiceInstance(service);
-        return new MethodExecution<>(null, MethodExecution.ExecutionState.EXECUTING);
+        return OperationExecutionState.EXECUTING;
     }
 
     private void processServiceCreationFailure(ProcessContext context, CloudServiceInstanceExtended service, CloudOperationException e) {
