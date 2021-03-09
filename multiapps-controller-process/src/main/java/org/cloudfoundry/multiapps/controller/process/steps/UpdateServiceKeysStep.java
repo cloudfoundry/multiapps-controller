@@ -6,18 +6,20 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationExecutor;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudControllerException;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
@@ -25,18 +27,12 @@ import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UpdateServiceKeysStep extends ServiceStep {
 
-    @Inject
-    private ServiceOperationExecutor serviceOperationExecutor;
-
     @Override
     protected OperationExecutionState executeOperation(ProcessContext context, CloudControllerClient client,
                                                        CloudServiceInstanceExtended service) {
         Map<String, List<CloudServiceKey>> serviceKeysMap = context.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
         List<CloudServiceKey> serviceKeys = serviceKeysMap.get(service.getResourceName());
-
-        List<CloudServiceKey> existingServiceKeys = serviceOperationExecutor.executeServiceOperation(service,
-                                                                                                     () -> client.getServiceKeys(service.getName()),
-                                                                                                     getStepLogger());
+        List<CloudServiceKey> existingServiceKeys = getExistingServiceKeys(client, service);
 
         if (existingServiceKeys == null) {
             return OperationExecutionState.FINISHED;
@@ -70,6 +66,21 @@ public class UpdateServiceKeysStep extends ServiceStep {
     @Override
     protected ServiceOperation.Type getOperationType() {
         return ServiceOperation.Type.UPDATE;
+    }
+
+    private List<CloudServiceKey> getExistingServiceKeys(CloudControllerClient client, CloudServiceInstanceExtended service) {
+        try {
+            return client.getServiceKeys(service.getName());
+        } catch (CloudOperationException e) {
+            if (!service.isOptional()) {
+                if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
+                    throw new CloudServiceBrokerException(e);
+                }
+                throw new CloudControllerException(e);
+            }
+            getStepLogger().warn(e, Messages.COULD_NOT_GET_SERVICE_KEYS_FOR_OPTIONAL_SERVICE, service.getName());
+            return null;
+        }
     }
 
     private List<CloudServiceKey> getFilteredServiceKeys(List<CloudServiceKey> serviceKeys, Predicate<CloudServiceKey> filter) {

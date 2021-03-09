@@ -88,7 +88,7 @@ public class CreateServiceStep extends ServiceStep {
             }
             throw new CloudControllerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
         }
-        getStepLogger().warn(MessageFormat.format(Messages.COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE, service.getName()), e,
+        getStepLogger().warn(MessageFormat.format(Messages.COULD_NOT_CREATE_OPTIONAL_SERVICE, service.getName()), e,
                              ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, service.getLabel()));
     }
 

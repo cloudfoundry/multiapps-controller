@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,20 +10,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationExecutor;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mock;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
@@ -30,9 +27,6 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
 class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServiceKeysStep> {
 
     private static final String SERVICE_NAME = "test-service";
-
-    @Mock
-    private ServiceOperationExecutor serviceOperationExecutor;
 
     static Stream<Arguments> testCreateUpdateServiceKeysStep() {
         return Stream.of(
@@ -52,7 +46,7 @@ class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServiceKeysSt
         List<CloudServiceKey> serviceKeys = buildServiceKeys(serviceKeysNames, updatedServiceKeys, service);
         List<CloudServiceKey> existingServiceKeys = buildServiceKeys(existingServiceKeysNames, Collections.emptyList(), service);
         prepareContext(serviceKeys, canDeleteServiceKeys, service);
-        prepareServiceOperationExecutor(existingServiceKeys);
+        prepareClient(existingServiceKeys);
 
         step.execute(execution);
 
@@ -98,9 +92,8 @@ class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServiceKeysSt
                                        .build();
     }
 
-    private void prepareServiceOperationExecutor(List<CloudServiceKey> existingServiceKeys) {
-        when(serviceOperationExecutor.executeServiceOperation(any(), ArgumentMatchers.<Supplier<List<CloudServiceKey>>> any(),
-                                                              any())).thenReturn(existingServiceKeys);
+    private void prepareClient(List<CloudServiceKey> existingServiceKeys) {
+        when(client.getServiceKeys(anyString())).thenReturn(existingServiceKeys);
     }
 
     private void verifyCreateCalls(List<String> serviceKeysNames, List<String> existingServiceKeysNames) {

@@ -174,7 +174,8 @@ public class Messages {
     public static final String FAILED_SERVICE_BROKER_UPDATE = "Failed to update service broker \"{0}\"";
     public static final String COULD_NOT_BIND_OPTIONAL_SERVICE_TO_APP = "Could not bind optional service \"{0}\" to application \"{1}\"";
     public static final String COULD_NOT_UNBIND_OPTIONAL_SERVICE_TO_APP = "Could not unbind optional service \"{0}\" to application \"{1}\"";
-    public static final String COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE = "Could not execute operation over optional service \"{0}\"";
+    public static final String COULD_NOT_CREATE_OPTIONAL_SERVICE = "Could not create optional service \"{0}\"";
+    public static final String COULD_NOT_GET_SERVICE_KEYS_FOR_OPTIONAL_SERVICE = "Could not get service keys for optional service \"{0}\"";
     public static final String DEFAULT_FAILED_OPERATION_DESCRIPTION = "The service broker returned an error with no description!";
     public static final String ERROR_DURING_CLEAN_UP_0 = "Error during clean-up: {0}";
     public static final String COULD_NOT_DELETE_HISTORIC_PROCESS_0 = "Could not delete historic process \"{0}\"";
