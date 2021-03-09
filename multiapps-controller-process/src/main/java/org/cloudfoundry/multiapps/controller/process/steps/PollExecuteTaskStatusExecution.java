@@ -74,23 +74,16 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         }
 
         private AsyncExecutionState handleCurrentState(CloudTask.State currentState) {
-            if (isFinalState(currentState)) {
-                return handleFinalState(currentState);
+            switch (currentState) {
+                case SUCCEEDED:
+                    return AsyncExecutionState.FINISHED;
+                case FAILED:
+                    context.getStepLogger()
+                           .error(Messages.ERROR_EXECUTING_TASK_0_ON_APP_1, taskToPoll.getName(), app.getName());
+                    return AsyncExecutionState.ERROR;
+                default:
+                    return AsyncExecutionState.RUNNING;
             }
-            return AsyncExecutionState.RUNNING;
-        }
-
-        private boolean isFinalState(CloudTask.State currentState) {
-            return currentState.equals(CloudTask.State.FAILED) || currentState.equals(CloudTask.State.SUCCEEDED);
-        }
-
-        private AsyncExecutionState handleFinalState(CloudTask.State state) {
-            if (state.equals(CloudTask.State.FAILED)) {
-                context.getStepLogger()
-                       .error(Messages.ERROR_EXECUTING_TASK_0_ON_APP_1, taskToPoll.getName(), app.getName());
-                return AsyncExecutionState.ERROR;
-            }
-            return AsyncExecutionState.FINISHED;
         }
 
     }
