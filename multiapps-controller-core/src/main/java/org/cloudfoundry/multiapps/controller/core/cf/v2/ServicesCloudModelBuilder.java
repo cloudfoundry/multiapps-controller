@@ -80,8 +80,6 @@ public class ServicesCloudModelBuilder {
                                                     .tags((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_TAGS,
                                                                                                  Collections.emptyList()))
                                                     .credentials(getServiceParameters(serviceName, parameters))
-                                                    .alternativeLabels((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES,
-                                                                                                              Collections.emptyList()))
                                                     .isOptional(commonServiceParameters.isOptional())
                                                     .isManaged(true)
                                                     .shouldSkipParametersUpdate(commonServiceParameters.shouldSkipParametersUpdate())

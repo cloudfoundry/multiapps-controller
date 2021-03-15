@@ -13,7 +13,6 @@
         "mta_id": "81530aa8411b2e488fa727eda264e137"
       }
     },
-    "alternativeLabels": [],
     "resourceName": "uaa",
     "credentials": {},
     "tags": [],
@@ -40,7 +39,6 @@
     "credentials": {},
     "tags": [],
     "type" : "managed_service_instance",
-    "alternativeLabels": [],
     "resourceName": "di-core-hdi",
     "shouldSkipParametersUpdate": false,
     "shouldSkipTagsUpdate": false,

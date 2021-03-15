@@ -4,11 +4,9 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceWithAlternativesCreator;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution.ExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -18,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.Assert;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudControllerException;
@@ -28,9 +27,6 @@ import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 @Named("createServiceStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateServiceStep extends ServiceStep {
-
-    @Inject
-    private ServiceWithAlternativesCreator.Factory serviceCreatorFactory;
 
     @Override
     protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
@@ -70,8 +66,12 @@ public class CreateServiceStep extends ServiceStep {
     }
 
     private MethodExecution<String> createManagedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {
-        return serviceCreatorFactory.createInstance(getStepLogger())
-                                    .createService(client, service);
+        Assert.notNull(service, "Service must not be null");
+        Assert.notNull(service.getName(), "Service name must not be null");
+        Assert.notNull(service.getLabel(), "Service label must not be null");
+        Assert.notNull(service.getPlan(), "Service plan must not be null");
+        client.createServiceInstance(service);
+        return new MethodExecution<>(null, MethodExecution.ExecutionState.EXECUTING);
     }
 
     private void processServiceCreationFailure(ProcessContext context, CloudServiceInstanceExtended service, CloudOperationException e) {

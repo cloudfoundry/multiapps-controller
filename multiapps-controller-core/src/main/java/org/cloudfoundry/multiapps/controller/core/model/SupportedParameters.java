@@ -111,7 +111,6 @@ public class SupportedParameters {
     public static final String SERVICE = "service";
     public static final String SERVICE_PLAN = "service-plan";
     public static final String SERVICE_BROKER = "service-broker";
-    public static final String SERVICE_ALTERNATIVES = "service-alternatives";
     public static final String SERVICE_PROVIDER = "service-provider";
     public static final String SERVICE_VERSION = "service-version";
     public static final String SERVICE_CONFIG = "config";

@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.client.lib.domain;
 
-import java.util.List;
-
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 
@@ -13,8 +11,6 @@ import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 @JsonSerialize(as = ImmutableCloudServiceInstanceExtended.class)
 @JsonDeserialize(as = ImmutableCloudServiceInstanceExtended.class)
 public abstract class CloudServiceInstanceExtended extends CloudServiceInstance {
-
-    public abstract List<String> getAlternativeLabels();
 
     @Nullable
     public abstract String getResourceName();
