@@ -17,7 +17,6 @@
       
     },
     "tags": [],
-    "alternativeLabels": [],
     "resourceName": "existing-service",
     "shouldIgnoreUpdateErrors": false
   },
@@ -41,7 +40,6 @@
       
     },
     "tags": [],
-    "alternativeLabels": [],
     "resourceName": "existing-service",
     "shouldIgnoreUpdateErrors": false
   },
@@ -65,7 +63,6 @@
       
     },
     "tags": [],
-    "alternativeLabels": [],
     "resourceName": "existing-service",
     "shouldIgnoreUpdateErrors": false
   }

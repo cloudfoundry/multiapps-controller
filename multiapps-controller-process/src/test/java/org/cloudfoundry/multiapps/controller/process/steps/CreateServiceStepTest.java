@@ -12,15 +12,11 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceWithAlternativesCreator;
-import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
-import org.cloudfoundry.multiapps.controller.core.util.MethodExecution.ExecutionState;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
@@ -40,9 +36,6 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
     private StepInput stepInput;
 
-    @Mock
-    private ServiceWithAlternativesCreator.Factory serviceCreatorFactory;
-
     static Stream<Arguments> testExecute() {
         return Stream.of(Arguments.of("create-service-step-input-1.json", null),
                          Arguments.of("create-service-step-input-2-user-provided.json", null));
@@ -52,14 +45,12 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
     @MethodSource
     void testExecute(String stepInput, String expectedExceptionMessage) {
         initializeInput(stepInput, expectedExceptionMessage);
-        prepareResponses(STEP_EXECUTION);
         step.execute(execution);
         assertStepPhase(STEP_EXECUTION);
 
         if (getExecutionStatus().equals(DONE_EXECUTION_STATUS)) {
             return;
         }
-        prepareResponses(POLLING);
         step.execute(execution);
         assertStepPhase(POLLING);
         step.execute(execution);
@@ -91,11 +82,9 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
     }
 
     private void throwExceptionOnServiceCreation(HttpStatus httpStatus) {
-        ServiceWithAlternativesCreator serviceCreator = Mockito.mock(ServiceWithAlternativesCreator.class);
-        Mockito.when(serviceCreator.createService(any(), any()))
-               .thenThrow(new CloudOperationException(httpStatus, "Error occurred"));
-        Mockito.when(serviceCreatorFactory.createInstance(any()))
-               .thenReturn(serviceCreator);
+        Mockito.doThrow(new CloudOperationException(httpStatus, "Error occurred"))
+               .when(client)
+               .createServiceInstance(any());
     }
 
     private void initializeInput(String stepInput, String expectedExceptionMessage) {
@@ -124,31 +113,6 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
                .when(client)
                .createUserProvidedServiceInstance(any(CloudServiceInstanceExtended.class), any(Map.class));
 
-    }
-
-    private void prepareFactory(String stepPhase) {
-        Mockito.reset(serviceCreatorFactory);
-        MethodExecution<String> methodExec;
-        switch (stepPhase) {
-            case POLLING:
-                methodExec = new MethodExecution<>(null, ExecutionState.FINISHED);
-                break;
-            case STEP_EXECUTION:
-                methodExec = new MethodExecution<>(null, ExecutionState.EXECUTING);
-                break;
-            default:
-                throw new UnsupportedOperationException("Unsupported test phase");
-        }
-        ServiceWithAlternativesCreator serviceCreator = Mockito.mock(ServiceWithAlternativesCreator.class);
-
-        Mockito.when(serviceCreatorFactory.createInstance(any()))
-               .thenReturn(serviceCreator);
-        Mockito.when(serviceCreator.createService(any(), any()))
-               .thenReturn(methodExec);
-    }
-
-    private void prepareResponses(String stepPhase) {
-        prepareFactory(stepPhase);
     }
 
     private CloudServiceInstance createServiceInstance(SimpleService service) {
