@@ -10,7 +10,6 @@ import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 
 public class CloudServiceExtended extends CloudService {
 
-    private List<String> alternativeLabels;
     private String resourceName;
     @JsonAdapter(MapWithNumbersAdapterFactory.class)
     private Map<String, Object> credentials;
@@ -25,14 +24,6 @@ public class CloudServiceExtended extends CloudService {
 
     public CloudServiceExtended(Meta meta, String name) {
         super(meta, name);
-    }
-
-    public List<String> getAlternativeLabels() {
-        return alternativeLabels;
-    }
-
-    public void setAlternativeLabels(List<String> alternativeLabels) {
-        this.alternativeLabels = alternativeLabels;
     }
 
     public String getResourceName() {

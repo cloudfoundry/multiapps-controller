@@ -5,8 +5,8 @@
   <servers>
     <server>
 		<id>ossrh</id>	
-		<username>kF/AJ7VY</username>
-		<password>6VaJ3XzDPSwhqg2sGdK7Tmt+bsJzwZIK4uraeiO6/1EA</password>
+		<username>${env.BUILD_USERNAME}</username>
+		<password>${env.BUILD_PASSWORD}</password>
     </server>
   </servers>
 </settings>
