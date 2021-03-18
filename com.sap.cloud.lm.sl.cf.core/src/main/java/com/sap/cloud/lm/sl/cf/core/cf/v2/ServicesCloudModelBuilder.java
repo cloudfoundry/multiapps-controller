@@ -79,15 +79,13 @@ public class ServicesCloudModelBuilder {
         Map<String, Object> parameters) {
         SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.MANAGED_SERVICE, parameters);
         String label = (String) parameters.get(SupportedParameters.SERVICE);
-        List<String> alternativeLabels = (List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES,
-            Collections.emptyList());
         String plan = (String) parameters.get(SupportedParameters.SERVICE_PLAN);
         String provider = (String) parameters.get(SupportedParameters.SERVICE_PROVIDER);
         String version = (String) parameters.get(SupportedParameters.SERVICE_VERSION);
         List<String> serviceTags = (List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_TAGS, Collections.emptyList());
         Map<String, Object> credentials = getServiceParameters(serviceName, parameters);
 
-        return createCloudService(serviceName, label, plan, provider, version, alternativeLabels, credentials, serviceTags, isOptional,
+        return createCloudService(serviceName, label, plan, provider, version, credentials, serviceTags, isOptional,
             true, shouldIgnoreUpdateErrors);
     }
 
@@ -99,12 +97,12 @@ public class ServicesCloudModelBuilder {
         if (label != null) {
             LOGGER.warn(MessageFormat.format(Messages.IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE, label, serviceName));
         }
-        return createCloudService(serviceName, null, null, null, null, null, credentials, Collections.emptyList(), isOptional, true,
+        return createCloudService(serviceName, null, null, null, null, credentials, Collections.emptyList(), isOptional, true,
             shouldIgnoreUpdateErrors);
     }
 
     protected CloudServiceExtended createExistingService(String serviceName, boolean isOptional, boolean shouldIgnoreUpdateErrors) {
-        return createCloudService(serviceName, null, null, null, null, null, Collections.emptyMap(), Collections.emptyList(), isOptional,
+        return createCloudService(serviceName, null, null, null, null, Collections.emptyMap(), Collections.emptyList(), isOptional,
             false, shouldIgnoreUpdateErrors);
     }
 
@@ -128,14 +126,13 @@ public class ServicesCloudModelBuilder {
     }
 
     protected CloudServiceExtended createCloudService(String name, String label, String plan, String provider, String version,
-        List<String> alternativeLabels, Map<String, Object> credentials, List<String> tags, boolean isOptional, boolean isManaged,
+        Map<String, Object> credentials, List<String> tags, boolean isOptional, boolean isManaged,
         boolean shouldIgnoreUpdateErrors) {
         CloudServiceExtended service = new CloudServiceExtended(null, name);
         service.setLabel(label);
         service.setPlan(plan);
         service.setProvider(provider);
         service.setVersion(version);
-        service.setAlternativeLabels(alternativeLabels);
         service.setCredentials(credentials);
         service.setTags(tags);
         service.setOptional(isOptional);

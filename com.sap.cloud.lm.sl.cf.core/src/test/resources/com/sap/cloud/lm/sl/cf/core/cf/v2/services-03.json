@@ -30,7 +30,6 @@
     "name": "user-provider-resource-named-service"
   },
   {
-    "alternativeLabels": [],
     "resourceName": "rs",
     "credentials": {},
     "tags": [],
@@ -43,7 +42,6 @@
     "name": "random-service-renamed"
   },
   {
-    "alternativeLabels": [],
     "resourceName": "random-service",
     "credentials": {},
     "tags": [],
@@ -56,7 +54,6 @@
     "name": "random-service"
   },
   {
-    "alternativeLabels": [],
     "resourceName": "random-resource-named-service",
     "credentials": {},
     "tags": [],

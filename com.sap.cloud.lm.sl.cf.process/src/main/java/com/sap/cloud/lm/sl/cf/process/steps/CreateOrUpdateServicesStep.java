@@ -33,9 +33,9 @@ import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceOfferingExtended;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -58,10 +58,10 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     private ServiceOperationExecutor serviceOperationExecutor = new ServiceOperationExecutor();
-
+    
     @Inject
-    private ServiceWithAlternativesCreator.Factory serviceCreatorFactory;
-
+    private ServiceCreator serviceCreator;
+    
     @Inject
     private ServiceInstanceGetter serviceInstanceGetter;
 
@@ -347,8 +347,7 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
         if (service.isUserProvided()) {
             client.createUserProvidedService(service, service.getCredentials());
         } else {
-            serviceCreatorFactory.createInstance(getStepLogger())
-                .createService(client, service, StepsUtil.getSpaceId(context));
+            serviceCreator.createService(client, service, StepsUtil.getSpaceId(context));
         }
         getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());
     }

@@ -27,8 +27,8 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
@@ -46,9 +46,8 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
     private Map<CloudServiceExtended, CloudServiceInstance> existingServiceInstances;
 
     @Mock
-    private ServiceWithAlternativesCreator serviceCreator;
-    @Mock
-    private ServiceWithAlternativesCreator.Factory serviceCreatorFactory;
+    private ServiceCreator serviceCreator;
+
     @Mock
     private ServiceUpdater serviceUpdater;
 
@@ -130,8 +129,6 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
 
     @Before
     public void setUp() throws Exception {
-        Mockito.when(serviceCreatorFactory.createInstance(Mockito.any()))
-            .thenReturn(serviceCreator);
         loadParameters();
         prepareContext();
         prepareClient();
@@ -173,7 +170,7 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
 
     private void prepareClient() throws Exception {
         Mockito.when(client.getServices())
-            .thenReturn(ListUtil.upcastUnmodifiable(stepInput.existingServices));
+               .thenReturn(ListUtil.upcastUnmodifiable(stepInput.existingServices));
 
         prepareServiceInstances();
         prepareBoundApplications();
@@ -181,14 +178,14 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
         Map<String, List<ServiceKey>> existingServiceKeys = stepInput.getExistingServiceKeys();
         for (String serviceName : existingServiceKeys.keySet()) {
             Mockito.when(client.getServiceKeys(serviceName))
-                .thenReturn(existingServiceKeys.get(serviceName));
+                   .thenReturn(existingServiceKeys.get(serviceName));
         }
         Mockito.doNothing()
-            .when(client)
-            .deleteServiceKey(Mockito.any(), Mockito.any());
+               .when(client)
+               .deleteServiceKey(Mockito.any(), Mockito.any());
         Mockito.doNothing()
-            .when(client)
-            .createServiceKey(Mockito.any(), Mockito.any(), Mockito.any());
+               .when(client)
+               .createServiceKey(Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     private Map<CloudServiceExtended, CloudServiceInstance> createServiceInstances(StepInput stepInput) throws Exception {
@@ -202,20 +199,20 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
 
     private List<CloudServiceExtended> getRelevantServices() {
         return stepInput.existingServices.stream()
-            .filter((service) -> exists(stepInput.services, service.getName()))
-            .collect(Collectors.toList());
+                                         .filter((service) -> exists(stepInput.services, service.getName()))
+                                         .collect(Collectors.toList());
     }
 
     private boolean exists(List<CloudServiceExtended> services, String serviceName) {
         return services.stream()
-            .anyMatch((service) -> service.getName()
-                .equals(serviceName));
+                       .anyMatch((service) -> service.getName()
+                                                     .equals(serviceName));
     }
 
     private List<SimpleApplication> findBoundApplications(String serviceName, List<SimpleApplication> applications) {
         return applications.stream()
-            .filter((application) -> application.boundServices.contains(serviceName))
-            .collect(Collectors.toList());
+                           .filter((application) -> application.boundServices.contains(serviceName))
+                           .collect(Collectors.toList());
     }
 
     private CloudServiceInstance createServiceInstance(CloudServiceExtended service, List<SimpleApplication> boundApplications) {
@@ -227,8 +224,8 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
 
     private List<CloudServiceBinding> createServiceBindings(List<SimpleApplication> boundApplications) {
         return boundApplications.stream()
-            .map((boundApplication) -> createServiceBinding(boundApplication))
-            .collect(Collectors.toList());
+                                .map((boundApplication) -> createServiceBinding(boundApplication))
+                                .collect(Collectors.toList());
     }
 
     private CloudServiceBinding createServiceBinding(SimpleApplication boundApplication) {
@@ -239,8 +236,8 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
 
     private List<CloudApplicationExtended> toCloudApplications(List<SimpleApplication> applications) {
         return applications.stream()
-            .map((application) -> application.toCloudApplication())
-            .collect(Collectors.toList());
+                           .map((application) -> application.toCloudApplication())
+                           .collect(Collectors.toList());
     }
 
     private void prepareServiceInstances() {
@@ -249,20 +246,20 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
 
     private void prepareServiceInstance(CloudServiceExtended service, CloudServiceInstance instance) {
         Mockito.when(client.getServiceInstance(service.getName()))
-            .thenReturn(instance);
+               .thenReturn(instance);
     }
 
     private void prepareBoundApplications() {
         Mockito.when(client.getApplications())
-            .thenReturn(stepInput.existingApplications.stream()
-                .map(app -> app.toCloudApplication())
-                .collect(Collectors.toList()));
+               .thenReturn(stepInput.existingApplications.stream()
+                                                         .map(app -> app.toCloudApplication())
+                                                         .collect(Collectors.toList()));
         stepInput.existingApplications.forEach((application) -> prepareBoundApplication(application));
     }
 
     private void prepareBoundApplication(SimpleApplication application) {
         Mockito.when(client.getApplication(NameUtil.getUUID(application.name)))
-            .thenReturn(application.toCloudApplication());
+               .thenReturn(application.toCloudApplication());
     }
 
     private void validateClient() {
@@ -277,12 +274,12 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
         for (CloudServiceExtended service : existingServiceInstances.keySet()) {
             if (shouldHavePlanBeenUpdated(service)) {
                 Mockito.verify(serviceUpdater)
-                    .updateServicePlan(client, service.getName(), findService(service.getName(), stepInput.services).getPlan());
+                       .updateServicePlan(client, service.getName(), findService(service.getName(), stepInput.services).getPlan());
             }
 
             if (shouldHaveTagsBeenUpdated(service)) {
                 Mockito.verify(serviceUpdater)
-                    .updateServiceTags(client, service.getName(), findService(service.getName(), stepInput.services).getTags());
+                       .updateServiceTags(client, service.getName(), findService(service.getName(), stepInput.services).getTags());
             }
         }
     }
@@ -311,7 +308,7 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
             for (String keyName : stepInput.expectedCreatedServiceKeys.get(serviceName)) {
                 ServiceKey keyToCreate = findKey(serviceKeysToCreate, serviceName, keyName);
                 Mockito.verify(client)
-                    .createServiceKey(serviceName, keyToCreate.getName(), keyToCreate.getParameters());
+                       .createServiceKey(serviceName, keyToCreate.getName(), keyToCreate.getParameters());
             }
         }
     }
@@ -320,29 +317,29 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
         for (String serviceName : stepInput.expectedDeletedServiceKeys.keySet()) {
             for (String keyName : stepInput.expectedDeletedServiceKeys.get(serviceName)) {
                 Mockito.verify(client)
-                    .deleteServiceKey(serviceName, keyName);
+                       .deleteServiceKey(serviceName, keyName);
             }
         }
     }
 
     private ServiceKey findKey(Map<String, List<ServiceKey>> serviceKeysToCreate, String serviceName, String keyName) {
         return serviceKeysToCreate.get(serviceName)
-            .stream()
-            .filter(key -> key.getName()
-                .equals(keyName))
-            .findAny()
-            .orElse(null);
+                                  .stream()
+                                  .filter(key -> key.getName()
+                                                    .equals(keyName))
+                                  .findAny()
+                                  .orElse(null);
     }
 
     private void validateServiceWasDeleted(CloudServiceExtended service, CloudServiceInstance instance) {
         for (CloudServiceBinding binding : instance.getBindings()) {
             String applicationName = client.getApplication(binding.getAppGuid())
-                .getName();
+                                           .getName();
             Mockito.verify(client, Mockito.times(1))
-                .unbindService(applicationName, service.getName());
+                   .unbindService(applicationName, service.getName());
         }
         Mockito.verify(client, Mockito.times(1))
-            .deleteService(service.getName());
+               .deleteService(service.getName());
     }
 
     private boolean shouldHaveBeenRecreated(CloudServiceExtended existingService) {
@@ -372,10 +369,10 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
 
     private CloudServiceExtended findService(String serviceName, List<CloudServiceExtended> services) {
         return services.stream()
-            .filter(service -> service.getName()
-                .equals(serviceName))
-            .findAny()
-            .orElse(null);
+                       .filter(service -> service.getName()
+                                                 .equals(serviceName))
+                       .findAny()
+                       .orElse(null);
     }
 
     private void validateServicesToCreate() {
@@ -385,12 +382,12 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
             }
             if (service.isUserProvided()) {
                 Mockito.verify(client, Mockito.times(1))
-                    .createUserProvidedService(Matchers.argThat(GenericArgumentMatcher.forObject(service)),
-                        Matchers.eq(service.getCredentials()));
+                       .createUserProvidedService(Matchers.argThat(GenericArgumentMatcher.forObject(service)),
+                                                  Matchers.eq(service.getCredentials()));
             } else {
                 Mockito.verify(serviceCreator, Mockito.times(1))
-                    .createService(Mockito.eq(client), Matchers.argThat(GenericArgumentMatcher.forObject(service)),
-                        Mockito.eq(TEST_SPACE_ID));
+                       .createService(Mockito.eq(client), Matchers.argThat(GenericArgumentMatcher.forObject(service)),
+                                      Mockito.eq(TEST_SPACE_ID));
             }
         }
     }

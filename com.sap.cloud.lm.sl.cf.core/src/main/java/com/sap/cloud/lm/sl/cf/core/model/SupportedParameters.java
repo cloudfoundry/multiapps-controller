@@ -119,7 +119,6 @@ public class SupportedParameters {
     public static final String SERVICE_NAME = "service-name";
     public static final String SERVICE = "service";
     public static final String SERVICE_PLAN = "service-plan";
-    public static final String SERVICE_ALTERNATIVES = "service-alternatives";
     public static final String SERVICE_PROVIDER = "service-provider";
     public static final String SERVICE_VERSION = "service-version";
     public static final String SERVICE_CONFIG = "config";
@@ -161,7 +160,7 @@ public class SupportedParameters {
             VCAP_APPLICATION_ENV, VCAP_SERVICES_ENV, USER_PROVIDED_ENV, KEEP_EXISTING_ROUTES)));
 
     public static final Set<String> SERVICE_PROPS = Collections
-        .unmodifiableSet(new HashSet<>(Arrays.asList(SERVICE_NAME, SERVICE, SERVICE_PLAN, SERVICE_ALTERNATIVES, SERVICE_PROVIDER,
+        .unmodifiableSet(new HashSet<>(Arrays.asList(SERVICE_NAME, SERVICE, SERVICE_PLAN, SERVICE_PROVIDER,
             SERVICE_VERSION, SERVICE_CONFIG, SERVICE_CONFIG_PATH, SERVICE_TAGS, SERVICE_KEY_NAME)));
 
     public static final Set<String> APP_ATTRIBUTES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(EXECUTE_APP, SUCCESS_MARKER,
