@@ -1,36 +1,74 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
+import static com.sap.cloudfoundry.client.facade.oauth2.TokenFactory.SCOPE_CC_ADMIN;
+import static org.cloudfoundry.multiapps.controller.client.util.TokenProperties.CLIENT_ID_KEY;
+import static org.cloudfoundry.multiapps.controller.client.util.TokenProperties.USER_ID_KEY;
+import static org.cloudfoundry.multiapps.controller.client.util.TokenProperties.USER_NAME_KEY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.mockito.Mockito;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 class SecurityUtilTest {
 
-    private static final String USER_ID = "cf";
-    private static final String USER_NAME = "CF_USER";
-    private static final String TOKEN = "dUTjdafgtw3wRUMkt4XDu2IidcEHNPoh";
-
     @Test
-    void testGetTokenUserInfo() {
-        DefaultOAuth2AccessToken token = new DefaultOAuth2AccessToken(TOKEN);
-        Map<String, Object> additionalInformation = asMap(USER_ID, USER_NAME);
-        token.setAdditionalInformation(additionalInformation);
-        UserInfo userInfo = SecurityUtil.getTokenUserInfo(token);
-        assertEquals(USER_ID, userInfo.getId());
-        assertEquals(USER_NAME, userInfo.getName());
-        assertEquals(TOKEN, userInfo.getToken()
-                                    .getValue());
+    void testCreateAuthentication() {
+        OAuth2AccessTokenWithAdditionalInfo token = buildMockedOAuth2AccessToken(Set.of(SCOPE_CC_ADMIN), Collections.emptyMap());
+        UserInfo userInfo = buildMockedUserInfo("id", "deploy-service", token);
+        OAuth2AuthenticationToken oAuth2AuthenticationToken = SecurityUtil.createAuthentication(userInfo);
+        OAuth2User principal = oAuth2AuthenticationToken.getPrincipal();
+        assertFalse(principal.getAttributes()
+                             .isEmpty());
+        assertTrue(principal.getAuthorities()
+                            .stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .anyMatch(authority -> Objects.equals(authority, SCOPE_CC_ADMIN)));
     }
 
-    private Map<String, Object> asMap(String userId, String username) {
-        Map<String, Object> additionalInformationMap = new HashMap<>();
-        additionalInformationMap.put("user_name", username);
-        additionalInformationMap.put("user_id", userId);
-        return additionalInformationMap;
+    @Test
+    void testTokenUserInfo() {
+        Map<String, Object> additionalInfo = Map.of(CLIENT_ID_KEY, "client_id", USER_NAME_KEY, "username_key", USER_ID_KEY, "user_id");
+        OAuth2AccessTokenWithAdditionalInfo token = buildMockedOAuth2AccessToken(Set.of(SCOPE_CC_ADMIN), additionalInfo);
+        UserInfo userInfo = SecurityUtil.getTokenUserInfo(token);
+        assertEquals("user_id", userInfo.getId());
+        assertEquals("username_key", userInfo.getName());
+        assertEquals(token, userInfo.getToken());
+    }
+
+    private OAuth2AccessTokenWithAdditionalInfo buildMockedOAuth2AccessToken(Set<String> scopes, Map<String, Object> additionalInfo) {
+        OAuth2AccessTokenWithAdditionalInfo tokenWithAdditionalInfo = Mockito.mock(OAuth2AccessTokenWithAdditionalInfo.class);
+        OAuth2AccessToken token = Mockito.mock(OAuth2AccessToken.class);
+        Mockito.when(token.getScopes())
+               .thenReturn(scopes);
+        Mockito.when(tokenWithAdditionalInfo.getOAuth2AccessToken())
+               .thenReturn(token);
+        Mockito.when(tokenWithAdditionalInfo.getAdditionalInfo())
+               .thenReturn(additionalInfo);
+        return tokenWithAdditionalInfo;
+    }
+
+    private UserInfo buildMockedUserInfo(String id, String name, OAuth2AccessTokenWithAdditionalInfo token) {
+        UserInfo userInfo = Mockito.mock(UserInfo.class);
+        Mockito.when(userInfo.getId())
+               .thenReturn(id);
+        Mockito.when(userInfo.getName())
+               .thenReturn(name);
+        Mockito.when(userInfo.getToken())
+               .thenReturn(token);
+        return userInfo;
     }
 
 }

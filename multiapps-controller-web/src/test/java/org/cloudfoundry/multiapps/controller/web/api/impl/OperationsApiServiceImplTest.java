@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
+import static org.cloudfoundry.multiapps.controller.core.util.SecurityUtil.USER_INFO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,8 +48,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
@@ -288,9 +290,13 @@ class OperationsApiServiceImplTest {
         org.cloudfoundry.multiapps.controller.core.util.UserInfo userInfo = new org.cloudfoundry.multiapps.controller.core.util.UserInfo(null,
                                                                                                                                          user,
                                                                                                                                          null);
-        Authentication auth = Mockito.mock(Authentication.class);
+        OAuth2AuthenticationToken auth = Mockito.mock(OAuth2AuthenticationToken.class);
+        Map<String, Object> attributes = Map.of(USER_INFO, userInfo);
+        OAuth2User principal = Mockito.mock(OAuth2User.class);
+        Mockito.when(principal.getAttributes())
+               .thenReturn(attributes);
         Mockito.when(auth.getPrincipal())
-               .thenReturn(userInfo);
+               .thenReturn(principal);
         org.springframework.security.core.context.SecurityContext securityContextMock = Mockito.mock(org.springframework.security.core.context.SecurityContext.class);
         SecurityContextHolder.setContext(securityContextMock);
         Mockito.when(securityContextMock.getAuthentication())
@@ -368,7 +374,8 @@ class OperationsApiServiceImplTest {
                .when(operationQuery)
                .withStateAnyOf(Mockito.anyList());
         Mockito.doAnswer(invocation -> operations.stream()
-                                                 .filter(operation -> operationStatesToFilter == null || operationStatesToFilter.contains(operation.getState()))
+                                                 .filter(operation -> operationStatesToFilter == null
+                                                     || operationStatesToFilter.contains(operation.getState()))
                                                  .collect(Collectors.toList()))
                .when(operationQuery)
                .list();

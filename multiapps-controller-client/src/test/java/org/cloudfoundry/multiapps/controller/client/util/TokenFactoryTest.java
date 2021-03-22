@@ -9,7 +9,9 @@ import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
+
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import com.sap.cloudfoundry.client.facade.oauth2.TokenFactory;
 
 class TokenFactoryTest {
 
@@ -37,7 +39,7 @@ class TokenFactoryTest {
     @ParameterizedTest
     @MethodSource
     void testCreateToken(String tokenString, TokenProperties expectedTokenProperties) {
-        OAuth2AccessToken token = tokenFactory.createToken(tokenString);
+        OAuth2AccessTokenWithAdditionalInfo token = tokenFactory.createToken(tokenString);
         if (expectedTokenProperties != null) {
             validateToken(token, expectedTokenProperties);
         }
@@ -48,10 +50,10 @@ class TokenFactoryTest {
 // @formatter:off
                 // (0) Include exchangeToken:
                 Arguments.of("aRh98oYD80teGrkjDFzg3ln55EV3O96y",
-                        Map.ofEntries(Map.entry("exchangedToken", "a25723f22ac754f792c50f07623dzd75"), Map.entry("scope", List.of("controller.read")), Map.entry("exp", 999))),
+                        Map.of("exchangedToken", "a25723f22ac754f792c50f07623dzd75", "scope", List.of("controller.read"), "exp", 999, "iat", 100)),
                 // (1) Missing exchangedToken:
                 Arguments.of("aRh98oYD80teGrkjDFzg3ln55EV3O96y",
-                        Map.ofEntries(Map.entry("scope", List.of("controller.read")), Map.entry("exp", 999)))
+                        Map.of("scope", List.of("controller.read"), "exp", 999, "iat", 100))
 // @formatter:on
         );
     }
@@ -59,19 +61,19 @@ class TokenFactoryTest {
     @ParameterizedTest
     @MethodSource
     void testAdditionalInfoToken(String tokenString, Map<String, Object> tokenInfo) {
-        OAuth2AccessToken token = tokenFactory.createToken(tokenString, tokenInfo);
+        OAuth2AccessTokenWithAdditionalInfo token = tokenFactory.createToken(tokenString, tokenInfo);
         validateTokenAdditionalInfo(token, tokenInfo);
     }
 
-    private static void validateToken(OAuth2AccessToken token, TokenProperties expectedTokenProperties) {
+    private static void validateToken(OAuth2AccessTokenWithAdditionalInfo token, TokenProperties expectedTokenProperties) {
         TokenProperties tokenProperties = TokenProperties.fromToken(token);
         assertEquals(expectedTokenProperties.getClientId(), tokenProperties.getClientId());
         assertEquals(expectedTokenProperties.getUserName(), tokenProperties.getUserName());
         assertEquals(expectedTokenProperties.getUserId(), tokenProperties.getUserId());
     }
 
-    private static void validateTokenAdditionalInfo(OAuth2AccessToken token, Map<String, Object> tokenInfo) {
-        Map<String, Object> tokenAdditionalInformation = token.getAdditionalInformation();
+    private static void validateTokenAdditionalInfo(OAuth2AccessTokenWithAdditionalInfo token, Map<String, Object> tokenInfo) {
+        Map<String, Object> tokenAdditionalInformation = token.getAdditionalInfo();
         assertEquals(tokenInfo, tokenAdditionalInformation);
     }
 

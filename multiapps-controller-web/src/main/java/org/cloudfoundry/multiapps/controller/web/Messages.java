@@ -27,6 +27,8 @@ public final class Messages {
     public static final String NOT_AUTHORIZED_TO_OPERATE_IN_ORGANIZATION_0_AND_SPACE_1 = "You are not authorized to perform operations in organization \"{0}\", space \"{0}\". You need the SpaceDeveloper role to operate in that space.";
     public static final String NOT_AUTHORIZED_TO_OPERATE_IN_SPACE_WITH_GUID_0 = "You are not authorized to perform operations in space with GUID \"{0}\". You need the SpaceDeveloper role to operate in that space.";
     public static final String FILE_SERVICE_CLEANUP_FAILED = "FileService: Failed to delete files without content. Reason: \"{0}\"";
+    public static final String BASIC_AUTHENTICATION_IS_NOT_ENABLED_USE_OAUTH_2 = "Basic authentication is not enabled, use OAuth2";
+    public static final String INVALID_AUTHENTICATION_PROVIDED = "Invalid authentication provided";
 
     // WARN log messages
 
@@ -35,7 +37,7 @@ public final class Messages {
     public static final String ALM_SERVICE_ENV_INITIALIZED = "Deploy service environment initialized";
     public static final String CANNOT_AUTHENTICATE_WITH_CLOUD_CONTROLLER = "Cannot authenticate with cloud controller";
     public static final String ASYNC_DATABASE_CHANGES_WILL_NOT_BE_EXECUTED_ON_THIS_INSTANCE = "Async database changes will not be executed on instance {0}.";
-    public static final String STORING_TOKEN_FOR_USER_0_WITH_EXPIRATION_TIME_1 = "Storing token for user \"{0}\" with expiration time: {1} seconds";
+    public static final String STORING_TOKEN_FOR_USER_0_WHICH_EXPIRES_AT_1 = "Storing token for user \"{0}\" which expires at: {1}";
     public static final String REGISTERED_0_AS_LIQUIBASE_LOCK_SERVICE = "Registered {0} as a Liquibase lock service.";
     public static final String FILE_SERVICE_DELETED_FILES = "FileService: Deleted {0} files without content.";
 

@@ -1,21 +1,20 @@
 package org.cloudfoundry.multiapps.controller.core.cf;
 
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 public abstract class ClientFactory {
 
-    public CloudControllerClient createClient(OAuth2AccessToken token) {
+    public CloudControllerClient createClient(OAuth2AccessTokenWithAdditionalInfo token) {
         return createClient(createCredentials(token));
     }
 
-    public CloudControllerClient createClient(OAuth2AccessToken token, String org, String space) {
+    public CloudControllerClient createClient(OAuth2AccessTokenWithAdditionalInfo token, String org, String space) {
         return createClient(createCredentials(token), org, space);
     }
 
-    public CloudControllerClient createClient(OAuth2AccessToken token, String spaceId) {
+    public CloudControllerClient createClient(OAuth2AccessTokenWithAdditionalInfo token, String spaceId) {
         return createClient(createCredentials(token), spaceId);
     }
 
@@ -25,8 +24,7 @@ public abstract class ClientFactory {
 
     protected abstract CloudControllerClient createClient(CloudCredentials credentials, String spaceId);
 
-    private static CloudCredentials createCredentials(OAuth2AccessToken token) {
-        boolean refreshable = (token.getRefreshToken() != null);
-        return new CloudCredentials(token, refreshable);
+    private static CloudCredentials createCredentials(OAuth2AccessTokenWithAdditionalInfo token) {
+        return new CloudCredentials(token, true);
     }
 }

@@ -46,7 +46,7 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
 
     private void logUnauthorizedRequest(HttpServletRequest request, ResponseStatusException e) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("User \"%s\" is not authorized for request to \"%s\".", SecurityContextUtil.getUserName(),
+            LOGGER.debug(String.format("User \"%s\" is not authorized for request to \"%s\".", SecurityContextUtil.getUsername(),
                                        ServletUtil.decodeUri(request)),
                          e);
         }

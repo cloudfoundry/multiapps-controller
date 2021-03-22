@@ -1,8 +1,10 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
+import static org.cloudfoundry.multiapps.controller.core.util.SecurityUtil.USER_INFO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -37,9 +39,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
@@ -189,9 +192,13 @@ class MtasApiServiceImplTest {
 
     private void mockClient() {
         UserInfo userInfo = new UserInfo(null, USER_NAME, null);
-        Authentication auth = Mockito.mock(Authentication.class);
+        OAuth2AuthenticationToken auth = Mockito.mock(OAuth2AuthenticationToken.class);
+        Map<String, Object> attributes = Map.of(USER_INFO, userInfo);
+        OAuth2User principal = Mockito.mock(OAuth2User.class);
+        Mockito.when(principal.getAttributes())
+               .thenReturn(attributes);
         Mockito.when(auth.getPrincipal())
-               .thenReturn(userInfo);
+               .thenReturn(principal);
         SecurityContext securityContextMock = Mockito.mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContextMock);
         Mockito.when(securityContextMock.getAuthentication())

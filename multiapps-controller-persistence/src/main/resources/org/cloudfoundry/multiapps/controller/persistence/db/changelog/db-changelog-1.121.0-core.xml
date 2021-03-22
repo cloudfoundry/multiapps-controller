@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="create_table_access_token">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists sequenceName="access_token_sequence"/>
+            </not>
+            <not>
+                <tableExists tableName="access_token"/>
+            </not>
+        </preConditions>
+        <createSequence sequenceName="access_token_sequence" startValue="1" incrementBy="1"/>
+        <createTable tableName="access_token">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="access_token_pk" nullable="false"/>
+            </column>
+            <column name="value" type="${small-blob.type}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expires_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="access_token"
+                     indexName="idx_access_token_username">
+            <column name="username"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

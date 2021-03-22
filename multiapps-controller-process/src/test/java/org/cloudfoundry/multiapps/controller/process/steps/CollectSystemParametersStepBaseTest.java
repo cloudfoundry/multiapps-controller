@@ -7,7 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.controller.core.cf.clients.AuthorizationEndpointGetter;
+import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
 import org.cloudfoundry.multiapps.controller.core.helpers.CredentialsGenerator;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ReadOnlyParametersChecker;

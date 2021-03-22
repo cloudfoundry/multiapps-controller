@@ -10,7 +10,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.common.ContentException;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.AuthorizationEndpointGetter;
+import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.CredentialsGenerator;
 import org.cloudfoundry.multiapps.controller.core.helpers.SystemParameters;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -156,7 +157,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
     }
 
     protected AuthorizationEndpointGetter getAuthorizationEndpointGetter(CloudControllerClient client) {
-        return new AuthorizationEndpointGetter(client);
+        return new AuthorizationEndpointGetter(new WebClientFactory().getWebClient(client));
     }
 
 }

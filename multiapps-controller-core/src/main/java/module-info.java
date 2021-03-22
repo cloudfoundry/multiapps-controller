@@ -43,7 +43,6 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires transitive org.cloudfoundry.multiapps.controller.client;
     requires transitive org.cloudfoundry.multiapps.controller.persistence;
     requires transitive org.cloudfoundry.multiapps.mta;
-    requires transitive spring.security.oauth2;
 
     requires org.cloudfoundry.client;
     requires com.fasterxml.jackson.annotation;
@@ -72,8 +71,12 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires spring.security.jwt;
     requires spring.web;
     requires spring.webflux;
+    requires spring.security.oauth2.core;
+    requires reactor.netty;
+    requires io.netty.handler;
 
     requires static java.compiler;
     requires static org.immutables.value;
+    requires spring.security.oauth2.client;
 
 }

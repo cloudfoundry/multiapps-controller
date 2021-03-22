@@ -88,7 +88,7 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
         throw new NotFoundException(Messages.CONFIGURATION_ENTRY_NOT_FOUND, id);
     }
 
-    @Named
+    @Named("configurationEntryObjectMapper")
     public static class ConfigurationEntryMapper implements PersistenceObjectMapper<ConfigurationEntry, ConfigurationEntryDto> {
 
         @Override

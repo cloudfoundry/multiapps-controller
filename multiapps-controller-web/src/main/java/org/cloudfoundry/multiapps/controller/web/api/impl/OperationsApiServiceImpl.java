@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
+import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -290,15 +291,13 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private String getAuthenticatedUser(HttpServletRequest request) {
-        String user = null;
-        if (request.getUserPrincipal() != null) {
-            user = request.getUserPrincipal()
-                          .getName();
-        } else {
+        if (request.getUserPrincipal() == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
-        LOGGER.debug(MessageFormat.format("Authenticated user is: {0}", user));
-        return user;
+        Principal principal = request.getUserPrincipal();
+        String username = SecurityContextUtil.getUsername(principal);
+        LOGGER.debug(MessageFormat.format("Authenticated user is: {0}", username));
+        return username;
     }
 
     private CloudControllerClient getCloudFoundryClient(String spaceGuid) {

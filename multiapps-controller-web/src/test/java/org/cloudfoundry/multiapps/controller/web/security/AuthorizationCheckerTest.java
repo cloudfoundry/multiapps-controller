@@ -4,8 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -25,7 +26,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -36,6 +37,7 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 class AuthorizationCheckerTest {
 
@@ -175,8 +177,11 @@ class AuthorizationCheckerTest {
     }
 
     private UserInfo getUserInfo() {
-        DefaultOAuth2AccessToken accessToken = new DefaultOAuth2AccessToken("testTokenValue");
-        accessToken.setScope(new HashSet<>());
+        OAuth2AccessTokenWithAdditionalInfo accessToken = new OAuth2AccessTokenWithAdditionalInfo(new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+                                                                                                                        "token_value",
+                                                                                                                        Instant.now(),
+                                                                                                                        Instant.now().plus(5, ChronoUnit.MINUTES)),
+                                                                                                  Collections.emptyMap());
         return new UserInfo(USER_ID.toString(), USERNAME, accessToken);
     }
 

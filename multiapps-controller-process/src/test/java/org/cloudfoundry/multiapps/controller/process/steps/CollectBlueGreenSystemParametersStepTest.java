@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.AuthorizationEndpointGetter;
+import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
 import org.cloudfoundry.multiapps.controller.core.helpers.SystemParameters;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;

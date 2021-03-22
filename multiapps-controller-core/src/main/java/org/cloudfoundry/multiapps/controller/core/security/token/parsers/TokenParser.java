@@ -1,9 +1,9 @@
 package org.cloudfoundry.multiapps.controller.core.security.token.parsers;
 
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 public interface TokenParser {
 
-    OAuth2AccessToken parse(String tokenString);
+    OAuth2AccessTokenWithAdditionalInfo parse(String tokenString);
 
 }

@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.cf;
 
+import java.time.Instant;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -8,11 +9,11 @@ import javax.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 @Named
 public class CloudControllerClientProvider {
@@ -112,17 +113,13 @@ public class CloudControllerClientProvider {
         clients.remove(getKey(userName, spaceGuid));
     }
 
-    private OAuth2AccessToken getValidToken(String userName) {
-        OAuth2AccessToken token = tokenService.getToken(userName);
-        if (token == null) {
-            throw new SLException(Messages.NO_VALID_TOKEN_FOUND, userName);
-        }
-
-        if (token.isExpired() && token.getRefreshToken() == null) {
-            tokenService.removeToken(token);
+    private OAuth2AccessTokenWithAdditionalInfo getValidToken(String userName) {
+        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken(userName);
+        if (token.getOAuth2AccessToken()
+                 .getExpiresAt()
+                 .isBefore(Instant.now())) {
             throw new SLException(Messages.TOKEN_EXPIRED, userName);
         }
-
         return token;
     }
 

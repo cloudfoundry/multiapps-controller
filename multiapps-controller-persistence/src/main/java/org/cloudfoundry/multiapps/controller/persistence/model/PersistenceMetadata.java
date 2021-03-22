@@ -16,6 +16,7 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_SUBSCRIPTION_TABLE = "configuration_subscription";
         public static final String PROGRESS_MESSAGE_TABLE = "progress_message";
         public static final String HISTORIC_OPERATION_EVENT_TABLE = "historic_operation_event";
+        public static final String ACCESS_TOKEN_TABLE = "access_token";
 
     }
 
@@ -29,6 +30,7 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_SUBSCRIPTION_SEQUENCE = "configuration_subscription_sequence";
         public static final String PROGRESS_MESSAGE_SEQUENCE = "ID_SEQ";
         public static final String HISTORIC_OPERATION_EVENT_SEQUENCE = "historic_operation_event_sequence";
+        public static final String ACCESS_TOKEN_SEQUENCE = "access_token_sequence";
 
     }
 
@@ -79,6 +81,10 @@ public class PersistenceMetadata {
         public static final String HISTORIC_OPERATION_EVENT_TYPE = "event";
         public static final String HISTORIC_OPERATION_EVENT_TIMESTAMP = "timestamp";
 
+        public static final String ACCESS_TOKEN_ID = "id";
+        public static final String ACCESS_TOKEN_VALUE = "value";
+        public static final String ACCESS_TOKEN_USERNAME = "username";
+        public static final String ACCESS_TOKEN_EXPIRES_AT = "expires_at";
     }
 
 }
