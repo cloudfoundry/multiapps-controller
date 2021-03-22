@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.core.util;
 import java.io.Serializable;
 import java.security.Principal;
 
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 public class UserInfo implements Principal, Serializable {
 
@@ -11,9 +11,9 @@ public class UserInfo implements Principal, Serializable {
 
     private final String id;
     private final String name;
-    private final OAuth2AccessToken token;
+    private final OAuth2AccessTokenWithAdditionalInfo token;
 
-    public UserInfo(String id, String name, OAuth2AccessToken token) {
+    public UserInfo(String id, String name, OAuth2AccessTokenWithAdditionalInfo token) {
         this.id = id;
         this.name = name;
         this.token = token;
@@ -28,7 +28,7 @@ public class UserInfo implements Principal, Serializable {
         return name;
     }
 
-    public OAuth2AccessToken getToken() {
+    public OAuth2AccessTokenWithAdditionalInfo getToken() {
         return token;
     }
 

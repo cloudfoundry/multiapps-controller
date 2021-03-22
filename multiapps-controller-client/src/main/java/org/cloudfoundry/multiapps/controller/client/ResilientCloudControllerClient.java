@@ -13,7 +13,6 @@ import java.util.function.Supplier;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientCloudOperationExecutor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
@@ -42,6 +41,7 @@ import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 import com.sap.cloudfoundry.client.facade.domain.Upload;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import com.sap.cloudfoundry.client.facade.rest.CloudControllerRestClient;
 
 public class ResilientCloudControllerClient implements CloudControllerClient {
@@ -507,7 +507,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public OAuth2AccessToken login() {
+    public OAuth2AccessTokenWithAdditionalInfo login() {
         return executeWithRetry(delegate::login);
     }
 

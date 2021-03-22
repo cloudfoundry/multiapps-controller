@@ -192,9 +192,7 @@ class ConfigurationEntryServiceTest {
 
     private ConfigurationEntryService createConfigurationEntryService() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("TestDefault");
-        ConfigurationEntryService configurationEntryService = new ConfigurationEntryService(entityManagerFactory,
-                                                                                            new ConfigurationEntryMapper());
-        return configurationEntryService;
+        return new ConfigurationEntryService(entityManagerFactory, new ConfigurationEntryMapper());
     }
 
 }

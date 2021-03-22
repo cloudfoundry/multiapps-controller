@@ -47,7 +47,7 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires spring.beans;
     requires spring.context;
     requires spring.core;
-    requires spring.security.oauth2;
+    requires spring.security.oauth2.core;
     requires spring.web;
     requires reactor.netty;
     requires io.netty.handler;

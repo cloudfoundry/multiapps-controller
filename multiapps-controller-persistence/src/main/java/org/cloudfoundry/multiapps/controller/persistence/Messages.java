@@ -36,6 +36,8 @@ public final class Messages {
     public static final String UNABLE_TO_PARSE_SUBSCRIPTION = "Unable to parse configuration subscription: {0}";
     public static final String OPERATION_NOT_FOUND = "MTA operation with ID \"{0}\" does not exist";
     public static final String OPERATION_ALREADY_EXISTS = "MTA operation with ID \"{0}\" already exists";
+    public static final String ACCESS_TOKEN_NOT_FOUND = "Access token with ID \"{0}\" does not exist";
+    public static final String ACCESS_TOKEN_ALREADY_EXISTS = "Access token with ID \"{0}\" already exist";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";

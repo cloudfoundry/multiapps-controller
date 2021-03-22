@@ -8,7 +8,8 @@ import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
+
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 @Named
 public class TokenParserChain {
@@ -23,13 +24,16 @@ public class TokenParserChain {
         this.tokenParsers = tokenParsers;
     }
 
-    public OAuth2AccessToken parse(String tokenString) {
+    public OAuth2AccessTokenWithAdditionalInfo parse(String tokenString) {
         for (TokenParser tokenParser : tokenParsers) {
-            OAuth2AccessToken parsedToken = tokenParser.parse(tokenString);
+            OAuth2AccessTokenWithAdditionalInfo parsedToken = tokenParser.parse(tokenString);
             if (parsedToken != null) {
-                LOGGER.debug(MessageFormat.format("Parsed token value: {0}", parsedToken.getValue()));
-                LOGGER.debug(MessageFormat.format("Parsed token type: {0}", parsedToken.getTokenType()));
-                LOGGER.debug(MessageFormat.format("Parsed token expires in: {0}", parsedToken.getExpiresIn()));
+                LOGGER.debug(MessageFormat.format("Parsed token value: {0}", parsedToken.getOAuth2AccessToken()
+                                                                                        .getTokenValue()));
+                LOGGER.debug(MessageFormat.format("Parsed token type: {0}", parsedToken.getOAuth2AccessToken()
+                                                                                       .getTokenType()));
+                LOGGER.debug(MessageFormat.format("Parsed token expires in: {0}", parsedToken.getOAuth2AccessToken()
+                                                                                             .getExpiresAt()));
                 return parsedToken;
             }
         }

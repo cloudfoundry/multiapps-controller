@@ -10,6 +10,7 @@
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.ConfigurationEntryDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.ProgressMessageDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.HistoricOperationEventDto</class>
+        <class>org.cloudfoundry.multiapps.controller.persistence.dto.AccessTokenDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.TextAttributeConverter</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>

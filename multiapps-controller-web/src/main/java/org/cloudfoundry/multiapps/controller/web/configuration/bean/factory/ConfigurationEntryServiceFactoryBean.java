@@ -16,7 +16,7 @@ public class ConfigurationEntryServiceFactoryBean implements FactoryBean<Configu
     @Inject
     protected EntityManagerFactory entityManagerFactory;
     @Inject
-    @Qualifier("configurationEntryMapper")
+    @Qualifier("configurationEntryObjectMapper")
     protected ConfigurationEntryMapper entryMapper;
 
     protected ConfigurationEntryService configurationEntryService;

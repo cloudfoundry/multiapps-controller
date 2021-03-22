@@ -1,87 +1,80 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
 
-import org.apache.commons.lang3.StringUtils;
-import org.cloudfoundry.multiapps.controller.web.security.TokenStoreFactory;
+import org.cloudfoundry.multiapps.controller.web.security.AuthorizationLoaderFilter;
+import org.cloudfoundry.multiapps.controller.web.security.CompositeUriAuthorizationFilter;
+import org.cloudfoundry.multiapps.controller.web.security.CsrfHeadersFilter;
+import org.cloudfoundry.multiapps.controller.web.security.ExceptionHandlerFilter;
+import org.cloudfoundry.multiapps.controller.web.security.RequestSizeFilter;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
-import org.springframework.security.access.vote.AuthenticatedVoter;
-import org.springframework.security.access.vote.UnanimousBased;
-import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.access.expression.WebExpressionVoter;
-import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
-import org.springframework.security.web.firewall.DefaultHttpFirewall;
-import org.springframework.security.web.firewall.HttpFirewall;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
 
-@Configuration
-public class SecurityConfiguration {
+import com.sap.cloudfoundry.client.facade.oauth2.TokenFactory;
 
-    private static final String CF_DEPLOY_SERVICE = "CF Deploy Service";
+@ComponentScan(basePackageClasses = org.cloudfoundry.multiapps.controller.PackageMarker.class)
+@EnableWebSecurity
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    @Inject
-    @Bean
-    public DelegatingAuthenticationEntryPoint
-           delegatingAuthenticationEntryPoint(OAuth2AuthenticationEntryPoint oauthAuthenticationEntryPoint,
-                                              BasicAuthenticationEntryPoint basicAuthenticationEntryPoint) {
-        LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
-        entryPoints.put(this::containsBearerAuthorizationHeader, oauthAuthenticationEntryPoint);
-        DelegatingAuthenticationEntryPoint delegatingAuthenticationEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
-        delegatingAuthenticationEntryPoint.setDefaultEntryPoint(basicAuthenticationEntryPoint);
-        return delegatingAuthenticationEntryPoint;
-    }
-
-    private boolean containsBearerAuthorizationHeader(HttpServletRequest request) {
-        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        return StringUtils.startsWithIgnoreCase(authorizationHeader, "bearer");
-    }
-
-    @Bean
-    public OAuth2AuthenticationEntryPoint oauthAuthenticationEntryPoint() {
-        OAuth2AuthenticationEntryPoint oauthAuthenticationEntryPoint = new OAuth2AuthenticationEntryPoint();
-        oauthAuthenticationEntryPoint.setRealmName(CF_DEPLOY_SERVICE);
-        return oauthAuthenticationEntryPoint;
-    }
-
-    @Bean
-    public BasicAuthenticationEntryPoint basicAuthenticationEntryPoint() {
-        BasicAuthenticationEntryPoint basicAuthenticationEntryPoint = new BasicAuthenticationEntryPoint();
-        basicAuthenticationEntryPoint.setRealmName(CF_DEPLOY_SERVICE);
-        return basicAuthenticationEntryPoint;
-    }
-
-    @Bean("customHttpFirewall")
-    public HttpFirewall customHttpFirewall() {
-        DefaultHttpFirewall defaultHttpFirewall = new DefaultHttpFirewall();
-        defaultHttpFirewall.setAllowUrlEncodedSlash(true);
-        return defaultHttpFirewall;
-    }
+    private final AuthorizationLoaderFilter authorizationLoaderFilter;
+    private final CompositeUriAuthorizationFilter compositeUriAuthorizationFilter;
+    private final RequestSizeFilter requestSizeFilter;
+    private final CsrfHeadersFilter csrfHeadersFilter;
+    private final ExceptionHandlerFilter exceptionHandlerFilter;
 
     @Inject
-    @Bean
-    public UnanimousBased accessDecisionManager(WebExpressionVoter webExpressionVoter, AuthenticatedVoter authenticatedVoter) {
-        return new UnanimousBased(Arrays.asList(webExpressionVoter, authenticatedVoter));
+    public SecurityConfiguration(AuthorizationLoaderFilter authorizationLoaderFilter,
+                                 CompositeUriAuthorizationFilter compositeUriAuthorizationFilter, RequestSizeFilter requestSizeFilter,
+                                 CsrfHeadersFilter csrfHeadersFilter, ExceptionHandlerFilter exceptionHandlerFilter) {
+        this.authorizationLoaderFilter = authorizationLoaderFilter;
+        this.compositeUriAuthorizationFilter = compositeUriAuthorizationFilter;
+        this.requestSizeFilter = requestSizeFilter;
+        this.csrfHeadersFilter = csrfHeadersFilter;
+        this.exceptionHandlerFilter = exceptionHandlerFilter;
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            .and()
+            .authorizeRequests()
+            .antMatchers(HttpMethod.GET, "/**")
+            .hasAnyAuthority(TokenFactory.SCOPE_CC_READ, TokenFactory.SCOPE_CC_ADMIN)
+            .antMatchers(HttpMethod.POST, "/**")
+            .hasAnyAuthority(TokenFactory.SCOPE_CC_WRITE, TokenFactory.SCOPE_CC_ADMIN)
+            .antMatchers(HttpMethod.PUT, "/**")
+            .hasAnyAuthority(TokenFactory.SCOPE_CC_WRITE, TokenFactory.SCOPE_CC_ADMIN)
+            .antMatchers(HttpMethod.DELETE, "/**")
+            .hasAnyAuthority(TokenFactory.SCOPE_CC_WRITE, TokenFactory.SCOPE_CC_ADMIN)
+            .and()
+            .addFilterBefore(authorizationLoaderFilter, AbstractPreAuthenticatedProcessingFilter.class)
+            .addFilterBefore(exceptionHandlerFilter, AuthorizationLoaderFilter.class)
+            .addFilterAfter(requestSizeFilter, AuthorizationLoaderFilter.class)
+            .addFilterAfter(csrfHeadersFilter, CsrfFilter.class)
+            .addFilterAfter(compositeUriAuthorizationFilter, SwitchUserFilter.class)
+            .exceptionHandling()
+            .accessDeniedHandler(accessDeniedHandler());
+    }
+
+    @Override
+    public void configure(WebSecurity web) {
+        web.ignoring()
+           .antMatchers("/public/**");
     }
 
     @Bean
-    public AuthenticatedVoter authenticatedVoter() {
-        return new AuthenticatedVoter();
+    public AccessDeniedHandler accessDeniedHandler() {
+        return new CsrfAccessDeniedHandler();
     }
-
-    @Inject
-    @Bean
-    public JdbcTokenStore tokenStore(DataSource dataSource) {
-        return TokenStoreFactory.getTokenStore(dataSource);
-    }
-
 }

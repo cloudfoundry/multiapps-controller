@@ -1,8 +1,8 @@
 package org.cloudfoundry.multiapps.controller.client.util;
 
-import java.util.Map;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import java.util.Map;
 
 public class TokenProperties {
 
@@ -32,7 +32,7 @@ public class TokenProperties {
         return userId;
     }
 
-    public static TokenProperties fromToken(OAuth2AccessToken token) {
+    public static TokenProperties fromToken(OAuth2AccessTokenWithAdditionalInfo token) {
         String clientId = getTokenProperty(token, CLIENT_ID_KEY);
         String userName = getTokenProperty(token, USER_NAME_KEY);
         String userId = getTokenProperty(token, USER_ID_KEY);
@@ -40,8 +40,8 @@ public class TokenProperties {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T getTokenProperty(OAuth2AccessToken token, String key) {
-        Map<String, Object> additionalInformation = token.getAdditionalInformation();
+    private static <T> T getTokenProperty(OAuth2AccessTokenWithAdditionalInfo token, String key) {
+        Map<String, Object> additionalInformation = token.getAdditionalInfo();
         return (T) additionalInformation.get(key);
     }
 

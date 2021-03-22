@@ -21,7 +21,8 @@ public class WebClientFactory {
 
     private String computeAuthorizationToken(CloudControllerClient client) {
         return client.login()
-                     .toString();
+                     .getOAuth2AccessToken()
+                     .getTokenValue();
     }
 
 }

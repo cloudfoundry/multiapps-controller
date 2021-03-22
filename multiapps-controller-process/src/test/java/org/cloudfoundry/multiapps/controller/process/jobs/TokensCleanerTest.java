@@ -1,25 +1,22 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
-import java.util.List;
+import java.util.Date;
 
+import org.cloudfoundry.multiapps.controller.persistence.query.AccessTokenQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.AccessTokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.provider.token.TokenStore;
 
 class TokensCleanerTest {
 
     @Mock
-    private TokenStore tokenStore;
+    private AccessTokenService accessTokenService;
     @InjectMocks
     private TokensCleaner cleaner;
 
@@ -30,17 +27,15 @@ class TokensCleanerTest {
     }
 
     @Test
-    void testExecute() {
-        OAuth2AccessToken expiredToken = mock(OAuth2AccessToken.class);
-        when(expiredToken.isExpired()).thenReturn(true);
-        OAuth2AccessToken token = mock(OAuth2AccessToken.class);
-        when(token.isExpired()).thenReturn(false);
-
-        when(tokenStore.findTokensByClientId(anyString())).thenReturn(List.of(expiredToken, token));
-
-        cleaner.execute(null);
-        verify(tokenStore).removeAccessToken(expiredToken);
-        verify(tokenStore, never()).removeAccessToken(token);
+    void testDeleteMethodIsInvoked() {
+        AccessTokenQuery accessTokenQuery = Mockito.mock(AccessTokenQuery.class);
+        Mockito.when(accessTokenService.createQuery())
+               .thenReturn(accessTokenQuery);
+        Mockito.when(accessTokenQuery.expiresBefore(any()))
+               .thenReturn(accessTokenQuery);
+        cleaner.execute(new Date());
+        Mockito.verify(accessTokenQuery)
+               .delete();
     }
 
 }

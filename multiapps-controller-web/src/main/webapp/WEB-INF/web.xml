@@ -11,7 +11,7 @@
     </context-param>
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>org.cloudfoundry.multiapps.controller.web.SpringApplication</param-value>
+        <param-value>org.cloudfoundry.multiapps.controller.web.configuration.SecurityConfiguration</param-value>
     </context-param>
 
     <servlet>
@@ -48,16 +48,6 @@
     <listener>
         <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
     </listener>
-
-    <filter>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    </filter>
-
-    <filter-mapping>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
 
     <session-config>
         <session-timeout>10</session-timeout>
