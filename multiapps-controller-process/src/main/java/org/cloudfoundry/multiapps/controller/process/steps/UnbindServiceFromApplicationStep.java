@@ -1,10 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.util.List;
 
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -59,8 +62,13 @@ public class UnbindServiceFromApplicationStep extends SyncFlowableStep {
                                                    applicationName);
                 return;
             }
-
-            throw e;
+            List<CloudServiceInstanceExtended> servicesToBind = context.getVariable(Variables.SERVICES_TO_BIND);
+            if (StepsUtil.isServiceOptional(servicesToBind, serviceName)) {
+                context.getStepLogger()
+                       .warn(e, Messages.COULD_NOT_UNBIND_OPTIONAL_SERVICE_TO_APP, serviceName, applicationName);
+                return;
+            }
+            throw new SLException(e, Messages.COULD_NOT_UNBIND_SERVICE_TO_APP, serviceName, applicationName, e.getMessage());
         }
 
     }

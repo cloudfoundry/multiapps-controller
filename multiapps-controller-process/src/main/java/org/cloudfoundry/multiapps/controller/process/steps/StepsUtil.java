@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
@@ -89,6 +90,15 @@ public class StepsUtil {
                                  .filter(Objects::nonNull)
                                  .map(CloudServiceBroker::getName)
                                  .collect(Collectors.toList());
+    }
+
+    public static boolean isServiceOptional(List<CloudServiceInstanceExtended> servicesCloudModel, String serviceName) {
+        return servicesCloudModel.stream()
+                                 .filter(service -> service.getName()
+                                                           .equals(serviceName))
+                                 .map(CloudServiceInstanceExtended::isOptional)
+                                 .findAny()
+                                 .orElse(false);
     }
 
     static List<ConfigurationEntry> getDeletedEntriesFromProcess(FlowableFacade flowableFacade, String processInstanceId) {

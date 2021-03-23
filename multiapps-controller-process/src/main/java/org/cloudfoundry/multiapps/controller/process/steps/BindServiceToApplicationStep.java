@@ -71,23 +71,12 @@ public class BindServiceToApplicationStep extends SyncFlowableStep {
             }
 
             List<CloudServiceInstanceExtended> servicesToBind = context.getVariable(Variables.SERVICES_TO_BIND);
-            CloudServiceInstanceExtended serviceToBind = findServiceCloudModel(servicesToBind, serviceName);
-
-            if (serviceToBind != null && serviceToBind.isOptional()) {
+            if (StepsUtil.isServiceOptional(servicesToBind, serviceName)) {
                 context.getStepLogger()
                        .warn(e, Messages.COULD_NOT_BIND_OPTIONAL_SERVICE_TO_APP, serviceName, applicationName);
                 return;
             }
             throw new SLException(e, Messages.COULD_NOT_BIND_SERVICE_TO_APP, serviceName, applicationName, e.getMessage());
-        }
-
-        private CloudServiceInstanceExtended findServiceCloudModel(List<CloudServiceInstanceExtended> servicesCloudModel,
-                                                                   String serviceName) {
-            return servicesCloudModel.stream()
-                                     .filter(service -> service.getName()
-                                                               .equals(serviceName))
-                                     .findAny()
-                                     .orElse(null);
         }
 
     }
