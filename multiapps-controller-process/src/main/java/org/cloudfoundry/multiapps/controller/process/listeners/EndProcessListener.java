@@ -34,8 +34,8 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     @Override
     protected void notifyInternal(DelegateExecution execution) {
         if (isRootProcess(execution)) {
-            eventHandler.handle(execution, processTypeParser.getProcessType(execution, false), Operation.State.FINISHED);
-            publishDynatraceEvent(execution, processTypeParser.getProcessType(execution, false));
+            eventHandler.handle(execution, processTypeParser.getProcessTypeFromProcessVariable(execution, false), Operation.State.FINISHED);
+            publishDynatraceEvent(execution, processTypeParser.getProcessTypeFromProcessVariable(execution, false));
         }
     }
 

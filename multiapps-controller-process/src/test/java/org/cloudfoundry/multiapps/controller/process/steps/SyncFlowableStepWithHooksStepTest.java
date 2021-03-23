@@ -28,7 +28,7 @@ class SyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<SyncFlowabl
 
     @Test
     void testExecuteStepPhaseWithHooksBefore() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
         Module moduleToDeploy = createModule("test-module");
         Mockito.when(moduleDeterminer.determineModuleToDeploy())

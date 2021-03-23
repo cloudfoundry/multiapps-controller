@@ -35,7 +35,7 @@ class DeleteApplicationStepTest extends UndeployAppStepTest {
 
     @BeforeEach
     void setUp() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
     }
 

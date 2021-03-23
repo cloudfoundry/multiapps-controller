@@ -44,14 +44,14 @@ public class HooksPhaseBuilder {
     }
 
     private String getDeploymentType(ProcessContext context) {
-        if (ProcessType.DEPLOY.equals(processTypeParser.getProcessType(context.getExecution()))) {
+        if (ProcessType.DEPLOY.equals(processTypeParser.getProcessTypeFromProcessVariable(context.getExecution()))) {
             return HookPhaseProcessType.DEPLOY.getType();
         }
         return HookPhaseProcessType.BLUE_GREEN_DEPLOY.getType();
     }
 
     private String getOptionalPhaseLocator(ProcessContext context) {
-        if (ProcessType.DEPLOY.equals(processTypeParser.getProcessType(context.getExecution()))) {
+        if (ProcessType.DEPLOY.equals(processTypeParser.getProcessTypeFromProcessVariable(context.getExecution()))) {
             return HookPhaseProcessType.HookProcessPhase.NONE.getType();
         }
         if (context.getVariable(Variables.SUBPROCESS_PHASE) == SubprocessPhase.BEFORE_APPLICATION_STOP) {

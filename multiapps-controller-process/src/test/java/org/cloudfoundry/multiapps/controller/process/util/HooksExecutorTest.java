@@ -40,7 +40,7 @@ class HooksExecutorTest {
         Module moduleToDeploy = createModule("test-module");
         Mockito.when(hooksCalculator.isInPreExecuteStepPhase(StepPhase.EXECUTE))
                .thenReturn(true);
-        Mockito.when(processTypeParser.getProcessType(any()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(any()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         List<Hook> expectedHooksForExecution = List.of(createHook("test-hook", Collections.emptyList()));
         Mockito.when(hooksCalculator.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE))
@@ -53,7 +53,7 @@ class HooksExecutorTest {
     @Test
     void executeAfterStepHooksWhenPhaseIsNotAfter() {
         Module moduleToDeploy = createModule("test-module");
-        Mockito.when(processTypeParser.getProcessType(any()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(any()))
                .thenReturn(ProcessType.DEPLOY);
         HooksExecutor hooksExecutor = new HooksExecutor(hooksCalculator, moduleToDeploy);
         List<Hook> hooksForExecution = hooksExecutor.executeAfterStepHooks(StepPhase.EXECUTE);
@@ -66,7 +66,7 @@ class HooksExecutorTest {
         Mockito.when(hooksCalculator.isInPostExecuteStepPhase(StepPhase.DONE))
                .thenReturn(true);
         List<Hook> expectedHooksForExecution = List.of(createHook("test-hook", Collections.emptyList()));
-        Mockito.when(processTypeParser.getProcessType(any()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(any()))
                .thenReturn(ProcessType.DEPLOY);
         Mockito.when(hooksCalculator.calculateHooksForExecution(moduleToDeploy, StepPhase.DONE))
                .thenReturn(expectedHooksForExecution);
@@ -77,7 +77,7 @@ class HooksExecutorTest {
 
     @Test
     void executeBeforeStepHooksWhenModuleToDeployIsNull() {
-        Mockito.when(processTypeParser.getProcessType(any()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(any()))
                .thenReturn(ProcessType.DEPLOY);
         HooksExecutor hooksExecutor = new HooksExecutor(hooksCalculator, null);
         Mockito.when(hooksCalculator.isInPreExecuteStepPhase(StepPhase.EXECUTE))

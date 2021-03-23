@@ -38,7 +38,7 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
 
         context.setVariable(Variables.MODULES_TO_DEPLOY, modulesToDeploy);
 
-        ProcessType processType = processTypeParser.getProcessType(context.getExecution());
+        ProcessType processType = processTypeParser.getProcessTypeFromExecution(context.getExecution());
 
         context.setVariable(Variables.DELETE_IDLE_URIS, false);
         context.setVariable(Variables.SKIP_UPDATE_CONFIGURATION_ENTRIES, ProcessType.BLUE_GREEN_DEPLOY.equals(processType));

@@ -62,7 +62,7 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
         prepareContext();
         determineActionForApplication();
 
-        Mockito.when(processTypeParser.getProcessType(Mockito.any()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(Mockito.any()))
                .thenReturn(ProcessType.DEPLOY);
         step.execute(execution);
 
@@ -107,7 +107,7 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
 
     @Test
     void testGetHooksBeforeStepWithBlueGreenProcess() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.APPLICATION_BEFORE_STOP_IDLE, HookPhase.BEFORE_STOP), context))
                .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_IDLE));
@@ -127,7 +127,7 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
 
     @Test
     void testGetHooksAfterStepWithBlueGreenProcess() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.APPLICATION_AFTER_STOP_IDLE, HookPhase.AFTER_STOP), context))
                .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_IDLE));

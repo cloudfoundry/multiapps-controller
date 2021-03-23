@@ -73,7 +73,7 @@ public class StopAppStep extends SyncFlowableStepWithHooks implements BeforeStep
 
     private List<HookPhase> getHookPhases(HookPhase beforeStepHookPhase, HookPhase afterStepHookPhase, ProcessContext context) {
         List<HookPhase> hookPhases = new ArrayList<>();
-        ProcessType processType = processTypeParser.getProcessType(context.getExecution());
+        ProcessType processType = processTypeParser.getProcessTypeFromProcessVariable(context.getExecution());
         if (ProcessType.BLUE_GREEN_DEPLOY.equals(processType)) {
             hookPhases.add(beforeStepHookPhase);
         } else {

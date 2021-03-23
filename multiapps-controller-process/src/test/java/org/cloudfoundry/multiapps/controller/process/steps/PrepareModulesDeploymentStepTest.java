@@ -59,7 +59,7 @@ class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<PrepareModul
         prepareContext(count);
         Mockito.when(configuration.getStepPollingIntervalInSeconds())
                .thenReturn(ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS);
-        when(processTypeParser.getProcessType(execution)).thenReturn(processType);
+        when(processTypeParser.getProcessTypeFromExecution(execution)).thenReturn(processType);
     }
 
     private DelegateExecution prepareContext(int count) {

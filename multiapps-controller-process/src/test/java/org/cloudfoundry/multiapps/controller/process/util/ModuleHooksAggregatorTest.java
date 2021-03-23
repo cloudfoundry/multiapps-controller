@@ -35,7 +35,7 @@ class ModuleHooksAggregatorTest {
     @Test
     void testAggregateHooksNoCurrentAndNoHooksForExecution() {
         Module moduleToDeploy = createModule("test-module", List.of());
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
         ModuleHooksAggregator moduleHooksAggregator = createModuleHooksAggregator(moduleToDeploy);
         List<Hook> aggregatedHooks = moduleHooksAggregator.aggregateHooks(Collections.emptyList());
@@ -47,7 +47,7 @@ class ModuleHooksAggregatorTest {
         List<Hook> hooksForModule = List.of(createHook("test-hook", List.of("deploy.application.after-stop")));
         Module moduleToDeploy = createModule("test-module", hooksForModule);
         List<HookPhase> currentHookPhasesForExecution = List.of(HookPhase.DEPLOY_APPLICATION_AFTER_STOP);
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
         ModuleHooksAggregator moduleHooksAggregator = createModuleHooksAggregator(moduleToDeploy);
         List<Hook> aggregatedHooks = moduleHooksAggregator.aggregateHooks(currentHookPhasesForExecution);
@@ -61,7 +61,7 @@ class ModuleHooksAggregatorTest {
         Module moduleToDeploy = createModule("test-module", hooksForModule);
         List<HookPhase> currentHookPhasesForExecutions = List.of(HookPhase.BEFORE_STOP);
         prepareExecutedHooks("test-module", Map.of("hook1", List.of("blue-green.application.before-stop.live")));
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         ModuleHooksAggregator moduleHooksAggregator = createModuleHooksAggregator(moduleToDeploy);
         List<Hook> aggregatedHooks = moduleHooksAggregator.aggregateHooks(currentHookPhasesForExecutions);
@@ -75,7 +75,7 @@ class ModuleHooksAggregatorTest {
         Module moduleToDeploy = createModule("test-module", hooksForModule);
         List<HookPhase> currentHookPhasesForExecutions = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE);
         prepareExecutedHooks("test-module", Map.of("hook1", List.of("blue-green.application.before-start.idle")));
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.SUBPROCESS_PHASE, SubprocessPhase.BEFORE_APPLICATION_START);
         context.setVariable(Variables.PHASE, Phase.AFTER_RESUME);

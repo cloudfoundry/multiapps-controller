@@ -18,7 +18,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class ProcessTypeParserTest {
+class ProcessTypeParserTest {
 
     private static final String INVALID_SERVICE_ID = "invalid-service-id";
 
@@ -34,7 +34,7 @@ public class ProcessTypeParserTest {
         parser = new ProcessTypeParser();
     }
 
-    static Stream<Arguments> testGetProcessType() {
+    static Stream<Arguments> testGetProcessTypeFromProcessVariable() {
         return Stream.of(Arguments.of(Constants.DEPLOY_SERVICE_ID, true, ProcessType.DEPLOY, false),
                          Arguments.of(Constants.BLUE_GREEN_DEPLOY_SERVICE_ID, true, ProcessType.BLUE_GREEN_DEPLOY, false),
                          Arguments.of(Constants.UNDEPLOY_SERVICE_ID, true, ProcessType.UNDEPLOY, false),
@@ -44,18 +44,46 @@ public class ProcessTypeParserTest {
 
     @ParameterizedTest
     @MethodSource
-    protected void testGetProcessType(String serviceId, boolean required, ProcessType expectedProcessType, boolean expectedException) {
-        prepareExecution(serviceId);
+    void testGetProcessTypeFromProcessVariable(String serviceId, boolean required, ProcessType expectedProcessType,
+                                               boolean expectedException) {
+        prepareProcessVariable(serviceId);
 
         if (expectedException) {
-            assertThrows(SLException.class, () -> parser.getProcessType(execution, required));
+            assertThrows(SLException.class, () -> parser.getProcessTypeFromProcessVariable(execution, required));
             return;
         }
-        ProcessType processType = parser.getProcessType(execution, required);
+        ProcessType processType = parser.getProcessTypeFromProcessVariable(execution, required);
         assertEquals(expectedProcessType, processType);
     }
 
-    private void prepareExecution(String serviceId) {
+    private void prepareProcessVariable(String serviceId) {
         when(execution.getVariable(Variables.SERVICE_ID.getName())).thenReturn(serviceId);
     }
+
+    static Stream<Arguments> testGetProcessTypeFromExecution() {
+        // Process Definition Id is String of {processDefinitionKey}:{processDefinitionVersion}:{generated-id}
+        return Stream.of(Arguments.of(Constants.DEPLOY_SERVICE_ID + ":1:1234", ProcessType.DEPLOY, false),
+                         Arguments.of(Constants.BLUE_GREEN_DEPLOY_SERVICE_ID + ":10:4667", ProcessType.BLUE_GREEN_DEPLOY, false),
+                         Arguments.of(Constants.UNDEPLOY_SERVICE_ID + ":2:44", ProcessType.UNDEPLOY, false),
+                         Arguments.of(INVALID_SERVICE_ID, null, true), Arguments.of(Constants.BLUE_GREEN_DEPLOY_SERVICE_ID, null, true));
+
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testGetProcessTypeFromExecution(String processDefinitionId, ProcessType expectedProcessType, boolean expectedException) {
+        prepareProcessDefinitionId(processDefinitionId);
+
+        if (expectedException) {
+            assertThrows(SLException.class, () -> parser.getProcessTypeFromExecution(execution));
+            return;
+        }
+        ProcessType processType = parser.getProcessTypeFromExecution(execution);
+        assertEquals(expectedProcessType, processType);
+    }
+
+    private void prepareProcessDefinitionId(String processDefinitionId) {
+        when(execution.getProcessDefinitionId()).thenReturn(processDefinitionId);
+    }
+
 }

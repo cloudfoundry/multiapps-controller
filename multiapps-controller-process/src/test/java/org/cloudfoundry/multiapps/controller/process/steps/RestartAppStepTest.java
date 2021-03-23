@@ -36,7 +36,7 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     @Test
     void testExecuteWhenAppIsStopped() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
         CloudApplicationExtended app = createApplication(APP_NAME, State.STOPPED);
         prepareContextAndClient(app);
@@ -56,7 +56,7 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     @Test
     void testExecuteWhenAppIsStarted() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(processTypeParser.getProcessTypeFromProcessVariable(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
         CloudApplicationExtended app = createApplication(APP_NAME, State.STARTED);
         prepareContextAndClient(app);
