@@ -6,14 +6,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
+
+import java.util.List;
 
 class UnbindServiceStepFromApplicationTest extends SyncFlowableStepTest<UnbindServiceFromApplicationStep> {
 
@@ -37,9 +41,23 @@ class UnbindServiceStepFromApplicationTest extends SyncFlowableStepTest<UnbindSe
     }
 
     @Test
-    void testThrowExceptionWhenServerError() {
+    void testDoNotThrowExceptionOnOptionalServiceWhenServerError() {
         ProcessContext customProcessContext = new ProcessContext(execution, stepLogger, clientProvider);
-        assertThrows(CloudOperationException.class, () -> handleErrorInCallback(customProcessContext, HttpStatus.BAD_GATEWAY));
+        customProcessContext.setVariable(Variables.SERVICES_TO_BIND, List.of(ImmutableCloudServiceInstanceExtended.builder()
+                                                                                                                  .name(SERVICE_NAME)
+                                                                                                                  .isOptional(true)
+                                                                                                                  .build()));
+        assertDoesNotThrow(() -> handleErrorInCallback(customProcessContext, HttpStatus.BAD_GATEWAY));
+    }
+
+    @Test
+    void testThrowExceptionOnNotOptionalServiceWhenServerError() {
+        ProcessContext customProcessContext = new ProcessContext(execution, stepLogger, clientProvider);
+        customProcessContext.setVariable(Variables.SERVICES_TO_BIND, List.of(ImmutableCloudServiceInstanceExtended.builder()
+                                                                                                                  .name(SERVICE_NAME)
+                                                                                                                  .isOptional(false)
+                                                                                                                  .build()));
+        assertThrows(SLException.class, () -> handleErrorInCallback(customProcessContext, HttpStatus.BAD_GATEWAY));
     }
 
     private void handleErrorInCallback(ProcessContext customProcessContext, HttpStatus httpStatus) {

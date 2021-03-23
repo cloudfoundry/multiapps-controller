@@ -33,6 +33,7 @@ public class Messages {
     public static final String FAILED_SERVICE_UPDATE = "Updating service \"{0}\" failed: {1}";
     public static final String STEP_LOGGER_NOT_INITIALIZED = "Step logger is not initialized!";
     public static final String COULD_NOT_BIND_SERVICE_TO_APP = "Could not bind service \"{0}\" to application \"{1}\": {2}";
+    public static final String COULD_NOT_UNBIND_SERVICE_TO_APP = "Could not unbind service \"{0}\" to application \"{1}\": {2}";
     public static final String MULTIPLE_OPERATIONS_WITH_LOCK_FOUND = "Multiple operations found with lock for MTA \"{0}\" in space \"{1}\": {2}";
     public static final String EXECUTION_OF_STEP_HAS_TIMED_OUT = "Execution of step {0} has timed out";
     public static final String EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED = "Execution of process listener has failed";
@@ -172,6 +173,7 @@ public class Messages {
     public static final String IGNORING_VERSION_RULE = "Version rule will be ignored, as the deployed MTA is in inconsistent state";
     public static final String FAILED_SERVICE_BROKER_UPDATE = "Failed to update service broker \"{0}\"";
     public static final String COULD_NOT_BIND_OPTIONAL_SERVICE_TO_APP = "Could not bind optional service \"{0}\" to application \"{1}\"";
+    public static final String COULD_NOT_UNBIND_OPTIONAL_SERVICE_TO_APP = "Could not unbind optional service \"{0}\" to application \"{1}\"";
     public static final String COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE = "Could not execute operation over optional service \"{0}\"";
     public static final String DEFAULT_FAILED_OPERATION_DESCRIPTION = "The service broker returned an error with no description!";
     public static final String ERROR_DURING_CLEAN_UP_0 = "Error during clean-up: {0}";
