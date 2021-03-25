@@ -1,5 +1,14 @@
 package com.sap.cloud.lm.sl.cf.web.security;
 
+import com.sap.cloud.lm.sl.cf.client.TokenProvider;
+import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
+import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.ClientFactory;
+import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
+import com.sap.cloud.lm.sl.cf.web.message.Messages;
+import com.sap.cloud.lm.sl.common.util.Pair;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.slf4j.Logger;
@@ -17,16 +26,9 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
-import com.sap.cloud.lm.sl.cf.client.TokenProvider;
-import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
-import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.ClientFactory;
-import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
-import com.sap.cloud.lm.sl.cf.web.message.Messages;
-import com.sap.cloud.lm.sl.common.util.Pair;
+import javax.inject.Named;
 
+@Named("customAuthenticationProvider")
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
@@ -71,7 +73,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                 } else {
                     String message = "Null access token returned by cloud controller";
                     AuditLoggingProvider.getFacade()
-                        .logSecurityIncident(message);
+                            .logSecurityIncident(message);
                     throw new AuthenticationServiceException(message);
                 }
             }
@@ -96,7 +98,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         } catch (CloudOperationException e) {
             String message = Messages.CANNOT_AUTHENTICATE_WITH_CLOUD_CONTROLLER;
             AuditLoggingProvider.getFacade()
-                .logSecurityIncident(message);
+                    .logSecurityIncident(message);
             throw new BadCredentialsException(message, e);
         }
     }

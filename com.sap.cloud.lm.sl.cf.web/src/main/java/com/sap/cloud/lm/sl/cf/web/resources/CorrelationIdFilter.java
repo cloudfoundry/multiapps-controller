@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import javax.annotation.Priority;
+import javax.inject.Named;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -17,6 +18,7 @@ import com.sap.cloud.lm.sl.cf.core.Constants;
 
 @Provider
 @Priority(value = 1)
+@Named("correlationIdFilter")
 public class CorrelationIdFilter extends GenericFilterBean {
 
     @Override

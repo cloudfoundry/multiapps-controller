@@ -57,8 +57,8 @@ public class Metrics implements MetricsMBean {
     public long getUsedContainerSpace() {
         String workDir = System.getProperty("user.dir");
         String parentDir = Paths.get(workDir)
-            .getParent()
-            .toString();
+                                .getParent()
+                                .toString();
         return fssMonitor.calculateUsedSpace(parentDir);
     }
 }

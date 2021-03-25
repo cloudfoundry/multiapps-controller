@@ -56,7 +56,8 @@ public class FileService {
     }
 
     public FileEntry addFile(String space, String name,
-        FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileInfoProcessor, InputStream is) throws FileStorageException {
+                             FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileInfoProcessor, InputStream is)
+        throws FileStorageException {
         return addFile(space, null, name, fileInfoProcessor, is);
     }
 
@@ -72,7 +73,8 @@ public class FileService {
      * @throws FileStorageException
      */
     public FileEntry addFile(String space, String namespace, String name,
-        FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileInfoProcessor, InputStream is) throws FileStorageException {
+                             FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileInfoProcessor, InputStream is)
+        throws FileStorageException {
         // Stream the file to a temp location and get the size and MD5 digest
         // as an alternative we can pass the original stream to the database,
         // and decorate the blob stream to calculate digest and size, but this will still require
@@ -94,7 +96,7 @@ public class FileService {
     }
 
     public FileEntry addFile(String space, String namespace, String name,
-        FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileInfoProcessor, File existingFile)
+                             FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileInfoProcessor, File existingFile)
         throws FileStorageException {
         try {
             FileInfo fileInfo = createFileInfo(existingFile);
@@ -114,7 +116,7 @@ public class FileService {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesQuery(space, namespace));
         } catch (SQLException e) {
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_WITH_SPACE_AND_NAMESPACE, space, namespace),
-                e);
+                                           e);
         }
     }
 
@@ -230,12 +232,14 @@ public class FileService {
     }
 
     private FileInfo createFileInfo(File existingFile) throws NoSuchAlgorithmException, IOException {
-        return new FileInfo(existingFile, BigInteger.valueOf(existingFile.length()),
-            DigestHelper.computeFileChecksum(existingFile.toPath(), FileUploader.DIGEST_METHOD), FileUploader.DIGEST_METHOD);
+        return new FileInfo(existingFile,
+                            BigInteger.valueOf(existingFile.length()),
+                            DigestHelper.computeFileChecksum(existingFile.toPath(), FileUploader.DIGEST_METHOD),
+                            FileUploader.DIGEST_METHOD);
     }
 
     private FileEntry addFile(String space, String namespace, String name,
-        FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileInfoProcessor, FileInfo fileInfo)
+                              FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileInfoProcessor, FileInfo fileInfo)
         throws FileStorageException {
 
         if (fileInfoProcessor.shouldScanFile()) {
@@ -264,7 +268,7 @@ public class FileService {
 
     private String generateRandomId() {
         return UUID.randomUUID()
-            .toString();
+                   .toString();
     }
 
     private boolean storeFileAttributes(final FileEntry fileEntry) throws FileStorageException {

@@ -6,11 +6,13 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -24,6 +26,8 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
+@Named
+@Profile("cf")
 public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private static final long serialVersionUID = 1L;
@@ -79,11 +83,11 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private void addOperation(DelegateExecution context, String correlationId, ProcessType processType) {
         Operation operation = new Operation().processId(correlationId)
-            .processType(processType)
-            .startedAt(currentTimeSupplier.get())
-            .spaceId(StepsUtil.getSpaceId(context))
-            .user(StepsUtil.determineCurrentUser(context, getStepLogger()))
-            .acquiredLock(false);
+                                             .processType(processType)
+                                             .startedAt(currentTimeSupplier.get())
+                                             .spaceId(StepsUtil.getSpaceId(context))
+                                             .user(StepsUtil.determineCurrentUser(context, getStepLogger()))
+                                             .acquiredLock(false);
         operationDao.add(operation);
     }
 

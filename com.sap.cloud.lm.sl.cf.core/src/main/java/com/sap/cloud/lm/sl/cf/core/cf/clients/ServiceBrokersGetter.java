@@ -5,14 +5,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 
+@Named
+@Profile("cf")
 public class ServiceBrokersGetter extends CustomControllerClient {
 
     private static final String SERVICE_BROKERS_URL = "/v2/service_brokers";
@@ -29,7 +33,7 @@ public class ServiceBrokersGetter extends CustomControllerClient {
 
     private List<CloudServiceBrokerExtended> attemptToGetServiceBrokers(CloudControllerClient client) {
         String controllerUrl = client.getCloudControllerUrl()
-            .toString();
+                                     .toString();
         RestTemplate restTemplate = getRestTemplate(client);
         List<Map<String, Object>> resources = getAllResources(restTemplate, controllerUrl, SERVICE_BROKERS_URL);
         return toCloudServiceBrokers(resources);
@@ -37,8 +41,8 @@ public class ServiceBrokersGetter extends CustomControllerClient {
 
     private List<CloudServiceBrokerExtended> toCloudServiceBrokers(List<Map<String, Object>> resources) {
         return resources.stream()
-            .map(this::toCloudServiceBroker)
-            .collect(Collectors.toList());
+                        .map(this::toCloudServiceBroker)
+                        .collect(Collectors.toList());
     }
 
     private CloudServiceBrokerExtended toCloudServiceBroker(Map<String, Object> resource) {
@@ -48,8 +52,12 @@ public class ServiceBrokersGetter extends CustomControllerClient {
     }
 
     protected CloudServiceBrokerExtended toCloudServiceBrokerExtended(CloudServiceBroker serviceBroker, String spaceGuid) {
-        return new CloudServiceBrokerExtended(serviceBroker.getMeta(), serviceBroker.getName(), serviceBroker.getUrl(),
-            serviceBroker.getUsername(), serviceBroker.getPassword(), spaceGuid);
+        return new CloudServiceBrokerExtended(serviceBroker.getMeta(),
+                                              serviceBroker.getName(),
+                                              serviceBroker.getUrl(),
+                                              serviceBroker.getUsername(),
+                                              serviceBroker.getPassword(),
+                                              spaceGuid);
     }
 
 }

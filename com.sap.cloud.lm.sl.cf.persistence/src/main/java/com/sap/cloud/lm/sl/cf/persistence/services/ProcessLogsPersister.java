@@ -1,11 +1,13 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
 
+@Named("processLogsPersister")
 public class ProcessLogsPersister {
 
     @Inject

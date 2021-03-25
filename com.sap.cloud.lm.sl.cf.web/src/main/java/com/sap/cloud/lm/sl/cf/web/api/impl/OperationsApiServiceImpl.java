@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -22,6 +23,7 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
@@ -55,6 +57,7 @@ import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 
+@Named
 @RequestScoped
 public class OperationsApiServiceImpl implements OperationsApiService {
 
@@ -81,8 +84,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     public Response getMtaOperations(Integer last, List<String> state, SecurityContext securityContext, String spaceGuid) {
         List<Operation> existingOperations = getOperations(last, state, spaceGuid);
         return Response.ok()
-            .entity(existingOperations)
-            .build();
+                       .entity(existingOperations)
+                       .build();
     }
 
     public List<Operation> getOperations(Integer last, List<String> statusList, String spaceGuid) {
@@ -96,16 +99,16 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         List<String> availableOperations = getAvailableActions(operation);
         if (!availableOperations.contains(actionId)) {
             return Response.status(Status.BAD_REQUEST)
-                .entity("Action " + actionId + " cannot be executed over operation " + operationId)
-                .build();
+                           .entity("Action " + actionId + " cannot be executed over operation " + operationId)
+                           .build();
         }
         ProcessAction action = processActionRegistry.getAction(actionId);
         action.execute(getAuthenticatedUser(securityContext), operationId);
         AuditLoggingProvider.getFacade()
-            .logAboutToStart(MessageFormat.format("{0} over operation with id {1}", action, operation.getProcessId()));
+                            .logAboutToStart(MessageFormat.format("{0} over operation with id {1}", action, operation.getProcessId()));
         return Response.accepted()
-            .header("Location", getLocationHeader(operationId, spaceGuid))
-            .build();
+                       .header("Location", getLocationHeader(operationId, spaceGuid))
+                       .build();
     }
 
     @Override
@@ -114,16 +117,16 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             Operation operation = dao.find(operationId);
             if (operation == null) {
                 return Response.status(Status.NOT_FOUND)
-                    .entity("Operation with id " + operationId + " not found")
-                    .build();
+                               .entity("Operation with id " + operationId + " not found")
+                               .build();
             }
             List<String> logIds = logsService.getLogNames(spaceGuid, operationId);
             List<Log> logs = logIds.stream()
-                .map(id -> new Log().id(id))
-                .collect(Collectors.toList());
+                                   .map(id -> new Log().id(id))
+                                   .collect(Collectors.toList());
             return Response.ok()
-                .entity(logs)
-                .build();
+                           .entity(logs)
+                           .build();
         } catch (FileStorageException e) {
             throw new ContentException(e);
         }
@@ -134,8 +137,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         try {
             String content = logsService.getLogContent(spaceGuid, operationId, logId);
             return Response.ok()
-                .entity(content)
-                .build();
+                           .entity(content)
+                           .build();
         } catch (FileStorageException e) {
             throw new ContentException(e);
         }
@@ -146,33 +149,33 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         String userId = getAuthenticatedUser(securityContext);
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
-            .getParameters();
+                                                                             .getParameters();
         addServiceParameters(operation, spaceGuid);
         addDefaultParameters(operation, predefinedParameters);
         addParameterValues(operation, predefinedParameters);
         ensureRequiredParametersSet(operation, predefinedParameters);
         ProcessInstance processInstance = flowableFacade.startProcess(userId, processDefinitionKey, operation.getParameters());
         AuditLoggingProvider.getFacade()
-            .logConfigCreate(operation);
+                            .logConfigCreate(operation);
         return Response.accepted()
-            .header("Location", getLocationHeader(processInstance.getProcessInstanceId(), spaceGuid))
-            .build();
+                       .header("Location", getLocationHeader(processInstance.getProcessInstanceId(), spaceGuid))
+                       .build();
     }
 
     @Override
     public Response getMtaOperation(String operationId, String embed, SecurityContext securityContext, String spaceGuid) {
         Operation operation = getOperation(operationId, embed, spaceGuid);
         return Response.ok()
-            .entity(operation)
-            .build();
+                       .entity(operation)
+                       .build();
     }
 
     public Operation getOperation(String operationId, String embed, String spaceId) {
         Operation operation = dao.findRequired(operationId);
         if (!operation.getSpaceId()
-            .equals(spaceId)) {
+                      .equals(spaceId)) {
             LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_SPACE_MISMATCH, operationId,
-                operation.getSpaceId(), spaceId));
+                                             operation.getSpaceId(), spaceId));
             throw new NotFoundException(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_NOT_FOUND, operationId);
         }
         operationsHelper.addState(operation);
@@ -184,8 +187,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private List<State> getStates(List<String> statusList) {
         return statusList.stream()
-            .map(State::valueOf)
-            .collect(Collectors.toList());
+                         .map(State::valueOf)
+                         .collect(Collectors.toList());
     }
 
     private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<State> statusList, String spaceGuid) {
@@ -215,8 +218,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     public Response getOperationActions(String operationId, SecurityContext securityContext, String spaceGuid) {
         Operation operation = dao.findRequired(operationId);
         return Response.ok()
-            .entity(getAvailableActions(operation))
-            .build();
+                       .entity(getAvailableActions(operation))
+                       .build();
     }
 
     private List<String> getAvailableActions(Operation operation) {
@@ -244,7 +247,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         parameters.put(Constants.VARIABLE_NAME_SPACE_ID, spaceGuid);
         parameters.put(Constants.VARIABLE_NAME_SERVICE_ID, processDefinitionKey);
         parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_ORG, space.getOrganization()
-            .getName());
+                                                                              .getName());
         parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_SPACE, space.getName());
     }
 
@@ -268,8 +271,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         Map<String, Object> operationParameters = operation.getParameters();
         Set<ParameterMetadata> requiredParameters = getRequiredParameters(predefinedParameters);
         List<ParameterMetadata> missingRequiredParameters = requiredParameters.stream()
-            .filter(parameter -> !operationParameters.containsKey(parameter.getId()))
-            .collect(Collectors.toList());
+                                                                              .filter(parameter -> !operationParameters.containsKey(parameter.getId()))
+                                                                              .collect(Collectors.toList());
         if (!missingRequiredParameters.isEmpty()) {
             throw new ContentException("Required parameters " + getParameterIds(missingRequiredParameters) + " are not set!");
         }
@@ -277,31 +280,31 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private String getParameterIds(List<ParameterMetadata> missingRequiredParameters) {
         List<String> parameterIds = missingRequiredParameters.stream()
-            .map(ParameterMetadata::getId)
-            .collect(Collectors.toList());
+                                                             .map(ParameterMetadata::getId)
+                                                             .collect(Collectors.toList());
         return String.join(",", parameterIds);
     }
 
     private Set<ParameterMetadata> getRequiredParameters(Set<ParameterMetadata> parameters) {
         return parameters.stream()
-            .filter(ParameterMetadata::getRequired)
-            .collect(Collectors.toSet());
+                         .filter(ParameterMetadata::getRequired)
+                         .collect(Collectors.toSet());
     }
 
     private String getLocationHeader(String processInstanceId, String spaceId) {
         StringBuilder builder = new StringBuilder("spaces/");
         return builder.append(spaceId)
-            .append("/operations/")
-            .append(processInstanceId)
-            .append("?embed=messages")
-            .toString();
+                      .append("/operations/")
+                      .append(processInstanceId)
+                      .append("?embed=messages")
+                      .toString();
     }
 
     protected String getAuthenticatedUser(SecurityContext securityContext) {
         String user = null;
         if (securityContext.getUserPrincipal() != null) {
             user = securityContext.getUserPrincipal()
-                .getName();
+                                  .getName();
         } else {
             throw new WebApplicationException(Status.UNAUTHORIZED);
         }
@@ -317,9 +320,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private List<Message> getOperationMessages(Operation operation) {
         List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(operation.getProcessId());
         return progressMessages.stream()
-            .filter(message -> message.getType() != ProgressMessageType.TASK_STARTUP)
-            .map(this::getMessage)
-            .collect(Collectors.toList());
+                               .filter(message -> message.getType() != ProgressMessageType.TASK_STARTUP)
+                               .map(this::getMessage)
+                               .collect(Collectors.toList());
     }
 
     private Message getMessage(ProgressMessage progressMessage) {

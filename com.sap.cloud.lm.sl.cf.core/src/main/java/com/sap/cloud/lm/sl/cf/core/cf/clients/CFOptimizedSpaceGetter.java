@@ -8,11 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.inject.Named;
+
 import org.apache.http.client.utils.URIBuilder;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
@@ -20,6 +25,9 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 
+@Named
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Profile("cf")
 public class CFOptimizedSpaceGetter extends SpaceGetter {
 
     private static final String DEFAULT_URL_ENCODING = "UTF-8";
@@ -43,16 +51,18 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
 
     @Override
     public CloudSpace findSpace(CloudControllerClient client, String orgName, String spaceName) {
-        List<Map<String, Object>> parsedSpacesResponse = new CustomControllerClientErrorHandler()
-            .handleErrorsOrReturnResult(() -> attemptToFindSpace(client, orgName, spaceName));
+        List<Map<String, Object>> parsedSpacesResponse = new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToFindSpace(client,
+                                                                                                                                                      orgName,
+                                                                                                                                                      spaceName));
         validateParsedResponse(parsedSpacesResponse);
         return toCloudSpace(parsedSpacesResponse);
     }
 
     @Override
     public List<CloudSpace> findSpaces(CloudControllerClient client, String orgName) {
-        List<Map<String, Object>> parsedSpacesResponse = new CustomControllerClientErrorHandler()
-            .handleErrorsOrReturnResult(() -> attemptToFindSpace(client, orgName, null));
+        List<Map<String, Object>> parsedSpacesResponse = new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToFindSpace(client,
+                                                                                                                                                      orgName,
+                                                                                                                                                      null));
         return toCloudSpaces(parsedSpacesResponse);
     }
 
@@ -68,7 +78,8 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
 
         Map<String, Object> urlVariables = getAsUrlVariablesForFindSpaceRequest(orgGuid, spaceName);
         return executeFindSpaceRequest(restTemplate, client.getCloudControllerUrl()
-            .toString(), url, urlVariables);
+                                                           .toString(),
+                                       url, urlVariables);
     }
 
     private String getOrgGuid(CloudControllerClient client, String orgName) {
@@ -78,8 +89,9 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
 
         CloudOrganization org = client.getOrganization(orgName, false);
         return org != null ? org.getMeta()
-            .getGuid()
-            .toString() : null;
+                                .getGuid()
+                                .toString()
+            : null;
     }
 
     private String buildEndpoint(String orgName, String spaceName) {
@@ -115,7 +127,7 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
     }
 
     private List<Map<String, Object>> executeFindSpaceRequest(RestTemplate restTemplate, String controllerUrl, String url,
-        Map<String, Object> urlVariables) {
+                                                              Map<String, Object> urlVariables) {
         return getAllResources(restTemplate, controllerUrl, url, urlVariables);
     }
 
@@ -131,10 +143,11 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
 
     private void validateParsedResponse(List<Map<String, Object>> parsedSpacesResponse) {
         Assert.isTrue(parsedSpacesResponse.size() <= 1,
-            "The response of finding a space by org and space names should not have more than one resource element");
+                      "The response of finding a space by org and space names should not have more than one resource element");
         if (!parsedSpacesResponse.isEmpty()) {
             Assert.isNull(parsedSpacesResponse.get(0)
-                .get("next_url"), "The response of finding a space by org and space names should contain just one page");
+                                              .get("next_url"),
+                          "The response of finding a space by org and space names should contain just one page");
         }
     }
 
@@ -160,8 +173,8 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
         }
 
         return resources.stream()
-            .map(this::toCloudSpace)
-            .collect(Collectors.toList());
+                        .map(this::toCloudSpace)
+                        .collect(Collectors.toList());
     }
 
     @Override

@@ -2,11 +2,16 @@ package com.sap.cloud.lm.sl.cf.process.metadata;
 
 import java.util.List;
 
+import javax.inject.Named;
+
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
+import org.springframework.context.annotation.Profile;
 
+@Named
+@Profile("cf")
 public class ProcessTypeToOperationMetadataMapper {
 
     public OperationMetadata getOperationMetadata(ProcessType processType) {

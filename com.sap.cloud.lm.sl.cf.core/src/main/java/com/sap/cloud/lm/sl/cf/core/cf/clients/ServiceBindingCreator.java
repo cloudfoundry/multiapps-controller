@@ -5,13 +5,17 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
 
+@Named
+@Profile("cf")
 public class ServiceBindingCreator extends CustomControllerClient {
 
     private static final String SERVICE_BINDINGS_ENDPOINT = "/v2/service_bindings";
@@ -30,13 +34,14 @@ public class ServiceBindingCreator extends CustomControllerClient {
 
     private void attemptToBindService(CloudControllerClient client, String appName, String serviceName, Map<String, Object> parameters) {
         String serviceBindingsUrl = getUrl(client.getCloudControllerUrl()
-            .toString(), SERVICE_BINDINGS_ENDPOINT);
+                                                 .toString(),
+                                           SERVICE_BINDINGS_ENDPOINT);
         CloudApplication cloudApplication = client.getApplication(appName);
         UUID appGuid = cloudApplication.getMeta()
-            .getGuid();
+                                       .getGuid();
         CloudService cloudService = client.getService(serviceName);
         UUID serviceGuid = cloudService.getMeta()
-            .getGuid();
+                                       .getGuid();
         Map<String, Object> request = createServiceBindingRequest(appGuid, serviceGuid, parameters);
         RestTemplate restTemplate = getRestTemplate(client);
         restTemplate.postForObject(serviceBindingsUrl, request, String.class);
