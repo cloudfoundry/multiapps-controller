@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.v3.processes.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
@@ -69,6 +70,11 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
 
     private Staging modifyHealthCheckType(Staging staging) {
         String healthCheckType = staging.getHealthCheckType();
+        if (StringUtils.isEmpty(healthCheckType)) {
+            getStepLogger().debug(Messages.NOT_SPECIFIED_HEALTH_CHECK_TYPE, HealthCheckType.PORT.getValue());
+            return ImmutableStaging.copyOf(staging)
+                                   .withHealthCheckType(HealthCheckType.PORT.getValue());
+        }
         if (HealthCheckType.NONE.getValue()
                                 .equalsIgnoreCase(healthCheckType)) {
             getStepLogger().info(Messages.USING_DEPRECATED_HEALTH_CHECK_TYPE_USE_ONE_OF_THE_FOLLOWING, healthCheckType,
