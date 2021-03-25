@@ -6,17 +6,21 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
+@Named("serviceUpdater")
+@Profile("cf")
 public class ServiceUpdater extends CloudServiceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceUpdater.class);
@@ -51,7 +55,9 @@ public class ServiceUpdater extends CloudServiceOperator {
         CloudService service = client.getService(serviceName);
 
         CloudServicePlan servicePlan = findPlanForService(client, service, servicePlanName);
-        String servicePlanGuid = servicePlan.getMeta().getGuid().toString();
+        String servicePlanGuid = servicePlan.getMeta()
+                                            .getGuid()
+                                            .toString();
         attemptToUpdateServiceParameter(client, serviceName, SERVICE_INSTANCES_URL, SERVICE_PLAN_GUID, servicePlanGuid);
     }
 
@@ -61,7 +67,7 @@ public class ServiceUpdater extends CloudServiceOperator {
 
     private String getCloudControllerUrl(CloudControllerClient client) {
         return client.getCloudControllerUrl()
-            .toString();
+                     .toString();
     }
 
     public void updateServiceParametersQuietly(CloudControllerClient client, String serviceName, Map<String, Object> parameters) {
@@ -85,15 +91,16 @@ public class ServiceUpdater extends CloudServiceOperator {
     }
 
     private void attemptToUpdateServiceParameter(CloudControllerClient client, String serviceName, String serviceUrl, String parameterName,
-        Object parameter) {
+                                                 Object parameter) {
 
         CloudService service = client.getService(serviceName);
 
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = getCloudControllerUrl(client);
         String updateServiceUrl = getUrl(cloudControllerUrl, getUpdateServiceUrl(serviceUrl, service.getMeta()
-            .getGuid()
-            .toString(), ACCEPTS_INCOMPLETE_TRUE));
+                                                                                                    .getGuid()
+                                                                                                    .toString(),
+                                                                                 ACCEPTS_INCOMPLETE_TRUE));
 
         Map<String, Object> serviceRequest = createUpdateServiceRequest(parameterName, parameter);
         restTemplate.put(updateServiceUrl, serviceRequest);
@@ -119,11 +126,11 @@ public class ServiceUpdater extends CloudServiceOperator {
             runnable.run();
         } catch (CloudOperationException e) {
             if (!e.getStatusCode()
-                .equals(HttpStatus.BAD_GATEWAY)) {
+                  .equals(HttpStatus.BAD_GATEWAY)) {
                 throw e;
             }
             LOGGER.warn(MessageFormat.format("Controller operation failed. Status Code: {0}, Status Text: {1}, Description: {2}",
-                e.getStatusCode(), e.getStatusText(), e.getDescription()));
+                                             e.getStatusCode(), e.getStatusText(), e.getDescription()));
         }
     }
 

@@ -4,16 +4,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 
+@Named
+@Profile("cf")
 public class ServiceCreator extends CloudServiceOperator {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ServiceCreator.class);
@@ -32,7 +36,7 @@ public class ServiceCreator extends CloudServiceOperator {
 
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = client.getCloudControllerUrl()
-            .toString();
+                                          .toString();
         CloudServicePlan cloudServicePlan = findPlanForService(client, service);
 
         Map<String, Object> serviceRequest = createServiceRequest(service, spaceId, cloudServicePlan);
@@ -44,8 +48,8 @@ public class ServiceCreator extends CloudServiceOperator {
         serviceRequest.put(SPACE_GUID, spaceId);
         serviceRequest.put(SERVICE_NAME, service.getName());
         serviceRequest.put(SERVICE_PLAN_GUID, cloudServicePlan.getMeta()
-            .getGuid()
-            .toString());
+                                                              .getGuid()
+                                                              .toString());
         serviceRequest.put(SERVICE_PARAMETERS, service.getCredentials());
         serviceRequest.put(SERVICE_TAGS, service.getTags());
         return serviceRequest;

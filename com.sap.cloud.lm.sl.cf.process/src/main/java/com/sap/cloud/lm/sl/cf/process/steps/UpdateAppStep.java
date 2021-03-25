@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.inject.Named;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -16,6 +18,9 @@ import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
@@ -25,6 +30,9 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
+@Named
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Profile("cf")
 public class UpdateAppStep extends CreateAppStep {
 
     @Override
@@ -126,7 +134,8 @@ public class UpdateAppStep extends CreateAppStep {
     }
 
     private boolean updateApplicationServices(CloudApplicationExtended app, CloudApplication existingApp, CloudControllerClient client,
-        ExecutionWrapper execution) throws FileStorageException {
+                                              ExecutionWrapper execution)
+        throws FileStorageException {
         boolean hasUnboundServices = unbindNotRequiredServices(existingApp, app.getServices(), client);
         List<String> services = app.getServices();
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters(execution.getContext(), app);
@@ -164,8 +173,8 @@ public class UpdateAppStep extends CreateAppStep {
     }
 
     protected boolean updateServices(CloudApplicationExtended app, CloudApplication existingApp,
-        Map<String, Map<String, Object>> bindingParameters, CloudControllerClient client, ExecutionWrapper execution,
-        Set<String> updatedServices, List<String> services) {
+                                     Map<String, Map<String, Object>> bindingParameters, CloudControllerClient client,
+                                     ExecutionWrapper execution, Set<String> updatedServices, List<String> services) {
         boolean hasUpdatedService = false;
         List<String> existingAppServices = existingApp.getServices();
         for (String serviceName : services) {
@@ -179,7 +188,7 @@ public class UpdateAppStep extends CreateAppStep {
                 continue;
             }
             List<CloudServiceBinding> existingServiceBindings = client.getServiceInstance(serviceName)
-                .getBindings();
+                                                                      .getBindings();
             CloudServiceBinding existingBindingForApplication = getServiceBindingsForApplication(existingApp, existingServiceBindings);
             if (existingBindingForApplication == null) {
                 hasUpdatedService = true;
@@ -199,12 +208,12 @@ public class UpdateAppStep extends CreateAppStep {
     }
 
     protected CloudServiceBinding getServiceBindingsForApplication(CloudApplication existingApp,
-        List<CloudServiceBinding> serviceBindings) {
+                                                                   List<CloudServiceBinding> serviceBindings) {
         Optional<CloudServiceBinding> optCloudServiceBinding = serviceBindings.stream()
-            .filter(serviceBinding -> existingApp.getMeta()
-                .getGuid()
-                .equals(serviceBinding.getAppGuid()))
-            .findFirst();
+                                                                              .filter(serviceBinding -> existingApp.getMeta()
+                                                                                                                   .getGuid()
+                                                                                                                   .equals(serviceBinding.getAppGuid()))
+                                                                              .findFirst();
         if (optCloudServiceBinding.isPresent()) {
             return optCloudServiceBinding.get();
         }
@@ -226,12 +235,13 @@ public class UpdateAppStep extends CreateAppStep {
             || (healthCheckType != null && !healthCheckType.equals(existingStaging.getHealthCheckType()))
             || (healthCheckHttpEndpoint != null && !healthCheckHttpEndpoint.equals(existingStaging.getHealthCheckHttpEndpoint()))
             || (sshEnabled != null && !sshEnabled.equals(existingStaging.isSshEnabled())
-            || isDockerInfoModified(existingStaging.getDockerInfo(), staging.getDockerInfo()));
+                || isDockerInfoModified(existingStaging.getDockerInfo(), staging.getDockerInfo()));
     }
 
     private boolean isDockerInfoModified(DockerInfo existingDockerInfo, DockerInfo newDockerInfo) {
 
-        return existingDockerInfo != null && newDockerInfo != null && !existingDockerInfo.getImage().equals(newDockerInfo.getImage());
+        return existingDockerInfo != null && newDockerInfo != null && !existingDockerInfo.getImage()
+                                                                                         .equals(newDockerInfo.getImage());
     }
 
     private boolean hasChanged(List<String> uris, List<String> existingUris) {

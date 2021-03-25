@@ -12,11 +12,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -29,6 +31,8 @@ import com.sap.cloud.lm.sl.cf.client.events.LogFactory.LogMessage.MessageType;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
+@Named
+@Profile("cf")
 public class RecentLogsRetriever extends CustomControllerClient {
 
     private final LoggingEndpointGetter loggingEndpointGetter;
@@ -45,13 +49,13 @@ public class RecentLogsRetriever extends CustomControllerClient {
 
     private List<ApplicationLog> attemptToGetRecentLogs(CloudControllerClient client, String appName) {
         UUID applicationGuid = client.getApplication(appName)
-            .getMeta()
-            .getGuid();
+                                     .getMeta()
+                                     .getGuid();
         String dopplerEndpoint = getDopplerEndpoint(loggingEndpointGetter.getLoggingEndpoint(client));
 
         String recentLogsUrl = dopplerEndpoint + "/apps/{guid}/recentlogs";
         ResponseEntity<Resource> responseResource = getRestTemplate(client).exchange(recentLogsUrl, HttpMethod.GET, null, Resource.class,
-            applicationGuid);
+                                                                                     applicationGuid);
         List<LogMessageConverter> logMessages = null;
         try {
             logMessages = extractLogMessages(responseResource);
@@ -66,20 +70,22 @@ public class RecentLogsRetriever extends CustomControllerClient {
 
     private List<ApplicationLog> convertToApplicationLogs(List<LogMessageConverter> logMessages) {
         return logMessages.stream()
-            .map(LogMessageConverter::convertToApplicationLog)
-            .collect(Collectors.toList());
+                          .map(LogMessageConverter::convertToApplicationLog)
+                          .collect(Collectors.toList());
     }
 
     private List<LogMessageConverter> extractLogMessages(ResponseEntity<Resource> responseResource) throws IOException {
         List<LogMessageConverter> parsedLogs = new ArrayList<>();
         MediaType contentType = responseResource.getHeaders()
-            .getContentType();
+                                                .getContentType();
         String boundary = contentType.getParameter("boundary");
         InputStream responseInputStream = responseResource.getBody()
-            .getInputStream();
+                                                          .getInputStream();
         try {
-            MultipartStream multipartStream = new MultipartStream(responseInputStream, boundary.getBytes(StandardCharsets.UTF_8), 16 * 1024,
-                null);
+            MultipartStream multipartStream = new MultipartStream(responseInputStream,
+                                                                  boundary.getBytes(StandardCharsets.UTF_8),
+                                                                  16 * 1024,
+                                                                  null);
             while (multipartStream.skipPreamble()) {
                 ByteArrayOutputStream part = null;
                 try {
@@ -130,9 +136,13 @@ public class RecentLogsRetriever extends CustomControllerClient {
         }
 
         public ApplicationLog convertToApplicationLog() {
-            return new ApplicationLog(logMessage.getAppId(), logMessage.getMessage()
-                .toStringUtf8(), new Date(logMessage.getTimestamp()), getMessageType(), logMessage.getSourceType(),
-                logMessage.getSourceInstance());
+            return new ApplicationLog(logMessage.getAppId(),
+                                      logMessage.getMessage()
+                                                .toStringUtf8(),
+                                      new Date(logMessage.getTimestamp()),
+                                      getMessageType(),
+                                      logMessage.getSourceType(),
+                                      logMessage.getSourceInstance());
         }
 
         private org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType getMessageType() {

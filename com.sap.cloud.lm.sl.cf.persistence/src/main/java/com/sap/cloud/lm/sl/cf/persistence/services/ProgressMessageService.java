@@ -4,6 +4,9 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.executors.SqlQueryExecutor;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
@@ -12,6 +15,7 @@ import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageT
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlProgressMessageQueryProvider;
 import com.sap.cloud.lm.sl.common.SLException;
 
+@Named
 public class ProgressMessageService {
 
     private static final String DEFAULT_TABLE_NAME = "PROGRESS_MESSAGE";
@@ -19,6 +23,7 @@ public class ProgressMessageService {
     private final SqlQueryExecutor sqlQueryExecutor;
     private final SqlProgressMessageQueryProvider sqlProgressMessageQueryProvider;
 
+    @Inject
     public ProgressMessageService(DataSourceWithDialect dataSourceWithDialect) {
         this(DEFAULT_TABLE_NAME, dataSourceWithDialect);
     }
@@ -62,8 +67,9 @@ public class ProgressMessageService {
 
     public int removeByProcessInstanceIdAndTaskIdAndType(final String processId, String taskId, ProgressMessageType progressMessageType) {
         try {
-            return getSqlQueryExecutor().execute(getSqlProgressMessageQueryProvider()
-                .getRemoveByProcessInstanceIdAndTaskIdAndTypeQuery(processId, taskId, progressMessageType));
+            return getSqlQueryExecutor().execute(getSqlProgressMessageQueryProvider().getRemoveByProcessInstanceIdAndTaskIdAndTypeQuery(processId,
+                                                                                                                                        taskId,
+                                                                                                                                        progressMessageType));
         } catch (SQLException e) {
             throw new SLException(e, Messages.ERROR_DELETING_MESSAGES_FOR_PROCESS_ID_AND_TASK_ID, processId, taskId);
         }

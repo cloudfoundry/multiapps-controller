@@ -3,13 +3,17 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.util.CloudUtil;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
+@Named
+@Profile("cf")
 public class LoggingEndpointGetter extends CustomControllerClient {
 
     private static final String V2_INFO_ENDPOINT = "/v2/info";
@@ -26,7 +30,7 @@ public class LoggingEndpointGetter extends CustomControllerClient {
     private String attmeptToGetLoggingEndpoint(CloudControllerClient client) {
         RestTemplate restTemplate = getRestTemplate(client);
         String controllerUrl = client.getCloudControllerUrl()
-            .toString();
+                                     .toString();
         String infoV2Url = getUrl(controllerUrl, V2_INFO_ENDPOINT);
 
         String infoV2Json = restTemplate.getForObject(infoV2Url, String.class);

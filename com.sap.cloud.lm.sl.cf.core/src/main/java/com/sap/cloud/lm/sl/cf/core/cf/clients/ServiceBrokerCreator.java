@@ -4,13 +4,17 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.springframework.context.annotation.Profile;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 
+@Named
+@Profile("cf")
 public class ServiceBrokerCreator extends CustomControllerClient {
 
     private static final String SERVICE_BROKERS_URL = "/v2/service_brokers";
@@ -28,7 +32,7 @@ public class ServiceBrokerCreator extends CustomControllerClient {
         validateEntity(serviceBroker);
         Map<String, Object> serviceBrokerCreationRequest = getServiceBrokerCreationRequest(serviceBroker);
         String controllerUrl = client.getCloudControllerUrl()
-            .toString();
+                                     .toString();
         RestTemplate restTemplate = getRestTemplate(client);
         restTemplate.postForObject(getUrl(controllerUrl, SERVICE_BROKERS_URL), serviceBrokerCreationRequest, String.class);
     }

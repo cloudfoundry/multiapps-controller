@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.web.security;
 
 import java.io.IOException;
 
+import javax.inject.Named;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.filter.GenericFilterBean;
 
+@Named("requestSizeFilter")
 public class RequestSizeFilter extends GenericFilterBean {
 
     private static final long MAX_REQUEST_SIZE_BYTES = 1 * 1024 * 1024;
