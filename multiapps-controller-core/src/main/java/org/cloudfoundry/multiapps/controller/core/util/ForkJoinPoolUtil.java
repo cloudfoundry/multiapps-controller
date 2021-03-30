@@ -19,11 +19,11 @@ public class ForkJoinPoolUtil {
         }
     }
 
-    public static <T> T execute(int threads, Callable<T> callable, Function<Exception, T> errorConsumer) {
+    public static <T> T execute(int threads, Callable<T> callable, Function<RuntimeException, T> errorConsumer) {
         return execute(threads, () -> {
             try {
                 return callable.call();
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 return errorConsumer.apply(e);
             }
         });
