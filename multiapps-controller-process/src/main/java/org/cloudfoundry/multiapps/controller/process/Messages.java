@@ -416,6 +416,7 @@ public class Messages {
     public static final String MODULES_TO_UNDEPLOY = "Modules to undeploy: {0}";
     public static final String MODULES_NOT_TO_BE_CHANGED = "Modules that won't be changed: {0}";
     public static final String PROCESS_WAS_ABORTED = "Process was aborted";
+    public static final String NOT_SPECIFIED_HEALTH_CHECK_TYPE = "No health-check-type is specified. Setting default type: {0}";
     public static final String EXCEPTION_CAUGHT = "Exception caught";
     public static final String UNEXPECTED_ERROR = "Unexpected error: {0}";
     public static final String SAVING_ERROR_MESSAGE_FAILED = "Saving error message failed";

@@ -23,6 +23,9 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         String stack = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.STACK, null);
         Integer healthCheckTimeout = (Integer) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TIMEOUT,
                                                                                null);
+        Integer healthCheckInvocationTimeout = (Integer) PropertiesUtil.getPropertyValue(parametersList,
+                                                                                         SupportedParameters.HEALTH_CHECK_INVOCATION_TIMEOUT,
+                                                                                         null);
         String healthCheckType = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TYPE, null);
         String healthCheckHttpEndpoint = (String) PropertiesUtil.getPropertyValue(parametersList,
                                                                                   SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT,
@@ -34,6 +37,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                .buildpacks(buildpacks)
                                .stack(stack)
                                .healthCheckTimeout(healthCheckTimeout)
+                               .invocationTimeout(healthCheckInvocationTimeout)
                                .healthCheckType(healthCheckType)
                                .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
                                .isSshEnabled(isSshEnabled)

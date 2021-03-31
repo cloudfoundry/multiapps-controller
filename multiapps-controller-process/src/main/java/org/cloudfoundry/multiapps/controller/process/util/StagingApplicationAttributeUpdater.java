@@ -27,6 +27,7 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
         String command = staging.getCommand();
         String stack = staging.getStack();
         Integer healthCheckTimeout = staging.getHealthCheckTimeout();
+        Integer healthCheckInvocationTimeout = staging.getInvocationTimeout();
         String healthCheckType = staging.getHealthCheckType();
         String healthCheckHttpEndpoint = staging.getHealthCheckHttpEndpoint();
         Boolean sshEnabled = staging.isSshEnabled();
@@ -35,6 +36,7 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
             || (stack != null && !stack.equals(existingStaging.getStack()))
             || (healthCheckTimeout != null && !healthCheckTimeout.equals(existingStaging.getHealthCheckTimeout()))
             || (healthCheckType != null && !healthCheckType.equals(existingStaging.getHealthCheckType()))
+            || (healthCheckInvocationTimeout != null && !healthCheckInvocationTimeout.equals(existingStaging.getInvocationTimeout()))
             || (healthCheckHttpEndpoint != null && !healthCheckHttpEndpoint.equals(existingStaging.getHealthCheckHttpEndpoint()))
             || (sshEnabled != null && !sshEnabled.equals(existingStaging.isSshEnabled())
                 || isDockerInfoModified(existingStaging.getDockerInfo(), staging.getDockerInfo()));
