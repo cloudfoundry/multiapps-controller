@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
+import org.cloudfoundry.multiapps.controller.process.util.BlueGreenVariablesSetter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -17,8 +18,13 @@ import org.springframework.context.annotation.Scope;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PrepareAppsRestartStep extends PrepareModulesDeploymentStep {
 
-    @Inject
     private ModuleToDeployHelper moduleToDeployHelper;
+
+    @Inject
+    public PrepareAppsRestartStep(BlueGreenVariablesSetter blueGreenVariablesSetter, ModuleToDeployHelper moduleToDeployHelper) {
+        super(blueGreenVariablesSetter);
+        this.moduleToDeployHelper = moduleToDeployHelper;
+    }
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
