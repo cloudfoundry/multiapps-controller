@@ -5,9 +5,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
+import org.cloudfoundry.multiapps.controller.process.util.BlueGreenVariablesSetter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -17,8 +16,12 @@ import org.springframework.context.annotation.Scope;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PrepareModulesDeploymentStep extends SyncFlowableStep {
 
+    private BlueGreenVariablesSetter blueGreenVariablesSetter;
+
     @Inject
-    protected ProcessTypeParser processTypeParser;
+    public PrepareModulesDeploymentStep(BlueGreenVariablesSetter blueGreenVariablesSetter) {
+        this.blueGreenVariablesSetter = blueGreenVariablesSetter;
+    }
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -38,12 +41,8 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
 
         context.setVariable(Variables.MODULES_TO_DEPLOY, modulesToDeploy);
 
-        ProcessType processType = processTypeParser.getProcessType(context.getExecution());
-
         context.setVariable(Variables.DELETE_IDLE_URIS, false);
-        context.setVariable(Variables.SKIP_UPDATE_CONFIGURATION_ENTRIES, ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
-        context.setVariable(Variables.SKIP_MANAGE_SERVICE_BROKER, ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
-        context.setVariable(Variables.USE_IDLE_URIS, ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
+        blueGreenVariablesSetter.set(context);
 
         return StepPhase.DONE;
     }
