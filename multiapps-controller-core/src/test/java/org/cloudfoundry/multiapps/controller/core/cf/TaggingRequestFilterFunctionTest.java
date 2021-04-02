@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,6 +81,12 @@ class TaggingRequestFilterFunctionTest {
 
             @Override
             public Mono<Void> writeTo(ClientHttpRequest arg0, ExchangeStrategies arg1) {
+                return null;
+            }
+
+            @Override
+            public Consumer<ClientHttpRequest> httpRequest() {
+                // TODO Auto-generated method stub
                 return null;
             }
         };
