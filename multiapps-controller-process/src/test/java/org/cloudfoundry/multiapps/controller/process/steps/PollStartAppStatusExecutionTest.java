@@ -99,7 +99,7 @@ class PollStartAppStatusExecutionTest {
     }
 
     private void prepareClientProvider() {
-        when(clientProvider.getControllerClient(any(), any())).thenReturn(client);
+        when(clientProvider.getControllerClient(any(), any(), any())).thenReturn(client);
     }
 
     private InstancesInfo buildInstancesInfo(List<InstanceState> instancesStates) {

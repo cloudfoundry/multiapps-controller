@@ -35,7 +35,7 @@
         <jackson.version>2.11.2</jackson.version>
         <liquibase.version>4.1.1</liquibase.version>
         <liquibase-slf4j.version>4.0.0</liquibase-slf4j.version>
-        <cloudfoundry-client.version>2.9.0</cloudfoundry-client.version>
+        <cloudfoundry-client.version>2.10.0-SNAPSHOT</cloudfoundry-client.version>
         <reactor-netty.version>0.9.12.RELEASE</reactor-netty.version>
         <jgit.version>4.11.9.201909030838-r</jgit.version>
         <swagger.version>1.6.2</swagger.version>

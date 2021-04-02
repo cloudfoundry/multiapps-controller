@@ -81,9 +81,12 @@ public class OperationInFinalStateHandler {
         String organizationName = VariableHandling.get(execution, Variables.ORGANIZATION_NAME);
         String spaceName = VariableHandling.get(execution, Variables.SPACE_NAME);
         String spaceGuid = VariableHandling.get(execution, Variables.SPACE_GUID);
+        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
 
-        clientProvider.releaseClient(user, organizationName, spaceName);
-        clientProvider.releaseClient(user, spaceGuid);
+        clientProvider.releaseClient(user, organizationName, spaceName, correlationId);
+        clientProvider.releaseClient(user, spaceGuid, correlationId);
+        clientProvider.releaseClient(user, organizationName, spaceName, null);
+        clientProvider.releaseClient(user, spaceGuid, null);
     }
 
     protected void setOperationState(String processInstanceId, Operation.State state) {

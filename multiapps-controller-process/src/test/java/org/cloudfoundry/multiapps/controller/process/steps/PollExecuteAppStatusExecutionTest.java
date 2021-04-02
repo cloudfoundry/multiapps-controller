@@ -171,7 +171,7 @@ class PollExecuteAppStatusExecutionTest {
     }
 
     private void prepareClientProvider() {
-        when(clientProvider.getControllerClient(any(), any())).thenReturn(client);
+        when(clientProvider.getControllerClient(any(), any(), any())).thenReturn(client);
     }
 
     @Test

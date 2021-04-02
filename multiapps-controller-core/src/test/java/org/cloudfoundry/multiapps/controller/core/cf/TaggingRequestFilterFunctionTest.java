@@ -28,6 +28,7 @@ class TaggingRequestFilterFunctionTest {
     private static final String TEST_VERSION_VALUE = "1.58.0";
     private static final String TEST_ORG_VALUE = "faceorg";
     private static final String TEST_SPACE_VALUE = "myspace";
+    private static final String TEST_CORRELATION_ID_VALUE = "1234";
     private HttpHeaders actualHeaders;
     private ClientRequest clientRequest;
     @Mock
@@ -104,16 +105,17 @@ class TaggingRequestFilterFunctionTest {
     }
 
     @Test
-    void testInjectOrgAndSpaceValues() throws IOException {
+    void testInjectOrgAndSpaceValues() {
         TaggingRequestFilterFunction testedFilterFunction = new TaggingRequestFilterFunction(TEST_VERSION_VALUE,
                                                                                              TEST_ORG_VALUE,
-                                                                                             TEST_SPACE_VALUE);
-
+                                                                                             TEST_SPACE_VALUE,
+                                                                                             TEST_CORRELATION_ID_VALUE);
         testedFilterFunction.filter(clientRequest, nextFilter);
 
         assertEquals("MTA deploy-service v1.58.0", actualHeaders.getFirst(TaggingRequestFilterFunction.TAG_HEADER_NAME));
         assertEquals(TEST_ORG_VALUE, actualHeaders.getFirst(TaggingRequestFilterFunction.TAG_HEADER_ORG_NAME));
         assertEquals(TEST_SPACE_VALUE, actualHeaders.getFirst(TaggingRequestFilterFunction.TAG_HEADER_SPACE_NAME));
+        assertEquals(TEST_CORRELATION_ID_VALUE, actualHeaders.getFirst(TaggingRequestFilterFunction.TAG_HEADER_CORRELATION_ID));
     }
 
 }

@@ -35,13 +35,15 @@ public class ProcessContext {
     public CloudControllerClient getControllerClient() {
         String userName = StepsUtil.determineCurrentUser(execution);
         String spaceGuid = getVariable(Variables.SPACE_GUID);
-        CloudControllerClient delegate = clientProvider.getControllerClient(userName, spaceGuid);
+        String correlationId = getVariable(Variables.CORRELATION_ID);
+        CloudControllerClient delegate = clientProvider.getControllerClient(userName, spaceGuid, correlationId);
         return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 
     public CloudControllerClient getControllerClient(String org, String space) {
         String userName = StepsUtil.determineCurrentUser(execution);
-        CloudControllerClient delegate = clientProvider.getControllerClient(userName, org, space, execution.getProcessInstanceId());
+        String correlationId = getVariable(Variables.CORRELATION_ID);
+        CloudControllerClient delegate = clientProvider.getControllerClient(userName, org, space, correlationId);
         return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 

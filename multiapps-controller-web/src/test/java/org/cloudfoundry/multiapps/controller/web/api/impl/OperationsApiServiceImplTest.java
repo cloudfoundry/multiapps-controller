@@ -302,7 +302,7 @@ class OperationsApiServiceImplTest {
         Mockito.when(securityContextMock.getAuthentication())
                .thenReturn(auth);
         CloudControllerClient mockedClient = mockClient();
-        Mockito.when(clientProvider.getControllerClient(Mockito.any(), Mockito.any()))
+        Mockito.when(clientProvider.getControllerClient(Mockito.any(), Mockito.any(), Mockito.any()))
                .thenReturn(mockedClient);
     }
 

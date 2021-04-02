@@ -124,7 +124,7 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     private CloudControllerClient getCloudFoundryClient(String spaceGuid) {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientProvider.getControllerClient(userInfo.getName(), spaceGuid);
+        return clientProvider.getControllerClient(userInfo.getName(), spaceGuid, null);
     }
 
     private List<Mta> getMtas(List<DeployedMta> deployedMtas) {

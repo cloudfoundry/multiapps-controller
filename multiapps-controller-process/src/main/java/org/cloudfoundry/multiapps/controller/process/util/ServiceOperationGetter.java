@@ -6,7 +6,6 @@ import java.util.UUID;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudEvent;

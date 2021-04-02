@@ -302,7 +302,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private CloudControllerClient getCloudFoundryClient(String spaceGuid) {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientProvider.getControllerClient(userInfo.getName(), spaceGuid);
+        return clientProvider.getControllerClient(userInfo.getName(), spaceGuid, null);
     }
 
     private List<Message> getOperationMessages(Operation operation) {

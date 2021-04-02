@@ -114,7 +114,7 @@ class PollStageAppStatusExecutionTest {
     }
 
     private void prepareClientProvider() {
-        when(clientProvider.getControllerClient(any(), any())).thenReturn(client);
+        when(clientProvider.getControllerClient(any(), any(), any())).thenReturn(client);
     }
 
     private void prepareClient(CloudApplicationExtended application) {

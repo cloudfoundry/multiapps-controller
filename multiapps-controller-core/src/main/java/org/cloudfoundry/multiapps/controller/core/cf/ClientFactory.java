@@ -10,19 +10,19 @@ public abstract class ClientFactory {
         return createClient(createCredentials(token));
     }
 
-    public CloudControllerClient createClient(OAuth2AccessTokenWithAdditionalInfo token, String org, String space) {
-        return createClient(createCredentials(token), org, space);
+    public CloudControllerClient createClient(OAuth2AccessTokenWithAdditionalInfo token, String org, String space, String correlationId) {
+        return createClient(createCredentials(token), org, space, correlationId);
     }
 
-    public CloudControllerClient createClient(OAuth2AccessTokenWithAdditionalInfo token, String spaceId) {
-        return createClient(createCredentials(token), spaceId);
+    public CloudControllerClient createClient(OAuth2AccessTokenWithAdditionalInfo token, String spaceId, String correlationId) {
+        return createClient(createCredentials(token), spaceId, correlationId);
     }
 
     protected abstract CloudControllerClient createClient(CloudCredentials credentials);
 
-    protected abstract CloudControllerClient createClient(CloudCredentials credentials, String org, String space);
+    protected abstract CloudControllerClient createClient(CloudCredentials credentials, String org, String space, String correlationId);
 
-    protected abstract CloudControllerClient createClient(CloudCredentials credentials, String spaceId);
+    protected abstract CloudControllerClient createClient(CloudCredentials credentials, String spaceId, String correlationId);
 
     private static CloudCredentials createCredentials(OAuth2AccessTokenWithAdditionalInfo token) {
         return new CloudCredentials(token, true);

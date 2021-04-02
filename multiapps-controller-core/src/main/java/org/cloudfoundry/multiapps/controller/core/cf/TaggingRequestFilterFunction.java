@@ -13,18 +13,21 @@ class TaggingRequestFilterFunction implements ExchangeFilterFunction {
     public static final String TAG_HEADER_SPACE_NAME = "source-space";
     public static final String TAG_HEADER_ORG_NAME = "source-org";
     public static final String TAG_HEADER_NAME = "source";
+    public static final String TAG_HEADER_CORRELATION_ID = "x-correlation-id";
     private final String headerValue;
     private final String orgHeaderValue;
     private final String spaceHeaderValue;
+    private final String correlationIdHeaderValue;
 
     TaggingRequestFilterFunction(String deployServiceVersion) {
-        this(deployServiceVersion, null, null);
+        this(deployServiceVersion, null, null, null);
     }
 
-    TaggingRequestFilterFunction(String deployServiceVersion, String org, String space) {
+    TaggingRequestFilterFunction(String deployServiceVersion, String org, String space, String correlationId) {
         this.headerValue = getHeaderValue(deployServiceVersion);
         this.orgHeaderValue = org;
         this.spaceHeaderValue = space;
+        this.correlationIdHeaderValue = correlationId;
     }
 
     String getHeaderValue(String deployServiceVersion) {
@@ -38,6 +41,9 @@ class TaggingRequestFilterFunction implements ExchangeFilterFunction {
         if (orgHeaderValue != null && spaceHeaderValue != null) {
             setHeader(headers, TAG_HEADER_ORG_NAME, orgHeaderValue);
             setHeader(headers, TAG_HEADER_SPACE_NAME, spaceHeaderValue);
+        }
+        if (correlationIdHeaderValue != null) {
+            setHeader(headers, TAG_HEADER_CORRELATION_ID, correlationIdHeaderValue);
         }
         return nextFilter.exchange(clientRequest);
     }

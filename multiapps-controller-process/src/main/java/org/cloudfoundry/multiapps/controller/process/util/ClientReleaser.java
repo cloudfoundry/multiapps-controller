@@ -27,10 +27,13 @@ public class ClientReleaser {
         String organizationName = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.ORGANIZATION_NAME.getName());
         String spaceName = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.SPACE_NAME.getName());
         String spaceGuid = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.SPACE_GUID.getName());
+        String correlationId = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.CORRELATION_ID.getName());
 
         try {
-            clientProvider.releaseClient(user, organizationName, spaceName);
-            clientProvider.releaseClient(user, spaceGuid);
+            clientProvider.releaseClient(user, organizationName, spaceName, null);
+            clientProvider.releaseClient(user, spaceGuid, null);
+            clientProvider.releaseClient(user, organizationName, spaceName, correlationId);
+            clientProvider.releaseClient(user, spaceGuid, correlationId);
         } catch (SLException e) {
             LOGGER.warn(e.getMessage());
         }
