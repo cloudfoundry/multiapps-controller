@@ -30,10 +30,9 @@ public class ClientReleaser {
         String correlationId = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.CORRELATION_ID.getName());
 
         try {
-            clientProvider.releaseClient(user, organizationName, spaceName, null);
-            clientProvider.releaseClient(user, spaceGuid, null);
-            clientProvider.releaseClient(user, organizationName, spaceName, correlationId);
+            clientProvider.releaseClient(user, spaceGuid);
             clientProvider.releaseClient(user, spaceGuid, correlationId);
+            clientProvider.releaseClient(user, organizationName, spaceName, correlationId);
         } catch (SLException e) {
             LOGGER.warn(e.getMessage());
         }

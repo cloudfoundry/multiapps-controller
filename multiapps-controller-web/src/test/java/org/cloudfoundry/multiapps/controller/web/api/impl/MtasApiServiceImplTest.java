@@ -203,7 +203,7 @@ class MtasApiServiceImplTest {
         SecurityContextHolder.setContext(securityContextMock);
         Mockito.when(securityContextMock.getAuthentication())
                .thenReturn(auth);
-        Mockito.when(clientProvider.getControllerClient(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
+        Mockito.when(clientProvider.getControllerClient(Mockito.anyString(), Mockito.anyString()))
                .thenReturn(client);
         Mockito.when(client.getApplications())
                .thenReturn(apps);

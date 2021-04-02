@@ -2,9 +2,6 @@ package org.cloudfoundry.multiapps.controller.core.cf;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -21,8 +18,10 @@ import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditional
 @Named
 public class CloudControllerClientProvider {
 
+    private static final String NO_CORRELATION_ID = "NO-ID"; // TODO decide better dummy value
+
     @Inject
-    private ClientFactory clientFactory;
+    private CloudControllerClientFactory clientFactory;
 
     @Inject
     private TokenService tokenService;
@@ -66,10 +65,25 @@ public class CloudControllerClientProvider {
     }
 
     /**
+     * Returns a client for the specified user name and space id by either getting it from the clients cache or creating a new one.
+     *
+     * @param userName the user name associated with the client
+     * @param spaceGuid the space guid associated with the client
+     * @return a CF client for the specified access token, organization, and space
+     */
+    public CloudControllerClient getControllerClient(String userName, String spaceGuid) {
+        try {
+            return getClientFromCache(userName, spaceGuid);
+        } catch (CloudOperationException e) {
+            throw new SLException(e, Messages.CANT_CREATE_CLIENT_FOR_SPACE_ID, spaceGuid);
+        }
+    }
+
+    /**
      * Returns a client for the specified user name by creating a new one.
      *
      * @param userName the user name associated with the client
-     * @return a CF client for the specified access token, organization, and space
+     * @return a CF client for the specified access token
      */
     public CloudControllerClient getControllerClient(String userName) {
         try {
@@ -102,6 +116,16 @@ public class CloudControllerClientProvider {
         clients.remove(getKey(userName, spaceGuid, correlationId));
     }
 
+    /**
+     * Releases the client for the specified user name and space id by removing it from the clients cache.
+     *
+     * @param userName the user name associated with the client
+     * @param spaceGuid the space id associated with the client
+     */
+    public void releaseClient(String userName, String spaceGuid) {
+        clients.remove(getKey(userName, spaceGuid, NO_CORRELATION_ID));
+    }
+
     private OAuth2AccessTokenWithAdditionalInfo getValidToken(String userName) {
         OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken(userName);
         if (token.getOAuth2AccessToken()
@@ -114,17 +138,23 @@ public class CloudControllerClientProvider {
 
     private CloudControllerClient getClientFromCache(String userName, String org, String space, String correlationId) {
         String key = getKey(userName, org, space, correlationId);
-        return clients.computeIfAbsent(key, k -> clientFactory.createClient(getValidToken(userName), org, space, correlationId));
+        return clients.computeIfAbsent(key,
+                                       k -> clientFactory.createClient(getValidToken(userName), org, space, correlationId));
+    }
+
+    private CloudControllerClient getClientFromCache(String userName, String spaceId) {
+        String key = getKey(userName, spaceId, NO_CORRELATION_ID);
+        return clients.computeIfAbsent(key,
+                                       k -> clientFactory.createClient(getValidToken(userName), spaceId, null));
     }
 
     private CloudControllerClient getClientFromCache(String userName, String spaceId, String correlationId) {
         String key = getKey(userName, spaceId, correlationId);
-        return clients.computeIfAbsent(key, k -> clientFactory.createClient(getValidToken(userName), spaceId, correlationId));
+        return clients.computeIfAbsent(key,
+                                       k -> clientFactory.createClient(getValidToken(userName), spaceId, correlationId));
     }
 
     private String getKey(String... args) {
-        return Stream.of(args)
-                     .filter(Objects::nonNull)
-                     .collect(Collectors.joining("|"));
+        return String.join("|", args);
     }
 }
