@@ -2,6 +2,9 @@ package org.cloudfoundry.multiapps.controller.core.cf;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -35,31 +38,14 @@ public class CloudControllerClientProvider {
      * @param userName the user name associated with the client
      * @param org the organization associated with the client
      * @param space the space associated with the client
-     * @param processId the processId for the client
+     * @param correlationId of the process which is used to tag HTTP requests
      * @return a CF client for the specified access token, organization, and space
      */
-    public CloudControllerClient getControllerClient(String userName, String org, String space, String processId) {
+    public CloudControllerClient getControllerClient(String userName, String org, String space, String correlationId) {
         try {
-            return getClientFromCache(userName, org, space, processId);
+            return getClientFromCache(userName, org, space, correlationId);
         } catch (CloudOperationException e) {
             throw new SLException(e, Messages.CANT_CREATE_CLIENT_2, org, space);
-        }
-    }
-
-    /**
-     * Returns a client for the specified user name, space id and process id by either getting it from the clients cache or creating a new
-     * one.
-     *
-     * @param userName the user name associated with the client
-     * @param orgName the organization name associated with the client
-     * @param spaceName the space name associated with the client
-     * @return a CF client for the specified access token, organization, and space
-     */
-    public CloudControllerClient getControllerClient(String userName, String orgName, String spaceName) {
-        try {
-            return getClientFromCache(userName, orgName, spaceName);
-        } catch (CloudOperationException e) {
-            throw new SLException(e, Messages.CANT_CREATE_CLIENT_2, orgName, spaceName);
         }
     }
 
@@ -68,11 +54,12 @@ public class CloudControllerClientProvider {
      *
      * @param userName the user name associated with the client
      * @param spaceGuid the space guid associated with the client
+     * @param correlationId of the process which is used to tag HTTP requests
      * @return a CF client for the specified access token, organization, and space
      */
-    public CloudControllerClient getControllerClient(String userName, String spaceGuid) {
+    public CloudControllerClient getControllerClient(String userName, String spaceGuid, String correlationId) {
         try {
-            return getClientFromCache(userName, spaceGuid);
+            return getClientFromCache(userName, spaceGuid, correlationId);
         } catch (CloudOperationException e) {
             throw new SLException(e, Messages.CANT_CREATE_CLIENT_FOR_SPACE_ID, spaceGuid);
         }
@@ -98,9 +85,10 @@ public class CloudControllerClientProvider {
      * @param userName the user name associated with the client
      * @param org the organization associated with the client
      * @param space the space associated with the client
+     * @param correlationId of the process which is used to tag HTTP requests
      */
-    public void releaseClient(String userName, String org, String space) {
-        clients.remove(getKey(userName, org, space));
+    public void releaseClient(String userName, String org, String space, String correlationId) {
+        clients.remove(getKey(userName, org, space, correlationId));
     }
 
     /**
@@ -108,9 +96,10 @@ public class CloudControllerClientProvider {
      *
      * @param userName the user name associated with the client
      * @param spaceGuid the space id associated with the client
+     * @param correlationId of the process which is used to tag HTTP requests
      */
-    public void releaseClient(String userName, String spaceGuid) {
-        clients.remove(getKey(userName, spaceGuid));
+    public void releaseClient(String userName, String spaceGuid, String correlationId) {
+        clients.remove(getKey(userName, spaceGuid, correlationId));
     }
 
     private OAuth2AccessTokenWithAdditionalInfo getValidToken(String userName) {
@@ -123,28 +112,19 @@ public class CloudControllerClientProvider {
         return token;
     }
 
-    private CloudControllerClient getClientFromCache(String userName, String org, String space) {
-        return getClientFromCache(userName, org, space, null);
+    private CloudControllerClient getClientFromCache(String userName, String org, String space, String correlationId) {
+        String key = getKey(userName, org, space, correlationId);
+        return clients.computeIfAbsent(key, k -> clientFactory.createClient(getValidToken(userName), org, space, correlationId));
     }
 
-    private CloudControllerClient getClientFromCache(String userName, String org, String space, String processId) {
-        String key = getKey(userName, org, space);
-        CloudControllerClient client = clients.get(key);
-        if (client == null) {
-            client = clientFactory.createClient(getValidToken(userName), org, space);
-            if (processId != null) {
-                clients.put(key, client);
-            }
-        }
-        return client;
-    }
-
-    private CloudControllerClient getClientFromCache(String userName, String spaceId) {
-        String key = getKey(userName, spaceId);
-        return clients.computeIfAbsent(key, k -> clientFactory.createClient(getValidToken(userName), spaceId));
+    private CloudControllerClient getClientFromCache(String userName, String spaceId, String correlationId) {
+        String key = getKey(userName, spaceId, correlationId);
+        return clients.computeIfAbsent(key, k -> clientFactory.createClient(getValidToken(userName), spaceId, correlationId));
     }
 
     private String getKey(String... args) {
-        return String.join("|", args);
+        return Stream.of(args)
+                     .filter(Objects::nonNull)
+                     .collect(Collectors.joining("|"));
     }
 }

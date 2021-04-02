@@ -1,6 +1,9 @@
 package org.cloudfoundry.multiapps.controller.core.cf;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -46,35 +49,44 @@ public class CloudFoundryClientFactory extends ClientFactory {
     @Override
     protected CloudControllerClient createClient(CloudCredentials credentials) {
         OAuthClient oAuthClient = oAuthClientFactory.createOAuthClient();
-        List<ExchangeFilterFunction> exchangeFilters = getExchangeFiltersList(null, null);
+        List<ExchangeFilterFunction> exchangeFilters = getExchangeFiltersList(null, null,null);
         CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, null,
-                                                                                oAuthClient, exchangeFilters);
+                                                                                oAuthClient, exchangeFilters, Collections.emptyMap());
         return new ResilientCloudControllerClient(controllerClient);
     }
 
     @Override
-    protected CloudControllerClient createClient(CloudCredentials credentials, String org, String space) {
+    protected CloudControllerClient createClient(CloudCredentials credentials, String org, String space, String correlationId) {
         OAuthClient oAuthClient = oAuthClientFactory.createOAuthClient();
-        List<ExchangeFilterFunction> exchangeFilters = getExchangeFiltersList(org, space);
+        List<ExchangeFilterFunction> exchangeFilters = getExchangeFiltersList(org, space, correlationId);
+        Map<String, String> requestTags = buildCorrelationIdTag(correlationId);
         CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, org, space,
-                                                                                oAuthClient, exchangeFilters);
+                                                                                oAuthClient, exchangeFilters, requestTags);
         return new ResilientCloudControllerClient(controllerClient);
     }
 
     @Override
-    protected CloudControllerClient createClient(CloudCredentials credentials, String spaceId) {
+    protected CloudControllerClient createClient(CloudCredentials credentials, String spaceId, String correlationId) {
         CloudSpace target = computeTarget(credentials, spaceId);
         OAuthClient oAuthClient = oAuthClientFactory.createOAuthClient();
         List<ExchangeFilterFunction> exchangeFilters = getExchangeFiltersList(target.getOrganization()
                                                                                     .getName(),
-                                                                              target.getName());
+                                                                              target.getName(),
+                                                                              correlationId);
+        Map<String, String> requestTags = buildCorrelationIdTag(correlationId);
         CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, target,
-                                                                                oAuthClient, exchangeFilters);
+                                                                                oAuthClient, exchangeFilters, requestTags);
         return new ResilientCloudControllerClient(controllerClient);
     }
 
-    private List<ExchangeFilterFunction> getExchangeFiltersList(String org, String space) {
-        return List.of(new TaggingRequestFilterFunction(configuration.getVersion(), org, space));
+    private Map<String, String> buildCorrelationIdTag(String correlationId) {
+        return Optional.ofNullable(correlationId)
+                       .map(correlationIdValue -> Map.of(TaggingRequestFilterFunction.TAG_HEADER_CORRELATION_ID, correlationIdValue))
+                       .orElse(Collections.emptyMap());
+    }
+
+    private List<ExchangeFilterFunction> getExchangeFiltersList(String org, String space, String correlationId) {
+        return List.of(new TaggingRequestFilterFunction(configuration.getVersion(), org, space, correlationId));
     }
 
     protected CloudSpace computeTarget(CloudCredentials credentials, String spaceId) {

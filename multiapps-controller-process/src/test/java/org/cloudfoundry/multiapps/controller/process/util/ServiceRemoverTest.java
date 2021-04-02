@@ -78,7 +78,7 @@ class ServiceRemoverTest {
     }
 
     private void prepareExecution() {
-        when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
+        when(clientProvider.getControllerClient(anyString(), anyString(), any())).thenReturn(client);
         context = new ProcessContext(execution, stepLogger, clientProvider);
         context.setVariable(Variables.USER, TEST_USER);
         execution.setVariable(org.cloudfoundry.multiapps.controller.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE);

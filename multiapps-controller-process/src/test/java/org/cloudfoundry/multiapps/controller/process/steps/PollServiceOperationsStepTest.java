@@ -92,7 +92,7 @@ class PollServiceOperationsStepTest extends AsyncStepOperationTest<CreateService
         context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, input.triggeredServiceOperations);
 
         context.setVariable(Variables.SERVICES_TO_CREATE_COUNT, 0);
-        when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
+        when(clientProvider.getControllerClient(anyString(), anyString(), anyString())).thenReturn(client);
     }
 
     @SuppressWarnings("unchecked")
