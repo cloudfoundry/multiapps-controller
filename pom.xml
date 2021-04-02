@@ -28,7 +28,7 @@
         <httpcore.version>4.4.13</httpcore.version>
         <eclipselink.version>2.7.7</eclipselink.version>
         <flowable.version>6.5.0</flowable.version>
-        <spring.version>5.2.9.RELEASE</spring.version>
+        <spring.version>5.3.5</spring.version>
         <spring-security.version>5.4.5</spring-security.version>
         <spring-security-jwt.version>1.1.1.RELEASE</spring-security-jwt.version>
         <hikari.version>3.4.3</hikari.version>
@@ -37,10 +37,10 @@
         <liquibase-slf4j.version>4.0.0</liquibase-slf4j.version>
         <cloudfoundry-client.version>2.9.0</cloudfoundry-client.version>
         <reactor-netty.version>0.9.12.RELEASE</reactor-netty.version>
-        <jgit.version>4.0.1.201506240215-r</jgit.version>
+        <jgit.version>4.11.9.201909030838-r</jgit.version>
         <swagger.version>1.6.2</swagger.version>
         <jclouds.version>2.2.1</jclouds.version>
-        <guava.version>29.0-jre</guava.version>
+        <guava.version>30.1.1-jre</guava.version>
         <resilience4j.version>1.5.0</resilience4j.version>
         <immutables.version>2.8.8</immutables.version>
         <micrometer.version>1.5.5</micrometer.version>
