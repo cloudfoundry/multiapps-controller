@@ -18,7 +18,7 @@ import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditional
 @Named
 public class CloudControllerClientProvider {
 
-    private static final String NO_CORRELATION_ID = "NO-ID"; // TODO decide better dummy value
+    private static final String NO_CORRELATION_ID = "NO-ID";
 
     @Inject
     private CloudControllerClientFactory clientFactory;
