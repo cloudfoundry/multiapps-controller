@@ -71,11 +71,28 @@ public class CloudControllerClientProvider {
      * @param spaceGuid the space guid associated with the client
      * @return a CF client for the specified access token, organization, and space
      */
-    public CloudControllerClient getControllerClient(String userName, String spaceGuid) {
+    public CloudControllerClient getControllerClientWithNoCorrelation(String userName, String spaceGuid) {
         try {
-            return getClientFromCache(userName, spaceGuid);
+            return getClientFromCacheWithNoCorrelation(userName, spaceGuid);
         } catch (CloudOperationException e) {
             throw new SLException(e, Messages.CANT_CREATE_CLIENT_FOR_SPACE_ID, spaceGuid);
+        }
+    }
+
+    /**
+     * Returns a client for the specified user name, organization, space and process id by either getting it from the clients cache or
+     * creating a new one.
+     *
+     * @param userName the user name associated with the client
+     * @param org the organization associated with the client
+     * @param space the space associated with the client
+     * @return a CF client for the specified access token, organization, and space
+     */
+    public CloudControllerClient getControllerClientWithNoCorrelation(String userName, String org, String space) {
+        try {
+            return getClientFromCacheWithNoCorrelation(userName, org, space);
+        } catch (CloudOperationException e) {
+            throw new SLException(e, Messages.CANT_CREATE_CLIENT_2, org, space);
         }
     }
 
@@ -122,8 +139,19 @@ public class CloudControllerClientProvider {
      * @param userName the user name associated with the client
      * @param spaceGuid the space id associated with the client
      */
-    public void releaseClient(String userName, String spaceGuid) {
+    public void releaseClientWithNoCorrelation(String userName, String spaceGuid) {
         clients.remove(getKey(userName, spaceGuid, NO_CORRELATION_ID));
+    }
+
+    /**
+     * Releases the client for the specified user name, organization and space by removing it from the clients cache.
+     *
+     * @param userName the user name associated with the client
+     * @param org the organization associated with the client
+     * @param space the space associated with the client
+     */
+    public void releaseClientWithNoCorrelation(String userName, String org, String space) {
+        clients.remove(getKey(userName, org, space, NO_CORRELATION_ID));
     }
 
     private OAuth2AccessTokenWithAdditionalInfo getValidToken(String userName) {
@@ -136,13 +164,19 @@ public class CloudControllerClientProvider {
         return token;
     }
 
+    private CloudControllerClient getClientFromCacheWithNoCorrelation(String userName, String org, String space) {
+        String key = getKey(userName, org, space, NO_CORRELATION_ID);
+        return clients.computeIfAbsent(key,
+                                       k -> clientFactory.createClient(getValidToken(userName), org, space, null));
+    }
+
     private CloudControllerClient getClientFromCache(String userName, String org, String space, String correlationId) {
         String key = getKey(userName, org, space, correlationId);
         return clients.computeIfAbsent(key,
                                        k -> clientFactory.createClient(getValidToken(userName), org, space, correlationId));
     }
 
-    private CloudControllerClient getClientFromCache(String userName, String spaceId) {
+    private CloudControllerClient getClientFromCacheWithNoCorrelation(String userName, String spaceId) {
         String key = getKey(userName, spaceId, NO_CORRELATION_ID);
         return clients.computeIfAbsent(key,
                                        k -> clientFactory.createClient(getValidToken(userName), spaceId, null));
