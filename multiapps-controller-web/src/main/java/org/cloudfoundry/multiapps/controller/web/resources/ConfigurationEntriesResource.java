@@ -37,7 +37,7 @@ public class ConfigurationEntriesResource {
     @PostMapping("/purge")
     public ResponseEntity<Void> purgeConfigurationRegistry(@RequestParam(REQUEST_PARAM_ORGANIZATION) String organization,
                                                            @RequestParam(REQUEST_PARAM_SPACE) String space) {
-        CloudControllerClient client = createClient();
+        CloudControllerClient client = createClient(organization, space);
         MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client,
                                                                                 configurationEntryService,
                                                                                 configurationSubscriptionService,
@@ -47,9 +47,9 @@ public class ConfigurationEntriesResource {
                              .build();
     }
 
-    private CloudControllerClient createClient() {
+    private CloudControllerClient createClient(String organization, String space) {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientProvider.getControllerClient(userInfo.getName());
+        return clientProvider.getControllerClientWithNoCorrelation(userInfo.getName(), organization, space);
     }
 
 }
