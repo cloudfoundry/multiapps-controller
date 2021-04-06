@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -12,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvid
 import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import org.springframework.util.ConcurrentReferenceHashMap;
 
 @Named
 public class SpaceIdRetriever {
@@ -20,7 +20,7 @@ public class SpaceIdRetriever {
 
     private final CloudControllerClientProvider clientProvider;
     // FIXME: Nothing is ever removed from this cache.
-    private final Map<String, String> processSpaceCache = new HashMap<>();
+    private final Map<String, String> processSpaceCache = new ConcurrentReferenceHashMap<>();
 
     @Inject
     public SpaceIdRetriever(CloudControllerClientProvider clientProvider) {
@@ -49,7 +49,7 @@ public class SpaceIdRetriever {
     }
 
     private String getSpaceCacheKey(String orgName, String spaceName, String processId) {
-        return orgName + SPACE_CACHE_SEPARATOR + spaceName + SPACE_CACHE_SEPARATOR + processId;
+        return String.join(SPACE_CACHE_SEPARATOR, orgName, spaceName, processId);
     }
 
 }
