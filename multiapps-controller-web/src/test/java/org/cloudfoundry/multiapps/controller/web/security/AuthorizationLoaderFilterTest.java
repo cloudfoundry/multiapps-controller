@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -20,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -72,10 +70,11 @@ class AuthorizationLoaderFilterTest {
     }
 
     @Test
-    void testNonAuthorizedRequest() throws ServletException, IOException {
-        assertDoesNotThrow(() -> authorizationLoaderFilter.doFilterInternal(request, response, filterChain));
-        Mockito.verify(filterChain)
-               .doFilter(request, response);
+    void testNonAuthorizedRequest() {
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class,
+                                                                       () -> authorizationLoaderFilter.doFilterInternal(request, response,
+                                                                                                                        filterChain));
+        assertEquals(HttpStatus.UNAUTHORIZED, responseStatusException.getStatus());
     }
 
     @Test

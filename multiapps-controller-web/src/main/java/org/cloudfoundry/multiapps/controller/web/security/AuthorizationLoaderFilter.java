@@ -65,9 +65,7 @@ public class AuthorizationLoaderFilter extends OncePerRequestFilter {
         throws ServletException, IOException {
         String tokenStringWithType = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (tokenStringWithType == null) {
-            SecurityContextHolder.clearContext();
-            filterChain.doFilter(request, response);
-            return;
+            failWithUnauthorized(Messages.NO_AUTHORIZATION_HEADER_WAS_PROVIDED);
         }
         OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo = createOAuth2AccessToken(tokenStringWithType);
         validateTokenExpiration(oAuth2AccessTokenWithAdditionalInfo);
@@ -77,6 +75,11 @@ public class AuthorizationLoaderFilter extends OncePerRequestFilter {
         List<AccessToken> accessTokensByUsername = findTokensByUsername(tokenUserInfo.getName());
         storeTokenInDatabaseIfNeeded(accessToken, accessTokensByUsername);
         filterChain.doFilter(request, response);
+    }
+
+    private void failWithUnauthorized(String message) {
+        SecurityContextHolder.clearContext();
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, message);
     }
 
     private OAuth2AccessTokenWithAdditionalInfo createOAuth2AccessToken(String tokenStringWithType) {
@@ -89,10 +92,9 @@ public class AuthorizationLoaderFilter extends OncePerRequestFilter {
         if (oAuth2AccessTokenWithAdditionalInfo.getOAuth2AccessToken()
                                                .getExpiresAt()
                                                .isBefore(Instant.now())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                                              MessageFormat.format("The token has expired on: \"{0}\"",
-                                                                   oAuth2AccessTokenWithAdditionalInfo.getOAuth2AccessToken()
-                                                                                                      .getExpiresAt()));
+            failWithUnauthorized(MessageFormat.format(Messages.THE_TOKEN_HAS_EXPIRED_ON_0,
+                                                      oAuth2AccessTokenWithAdditionalInfo.getOAuth2AccessToken()
+                                                                                         .getExpiresAt()));
         }
     }
 
