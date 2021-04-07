@@ -40,7 +40,7 @@
         <jgit.version>4.11.9.201909030838-r</jgit.version>
         <swagger.version>1.6.2</swagger.version>
         <jclouds.version>2.2.1</jclouds.version>
-        <guava.version>30.1.1-jre</guava.version>
+        <guava.version>23.6.1-jre</guava.version>
         <resilience4j.version>1.5.0</resilience4j.version>
         <immutables.version>2.8.8</immutables.version>
         <micrometer.version>1.5.5</micrometer.version>
