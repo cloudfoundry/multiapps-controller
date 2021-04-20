@@ -1,20 +1,24 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.AbstractStringLayout;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.cloudfoundry.multiapps.controller.persistence.Constants;
+import org.flowable.engine.delegate.DelegateExecution;
+
+import javax.inject.Named;
 import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import javax.inject.Named;
-
-import org.apache.log4j.Appender;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.cloudfoundry.multiapps.controller.persistence.Constants;
-import org.flowable.engine.delegate.DelegateExecution;
 
 @Named("processLoggerProvider")
 public class ProcessLoggerProvider {
@@ -35,7 +39,7 @@ public class ProcessLoggerProvider {
         return getLogger(execution, logName, null);
     }
 
-    public ProcessLogger getLogger(DelegateExecution execution, String logName, PatternLayout layout) {
+    public ProcessLogger getLogger(DelegateExecution execution, String logName, AbstractStringLayout layout) {
         String name = getLoggerName(execution, logName);
         String correlationId = getCorrelationId(execution);
         String spaceId = getSpaceId(execution);
@@ -62,30 +66,84 @@ public class ProcessLoggerProvider {
     }
 
     private ProcessLogger createProcessLogger(String spaceId, String correlationId, String activityId, String loggerName, String logName,
-                                              PatternLayout layout) {
-        Logger logger = Logger.getLogger(loggerName);
-        File logFile = getLocalFile(loggerName);
-        logger.removeAllAppenders();
-        logger.addAppender(createAppender(logger.getLevel(), logFile, layout));
-        return new ProcessLogger(logger, logFile, logName, spaceId, correlationId, activityId);
+                                              AbstractStringLayout abstractStringLayout) {
+        File logFile = getLocalFileByLoggerName(loggerName);
+        LoggerContext loggerContext = initializeLoggerContext(loggerName, logFile, abstractStringLayout);
+        Logger logger = loggerContext.getLogger(loggerName);
+        return new ProcessLogger(loggerContext, logger, logFile, logName, spaceId, correlationId, activityId);
     }
 
-    protected File getLocalFile(String loggerName) {
+    protected File getLocalFileByLoggerName(String loggerName) {
         String fileName = loggerName + LOG_FILE_EXTENSION;
         return new File(DEFAULT_LOG_DIR, fileName);
     }
 
-    private Appender createAppender(Level level, File logFile, PatternLayout layout) {
-        FileAppender appender = new FileAppender();
+    private LoggerContext initializeLoggerContext(String loggerName, File logFile, AbstractStringLayout abstractStringLayout) {
+
+        LoggerContext loggerContext = new LoggerContext(loggerName);
+        FileAppender fileAppender = initializeStartedAppender(loggerContext, logFile, abstractStringLayout, loggerName);
+        fileAppender.start();
+        loggerContext.getConfiguration()
+                     .addAppender(fileAppender);
+        LoggerConfig loggerConfig = getLoggerConfig(loggerContext, loggerName);
+        setLoggerConfigLoggingLevel(loggerConfig, Level.DEBUG);
+        addAppenderToLoggerConfig(loggerConfig, fileAppender, Level.DEBUG);
+        addFileAppenderToRootLogger(loggerContext, fileAppender);
+        disableConsoleLogging(loggerContext);
+        loggerContext.updateLoggers();
+
+        return loggerContext;
+    }
+
+    private FileAppender initializeStartedAppender(LoggerContext loggerContext, File logFile, AbstractStringLayout layout,
+                                                   String loggerName) {
         if (layout == null) {
-            layout = new PatternLayout(LOG_LAYOUT);
+            layout = PatternLayout.newBuilder()
+                                  .withPattern(LOG_LAYOUT)
+                                  .build();
         }
-        appender.setLayout(layout);
-        appender.setFile(logFile.getAbsolutePath());
-        appender.setThreshold(level);
-        appender.setAppend(true);
-        appender.activateOptions();
-        return appender;
+        return FileAppender.newBuilder()
+                           .setName(loggerName)
+                           .withAppend(true)
+                           .withFileName(logFile.toString())
+                           .setLayout(layout)
+                           .setConfiguration(loggerContext.getConfiguration())
+                           .withLocking(true)
+                           .build();
+    }
+
+    private LoggerConfig getLoggerConfig(LoggerContext loggerContext, String loggerName) {
+        return loggerContext.getConfiguration()
+                            .getLoggerConfig(loggerName);
+    }
+
+    private void setLoggerConfigLoggingLevel(LoggerConfig loggerConfig, Level level) {
+        loggerConfig.setLevel(level != null ? level : Level.DEBUG);
+    }
+
+    private void addAppenderToLoggerConfig(LoggerConfig loggerConfig, FileAppender fileAppender, Level level) {
+        loggerConfig.addAppender(fileAppender, level != null ? level : Level.DEBUG, null);
+    }
+
+    private void addFileAppenderToRootLogger(LoggerContext loggerContext, FileAppender fileAppender) {
+        loggerContext.getRootLogger()
+                     .addAppender(fileAppender);
+    }
+
+    private void disableConsoleLogging(LoggerContext loggerContext) {
+        for (Appender appender : getAllAppenders(loggerContext)) {
+            if (appender.getName()
+                        .contains("DefaultConsole")) {
+                loggerContext.getRootLogger()
+                             .removeAppender(appender);
+            }
+        }
+    }
+
+    private Collection<Appender> getAllAppenders(LoggerContext loggerContext) {
+        return Collections.unmodifiableCollection(loggerContext.getRootLogger()
+                                                               .getAppenders()
+                                                               .values());
     }
 
     private String getSpaceId(DelegateExecution execution) {
@@ -103,9 +161,7 @@ public class ProcessLoggerProvider {
         return processId.equals(logger.getProcessId()) && activityId.equals(logger.getActivityId());
     }
 
-    public void remove(ProcessLogger processLogger) {
-        processLogger.removeAllAppenders();
-        loggersCache.remove(processLogger.getName());
+    public void removeLoggersCache(ProcessLogger processLogger) {
+        loggersCache.remove(processLogger.getLoggerName());
     }
-
 }

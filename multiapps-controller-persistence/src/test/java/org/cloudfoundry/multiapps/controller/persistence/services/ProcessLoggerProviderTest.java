@@ -4,12 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 
+import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.AfterEach;
@@ -37,20 +37,13 @@ class ProcessLoggerProviderTest {
         MockitoAnnotations.openMocks(this)
                           .close();
         temporaryLogFile = Files.createTempFile(TEST_FILE_NAME, null);
-        processLoggerProvider = new ProcessLoggerProvider() {
-
-            @Override
-            protected File getLocalFile(String loggerName) {
-                return temporaryLogFile.toFile();
-            }
-
-        };
+        processLoggerProvider = new ProcessLoggerProvider();
     }
 
     @AfterEach
     void tearDown() throws IOException {
-        if (processLogger != null) {
-            processLoggerProvider.remove(processLogger);
+        if (processLogger != null && processLogger.getLoggerName() != null) {
+            processLoggerProvider.removeLoggersCache(processLogger);
 
         }
         if (temporaryLogFile.toFile()
@@ -92,10 +85,8 @@ class ProcessLoggerProviderTest {
     @Test
     void testGetNullProcessLogger() {
         processLogger = processLoggerProvider.getLogger(execution);
-
         assertTrue(processLogger instanceof NullProcessLogger,
                    MessageFormat.format("Expected NullProcessLogger but was {0}", processLogger.getClass()
                                                                                                .getSimpleName()));
     }
-
 }
