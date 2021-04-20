@@ -1,17 +1,19 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.text.MessageFormat;
-
+import org.apache.logging.log4j.core.LoggerContext;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
+
 public class NullProcessLogger extends ProcessLogger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NullProcessLogger.class);
+    private static final String NULL_LOGGER_NAME = "Null logger";
 
     public NullProcessLogger(String spaceId, String processId, String activityId) {
-        super(spaceId, processId, activityId);
+        super(LoggerContext.getContext(false), spaceId, processId, activityId);
     }
 
     @Override
@@ -50,13 +52,13 @@ public class NullProcessLogger extends ProcessLogger {
     }
 
     @Override
-    public synchronized void removeAllAppenders() {
+    public synchronized void persistLogFile(ProcessLogsPersistenceService processLogsPersistenceService) {
         logNullCorrelationId();
     }
 
     @Override
-    public synchronized void persistLogFile(ProcessLogsPersistenceService processLogsPersistenceService) {
-        logNullCorrelationId();
+    public String getLoggerName() {
+        return NULL_LOGGER_NAME;
     }
 
     @Override

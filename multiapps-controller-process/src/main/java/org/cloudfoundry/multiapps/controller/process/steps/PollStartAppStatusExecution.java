@@ -1,12 +1,10 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.text.MessageFormat.format;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
+import com.sap.cloudfoundry.client.facade.domain.InstanceState;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
@@ -15,11 +13,12 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
-import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
-import com.sap.cloudfoundry.client.facade.domain.InstanceState;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.text.MessageFormat.format;
 
 public class PollStartAppStatusExecution implements AsyncExecution {
 

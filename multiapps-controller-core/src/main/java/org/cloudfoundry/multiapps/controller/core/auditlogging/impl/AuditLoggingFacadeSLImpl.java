@@ -1,20 +1,20 @@
 package org.cloudfoundry.multiapps.controller.core.auditlogging.impl;
 
-import java.text.MessageFormat;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.UserInfoProvider;
 import org.cloudfoundry.multiapps.mta.model.AuditableConfiguration;
 
+import java.text.MessageFormat;
+import java.util.Map;
+import javax.sql.DataSource;
+
 public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
 
-    private static final Logger LOGGER = Logger.getLogger(AuditLoggingFacadeSLImpl.class);
+    private static final Logger LOGGER = (Logger) LogManager.getLogger(AuditLoggingFacadeSLImpl.class);
     private final AuditLogManager auditLogManager;
 
     public AuditLoggingFacadeSLImpl(DataSource dataSource, UserInfoProvider userInfoProvider) {

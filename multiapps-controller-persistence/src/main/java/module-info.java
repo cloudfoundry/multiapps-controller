@@ -37,7 +37,8 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires guice;
     requires java.xml.bind;
     requires javax.inject;
-    requires log4j;
+    requires org.apache.logging.log4j;
+    requires org.apache.logging.log4j.core;
     requires org.apache.commons.io;
     requires org.apache.commons.collections4;
     requires org.apache.commons.lang3;

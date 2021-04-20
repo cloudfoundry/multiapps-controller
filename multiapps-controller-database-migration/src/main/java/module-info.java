@@ -12,7 +12,8 @@ open module org.cloudfoundry.multiapps.controller.database.migration {
 
     requires java.naming;
     requires java.sql;
-    requires log4j;
+    requires org.apache.logging.log4j;
+    requires org.apache.logging.log4j.core;
     requires org.cloudfoundry.multiapps.common;
     requires org.slf4j;
 
