@@ -65,8 +65,9 @@ public class BindServiceToApplicationStep extends SyncFlowableStep {
         public void onError(CloudOperationException e, String applicationName, String serviceName) {
             if ((e.getCause() instanceof ClientV2Exception) && ((ClientV2Exception) e.getCause()).getCode()
                                                                                                  .equals(CF_SERVICE_ALREADY_BOUND)) {
-                context.getStepLogger().warnWithoutProgressMessage(e, Messages.SERVICE_BINDING_BETWEEN_SERVICE_0_AND_APP_1_ALREADY_CREATED, serviceName,
-                                                                     applicationName);
+                context.getStepLogger()
+                       .warnWithoutProgressMessage(e, Messages.SERVICE_BINDING_BETWEEN_SERVICE_0_AND_APP_1_ALREADY_CREATED, serviceName,
+                                                   applicationName);
                 return;
             }
 
