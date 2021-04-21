@@ -1,11 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -77,19 +75,12 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         }
         if (HealthCheckType.NONE.getValue()
                                 .equalsIgnoreCase(healthCheckType)) {
-            getStepLogger().info(Messages.USING_DEPRECATED_HEALTH_CHECK_TYPE_USE_ONE_OF_THE_FOLLOWING, healthCheckType,
-                                 getHealthCheckValues());
+            getStepLogger().info(Messages.USING_DEPRECATED_HEALTH_CHECK_TYPE_0_SETTING_TO_1, healthCheckType,
+                                 HealthCheckType.PROCESS.getValue());
             return ImmutableStaging.copyOf(staging)
                                    .withHealthCheckType(HealthCheckType.PROCESS.getValue());
         }
         return staging;
-    }
-
-    private List<String> getHealthCheckValues() {
-        return Arrays.stream(HealthCheckType.values())
-                     .filter(healthCheckType -> healthCheckType != HealthCheckType.NONE)
-                     .map(HealthCheckType::getValue)
-                     .collect(Collectors.toList());
     }
 
     private void determineBindingUnbindingServicesStrategy(ProcessContext context, Module module) {
