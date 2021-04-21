@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
@@ -23,6 +22,7 @@ import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
 import org.cloudfoundry.multiapps.mta.util.NameUtil;
+import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
@@ -52,7 +52,8 @@ public class ServiceBindingParametersGetter {
 
         Map<String, Object> fileProvidedBindingParameters = getFileProvidedBindingParameters(app.getModuleName(), service.get());
         Map<String, Object> descriptorProvidedBindingParameters = getDescriptorProvidedBindingParameters(app, service.get());
-        Map<String, Object> bindingParameters = MapUtil.mergeSafely(fileProvidedBindingParameters, descriptorProvidedBindingParameters);
+        Map<String, Object> bindingParameters = PropertiesUtil.mergeExtensionProperties(fileProvidedBindingParameters,
+                                                                                        descriptorProvidedBindingParameters);
         context.getStepLogger()
                .debug(Messages.BINDING_PARAMETERS_FOR_APPLICATION, app.getName(), SecureSerialization.toJson(bindingParameters));
         return bindingParameters;

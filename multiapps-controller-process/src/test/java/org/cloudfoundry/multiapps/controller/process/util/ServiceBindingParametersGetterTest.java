@@ -72,7 +72,13 @@ class ServiceBindingParametersGetterTest {
                          Arguments.of(Map.of("param1", "value1"), Map.of("param2", "value2"), Map.of("param2", "value2", "param1", "value1")),
                          Arguments.of(Map.of("param1", "value1"), null, Map.of("param1", "value1")),
                          Arguments.of(null, Map.of("param2", "value2"), Map.of("param2", "value2")),
-                         Arguments.of(null, null, Collections.emptyMap())
+                         Arguments.of(null, null, Collections.emptyMap()),
+                         Arguments.of(Map.of("object", Map.of("new-nested-parameter", "value1")),
+                                Map.of("object", Map.of("file-nested-parameter", "value2")),
+                                Map.of("object", Map.of("new-nested-parameter", "value1", "file-nested-parameter", "value2"))),
+                        Arguments.of(Map.of("object", Map.of("nested", "value1")),
+                                Map.of("object", Map.of("nested", "value2", "file-nested-parameter", "value2")),
+                                Map.of("object", Map.of("nested", "value1", "file-nested-parameter", "value2")))
         //@formatter:on
         );
     }
