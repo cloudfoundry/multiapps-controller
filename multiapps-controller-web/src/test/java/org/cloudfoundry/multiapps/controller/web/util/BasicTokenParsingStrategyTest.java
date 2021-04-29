@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.net.URL;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 
 import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
@@ -59,6 +61,27 @@ class BasicTokenParsingStrategyTest {
         mockOauthClient(mockedToken);
         OAuth2AccessTokenWithAdditionalInfo parsedToken = basicTokenParsingStrategy.parseToken(TOKEN_STRING);
         assertEquals(mockedToken, parsedToken);
+    }
+
+    @Test
+    void testGetUsernameWithPasswordWhenNormalPasswordIsProvided() {
+        String[] usernameWithPassword = basicTokenParsingStrategy.getUsernameWithPassword(TOKEN_STRING);
+        assertEquals("some@fake.fake", usernameWithPassword[0]);
+        assertEquals("password", usernameWithPassword[1]);
+    }
+
+    @Test
+    void testGetUsernameWithPasswordWhenPasswordWithColonsIsProvided() {
+        String[] usernameWithPassword = basicTokenParsingStrategy.getUsernameWithPassword("ZmFrZTpwYXM6cGFzOnBhcw==");
+        assertEquals("fake", usernameWithPassword[0]);
+        assertEquals("pas:pas:pas", usernameWithPassword[1]);
+    }
+
+    @Test
+    void testGetUsernameWithPasswordWhenPasswordWithInvalidToken() {
+        Exception exception = assertThrows(InternalAuthenticationServiceException.class,
+                                           () -> basicTokenParsingStrategy.getUsernameWithPassword("invalid"));
+        assertEquals(Messages.INVALID_AUTHENTICATION_PROVIDED, exception.getMessage());
     }
 
     private void mockOauthClient(OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo) {
