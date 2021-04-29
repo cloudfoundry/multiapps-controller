@@ -28,17 +28,22 @@ public class BasicTokenParsingStrategy implements TokenParsingStrategy {
         if (!applicationConfiguration.isBasicAuthEnabled()) {
             throw new InsufficientAuthenticationException(Messages.BASIC_AUTHENTICATION_IS_NOT_ENABLED_USE_OAUTH_2);
         }
-        String decodedToken = decodeToken(tokenString);
-        String[] usernameAndPassword = decodedToken.split(":");
-        if (usernameAndPassword.length != 2) {
-            throw new InternalAuthenticationServiceException(Messages.INVALID_AUTHENTICATION_PROVIDED);
-        }
-        String username = usernameAndPassword[0];
-        String password = usernameAndPassword[1];
         OAuthClient oauthClient = restUtil.createOAuthClientByControllerUrl(applicationConfiguration.getControllerUrl(),
                                                                             applicationConfiguration.shouldSkipSslValidation());
-        oauthClient.init(new CloudCredentials(username, password));
+        String[] usernameWithPassword = getUsernameWithPassword(tokenString);
+        oauthClient.init(new CloudCredentials(usernameWithPassword[0], usernameWithPassword[1]));
         return oauthClient.getToken();
+    }
+
+    String[] getUsernameWithPassword(String tokenString) {
+        String decodedToken = decodeToken(tokenString);
+        int colonIndex = decodedToken.indexOf(":");
+        if (colonIndex == -1) {
+            throw new InternalAuthenticationServiceException(Messages.INVALID_AUTHENTICATION_PROVIDED);
+        }
+        String username = decodedToken.substring(0, colonIndex);
+        String password = decodedToken.substring(colonIndex + 1);
+        return new String[] { username, password };
     }
 
     private String decodeToken(String tokenString) {
