@@ -47,6 +47,11 @@ public class RecentLogsRetriever extends CustomControllerClient {
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetRecentLogs(client, appName));
     }
 
+    public List<ApplicationLog> getRecentLogs(CloudControllerClient client, String appName, Date since) {
+        // since parameter is used in xs implementation
+        return this.getRecentLogs(client, appName);
+    }
+
     private List<ApplicationLog> attemptToGetRecentLogs(CloudControllerClient client, String appName) {
         UUID applicationGuid = client.getApplication(appName)
                                      .getMeta()
