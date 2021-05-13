@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -773,6 +774,14 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_APP_TO_DEPLOY, JsonUtil.toJson(app));
     }
 
+    static void setLastTimeLogsRetrieved(DelegateExecution context){
+        context.setVariable(Constants.VAR_LAST_TIME_LOGS_RETRIEVED, System.currentTimeMillis());
+    }
+
+    static Long getLastTimeLogsRetrieved(DelegateExecution context){
+        return (Long) context.getVariable(Constants.VAR_LAST_TIME_LOGS_RETRIEVED);
+    }
+
     public static ModuleToDeploy getModuleToDeploy(DelegateExecution context) {
         return JsonUtil.fromJson((String) context.getVariable(Constants.VAR_MODULE_TO_DEPLOY), ModuleToDeploy.class);
     }
@@ -822,7 +831,9 @@ public class StepsUtil {
 
     static void saveAppLogs(DelegateExecution context, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
         CloudApplication app, Logger logger, ProcessLoggerProvider processLoggerProvider) {
-        List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName());
+        Long since = getLastTimeLogsRetrieved(context);
+        setLastTimeLogsRetrieved(context);
+        List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName(), new Date(since));
         if (recentLogs != null) {
             recentLogs.forEach(log -> appLog(context, app.getName(), log.toString(), logger, processLoggerProvider));
         }

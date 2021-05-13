@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -255,6 +256,11 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     @Override
     public List<ApplicationLog> getRecentLogs(String appName) {
         return executeWithRetry(() -> cc.getRecentLogs(appName), HttpStatus.NOT_FOUND);
+    }
+
+    @Override
+    public List<ApplicationLog> getRecentLogs(String appName, Date since, Date till) {
+        return executeWithRetry(() -> cc.getRecentLogs(appName, since, till), HttpStatus.NOT_FOUND);
     }
 
     @Override

@@ -102,6 +102,7 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
 
     private void prepareContext() {
         StepsUtil.setStartedTask(context, task);
+        StepsUtil.setLastTimeLogsRetrieved(context);
         context.setVariable(Constants.VAR_TASKS_INDEX, 0);
         context.setVariable(Constants.VAR_START_TIME, 0L);
         context.setVariable(Constants.PARAM_START_TIMEOUT, START_TIMEOUT);
