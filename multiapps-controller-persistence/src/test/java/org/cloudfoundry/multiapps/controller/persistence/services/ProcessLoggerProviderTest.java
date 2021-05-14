@@ -89,4 +89,27 @@ class ProcessLoggerProviderTest {
                    MessageFormat.format("Expected NullProcessLogger but was {0}", processLogger.getClass()
                                                                                                .getSimpleName()));
     }
+
+    @Test
+    void testNullProcessLoggerName() {
+        processLogger = processLoggerProvider.getLogger(execution);
+        assertTrue(processLogger.getLoggerName()
+                                .equals("NULL_LOGGER"));
+    }
+
+    @Test
+    void testGetProcessLoggerWithParams() {
+        prepareContext();
+
+        processLogger = processLoggerProvider.getLogger(execution, temporaryLogFile.getFileName()
+                                                                                   .toString(),
+                                                        null);
+
+        assertEquals(CORRELATION_ID, processLogger.getProcessId());
+        assertEquals(TASK_ID, processLogger.getActivityId());
+        assertEquals(SPACE_ID, processLogger.spaceId);
+        assertEquals("com.sap.cloud.lm.sl.xs2." + CORRELATION_ID + "." + temporaryLogFile.getFileName()
+                                                                                         .toString()
+            + "." + TASK_ID, processLogger.getLoggerName());
+    }
 }

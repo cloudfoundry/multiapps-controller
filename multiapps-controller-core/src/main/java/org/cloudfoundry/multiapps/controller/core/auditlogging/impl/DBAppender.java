@@ -45,7 +45,7 @@ class DBAppender extends AbstractAppender {
         this.eventAdapter = Objects.requireNonNull(eventAdapter);
         this.exceptionHandler = Objects.requireNonNull(exceptionHandler);
         this.userInfoProvider = userInfoProvider;
-        this.appenderName = appenderName != null ? appenderName : DEFAULT_NAME;
+        this.appenderName = appenderName;
     }
 
     @Override

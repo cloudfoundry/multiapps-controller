@@ -10,7 +10,7 @@ import java.text.MessageFormat;
 public class NullProcessLogger extends ProcessLogger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NullProcessLogger.class);
-    private static final String NULL_LOGGER_NAME = "Null logger";
+    private static final String NULL_LOGGER_NAME = "NULL_LOGGER";
 
     public NullProcessLogger(String spaceId, String processId, String activityId) {
         super(LoggerContext.getContext(false), spaceId, processId, activityId);

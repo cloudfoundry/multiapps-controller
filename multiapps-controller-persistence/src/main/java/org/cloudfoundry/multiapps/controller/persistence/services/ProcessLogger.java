@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.cloudfoundry.multiapps.controller.persistence.Messages;
 
 import java.io.File;
 
@@ -16,8 +17,8 @@ public class ProcessLogger {
     protected final String activityId;
     private LoggerContext loggerContext;
 
-    public ProcessLogger(LoggerContext loggerContext, Logger logger, File log, String logName, String spaceId,
-                         String processId, String activityId) {
+    public ProcessLogger(LoggerContext loggerContext, Logger logger, File log, String logName, String spaceId, String processId,
+                         String activityId) {
         this.logger = logger;
         this.log = log;
         this.logName = logName;
@@ -27,8 +28,9 @@ public class ProcessLogger {
         this.loggerContext = loggerContext;
     }
 
-    public ProcessLogger(LoggerContext loggerContext, String spaceId, String processId, String activityId) {
+    protected ProcessLogger(LoggerContext loggerContext, String spaceId, String processId, String activityId) {
         this.loggerContext = loggerContext;
+        this.logger = loggerContext.getRootLogger();
         this.spaceId = spaceId;
         this.processId = processId;
         this.activityId = activityId;
@@ -88,12 +90,11 @@ public class ProcessLogger {
         return this.logger.getName();
     }
 
-    public LoggerContext getLoggerContext() {
-        return this.loggerContext;
+    public void closeLoggerContext() {
+        try {
+            loggerContext.close();
+        } catch (Exception exception) {
+            logger.error(Messages.COULD_NOT_CLOSE_LOGGER_CONTEXT, exception);
+        }
     }
-
-    public void closeLoggerContext(){
-        loggerContext.close();
-    }
-
 }
