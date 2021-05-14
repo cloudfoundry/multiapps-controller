@@ -46,6 +46,7 @@ public final class Messages {
     public static final String COULD_NOT_CLOSE_RESULT_SET = "Could not close result set.";
     public static final String COULD_NOT_CLOSE_STATEMENT = "Could not close statement.";
     public static final String COULD_NOT_CLOSE_CONNECTION = "Could not close connection.";
+    public static final String COULD_NOT_CLOSE_LOGGER_CONTEXT = "Could not close logger context";
     public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
     public static final String COULD_NOT_PERSIST_LOGS_FILE = "Could not persist logs file: {0}";
     public static final String ATTEMPT_TO_UPLOAD_BLOB_FAILED = "Attempt [{0}/{1}] to upload blob to ObjectStore failed with \"{2}\"";
@@ -55,6 +56,7 @@ public final class Messages {
     public static final String FAILED_TO_DELETE_FILE = "Failed to delete file {0}";
     public static final String CREATING_INDEX_CONCURRENTLY = "Creating index {0} concurrently";
     public static final String INDEX_CREATED = "Index created.";
+    public static final String DEFAULT_CONSOLE = "DefaultConsole";
 
     // DEBUG log messages:
     public static final String DELETING_FILE_WITH_PATH_0 = "Deleting file with path \"{0}\"...";

@@ -22,5 +22,4 @@ public class ProcessLogsPersister {
             processLogger.deleteLogFile();
         }
     }
-
 }

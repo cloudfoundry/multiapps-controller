@@ -9,6 +9,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
+import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import javax.inject.Named;
@@ -133,7 +134,7 @@ public class ProcessLoggerProvider {
     private void disableConsoleLogging(LoggerContext loggerContext) {
         for (Appender appender : getAllAppenders(loggerContext)) {
             if (appender.getName()
-                        .contains("DefaultConsole")) {
+                        .contains(Messages.DEFAULT_CONSOLE)) {
                 loggerContext.getRootLogger()
                              .removeAppender(appender);
             }
