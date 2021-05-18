@@ -93,7 +93,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<Void> executeOperationAction(HttpServletRequest request, String spaceGuid, String operationId, String actionId) {
-        Operation operation = getOperation(operationId);
+        Operation operation = getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
         List<String> availableOperations = getAvailableActions(operation);
         if (!availableOperations.contains(actionId)) {
             throw new IllegalArgumentException(MessageFormat.format(Messages.ACTION_0_CANNOT_BE_EXECUTED_OVER_OPERATION_1_IN_STATE_2,
@@ -111,7 +111,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Override
     public ResponseEntity<List<Log>> getOperationLogs(String spaceGuid, String operationId) {
         try {
-            getOperation(operationId);
+            getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
             List<String> logIds = logsService.getLogNames(spaceGuid, operationId);
             List<Log> logs = logIds.stream()
                                    .map(id -> ImmutableLog.builder()
@@ -155,7 +155,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<Operation> getOperation(String spaceGuid, String operationId, String embed) {
-        Operation operation = getOperation(operationId);
+        Operation operation = getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
         if (!operation.getSpaceId()
                       .equals(spaceGuid)) {
             LOGGER.info(MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.OPERATION_SPACE_MISMATCH, operationId,
@@ -200,15 +200,16 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<List<String>> getOperationActions(String spaceGuid, String operationId) {
-        Operation operation = getOperation(operationId);
+        Operation operation = getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
         return ResponseEntity.ok()
                              .body(getAvailableActions(operation));
     }
 
-    private Operation getOperation(String operationId) {
+    private Operation getOperationByOperationGuidAndSpaceGuid(String operationId, String spaceGuid) {
         try {
             Operation operation = operationService.createQuery()
                                                   .processId(operationId)
+                                                  .spaceId(spaceGuid)
                                                   .singleResult();
             operation = operationsHelper.addErrorType(operation);
             return operationsHelper.releaseLockIfNeeded(operation);
