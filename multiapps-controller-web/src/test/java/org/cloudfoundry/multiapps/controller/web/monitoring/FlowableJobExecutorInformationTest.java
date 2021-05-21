@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.concurrent.BlockingQueue;
 
-import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
+import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,7 +19,7 @@ class FlowableJobExecutorInformationTest {
     private static final int UPDATED_JOBS_IN_QUEUE = 1;
 
     @Mock
-    private DefaultAsyncJobExecutor asyncExecutor;
+    private SpringProcessEngineConfiguration processEngineConfiguration;
     @Mock
     private BlockingQueue<Runnable> blockingQueue;
 
@@ -34,23 +34,23 @@ class FlowableJobExecutorInformationTest {
 
     @Test
     void testGetCurrentJobExecutorQueueSize() {
-        prepareJobExecutor(JOBS_IN_QUEUE);
+        prepareProcessEngineConfiguration(JOBS_IN_QUEUE);
 
         int currentJobExecutorQueueSize = flowableJobExecutorInformation.getCurrentJobExecutorQueueSize();
         assertEquals(JOBS_IN_QUEUE, currentJobExecutorQueueSize);
     }
 
-    private void prepareJobExecutor(int jobsInQueue) {
+    private void prepareProcessEngineConfiguration(int jobsInQueue) {
         when(blockingQueue.size()).thenReturn(jobsInQueue);
-        when(asyncExecutor.getThreadPoolQueue()).thenReturn(blockingQueue);
+        when(processEngineConfiguration.getAsyncExecutorThreadPoolQueue()).thenReturn(blockingQueue);
     }
 
     @Test
     void testGetCurrentJobExecutorQueueSizeFromCache() {
-        prepareJobExecutor(JOBS_IN_QUEUE);
+        prepareProcessEngineConfiguration(JOBS_IN_QUEUE);
         flowableJobExecutorInformation.getCurrentJobExecutorQueueSize();
 
-        prepareJobExecutor(UPDATED_JOBS_IN_QUEUE);
+        prepareProcessEngineConfiguration(UPDATED_JOBS_IN_QUEUE);
         int currentJobExecutorQueueSize = flowableJobExecutorInformation.getCurrentJobExecutorQueueSize();
 
         assertEquals(JOBS_IN_QUEUE, currentJobExecutorQueueSize);
@@ -58,17 +58,17 @@ class FlowableJobExecutorInformationTest {
 
     @Test
     void testGetCurrentJobExecutorQueueSizeExpiredCache() {
-        flowableJobExecutorInformation = new FlowableJobExecutorInformation(asyncExecutor) {
+        flowableJobExecutorInformation = new FlowableJobExecutorInformation(processEngineConfiguration) {
             @Override
             protected void updateTime() {
                 lastUpdateTime = Instant.now()
                                         .minusSeconds(120);
             }
         };
-        prepareJobExecutor(JOBS_IN_QUEUE);
+        prepareProcessEngineConfiguration(JOBS_IN_QUEUE);
         flowableJobExecutorInformation.getCurrentJobExecutorQueueSize();
 
-        prepareJobExecutor(UPDATED_JOBS_IN_QUEUE);
+        prepareProcessEngineConfiguration(UPDATED_JOBS_IN_QUEUE);
         int currentJobExecutorQueueSize = flowableJobExecutorInformation.getCurrentJobExecutorQueueSize();
 
         assertEquals(UPDATED_JOBS_IN_QUEUE, currentJobExecutorQueueSize);

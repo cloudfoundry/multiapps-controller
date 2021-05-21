@@ -18,7 +18,7 @@ import org.cloudfoundry.multiapps.controller.core.model.ApplicationShutdown;
 class ShutdownClientImpl implements ShutdownClient {
 
     private static final String X_CF_APP_INSTANCE = "x-cf-app-instance";
-    private static final String SHUTDOWN_ENDPOINT = "/admin/shutdown";
+    private static final String SHUTDOWN_ENDPOINT = "/rest/admin/shutdown";
 
     private final String applicationUrl;
     /**
