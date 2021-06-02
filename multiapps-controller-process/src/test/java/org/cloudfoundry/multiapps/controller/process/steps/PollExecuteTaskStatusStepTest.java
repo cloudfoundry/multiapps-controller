@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -28,7 +28,7 @@ class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskSt
     @Mock
     private RecentLogsRetriever recentLogsRetriever;
 
-    private static final int START_TIMEOUT = 900;
+    private static final Duration START_TIMEOUT = Duration.ofSeconds(900);
     private static final String TASK_NAME = "foo";
     private static final String APPLICATION_NAME = "bar";
 
@@ -52,23 +52,23 @@ class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskSt
             // (0)
             Arguments.of(CloudTask.State.SUCCEEDED, 100L, AsyncExecutionState.FINISHED),
             // (1)
-            Arguments.of(CloudTask.State.SUCCEEDED, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.FINISHED),
+            Arguments.of(CloudTask.State.SUCCEEDED, START_TIMEOUT.toMillis() + 1, AsyncExecutionState.FINISHED),
             // (2)
             Arguments.of(CloudTask.State.FAILED, 100L, AsyncExecutionState.ERROR),
             // (3)
-            Arguments.of(CloudTask.State.FAILED, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.ERROR),
+            Arguments.of(CloudTask.State.FAILED, START_TIMEOUT.toMillis() + 1, AsyncExecutionState.ERROR),
             // (4)
             Arguments.of(CloudTask.State.PENDING, 100L, AsyncExecutionState.RUNNING),
             // (5)
-            Arguments.of(CloudTask.State.PENDING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.RUNNING),
+            Arguments.of(CloudTask.State.PENDING, START_TIMEOUT.toMillis() + 1, AsyncExecutionState.RUNNING),
             // (6)
             Arguments.of(CloudTask.State.RUNNING, 100L, AsyncExecutionState.RUNNING),
             // (7)
-            Arguments.of(CloudTask.State.RUNNING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.RUNNING),
+            Arguments.of(CloudTask.State.RUNNING, START_TIMEOUT.toMillis() + 1, AsyncExecutionState.RUNNING),
             // (8)
             Arguments.of(CloudTask.State.CANCELING, 100L, AsyncExecutionState.RUNNING),
             // (9)
-            Arguments.of(CloudTask.State.CANCELING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.RUNNING)
+            Arguments.of(CloudTask.State.CANCELING, START_TIMEOUT.toMillis() + 1, AsyncExecutionState.RUNNING)
 // @formatter:on
         );
     }

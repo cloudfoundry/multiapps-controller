@@ -4,6 +4,7 @@ import static java.text.MessageFormat.format;
 
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +49,7 @@ import com.sap.cloudfoundry.client.facade.domain.Status;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
-    static final int DEFAULT_APP_UPLOAD_TIMEOUT = (int) TimeUnit.HOURS.toSeconds(1);
+    static final int DEFAULT_APP_UPLOAD_TIMEOUT = (int) TimeUnit.MINUTES.toSeconds(15);
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadAppStep.class);
     @Inject
     protected ApplicationArchiveReader applicationArchiveReader;
@@ -208,11 +209,11 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     @Override
-    public Integer getTimeout(ProcessContext context) {
+    public Duration getTimeout(ProcessContext context) {
         CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
         int uploadTimeout = extractUploadTimeoutFromAppAttributes(app, DEFAULT_APP_UPLOAD_TIMEOUT);
         getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadTimeout);
-        return uploadTimeout;
+        return Duration.ofSeconds(uploadTimeout);
     }
 
     private int extractUploadTimeoutFromAppAttributes(CloudApplication app, int defaultAppUploadTimeout) {

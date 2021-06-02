@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -183,14 +184,14 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
 
         private final String appArchiveId;
         private final String extDescriptorId;
-        private final int startTimeout;
+        private final Duration startTimeout;
         private final String versionRule;
         private final boolean shouldVerifyArchive;
 
         public StepInput(String appArchiveId, String extDescriptorId, int startTimeout, String versionRule, boolean shouldVerifyArchive) {
             this.appArchiveId = appArchiveId;
             this.extDescriptorId = extDescriptorId;
-            this.startTimeout = startTimeout;
+            this.startTimeout = Duration.ofSeconds(startTimeout);
             this.versionRule = versionRule;
             this.shouldVerifyArchive = shouldVerifyArchive;
         }

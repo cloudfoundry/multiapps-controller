@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -80,8 +81,8 @@ class TimeoutASyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<Tim
         }
 
         @Override
-        public Integer getTimeout(ProcessContext context) {
-            return 1;
+        public Duration getTimeout(ProcessContext context) {
+            return Duration.ofSeconds(1);
         }
 
         @Override
