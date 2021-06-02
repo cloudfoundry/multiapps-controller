@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -92,7 +93,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
     }
 
     @Override
-    public Integer getTimeout(ProcessContext context) {
+    public Duration getTimeout(ProcessContext context) {
         return context.getVariable(Variables.START_TIMEOUT);
     }
 

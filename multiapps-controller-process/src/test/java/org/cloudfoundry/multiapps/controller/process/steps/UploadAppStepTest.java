@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Duration;
 import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -49,8 +50,9 @@ public class UploadAppStepTest {
         private void testGetTimeout(CloudApplicationExtended app, int expectedUploadTimeout) {
             context.setVariable(Variables.APP_TO_PROCESS, app);
 
-            int uploadTimeout = step.getTimeout(context);
-            assertEquals(expectedUploadTimeout, uploadTimeout);
+            var expectedTimeout = Duration.ofSeconds(expectedUploadTimeout);
+            var actualTimeout = step.getTimeout(context);
+            assertEquals(expectedTimeout, actualTimeout);
         }
 
         @Override

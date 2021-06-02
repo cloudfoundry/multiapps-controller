@@ -1,11 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.variables;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
@@ -128,10 +128,10 @@ public interface Variables {
     Variable<Integer> MTA_MAJOR_SCHEMA_VERSION = ImmutableSimpleVariable.<Integer> builder()
                                                                         .name("mtaMajorSchemaVersion")
                                                                         .build();
-    Variable<Integer> START_TIMEOUT = ImmutableSimpleVariable.<Integer> builder()
-                                                             .name("startTimeout")
-                                                             .defaultValue((int) TimeUnit.HOURS.toSeconds(1))
-                                                             .build();
+    Variable<Duration> START_TIMEOUT = ImmutableSimpleVariable.<Duration> builder()
+                                                              .name("startTimeout")
+                                                              .defaultValue(Duration.ofMinutes(15))
+                                                              .build();
     Variable<Integer> UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = ImmutableSimpleVariable.<Integer> builder()
                                                                                         .name("updatedServiceBrokerSubscribersCount")
                                                                                         .build();

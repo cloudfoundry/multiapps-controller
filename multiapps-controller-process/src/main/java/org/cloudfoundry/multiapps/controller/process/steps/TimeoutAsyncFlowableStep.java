@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.process.Constants;
@@ -21,7 +22,7 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
     private boolean hasTimedOut(ProcessContext context) {
         long stepStartTime = getStepStartTime(context);
         long currentTime = System.currentTimeMillis();
-        return (currentTime - stepStartTime) >= getTimeout(context) * 1000;
+        return (currentTime - stepStartTime) >= getTimeout(context).toMillis();
     }
 
     private long getStepStartTime(ProcessContext context) {
@@ -48,5 +49,5 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
         return getClass().getSimpleName();
     }
 
-    public abstract Integer getTimeout(ProcessContext context);
+    public abstract Duration getTimeout(ProcessContext context);
 }

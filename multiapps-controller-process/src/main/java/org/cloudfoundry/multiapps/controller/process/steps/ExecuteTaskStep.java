@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.LongSupplier;
@@ -53,7 +54,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     }
 
     @Override
-    public Integer getTimeout(ProcessContext context) {
+    public Duration getTimeout(ProcessContext context) {
         return context.getVariable(Variables.START_TIMEOUT);
     }
 

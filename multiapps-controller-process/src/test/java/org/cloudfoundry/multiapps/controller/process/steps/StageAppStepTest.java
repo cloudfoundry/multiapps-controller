@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
@@ -81,7 +82,7 @@ class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
 
     @Test
     void testGetTimeoutCustomValue() {
-        int timeout = 10;
+        var timeout = Duration.ofSeconds(10);
         context.setVariable(Variables.START_TIMEOUT, timeout);
         Assertions.assertEquals(timeout, step.getTimeout(context));
     }
