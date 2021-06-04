@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="drop_table_oauth_access_token">
+        <preConditions onFail="MARK_RAN"><tableExists schemaName="public" tableName="oauth_access_token"/></preConditions>
+        <dropTable schemaName="public"
+                   tableName="oauth_access_token"/>
+    </changeSet>
+
+</databaseChangeLog>
