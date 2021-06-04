@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.concurrent.BlockingQueue;
 
-import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
+import org.flowable.common.engine.impl.async.DefaultAsyncTaskExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,7 +19,7 @@ class FlowableJobExecutorInformationTest {
     private static final int UPDATED_JOBS_IN_QUEUE = 1;
 
     @Mock
-    private DefaultAsyncJobExecutor asyncExecutor;
+    private DefaultAsyncTaskExecutor asyncExecutor;
     @Mock
     private BlockingQueue<Runnable> blockingQueue;
 
