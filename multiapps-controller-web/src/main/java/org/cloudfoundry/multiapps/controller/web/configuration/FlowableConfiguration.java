@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
+import org.flowable.common.engine.impl.async.DefaultAsyncTaskExecutor;
 import org.flowable.common.engine.impl.persistence.StrongUuidGenerator;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
@@ -73,22 +74,32 @@ public class FlowableConfiguration {
 
     @Inject
     @Bean
-    public AsyncExecutor jobExecutor(ApplicationConfiguration configuration, String jobExecutorId) {
-        DefaultAsyncJobExecutor jobExecutor = new DefaultAsyncJobExecutor();
-        scale(configuration, jobExecutor);
+    public AsyncExecutor jobExecutor(DefaultAsyncTaskExecutor asyncTaskExecutor, String jobExecutorId) {
+        DefaultAsyncJobExecutor jobExecutor = new DefaultAsyncJobExecutor() {
+            @Override
+            protected void initAsyncJobExecutionThreadPool() {
+                asyncTaskExecutor.start();
+                this.taskExecutor = asyncTaskExecutor;
+                this.shutdownTaskExecutor = true;
+            }
+        };
         jobExecutor.setAsyncJobLockTimeInMillis(JOB_EXECUTOR_LOCK_TIME_IN_MILLIS);
         jobExecutor.setLockOwner(jobExecutorId);
         jobExecutor.setUnlockOwnedJobs(true);
         jobExecutor.setTenantId(AbstractEngineConfiguration.NO_TENANT_ID);
         jobExecutor.setDefaultAsyncJobAcquireWaitTimeInMillis(ASYNC_JOB_ACQUIRE_WAIT_TIME_IN_MILLIS);
-        jobExecutor.setSecondsToWaitOnShutdown(JOB_EXECUTOR_SHUTDOWN_AWAIT_TIME_IN_SECONDS);
         return jobExecutor;
     }
 
-    protected void scale(ApplicationConfiguration configuration, DefaultAsyncJobExecutor jobExecutor) {
-        jobExecutor.setQueueSize(configuration.getFlowableJobExecutorQueueCapacity());
-        jobExecutor.setCorePoolSize(configuration.getFlowableJobExecutorCoreThreads());
-        jobExecutor.setMaxPoolSize(configuration.getFlowableJobExecutorMaxThreads());
+    @Inject
+    @Bean
+    public DefaultAsyncTaskExecutor taskExecutor(ApplicationConfiguration configuration) {
+        DefaultAsyncTaskExecutor taskExecutor = new DefaultAsyncTaskExecutor();
+        taskExecutor.setQueueSize(configuration.getFlowableJobExecutorQueueCapacity());
+        taskExecutor.setCorePoolSize(configuration.getFlowableJobExecutorCoreThreads());
+        taskExecutor.setMaxPoolSize(configuration.getFlowableJobExecutorMaxThreads());
+        taskExecutor.setSecondsToWaitOnShutdown(JOB_EXECUTOR_SHUTDOWN_AWAIT_TIME_IN_SECONDS);
+        return taskExecutor;
     }
 
     @Inject

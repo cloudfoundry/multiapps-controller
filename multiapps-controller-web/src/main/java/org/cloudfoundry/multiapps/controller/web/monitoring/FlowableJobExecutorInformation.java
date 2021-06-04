@@ -5,7 +5,7 @@ import java.time.Instant;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
+import org.flowable.common.engine.impl.async.DefaultAsyncTaskExecutor;
 
 @Named
 public class FlowableJobExecutorInformation {
@@ -14,13 +14,13 @@ public class FlowableJobExecutorInformation {
 
     protected Instant lastUpdateTime;
 
-    private DefaultAsyncJobExecutor jobExecutor;
+    private DefaultAsyncTaskExecutor taskExecutor;
 
     private int currentJobExecutorQueueSize = 0;
 
     @Inject
-    public FlowableJobExecutorInformation(DefaultAsyncJobExecutor jobExecutor) {
-        this.jobExecutor = jobExecutor;
+    public FlowableJobExecutorInformation(DefaultAsyncTaskExecutor taskExecutor) {
+        this.taskExecutor = taskExecutor;
     }
 
     public int getCurrentJobExecutorQueueSize() {
@@ -37,8 +37,8 @@ public class FlowableJobExecutorInformation {
     }
 
     private void updateCurrentJobExecutorQueueSize() {
-        currentJobExecutorQueueSize = jobExecutor.getThreadPoolQueue()
-                                                 .size();
+        currentJobExecutorQueueSize = taskExecutor.getThreadPoolQueue()
+                                                  .size();
         updateTime();
     }
 
