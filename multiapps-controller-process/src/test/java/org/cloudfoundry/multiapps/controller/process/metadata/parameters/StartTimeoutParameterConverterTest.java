@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+
 class StartTimeoutParameterConverterTest {
 
     @Test
@@ -20,8 +22,9 @@ class StartTimeoutParameterConverterTest {
 
     @Test
     void testConvert() {
-        int startTimeout = (int) new StartTimeoutParameterConverter().convert("1000");
-        assertEquals(1000, startTimeout);
+        var expectedStartTimeout = Duration.ofSeconds(1000);
+        var actualStartTimeout = new StartTimeoutParameterConverter().convert("1000");
+        assertEquals(expectedStartTimeout, actualStartTimeout);
     }
 
 }
