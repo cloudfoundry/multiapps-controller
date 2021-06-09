@@ -39,18 +39,20 @@
         <reactor-netty.version>0.9.12.RELEASE</reactor-netty.version>
         <jgit.version>4.11.9.201909030838-r</jgit.version>
         <swagger.version>1.6.2</swagger.version>
-        <jclouds.version>2.2.1</jclouds.version>
-        <guava.version>23.6.1-jre</guava.version>
+        <jclouds.version>2.3.0</jclouds.version>
+        <guava.version>30.1.1-jre</guava.version>
+        <guice.version>5.0.1</guice.version>
         <resilience4j.version>1.5.0</resilience4j.version>
         <immutables.version>2.8.8</immutables.version>
         <micrometer.version>1.5.5</micrometer.version>
         <aliyun-sdk-oss.version>3.11.0</aliyun-sdk-oss.version>
-        <auto-service.version>1.0-rc7</auto-service.version>
+        <auto-service.version>1.0</auto-service.version>
         <java-cfenv.version>2.2.2.RELEASE</java-cfenv.version>
         <multiapps.version>2.5.1</multiapps.version>
         <jaxb-api.version>2.3.3</jaxb-api.version>
         <jaxb-core.version>2.3.0</jaxb-core.version>
         <jaxb-impl.version>2.3.3</jaxb-impl.version>
+        <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
         <javax.inject.version>1</javax.inject.version>
     </properties>
     <modules>
@@ -405,6 +407,13 @@
                 <version>${servlet-api.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api -->
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>${javax.annotation-api.version}</version>
+                <scope>test</scope>
+            </dependency>
             <!-- https://mvnrepository.com/artifact/javax.inject/javax.inject -->
             <dependency>
                 <groupId>javax.inject</groupId>
@@ -724,6 +733,20 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <!-- guice and guice-assistedinject are transitive dependencies from jclouds.
+            It is set to explicit version because old one has issues with modular access. -->
+            <!-- https://mvnrepository.com/artifact/com.google.inject/guice -->
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>${guice.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject -->
+            <dependency>
+                <groupId>com.google.inject.extensions</groupId>
+                <artifactId>guice-assistedinject</artifactId>
+                <version>${guice.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.jclouds/jclouds-blobstore -->
             <dependency>

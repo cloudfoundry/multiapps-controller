@@ -30,11 +30,11 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires com.fasterxml.jackson.databind;
     requires com.google.auto.service;
     requires com.google.common;
+    requires com.google.guice;
     requires com.zaxxer.hikari;
     requires flowable.engine;
     requires flowable.engine.common.api;
     requires flowable.variable.service.api;
-    requires guice;
     requires java.xml.bind;
     requires javax.inject;
     requires org.apache.logging.log4j;
