@@ -8,12 +8,17 @@ import org.cloudfoundry.multiapps.controller.persistence.services.DatabaseFileSe
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
+import org.cloudfoundry.multiapps.controller.web.Messages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Named("fileService")
 public class FileServiceFactoryBean implements FactoryBean<FileService>, InitializingBean {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileServiceFactoryBean.class);
 
     @Inject
     private DataSourceWithDialect dataSourceWithDialect;
@@ -25,8 +30,10 @@ public class FileServiceFactoryBean implements FactoryBean<FileService>, Initial
     public void afterPropertiesSet() {
         FileStorage fileStorage = objectStoreFileStorage;
         if (fileStorage != null) {
+            LOGGER.info(Messages.OBJECTSTORE_FOR_BINARIES_STORAGE);
             this.fileService = new FileService(dataSourceWithDialect, fileStorage);
         } else {
+            LOGGER.info(Messages.DATABASE_FOR_BINARIES_STORAGE);
             this.fileService = new DatabaseFileService(dataSourceWithDialect);
         }
     }
