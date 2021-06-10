@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.client.util;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -50,7 +51,9 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
         if (!shouldRetry(e)) {
             throw e;
         }
-        LOGGER.warn("Retrying operation that failed with status {} and message: {}", e.getStatusCode(), e.getMessage());
+        LOGGER.warn(MessageFormat.format("Retrying operation that failed with status {0} and message: {1}", e.getStatusCode(),
+                                         e.getMessage()),
+                    e);
     }
 
     private boolean shouldRetry(CloudOperationException e) {
