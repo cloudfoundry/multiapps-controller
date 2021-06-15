@@ -34,8 +34,7 @@ public class ResumeProcessAction extends ProcessAction {
                                                               .filter(processId -> !flowableFacade.findExecutionsAtReceiveTask(processId)
                                                                                                   .isEmpty())
                                                               .collect(Collectors.toList());
-
-        updateUserIfNecessary(user, superProcessInstanceId);
+        updateUserIfNecessary(user, superProcessInstanceId, activeProcessIds);
         for (String processAtReceiveTask : processesAtReceiveTask) {
             triggerProcessInstance(user, processAtReceiveTask);
         }

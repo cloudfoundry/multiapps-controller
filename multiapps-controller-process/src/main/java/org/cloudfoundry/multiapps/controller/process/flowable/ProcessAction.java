@@ -54,16 +54,22 @@ public abstract class ProcessAction {
 
     public abstract Action getAction();
 
-    protected void updateUserIfNecessary(String user, String executionId) {
+    protected void updateUserIfNecessary(String user, String executionId, List<String> processIds) {
         HistoryService historyService = flowableFacade.getProcessEngine()
                                                       .getHistoryService();
         String currentUser = HistoryUtil.getVariableValue(historyService, executionId, Variables.USER.getName());
         if (!user.equals(currentUser)) {
             ClientReleaser clientReleaser = new ClientReleaser(clientProvider);
             clientReleaser.releaseClientFor(historyService, executionId);
+            updateProcessIds(user, processIds);
+        }
+    }
+
+    private void updateProcessIds(String user, List<String> processIds) {
+        for (String processId : processIds) {
             flowableFacade.getProcessEngine()
                           .getRuntimeService()
-                          .setVariable(executionId, Variables.USER.getName(), user);
+                          .setVariable(processId, Variables.USER.getName(), user);
         }
     }
 
