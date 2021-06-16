@@ -128,10 +128,10 @@ public interface Variables {
     Variable<Integer> MTA_MAJOR_SCHEMA_VERSION = ImmutableSimpleVariable.<Integer> builder()
                                                                         .name("mtaMajorSchemaVersion")
                                                                         .build();
-    //TODO: change to ImmutableSimpleVariable.<Duration> builder()
-    //                                       .name("startTimeout")
-    //                                       .defaultValue(Duration.ofMinutes(15))
-    //                                       .build();
+    // TODO: change to ImmutableSimpleVariable.<Duration> builder()
+    // .name("startTimeout")
+    // .defaultValue(Duration.ofHours(1))
+    // .build();
     // in next tact
     Variable<Duration> START_TIMEOUT = new Variable<>() {
         @Override
@@ -141,7 +141,7 @@ public interface Variables {
 
         @Override
         public Duration getDefaultValue() {
-            return Duration.ofMinutes(15);
+            return Duration.ofHours(1);
         }
 
         @Override
