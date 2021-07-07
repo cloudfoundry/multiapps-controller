@@ -31,6 +31,7 @@ public final class Messages {
     public static final String INVALID_AUTHENTICATION_PROVIDED = "Invalid authentication provided";
     public static final String NO_AUTHORIZATION_HEADER_WAS_PROVIDED = "No Authorization header was provided!";
     public static final String THE_TOKEN_HAS_EXPIRED_ON_0 = "The token has expired on: \"{0}\"";
+    public static final String UNSUPPORTED_TOKEN_TYPE = "Unsupported token type: \"{0}\".";
 
     // WARN log messages
 

@@ -32,7 +32,7 @@ public class TokenParserChain {
                                                                                         .getTokenValue()));
                 LOGGER.debug(MessageFormat.format("Parsed token type: {0}", parsedToken.getOAuth2AccessToken()
                                                                                        .getTokenType()));
-                LOGGER.debug(MessageFormat.format("Parsed token expires in: {0}", parsedToken.getOAuth2AccessToken()
+                LOGGER.debug(MessageFormat.format("Parsed token expires at: {0}", parsedToken.getOAuth2AccessToken()
                                                                                              .getExpiresAt()));
                 return parsedToken;
             }

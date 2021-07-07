@@ -13,4 +13,7 @@ public class Constants {
     public static final String CSRF_HEADER_NAME = "X-CSRF-HEADER";
     public static final String CONTENT_LENGTH = "Content-Length";
 
+    public static final int OAUTH_TOKEN_RETENTION_TIME_IN_SECONDS = 2 * 60;
+    public static final int BASIC_TOKEN_RETENTION_TIME_IN_SECONDS = 6 * 60;
+
 }
