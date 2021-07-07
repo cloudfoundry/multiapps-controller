@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.web.util;
 
-import static org.cloudfoundry.multiapps.controller.web.util.TokenParsingStrategyFactory.BASIC_TOKEN_TYPE;
-import static org.cloudfoundry.multiapps.controller.web.util.TokenParsingStrategyFactory.BEARER_TOKEN_TYPE;
+import static org.cloudfoundry.multiapps.controller.web.util.TokenGeneratorFactory.BASIC_TOKEN_TYPE;
+import static org.cloudfoundry.multiapps.controller.web.util.TokenGeneratorFactory.BEARER_TOKEN_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -14,14 +14,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 
-class TokenParsingStrategyFactoryTest {
+class TokenGeneratorFactoryTest {
 
     @Mock
     private ApplicationConfiguration applicationConfiguration;
     @Mock
     private TokenParserChain tokenParserChain;
     @InjectMocks
-    private TokenParsingStrategyFactory tokenParsingStrategyFactory;
+    private TokenGeneratorFactory tokenGeneratorFactory;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -31,20 +31,20 @@ class TokenParsingStrategyFactoryTest {
 
     @Test
     void testCreateBasicTokenStrategy() {
-        TokenParsingStrategy tokenParsingStrategy = tokenParsingStrategyFactory.createStrategy(BASIC_TOKEN_TYPE);
-        assertEquals(BasicTokenParsingStrategy.class, tokenParsingStrategy.getClass());
+        TokenGenerator tokenGenerator = tokenGeneratorFactory.createGenerator(BASIC_TOKEN_TYPE);
+        assertEquals(BasicTokenGenerator.class, tokenGenerator.getClass());
     }
 
     @Test
     void testCreateOauthTokenStrategy() {
-        TokenParsingStrategy tokenParsingStrategy = tokenParsingStrategyFactory.createStrategy(BEARER_TOKEN_TYPE);
-        assertEquals(OauthTokenParsingStrategy.class, tokenParsingStrategy.getClass());
+        TokenGenerator tokenGenerator = tokenGeneratorFactory.createGenerator(BEARER_TOKEN_TYPE);
+        assertEquals(OauthTokenGenerator.class, tokenGenerator.getClass());
     }
 
     @Test
     void testThrowingExceptionIfInvalidTypeIsPassed() {
         Exception exception = assertThrows(InternalAuthenticationServiceException.class,
-                                           () -> tokenParsingStrategyFactory.createStrategy("invalid"));
+                                           () -> tokenGeneratorFactory.createGenerator("invalid"));
         assertEquals("Unsupported token type: \"invalid\".", exception.getMessage());
     }
 }

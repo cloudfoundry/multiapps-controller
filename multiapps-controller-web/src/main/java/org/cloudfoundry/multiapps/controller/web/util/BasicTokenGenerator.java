@@ -2,8 +2,13 @@ package org.cloudfoundry.multiapps.controller.web.util;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Optional;
 
+import org.cloudfoundry.multiapps.controller.core.security.token.parsers.TokenParserChain;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.AccessToken;
+import org.cloudfoundry.multiapps.controller.persistence.services.AccessTokenService;
+import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -13,26 +18,40 @@ import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditional
 import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
 import com.sap.cloudfoundry.client.facade.util.RestUtil;
 
-public class BasicTokenParsingStrategy implements TokenParsingStrategy {
+public class BasicTokenGenerator extends TokenGenerator {
 
-    private final RestUtil restUtil;
+    private final RestUtil restUtil = createRestUtil();
     private final ApplicationConfiguration applicationConfiguration;
+    private final TokenReuser tokenReuser;
+    private final TokenParserChain tokenParserChain;
 
-    public BasicTokenParsingStrategy(ApplicationConfiguration applicationConfiguration, RestUtil restUtil) {
+    public BasicTokenGenerator(AccessTokenService accessTokenService, ApplicationConfiguration applicationConfiguration,
+                               TokenReuser tokenReuser, TokenParserChain tokenParserChain) {
+        super(accessTokenService);
         this.applicationConfiguration = applicationConfiguration;
-        this.restUtil = restUtil;
+        this.tokenReuser = tokenReuser;
+        this.tokenParserChain = tokenParserChain;
     }
 
     @Override
-    public OAuth2AccessTokenWithAdditionalInfo parseToken(String tokenString) {
+    public OAuth2AccessTokenWithAdditionalInfo generate(String tokenString) {
         if (!applicationConfiguration.isBasicAuthEnabled()) {
             throw new InsufficientAuthenticationException(Messages.BASIC_AUTHENTICATION_IS_NOT_ENABLED_USE_OAUTH_2);
         }
         OAuthClient oauthClient = restUtil.createOAuthClientByControllerUrl(applicationConfiguration.getControllerUrl(),
                                                                             applicationConfiguration.shouldSkipSslValidation());
         String[] usernameWithPassword = getUsernameWithPassword(tokenString);
+        Optional<AccessToken> accessToken = tokenReuser.getTokenWithExpirationAfter(usernameWithPassword[0],
+                                                                                    Constants.BASIC_TOKEN_RETENTION_TIME_IN_SECONDS);
+        if (accessToken.isPresent()) {
+            return tokenParserChain.parse(new String(accessToken.get()
+                                                                .getValue(),
+                                                     StandardCharsets.UTF_8));
+        }
         oauthClient.init(new CloudCredentials(usernameWithPassword[0], usernameWithPassword[1]));
-        return oauthClient.getToken();
+        OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo = oauthClient.getToken();
+        storeAccessToken(buildAccessToken(oAuth2AccessTokenWithAdditionalInfo));
+        return oAuth2AccessTokenWithAdditionalInfo;
     }
 
     String[] getUsernameWithPassword(String tokenString) {
@@ -54,5 +73,9 @@ public class BasicTokenParsingStrategy implements TokenParsingStrategy {
         } catch (IllegalArgumentException e) {
             throw new InternalAuthenticationServiceException(e.getMessage(), e);
         }
+    }
+
+    protected RestUtil createRestUtil() {
+        return new RestUtil();
     }
 }

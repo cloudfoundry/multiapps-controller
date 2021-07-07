@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.web.configuration;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.multiapps.controller.web.security.AuthorizationLoaderFilter;
+import org.cloudfoundry.multiapps.controller.web.security.AuthenticationLoaderFilter;
 import org.cloudfoundry.multiapps.controller.web.security.CompositeUriAuthorizationFilter;
 import org.cloudfoundry.multiapps.controller.web.security.CsrfHeadersFilter;
 import org.cloudfoundry.multiapps.controller.web.security.ExceptionHandlerFilter;
@@ -26,17 +26,17 @@ import com.sap.cloudfoundry.client.facade.oauth2.TokenFactory;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private final AuthorizationLoaderFilter authorizationLoaderFilter;
+    private final AuthenticationLoaderFilter authenticationLoaderFilter;
     private final CompositeUriAuthorizationFilter compositeUriAuthorizationFilter;
     private final RequestSizeFilter requestSizeFilter;
     private final CsrfHeadersFilter csrfHeadersFilter;
     private final ExceptionHandlerFilter exceptionHandlerFilter;
 
     @Inject
-    public SecurityConfiguration(AuthorizationLoaderFilter authorizationLoaderFilter,
+    public SecurityConfiguration(AuthenticationLoaderFilter authenticationLoaderFilter,
                                  CompositeUriAuthorizationFilter compositeUriAuthorizationFilter, RequestSizeFilter requestSizeFilter,
                                  CsrfHeadersFilter csrfHeadersFilter, ExceptionHandlerFilter exceptionHandlerFilter) {
-        this.authorizationLoaderFilter = authorizationLoaderFilter;
+        this.authenticationLoaderFilter = authenticationLoaderFilter;
         this.compositeUriAuthorizationFilter = compositeUriAuthorizationFilter;
         this.requestSizeFilter = requestSizeFilter;
         this.csrfHeadersFilter = csrfHeadersFilter;
@@ -58,9 +58,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers(HttpMethod.DELETE, "/**")
             .hasAnyAuthority(TokenFactory.SCOPE_CC_WRITE, TokenFactory.SCOPE_CC_ADMIN)
             .and()
-            .addFilterBefore(authorizationLoaderFilter, AbstractPreAuthenticatedProcessingFilter.class)
-            .addFilterBefore(exceptionHandlerFilter, AuthorizationLoaderFilter.class)
-            .addFilterAfter(requestSizeFilter, AuthorizationLoaderFilter.class)
+            .addFilterBefore(authenticationLoaderFilter, AbstractPreAuthenticatedProcessingFilter.class)
+            .addFilterBefore(exceptionHandlerFilter, AuthenticationLoaderFilter.class)
+            .addFilterAfter(requestSizeFilter, AuthenticationLoaderFilter.class)
             .addFilterAfter(csrfHeadersFilter, CsrfFilter.class)
             .addFilterAfter(compositeUriAuthorizationFilter, SwitchUserFilter.class)
             .exceptionHandling()
