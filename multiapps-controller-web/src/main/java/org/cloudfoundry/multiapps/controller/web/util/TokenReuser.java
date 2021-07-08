@@ -24,7 +24,7 @@ public class TokenReuser {
         this.accessTokenService = accessTokenService;
     }
 
-    public Optional<AccessToken> getTokenWithExpirationAfter(String username, int expiresAfterInSeconds) {
+    public Optional<AccessToken> getTokenWithExpirationAfter(String username, long expiresAfterInSeconds) {
         List<AccessToken> accessTokens = getTokensOrderedByExpiresAt(username);
         if (accessTokens.isEmpty()) {
             return Optional.empty();
@@ -43,7 +43,7 @@ public class TokenReuser {
                                  .list();
     }
 
-    private LocalDateTime calculateDateAfter(int expiresAfterInSeconds) {
+    private LocalDateTime calculateDateAfter(long expiresAfterInSeconds) {
         return ZonedDateTime.now()
                             .plus(Duration.ofSeconds(expiresAfterInSeconds))
                             .toLocalDateTime();
@@ -55,7 +55,7 @@ public class TokenReuser {
                            .isAfter(dateAfter);
     }
 
-    public Optional<AccessToken> getTokenWithExpirationAfterOrReuseCurrent(String username, int expiresAfterInSeconds,
+    public Optional<AccessToken> getTokenWithExpirationAfterOrReuseCurrent(String username, long expiresAfterInSeconds,
                                                                            OAuth2AccessTokenWithAdditionalInfo currentToken) {
         List<AccessToken> accessTokens = getTokensOrderedByExpiresAt(username);
         if (accessTokens.isEmpty()) {

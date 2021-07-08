@@ -5,7 +5,7 @@ import static com.sap.cloudfoundry.client.facade.oauth2.TokenFactory.USER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -96,7 +96,7 @@ class BasicTokenGeneratorTest {
         Mockito.when(mockedAccessToken.getValue())
                .thenReturn("token_value".getBytes(StandardCharsets.UTF_8));
         Optional<AccessToken> optionalAccessToken = Optional.of(mockedAccessToken);
-        Mockito.when(tokenReuser.getTokenWithExpirationAfter(any(), anyInt()))
+        Mockito.when(tokenReuser.getTokenWithExpirationAfter(any(), anyLong()))
                .thenReturn(optionalAccessToken);
         basicTokenGenerator.generate(TOKEN_STRING);
         Mockito.verify(tokenParserChain)

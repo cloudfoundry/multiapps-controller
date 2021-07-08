@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.web;
 
+import java.util.concurrent.TimeUnit;
+
 public class Constants {
 
     private Constants() {
@@ -13,7 +15,7 @@ public class Constants {
     public static final String CSRF_HEADER_NAME = "X-CSRF-HEADER";
     public static final String CONTENT_LENGTH = "Content-Length";
 
-    public static final int OAUTH_TOKEN_RETENTION_TIME_IN_SECONDS = 2 * 60;
-    public static final int BASIC_TOKEN_RETENTION_TIME_IN_SECONDS = 6 * 60;
+    public static final long OAUTH_TOKEN_RETENTION_TIME_IN_SECONDS = TimeUnit.MINUTES.toSeconds(2);
+    public static final long BASIC_TOKEN_RETENTION_TIME_IN_SECONDS = TimeUnit.MINUTES.toSeconds(6);
 
 }
