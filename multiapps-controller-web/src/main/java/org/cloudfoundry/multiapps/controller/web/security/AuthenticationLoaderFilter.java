@@ -45,11 +45,11 @@ public class AuthenticationLoaderFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
-        String tokenStringWithType = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (tokenStringWithType == null) {
+        String authorizationHeaderValue = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authorizationHeaderValue == null) {
             failWithUnauthorized(Messages.NO_AUTHORIZATION_HEADER_WAS_PROVIDED);
         }
-        OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo = generateOauthToken(tokenStringWithType);
+        OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo = generateOauthToken(authorizationHeaderValue);
         UserInfo tokenUserInfo = SecurityUtil.getTokenUserInfo(oAuth2AccessTokenWithAdditionalInfo);
         loadAuthenticationInContext(tokenUserInfo);
         filterChain.doFilter(request, response);
@@ -61,10 +61,10 @@ public class AuthenticationLoaderFilter extends OncePerRequestFilter {
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, message);
     }
 
-    private OAuth2AccessTokenWithAdditionalInfo generateOauthToken(String tokenStringWithType) {
-        String[] typeWithAuthorization = tokenStringWithType.split("\\s");
-        TokenGenerator tokenGenerator = tokenGeneratorFactory.createGenerator(typeWithAuthorization[0]);
-        return tokenGenerator.generate(typeWithAuthorization[1]);
+    private OAuth2AccessTokenWithAdditionalInfo generateOauthToken(String authorizationHeaderValue) {
+        String[] tokenStringElements = authorizationHeaderValue.split("\\s");
+        TokenGenerator tokenGenerator = tokenGeneratorFactory.createGenerator(tokenStringElements[0]);
+        return tokenGenerator.generate(tokenStringElements[1]);
     }
 
     private void loadAuthenticationInContext(UserInfo tokenUserInfo) {
