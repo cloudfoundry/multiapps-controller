@@ -72,6 +72,9 @@ public final class Messages {
     public static final String ERROR_DELETING_APP_TEMP_FILE = "Error deleting temp application file \"{0}\"";
     public static final String ERROR_DURING_DATA_TERMINATION_0 = "Error during data termination: {0}";
     public static final String INVALID_URL = "Invalid URL: {0}";
+    public static final String INVALID_TOKEN_PROVIDED = "The provided JWT token is not valid!";
+    public static final String UNSUPPORTED_ALGORITHM_PROVIDED = "Unsupported algorithm: \"{0}\"";
+    public static final String NO_TOKEN_PARSER_FOUND_FOR_THE_CURRENT_TOKEN = "No token parser found for the current token";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";

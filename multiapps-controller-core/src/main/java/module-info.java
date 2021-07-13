@@ -69,7 +69,7 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires spring.context;
     requires spring.core;
     requires spring.security.core;
-    requires spring.security.jwt;
+    requires com.nimbusds.jose.jwt;
     requires spring.web;
     requires spring.webflux;
     requires spring.security.oauth2.core;
