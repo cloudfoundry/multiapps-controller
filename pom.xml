@@ -31,12 +31,12 @@
         <mybatis.version>3.5.7</mybatis.version>
         <spring.version>5.3.7</spring.version>
         <spring-security.version>5.5.1</spring-security.version>
-        <spring-security-jwt.version>1.1.1.RELEASE</spring-security-jwt.version>
+        <nimbus-jose-jwt.version>9.10.1</nimbus-jose-jwt.version>
         <hikari.version>3.4.3</hikari.version>
         <jackson.version>2.11.2</jackson.version>
         <liquibase.version>4.1.1</liquibase.version>
         <liquibase-slf4j.version>4.0.0</liquibase-slf4j.version>
-        <cloudfoundry-client.version>2.10.0</cloudfoundry-client.version>
+        <cloudfoundry-client.version>2.11.0-SNAPSHOT</cloudfoundry-client.version>
         <reactor-netty.version>0.9.12.RELEASE</reactor-netty.version>
         <jgit.version>4.11.9.201909030838-r</jgit.version>
         <swagger.version>1.6.2</swagger.version>
@@ -660,21 +660,11 @@
                 <artifactId>spring-security-oauth2-client</artifactId>
                 <version>${spring-security.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-jwt -->
+            <!-- https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt -->
             <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-jwt</artifactId>
-                <version>${spring-security-jwt.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcpkix-jdk15on</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15on</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbus-jose-jwt.version}</version>
             </dependency>
             <!-- We cannot upgrade to a newer version, because of: https://github.com/brettwooldridge/HikariCP/issues/1582 -->
             <!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
