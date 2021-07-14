@@ -87,6 +87,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
 
     private List<String> getHealthCheckValues() {
         return Arrays.stream(HealthCheckType.values())
+                     .filter(healthCheckType -> healthCheckType != HealthCheckType.NONE)
                      .map(HealthCheckType::getValue)
                      .collect(Collectors.toList());
     }
