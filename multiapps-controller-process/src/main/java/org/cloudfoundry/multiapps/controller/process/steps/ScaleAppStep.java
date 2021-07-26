@@ -27,7 +27,8 @@ public class ScaleAppStep extends SyncFlowableStep {
         CloudControllerClient client = context.getControllerClient();
 
         String appName = app.getName();
-        Integer instances = (app.getInstances() != 0) ? app.getInstances() : null;
+
+        Integer instances = app.getInstances();
 
         if (instances != null && (existingApp == null || !instances.equals(existingApp.getInstances()))) {
             getStepLogger().info(Messages.SCALING_APP_0_TO_X_INSTANCES, appName, instances);

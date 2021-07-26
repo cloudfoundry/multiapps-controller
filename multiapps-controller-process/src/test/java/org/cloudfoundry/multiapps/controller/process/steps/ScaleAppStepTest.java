@@ -18,7 +18,9 @@ class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
         // @formatter:off
             Arguments.of(new SimpleApplication("test-app-1", 2), new SimpleApplication("test-app-1", 3)),
             Arguments.of(new SimpleApplication("test-app-1", 2), new SimpleApplication("test-app-1", 2)),
-            Arguments.of(new SimpleApplication("test-app-1", 2), null)
+            Arguments.of(new SimpleApplication("test-app-1", 2), null),
+            Arguments.of(new SimpleApplication("test-app-1", 0), null),
+            Arguments.of(new SimpleApplication("test-app-1", 0), new SimpleApplication("test-app-1", 1))
         // @formatter:on
         );
     }
@@ -43,11 +45,9 @@ class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
     }
 
     private void validateUpdatedApplications(SimpleApplication application, SimpleApplication existingApplication) {
-        if (application.instances != 0) {
-            if (existingApplication == null || application.instances != existingApplication.instances) {
-                Mockito.verify(client)
-                       .updateApplicationInstances(application.name, application.instances);
-            }
+        if (existingApplication == null || application.instances != existingApplication.instances) {
+            Mockito.verify(client)
+                   .updateApplicationInstances(application.name, application.instances);
         }
     }
 
