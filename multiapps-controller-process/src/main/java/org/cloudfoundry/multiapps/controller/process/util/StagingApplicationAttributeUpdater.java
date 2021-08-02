@@ -25,7 +25,7 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
     private boolean hasStagingChanged(Staging staging, Staging existingStaging) {
         List<String> buildpacks = staging.getBuildpacks();
         String command = staging.getCommand();
-        String stack = staging.getStack();
+        String stackName = staging.getStackName();
         Integer healthCheckTimeout = staging.getHealthCheckTimeout();
         Integer healthCheckInvocationTimeout = staging.getInvocationTimeout();
         String healthCheckType = staging.getHealthCheckType();
@@ -33,7 +33,7 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
         Boolean sshEnabled = staging.isSshEnabled();
         return (buildpacks != null && !buildpacks.equals(existingStaging.getBuildpacks()))
             || (command != null && !command.equals(existingStaging.getCommand()))
-            || (stack != null && !stack.equals(existingStaging.getStack()))
+            || (stackName != null && !stackName.equals(existingStaging.getStackName()))
             || (healthCheckTimeout != null && !healthCheckTimeout.equals(existingStaging.getHealthCheckTimeout()))
             || (healthCheckType != null && !healthCheckType.equals(existingStaging.getHealthCheckType()))
             || (healthCheckInvocationTimeout != null && !healthCheckInvocationTimeout.equals(existingStaging.getInvocationTimeout()))

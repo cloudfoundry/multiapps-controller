@@ -20,7 +20,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         String command = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.COMMAND, null);
         List<String> buildpacks = PropertiesUtil.getPluralOrSingular(parametersList, SupportedParameters.BUILDPACKS,
                                                                      SupportedParameters.BUILDPACK);
-        String stack = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.STACK, null);
+        String stackName = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.STACK, null);
         Integer healthCheckTimeout = (Integer) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TIMEOUT,
                                                                                null);
         Integer healthCheckInvocationTimeout = (Integer) PropertiesUtil.getPropertyValue(parametersList,
@@ -35,7 +35,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         return ImmutableStaging.builder()
                                .command(command)
                                .buildpacks(buildpacks)
-                               .stack(stack)
+                               .stackName(stackName)
                                .healthCheckTimeout(healthCheckTimeout)
                                .invocationTimeout(healthCheckInvocationTimeout)
                                .healthCheckType(healthCheckType)
