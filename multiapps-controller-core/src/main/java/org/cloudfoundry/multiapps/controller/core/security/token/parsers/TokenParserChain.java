@@ -24,7 +24,7 @@ public class TokenParserChain {
 
     @Inject
     public TokenParserChain(List<TokenParser> tokenParsers) {
-        LOGGER.debug(MessageFormat.format("Parser chain: {0}", tokenParsers));
+        LOGGER.debug(MessageFormat.format(Messages.PARSER_CHAIN_0, tokenParsers));
         this.tokenParsers = tokenParsers;
     }
 
@@ -44,9 +44,8 @@ public class TokenParserChain {
     }
 
     private void logTokenInfo(OAuth2AccessToken accessToken) {
-        LOGGER.debug("Parsed token value: {0}", accessToken.getTokenValue());
-        LOGGER.debug("Parsed token type: {0}", accessToken.getTokenType());
-        LOGGER.debug("Parsed token expires in: {0}", accessToken.getExpiresAt());
+        LOGGER.debug(MessageFormat.format(Messages.PARSED_TOKEN_TYPE_0, accessToken.getTokenType()));
+        LOGGER.debug(MessageFormat.format(Messages.PARSED_TOKEN_EXPIRES_IN_0, accessToken.getExpiresAt()));
     }
 
 }
