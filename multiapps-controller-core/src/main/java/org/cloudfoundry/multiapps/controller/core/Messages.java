@@ -172,6 +172,9 @@ public final class Messages {
     public static final String DELETING_SUBSCRIPTION = "Deleting configuration subscription: {0}";
     public static final String DELETING_ENTRY = "Deleting configuration entry: {0}";
     public static final String CERTIFICATE_CN = "Certificate CN: \"{0}\"";
+    public static final String PARSED_TOKEN_TYPE_0 = "Parsed token type: {0}";
+    public static final String PARSED_TOKEN_EXPIRES_IN_0 = "Parsed token expires in: {0}";
+    public static final String PARSER_CHAIN_0 = "Parser chain: {0}";
 
     private Messages() {
     }
