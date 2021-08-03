@@ -8,6 +8,8 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.process.executors.TimeoutAsyncJobExecutor;
+import org.cloudfoundry.multiapps.controller.process.executors.TimeoutAsyncTaskExecutor;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
 import org.flowable.common.engine.impl.async.DefaultAsyncTaskExecutor;
 import org.flowable.common.engine.impl.persistence.StrongUuidGenerator;
@@ -15,7 +17,6 @@ import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RuntimeService;
 import org.flowable.job.service.impl.asyncexecutor.AsyncExecutor;
-import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
 import org.flowable.job.service.impl.asyncexecutor.FailedJobCommandFactory;
 import org.flowable.spring.ProcessEngineFactoryBean;
 import org.flowable.spring.SpringProcessEngineConfiguration;
@@ -35,6 +36,8 @@ public class FlowableConfiguration {
 
     private static final int ASYNC_JOB_ACQUIRE_WAIT_TIME_IN_MILLIS = (int) TimeUnit.SECONDS.toMillis(3);
     private static final int JOB_EXECUTOR_LOCK_TIME_IN_MILLIS = (int) TimeUnit.MINUTES.toMillis(30);
+    private static final long JOB_CANCEL_THREAD_WAIT_TIME_IN_MILLIS = TimeUnit.SECONDS.toMillis(30);
+    private static final long JOB_TIMEOUT_TIME_IN_MILLIS = JOB_EXECUTOR_LOCK_TIME_IN_MILLIS - 2 * JOB_CANCEL_THREAD_WAIT_TIME_IN_MILLIS;
     private static final long JOB_EXECUTOR_SHUTDOWN_AWAIT_TIME_IN_SECONDS = TimeUnit.MINUTES.toSeconds(8);
     private static final String JOB_EXECUTOR_ID_TEMPLATE = "ds-%s/%d/%s";
 
@@ -75,14 +78,8 @@ public class FlowableConfiguration {
     @Inject
     @Bean
     public AsyncExecutor jobExecutor(DefaultAsyncTaskExecutor asyncTaskExecutor, String jobExecutorId) {
-        DefaultAsyncJobExecutor jobExecutor = new DefaultAsyncJobExecutor() {
-            @Override
-            protected void initAsyncJobExecutionThreadPool() {
-                asyncTaskExecutor.start();
-                this.taskExecutor = asyncTaskExecutor;
-                this.shutdownTaskExecutor = true;
-            }
-        };
+        TimeoutAsyncJobExecutor jobExecutor = new TimeoutAsyncJobExecutor();
+        jobExecutor.setTaskExecutor(asyncTaskExecutor);
         jobExecutor.setAsyncJobLockTimeInMillis(JOB_EXECUTOR_LOCK_TIME_IN_MILLIS);
         jobExecutor.setLockOwner(jobExecutorId);
         jobExecutor.setUnlockOwnedJobs(true);
@@ -94,7 +91,8 @@ public class FlowableConfiguration {
     @Inject
     @Bean
     public DefaultAsyncTaskExecutor taskExecutor(ApplicationConfiguration configuration) {
-        DefaultAsyncTaskExecutor taskExecutor = new DefaultAsyncTaskExecutor();
+        TimeoutAsyncTaskExecutor taskExecutor = new TimeoutAsyncTaskExecutor(JOB_TIMEOUT_TIME_IN_MILLIS,
+                                                                             JOB_CANCEL_THREAD_WAIT_TIME_IN_MILLIS);
         taskExecutor.setQueueSize(configuration.getFlowableJobExecutorQueueCapacity());
         taskExecutor.setCorePoolSize(configuration.getFlowableJobExecutorCoreThreads());
         taskExecutor.setMaxPoolSize(configuration.getFlowableJobExecutorMaxThreads());
