@@ -13,7 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.7.0</junit.version>
         <junit-platform.version>1.7.0</junit-platform.version>
-        <mockito.version>3.5.13</mockito.version>
+        <mockito.version>3.11.2</mockito.version>
         <derby.version>10.14.2.0</derby.version>
         <h2.version>1.4.200</h2.version>
         <servlet-api.version>4.0.4</servlet-api.version>
@@ -148,7 +148,7 @@
                         <!-- Surefire excludes nested classes by default, so we need to explicitly specify that nothing should 
                             be excluded. -->
                         <excludes>
-                            <exclude />
+                            <exclude/>
                         </excludes>
                         <runOrder>random</runOrder>
                     </configuration>
