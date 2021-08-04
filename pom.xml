@@ -33,7 +33,7 @@
         <spring-security.version>5.5.1</spring-security.version>
         <nimbus-jose-jwt.version>9.10.1</nimbus-jose-jwt.version>
         <hikari.version>3.4.3</hikari.version>
-        <jackson.version>2.11.2</jackson.version>
+        <jackson.version>2.12.4</jackson.version>
         <liquibase.version>4.1.1</liquibase.version>
         <liquibase-slf4j.version>4.0.0</liquibase-slf4j.version>
         <cloudfoundry-client.version>2.11.0</cloudfoundry-client.version>
@@ -148,7 +148,7 @@
                         <!-- Surefire excludes nested classes by default, so we need to explicitly specify that nothing should 
                             be excluded. -->
                         <excludes>
-                            <exclude />
+                            <exclude/>
                         </excludes>
                         <runOrder>random</runOrder>
                     </configuration>
