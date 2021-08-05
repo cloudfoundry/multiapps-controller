@@ -52,7 +52,7 @@
         <multiapps.version>2.5.1</multiapps.version>
         <jaxb-api.version>2.3.3</jaxb-api.version>
         <jaxb-core.version>2.3.0.1</jaxb-core.version>
-        <jaxb-impl.version>2.3.3</jaxb-impl.version>
+        <jaxb-impl.version>2.3.4</jaxb-impl.version>
         <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
         <javax.inject.version>1</javax.inject.version>
     </properties>
