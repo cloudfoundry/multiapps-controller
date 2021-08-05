@@ -100,7 +100,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         getStepLogger().debug(Messages.CLIENT_SPACE, VariableHandling.get(execution, Variables.SPACE_NAME));
         getStepLogger().debug(Messages.CLIENT_ORGANIZATION, VariableHandling.get(execution, Variables.ORGANIZATION_NAME));
         Map<String, Object> processVariables = findProcessVariables(execution, processType);
-        getStepLogger().debug(Messages.PROCESS_VARIABLES, SecureSerialization.toJson(processVariables));
+        getStepLogger().infoWithoutProgressMessage(Messages.PROCESS_VARIABLES, SecureSerialization.toJson(processVariables));
     }
 
     protected Map<String, Object> findProcessVariables(DelegateExecution execution, ProcessType processType) {

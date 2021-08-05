@@ -11,9 +11,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.7.0</junit.version>
+        <junit.version>5.7.2</junit.version>
         <junit-platform.version>1.7.0</junit-platform.version>
-        <mockito.version>3.5.13</mockito.version>
+        <mockito.version>3.11.2</mockito.version>
         <derby.version>10.14.2.0</derby.version>
         <h2.version>1.4.200</h2.version>
         <servlet-api.version>4.0.4</servlet-api.version>
@@ -29,11 +29,11 @@
         <eclipselink.version>2.7.7</eclipselink.version>
         <flowable.version>6.6.0</flowable.version>
         <mybatis.version>3.5.7</mybatis.version>
-        <spring.version>5.3.7</spring.version>
+        <spring.version>5.3.8</spring.version>
         <spring-security.version>5.5.1</spring-security.version>
         <nimbus-jose-jwt.version>9.10.1</nimbus-jose-jwt.version>
         <hikari.version>3.4.3</hikari.version>
-        <jackson.version>2.11.2</jackson.version>
+        <jackson.version>2.12.4</jackson.version>
         <liquibase.version>4.1.1</liquibase.version>
         <liquibase-slf4j.version>4.0.0</liquibase-slf4j.version>
         <cloudfoundry-client.version>2.11.0</cloudfoundry-client.version>
@@ -51,8 +51,8 @@
         <java-cfenv.version>2.2.2.RELEASE</java-cfenv.version>
         <multiapps.version>2.5.1</multiapps.version>
         <jaxb-api.version>2.3.3</jaxb-api.version>
-        <jaxb-core.version>2.3.0</jaxb-core.version>
         <jaxb-impl.version>2.3.4</jaxb-impl.version>
+        <jaxb-core.version>2.3.0.1</jaxb-core.version>
         <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
         <javax.inject.version>1</javax.inject.version>
     </properties>
