@@ -48,7 +48,7 @@
         <micrometer.version>1.5.5</micrometer.version>
         <aliyun-sdk-oss.version>3.11.0</aliyun-sdk-oss.version>
         <auto-service.version>1.0</auto-service.version>
-        <java-cfenv.version>2.2.2.RELEASE</java-cfenv.version>
+        <java-cfenv.version>2.4.0</java-cfenv.version>
         <multiapps.version>2.5.1</multiapps.version>
         <jaxb-api.version>2.3.3</jaxb-api.version>
         <jaxb-core.version>2.3.0.1</jaxb-core.version>
