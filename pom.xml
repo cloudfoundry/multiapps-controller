@@ -34,7 +34,7 @@
         <nimbus-jose-jwt.version>9.10.1</nimbus-jose-jwt.version>
         <hikari.version>3.4.3</hikari.version>
         <jackson.version>2.12.4</jackson.version>
-        <liquibase.version>4.1.1</liquibase.version>
+        <liquibase.version>4.4.1</liquibase.version>
         <liquibase-slf4j.version>4.0.0</liquibase-slf4j.version>
         <cloudfoundry-client.version>2.11.0</cloudfoundry-client.version>
         <reactor-netty.version>0.9.12.RELEASE</reactor-netty.version>
