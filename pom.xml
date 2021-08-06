@@ -46,7 +46,7 @@
         <resilience4j.version>1.5.0</resilience4j.version>
         <immutables.version>2.8.8</immutables.version>
         <micrometer.version>1.5.5</micrometer.version>
-        <aliyun-sdk-oss.version>3.11.0</aliyun-sdk-oss.version>
+        <aliyun-sdk-oss.version>3.13.0</aliyun-sdk-oss.version>
         <auto-service.version>1.0</auto-service.version>
         <java-cfenv.version>2.2.2.RELEASE</java-cfenv.version>
         <multiapps.version>2.5.1</multiapps.version>
