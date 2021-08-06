@@ -9,6 +9,7 @@ import org.quartz.JobDetail;
 import org.quartz.Trigger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
@@ -22,6 +23,7 @@ import com.sap.cloud.lm.sl.cf.process.jobs.CleanUpJob;
 public class QuartzConfiguration {
 
     private static final String QUARTZ_POSTGRESQL_PROPERTIES = "quartz.postgresql.properties";
+    private static final String QUARTZ_HANA_PROPERTIES = "quartz.hana.properties";
     public static final String CLEAN_UP_TRIGGER_NAME = "cleanUpTrigger";
     public static final String TRIGGER_GROUP = "DEFAULT";
 
@@ -53,9 +55,31 @@ public class QuartzConfiguration {
 
     @Inject
     @Bean
-    public SchedulerFactoryBean schedulerFactoryBean(DataSource dataSource, DataSourceTransactionManager transactionManager,
-                                                     AutowiringSpringBeanJobFactory quartzJobFactory, JobDetail jobDetail,
-                                                     Trigger trigger) {
+    @Profile("postgresql")
+    public SchedulerFactoryBean schedulerFactoryBeanPostgresql(DataSource dataSource, DataSourceTransactionManager transactionManager,
+                                                               AutowiringSpringBeanJobFactory quartzJobFactory, JobDetail jobDetail,
+                                                               Trigger trigger) {
+        SchedulerFactoryBean schedulerFactoryBean = buildSchedulerFactoryBean(dataSource, transactionManager, quartzJobFactory, jobDetail,
+                                                                              trigger);
+        schedulerFactoryBean.setConfigLocation(new ClassPathResource(QUARTZ_POSTGRESQL_PROPERTIES));
+        return schedulerFactoryBean;
+    }
+
+    @Inject
+    @Bean
+    @Profile("hana")
+    public SchedulerFactoryBean schedulerFactoryBeanHana(DataSource dataSource, DataSourceTransactionManager transactionManager,
+                                                         AutowiringSpringBeanJobFactory quartzJobFactory, JobDetail jobDetail,
+                                                         Trigger trigger) {
+        SchedulerFactoryBean schedulerFactoryBean = buildSchedulerFactoryBean(dataSource, transactionManager, quartzJobFactory, jobDetail,
+                                                                              trigger);
+        schedulerFactoryBean.setConfigLocation(new ClassPathResource(QUARTZ_HANA_PROPERTIES));
+        return schedulerFactoryBean;
+    }
+
+    private SchedulerFactoryBean buildSchedulerFactoryBean(DataSource dataSource, DataSourceTransactionManager transactionManager,
+                                                           AutowiringSpringBeanJobFactory quartzJobFactory, JobDetail jobDetail,
+                                                           Trigger trigger) {
         SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
         schedulerFactoryBean.setDataSource(dataSource);
         schedulerFactoryBean.setTransactionManager(transactionManager);
@@ -69,8 +93,6 @@ public class QuartzConfiguration {
         Trigger[] triggers = Arrays.asList(trigger)
                                    .toArray(new Trigger[0]);
         schedulerFactoryBean.setTriggers(triggers);
-        schedulerFactoryBean.setConfigLocation(new ClassPathResource(QUARTZ_POSTGRESQL_PROPERTIES));
         return schedulerFactoryBean;
     }
-
 }
