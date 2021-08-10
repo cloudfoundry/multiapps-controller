@@ -767,6 +767,12 @@
             <dependency>
                 <groupId>com.aliyun.oss</groupId>
                 <artifactId>aliyun-sdk-oss</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jaxb-api</artifactId>
+                    </exclusion>
+                </exclusions>
                 <version>${aliyun-sdk-oss.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.google.auto.service/auto-service -->
