@@ -16,8 +16,8 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     exports org.cloudfoundry.multiapps.controller.persistence.services;
     exports org.cloudfoundry.multiapps.controller.persistence.util;
 
-    requires transitive java.cfenv;
-    requires transitive java.cfenv.jdbc;
+    requires transitive io.pivotal.cfenv.core;
+    requires transitive io.pivotal.cfenv.jdbc;
     requires transitive java.persistence;
     requires transitive java.sql;
     requires transitive jclouds.blobstore;
