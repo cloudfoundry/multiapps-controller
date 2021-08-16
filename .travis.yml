@@ -11,4 +11,4 @@ script:
    - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean install sonar:sonar -Psonar -Dsonar.organization=cf-deploy-service -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=bc2be0dbbebfb0c29627f657c655e34c02451dc1 -Dsonar.branch.name="$TRAVIS_PULL_REQUEST"; fi'
    - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn clean deploy sonar:sonar --settings .travis.settings.xml -Psonar -Dsonar.organization=cf-deploy-service -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=bc2be0dbbebfb0c29627f657c655e34c02451dc1; fi'
 git:
-  depth: false
+  depth: 3
