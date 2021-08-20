@@ -27,6 +27,7 @@ public class DataSourceFactory {
         hikariConfig.setConnectionTimeout(60000);
         hikariConfig.setIdleTimeout(60000);
         hikariConfig.setMinimumIdle(10);
+        hikariConfig.addDataSourceProperty("tcpKeepAlive", true);
         if (maximumPoolSize != null) {
             hikariConfig.setMaximumPoolSize(maximumPoolSize);
         }
