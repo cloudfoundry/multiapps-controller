@@ -57,7 +57,7 @@ public class ServicesCloudModelBuilder {
                 return null;
         }
     }
-    
+
     protected CommonServiceParameters getCommonServiceParameters(Resource resource) {
         return new CommonServiceParameters(resource);
     }
@@ -103,6 +103,7 @@ public class ServicesCloudModelBuilder {
                                                     .resourceName(resource.getName())
                                                     .type(ServiceInstanceType.USER_PROVIDED)
                                                     .credentials(credentials)
+                                                    .syslogDrainUrl((String) parameters.get(SupportedParameters.SYSLOG_DRAIN_URL))
                                                     .isOptional(commonServiceParameters.isOptional())
                                                     .isManaged(true)
                                                     .shouldSkipParametersUpdate(commonServiceParameters.shouldSkipParametersUpdate())
@@ -142,7 +143,7 @@ public class ServicesCloudModelBuilder {
                                     Map.class.getSimpleName(), serviceParameters.getClass()
                                                                                 .getSimpleName());
     }
-    
+
     protected static class CommonServiceParameters {
         protected final Resource resource;
         private final Map<String, Boolean> shouldSkipUpdates;
@@ -154,23 +155,23 @@ public class ServicesCloudModelBuilder {
                                                                     .getOrDefault(SupportedParameters.SKIP_SERVICE_UPDATES,
                                                                                   Collections.emptyMap());
         }
-        
+
         private String getServiceName() {
             return NameUtil.getServiceName(resource);
         }
-        
+
         protected boolean isOptional() {
             return false;
         }
-        
+
         private boolean shouldSkipParametersUpdate() {
             return shouldSkipUpdates.getOrDefault("parameters", false);
         }
-        
+
         private boolean shouldSkipTagsUpdate() {
             return shouldSkipUpdates.getOrDefault("tags", false);
         }
-        
+
         private boolean shouldSkipPlanUpdate() {
             return shouldSkipUpdates.getOrDefault("plan", false);
         }

@@ -56,7 +56,7 @@ public class CreateServiceStep extends ServiceStep {
     }
 
     private OperationExecutionState createUserProvidedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {
-        client.createUserProvidedServiceInstance(service, service.getCredentials());
+        client.createUserProvidedServiceInstance(service, service.getCredentials(), service.getSyslogDrainUrl());
         return OperationExecutionState.FINISHED;
     }
 

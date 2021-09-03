@@ -44,7 +44,8 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
             Arguments.of("determine-actions-create-or-update-services-step-input-10-update-credentials.json", null),
             Arguments.of("determine-actions-create-or-update-services-step-input-11-no-update-credentials.json", null),
             Arguments.of("determine-actions-create-or-update-services-step-input-12-last-operation-failed.json", null),
-            Arguments.of("determine-actions-create-or-update-services-step-input-13-last-operation-failed-allow-deletion-of-services.json", null)
+            Arguments.of("determine-actions-create-or-update-services-step-input-13-last-operation-failed-allow-deletion-of-services.json", null),
+            Arguments.of("determine-actions-create-or-update-services-step-input-14-update-syslog-url.json", null)
          // @formatter:on
         );
     }
@@ -103,6 +104,10 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
         if (input.shouldUpdateServiceKeys) {
             assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_KEYS), "Actions should contain " + ServiceAction.UPDATE_KEYS);
         }
+        if (input.shouldUpdateSyslogDrainUrl) {
+            assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_SYSLOG_URL),
+                       "Actions should contain " + ServiceAction.UPDATE_SYSLOG_URL);
+        }
     }
 
     private void assertStepIsRunning() {
@@ -117,7 +122,8 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
                    .thenReturn(input.existingService.getCredentials());
 
             if (input.lastOperationForExistingService != null) {
-                ServiceOperation lastOp = new ServiceOperation(input.lastOperationForExistingService.getType(), null,
+                ServiceOperation lastOp = new ServiceOperation(input.lastOperationForExistingService.getType(),
+                                                               null,
                                                                input.lastOperationForExistingService.getState());
                 input.existingService = ImmutableCloudServiceInstanceExtended.copyOf(input.existingService)
                                                                              .withLastOperation(lastOp);
@@ -142,14 +148,16 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
         boolean shouldUpdateServiceKeys;
         boolean shouldUpdateServiceTags;
         boolean shouldUpdateServiceParameters;
+        boolean shouldUpdateSyslogDrainUrl;
 
         // ServiceKeys - Input
         final List<CloudServiceKey> serviceKeysToCreate = Collections.emptyList();
-        
+
         // ServiceKeys - Expectation
         public Map<String, List<CloudServiceKey>> getServiceKeysToCreate() {
             return Map.of(service.getName(), serviceKeysToCreate);
         }
+
     }
 
     @Override

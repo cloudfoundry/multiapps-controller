@@ -390,6 +390,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public void updateServiceSyslogDrainUrl(String serviceName, String syslogDrainUrl) {
+        executeWithRetry(() -> delegate.updateServiceSyslogDrainUrl(serviceName, syslogDrainUrl));
+    }
+
+    @Override
     public void uploadApplication(String applicationName, Path file, UploadStatusCallback callback) {
         executeWithRetry(() -> delegate.uploadApplication(applicationName, file, callback));
     }

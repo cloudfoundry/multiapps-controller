@@ -583,6 +583,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public void updateServiceSyslogDrainUrl(String serviceName, String syslogDrainUrl) {
+        logger.debug(Messages.UPDATING_SERVICE_SYSLOG_URL, serviceName);
+        delegate.updateServiceSyslogDrainUrl(serviceName, syslogDrainUrl);
+    }
+
+    @Override
     public void uploadApplication(String applicationName, String file) {
         logger.debug(Messages.SYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
         delegate.uploadApplication(applicationName, file);

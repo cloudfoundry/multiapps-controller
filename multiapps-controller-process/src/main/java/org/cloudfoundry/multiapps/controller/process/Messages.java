@@ -254,6 +254,8 @@ public class Messages {
     public static final String SERVICE_UPDATED = "Service \"{0}\" updated";
     public static final String UPDATING_SERVICE_TAGS = "Updating service tags for service \"{0}\"...";
     public static final String SERVICE_TAGS_UPDATED = "Service tags for service \"{0}\" updated";
+    public static final String UPDATING_SERVICE_SYSLOG_URL = "Updating syslog drain url for service \"{0}\"...";
+    public static final String SERVICE_SYSLOG_URL_UPDATED = "Syslog drain url for service \"{0}\" updated";
     public static final String CREATING_SERVICE_KEY_FOR_SERVICE = "Creating service key \"{0}\" for service \"{1}\"...";
     public static final String DELETING_SERVICE_KEY_FOR_SERVICE = "Deleting service key \"{0}\" for service \"{1}\"...";
     public static final String CREATING_APP_FROM_MODULE = "Creating application \"{0}\" from MTA module \"{1}\"...";
