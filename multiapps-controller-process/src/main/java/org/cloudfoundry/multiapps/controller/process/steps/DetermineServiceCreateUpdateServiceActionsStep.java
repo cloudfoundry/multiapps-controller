@@ -50,7 +50,6 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
         getStepLogger().info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
         CloudServiceInstance existingService = client.getServiceInstance(serviceToProcess.getName(), false);
-
         setServiceParameters(context, serviceToProcess);
 
         List<ServiceAction> actions = determineActionsAndHandleExceptions(context, existingService);
@@ -88,7 +87,6 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                                                  CloudServiceInstance existingService) {
         Map<String, List<CloudServiceKey>> serviceKeys = context.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
         List<ServiceAction> actions = new ArrayList<>();
-
         List<CloudServiceKey> keys = serviceKeys.get(service.getResourceName());
         if (shouldUpdateKeys(service, keys)) {
             getStepLogger().debug("Service keys should be updated");
@@ -141,6 +139,14 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             getStepLogger().debug("New service tags: " + JsonUtil.toJson(service.getTags()));
             getStepLogger().debug("Existing service tags: " + JsonUtil.toJson(existingServiceTags));
             actions.add(ServiceAction.UPDATE_TAGS);
+        }
+
+        String existingSyslogDrainUrl = existingService.getSyslogDrainUrl();
+        if (shouldUpdateSyslogUrl(service, existingSyslogDrainUrl)) {
+            getStepLogger().debug("Syslog drain url should be updated");
+            getStepLogger().debug("New syslog drain url: " + service.getSyslogDrainUrl());
+            getStepLogger().debug("Existing syslog drain url: " + existingService.getSyslogDrainUrl());
+            actions.add(ServiceAction.UPDATE_SYSLOG_URL);
         }
 
         CloudControllerClient client = context.getControllerClient();
@@ -197,8 +203,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return service;
     }
 
-    private CloudServiceInstanceExtended setServiceParameters(ProcessContext context, CloudServiceInstanceExtended service,
-                                                              String fileName)
+    private CloudServiceInstanceExtended setServiceParameters(ProcessContext context, CloudServiceInstanceExtended service, String fileName)
         throws FileStorageException {
         String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
@@ -275,5 +280,14 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             }
             throw e;
         }
+    }
+
+    private boolean shouldUpdateSyslogUrl(CloudServiceInstance service, String existingSyslogUrl) {
+        if (!service.isUserProvided()) {
+            return false;
+        }
+        String syslogDrainUrl = ObjectUtils.defaultIfNull(service.getSyslogDrainUrl(), "");
+        return !Objects.equals(syslogDrainUrl, existingSyslogUrl);
+
     }
 }

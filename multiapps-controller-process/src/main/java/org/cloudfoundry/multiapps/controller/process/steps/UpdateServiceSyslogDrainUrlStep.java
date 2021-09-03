@@ -13,24 +13,21 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+import com.sap.cloudfoundry.client.facade.domain.ServiceOperation.Type;
 
-@Named("updateServiceParametersStep")
+@Named("updateServiceSyslogUrlStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UpdateServiceParametersStep extends ServiceStep {
+public class UpdateServiceSyslogDrainUrlStep extends ServiceStep {
 
     @Override
     protected OperationExecutionState executeOperation(ProcessContext context, CloudControllerClient client,
                                                        CloudServiceInstanceExtended service) {
-        if (service.shouldSkipParametersUpdate()) {
-            getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_PARAMS, service.getName());
-            return OperationExecutionState.FINISHED;
-        }
-        getStepLogger().info(Messages.UPDATING_SERVICE, service.getName());
 
-        client.updateServiceParameters(service.getName(), service.getCredentials());
+        getStepLogger().info(Messages.UPDATING_SERVICE_SYSLOG_URL, service.getName());
 
-        getStepLogger().debug(Messages.SERVICE_UPDATED, service.getName());
+        client.updateServiceSyslogDrainUrl(service.getName(), service.getSyslogDrainUrl());
 
+        getStepLogger().debug(Messages.SERVICE_SYSLOG_URL_UPDATED, service.getName());
         return OperationExecutionState.EXECUTING;
     }
 
@@ -41,7 +38,7 @@ public class UpdateServiceParametersStep extends ServiceStep {
     }
 
     @Override
-    protected ServiceOperation.Type getOperationType() {
+    protected Type getOperationType() {
         return ServiceOperation.Type.UPDATE;
     }
 }
