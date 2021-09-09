@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
@@ -20,8 +21,6 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sap.cloudfoundry.client.facade.domain.ServiceInstanceType;
 
 public class ServicesCloudModelBuilder {
 

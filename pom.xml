@@ -36,8 +36,7 @@
         <jackson.version>2.12.4</jackson.version>
         <liquibase.version>4.4.1</liquibase.version>
         <liquibase-slf4j.version>4.0.0</liquibase-slf4j.version>
-        <cloudfoundry-client.version>2.15.1</cloudfoundry-client.version>
-        <reactor-netty.version>0.9.12.RELEASE</reactor-netty.version>
+        <cloudfoundry-client.version>2.16.0</cloudfoundry-client.version>
         <jgit.version>4.11.9.201909030838-r</jgit.version>
         <swagger.version>1.6.2</swagger.version>
         <jclouds.version>2.4.0</jclouds.version>
@@ -811,14 +810,6 @@
                 <groupId>com.sap.cloud.lm.sl</groupId>
                 <artifactId>cloudfoundry-client-facade</artifactId>
                 <version>${cloudfoundry-client.version}</version>
-            </dependency>
-            <!-- Transitive dependency from cloudfoundry-client. Pin the version, because the one they're using (0.9.8.RELEASE) 
-                contains a regression that affects us (see https://github.com/reactor/reactor-netty/issues/1152). -->
-            <!-- https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty -->
-            <dependency>
-                <groupId>io.projectreactor.netty</groupId>
-                <artifactId>reactor-netty</artifactId>
-                <version>${reactor-netty.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.cloudfoundry.multiapps/multiapps-common -->
             <dependency>
