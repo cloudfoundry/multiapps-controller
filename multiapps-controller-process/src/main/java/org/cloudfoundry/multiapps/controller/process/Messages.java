@@ -512,6 +512,7 @@ public class Messages {
     public static final String GETTING_SERVICE_BROKERS = "Getting service brokers...";
     public static final String GETTING_GUID_OF_REQUIRED_SERVICE_INSTANCE_0 = "Getting GUID of required service instance \"{0}\"...";
     public static final String GETTING_PARAMETERS_OF_SERVICE_INSTANCE_0 = "Getting parameters of service instance \"{0}\"...";
+    public static final String GETTING_PARAMETERS_OF_USER_PROVIDED_SERVICE_INSTANCE_0 = "Getting parameters of user-provided service instance \"{0}\"...";
     public static final String GETTING_PARAMETERS_OF_SERVICE_BINDING_0 = "Getting parameters of service binding \"{0}\"...";
     public static final String GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0 = "Getting service keys for service instance \"{0}\"...";
     public static final String GETTING_SERVICE_OFFERINGS = "Getting service offerings...";
