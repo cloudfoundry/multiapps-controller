@@ -5,9 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,7 +34,7 @@ class CloudPackagesGetterTest {
     private static final UUID APPLICATION_GUID = UUID.randomUUID();
     private static final UUID PACKAGE_GUID = UUID.randomUUID();
     private static final UUID DROPLET_GUID = UUID.randomUUID();
-    private static final String DATE_FORMAT = "dd-MM-yyyy";
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private final CloudPackagesGetter cloudPackagesGetter = new CloudPackagesGetter();
     private final CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
 
@@ -58,7 +60,7 @@ class CloudPackagesGetterTest {
         Mockito.when(client.getCurrentDropletForApplication(APPLICATION_GUID))
                .thenThrow(getNotFoundCloudOperationException());
         Mockito.when(client.getPackagesForApplication(APPLICATION_GUID))
-               .thenReturn(List.of(createCloudPackage(PACKAGE_GUID, Status.PROCESSING_UPLOAD, new Date())));
+               .thenReturn(List.of(createCloudPackage(PACKAGE_GUID, Status.PROCESSING_UPLOAD, LocalDateTime.now())));
         Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getLatestUnusedPackage(client, APPLICATION_GUID);
         assertTrue(latestUnusedPackage.isPresent());
         assertEquals(PACKAGE_GUID, latestUnusedPackage.get()
@@ -79,7 +81,7 @@ class CloudPackagesGetterTest {
     void getLatestUnusedPackageWhenCurrentPackageIsTheSameAsNewestPackage() {
         Mockito.when(client.getCurrentDropletForApplication(APPLICATION_GUID))
                .thenReturn(createDropletInfo(DROPLET_GUID, PACKAGE_GUID));
-        CloudPackage cloudPackage = createCloudPackage(PACKAGE_GUID, Status.READY, new Date());
+        CloudPackage cloudPackage = createCloudPackage(PACKAGE_GUID, Status.READY, LocalDateTime.now());
         Mockito.when(client.getPackage(PACKAGE_GUID))
                .thenReturn(cloudPackage);
         Mockito.when(client.getPackagesForApplication(APPLICATION_GUID))
@@ -92,21 +94,24 @@ class CloudPackagesGetterTest {
     void getLatestUnusedPackageWhenNoPackagesAreFound() {
         Mockito.when(client.getCurrentDropletForApplication(APPLICATION_GUID))
                .thenReturn(createDropletInfo(DROPLET_GUID, PACKAGE_GUID));
+        CloudPackage cloudPackage = createCloudPackage(PACKAGE_GUID, Status.READY, LocalDateTime.now());
         Mockito.when(client.getPackage(PACKAGE_GUID))
-               .thenReturn(createCloudPackage(PACKAGE_GUID, Status.READY, new Date(System.currentTimeMillis())));
+               .thenReturn(cloudPackage);
         Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getLatestUnusedPackage(client, APPLICATION_GUID);
         assertFalse(latestUnusedPackage.isPresent());
     }
 
     @Test
-    void getLatestUnusedPackageWhenThereIsNewerPackage() throws ParseException {
+    void getLatestUnusedPackageWhenThereIsNewerPackage() throws DateTimeParseException {
         Mockito.when(client.getCurrentDropletForApplication(APPLICATION_GUID))
                .thenReturn(createDropletInfo(DROPLET_GUID, PACKAGE_GUID));
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
+        LocalDate date = LocalDate.parse("01-01-2020", DATE_TIME_FORMATTER);
         Mockito.when(client.getPackage(PACKAGE_GUID))
-               .thenReturn(createCloudPackage(PACKAGE_GUID, Status.READY, simpleDateFormat.parse("01-01-2020")));
-        CloudPackage olderCloudPackage = createCloudPackage(UUID.randomUUID(), Status.READY, simpleDateFormat.parse("02-01-2020"));
-        CloudPackage newestCloudPackage = createCloudPackage(UUID.randomUUID(), Status.READY, simpleDateFormat.parse("03-01-2020"));
+               .thenReturn(createCloudPackage(PACKAGE_GUID, Status.READY, LocalDateTime.of(date, LocalTime.NOON)));
+        date = LocalDate.parse("02-01-2020", DATE_TIME_FORMATTER);
+        CloudPackage olderCloudPackage = createCloudPackage(UUID.randomUUID(), Status.READY, LocalDateTime.of(date, LocalTime.NOON));
+        date = LocalDate.parse("03-01-2020", DATE_TIME_FORMATTER);
+        CloudPackage newestCloudPackage = createCloudPackage(UUID.randomUUID(), Status.READY, LocalDateTime.of(date, LocalTime.NOON));
         Mockito.when(client.getPackagesForApplication(APPLICATION_GUID))
                .thenReturn(List.of(olderCloudPackage, newestCloudPackage));
         Optional<CloudPackage> latestUnusedCloudPackage = cloudPackagesGetter.getLatestUnusedPackage(client, APPLICATION_GUID);
@@ -122,7 +127,7 @@ class CloudPackagesGetterTest {
         return new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private CloudPackage createCloudPackage(UUID guid, Status status, Date createdAt) {
+    private CloudPackage createCloudPackage(UUID guid, Status status, LocalDateTime createdAt) {
         CloudMetadata cloudMetadata = ImmutableCloudMetadata.builder()
                                                             .guid(guid)
                                                             .createdAt(createdAt)

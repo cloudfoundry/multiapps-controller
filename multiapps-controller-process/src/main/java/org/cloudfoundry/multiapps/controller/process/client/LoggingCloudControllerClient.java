@@ -143,9 +143,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<CloudRoute> deleteOrphanedRoutes() {
+    public void deleteOrphanedRoutes() {
         logger.debug(Messages.DELETING_ORPHANED_ROUTES);
-        return delegate.deleteOrphanedRoutes();
+        delegate.deleteOrphanedRoutes();
     }
 
     @Override

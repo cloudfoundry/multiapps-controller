@@ -99,7 +99,7 @@ public class DataTerminationService {
     private String getDateBeforeDays(int numberOfDays) {
         ZonedDateTime dateBeforeTwoDays = ZonedDateTime.now()
                                                        .minus(Duration.ofDays(numberOfDays));
-        String result = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        String result = DateTimeFormatter.ISO_DATE_TIME
                                          .format(dateBeforeTwoDays);
         LOGGER.info(MessageFormat.format(Messages.PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES, result));
         return result;

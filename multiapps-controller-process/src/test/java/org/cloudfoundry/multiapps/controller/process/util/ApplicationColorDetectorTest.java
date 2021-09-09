@@ -4,10 +4,10 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -225,17 +225,16 @@ class ApplicationColorDetectorTest {
                                    .build();
     }
 
-    private Date parseDate(String date) {
+    private LocalDateTime parseDate(String date) {
         try {
-            return new SimpleDateFormat("yyyy-MM-dd").parse(date);
-        } catch (ParseException e) {
+            return LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        } catch (DateTimeParseException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
-    private DeployedMtaApplication createMtaApplication(String moduleName, String appName, Date createdAt) {
+    private DeployedMtaApplication createMtaApplication(String moduleName, String appName, LocalDateTime createdAt) {
         return ImmutableDeployedMtaApplication.builder()
                                               .name(appName)
                                               .moduleName(moduleName)
