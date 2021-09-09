@@ -7,21 +7,21 @@
       "moduleName": "app-1",
       "name": "app-1-green",
       "metadata": {
-        "createdAt": "2019-04-04"
+        "createdAt": "2019-04-04T00:00:00"
       }
     },
     {
       "moduleName": "app-2",
       "name": "app-2-green",
       "metadata": {
-        "createdAt": "2019-04-05"
+        "createdAt": "2019-04-05T00:00:00"
       }
     },
     {
       "moduleName": "app-3",
       "name": "app-3-green",
       "metadata": {
-        "createdAt": "2019-04-06"
+        "createdAt": "2019-04-06T00:00:00"
       }
     }
   ]

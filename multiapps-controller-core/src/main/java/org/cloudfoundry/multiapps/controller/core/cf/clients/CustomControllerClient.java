@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.core.cf.clients;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,18 +24,28 @@ public abstract class CustomControllerClient {
         this.webClient = new WebClientFactory().getWebClient(client);
     }
 
-    protected List<Map<String, Object>> getAllResources(String path, Object... urlVariables) {
+    protected List<Map<String, Object>> getAllResources(String path) {
         List<Map<String, Object>> allResources = new ArrayList<>();
         String nextUrl = path;
         while (!StringUtils.isEmpty(nextUrl)) {
-            nextUrl = addPageOfResources(nextUrl, allResources, urlVariables);
+            nextUrl = addPageOfResources(nextUrl, allResources, null);
         }
         return allResources;
     }
 
-    private String addPageOfResources(String path, List<Map<String, Object>> allResources, Object... urlVariables) {
+    protected CloudResourcesWithIncluded getAllResourcesWithIncluded(String path) {
+        List<Map<String, Object>> allResources = new ArrayList<>();
+        Map<String, Object> includedResources = new HashMap<>();
+        String nextUrl = path;
+        while (!StringUtils.isEmpty(nextUrl)) {
+            nextUrl = addPageOfResources(nextUrl, allResources, includedResources);
+        }
+        return CloudResourcesWithIncluded.of(allResources, includedResources);
+    }
+
+    private String addPageOfResources(String path, List<Map<String, Object>> allResources, Map<String, Object> includedResources) {
         String response = webClient.get()
-                                   .uri(path, urlVariables)
+                                   .uri(path)
                                    .retrieve()
                                    .bodyToMono(String.class)
                                    .block();
@@ -45,8 +56,15 @@ public abstract class CustomControllerClient {
         if (!CollectionUtils.isEmpty(newResources)) {
             allResources.addAll(newResources);
         }
+        if (responseMap.containsKey("included") && includedResources != null) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> included = (Map<String, Object>) responseMap.get("included");
+            includedResources.putAll(included);
+        }
 
-        String nextUrl = (String) responseMap.get("next_url");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> pagination = (Map<String, Object>) responseMap.get("pagination");
+        String nextUrl = (String) pagination.get("next");
         return nextUrl == null ? null : URLDecoder.decode(nextUrl, StandardCharsets.UTF_8);
     }
 }

@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -196,8 +196,8 @@ class ApplicationStagerTest {
     void testIsApplicationStagedCorrectlyBuildErrorNotNull() {
         CloudApplication app = createApplication();
         ImmutableDropletInfo dropletInfo = ImmutableDropletInfo.of(DROPLET_GUID, null);
-        CloudBuild build1 = createBuild(CloudBuild.State.STAGED, dropletInfo, null, new Date(0));
-        CloudBuild build2 = createBuild(CloudBuild.State.FAILED, dropletInfo, "error", new Date(1));
+        CloudBuild build1 = createBuild(CloudBuild.State.STAGED, dropletInfo, null, LocalDateTime.MIN);
+        CloudBuild build2 = createBuild(CloudBuild.State.FAILED, dropletInfo, "error", LocalDateTime.MIN.plusHours(1));
         Mockito.when(client.getBuildsForApplication(any(UUID.class)))
                .thenReturn(List.of(build1, build2));
         Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
@@ -297,8 +297,8 @@ class ApplicationStagerTest {
         return ImmutableCloudApplication.builder()
                                         .metadata(ImmutableCloudMetadata.builder()
                                                                         .guid(APP_GUID)
-                                                                        .createdAt(new Date())
-                                                                        .updatedAt(new Date())
+                                                                        .createdAt(LocalDateTime.now())
+                                                                        .updatedAt(LocalDateTime.now())
                                                                         .build())
                                         .name(APP_NAME)
                                         .build();
@@ -309,10 +309,10 @@ class ApplicationStagerTest {
     }
 
     private CloudBuild createBuild(CloudBuild.State state, DropletInfo dropletInfo, String error) {
-        return createBuild(state, dropletInfo, error, new Date());
+        return createBuild(state, dropletInfo, error, LocalDateTime.now());
     }
 
-    private CloudBuild createBuild(CloudBuild.State state, DropletInfo dropletInfo, String error, Date timestamp) {
+    private CloudBuild createBuild(CloudBuild.State state, DropletInfo dropletInfo, String error, LocalDateTime timestamp) {
         return ImmutableCloudBuild.builder()
                                   .metadata(ImmutableCloudMetadata.builder()
                                                                   .guid(BUILD_GUID)

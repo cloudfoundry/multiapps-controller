@@ -16,7 +16,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +85,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     private static Stream<Arguments> testWithBuildStates() {
         return Stream.of(Arguments.of(List.of(ImmutableCloudBuild.builder()
                                                                  .metadata(ImmutableCloudMetadata.builder()
-                                                                                                 .createdAt(new Date())
+                                                                                                 .createdAt(LocalDateTime.now())
                                                                                                  .build())
                                                                  .state(CloudBuild.State.STAGED)
                                                                  .dropletInfo(ImmutableDropletInfo.builder()
@@ -95,7 +95,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
                                       StepPhase.DONE, null),
                          Arguments.of(List.of(ImmutableCloudBuild.builder()
                                                                  .metadata(ImmutableCloudMetadata.builder()
-                                                                                                 .createdAt(new Date())
+                                                                                                 .createdAt(LocalDateTime.now())
                                                                                                  .build())
                                                                  .state(CloudBuild.State.FAILED)
                                                                  .dropletInfo(ImmutableDropletInfo.builder()

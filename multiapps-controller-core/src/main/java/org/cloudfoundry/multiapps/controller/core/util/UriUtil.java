@@ -37,9 +37,9 @@ public class UriUtil {
         return uri.substring(protocolIndex + DEFAULT_SCHEME_SEPARATOR.length());
     }
 
-    public static CloudRoute matchRoute(List<CloudRoute> routes, CloudRouteSummary routeSummary) {
+    public static <T extends CloudRoute> T matchRoute(List<T> routes, CloudRouteSummary routeSummary) {
         return routes.stream()
-                     .filter(route -> routeSummary.describesTheSameUri(route))
+                     .filter(routeSummary::describesTheSameUri)
                      .findAny()
                      .orElseThrow(() -> new NotFoundException(Messages.ROUTE_NOT_FOUND, routeSummary));
     }

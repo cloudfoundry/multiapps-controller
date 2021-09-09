@@ -2,13 +2,14 @@ package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 public class CFOptimizedEventGetter extends CustomControllerClient {
 
-    private static final String FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT = "/v2/events?inline-relations-depth=1&results-per-page=100&q=type:{type}&q=timestamp>{timestamp}";
+    private static final String FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT = "/v3/audit_events?types=%s&per_page=100&created_ats[gt]=%s";
 
     public CFOptimizedEventGetter(CloudControllerClient client) {
         super(client);
@@ -19,20 +20,21 @@ public class CFOptimizedEventGetter extends CustomControllerClient {
     }
 
     private List<String> findEventsInternal(String type, String timestamp) {
-        List<Map<String, Object>> response = getAllResources(FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT, type, timestamp);
+        List<Map<String, Object>> response = getAllResources(String.format(FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT, type, timestamp));
         return extractSpaceIds(response);
     }
 
     private List<String> extractSpaceIds(List<Map<String, Object>> events) {
         return events.stream()
                      .map(this::extractSpaceId)
+                     .filter(Objects::nonNull)
                      .collect(Collectors.toList());
     }
 
     @SuppressWarnings("unchecked")
     private String extractSpaceId(Map<String, Object> event) {
-        Map<String, Object> entity = (Map<String, Object>) event.get("entity");
-        return (String) entity.get("space_guid");
+        Map<String, Object> space = (Map<String, Object>) event.get("space");
+        return (String) space.get("guid");
     }
 
 }
