@@ -18,8 +18,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class UAAClientConfiguration {
 
-    private static final String CONTROLLER_INFO_ENDPOINT = "/v2/info";
-
     @Inject
     @Bean
     public UAAClient uaaClient(ApplicationConfiguration configuration) {
@@ -29,16 +27,16 @@ public class UAAClientConfiguration {
         return new UAAClientFactory().createClient(readTokenEndpoint(configuration.getControllerUrl()));
     }
 
+    @SuppressWarnings("unchecked")
     private URL readTokenEndpoint(URL targetURL) {
         try {
             Map<String, Object> infoMap = getControllerInfo(targetURL);
-            Object endpoint = infoMap.get("token_endpoint");
-            if (endpoint == null) {
-                endpoint = infoMap.get("authorizationEndpoint");
-            }
+            var links = (Map<String, Object>) infoMap.get("links");
+            var uaa = (Map<String, Object>) links.get("uaa");
+            Object endpoint = uaa.get("href");
             if (endpoint == null) {
                 throw new IllegalStateException(MessageFormat.format("Response from {0} does not contain a valid token endpoint",
-                                                                     CONTROLLER_INFO_ENDPOINT));
+                                                                     targetURL.toString()));
             }
             return new URL(endpoint.toString());
         } catch (Exception e) {
@@ -47,14 +45,14 @@ public class UAAClientConfiguration {
     }
 
     protected Map<String, Object> getControllerInfo(URL targetURL) {
-        String infoResponse = WebClient.create(targetURL.toString())
+        String infoResponse = WebClient.create()
                                        .get()
-                                       .uri(CONTROLLER_INFO_ENDPOINT)
+                                       .uri(targetURL.toString())
                                        .retrieve()
                                        .bodyToMono(String.class)
                                        .block();
         if (infoResponse == null) {
-            throw new IllegalStateException(MessageFormat.format("Invalid response returned from {0}", CONTROLLER_INFO_ENDPOINT));
+            throw new IllegalStateException(MessageFormat.format("Invalid response returned from {0}", targetURL.toString()));
         }
         return JsonUtil.convertJsonToMap(infoResponse);
     }
