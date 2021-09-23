@@ -27,7 +27,7 @@ public class UAAClient {
                                            .bodyToMono(String.class)
                                            .block();
         if (tokenKeyResponse == null) {
-            throw new IllegalStateException(MessageFormat.format("Invalid response returned from /token_key: {0}", tokenKeyResponse));
+            throw new IllegalStateException(MessageFormat.format("Invalid response returned from {0}", tokenKeyURL));
         }
 
         return JsonUtil.convertJsonToMap(tokenKeyResponse);
