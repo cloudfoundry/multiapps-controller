@@ -2,8 +2,11 @@ package org.cloudfoundry.multiapps.controller.web.api.impl;
 
 import java.security.Principal;
 import java.text.MessageFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -320,9 +323,14 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return ImmutableMessage.builder()
                                .id(progressMessage.getId())
                                .text(progressMessage.getText())
+                               .timestamp(toZonedDateTime(progressMessage.getTimestamp()))
                                .type(getMessageType(progressMessage.getType()))
                                .build();
 
+    }
+
+    private ZonedDateTime toZonedDateTime(Date timestamp) {
+        return ZonedDateTime.ofInstant(timestamp.toInstant(), ZoneId.of("UTC"));
     }
 
     private MessageType getMessageType(ProgressMessageType type) {

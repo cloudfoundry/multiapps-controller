@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.api.model;
 
+import java.time.ZonedDateTime;
+
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 
@@ -23,6 +25,13 @@ public interface Message {
     @ApiModelProperty
     @JsonProperty("text")
     String getText();
+
+    @Nullable
+    @ApiModelProperty
+    @JsonSerialize(using = ZonedDateTimeSerializer.class)
+    @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
+    @JsonProperty("timestamp")
+    ZonedDateTime getTimestamp();
 
     @Nullable
     @ApiModelProperty
