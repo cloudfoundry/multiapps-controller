@@ -21,7 +21,8 @@
     "resourceName": "java-hdi-container",
     "shouldSkipParametersUpdate": false,
     "shouldSkipTagsUpdate": false,
-    "shouldSkipPlanUpdate": false
+    "shouldSkipPlanUpdate": false,
+    "shouldSkipSyslogUrlUpdate": false 
   },
   {
     "isOptional": false,
@@ -40,6 +41,7 @@
     "resourceName": "uaa",
     "shouldSkipParametersUpdate": false,
     "shouldSkipTagsUpdate": false,
-    "shouldSkipPlanUpdate": false
+    "shouldSkipPlanUpdate": false,
+    "shouldSkipSyslogUrlUpdate": false 
   }
 ]

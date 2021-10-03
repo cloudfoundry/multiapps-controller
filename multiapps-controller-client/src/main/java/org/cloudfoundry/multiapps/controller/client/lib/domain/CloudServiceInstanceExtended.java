@@ -24,19 +24,24 @@ public abstract class CloudServiceInstanceExtended extends CloudServiceInstance 
     public boolean isManaged() {
         return false;
     }
-    
+
     @Value.Default
     public boolean shouldSkipParametersUpdate() {
         return false;
     }
-    
+
     @Value.Default
     public boolean shouldSkipPlanUpdate() {
         return false;
     }
-    
+
     @Value.Default
     public boolean shouldSkipTagsUpdate() {
+        return false;
+    }
+
+    @Value.Default
+    public boolean shouldSkipSyslogUrlUpdate() {
         return false;
     }
 

@@ -18,6 +18,7 @@
     "tags": [],
     "shouldSkipParametersUpdate": false,
     "shouldSkipTagsUpdate": false,
-    "shouldSkipPlanUpdate": false
+    "shouldSkipPlanUpdate": false,
+    "shouldSkipSyslogUrlUpdate": false 
   }
 ]

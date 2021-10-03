@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,6 +27,15 @@ class UpdateServiceSyslogDrainUrlStepTest extends SyncFlowableStepTest<UpdateSer
         verify(client).updateServiceSyslogDrainUrl(SERVICE_NAME, SYSLOG_DRAIN_URL);
     }
 
+    @Test
+    void testSkipParametersUpdate() {
+        CloudServiceInstanceExtended serviceToProcess = buildServiceWithSkipUpdate();
+        prepareServiceToProcess(serviceToProcess);
+        prepareClient(serviceToProcess);
+        step.execute(execution);
+        verify(client, never()).updateServiceSyslogDrainUrl(SERVICE_NAME, SYSLOG_DRAIN_URL);
+    }
+
     private void prepareClient(CloudServiceInstanceExtended serviceToProcess) {
         when(client.getRequiredServiceInstanceGuid(SERVICE_NAME)).thenReturn(serviceToProcess.getGuid());
     }
@@ -39,6 +49,15 @@ class UpdateServiceSyslogDrainUrlStepTest extends SyncFlowableStepTest<UpdateSer
                                                     .name(SERVICE_NAME)
                                                     .metadata(buildCloudMetadata())
                                                     .syslogDrainUrl(SYSLOG_DRAIN_URL)
+                                                    .build();
+    }
+
+    private CloudServiceInstanceExtended buildServiceWithSkipUpdate() {
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .metadata(buildCloudMetadata())
+                                                    .name(SERVICE_NAME)
+                                                    .syslogDrainUrl(SYSLOG_DRAIN_URL)
+                                                    .shouldSkipSyslogUrlUpdate(true)
                                                     .build();
     }
 
