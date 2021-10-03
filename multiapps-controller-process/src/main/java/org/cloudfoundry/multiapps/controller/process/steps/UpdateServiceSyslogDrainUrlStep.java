@@ -22,7 +22,10 @@ public class UpdateServiceSyslogDrainUrlStep extends ServiceStep {
     @Override
     protected OperationExecutionState executeOperation(ProcessContext context, CloudControllerClient client,
                                                        CloudServiceInstanceExtended service) {
-
+        if (service.shouldSkipSyslogUrlUpdate()) {
+            getStepLogger().warn(Messages.WILL_NOT_UPDATE_SYSLOG_URL, service.getName());
+            return OperationExecutionState.FINISHED;
+        }
         getStepLogger().info(Messages.UPDATING_SERVICE_SYSLOG_URL, service.getName());
 
         client.updateServiceSyslogDrainUrl(service.getName(), service.getSyslogDrainUrl());

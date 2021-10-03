@@ -21,7 +21,8 @@
     "resourceName": "pricing-db-service",
     "shouldSkipParametersUpdate": false,
     "shouldSkipTagsUpdate": false,
-    "shouldSkipPlanUpdate": false
+    "shouldSkipPlanUpdate": false,
+    "shouldSkipSyslogUrlUpdate": false 
   },
   {
     "isOptional": false,
@@ -36,6 +37,7 @@
     "resourceName": "internal-odata-service",
     "shouldSkipParametersUpdate": false,
     "shouldSkipTagsUpdate": false,
-    "shouldSkipPlanUpdate": false
+    "shouldSkipPlanUpdate": false,
+    "shouldSkipSyslogUrlUpdate": false 
   }
 ]

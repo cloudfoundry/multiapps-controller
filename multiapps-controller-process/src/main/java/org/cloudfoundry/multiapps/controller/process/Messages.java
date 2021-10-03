@@ -191,6 +191,7 @@ public class Messages {
     public static final String WILL_NOT_UPDATE_SERVICE_PARAMS = "Service parameters for service \"{0}\" will not be updated, as the option for skipping service parameter updates is enabled.";
     public static final String WILL_NOT_UPDATE_SERVICE_PLAN = "Service plan for service \"{0}\" will not be updated, as the option for skipping service plan updates is enabled.";
     public static final String WILL_NOT_UPDATE_SERVICE_TAGS = "Service tags for service \"{0}\" will not be updated, as the option for skipping service tags updates is enabled.";
+    public static final String WILL_NOT_UPDATE_SYSLOG_URL = "Skipping update of log streaming URL for service \"{0}\", as the option to skip log streaming URL updates is enabled.";
     public static final String WILL_NOT_REGISTER_EVENT_IN_DYNATRACE = "Will not register process event in dynatrace";
     public static final String SERVICES_WILL_BE_BOUND_UNBOUND_SEQUENTIALLY_TO_APPLICATION_0 = "Services will be bound/unbound sequentially to application: \"{0}\"";
     public static final String USING_DEPRECATED_HEALTH_CHECK_TYPE_0_SETTING_TO_1 = "You have specified deprecated health check type: \"{0}\". Setting to its actual alias: \"{1}\"";

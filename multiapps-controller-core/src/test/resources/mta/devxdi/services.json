@@ -18,7 +18,8 @@
     "tags": [],
     "shouldSkipParametersUpdate": false,
     "shouldSkipTagsUpdate": false,
-    "shouldSkipPlanUpdate": false
+    "shouldSkipPlanUpdate": false,
+    "shouldSkipSyslogUrlUpdate": false 
   },
   {
     "isOptional": false,
@@ -42,6 +43,7 @@
     "resourceName": "di-core-hdi",
     "shouldSkipParametersUpdate": false,
     "shouldSkipTagsUpdate": false,
-    "shouldSkipPlanUpdate": false
+    "shouldSkipPlanUpdate": false,
+    "shouldSkipSyslogUrlUpdate": false 
   }
 ]

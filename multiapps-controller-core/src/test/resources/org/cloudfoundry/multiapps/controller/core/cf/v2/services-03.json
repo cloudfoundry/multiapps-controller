@@ -9,7 +9,8 @@
     "resourceName": "ups",
     "shouldSkipParametersUpdate" : false,
     "shouldSkipTagsUpdate" : false,
-    "shouldSkipPlanUpdate" : false
+    "shouldSkipPlanUpdate" : false,
+    "shouldSkipSyslogUrlUpdate": false 
   },
   {
     "isOptional": false,
@@ -21,7 +22,8 @@
     "resourceName": "user-provided-service",
     "shouldSkipParametersUpdate" : false,
     "shouldSkipTagsUpdate" : false,
-    "shouldSkipPlanUpdate" : false
+    "shouldSkipPlanUpdate" : false,
+    "shouldSkipSyslogUrlUpdate": false 
   },
   {
     "isOptional": false,
@@ -33,7 +35,8 @@
     "resourceName": "user-provider-resource-named-service",
     "shouldSkipParametersUpdate" : false,
     "shouldSkipTagsUpdate" : false,
-    "shouldSkipPlanUpdate" : false
+    "shouldSkipPlanUpdate" : false,
+    "shouldSkipSyslogUrlUpdate": false 
   },
   {
     "isOptional": false,
@@ -57,7 +60,8 @@
     "resourceName": "rs",
     "shouldSkipParametersUpdate" : false,
     "shouldSkipTagsUpdate" : false,
-    "shouldSkipPlanUpdate" : false
+    "shouldSkipPlanUpdate" : false,
+    "shouldSkipSyslogUrlUpdate": false 
   },
   {
     "isOptional": false,
@@ -81,7 +85,8 @@
     "resourceName": "random-service",
     "shouldSkipParametersUpdate" : false,
     "shouldSkipTagsUpdate" : false,
-    "shouldSkipPlanUpdate" : false
+    "shouldSkipPlanUpdate" : false,
+    "shouldSkipSyslogUrlUpdate": false 
   },
   {
     "isOptional": false,
@@ -105,7 +110,8 @@
     "resourceName": "random-resource-named-service",
     "shouldSkipParametersUpdate" : false,
     "shouldSkipTagsUpdate" : false,
-    "shouldSkipPlanUpdate" : false
+    "shouldSkipPlanUpdate" : false,
+    "shouldSkipSyslogUrlUpdate": false 
   },
   {
     "isOptional": false,
@@ -126,7 +132,8 @@
     "resourceName": "es",
     "shouldSkipParametersUpdate" : false,
     "shouldSkipTagsUpdate" : false,
-    "shouldSkipPlanUpdate" : false
+    "shouldSkipPlanUpdate" : false,
+    "shouldSkipSyslogUrlUpdate": false 
   },
   {
     "isOptional": false,
@@ -147,7 +154,8 @@
     "resourceName": "existing-service",
     "shouldSkipParametersUpdate" : false,
     "shouldSkipTagsUpdate" : false,
-    "shouldSkipPlanUpdate" : false
+    "shouldSkipPlanUpdate" : false,
+    "shouldSkipSyslogUrlUpdate": false 
   },
   {
     "isOptional": false,
@@ -168,6 +176,7 @@
     "resourceName": "existing-resource-named-service",
     "shouldSkipParametersUpdate" : false,
     "shouldSkipTagsUpdate" : false,
-    "shouldSkipPlanUpdate" : false
+    "shouldSkipPlanUpdate" : false,
+    "shouldSkipSyslogUrlUpdate": false 
   }
 ]

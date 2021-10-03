@@ -6,7 +6,8 @@
   "tags" : [ ],
   "shouldSkipParametersUpdate" : false,
   "shouldSkipTagsUpdate" : false,
-  "shouldSkipPlanUpdate" : false
+  "shouldSkipPlanUpdate" : false,
+  "shouldSkipSyslogUrlUpdate": false 
 }, {
   "isOptional" : false,
   "isManaged" : true,
@@ -15,5 +16,6 @@
   "tags" : [ ],
   "shouldSkipParametersUpdate" : false,
   "shouldSkipTagsUpdate" : false,
-  "shouldSkipPlanUpdate" : false
+  "shouldSkipPlanUpdate" : false,
+  "shouldSkipSyslogUrlUpdate": false 
 } ]

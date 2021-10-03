@@ -85,6 +85,7 @@ public class ServicesCloudModelBuilder {
                                                     .shouldSkipParametersUpdate(commonServiceParameters.shouldSkipParametersUpdate())
                                                     .shouldSkipTagsUpdate(commonServiceParameters.shouldSkipTagsUpdate())
                                                     .shouldSkipPlanUpdate(commonServiceParameters.shouldSkipPlanUpdate())
+                                                    .shouldSkipSyslogUrlUpdate(commonServiceParameters.shouldSkipSyslogUrlUpdate())
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
@@ -109,6 +110,7 @@ public class ServicesCloudModelBuilder {
                                                     .shouldSkipParametersUpdate(commonServiceParameters.shouldSkipParametersUpdate())
                                                     .shouldSkipTagsUpdate(commonServiceParameters.shouldSkipTagsUpdate())
                                                     .shouldSkipPlanUpdate(commonServiceParameters.shouldSkipPlanUpdate())
+                                                    .shouldSkipSyslogUrlUpdate(commonServiceParameters.shouldSkipSyslogUrlUpdate())
                                                     .build();
     }
 
@@ -120,6 +122,7 @@ public class ServicesCloudModelBuilder {
                                                     .shouldSkipParametersUpdate(commonServiceParameters.shouldSkipParametersUpdate())
                                                     .shouldSkipTagsUpdate(commonServiceParameters.shouldSkipTagsUpdate())
                                                     .shouldSkipPlanUpdate(commonServiceParameters.shouldSkipPlanUpdate())
+                                                    .shouldSkipSyslogUrlUpdate(commonServiceParameters.shouldSkipSyslogUrlUpdate())
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
@@ -175,6 +178,11 @@ public class ServicesCloudModelBuilder {
         private boolean shouldSkipPlanUpdate() {
             return shouldSkipUpdates.getOrDefault("plan", false);
         }
+
+        private boolean shouldSkipSyslogUrlUpdate() {
+            return shouldSkipUpdates.getOrDefault("syslog-drain-url", false);
+        }
+
     }
 
 }
