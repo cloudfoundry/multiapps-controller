@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +36,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
 import org.cloudfoundry.multiapps.mta.handlers.HandlerFactory;
 import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorHandler;
+import org.cloudfoundry.multiapps.mta.handlers.v3.BatchCalculator;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
@@ -112,20 +112,26 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.SERVICES_TO_BIND, servicesForBindings);
 
         List<Resource> resourcesForDeployment = calculateResourcesForDeployment(context, deploymentDescriptor);
-        List<CloudServiceInstanceExtended> servicesCalculatedForDeployment = servicesCloudModelBuilder.build(resourcesForDeployment);
-
-        // Build a list of services for creation and save them in the context:
-        List<CloudServiceInstanceExtended> servicesToCreate = servicesCalculatedForDeployment.stream()
-                                                                                             .filter(CloudServiceInstanceExtended::isManaged)
-                                                                                             .collect(Collectors.toList());
-        getStepLogger().debug(Messages.SERVICES_TO_CREATE, SecureSerialization.toJson(servicesToCreate));
-        context.setVariable(Variables.SERVICES_TO_CREATE, servicesToCreate);
-
-        // Needed by CreateOrUpdateServicesStep, as it is used as an iteration variable:
-        context.setVariable(Variables.SERVICES_TO_CREATE_COUNT, servicesToCreate.size());
+        // logg batching of resources
+        getStepLogger().debug(Messages.CALCULATING_RESOURCE_BATCHES);
+        // Organise resources into batches of resources
+        List<List<Resource>> batchesToProcess = calculateBatchesToProcess(deploymentDescriptor, resourcesForDeployment);
+        // set context variable batches_to_process
+        context.setVariable(Variables.BATCHES_TO_PROCESS, batchesToProcess);
+        // log end of the batching
+        getStepLogger().debug(Messages.CALCULATING_RESOURCE_BATCHES_COMPLETE);
 
         getStepLogger().debug(Messages.CLOUD_MODEL_BUILT);
         return StepPhase.DONE;
+    }
+
+    private List<List<Resource>> calculateBatchesToProcess(DeploymentDescriptor deploymentDescriptor, List<Resource> resources) {
+        if (!resources.isEmpty()) {
+            BatchCalculator batchCalculator = new BatchCalculator(deploymentDescriptor);
+            return new ArrayList<>(batchCalculator.groupByBatches(resources)
+                                                  .values());
+        }
+        return Collections.emptyList();
     }
 
     @Override
@@ -199,11 +205,9 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         return new ResourcesCloudModelBuilderContentCalculator(resourcesSpecifiedForDeployment, getStepLogger());
     }
 
-    protected ModulesCloudModelBuilderContentCalculator getModulesContentCalculator(ProcessContext context,
-                                                                                    List<Module> mtaDescriptorModules,
-                                                                                    Set<String> mtaManifestModuleNames,
-                                                                                    Set<String> deployedModuleNames,
-                                                                                    Set<String> mtaModuleNamesForDeployment) {
+    protected ModulesCloudModelBuilderContentCalculator
+              getModulesContentCalculator(ProcessContext context, List<Module> mtaDescriptorModules, Set<String> mtaManifestModuleNames,
+                                          Set<String> deployedModuleNames, Set<String> mtaModuleNamesForDeployment) {
         List<ModulesContentValidator> modulesValidators = getModuleContentValidators(context.getControllerClient(), mtaDescriptorModules,
                                                                                      mtaModuleNamesForDeployment, deployedModuleNames);
         return new ModulesCloudModelBuilderContentCalculator(mtaManifestModuleNames,
@@ -215,11 +219,12 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     }
 
     private List<ModulesContentValidator> getModuleContentValidators(CloudControllerClient cloudControllerClient,
-                                                                     List<Module> mtaDescriptorModules,
-                                                                     Set<String> mtaModulesForDeployment,
+                                                                     List<Module> mtaDescriptorModules, Set<String> mtaModulesForDeployment,
                                                                      Set<String> deployedModuleNames) {
         return List.of(new UnresolvedModulesContentValidator(mtaModulesForDeployment, deployedModuleNames),
-                       new DeployedAfterModulesContentValidator(cloudControllerClient, getStepLogger(), moduleToDeployHelper,
+                       new DeployedAfterModulesContentValidator(cloudControllerClient,
+                                                                getStepLogger(),
+                                                                moduleToDeployHelper,
                                                                 mtaDescriptorModules));
     }
 
