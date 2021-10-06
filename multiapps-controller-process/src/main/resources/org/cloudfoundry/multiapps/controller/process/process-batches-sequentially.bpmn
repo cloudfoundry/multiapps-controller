@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/test">
+  <process id="processBatches" name="processBatches" isExecutable="true">
+    <extensionElements>
+      <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="ENTITY_DELETED" delegateExpression="${expiredJobListener}"></flowable:eventListener>
+    </extensionElements>
+    <startEvent id="startEvent" name="Start" flowable:initiator="initiator" flowable:formFieldValidation="true">
+      <extensionElements>
+        <flowable:executionListener event="start" delegateExpression="${startProcessListener}"></flowable:executionListener>
+      </extensionElements>
+    </startEvent>
+    <serviceTask id="prepareModulesDeploymentTask" name="Extract Services From Batches" flowable:async="true" flowable:exclusive="false" flowable:delegateExpression="${extractServicesDeploymentStep}"></serviceTask>
+    <sequenceFlow id="flow51" sourceRef="startEvent" targetRef="prepareModulesDeploymentTask"></sequenceFlow>
+    <callActivity id="createOrUpdateServicesCallActivity" name="Create or update services" flowable:async="true" calledElement="createOrUpdateServicesSubProcess" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="servicesToCreate" target="servicesToCreate"></flowable:in>
+        <flowable:in source="serviceToProcess" target="serviceToProcess"></flowable:in>
+        <flowable:in source="serviceKeysToCreate" target="serviceKeysToCreate"></flowable:in>
+        <flowable:in source="deleteServices" target="deleteServices"></flowable:in>
+        <flowable:in source="initiator" target="initiator"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+        <flowable:in source="space" target="space"></flowable:in>
+        <flowable:in source="deleteServiceKeys" target="deleteServiceKeys"></flowable:in>
+        <flowable:in source="mtaArchiveElements" target="mtaArchiveElements"></flowable:in>
+        <flowable:in source="appArchiveId" target="appArchiveId"></flowable:in>
+        <flowable:in source="orgId" target="orgId"></flowable:in>
+        <flowable:in source="mtaId" target="mtaId"></flowable:in>
+        <flowable:in source="namespace" target="namespace"></flowable:in>
+      </extensionElements>
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess"></multiInstanceLoopCharacteristics>
+    </callActivity>
+    <sequenceFlow id="sid-AB31BFC0-E0CC-4FF5-BACF-73CA7B749162" sourceRef="prepareModulesDeploymentTask" targetRef="createOrUpdateServicesCallActivity"></sequenceFlow>
+    <endEvent id="sid-BFD377EF-D401-42F0-A66B-EADDE82B638A" name="End
+"></endEvent>
+    <sequenceFlow id="sid-4260FD67-5FBB-4BAB-B37B-C2471D68F052" sourceRef="createOrUpdateServicesCallActivity" targetRef="sid-BFD377EF-D401-42F0-A66B-EADDE82B638A"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_processBatches">
+    <bpmndi:BPMNPlane bpmnElement="processBatches" id="BPMNPlane_processBatches">
+      <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+        <omgdc:Bounds height="30.0" width="30.0" x="375.0" y="226.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="prepareModulesDeploymentTask" id="BPMNShape_prepareModulesDeploymentTask">
+        <omgdc:Bounds height="58.0" width="106.0" x="480.0" y="212.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="createOrUpdateServicesCallActivity" id="BPMNShape_createOrUpdateServicesCallActivity">
+        <omgdc:Bounds height="80.0" width="100.0" x="630.0" y="201.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-BFD377EF-D401-42F0-A66B-EADDE82B638A" id="BPMNShape_sid-BFD377EF-D401-42F0-A66B-EADDE82B638A">
+        <omgdc:Bounds height="28.0" width="28.0" x="797.0" y="227.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-4260FD67-5FBB-4BAB-B37B-C2471D68F052" id="BPMNEdge_sid-4260FD67-5FBB-4BAB-B37B-C2471D68F052">
+        <omgdi:waypoint x="729.9499999999999" y="241.0"></omgdi:waypoint>
+        <omgdi:waypoint x="797.0" y="241.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-AB31BFC0-E0CC-4FF5-BACF-73CA7B749162" id="BPMNEdge_sid-AB31BFC0-E0CC-4FF5-BACF-73CA7B749162">
+        <omgdi:waypoint x="585.95" y="241.0"></omgdi:waypoint>
+        <omgdi:waypoint x="629.9999999999955" y="241.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow51" id="BPMNEdge_flow51">
+        <omgdi:waypoint x="404.94999896690354" y="241.0"></omgdi:waypoint>
+        <omgdi:waypoint x="480.0" y="241.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

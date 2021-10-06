@@ -1,10 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.variables;
 
 import java.time.Duration;
+import java.util.AbstractMap;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -27,6 +30,7 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.model.VersionRule;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -589,4 +593,16 @@ public interface Variables {
                                                                                        .defaultValue(true)
                                                                                        .build();
 
+    ImmutableJsonStringListVariable<List<Resource>> BATCHES_TO_PROCESS = ImmutableJsonStringListVariable.<List<Resource>> builder()
+                                                                                                        .name("batchesToProcess")
+                                                                                                        .type(new TypeReference<>() {
+                                                                                                        })
+                                                                                                        .defaultValue(Collections.emptyList())
+                                                                                                        .build();
+    Variable<List<Resource>> BATCH_TO_PROCESS = ImmutableJsonStringVariable.<List<Resource>> builder()
+                                                                           .name("batchToProcess")
+                                                                           .type(new TypeReference<>() {
+                                                                           })
+                                                                           .defaultValue(Collections.emptyList())
+                                                                           .build();
 }

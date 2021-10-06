@@ -76,8 +76,6 @@ class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeplo
 
         tester.test(() -> context.getVariable(Variables.SERVICES_TO_BIND),
                     new Expectation(Expectation.Type.JSON, input.servicesToBindLocation));
-        tester.test(() -> context.getVariable(Variables.SERVICES_TO_CREATE),
-                    new Expectation(Expectation.Type.JSON, input.servicesToCreateLocation));
         tester.test(() -> context.getVariable(Variables.SERVICE_KEYS_TO_CREATE),
                     new Expectation(Expectation.Type.JSON, input.serviceKeysLocation));
         tester.test(() -> context.getVariable(Variables.MODULES_TO_DEPLOY),
