@@ -105,9 +105,16 @@ public class ServiceBindingParametersGetter {
             return client.getServiceBindingParameters(getGuid(serviceBinding));
         } catch (CloudOperationException e) {
             if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {
+                // ignore 501 and 400 error codes from service brokers
                 context.getStepLogger()
                        .warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1,
                                                    application.getName(), serviceName);
+                return null;
+            } else if (HttpStatus.BAD_GATEWAY == e.getStatusCode()) {
+                // TODO: this is a temporary fix for external error code mapping leading to incorrect 502 errors
+                context.getStepLogger()
+                .warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1_FIX,
+                                            application.getName(), serviceName);
                 return null;
             }
             throw e;
