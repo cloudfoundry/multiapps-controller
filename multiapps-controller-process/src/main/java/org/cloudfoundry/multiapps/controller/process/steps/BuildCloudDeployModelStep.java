@@ -36,7 +36,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
 import org.cloudfoundry.multiapps.mta.handlers.HandlerFactory;
 import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorHandler;
-import org.cloudfoundry.multiapps.mta.handlers.v3.BatchCalculator;
+import org.cloudfoundry.multiapps.mta.handlers.v3.ResourceBatchCalculator;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
@@ -112,24 +112,22 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.SERVICES_TO_BIND, servicesForBindings);
 
         List<Resource> resourcesForDeployment = calculateResourcesForDeployment(context, deploymentDescriptor);
-        // logg batching of resources
         getStepLogger().debug(Messages.CALCULATING_RESOURCE_BATCHES);
-        // Organise resources into batches of resources
-        List<List<Resource>> batchesToProcess = calculateBatchesToProcess(deploymentDescriptor, resourcesForDeployment);
-        // set context variable batches_to_process
+
+        List<List<Resource>> batchesToProcess = getResourceBatches(deploymentDescriptor, resourcesForDeployment);
         context.setVariable(Variables.BATCHES_TO_PROCESS, batchesToProcess);
-        // log end of the batching
+
         getStepLogger().debug(Messages.CALCULATING_RESOURCE_BATCHES_COMPLETE);
 
         getStepLogger().debug(Messages.CLOUD_MODEL_BUILT);
         return StepPhase.DONE;
     }
 
-    private List<List<Resource>> calculateBatchesToProcess(DeploymentDescriptor deploymentDescriptor, List<Resource> resources) {
+    private List<List<Resource>> getResourceBatches(DeploymentDescriptor deploymentDescriptor, List<Resource> resources) {
         if (!resources.isEmpty()) {
-            BatchCalculator batchCalculator = new BatchCalculator(deploymentDescriptor);
-            return new ArrayList<>(batchCalculator.groupByBatches(resources)
-                                                  .values());
+            ResourceBatchCalculator resourceBatchCalculator = new ResourceBatchCalculator(deploymentDescriptor);
+            return new ArrayList<>(resourceBatchCalculator.groupResourcesByWeight(resources)
+                                                          .values());
         }
         return Collections.emptyList();
     }

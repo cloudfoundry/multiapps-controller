@@ -1,0 +1,26 @@
+[
+  {
+    "majorSchemaVersion": 2,
+    "name": "s-3",
+    "type": "org.postgresql",
+    "properties": {},
+    "parameters": {
+      "test-parameter": "resource-parameter",
+      "some-parameter-map": [
+        {
+          "first-parameter": "first-parameter",
+          "second-parameter": "second-parameter"
+        }
+      ]
+    },
+    "isActive": true,
+    "isOptional": false,
+    "propertiesMetadata": {
+      "metadata": {}
+    },
+    "parametersMetadata": {
+      "metadata": {}
+    },
+    "requiredDependencies": []
+  }
+]

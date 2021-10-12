@@ -1,0 +1,51 @@
+[
+  {
+    "majorSchemaVersion": 2,
+    "name": "resource-1",
+    "type": "org.postgresql",
+    "properties": {},
+    "parameters": {
+      "test-parameter": "resource-parameter",
+      "some-parameter-map": [
+        {
+          "first-parameter": "first-parameter",
+          "second-parameter": "second-parameter"
+        }
+      ]
+    },
+    "isActive": true,
+    "isOptional": false,
+    "propertiesMetadata": {
+      "metadata": {}
+    },
+    "parametersMetadata": {
+      "metadata": {}
+    },
+    "requiredDependencies": []
+  },
+  {
+    "majorSchemaVersion": 2,
+    "name": "resource-2",
+    "type": "org.postgresql",
+    "properties": {},
+    "parameters": {
+      "test-parameter": "resource-parameter",
+      "some-parameter-map": [
+        {
+          "first-parameter": "first-parameter",
+          "second-parameter": "second-parameter"
+        }
+      ]
+    },
+    "isActive": true,
+    "isOptional": false,
+    "propertiesMetadata": {
+      "metadata": {}
+    },
+    "parametersMetadata": {
+      "metadata": {}
+    },
+    "requiredDependencies": [],
+    "processedAfter": []
+  }
+]
