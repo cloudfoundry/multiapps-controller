@@ -8,69 +8,75 @@ import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudRouteExtended;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudRouteExtended;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
 import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudDomain;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRoute;
 
 public class CloudEntityResourceMapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudEntityResourceMapper.class);
 
-    @SuppressWarnings("unchecked")
-    public String getRelationshipData(Map<String, Object> resource, String relationship) {
-        var relationships = (Map<String, Object>) resource.get("relationships");
-        return Optional.ofNullable((Map<String, Object>) relationships.get(relationship))
-                       .map(relationshipsJson -> (Map<String, Object>) relationshipsJson.get("data"))
-                       .map(relationshipData -> (String) relationshipData.get("guid"))
-                       .orElse("");
-    }
-
-    public CloudRouteExtended mapRouteResource(Map<String, Object> routeResource, Map<String, Object> domainResource,
-                                               List<Map<String, Object>> serviceRouteBindings) {
+    public CloudRoute mapRouteResource(Map<String, Object> resource) {
         @SuppressWarnings("unchecked")
-        List<Object> destinations = getValue(routeResource, "destinations", List.class);
-        return ImmutableCloudRouteExtended.builder()
-                                          .metadata(getMetadata(routeResource))
-                                          .host(getValue(routeResource, "host", String.class))
-                                          .domain(mapDomainResource(domainResource))
-                                          .path(getValue(routeResource, "path", String.class))
-                                          .appsUsingRoute(destinations.size())
-                                          .serviceRouteBindings(mapServiceRouteBindingResources(serviceRouteBindings))
-                                          .build();
+        List<Object> apps = getResourceAttribute(resource, "apps", List.class);
+        String host = getResourceAttribute(resource, "host", String.class);
+        String path = getResourceAttribute(resource, "path", String.class);
+        boolean hasBoundService = getResourceAttribute(resource, "service_instance_guid", String.class) != null;
+        CloudDomain domain = mapDomainResource(getEmbeddedResource(resource, "domain"));
+        return ImmutableCloudRoute.builder()
+                                  .metadata(getMetadata(resource))
+                                  .host(host)
+                                  .domain(domain)
+                                  .path(path)
+                                  .appsUsingRoute(CollectionUtils.size(apps))
+                                  .hasServiceUsingRoute(hasBoundService)
+                                  .build();
     }
 
     private CloudDomain mapDomainResource(Map<String, Object> resource) {
         return ImmutableCloudDomain.builder()
                                    .metadata(getMetadata(resource))
-                                   .name(getValue(resource, "name", String.class))
+                                   .name(getResourceAttribute(resource, "name", String.class))
                                    .build();
     }
 
-    private CloudMetadata getMetadata(Map<String, Object> resource) {
+    @SuppressWarnings("unchecked")
+    public static CloudMetadata getMetadata(Map<String, Object> resource) {
+        Map<String, Object> metadata = (Map<String, Object>) resource.getOrDefault("metadata", Collections.emptyMap());
+        UUID guid = getValue(metadata, "guid", UUID.class);
+        if (guid == null) {
+            return null;
+        }
         return ImmutableCloudMetadata.builder()
-                                     .guid(getValue(resource, "guid", UUID.class))
-                                     .createdAt(getValue(resource, "created_at", LocalDateTime.class))
-                                     .updatedAt(getValue(resource, "updated_at", LocalDateTime.class))
+                                     .guid(guid)
+                                     .createdAt(getValue(metadata, "created_at", LocalDateTime.class))
+                                     .updatedAt(getValue(metadata, "updated_at", LocalDateTime.class))
+                                     .url(getValue(metadata, "url", String.class))
                                      .build();
     }
 
-    private List<String> mapServiceRouteBindingResources(List<Map<String, Object>> serviceRouteBindings) {
-        if (serviceRouteBindings == null) {
-            return Collections.emptyList();
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> getEmbeddedResource(Map<String, Object> resource, String embeddedResourceName) {
+        Map<String, Object> entity = (Map<String, Object>) resource.get("entity");
+        return (Map<String, Object>) entity.get(embeddedResourceName);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getResourceAttribute(Map<String, Object> resource, String attributeName, Class<T> targetClass) {
+        if (resource == null) {
+            return null;
         }
-        return serviceRouteBindings.stream()
-                                   .map(serviceRouteBindingResource -> (String) serviceRouteBindingResource.get("guid"))
-                                   .collect(Collectors.toList());
+        Map<String, Object> entity = (Map<String, Object>) resource.get("entity");
+        return getValue(entity, attributeName, targetClass);
     }
 
     @SuppressWarnings("unchecked")
@@ -85,7 +91,7 @@ public class CloudEntityResourceMapper {
         if (targetClass == String.class) {
             return (T) String.valueOf(value);
         }
-        if (targetClass == List.class) {
+        if (targetClass == Integer.class || targetClass == Boolean.class || targetClass == Map.class || targetClass == List.class) {
             return (T) value;
         }
         if (targetClass == UUID.class && value instanceof String) {

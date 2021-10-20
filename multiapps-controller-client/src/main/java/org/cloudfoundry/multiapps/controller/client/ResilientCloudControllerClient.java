@@ -105,8 +105,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void deleteOrphanedRoutes() {
-        executeWithRetry(delegate::deleteOrphanedRoutes, HttpStatus.NOT_FOUND);
+    public List<CloudRoute> deleteOrphanedRoutes() {
+        return executeWithRetry(delegate::deleteOrphanedRoutes, HttpStatus.NOT_FOUND);
     }
 
     @Override

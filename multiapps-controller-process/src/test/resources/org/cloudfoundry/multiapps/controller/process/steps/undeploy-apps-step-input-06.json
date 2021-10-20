@@ -20,9 +20,7 @@
           "name": "domain"
         },
         "appsUsingRoute": 1,
-        "serviceRouteBindings": [
-           "serviceRoute.io"
-        ]
+        "hasServiceUsingRoute": true
       }
     ]
   }
