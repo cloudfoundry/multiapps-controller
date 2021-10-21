@@ -131,10 +131,28 @@
     <sequenceFlow id="flow155" sourceRef="computeNextAppsToRestartInParallel" targetRef="restartAppsParallel"></sequenceFlow>
     <sequenceFlow id="flow156" sourceRef="restartAppsParallel" targetRef="hasParallelRestartCompletedGateway"></sequenceFlow>
     <exclusiveGateway id="shouldDeleteDiscontinuedServicesGateway" name="Should Delete Discontinued Services" default="doNotDeleteDiscontinuedServicesFlow"></exclusiveGateway>
-    <callActivity id="processBatchesSequentially" name="Process Resource Batches Sequentially" flowable:async="true" calledElement="processBatches" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
-      <multiInstanceLoopCharacteristics isSequential="true" flowable:collection="batchesToProcess" flowable:elementVariable="batchToProcess"></multiInstanceLoopCharacteristics>
+    <callActivity id="createOrUpdateServicesCallActivity" name="Create or update services" flowable:async="true" calledElement="createOrUpdateServicesSubProcess" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="servicesToCreate" target="servicesToCreate"></flowable:in>
+        <flowable:in source="serviceToProcess" target="serviceToProcess"></flowable:in>
+        <flowable:in source="serviceKeysToCreate" target="serviceKeysToCreate"></flowable:in>
+        <flowable:in source="deleteServices" target="deleteServices"></flowable:in>
+        <flowable:in source="initiator" target="initiator"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+        <flowable:in source="space" target="space"></flowable:in>
+        <flowable:in source="deleteServiceKeys" target="deleteServiceKeys"></flowable:in>
+        <flowable:in source="mtaArchiveElements" target="mtaArchiveElements"></flowable:in>
+        <flowable:in source="appArchiveId" target="appArchiveId"></flowable:in>
+        <flowable:in source="orgId" target="orgId"></flowable:in>
+        <flowable:in source="mtaId" target="mtaId"></flowable:in>
+        <flowable:in source="namespace" target="namespace"></flowable:in>
+      </extensionElements>
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>
-    <sequenceFlow id="sid-7E794918-D88A-4C75-BBD7-BBAFA727FBF5" sourceRef="processBatchesSequentially" targetRef="prepareModulesDeploymentTask"></sequenceFlow>
+    <sequenceFlow id="sid-7E794918-D88A-4C75-BBD7-BBAFA727FBF5" sourceRef="createOrUpdateServicesCallActivity" targetRef="prepareModulesDeploymentTask"></sequenceFlow>
     <sequenceFlow id="sid-4B6B0565-AD88-4ADB-95C5-2A77476A7C32" sourceRef="createSubscriptionsTask" targetRef="shouldAutoContinueDeploymentGateway"></sequenceFlow>
     <sequenceFlow id="parallelDeploymentCompletedFlow" sourceRef="hasParallelDeploymentCompletedGateway" targetRef="createSubscriptionsTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(iteratedModulesInParallel.size() == modulesToDeploy.size())}]]></conditionExpression>
@@ -163,7 +181,7 @@
     <sequenceFlow id="sid-890512F8-C77F-4A85-B8DA-118BC97F3E05" sourceRef="detachServicesFromMtaTask" targetRef="shouldDeleteDiscontinuedServiceBrokersGateway"></sequenceFlow>
     <sequenceFlow id="flow12" sourceRef="buildDeployModelTask" targetRef="buildUndeployModelTask"></sequenceFlow>
     <sequenceFlow id="flow11" sourceRef="processDescriptorTask" targetRef="buildDeployModelTask"></sequenceFlow>
-    <sequenceFlow id="flow50" sourceRef="addDomainsTask" targetRef="processBatchesSequentially"></sequenceFlow>
+    <sequenceFlow id="flow50" sourceRef="addDomainsTask" targetRef="createOrUpdateServicesCallActivity"></sequenceFlow>
     <sequenceFlow id="flow49" sourceRef="buildUndeployModelTask" targetRef="addDomainsTask"></sequenceFlow>
     <sequenceFlow id="flow151" sourceRef="computeNextModulesToDeployInParallel" targetRef="deployModulesParallel"></sequenceFlow>
     <sequenceFlow id="autoContinueDeploymentFlow" name="Auto continue deployment" sourceRef="shouldAutoContinueDeploymentGateway" targetRef="setValidationPhaseStartedInclusiveGateway">
@@ -351,8 +369,8 @@
       <bpmndi:BPMNShape bpmnElement="shouldDeleteDiscontinuedServicesGateway" id="BPMNShape_shouldDeleteDiscontinuedServicesGateway">
         <omgdc:Bounds height="40.0" width="40.0" x="647.0" y="594.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="processBatchesSequentially" id="BPMNShape_processBatchesSequentially">
-        <omgdc:Bounds height="78.0" width="113.0" x="466.5" y="227.0"></omgdc:Bounds>
+      <bpmndi:BPMNShape bpmnElement="createOrUpdateServicesCallActivity" id="BPMNShape_createOrUpdateServicesCallActivity">
+        <omgdc:Bounds height="80.0" width="100.0" x="430.5" y="225.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="setUndeployPhaseInclusiveGateway" id="BPMNShape_setUndeployPhaseInclusiveGateway">
         <omgdc:Bounds height="40.0" width="40.0" x="1665.0000000000002" y="593.0000000000001"></omgdc:Bounds>
@@ -593,10 +611,8 @@
         <omgdi:waypoint x="780.5000000000001" y="441.0000000000001"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-7E794918-D88A-4C75-BBD7-BBAFA727FBF5" id="BPMNEdge_sid-7E794918-D88A-4C75-BBD7-BBAFA727FBF5">
-        <omgdi:waypoint x="466.5" y="266.0"></omgdi:waypoint>
-        <omgdi:waypoint x="381.75" y="266.0"></omgdi:waypoint>
-        <omgdi:waypoint x="381.75" y="265.0"></omgdi:waypoint>
-        <omgdi:waypoint x="296.949999999902" y="265.0"></omgdi:waypoint>
+        <omgdi:waypoint x="430.5" y="265.0"></omgdi:waypoint>
+        <omgdi:waypoint x="296.95000000000005" y="265.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="deleteDiscontinuedServicesFlow" id="BPMNEdge_deleteDiscontinuedServicesFlow">
         <omgdi:waypoint x="647.0" y="614.0"></omgdi:waypoint>
@@ -701,8 +717,8 @@
         <omgdi:waypoint x="84.0" y="154.0"></omgdi:waypoint>
         <omgdi:waypoint x="84.0" y="216.0"></omgdi:waypoint>
         <omgdi:waypoint x="914.0" y="216.0"></omgdi:waypoint>
-        <omgdi:waypoint x="914.0" y="266.0"></omgdi:waypoint>
-        <omgdi:waypoint x="579.4499999998269" y="266.0"></omgdi:waypoint>
+        <omgdi:waypoint x="914.0" y="264.0"></omgdi:waypoint>
+        <omgdi:waypoint x="530.45" y="264.88465974625143"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow156" id="BPMNEdge_flow156">
         <omgdi:waypoint x="1634.9499999998693" y="373.50000000000006"></omgdi:waypoint>
