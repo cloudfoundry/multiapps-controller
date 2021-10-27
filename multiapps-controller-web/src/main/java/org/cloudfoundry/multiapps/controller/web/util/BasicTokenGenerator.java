@@ -41,6 +41,7 @@ public class BasicTokenGenerator extends TokenGenerator {
         OAuthClient oauthClient = restUtil.createOAuthClientByControllerUrl(applicationConfiguration.getControllerUrl(),
                                                                             applicationConfiguration.shouldSkipSslValidation());
         String[] usernameWithPassword = getUsernameWithPassword(tokenString);
+        oauthClient.init(new CloudCredentials(usernameWithPassword[0], usernameWithPassword[1]));
         Optional<AccessToken> accessToken = tokenReuser.getTokenWithExpirationAfter(usernameWithPassword[0],
                                                                                     Constants.BASIC_TOKEN_RETENTION_TIME_IN_SECONDS);
         if (accessToken.isPresent()) {
@@ -48,7 +49,6 @@ public class BasicTokenGenerator extends TokenGenerator {
                                                                 .getValue(),
                                                      StandardCharsets.UTF_8));
         }
-        oauthClient.init(new CloudCredentials(usernameWithPassword[0], usernameWithPassword[1]));
         OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo = oauthClient.getToken();
         storeAccessToken(buildAccessToken(oAuth2AccessTokenWithAdditionalInfo));
         return oAuth2AccessTokenWithAdditionalInfo;
