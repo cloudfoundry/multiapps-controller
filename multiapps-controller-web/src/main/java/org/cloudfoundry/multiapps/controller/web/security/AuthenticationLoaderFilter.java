@@ -63,6 +63,9 @@ public class AuthenticationLoaderFilter extends OncePerRequestFilter {
 
     private OAuth2AccessTokenWithAdditionalInfo generateOauthToken(String authorizationHeaderValue) {
         String[] tokenStringElements = authorizationHeaderValue.split("\\s");
+        if (tokenStringElements.length != 2) {
+            failWithUnauthorized(Messages.INVALID_AUTHORIZATION_HEADER_WAS_PROVIDED);
+        }
         TokenGenerator tokenGenerator = tokenGeneratorFactory.createGenerator(tokenStringElements[0]);
         return tokenGenerator.generate(tokenStringElements[1]);
     }
