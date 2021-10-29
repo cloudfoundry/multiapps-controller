@@ -7,10 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -20,8 +22,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.web.util.TokenGenerator;
 import org.cloudfoundry.multiapps.controller.web.util.TokenGeneratorFactory;
+import org.cloudfoundry.multiapps.mta.Messages;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -73,6 +79,26 @@ class AuthenticationLoaderFilterTest {
         authenticationLoaderFilter.doFilterInternal(request, response, filterChain);
         Mockito.verify(filterChain)
                .doFilter(request, response);
+    }
+
+    public static Stream<Arguments> testWithInvalidAuthorizationHeaderBasicAuth() {
+        return Stream.of(
+// @formatter:off
+                Arguments.of("Bearer      "),
+                Arguments.of("Basic         ")
+// @formatter:on
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testWithInvalidAuthorizationHeaderBasicAuth(String bearerToken) throws ServletException, IOException {
+        OAuth2AccessTokenWithAdditionalInfo mockedToken = getMockedOAuth2AccessTokenWithAdditionalInfo();
+        Mockito.when(request.getHeader(HttpHeaders.AUTHORIZATION))
+                .thenReturn(bearerToken);
+        mockTokenParsingStrategyFactory(mockedToken);
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> authenticationLoaderFilter.doFilterInternal(request, response, filterChain));
+        assertEquals(HttpStatus.UNAUTHORIZED, responseStatusException.getStatus());
     }
 
     private OAuth2AccessTokenWithAdditionalInfo getMockedOAuth2AccessTokenWithAdditionalInfo() {

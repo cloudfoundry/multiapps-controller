@@ -30,6 +30,7 @@ public final class Messages {
     public static final String BASIC_AUTHENTICATION_IS_NOT_ENABLED_USE_OAUTH_2 = "Basic authentication is not enabled, use OAuth2";
     public static final String INVALID_AUTHENTICATION_PROVIDED = "Invalid authentication provided";
     public static final String NO_AUTHORIZATION_HEADER_WAS_PROVIDED = "No Authorization header was provided!";
+    public static final String INVALID_AUTHORIZATION_HEADER_WAS_PROVIDED = "Invalid Authorization header was provided!";
     public static final String THE_TOKEN_HAS_EXPIRED_ON_0 = "The token has expired on: \"{0}\"";
     public static final String UNSUPPORTED_TOKEN_TYPE = "Unsupported token type: \"{0}\".";
 
