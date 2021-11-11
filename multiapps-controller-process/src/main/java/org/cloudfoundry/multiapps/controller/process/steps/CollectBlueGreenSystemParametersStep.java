@@ -1,7 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.text.MessageFormat;
+
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -11,7 +15,13 @@ public class CollectBlueGreenSystemParametersStep extends CollectSystemParameter
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
-        return executeStepInternal(context, true);
+        StepPhase stepPhase = executeStepInternal(context, true);
+        if (context.getVariable(Variables.SKIP_IDLE_START)) {
+            getStepLogger().info(MessageFormat.format(Messages.SKIPPING_START_OF_IDLE_APPLICATIONS,
+                                                      Variables.SKIP_IDLE_START.getName(), true));
+            context.setVariable(Variables.START_IDLE_APPS, false);
+        }
+        return stepPhase;
     }
 
 }

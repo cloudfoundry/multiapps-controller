@@ -2,8 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -33,7 +31,6 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
     public StepPhase executePollingStep(ProcessContext context) {
         CloudApplication app = getAppToRestart(context);
         CloudControllerClient client = context.getControllerClient();
-
         if (isStarted(client, app.getName())) {
             stopApp(client, app);
         }
@@ -84,12 +81,12 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
 
     @Override
     public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
-        return hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_START), context);
+        return hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_START), context);
     }
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return Arrays.asList(new PollStartAppStatusExecution(recentLogsRetriever), new PollExecuteAppStatusExecution(recentLogsRetriever));
+        return List.of(new PollStartAppStatusExecution(recentLogsRetriever), new PollExecuteAppStatusExecution(recentLogsRetriever));
     }
 
     @Override
