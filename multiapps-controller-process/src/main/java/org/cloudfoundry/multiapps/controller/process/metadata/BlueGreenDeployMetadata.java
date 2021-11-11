@@ -122,6 +122,10 @@ public class BlueGreenDeployMetadata {
                                                                                  .id(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY.getName())
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.SKIP_IDLE_START.getName())
+                                                                                 .type(ParameterType.BOOLEAN)
+                                                                                 .build())
                                          .build();
     }
 

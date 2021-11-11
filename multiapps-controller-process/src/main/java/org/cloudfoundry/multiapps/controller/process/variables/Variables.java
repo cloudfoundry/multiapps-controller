@@ -125,6 +125,10 @@ public interface Variables {
                                                                    .name("appContentChanged")
                                                                    .defaultValue(false)
                                                                    .build();
+    Variable<Boolean> START_IDLE_APPS = ImmutableSimpleVariable.<Boolean> builder()
+                                                               .name("startIdleApps")
+                                                               .defaultValue(true)
+                                                               .build();
     Variable<Integer> MTA_MAJOR_SCHEMA_VERSION = ImmutableSimpleVariable.<Integer> builder()
                                                                         .name("mtaMajorSchemaVersion")
                                                                         .build();
@@ -284,6 +288,10 @@ public interface Variables {
                                                                                     .name("keepOriginalAppNamesAfterDeploy")
                                                                                     .defaultValue(false)
                                                                                     .build();
+    Variable<Boolean> SKIP_IDLE_START = ImmutableSimpleVariable.<Boolean> builder()
+                                                               .name("skipIdleStart")
+                                                               .defaultValue(false)
+                                                               .build();
     Variable<Boolean> EXECUTE_ONE_OFF_TASKS = ImmutableSimpleVariable.<Boolean> builder()
                                                                      .name("executeOneOffTasks")
                                                                      .build();

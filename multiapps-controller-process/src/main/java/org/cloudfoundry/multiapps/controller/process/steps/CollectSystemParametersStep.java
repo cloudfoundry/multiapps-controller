@@ -64,6 +64,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         determineIsVersionAccepted(context, descriptor);
 
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, descriptor);
+        context.setVariable(Variables.START_IDLE_APPS, true);
         getStepLogger().debug(Messages.SYSTEM_PARAMETERS_COLLECTED);
 
         return StepPhase.DONE;

@@ -1,12 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
 import org.cloudfoundry.multiapps.controller.core.helpers.SystemParameters;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -14,6 +13,9 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
 
 class CollectBlueGreenSystemParametersStepTest extends CollectSystemParametersStepBaseTest {
 
@@ -49,6 +51,15 @@ class CollectBlueGreenSystemParametersStepTest extends CollectSystemParametersSt
         for (Module module : modules) {
             validateIdleHostBasedModuleParameters(module);
         }
+    }
+
+    @Test
+    void testSkipIdleStartIsSet() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient();
+        context.setVariable(Variables.SKIP_IDLE_START, true);
+        step.execute(execution);
+        assertFalse(context.getVariable(Variables.START_IDLE_APPS));
     }
 
     private void validateGlobalHostParameters(Map<String, Object> parameters) {

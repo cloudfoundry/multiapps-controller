@@ -229,9 +229,9 @@ public class Messages {
     public static final String FLOWABLE_PROCESSES_TO_DELETE = "Flowable processes to delete: {0}";
     public static final String APPLICATION_NOT_STAGED_CORRECTLY = "Application \"{0}\" was not staged correctly during the previous deployment";
     public static final String JOB_WITH_ID_AND_TASK_NAME_EXPIRED = "Job with id \"{0}\" and Task name \"{1}\" expired";
+    public static final String SKIPPING_START_OF_IDLE_APPLICATIONS = "Idle applications will not be started because \"{0}\" is set to \"{1}\"";
 
     // Progress messages
-
     public static final String OPERATION_ID = "Operation ID: {0}";
     public static final String MTA_SCHEMA_VERSION_DETECTED_AS = "Detected MTA schema version: \"{0}\"";
     public static final String DEPLOYING_IN_ORG_0_AND_SPACE_1 = "Deploying in org \"{0}\" and space \"{1}\"";
