@@ -11,18 +11,23 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.web.util.ServletUtil;
 
 @Named
-public class MtasApiAuthorizationFilter extends SpaceGuidBasedAuthorizationFilter {
+public class DefaultSpaceGuidBasedAuthorizationFilter extends SpaceGuidBasedAuthorizationFilter {
 
     private static final String SPACE_GUID_CAPTURING_REGEX = "/api/v\\d+/spaces/(.*?)/.*";
+    private static final Pattern DEFAULT_URI_PATTERN = Pattern.compile(SPACE_GUID_CAPTURING_REGEX);
 
     @Inject
-    public MtasApiAuthorizationFilter(AuthorizationChecker authorizationChecker) {
+    public DefaultSpaceGuidBasedAuthorizationFilter(AuthorizationChecker authorizationChecker) {
         super(authorizationChecker);
     }
 
     @Override
     public String getUriRegex() {
         return SPACE_GUID_CAPTURING_REGEX;
+    }
+
+    protected Pattern getUriPattern() {
+        return DEFAULT_URI_PATTERN;
     }
 
     @Override
@@ -32,8 +37,7 @@ public class MtasApiAuthorizationFilter extends SpaceGuidBasedAuthorizationFilte
     }
 
     private String extractSpaceGuid(String uri) {
-        Pattern pattern = Pattern.compile(SPACE_GUID_CAPTURING_REGEX);
-        Matcher matcher = pattern.matcher(uri);
+        Matcher matcher = getUriPattern().matcher(uri);
         if (matcher.matches()) {
             return matcher.group(1);
         }
