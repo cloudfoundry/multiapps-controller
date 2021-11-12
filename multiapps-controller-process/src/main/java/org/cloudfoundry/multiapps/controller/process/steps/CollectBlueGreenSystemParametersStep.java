@@ -15,13 +15,17 @@ public class CollectBlueGreenSystemParametersStep extends CollectSystemParameter
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
-        StepPhase stepPhase = executeStepInternal(context, true);
+        return executeStepInternal(context, true);
+    }
+
+    @Override
+    protected boolean shouldStartApplications(ProcessContext context) {
         if (context.getVariable(Variables.SKIP_IDLE_START)) {
-            getStepLogger().info(MessageFormat.format(Messages.SKIPPING_START_OF_IDLE_APPLICATIONS,
-                                                      Variables.SKIP_IDLE_START.getName(), true));
-            context.setVariable(Variables.START_IDLE_APPS, false);
+            getStepLogger().info(MessageFormat.format(Messages.SKIPPING_START_OF_IDLE_APPLICATIONS, Variables.SKIP_IDLE_START.getName(),
+                                                      true));
+            return false;
         }
-        return stepPhase;
+        return true;
     }
 
 }
