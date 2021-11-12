@@ -59,7 +59,7 @@ class CollectBlueGreenSystemParametersStepTest extends CollectSystemParametersSt
         prepareClient();
         context.setVariable(Variables.SKIP_IDLE_START, true);
         step.execute(execution);
-        assertFalse(context.getVariable(Variables.START_IDLE_APPS));
+        assertFalse(context.getVariable(Variables.START_APPS));
     }
 
     private void validateGlobalHostParameters(Map<String, Object> parameters) {

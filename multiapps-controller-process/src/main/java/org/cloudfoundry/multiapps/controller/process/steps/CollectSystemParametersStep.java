@@ -64,7 +64,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         determineIsVersionAccepted(context, descriptor);
 
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, descriptor);
-        context.setVariable(Variables.START_IDLE_APPS, true);
+        context.setVariable(Variables.START_APPS, shouldStartApplications(context));
         getStepLogger().debug(Messages.SYSTEM_PARAMETERS_COLLECTED);
 
         return StepPhase.DONE;
@@ -155,6 +155,10 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                                                 .getVersion();
         getStepLogger().info(Messages.DEPLOYED_MTA_VERSION, deployedMtaVersion);
         return DeploymentType.fromVersions(deployedMtaVersion, newMtaVersion);
+    }
+
+    protected boolean shouldStartApplications(ProcessContext context) {
+        return true;
     }
 
     protected AuthorizationEndpointGetter getAuthorizationEndpointGetter(CloudControllerClient client) {

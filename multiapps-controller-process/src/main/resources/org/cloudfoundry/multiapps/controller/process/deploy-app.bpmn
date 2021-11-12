@@ -158,7 +158,7 @@
       <extensionElements>
         <flowable:executionListener event="take" delegateExpression="${setBeforeApplicationStartPhase}"></flowable:executionListener>
       </extensionElements>
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('START') && startIdleApps == true}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('START') && startApps == true}]]></conditionExpression>
     </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_deployAppSubProcess">
