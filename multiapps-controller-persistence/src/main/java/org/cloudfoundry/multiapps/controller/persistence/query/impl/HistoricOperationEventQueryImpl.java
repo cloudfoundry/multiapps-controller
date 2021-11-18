@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
+import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.dto.HistoricOperationEventDto;
 import org.cloudfoundry.multiapps.controller.persistence.dto.HistoricOperationEventDto.AttributeNames;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
@@ -84,6 +85,12 @@ public class HistoricOperationEventQueryImpl extends AbstractQueryImpl<HistoricO
     @Override
     public int delete() {
         return executeInTransaction(manager -> createDeleteQuery(manager, queryCriteria, HistoricOperationEventDto.class).executeUpdate());
+    }
+
+    @Override
+    public HistoricOperationEventQuery orderByTimestamp(OrderDirection orderDirection) {
+        setOrder(AttributeNames.TIMESTAMP, orderDirection);
+        return this;
     }
 
 }

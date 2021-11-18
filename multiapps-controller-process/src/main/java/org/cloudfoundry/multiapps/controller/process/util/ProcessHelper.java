@@ -8,6 +8,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
+import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
@@ -57,6 +58,7 @@ public class ProcessHelper {
     public List<HistoricOperationEvent> getHistoricOperationEventByProcessId(String processId) {
         return historicOperationEventService.createQuery()
                                             .processId(processId)
+                                            .orderByTimestamp(OrderDirection.ASCENDING)
                                             .list();
     }
 

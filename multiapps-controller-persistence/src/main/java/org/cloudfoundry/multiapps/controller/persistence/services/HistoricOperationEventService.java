@@ -19,7 +19,7 @@ import org.cloudfoundry.multiapps.controller.persistence.query.impl.HistoricOper
 public class HistoricOperationEventService extends PersistenceService<HistoricOperationEvent, HistoricOperationEventDto, Long> {
 
     @Inject
-    private HistoricOperationEventMapper historicOperationEventMapper;
+    protected HistoricOperationEventMapper historicOperationEventMapper;
 
     @Inject
     public HistoricOperationEventService(EntityManagerFactory entityManagerFactory) {
