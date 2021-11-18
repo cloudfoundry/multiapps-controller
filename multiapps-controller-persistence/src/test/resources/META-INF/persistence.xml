@@ -8,6 +8,7 @@
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.ConfigurationSubscriptionDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.OperationDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.ConfigurationEntryDto</class>
+        <class>org.cloudfoundry.multiapps.controller.persistence.dto.HistoricOperationEventDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.ProgressMessageDto</class>
         <class>org.cloudfoundry.multiapps.controller.dto.persistence.HistoricOperationEventDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.AccessTokenDto</class>

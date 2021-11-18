@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
+import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.query.HistoricOperationEventQuery;
@@ -39,6 +40,8 @@ class ProcessHelperTest {
                .thenReturn(historicOperationEventQuery);
         Mockito.when(historicOperationEventQuery.processId(PROCESS_ID))
                .thenReturn(historicOperationEventQuery);
+        Mockito.when(historicOperationEventQuery.orderByTimestamp(Mockito.any()))
+               .thenReturn(historicOperationEventQuery);
     }
 
     @Test
@@ -69,6 +72,14 @@ class ProcessHelperTest {
     void testIsProcessAbortedWhenThereIsNotAbortedProcess() {
         mockHistoricEventsWithTypes(HistoricOperationEvent.EventType.FINISHED);
         Assertions.assertEquals(State.FINISHED, processHelper.computeProcessState(PROCESS_ID));
+    }
+
+    @Test
+    void isGetHistoricOperationEventOrdered() {
+        mockHistoricEventsWithTypes(HistoricOperationEvent.EventType.FINISHED);
+        processHelper.getHistoricOperationEventByProcessId(PROCESS_ID);
+        Mockito.verify(historicOperationEventQuery)
+               .orderByTimestamp(OrderDirection.ASCENDING);
     }
 
     private void mockHistoricEventsWithTypes(HistoricOperationEvent.EventType type) {

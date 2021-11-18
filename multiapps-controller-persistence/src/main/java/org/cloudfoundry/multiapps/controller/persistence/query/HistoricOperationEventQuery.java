@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.persistence.query;
 
 import java.util.Date;
 
+import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 
 public interface HistoricOperationEventQuery extends Query<HistoricOperationEvent, HistoricOperationEventQuery> {
@@ -13,5 +14,7 @@ public interface HistoricOperationEventQuery extends Query<HistoricOperationEven
     HistoricOperationEventQuery type(HistoricOperationEvent.EventType type);
 
     HistoricOperationEventQuery olderThan(Date time);
+
+    HistoricOperationEventQuery orderByTimestamp(OrderDirection orderDirection);
 
 }
