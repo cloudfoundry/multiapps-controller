@@ -45,6 +45,7 @@ public final class ServletUtil {
     }
 
     public static void send(HttpServletResponse response, int statusCode, String body) throws IOException {
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setStatus(statusCode);
         try (PrintWriter writer = response.getWriter()) {
             writer.print(body);

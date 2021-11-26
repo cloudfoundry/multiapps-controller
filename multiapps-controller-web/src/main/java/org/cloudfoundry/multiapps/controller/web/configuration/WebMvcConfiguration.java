@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(new StringHttpMessageConverter());
+        converters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
         converters.add(createJsonHttpMessageConverter());
         converters.add(new XmlNamespaceIgnoringHttpMessageConverter());
     }
