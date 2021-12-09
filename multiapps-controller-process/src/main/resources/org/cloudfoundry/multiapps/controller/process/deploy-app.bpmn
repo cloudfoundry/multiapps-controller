@@ -43,7 +43,6 @@
         <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
-    <sequenceFlow id="waitStartAppFlow" sourceRef="exclusivegateway4" targetRef="timerintermediatecatchevent1"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway4" name="Is App Executed" default="waitStartAppFlow"></exclusiveGateway>
     <serviceTask id="uploadAppTask" name="Upload App" flowable:async="true" flowable:delegateExpression="${uploadAppStep}"></serviceTask>
     <exclusiveGateway id="exclusivegateway5" name="Is App Uploaded" default="flow87"></exclusiveGateway>
@@ -57,7 +56,6 @@
     <sequenceFlow id="flow88" sourceRef="timerintermediatecatchevent2" targetRef="uploadAppTask"></sequenceFlow>
     <serviceTask id="stageAppTask" name="Stage App" flowable:async="true" flowable:delegateExpression="${stageAppStep}"></serviceTask>
     <exclusiveGateway id="exclusivegateway6" name="Exclusive Gateway" default="flow90"></exclusiveGateway>
-    <sequenceFlow id="flow89" sourceRef="stageAppTask" targetRef="exclusivegateway6"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent3" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
@@ -79,10 +77,6 @@
     </sequenceFlow>
     <exclusiveGateway id="shouldManageServiceBroker" name="Should Manage Service Broker" default="sid-E5FF49FE-063B-4602-B171-70C396A56996"></exclusiveGateway>
     <sequenceFlow id="sid-E5FF49FE-063B-4602-B171-70C396A56996" sourceRef="shouldManageServiceBroker" targetRef="createOrUpdateServiceBrokerTask"></sequenceFlow>
-    <sequenceFlow id="skipManagedServiceBrokerUpdateFlow" sourceRef="shouldManageServiceBroker" targetRef="endevent">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${skipManageServiceBroker}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="manageServiceBrokerFlow" sourceRef="createOrUpdateServiceBrokerTask" targetRef="endevent"></sequenceFlow>
     <sequenceFlow id="executeOneOffTasksFlow" sourceRef="shouldExecuteTasks" targetRef="executeTasksCallActivity"></sequenceFlow>
     <sequenceFlow id="doNotExecuteOneOffTasksFlow" sourceRef="shouldExecuteTasks" targetRef="shouldUpdateConfigurations">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(not executeOneOffTasks)}]]></conditionExpression>
@@ -97,9 +91,6 @@
     <sequenceFlow id="sid-0F200B9A-6462-48CD-BA2D-6E6F1CE15D96" sourceRef="deleteIdleRoutesTask" targetRef="shouldManageServiceBroker"></sequenceFlow>
     <sequenceFlow id="skipDeleteIdleRoutesFlow" sourceRef="shouldDeleteIdleRoutes" targetRef="shouldManageServiceBroker"></sequenceFlow>
     <sequenceFlow id="sid-74CBBBDE-B4B8-451B-8193-8B1A08835E23" sourceRef="publishProvidedDependenciesTask" targetRef="shouldDeleteIdleRoutes"></sequenceFlow>
-    <sequenceFlow id="appStagedFlow" sourceRef="exclusivegateway6" targetRef="shouldStartAppGateway">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="flow90" sourceRef="exclusivegateway6" targetRef="timerintermediatecatchevent3"></sequenceFlow>
     <sequenceFlow id="sid-EDE0C6AF-FE13-4120-94B8-406BFCE8A407" sourceRef="stopAppTask" targetRef="hooksCallActivity"></sequenceFlow>
     <callActivity id="sid-F6B2FD75-29A0-4347-B49F-94B4CD7C1469" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
@@ -107,9 +98,6 @@
     </callActivity>
     <sequenceFlow id="flow84" sourceRef="timerintermediatecatchevent1" targetRef="startAppTask"></sequenceFlow>
     <sequenceFlow id="sid-6C61C071-998D-48F2-8DB8-6CDD50E04F18" sourceRef="sid-F6B2FD75-29A0-4347-B49F-94B4CD7C1469" targetRef="exclusivegateway4"></sequenceFlow>
-    <sequenceFlow id="appExecutedFlow" sourceRef="exclusivegateway4" targetRef="shouldExecuteTasks">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="sid-E6050369-B93F-4433-8CDB-D7572FD2F525" sourceRef="sid-70329A91-339F-4215-9AB6-41ED6C769C40" targetRef="stopAppTask"></sequenceFlow>
     <sequenceFlow id="stopAppFlow" sourceRef="shouldStopAppGateway" targetRef="stopAppTask">
       <extensionElements>
@@ -159,6 +147,29 @@
         <flowable:executionListener event="take" delegateExpression="${setBeforeApplicationStartPhase}"></flowable:executionListener>
       </extensionElements>
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('START') && startApps == true}]]></conditionExpression>
+    </sequenceFlow>
+    <intermediateCatchEvent id="sid-A606BB42-387A-4B08-8041-C6300AF79FA5" name="TimerCatchEvent">
+      <timerEventDefinition>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <exclusiveGateway id="sid-3723D40D-2A19-4A7B-952E-221FB58E3480" name="Is async operation" default="sid-F7859D72-0827-467D-ACB4-921464B0C764"></exclusiveGateway>
+    <sequenceFlow id="flow89" sourceRef="stageAppTask" targetRef="exclusivegateway6"></sequenceFlow>
+    <sequenceFlow id="appStagedFlow" sourceRef="exclusivegateway6" targetRef="shouldStartAppGateway">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="manageServiceBrokerFlow" sourceRef="createOrUpdateServiceBrokerTask" targetRef="sid-3723D40D-2A19-4A7B-952E-221FB58E3480"></sequenceFlow>
+    <sequenceFlow id="appExecutedFlow" sourceRef="exclusivegateway4" targetRef="shouldExecuteTasks">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="waitStartAppFlow" sourceRef="exclusivegateway4" targetRef="timerintermediatecatchevent1"></sequenceFlow>
+    <sequenceFlow id="sid-F7859D72-0827-467D-ACB4-921464B0C764" sourceRef="sid-3723D40D-2A19-4A7B-952E-221FB58E3480" targetRef="sid-A606BB42-387A-4B08-8041-C6300AF79FA5"></sequenceFlow>
+    <sequenceFlow id="sid-5F42B243-1FEF-465A-A68B-BA1A0B1A3150" sourceRef="sid-A606BB42-387A-4B08-8041-C6300AF79FA5" targetRef="createOrUpdateServiceBrokerTask"></sequenceFlow>
+    <sequenceFlow id="skipManagedServiceBrokerUpdateFlow" sourceRef="shouldManageServiceBroker" targetRef="endevent">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${skipManageServiceBroker}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-108541B6-2617-4A2B-A2E7-BACA472F8D10" sourceRef="sid-3723D40D-2A19-4A7B-952E-221FB58E3480" targetRef="endevent">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_deployAppSubProcess">
@@ -277,6 +288,16 @@
       <bpmndi:BPMNShape bpmnElement="sid-A526319C-66C5-400A-BDAB-44297CCA114E" id="BPMNShape_sid-A526319C-66C5-400A-BDAB-44297CCA114E">
         <omgdc:Bounds height="40.0" width="40.0" x="480.0" y="30.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-A606BB42-387A-4B08-8041-C6300AF79FA5" id="BPMNShape_sid-A606BB42-387A-4B08-8041-C6300AF79FA5">
+        <omgdc:Bounds height="31.0" width="31.0" x="1333.5" y="1095.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-3723D40D-2A19-4A7B-952E-221FB58E3480" id="BPMNShape_sid-3723D40D-2A19-4A7B-952E-221FB58E3480">
+        <omgdc:Bounds height="40.0" width="40.0" x="1329.0" y="1175.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-108541B6-2617-4A2B-A2E7-BACA472F8D10" id="BPMNEdge_sid-108541B6-2617-4A2B-A2E7-BACA472F8D10">
+        <omgdi:waypoint x="1349.4342560553632" y="1214.5089730290456"></omgdi:waypoint>
+        <omgdi:waypoint x="1349.04810316754" y="1326.5000817299356"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="appUploadedFlow" id="BPMNEdge_appUploadedFlow">
         <omgdi:waypoint x="1239.9273809523618" y="159.0"></omgdi:waypoint>
         <omgdi:waypoint x="1264.0" y="159.0"></omgdi:waypoint>
@@ -365,6 +386,11 @@
         <omgdi:waypoint x="926.0" y="263.0"></omgdi:waypoint>
         <omgdi:waypoint x="926.0" y="186.95000000000002"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-5F42B243-1FEF-465A-A68B-BA1A0B1A3150" id="BPMNEdge_sid-5F42B243-1FEF-465A-A68B-BA1A0B1A3150">
+        <omgdi:waypoint x="1333.4999969263804" y="1111.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1196.0" y="1111.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1196.0" y="1155.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-ADE65EC6-6976-42C4-9D50-5A08086D1533" id="BPMNEdge_sid-ADE65EC6-6976-42C4-9D50-5A08086D1533">
         <omgdi:waypoint x="44.949997316309634" y="159.0"></omgdi:waypoint>
         <omgdi:waypoint x="60.0" y="159.0"></omgdi:waypoint>
@@ -409,6 +435,10 @@
         <omgdi:waypoint x="658.5" y="1320.5"></omgdi:waypoint>
         <omgdi:waypoint x="658.5" y="1229.45"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-F7859D72-0827-467D-ACB4-921464B0C764" id="BPMNEdge_sid-F7859D72-0827-467D-ACB4-921464B0C764">
+        <omgdi:waypoint x="1349.3816568047337" y="1175.3816568047337"></omgdi:waypoint>
+        <omgdi:waypoint x="1349.0908806788052" y="1125.9494514090356"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="skipDeleteIdleRoutesFlow" id="BPMNEdge_skipDeleteIdleRoutesFlow">
         <omgdi:waypoint x="945.9463069230897" y="1340.5"></omgdi:waypoint>
         <omgdi:waypoint x="1176.0" y="1340.5"></omgdi:waypoint>
@@ -449,9 +479,8 @@
         <omgdi:waypoint x="1005.0" y="159.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="manageServiceBrokerFlow" id="BPMNEdge_manageServiceBrokerFlow">
-        <omgdi:waypoint x="1245.95" y="1195.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1349.0" y="1195.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1349.0" y="1326.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1245.9499999999985" y="1194.8373605947954"></omgdi:waypoint>
+        <omgdi:waypoint x="1329.384142364586" y="1194.5658041958043"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-6C61C071-998D-48F2-8DB8-6CDD50E04F18" id="BPMNEdge_sid-6C61C071-998D-48F2-8DB8-6CDD50E04F18">
         <omgdi:waypoint x="592.9499999999355" y="898.1208779443255"></omgdi:waypoint>
@@ -474,15 +503,15 @@
         <omgdi:waypoint x="159.8146226415094" y="1198.632119205298"></omgdi:waypoint>
         <omgdi:waypoint x="390.0" y="1200.1666666666667"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="waitStartAppFlow" id="BPMNEdge_waitStartAppFlow">
-        <omgdi:waypoint x="770.0000000000003" y="918.44068627451"></omgdi:waypoint>
-        <omgdi:waypoint x="770.0000000000002" y="990.0000000000001"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-E6050369-B93F-4433-8CDB-D7572FD2F525" id="BPMNEdge_sid-E6050369-B93F-4433-8CDB-D7572FD2F525">
         <omgdi:waypoint x="723.0" y="510.9363543091654"></omgdi:waypoint>
         <omgdi:waypoint x="723.0" y="564.0"></omgdi:waypoint>
         <omgdi:waypoint x="295.0" y="564.0"></omgdi:waypoint>
         <omgdi:waypoint x="295.3034482758621" y="519.95"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="waitStartAppFlow" id="BPMNEdge_waitStartAppFlow">
+        <omgdi:waypoint x="770.0000000000003" y="918.44068627451"></omgdi:waypoint>
+        <omgdi:waypoint x="770.0000000000002" y="990.0000000000001"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-44A1509F-F4C2-4B06-8420-DFFD182B4FB7" id="BPMNEdge_sid-44A1509F-F4C2-4B06-8420-DFFD182B4FB7">
         <omgdi:waypoint x="801.5" y="90.45"></omgdi:waypoint>

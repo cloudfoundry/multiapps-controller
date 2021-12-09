@@ -598,6 +598,14 @@ public interface Variables {
                                                                                        .defaultValue(true)
                                                                                        .build();
 
+    Variable<String> SERVICE_BROKER_ASYNC_JOB_ID = ImmutableSimpleVariable.<String> builder()
+                                                                          .name("serviceBrokerAsyncJobId")
+                                                                          .build();
+
+    Variable<Map<String, String>> SERVICE_BROKER_NAMES_JOB_IDS = ImmutableSimpleVariable.<Map<String, String>> builder()
+                                                                                        .name("serviceBrokerNamesJobsIds")
+                                                                                        .build();
+
     Variable<List<List<Resource>>> BATCHES_TO_PROCESS = ImmutableJsonStringListVariable.<List<Resource>> builder()
                                                                                        .name("batchesToProcess")
                                                                                        .type(new TypeReference<>() {
