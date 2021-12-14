@@ -15,14 +15,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <!-- jclouds 2.2.1 uses guice 3.0, which runs into problems when working on Java 9 (see https://github.com/google/guice/issues/1085). -->
-                    <argLine>--add-opens java.base/java.lang=guice</argLine>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>de.empulse.eclipselink</groupId>
                 <artifactId>staticweave-maven-plugin</artifactId>
                 <executions>
@@ -40,7 +32,7 @@
         </plugins>
         <pluginManagement>
             <plugins>
-                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven 
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven
                     build itself. -->
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
