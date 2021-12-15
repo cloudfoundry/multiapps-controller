@@ -91,7 +91,7 @@ class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildCloudUnd
                     new StepOutput(List.of("d", "e"), List.of("s-1", "s-2", "s-3"), new Expectation(Expectation.Type.JSON, "empty-list.json"))),
             // (13)
             Arguments.of(new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", "services-to-create-02.json", Collections.emptyList(), "deployed-apps-04.json", new TreeSet<>(List.of("a", "b", "c", "d", "e")), "deployed-mta-08.json", "empty-list.json", "empty-list.json", new TreeSet<>(List.of("a", "b", "c", "d", "e"))),
-                    new StepOutput(List.of("d", "e"), List.of("s-1", "s-2"), new Expectation(Expectation.Type.JSON, "empty-list.json")))
+                    new StepOutput(List.of("d", "e"), List.of("s-1", "s-2", "s-3"), new Expectation(Expectation.Type.JSON, "empty-list.json")))
 // @formatter:on
         );
     }

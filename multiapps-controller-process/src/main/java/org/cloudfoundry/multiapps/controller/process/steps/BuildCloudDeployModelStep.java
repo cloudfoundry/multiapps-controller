@@ -112,6 +112,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.SERVICES_TO_BIND, servicesForBindings);
 
         List<Resource> resourcesForDeployment = calculateResourcesForDeployment(context, deploymentDescriptor);
+        ///Validate for selective deploy
         getStepLogger().debug(Messages.CALCULATING_RESOURCE_BATCHES);
 
         List<List<Resource>> batchesToProcess = getResourceBatches(deploymentDescriptor, resourcesForDeployment);
@@ -126,8 +127,14 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     private List<List<Resource>> getResourceBatches(DeploymentDescriptor deploymentDescriptor, List<Resource> resources) {
         if (!resources.isEmpty()) {
             ResourceBatchCalculator resourceBatchCalculator = new ResourceBatchCalculator(deploymentDescriptor);
-            return new ArrayList<>(resourceBatchCalculator.groupResourcesByWeight(resources)
+            List<List<Resource>> resourceList = new ArrayList<>(resourceBatchCalculator.groupResourcesByWeight(resources)
                                                           .values());
+            for(List<Resource> batch : resourceList){
+                for (Resource resource : batch){
+                    getStepLogger().info("Currently processing: " + resource.getName());
+                }
+            }
+            return resourceList;
         }
         return Collections.emptyList();
     }
