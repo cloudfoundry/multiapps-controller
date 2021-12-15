@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -24,6 +23,7 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -53,7 +53,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         List<ConfigurationSubscription> subscriptionsToCreate = context.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
         Set<String> mtaModules = context.getVariable(Variables.MTA_MODULES);
         List<String> appNames = context.getVariable(Variables.APPS_TO_DEPLOY);
-        List<String> serviceNames = getServicesToCreate(context);
+        List<String> serviceNames = getServicesFromBatches(context);
 
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
@@ -98,10 +98,11 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                    .collect(Collectors.toList());
     }
 
-    private List<String> getServicesToCreate(ProcessContext context) {
-        return context.getVariable(Variables.SERVICES_TO_CREATE)
+    private List<String> getServicesFromBatches(ProcessContext context) {
+        return context.getVariable(Variables.BATCHES_TO_PROCESS)
                       .stream()
-                      .map(CloudServiceInstanceExtended::getName)
+                      .flatMap(resources -> resources.stream())
+                      .map(Resource::getName)
                       .collect(Collectors.toList());
     }
 
