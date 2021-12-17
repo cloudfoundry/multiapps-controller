@@ -1,15 +1,15 @@
 package org.cloudfoundry.multiapps.controller.core.security.serialization;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
 public class SecureSerializerConfiguration {
 
-    private static final Collection<String> DEFAULT_SENSITIVE_NAMES = Arrays.asList("user", "key", "auth", "credential", "secret", "token",
-                                                                                    "pass", "pwd");
+    private static final Collection<String> DEFAULT_SENSITIVE_NAMES = List.of("user", "key", "auth", "credential", "secret", "token",
+                                                                              "pass", "pwd", "certificate");
 
     public static final Object SECURE_SERIALIZATION_MASK = "********";
 
