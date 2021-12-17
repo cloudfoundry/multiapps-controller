@@ -37,12 +37,18 @@ public class HttpClientFactory {
 
     public CloseableHttpClient createBasicAuthHttpClient(String username, String password) {
         String authorizationHeaderValue = "Basic " + encodeCredentials(username, password);
-        return createHttpClient(authorizationHeaderValue);
+        return createHttpClientBuilder().setDefaultHeaders(Collections.singletonList(createAuthorizationHeader(authorizationHeaderValue)))
+                                        .build();
     }
 
     public CloseableHttpClient createOAuthHttpClient(String token) {
         String authorizationHeaderValue = "Bearer " + token;
-        return createHttpClient(authorizationHeaderValue);
+        return createHttpClientBuilder().setDefaultHeaders(Collections.singletonList(createAuthorizationHeader(authorizationHeaderValue)))
+                                        .build();
+    }
+
+    public CloseableHttpClient createNoAuthHttpClient() {
+        return createHttpClientBuilder().build();
     }
 
     private String encodeCredentials(String username, String password) {
@@ -50,15 +56,13 @@ public class HttpClientFactory {
         return encoder.encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8));
     }
 
-    private CloseableHttpClient createHttpClient(String authorizationHeaderValue) {
+    private HttpClientBuilder createHttpClientBuilder() {
         return HttpClientBuilder.create()
                                 .setSSLSocketFactory(sslSocketFactory)
                                 .setRoutePlanner(createRoutePlanner())
                                 .setDefaultRequestConfig(createDefaultRequestConfig())
                                 .setRetryHandler(createRetryHandler())
-                                .setServiceUnavailableRetryStrategy(createServiceUnavailableRetryStrategy())
-                                .setDefaultHeaders(Collections.singletonList(createAuthorizationHeader(authorizationHeaderValue)))
-                                .build();
+                                .setServiceUnavailableRetryStrategy(createServiceUnavailableRetryStrategy());
     }
 
     private HttpRoutePlanner createRoutePlanner() {
