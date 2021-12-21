@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -68,7 +68,7 @@ class ClientHelperTest {
 
     @Test
     void testComputeTarget() {
-        Mockito.when(client.getSpace(Matchers.any(UUID.class)))
+        Mockito.when(client.getSpace(ArgumentMatchers.any(UUID.class)))
                .thenReturn(createCloudSpace(GUID, SPACE_NAME, ORG_NAME));
         CloudTarget target = clientHelper.computeTarget(SPACE_ID);
         Assertions.assertEquals(ORG_NAME, target.getOrganizationName());
@@ -77,21 +77,21 @@ class ClientHelperTest {
 
     @Test
     void testComputeTargetCloudOperationExceptionForbiddenThrown() {
-        Mockito.when(client.getSpace(Matchers.any(UUID.class)))
+        Mockito.when(client.getSpace(ArgumentMatchers.any(UUID.class)))
                .thenThrow(new CloudOperationException(HttpStatus.FORBIDDEN));
         Assertions.assertNull(clientHelper.computeTarget(SPACE_ID));
     }
 
     @Test
     void testComputeTargetCloudOperationExceptionNotFoundThrown() {
-        Mockito.when(client.getSpace(Matchers.any(UUID.class)))
+        Mockito.when(client.getSpace(ArgumentMatchers.any(UUID.class)))
                .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
         Assertions.assertNull(clientHelper.computeTarget(SPACE_ID));
     }
 
     @Test
     void testComputeTargetCloudOperationExceptionBadRequestThrown() {
-        Mockito.when(client.getSpace(Matchers.any(UUID.class)))
+        Mockito.when(client.getSpace(ArgumentMatchers.any(UUID.class)))
                .thenThrow(new CloudOperationException(HttpStatus.BAD_REQUEST));
         CloudOperationException cloudOperationException = Assertions.assertThrows(CloudOperationException.class,
                                                                                   () -> clientHelper.computeTarget(SPACE_ID));
