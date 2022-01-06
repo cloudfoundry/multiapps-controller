@@ -34,12 +34,11 @@ public class UnchangedApplicationActionCalculator implements ActionCalculator {
             case EXECUTED:
                 if (currentState.equals(ApplicationStartupState.STARTED)) {
                     actionsToExecute.add(ApplicationStateAction.STOP);
-                    actionsToExecute.add(ApplicationStateAction.EXECUTE);
                 } else {
                     actionsToExecute.add(ApplicationStateAction.STAGE);
                     actionsToExecute.add(ApplicationStateAction.START);
-                    actionsToExecute.add(ApplicationStateAction.EXECUTE);
                 }
+                actionsToExecute.add(ApplicationStateAction.EXECUTE);
                 if (currentState.equals(ApplicationStartupState.INCONSISTENT)) {
                     actionsToExecute.add(ApplicationStateAction.STOP);
                 }

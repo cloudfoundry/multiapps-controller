@@ -150,14 +150,6 @@ class ApplicationStagerTest {
     }
 
     @Test
-    void testIsApplicationStagedCorrectlyMetadataIsNull() {
-        CloudApplication app = createApplication();
-        Mockito.when(client.getBuildsForApplication(any(UUID.class)))
-               .thenReturn(List.of(Mockito.mock(CloudBuild.class)));
-        Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
-    }
-
-    @Test
     void testIsApplicationStagedCorrectlyNoLastBuild() {
         CloudApplication app = createApplication();
         Mockito.when(client.getBuildsForApplication(any(UUID.class)))
