@@ -85,30 +85,17 @@ public class ApplicationStager {
     }
 
     public boolean isApplicationStagedCorrectly(CloudApplication app) {
-        // TODO Remove the null filtering.
-        // We are not sure if the controller is returning null for created_at or not, so after the proper v3 client adoption,
-        // we should decide what to do with this filtering.
-        List<CloudBuild> buildsForApplication = client.getBuildsForApplication(app.getMetadata()
-                                                                                  .getGuid());
-        if (containsNullMetadata(buildsForApplication)) {
-            return false;
-        }
-        CloudBuild build = getLastBuild(buildsForApplication);
-        if (build == null) {
+        List<CloudBuild> buildsForApplication = client.getBuildsForApplication(app.getGuid());
+        if (buildsForApplication.isEmpty()) {
             logger.debug(Messages.NO_BUILD_FOUND_FOR_APPLICATION, app.getName());
             return false;
         }
+        CloudBuild build = getLastBuild(buildsForApplication);
         if (isBuildStagedCorrectly(build)) {
             return true;
         }
         logMessages(app, build);
         return false;
-    }
-
-    private boolean containsNullMetadata(List<CloudBuild> buildsForApplication) {
-        return buildsForApplication.stream()
-                                   .anyMatch(build -> build.getMetadata() == null || build.getMetadata()
-                                                                                          .getCreatedAt() == null);
     }
 
     private CloudBuild getLastBuild(List<CloudBuild> builds) {
@@ -147,7 +134,6 @@ public class ApplicationStager {
     private StepPhase createBuild(UUID packageGuid) {
         try {
             context.setVariable(Variables.BUILD_GUID, client.createBuild(packageGuid)
-                                                            .getMetadata()
                                                             .getGuid());
         } catch (CloudOperationException e) {
             handleCloudOperationException(e, packageGuid);
@@ -170,7 +156,6 @@ public class ApplicationStager {
         if (lastBuild == null) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, format(Messages.NO_BUILDS_FOUND_FOR_PACKAGE, packageGuid));
         }
-        context.setVariable(Variables.BUILD_GUID, lastBuild.getMetadata()
-                                                           .getGuid());
+        context.setVariable(Variables.BUILD_GUID, lastBuild.getGuid());
     }
 }
