@@ -6,12 +6,15 @@ import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
-
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.DBAppender.LogEventAdapter;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 
 class AuditLogManager {
 
@@ -19,7 +22,8 @@ class AuditLogManager {
 
     private static final LogEventAdapter EVENT_ADAPTER = new LogEventAdapter() {
         @Override
-        public void eventToStatement(String category, LoggingEvent event, UserInfo userInfo, PreparedStatement stmt) throws SQLException {
+        public void eventToStatement(String category, LogEvent event, UserInfo userInfo, PreparedStatement stmt)
+            throws SQLException {
             stmt.setString(1, userInfo == null ? null : userInfo.getName());
             stmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
             stmt.setString(3, category);
@@ -32,11 +36,9 @@ class AuditLogManager {
 
     private final AuditLoggingExceptionHandler exceptionHandler = new AuditLoggingExceptionHandler();
 
-    private Logger securityLogger = null;
-
-    private Logger configLogger;
-
-    private Logger actionLogger;
+    private final Logger securityLogger;
+    private final Logger configLogger;
+    private final Logger actionLogger;
 
     Logger getSecurityLogger() {
         return securityLogger;
@@ -61,12 +63,22 @@ class AuditLogManager {
     }
 
     private Logger setUpLogger(DataSource dataSource, UserInfoProvider userInfoProvider, String name) {
-        Logger logger = Logger.getLogger(name);
-        DBAppender auditLogAppender = new DBAppender(dataSource, AUDIT_LOG_INSERT_STATEMENT, EVENT_ADAPTER, exceptionHandler,
-            userInfoProvider);
-        auditLogAppender.setName(name);
-        logger.addAppender(auditLogAppender);
-        return logger;
+        try (LoggerContext loggerContext = new LoggerContext(name)) {
+            DBAppender auditLogAppender = new DBAppender(dataSource, AUDIT_LOG_INSERT_STATEMENT, EVENT_ADAPTER, exceptionHandler,
+                                                         userInfoProvider, name);
+            auditLogAppender.start();
+
+            loggerContext.getConfiguration()
+                         .addAppender(auditLogAppender);
+            LoggerConfig loggerConfig = loggerContext.getConfiguration()
+                                                     .getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+            loggerConfig.setLevel(Level.INFO);
+            loggerContext.getRootLogger()
+                         .addAppender(loggerContext.getConfiguration()
+                                                   .getAppender(auditLogAppender.getName()));
+            loggerContext.updateLoggers();
+            return (Logger) LogManager.getLogger(loggerConfig);
+        }
     }
 
 }

@@ -19,6 +19,7 @@ public class ProcessLogsPersister {
         for (ProcessLogger processLogger : processLoggerProvider.getExistingLoggers(getCorrelationId(context), getTaskId(context))) {
             processLogger.persistLogFile(processLogsPersistenceService);
             processLogger.deleteLogFile();
+            processLogger.close();
             processLoggerProvider.remove(processLogger);
         }
     }

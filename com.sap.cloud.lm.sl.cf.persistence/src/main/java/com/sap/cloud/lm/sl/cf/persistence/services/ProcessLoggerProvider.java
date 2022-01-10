@@ -1,6 +1,8 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,11 +10,14 @@ import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.AbstractStringLayout;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
@@ -26,7 +31,7 @@ public class ProcessLoggerProvider {
     private static final String DEFAULT_LOG_DIR = "logs";
     private static final String LOG_FILE_EXTENSION = ".log";
 
-    private Map<String, ProcessLogger> loggersCache = new ConcurrentHashMap<>();
+    private final Map<String, ProcessLogger> loggersCache = new ConcurrentHashMap<>();
 
     public ProcessLogger getLogger(DelegateExecution context) {
         return getLogger(context, DEFAULT_LOG_NAME);
@@ -36,19 +41,19 @@ public class ProcessLoggerProvider {
         return getLogger(context, logName, null);
     }
 
-    public ProcessLogger getLogger(DelegateExecution context, String logName, PatternLayout layout) {
+    public ProcessLogger getLogger(DelegateExecution context, String logName, AbstractStringLayout layout) {
         String name = getLoggerName(context, logName);
-        return loggersCache.computeIfAbsent(name, (String loggerName) -> createProcessLogger(context, loggerName, logName, layout));
+        return loggersCache.computeIfAbsent(name, loggerName -> createProcessLogger(context, loggerName, logName, layout));
     }
 
     private String getLoggerName(DelegateExecution context, String logName) {
-        return new StringBuilder(PARENT_LOGGER).append(".")
-            .append(getCorrelationId(context))
-            .append(".")
-            .append(logName)
-            .append(".")
-            .append(getTaskId(context))
-            .toString();
+        return new StringBuilder(PARENT_LOGGER).append('.')
+                                               .append(getCorrelationId(context))
+                                               .append('.')
+                                               .append(logName)
+                                               .append('.')
+                                               .append(getTaskId(context))
+                                               .toString();
     }
 
     private String getCorrelationId(DelegateExecution context) {
@@ -60,31 +65,66 @@ public class ProcessLoggerProvider {
         return taskId != null ? taskId : context.getCurrentActivityId();
     }
 
-    private ProcessLogger createProcessLogger(DelegateExecution context, String loggerName, String logName, PatternLayout layout) {
-        Logger logger = Logger.getLogger(loggerName);
+    private ProcessLogger createProcessLogger(DelegateExecution context, String loggerName, String logName, AbstractStringLayout layout) {
         File logFile = getLocalFile(loggerName);
-        logger.removeAllAppenders();
-        logger.addAppender(createAppender(logger.getLevel(), logFile, layout));
-        return new ProcessLogger(logger, logFile, logName, getSpaceId(context), getCorrelationId(context), getTaskId(context));
+        LoggerContext loggerContext = initLoggerContext(loggerName, logFile, layout);
+        Logger logger = loggerContext.getLogger(loggerName);
+        return new ProcessLogger(loggerContext, logger, logFile, logName, getSpaceId(context), getCorrelationId(context),
+                                 getTaskId(context));
+    }
+
+    private LoggerContext initLoggerContext(String loggerName, File logFile, AbstractStringLayout layout) {
+        LoggerContext loggerContext = new LoggerContext(loggerName);
+        FileAppender fileAppender = createFileAppender(loggerName, logFile, layout, loggerContext);
+        fileAppender.start();
+
+        loggerContext.getConfiguration()
+                     .addAppender(fileAppender);
+        LoggerConfig loggerConfig = loggerContext.getConfiguration()
+                                                 .getLoggerConfig(loggerName);
+        loggerConfig.setLevel(Level.DEBUG);
+        loggerConfig.addAppender(fileAppender, Level.DEBUG, null);
+        loggerContext.getRootLogger()
+                     .addAppender(fileAppender);
+        disableConsoleLogging(loggerContext);
+        loggerContext.updateLoggers();
+        return loggerContext;
     }
 
     private File getLocalFile(String loggerName) {
-        String fileName = new StringBuilder(loggerName).append(LOG_FILE_EXTENSION)
-            .toString();
-        return new File(DEFAULT_LOG_DIR, fileName);
+        return new File(DEFAULT_LOG_DIR, loggerName + LOG_FILE_EXTENSION);
     }
 
-    private Appender createAppender(Level level, File logFile, PatternLayout layout) {
-        FileAppender appender = new FileAppender();
+    private FileAppender createFileAppender(String loggerName, File logFile, AbstractStringLayout layout, LoggerContext context) {
         if (layout == null) {
-            layout = new PatternLayout(LOG_LAYOUT);
+            layout = PatternLayout.newBuilder()
+                                  .withPattern(LOG_LAYOUT)
+                                  .build();
         }
-        appender.setLayout(layout);
-        appender.setFile(logFile.getAbsolutePath());
-        appender.setThreshold(level);
-        appender.setAppend(true);
-        appender.activateOptions();
-        return appender;
+        return FileAppender.newBuilder()
+                           .setName(loggerName)
+                           .withAppend(true)
+                           .withFileName(logFile.toString())
+                           .setLayout(layout)
+                           .setConfiguration(context.getConfiguration())
+                           .withLocking(true)
+                           .build();
+    }
+
+    private void disableConsoleLogging(LoggerContext loggerContext) {
+        for (Appender appender : getAllAppenders(loggerContext)) {
+            if (appender.getName()
+                        .contains(Constants.DEFAULT_CONSOLE_LOGGER_NAME)) {
+                loggerContext.getRootLogger()
+                             .removeAppender(appender);
+            }
+        }
+    }
+
+    private Collection<Appender> getAllAppenders(LoggerContext loggerContext) {
+        return new ArrayList<>(loggerContext.getRootLogger()
+                                            .getAppenders()
+                                            .values());
     }
 
     private String getSpaceId(DelegateExecution context) {
@@ -93,20 +133,19 @@ public class ProcessLoggerProvider {
 
     public List<ProcessLogger> getExistingLoggers(String processId, String activityId) {
         return loggersCache.values()
-            .stream()
-            .filter(logger -> hasLoggerSpecificProcessIdAndActivityId(processId, activityId, logger))
-            .collect(Collectors.toList());
+                           .stream()
+                           .filter(logger -> hasLoggerSpecificProcessIdAndActivityId(processId, activityId, logger))
+                           .collect(Collectors.toList());
     }
 
     private boolean hasLoggerSpecificProcessIdAndActivityId(String processId, String activityId, ProcessLogger logger) {
         return logger.getProcessId()
-            .equals(processId)
-            && logger.getActivityId()
-                .equals(activityId);
+                     .equals(processId)
+               && logger.getActivityId()
+                        .equals(activityId);
     }
 
     public void remove(ProcessLogger processLogger) {
-        processLogger.removeAllAppenders();
         loggersCache.remove(processLogger.getName());
     }
 
