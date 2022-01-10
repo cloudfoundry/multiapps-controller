@@ -5,18 +5,18 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 
 public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
 
-    private static final Logger LOGGER = Logger.getLogger(AuditLoggingFacadeSLImpl.class);
-    private AuditLogManager auditLogManager;
+    private static final Logger LOGGER = (Logger) LogManager.getLogger(AuditLoggingFacadeSLImpl.class);
+    private final AuditLogManager auditLogManager;
 
     public AuditLoggingFacadeSLImpl(DataSource dataSource, UserInfoProvider userInfoProvider) {
         this.auditLogManager = new AuditLogManager(dataSource, userInfoProvider);
