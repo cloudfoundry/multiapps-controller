@@ -47,7 +47,6 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     protected StepPhase executeStep(ProcessContext context) throws Exception {
         CloudControllerClient client = context.getControllerClient();
         CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
-
         getStepLogger().info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
         CloudServiceInstance existingService = client.getServiceInstance(serviceToProcess.getName(), false);
         setServiceParameters(context, serviceToProcess);
@@ -85,10 +84,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
     private List<ServiceAction> determineActions(ProcessContext context, CloudServiceInstanceExtended service,
                                                  CloudServiceInstance existingService) {
-        Map<String, List<CloudServiceKey>> serviceKeys = context.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
         List<ServiceAction> actions = new ArrayList<>();
-        List<CloudServiceKey> keys = serviceKeys.get(service.getResourceName());
-        if (shouldUpdateKeys(service, keys)) {
+        if (shouldUpdateKeys(service, existingService, context)) {
             getStepLogger().debug("Service keys should be updated");
             actions.add(ServiceAction.UPDATE_KEYS);
         }
@@ -224,8 +221,24 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                                                     .withCredentials(result);
     }
 
-    private boolean shouldUpdateKeys(CloudServiceInstanceExtended service, List<CloudServiceKey> serviceKeys) {
-        return !(service.isUserProvided() || CollectionUtils.isEmpty(serviceKeys));
+    private boolean shouldUpdateKeys(CloudServiceInstanceExtended service, CloudServiceInstance existingService, ProcessContext context) {
+        if (service.isUserProvided()) {
+            return false;
+        }
+        return hasServiceKeysForCreation(context, service) || shouldDeleteServiceKeys(existingService, context);
+    }
+
+    private boolean hasServiceKeysForCreation(ProcessContext context, CloudServiceInstanceExtended service) {
+        Map<String, List<CloudServiceKey>> serviceKeys = context.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
+        List<CloudServiceKey> keys = serviceKeys.get(service.getResourceName());
+        return CollectionUtils.isNotEmpty(keys);
+    }
+
+    private boolean shouldDeleteServiceKeys(CloudServiceInstance existingService, ProcessContext context) {
+        if (existingService == null) {
+            return false;
+        }
+        return context.getVariable(Variables.DELETE_SERVICE_KEYS);
     }
 
     private boolean shouldUpdatePlan(CloudServiceInstanceExtended service, CloudServiceInstance existingService) {
