@@ -36,7 +36,8 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
 import org.cloudfoundry.multiapps.mta.handlers.HandlerFactory;
 import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorHandler;
-import org.cloudfoundry.multiapps.mta.handlers.v3.ResourceBatchCalculator;
+import org.cloudfoundry.multiapps.mta.handlers.v2.ResourceBatchCalculator;
+import org.cloudfoundry.multiapps.mta.handlers.v2.SelectiveDeployChecker;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
@@ -112,10 +113,12 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.SERVICES_TO_BIND, servicesForBindings);
 
         List<Resource> resourcesForDeployment = calculateResourcesForDeployment(context, deploymentDescriptor);
-        ///Validate for selective deploy
+
+        SelectiveDeployChecker selectiveDeployChecker = getSelectiveDeployChecker(context);
+        selectiveDeployChecker.check(resourcesForDeployment);
         getStepLogger().debug(Messages.CALCULATING_RESOURCE_BATCHES);
 
-        List<List<Resource>> batchesToProcess = getResourceBatches(deploymentDescriptor, resourcesForDeployment);
+        List<List<Resource>> batchesToProcess = getResourceBatches(context, resourcesForDeployment);
         context.setVariable(Variables.BATCHES_TO_PROCESS, batchesToProcess);
 
         getStepLogger().debug(Messages.CALCULATING_RESOURCE_BATCHES_COMPLETE);
@@ -124,19 +127,24 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         return StepPhase.DONE;
     }
 
-    private List<List<Resource>> getResourceBatches(DeploymentDescriptor deploymentDescriptor, List<Resource> resources) {
-        if (!resources.isEmpty()) {
-            ResourceBatchCalculator resourceBatchCalculator = new ResourceBatchCalculator(deploymentDescriptor);
-            List<List<Resource>> resourceList = new ArrayList<>(resourceBatchCalculator.groupResourcesByWeight(resources)
-                                                          .values());
-            for(List<Resource> batch : resourceList){
-                for (Resource resource : batch){
-                    getStepLogger().info("Currently processing: " + resource.getName());
-                }
-            }
-            return resourceList;
+    private SelectiveDeployChecker getSelectiveDeployChecker(ProcessContext context) {
+        CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
+        return handlerFactory.getSelectiveDeployChecker();
+    }
+
+    private ResourceBatchCalculator getResourceBatchCalculator(ProcessContext context, DeploymentDescriptor descriptor) {
+        CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
+        return handlerFactory.getResourceBatchCalculator(descriptor);
+    }
+
+    private List<List<Resource>> getResourceBatches(ProcessContext context, List<Resource> resources) {
+        if (resources.isEmpty()) {
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
+        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+        ResourceBatchCalculator resourceBatchCalculator = getResourceBatchCalculator(context, deploymentDescriptor);
+        return new ArrayList<>(resourceBatchCalculator.groupResourcesByWeight(resources)
+                                                      .values());
     }
 
     @Override

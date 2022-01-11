@@ -53,7 +53,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         List<ConfigurationSubscription> subscriptionsToCreate = context.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
         Set<String> mtaModules = context.getVariable(Variables.MTA_MODULES);
         List<String> appNames = context.getVariable(Variables.APPS_TO_DEPLOY);
-        List<String> serviceNames = getServicesFromBatches(context);
+        List<String> serviceNames = getAllServiceNames(context);
 
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
@@ -98,10 +98,10 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                    .collect(Collectors.toList());
     }
 
-    private List<String> getServicesFromBatches(ProcessContext context) {
+    private List<String> getAllServiceNames(ProcessContext context) {
         return context.getVariable(Variables.BATCHES_TO_PROCESS)
                       .stream()
-                      .flatMap(resources -> resources.stream())
+                      .flatMap(List::stream)
                       .map(Resource::getName)
                       .collect(Collectors.toList());
     }

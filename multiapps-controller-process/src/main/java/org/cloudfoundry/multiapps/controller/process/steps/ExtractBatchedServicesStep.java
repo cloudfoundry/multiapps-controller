@@ -15,18 +15,18 @@ import javax.inject.Named;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Named("extractServicesDeploymentStep")
+@Named("extractBatchedServicesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ExtractServicesDeploymentStep extends SyncFlowableStep {
+public class ExtractBatchedServicesStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.EXTRACT_SERVICES_FROM_BATCH);
 
-        List<Resource> batchOfResources = context.getVariable(Variables.BATCH_TO_PROCESS);
+        List<Resource> batchToProcess = context.getVariable(Variables.BATCH_TO_PROCESS);
 
         ServicesCloudModelBuilder servicesCloudModelBuilder = getServicesCloudModelBuilder(context);
-        List<CloudServiceInstanceExtended> servicesCalculatedForDeployment = servicesCloudModelBuilder.build(batchOfResources);
+        List<CloudServiceInstanceExtended> servicesCalculatedForDeployment = servicesCloudModelBuilder.build(batchToProcess);
         List<CloudServiceInstanceExtended> servicesToCreate = servicesCalculatedForDeployment.stream()
                                                                                              .filter(CloudServiceInstanceExtended::isManaged)
                                                                                              .collect(Collectors.toList());
