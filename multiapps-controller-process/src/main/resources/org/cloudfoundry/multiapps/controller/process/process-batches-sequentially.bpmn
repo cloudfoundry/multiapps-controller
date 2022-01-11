@@ -11,7 +11,7 @@
         <flowable:executionListener event="start" delegateExpression="${startProcessListener}"></flowable:executionListener>
       </extensionElements>
     </startEvent>
-    <serviceTask id="prepareModulesDeploymentTask" name="Extract Services From Batches" flowable:async="true" flowable:exclusive="false" flowable:delegateExpression="${extractServicesDeploymentStep}"></serviceTask>
+    <serviceTask id="prepareModulesDeploymentTask" name="Extract Services From Batches" flowable:async="true" flowable:exclusive="false" flowable:delegateExpression="${extractBatchedServicesStep}"></serviceTask>
     <sequenceFlow id="flow51" sourceRef="startEvent" targetRef="prepareModulesDeploymentTask"></sequenceFlow>
     <callActivity id="createOrUpdateServicesCallActivity" name="Create or update services" flowable:async="true" calledElement="createOrUpdateServicesSubProcess" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <extensionElements>

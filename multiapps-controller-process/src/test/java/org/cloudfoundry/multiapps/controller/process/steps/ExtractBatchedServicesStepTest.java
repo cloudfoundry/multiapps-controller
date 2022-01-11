@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-class ExtractServicesDeploymentStepTest extends SyncFlowableStepTest<ExtractServicesDeploymentStep> {
+class ExtractBatchedServicesStepTest extends SyncFlowableStepTest<ExtractBatchedServicesStep> {
 
     private List<Resource> batchOfResources;
     private List<CloudServiceInstanceExtended> servicesToBind;
@@ -31,15 +31,15 @@ class ExtractServicesDeploymentStepTest extends SyncFlowableStepTest<ExtractServ
     public static Stream<Arguments> testExecute() {
         return Stream.of(
 // @formatter:off
-                Arguments.of(new ExtractServicesDeploymentStepTest.StepInput("services-to-create-01.json","batches-to-process-01.json"),
-                             new ExtractServicesDeploymentStepTest.StepInput("services-to-create-02.json","batches-to-process-02.json"))
+                Arguments.of(new ExtractBatchedServicesStepTest.StepInput("services-to-create-01.json","batches-to-process-01.json"),
+                             new ExtractBatchedServicesStepTest.StepInput("services-to-create-02.json","batches-to-process-02.json"))
 // @formatter:on
         );
     }
 
     @ParameterizedTest
     @MethodSource
-    void testExecute(ExtractServicesDeploymentStepTest.StepInput input) {
+    void testExecute(ExtractBatchedServicesStepTest.StepInput input) {
         loadParameters(input);
         step.execute(execution);
         assertStepFinishedSuccessfully();
@@ -66,8 +66,8 @@ class ExtractServicesDeploymentStepTest extends SyncFlowableStepTest<ExtractServ
     }
 
     @Override
-    protected ExtractServicesDeploymentStep createStep() {
-        return new ExtractServicesDeploymentStepMock();
+    protected ExtractBatchedServicesStep createStep() {
+        return new ExtractBatchedServicesStepMock();
     }
 
     protected static class StepInput {
@@ -80,7 +80,7 @@ class ExtractServicesDeploymentStepTest extends SyncFlowableStepTest<ExtractServ
         }
     }
 
-    private class ExtractServicesDeploymentStepMock extends ExtractServicesDeploymentStep {
+    private class ExtractBatchedServicesStepMock extends ExtractBatchedServicesStep {
         @Override
         protected ServicesCloudModelBuilder getServicesCloudModelBuilder(ProcessContext context) {
             return servicesCloudModelBuilder;
