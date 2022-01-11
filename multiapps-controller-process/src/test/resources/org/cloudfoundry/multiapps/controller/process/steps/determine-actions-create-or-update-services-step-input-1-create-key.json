@@ -1,6 +1,7 @@
 {
 	"service": {
 		"name": "service-1",
+		"resourceName": "service-1",
 		"label": "hana",
 		"plan": "hdishared",
 		"tags": []
@@ -27,6 +28,6 @@
 				}
 			}
 	],
-	"serviceShouldBeCreated": true,
-	"shouldCreateServiceKeys": true
+	"shouldCreateService": true,
+	"shouldUpdateServiceKeys": true
 }

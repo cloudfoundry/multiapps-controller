@@ -1,8 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -75,7 +76,7 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
     }
 
     @ParameterizedTest
-    @ValueSource(booleans = {false, true})
+    @ValueSource(booleans = { false, true })
     void testServiceParametersFetchingErrorHandling(boolean isOptionalService) {
         var service = createMockServiceInstance(isOptionalService);
         context.setVariable(Variables.SERVICE_TO_PROCESS, service);
@@ -97,6 +98,29 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
         SLException exception = assertThrows(SLException.class, () -> step.execute(execution));
         assertTrue(exception.getCause() instanceof CloudOperationException);
         assertSame(((CloudOperationException) exception.getCause()).getStatusCode(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    void testUpdateServiceKeysWhenDeleteServiceKeysIsSet(boolean serviceExists) {
+        var service = createMockServiceInstance(false);
+        context.setVariable(Variables.SERVICE_TO_PROCESS, service);
+        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Map.of());
+        context.setVariable(Variables.DELETE_SERVICE_KEYS, true);
+        if (serviceExists) {
+            Mockito.when(client.getServiceInstance("service", false))
+                   .thenReturn(service);
+        }
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        List<ServiceAction> serviceActionsToExecute = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
+        if (serviceExists) {
+            assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_KEYS), "Actions should contain " + ServiceAction.UPDATE_KEYS);
+            return;
+        }
+        assertFalse(serviceActionsToExecute.contains(ServiceAction.UPDATE_KEYS), "Actions should not contain " + ServiceAction.UPDATE_KEYS);
     }
 
     private void initializeParameters(StepInput input) {
