@@ -114,7 +114,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
         List<Resource> resourcesForDeployment = calculateResourcesForDeployment(context, deploymentDescriptor);
 
-        SelectiveDeployChecker selectiveDeployChecker = getSelectiveDeployChecker(context);
+        SelectiveDeployChecker selectiveDeployChecker = getSelectiveDeployChecker(context, deploymentDescriptor);
         selectiveDeployChecker.check(resourcesForDeployment);
         getStepLogger().debug(Messages.CALCULATING_RESOURCE_BATCHES);
 
@@ -127,9 +127,10 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         return StepPhase.DONE;
     }
 
-    private SelectiveDeployChecker getSelectiveDeployChecker(ProcessContext context) {
+    private SelectiveDeployChecker getSelectiveDeployChecker(ProcessContext context, DeploymentDescriptor descriptor) {
         CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
-        return handlerFactory.getSelectiveDeployChecker();
+        DescriptorHandler descriptorHandler = handlerFactory.getDescriptorHandler();
+        return handlerFactory.getSelectiveDeployChecker(descriptor, descriptorHandler);
     }
 
     private ResourceBatchCalculator getResourceBatchCalculator(ProcessContext context, DeploymentDescriptor descriptor) {
