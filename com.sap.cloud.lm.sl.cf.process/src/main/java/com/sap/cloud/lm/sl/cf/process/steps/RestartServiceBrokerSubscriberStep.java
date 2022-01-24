@@ -14,12 +14,6 @@ import org.springframework.stereotype.Component;
 public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
 
     @Override
-    public StepPhase executeAsyncStep(ExecutionWrapper execution) {
-        StepsUtil.setLastTimeLogsRetrieved(execution.getContext());
-        return super.executeAsyncStep(execution);
-    }
-
-    @Override
     protected void onError(String message, Exception e) {
         getStepLogger().warn(e, message);
     }
