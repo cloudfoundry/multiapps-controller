@@ -30,7 +30,6 @@ public class SetAppToDeployStep extends SyncFlowableStep {
                 .get();
             
             StepsUtil.setApp(execution.getContext(), appToDeploy);
-            StepsUtil.setLastTimeLogsRetrieved(execution.getContext());
             
             return StepPhase.DONE;
         } catch (SLException e) {

@@ -133,7 +133,6 @@ public class Constants {
     public static final String VAR_CORRELATION_ID = "correlationId";
     public static final String VAR_MODULE_TO_DEPLOY = "moduleToDeploy";
     public static final String VAR_APP_TO_DEPLOY = "appToDeploy";
-    public static final String VAR_LAST_TIME_LOGS_RETRIEVED = "lastTimeLogsRetrieved";
     public static final String VAR_SUBPROCESS_ID = "subProcessId";
     public static final String VAR_PARENTPROCESS_ID = "parentProcessId";
     public static final String VAR_PLATFORM_TYPE = "platformType";
