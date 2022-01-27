@@ -1,8 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
@@ -21,11 +22,13 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
 class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableStepTest<DetermineServiceCreateUpdateServiceActionsStep> {
@@ -66,9 +69,34 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
 
         step.execute(execution);
 
-        assertStepIsRunning();
+        assertStepFinishedSuccessfully();
 
         validateActions(input);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void testServiceParametersFetchingErrorHandling(boolean isOptionalService) {
+        var service = createMockServiceInstance(isOptionalService);
+        context.setVariable(Variables.SERVICE_TO_PROCESS, service);
+        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Map.of());
+
+        Mockito.when(client.getServiceInstanceParameters(Mockito.any(UUID.class)))
+               .thenThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR));
+        Mockito.when(client.getServiceInstance("service", false))
+               .thenReturn(service);
+
+        if (isOptionalService) {
+            step.execute(execution);
+            assertStepFinishedSuccessfully();
+            List<ServiceAction> serviceActionsToExecute = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
+            assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_CREDENTIALS),
+                       "Actions should contain " + ServiceAction.UPDATE_CREDENTIALS);
+            return;
+        }
+        SLException exception = assertThrows(SLException.class, () -> step.execute(execution));
+        assertTrue(exception.getCause() instanceof CloudOperationException);
+        assertSame(((CloudOperationException) exception.getCause()).getStatusCode(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private void initializeParameters(StepInput input) {
@@ -81,6 +109,25 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
         context.setVariable(Variables.SERVICE_TO_PROCESS, input.service);
         context.setVariable(Variables.DELETE_SERVICE_KEYS, true);
         context.setVariable(Variables.DELETE_SERVICES, input.shouldDeleteServices);
+    }
+
+    private void prepareClient(StepInput input) {
+        if (input.existingService != null) {
+            Mockito.when(client.getServiceInstanceParameters(UUID.fromString("beeb5e8d-4ab9-46ee-9205-455a278743f0")))
+                   .thenThrow(new CloudOperationException(HttpStatus.BAD_REQUEST));
+            Mockito.when(client.getServiceInstanceParameters(UUID.fromString("400bfc4d-5fce-4a41-bae7-765345e1ce27")))
+                   .thenReturn(input.existingService.getCredentials());
+
+            if (input.lastOperationForExistingService != null) {
+                ServiceOperation lastOp = new ServiceOperation(input.lastOperationForExistingService.getType(),
+                                                               null,
+                                                               input.lastOperationForExistingService.getState());
+                input.existingService = ImmutableCloudServiceInstanceExtended.copyOf(input.existingService)
+                                                                             .withLastOperation(lastOp);
+            }
+            Mockito.when(client.getServiceInstance(input.existingService.getName(), false))
+                   .thenReturn(input.existingService);
+        }
     }
 
     private void validateActions(StepInput input) {
@@ -110,27 +157,15 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
         }
     }
 
-    private void assertStepIsRunning() {
-        assertEquals(StepPhase.DONE.toString(), getExecutionStatus());
-    }
-
-    private void prepareClient(StepInput input) {
-        if (input.existingService != null) {
-            Mockito.when(client.getServiceInstanceParameters(UUID.fromString("beeb5e8d-4ab9-46ee-9205-455a278743f0")))
-                   .thenThrow(new CloudOperationException(HttpStatus.BAD_REQUEST));
-            Mockito.when(client.getServiceInstanceParameters(UUID.fromString("400bfc4d-5fce-4a41-bae7-765345e1ce27")))
-                   .thenReturn(input.existingService.getCredentials());
-
-            if (input.lastOperationForExistingService != null) {
-                ServiceOperation lastOp = new ServiceOperation(input.lastOperationForExistingService.getType(),
-                                                               null,
-                                                               input.lastOperationForExistingService.getState());
-                input.existingService = ImmutableCloudServiceInstanceExtended.copyOf(input.existingService)
-                                                                             .withLastOperation(lastOp);
-            }
-            Mockito.when(client.getServiceInstance(input.existingService.getName(), false))
-                   .thenReturn(input.existingService);
-        }
+    private CloudServiceInstanceExtended createMockServiceInstance(boolean optional) {
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .name("service")
+                                                    .resourceName("service")
+                                                    .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
+                                                    .isOptional(optional)
+                                                    .tags(List.of())
+                                                    .putAllCredentials(Map.of("key", "val"))
+                                                    .build();
     }
 
     private static class StepInput {
