@@ -19,18 +19,14 @@ public class ScaleAppStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
-
         CloudApplication existingApp = context.getVariable(Variables.EXISTING_APP);
-
-        getStepLogger().debug(Messages.SCALING_APP, app.getName());
-
         CloudControllerClient client = context.getControllerClient();
 
+        getStepLogger().debug(Messages.SCALING_APP, app.getName());
         String appName = app.getName();
+        int instances = app.getInstances();
 
-        Integer instances = app.getInstances();
-
-        if (instances != null && (existingApp == null || !instances.equals(existingApp.getInstances()))) {
+        if (existingApp == null || instances != existingApp.getInstances()) {
             getStepLogger().info(Messages.SCALING_APP_0_TO_X_INSTANCES, appName, instances);
             client.updateApplicationInstances(appName, instances);
         }
