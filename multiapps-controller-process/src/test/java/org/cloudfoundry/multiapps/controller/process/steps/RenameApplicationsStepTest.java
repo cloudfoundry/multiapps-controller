@@ -16,12 +16,15 @@ import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationName
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
+import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationColorDetector;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -31,6 +34,8 @@ class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameApplications
 
     @Mock
     private ApplicationColorDetector applicationColorDetector;
+    @Mock
+    private ConfigurationSubscriptionService subscriptionService;
 
     @BeforeEach
     void setUp() {
@@ -52,6 +57,9 @@ class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameApplications
     void testOldNewSuffixRenaming() {
         context.setVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
         context.setVariable(Variables.APPS_TO_RENAME, List.of("a"));
+        var subscriptionsQuery = Mockito.mock(ConfigurationSubscriptionQuery.class, Answers.RETURNS_SELF);
+        when(subscriptionsQuery.list()).thenReturn(List.of());
+        when(subscriptionService.createQuery()).thenReturn(subscriptionsQuery);
 
         step.execute(execution);
         assertStepFinishedSuccessfully();

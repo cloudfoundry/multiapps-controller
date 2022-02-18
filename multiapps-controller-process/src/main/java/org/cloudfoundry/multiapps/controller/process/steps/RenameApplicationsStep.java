@@ -12,6 +12,8 @@ import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationName
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationColorDetector;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationProductizationStateUpdater;
@@ -30,6 +32,8 @@ public class RenameApplicationsStep extends SyncFlowableStep {
 
     @Inject
     private ApplicationColorDetector applicationColorDetector;
+    @Inject
+    private ConfigurationSubscriptionService subscriptionService;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -61,6 +65,9 @@ public class RenameApplicationsStep extends SyncFlowableStep {
             List<String> appsToRename = context.getVariable(Variables.APPS_TO_RENAME);
             if (appsToRename != null) {
                 renameOldApps(appsToRename, context.getControllerClient());
+                String mtaId = context.getVariable(Variables.MTA_ID);
+                String spaceId = context.getVariable(Variables.SPACE_GUID);
+                updateConfigurationSubscribers(appsToRename, mtaId, spaceId);
             }
 
             DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
@@ -81,6 +88,36 @@ public class RenameApplicationsStep extends SyncFlowableStep {
             }
         }
 
+        private void updateConfigurationSubscribers(List<String> appsToRename, String mtaId, String spaceId) {
+            List<ConfigurationSubscription> subscriptions = subscriptionService.createQuery()
+                                                                               .mtaId(mtaId)
+                                                                               .spaceId(spaceId)
+                                                                               .list();
+            for (ConfigurationSubscription subscription : subscriptions) {
+                if (appsToRename.contains(subscription.getAppName())) {
+                    String newAppName = subscription.getAppName() + BlueGreenApplicationNameSuffix.LIVE.asSuffix();
+                    getStepLogger().debug(Messages.UPDATING_CONFIGURATION_SUBSCRIPTION_0_WITH_NAME_1, subscription.getAppName(), newAppName);
+                    updateConfigurationSubscription(subscription, newAppName);
+                }
+            }
+        }
+
+        private void updateConfigurationSubscription(ConfigurationSubscription subscription, String newAppName) {
+            ConfigurationSubscription newSubscription = createNewSubscription(subscription, newAppName);
+            subscriptionService.update(subscription, newSubscription);
+        }
+
+        private ConfigurationSubscription createNewSubscription(ConfigurationSubscription subscription, String newAppName) {
+            return new ConfigurationSubscription(subscription.getId(),
+                                                 subscription.getMtaId(),
+                                                 subscription.getSpaceId(),
+                                                 newAppName,
+                                                 subscription.getFilter(),
+                                                 subscription.getModuleDto(),
+                                                 subscription.getResourceDto(),
+                                                 subscription.getModuleId(),
+                                                 subscription.getResourceId());
+        }
     }
 
     class RenameApplicationsWithBlueGreenSuffix implements RenameFlow {
