@@ -1,0 +1,12 @@
+{
+  "existingServiceBrokers": [],
+  "applicationsToUndeploy": [
+    {
+      "name": "foo"
+    },
+    {
+      "name": "bar"
+    }
+  ],
+  "serviceBrokersToCreate": []
+}

@@ -1,0 +1,11 @@
+{
+  "updatedServiceBroker":
+    {
+      "spaceGuid": "cb42bf12-b819-4c27-5ba0-d3dc351b80dc",
+      "password": "baz",
+      "url": "http://localhost:3030",
+      "username": "bar",
+      "metadata": {},
+      "name": "foo-broker"
+    }
+}

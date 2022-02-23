@@ -20,7 +20,6 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.UploadStatusCallback;
 import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
 import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
 import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
 import com.sap.cloudfoundry.client.facade.domain.CloudEvent;
@@ -94,9 +93,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public String createServiceBroker(CloudServiceBroker serviceBroker) {
+    public void createServiceBroker(CloudServiceBroker serviceBroker) {
         logger.debug(Messages.CREATING_SERVICE_BROKER_0, SecureSerialization.toJson(serviceBroker));
-        return delegate.createServiceBroker(serviceBroker);
+        delegate.createServiceBroker(serviceBroker);
     }
 
     @Override
@@ -168,9 +167,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public String deleteServiceBroker(String name) {
+    public void deleteServiceBroker(String name) {
         logger.debug(Messages.DELETING_SERVICE_BROKER_0, name);
-        return delegate.deleteServiceBroker(name);
+        delegate.deleteServiceBroker(name);
     }
 
     @Override
@@ -554,9 +553,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public String updateServiceBroker(CloudServiceBroker serviceBroker) {
+    public void updateServiceBroker(CloudServiceBroker serviceBroker) {
         logger.debug(Messages.UPDATING_SERVICE_BROKER_TO_0, SecureSerialization.toJson(serviceBroker));
-        return delegate.updateServiceBroker(serviceBroker);
+        delegate.updateServiceBroker(serviceBroker);
     }
 
     @Override
@@ -771,12 +770,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
         logger.debug(Messages.CREATING_DOCKER_PACKAGE_FOR_APPLICATION_0, applicationGuid);
         return delegate.createDockerPackage(applicationGuid, dockerInfo);
 
-    }
-
-    @Override
-    public CloudAsyncJob getAsyncJob(String jobId) {
-        logger.debug(Messages.GETTING_JOB_ID_0, jobId);
-        return delegate.getAsyncJob(jobId);
     }
 
 }

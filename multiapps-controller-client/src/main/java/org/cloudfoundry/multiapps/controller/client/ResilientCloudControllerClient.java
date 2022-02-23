@@ -20,7 +20,6 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClientImpl;
 import com.sap.cloudfoundry.client.facade.UploadStatusCallback;
 import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
 import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
 import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
 import com.sap.cloudfoundry.client.facade.domain.CloudEvent;
@@ -86,8 +85,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public String createServiceBroker(CloudServiceBroker serviceBroker) {
-        return executeWithRetry(() -> delegate.createServiceBroker(serviceBroker));
+    public void createServiceBroker(CloudServiceBroker serviceBroker) {
+        executeWithRetry(() -> delegate.createServiceBroker(serviceBroker));
     }
 
     @Override
@@ -126,8 +125,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public String deleteServiceBroker(String name) {
-        return executeWithRetry(() -> delegate.deleteServiceBroker(name));
+    public void deleteServiceBroker(String name) {
+        executeWithRetry(() -> delegate.deleteServiceBroker(name));
     }
 
     @Override
@@ -366,8 +365,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public String updateServiceBroker(CloudServiceBroker serviceBroker) {
-        return executeWithRetry(() -> delegate.updateServiceBroker(serviceBroker));
+    public void updateServiceBroker(CloudServiceBroker serviceBroker) {
+        executeWithRetry(() -> delegate.updateServiceBroker(serviceBroker));
     }
 
     @Override
@@ -662,11 +661,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public CloudPackage createDockerPackage(UUID applicationGuid, DockerInfo dockerInfo) {
         return executeWithRetry(() -> delegate.createDockerPackage(applicationGuid, dockerInfo));
-    }
-
-    @Override
-    public CloudAsyncJob getAsyncJob(String jobId) {
-        return executeWithRetry(() -> delegate.getAsyncJob(jobId));
     }
 
     private void executeWithRetry(Runnable operation, HttpStatus... statusesToIgnore) {
