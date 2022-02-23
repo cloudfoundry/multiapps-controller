@@ -268,7 +268,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     private boolean shouldUpdateCredentials(CloudServiceInstanceExtended service, CloudServiceInstance existingService,
                                             CloudControllerClient client) {
         try {
-            Map<String, Object> serviceParameters = getServiceInstanceParameters(client, existingService);
+            Map<String, Object> serviceParameters = client.getServiceInstanceParameters(existingService.getMetadata()
+                                                                                                       .getGuid());
             getStepLogger().debug("Existing service parameters: " + SecureSerialization.toJson(serviceParameters));
             return !Objects.equals(service.getCredentials(), serviceParameters);
         } catch (CloudOperationException e) {
@@ -281,20 +282,12 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
     }
 
-    private Map<String, Object> getServiceInstanceParameters(CloudControllerClient client, CloudServiceInstance existingService) {
-        if (existingService.isUserProvided()) {
-            return client.getUserProvidedServiceInstanceParameters(existingService.getMetadata()
-                                                                                  .getGuid());
-        }
-        return client.getServiceInstanceParameters(existingService.getMetadata()
-                                                                  .getGuid());
-    }
-
     private boolean shouldUpdateSyslogUrl(CloudServiceInstance service, String existingSyslogUrl) {
         if (!service.isUserProvided()) {
             return false;
         }
         String syslogDrainUrl = ObjectUtils.defaultIfNull(service.getSyslogDrainUrl(), "");
         return !Objects.equals(syslogDrainUrl, existingSyslogUrl);
+
     }
 }

@@ -18,7 +18,6 @@ open module org.cloudfoundry.multiapps.controller.client {
     requires reactor.core;
     requires org.reactivestreams;
     requires io.netty.handler;
-    requires io.netty.transport;
     requires reactor.netty;
     requires spring.security.core;
     requires spring.security.oauth2.client;

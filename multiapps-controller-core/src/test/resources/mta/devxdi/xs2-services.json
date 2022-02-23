@@ -1,46 +1,49 @@
-[ {
-  "isOptional" : false,
-  "isManaged" : false,
-  "name" : "uaa",
-  "v3Metadata" : {
-    "annotations" : {
-      "mta_id" : "com.sap.devx.di",
-      "mta_version" : "1.0.0",
-      "mta_resource" : "{\"name\":\"uaa\"}"
+[
+  {
+    "isOptional": false,
+    "isManaged": false,
+    "name": "uaa",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.devx.di",
+        "mta_version": "1.0.0",
+        "mta_resource": "{\"name\":\"uaa\"}"
+      },
+      "labels": {
+        "mta_id": "81530aa8411b2e488fa727eda264e137"
+      }
     },
-    "labels" : {
-      "mta_id" : "81530aa8411b2e488fa727eda264e137"
-    }
+    "resourceName": "uaa",
+    "credentials": {},
+    "tags": [],
+    "shouldSkipParametersUpdate": false,
+    "shouldSkipTagsUpdate": false,
+    "shouldSkipPlanUpdate": false,
+    "shouldSkipSyslogUrlUpdate": false 
   },
-  "credentials" : { },
-  "tags" : [ ],
-  "resourceName" : "uaa",
-  "shouldSkipParametersUpdate" : false,
-  "shouldSkipPlanUpdate" : false,
-  "shouldSkipTagsUpdate" : false,
-  "shouldSkipSyslogUrlUpdate" : false
-}, {
-  "isOptional" : false,
-  "isManaged" : true,
-  "name" : "di-core-hdi",
-  "v3Metadata" : {
-    "annotations" : {
-      "mta_id" : "com.sap.devx.di",
-      "mta_version" : "1.0.0",
-      "mta_resource" : "{\"name\":\"di-core-hdi\"}"
+  {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "di-core-hdi",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.devx.di",
+        "mta_version": "1.0.0",
+        "mta_resource": "{\"name\":\"di-core-hdi\"}"
+      },
+      "labels": {
+        "mta_id": "81530aa8411b2e488fa727eda264e137"
+      }
     },
-    "labels" : {
-      "mta_id" : "81530aa8411b2e488fa727eda264e137"
-    }
-  },
-  "credentials" : { },
-  "label" : "hana",
-  "plan" : "hdi-shared",
-  "tags" : [ ],
-  "type" : "managed",
-  "resourceName" : "di-core-hdi",
-  "shouldSkipParametersUpdate" : false,
-  "shouldSkipPlanUpdate" : false,
-  "shouldSkipTagsUpdate" : false,
-  "shouldSkipSyslogUrlUpdate" : false
-} ]
+    "label": "hana",
+    "plan": "hdi-shared",
+    "credentials": {},
+    "tags": [],
+    "type" : "managed_service_instance",
+    "resourceName": "di-core-hdi",
+    "shouldSkipParametersUpdate": false,
+    "shouldSkipTagsUpdate": false,
+    "shouldSkipPlanUpdate": false,
+    "shouldSkipSyslogUrlUpdate": false 
+  }
+]
