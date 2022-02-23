@@ -1,0 +1,10 @@
+{
+	"existingServiceBrokers": [],
+	"application": {
+      "name": "foo",
+      "attributes": {
+        "create-service-broker": false
+      }
+    }
+}
+

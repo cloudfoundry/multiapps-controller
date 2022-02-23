@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
-import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,12 +28,10 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBroker;
 
 @Named("createOrUpdateServiceBrokerStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CreateOrUpdateServiceBrokerStep extends TimeoutAsyncFlowableStep {
-
-    private static final Duration ASYNC_JOB_POLLING_TIMEOUT = Duration.ofMinutes(30);
+public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
 
     @Override
-    protected StepPhase executeAsyncStep(ProcessContext context) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.CREATING_SERVICE_BROKERS);
 
         CloudServiceBroker serviceBroker = getServiceBrokerToCreate(context);
@@ -47,24 +44,15 @@ public class CreateOrUpdateServiceBrokerStep extends TimeoutAsyncFlowableStep {
         List<CloudServiceBroker> existingServiceBrokers = client.getServiceBrokers();
         List<String> existingServiceBrokerNames = getServiceBrokerNames(existingServiceBrokers);
 
-        String jobId = null;
         if (existingServiceBrokerNames.contains(serviceBroker.getName())) {
             CloudServiceBroker existingBroker = findServiceBroker(existingServiceBrokers, serviceBroker.getName());
-            serviceBroker = mergeServiceBrokerMetadata(serviceBroker, existingBroker);
-            jobId = updateServiceBroker(context, serviceBroker, client);
-            getStepLogger().debug(MessageFormat.format(Messages.UPDATE_SERVICE_BROKER_TRIGERRED, serviceBroker.getName()));
+            serviceBroker = updateServiceBroker(context, serviceBroker, existingBroker, client);
         } else {
-            jobId = createServiceBroker(context, serviceBroker, client);
-            getStepLogger().debug(MessageFormat.format(Messages.CREATE_SERVICE_BROKER_TRIGERRED, serviceBroker.getName()));
-        }
-
-        if (jobId != null) {
-            context.setVariable(Variables.SERVICE_BROKER_ASYNC_JOB_ID, jobId);
-            context.setVariable(Variables.CREATED_OR_UPDATED_SERVICE_BROKER, serviceBroker);
-            return StepPhase.POLL;
+            createServiceBroker(context, serviceBroker, client);
         }
 
         context.setVariable(Variables.CREATED_OR_UPDATED_SERVICE_BROKER, serviceBroker);
+        getStepLogger().debug(Messages.SERVICE_BROKERS_CREATED);
         return StepPhase.DONE;
     }
 
@@ -79,14 +67,28 @@ public class CreateOrUpdateServiceBrokerStep extends TimeoutAsyncFlowableStep {
         return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, offering);
     }
 
-    @Override
-    public Duration getTimeout(ProcessContext context) {
-        return ASYNC_JOB_POLLING_TIMEOUT;
+    private CloudServiceBroker updateServiceBroker(ProcessContext context, CloudServiceBroker serviceBroker,
+                                                   CloudServiceBroker existingBroker, CloudControllerClient client) {
+        serviceBroker = ImmutableCloudServiceBroker.copyOf(serviceBroker)
+                                                   .withMetadata(existingBroker.getMetadata());
+        if (existingBroker.getSpaceGuid() != null && serviceBroker.getSpaceGuid() == null) {
+            getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_SPACE_SCOPED_TO_GLOBAL,
+                                                      serviceBroker.getName()));
+        } else if (existingBroker.getSpaceGuid() == null && serviceBroker.getSpaceGuid() != null) {
+            getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_GLOBAL_TO_SPACE_SCOPED,
+                                                      serviceBroker.getName()));
+        }
+        updateServiceBroker(context, serviceBroker, client);
+        return serviceBroker;
     }
 
-    @Override
-    protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollServiceBrokerOperationsExecution());
+    private CloudServiceBroker findServiceBroker(List<CloudServiceBroker> serviceBrokers, String name) {
+        return serviceBrokers.stream()
+                             .filter(broker -> broker.getName()
+                                                     .equals(name))
+                             .findFirst()
+                             .orElseThrow(() -> new NotFoundException(MessageFormat.format(Messages.SERVICE_BROKER_0_DOES_NOT_EXIST,
+                                                                                           name)));
     }
 
     private CloudServiceBroker getServiceBrokerToCreate(ProcessContext context) {
@@ -139,47 +141,26 @@ public class CreateOrUpdateServiceBrokerStep extends TimeoutAsyncFlowableStep {
         return isSpaceScoped ? context.getVariable(Variables.SPACE_GUID) : null;
     }
 
-    private CloudServiceBroker findServiceBroker(List<CloudServiceBroker> serviceBrokers, String name) {
-        return serviceBrokers.stream()
-                             .filter(broker -> broker.getName()
-                                                     .equals(name))
-                             .findFirst()
-                             .orElseThrow(() -> new NotFoundException(MessageFormat.format(Messages.SERVICE_BROKER_0_DOES_NOT_EXIST,
-                                                                                           name)));
-    }
-
-    private CloudServiceBroker mergeServiceBrokerMetadata(CloudServiceBroker serviceBroker, CloudServiceBroker existingBroker) {
-        CloudServiceBroker mergedServiceBrokerMetadata = ImmutableCloudServiceBroker.copyOf(serviceBroker)
-                                                                                    .withMetadata(existingBroker.getMetadata());
-        if (existingBroker.getSpaceGuid() != null && mergedServiceBrokerMetadata.getSpaceGuid() == null) {
-            getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_SPACE_SCOPED_TO_GLOBAL,
-                                                      mergedServiceBrokerMetadata.getName()));
-        } else if (existingBroker.getSpaceGuid() == null && serviceBroker.getSpaceGuid() != null) {
-            getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_GLOBAL_TO_SPACE_SCOPED,
-                                                      mergedServiceBrokerMetadata.getName()));
-        }
-        return mergedServiceBrokerMetadata;
-    }
-
     public static List<String> getServiceBrokerNames(List<? extends CloudServiceBroker> serviceBrokers) {
         return serviceBrokers.stream()
                              .map(CloudServiceBroker::getName)
                              .collect(Collectors.toList());
     }
 
-    protected String updateServiceBroker(ProcessContext context, CloudServiceBroker serviceBroker, CloudControllerClient client) {
+    protected void updateServiceBroker(ProcessContext context, CloudServiceBroker serviceBroker, CloudControllerClient client) {
         try {
             getStepLogger().info(MessageFormat.format(Messages.UPDATING_SERVICE_BROKER, serviceBroker.getName()));
-            return client.updateServiceBroker(serviceBroker);
+            client.updateServiceBroker(serviceBroker);
+            getStepLogger().debug(MessageFormat.format(Messages.UPDATED_SERVICE_BROKER, serviceBroker.getName()));
         } catch (CloudOperationException e) {
             switch (e.getStatusCode()) {
                 case NOT_IMPLEMENTED:
                     getStepLogger().warn(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_501, serviceBroker.getName());
-                    return null;
+                    break;
                 case FORBIDDEN:
                     if (shouldSucceed(context)) {
                         getStepLogger().warn(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName());
-                        return null;
+                        return;
                     }
                     context.setVariable(Variables.SERVICE_OFFERING, serviceBroker.getName());
                     throw new CloudServiceBrokerException(e);
@@ -192,16 +173,17 @@ public class CreateOrUpdateServiceBrokerStep extends TimeoutAsyncFlowableStep {
         }
     }
 
-    private String createServiceBroker(ProcessContext context, CloudServiceBroker serviceBroker, CloudControllerClient client) {
+    private void createServiceBroker(ProcessContext context, CloudServiceBroker serviceBroker, CloudControllerClient client) {
         try {
             getStepLogger().info(MessageFormat.format(Messages.CREATING_SERVICE_BROKER, serviceBroker.getName()));
-            return client.createServiceBroker(serviceBroker);
+            client.createServiceBroker(serviceBroker);
+            getStepLogger().debug(MessageFormat.format(Messages.CREATED_SERVICE_BROKER, serviceBroker.getName()));
         } catch (CloudOperationException e) {
             switch (e.getStatusCode()) {
                 case FORBIDDEN:
                     if (shouldSucceed(context)) {
                         getStepLogger().warn(Messages.CREATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName());
-                        return null;
+                        return;
                     }
                     throw new CloudServiceBrokerException(e);
                 case BAD_GATEWAY:

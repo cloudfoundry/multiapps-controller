@@ -1,0 +1,23 @@
+{
+  "existingServiceBrokers": [
+    "foo-broker",
+    "bar-broker"
+  ],
+  "applicationsToUndeploy": [
+    {
+      "name": "foo",
+      "attributes": {
+        "service-broker-name": "foo-broker",
+        "create-service-broker": true
+      }
+    },
+    {
+      "name": "bar",
+      "attributes": {
+        "service-broker-name": "bar-broker",
+        "create-service-broker": true
+      }
+    }
+  ],
+  "serviceBrokersToCreate": []
+}

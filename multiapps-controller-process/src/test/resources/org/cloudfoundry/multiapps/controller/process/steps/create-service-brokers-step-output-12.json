@@ -1,0 +1,10 @@
+{
+  "updatedServiceBroker":
+    {
+      "password": "baz",
+      "url": "http://localhost:3030",
+      "username": "bar",
+      "metadata": {},
+      "name": "foo-broker"
+    }
+}

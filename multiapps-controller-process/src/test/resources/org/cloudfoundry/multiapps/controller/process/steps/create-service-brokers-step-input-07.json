@@ -1,0 +1,14 @@
+{
+  "existingServiceBrokers": [],
+  "application":
+    {
+      "name": "foo",
+      "attributes": {
+        "create-service-broker": true,
+        "service-broker-user": "bar",
+        "service-broker-password": "baz",
+        "service-broker-url": "http://localhost:3030"
+      }
+    }
+}
+
