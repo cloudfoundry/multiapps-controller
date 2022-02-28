@@ -2,8 +2,9 @@ package org.cloudfoundry.multiapps.controller.web.api.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.URI;
-import java.net.URLDecoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpRequest;
@@ -13,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,7 @@ import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.LimitedInputStream;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -159,11 +162,19 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     private FileEntry uploadFileFromUrl(String spaceGuid, String namespace, String fileUrl)
         throws FileStorageException, IOException, InterruptedException {
-        UriUtil.validateUrl(fileUrl);
-        String decodedUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
-        HttpClient client = buildHttpClient();
+        String decodedUrl = new String(Base64.getUrlDecoder()
+                                             .decode(fileUrl));
+        UriUtil.validateUrl(decodedUrl);
+        HttpClient client = buildHttpClient(decodedUrl);
 
         HttpResponse<InputStream> response = client.send(buildFetchFileRequest(decodedUrl), BodyHandlers.ofInputStream());
+
+        if (response.statusCode() / 100 != 2) {
+            try (InputStream is = response.body()) {
+                String error = IOUtils.toString(is, StandardCharsets.UTF_8);
+                throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, error));
+            }
+        }
 
         long fileSize = response.headers()
                                 .firstValueAsLong(Constants.CONTENT_LENGTH)
@@ -181,21 +192,44 @@ public class FilesApiServiceImpl implements FilesApiService {
         }
     }
 
-    protected HttpClient buildHttpClient() {
+    protected HttpClient buildHttpClient(String decodedUrl) {
         return HttpClient.newBuilder()
-                         //ssl and authentication configuration can be done here
                          .version(HttpClient.Version.HTTP_1_1)
                          .connectTimeout(Duration.ofMinutes(10))
                          .followRedirects(Redirect.NORMAL)
+                         .authenticator(buildPasswordAuthenticator(decodedUrl))
                          .build();
     }
 
+    private Authenticator buildPasswordAuthenticator(String decodedUrl) {
+        return new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                var uri = URI.create(decodedUrl);
+                var userInfo = uri.getUserInfo();
+                if (userInfo != null) {
+                    var separatorIndex = userInfo.indexOf(':');
+                    var username = userInfo.substring(0, separatorIndex);
+                    var password = userInfo.substring(separatorIndex + 1);
+                    return new PasswordAuthentication(username, password.toCharArray());
+                }
+                return super.getPasswordAuthentication();
+            }
+        };
+    }
+
     private HttpRequest buildFetchFileRequest(String decodedUrl) {
-        return HttpRequest.newBuilder()
-                          .GET()
-                          .uri(URI.create(decodedUrl))
-                          .timeout(Duration.ofMinutes(5))
-                          .build();
+        var builder = HttpRequest.newBuilder()
+                                 .GET()
+                                 .timeout(Duration.ofMinutes(5));
+        var uri = URI.create(decodedUrl);
+        var userInfo = uri.getUserInfo();
+        if (userInfo != null) {
+            builder.uri(URI.create(decodedUrl.replace(userInfo + "@", "")));
+        } else {
+            builder.uri(uri);
+        }
+        return builder.build();
     }
 
     private String extractFileName(String url) {
