@@ -2,12 +2,15 @@ package org.cloudfoundry.multiapps.controller.web.api.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +62,8 @@ class FilesApiServiceImplTest {
     private HttpResponse<InputStream> fileUrlResponse;
 
     private static final long MAX_PERMITTED_SIZE = new Configuration().getMaxUploadSize();
-    private static final String FILE_URL = "http://host.domain/test.mtar?query=true";
+    private static final String FILE_URL = Base64.getUrlEncoder()
+                                                 .encodeToString("http://host.domain/test.mtar?query=true".getBytes(StandardCharsets.UTF_8));
 
     @InjectMocks
     private final FilesApiServiceImpl testedClass = new FilesApiServiceImpl() {
@@ -69,7 +73,7 @@ class FilesApiServiceImplTest {
         }
 
         @Override
-        protected HttpClient buildHttpClient() {
+        protected HttpClient buildHttpClient(String url) {
             return httpClient;
         }
     };
@@ -158,6 +162,8 @@ class FilesApiServiceImplTest {
         HttpHeaders headers = HttpHeaders.of(Map.of("Content-Length", List.of("20")), (a, b) -> true);
         Mockito.when(fileUrlResponse.headers())
                .thenReturn(headers);
+        Mockito.when(fileUrlResponse.statusCode())
+               .thenReturn(200);
         Mockito.when(fileUrlResponse.body())
                .thenReturn(InputStream.nullInputStream());
 
@@ -186,6 +192,8 @@ class FilesApiServiceImplTest {
         HttpHeaders headers = HttpHeaders.of(Collections.emptyMap(), (a, b) -> true);
         Mockito.when(fileUrlResponse.headers())
                .thenReturn(headers);
+        Mockito.when(fileUrlResponse.statusCode())
+               .thenReturn(200);
 
         Mockito.when(httpClient.send(Mockito.any(), Mockito.eq(BodyHandlers.ofInputStream())))
                .thenReturn(fileUrlResponse);
@@ -200,6 +208,8 @@ class FilesApiServiceImplTest {
         HttpHeaders headers = HttpHeaders.of(Map.of("Content-Length", List.of(fileSize)), (a, b) -> true);
         Mockito.when(fileUrlResponse.headers())
                .thenReturn(headers);
+        Mockito.when(fileUrlResponse.statusCode())
+               .thenReturn(200);
 
         Mockito.when(httpClient.send(Mockito.any(), Mockito.eq(BodyHandlers.ofInputStream())))
                .thenReturn(fileUrlResponse);
@@ -210,6 +220,8 @@ class FilesApiServiceImplTest {
     @Test
     void testUploadFileWithInvalidName() throws Exception {
         HttpHeaders headers = HttpHeaders.of(Map.of("Content-Length", List.of("20")), (a, b) -> true);
+        Mockito.when(fileUrlResponse.statusCode())
+               .thenReturn(200);
         Mockito.when(fileUrlResponse.headers())
                .thenReturn(headers);
 
@@ -219,6 +231,20 @@ class FilesApiServiceImplTest {
         String fileUrlWithInvalidFileName = "http://host.domain/path/file?query=true";
         Assertions.assertThrows(IllegalArgumentException.class,
                                 () -> testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID, fileUrlWithInvalidFileName));
+    }
+
+    @Test
+    void testUploadFileServerError() throws Exception {
+        Mockito.when(fileUrlResponse.statusCode())
+               .thenReturn(500);
+        String body = "Internal Server Error";
+        Mockito.when(fileUrlResponse.body())
+               .thenReturn(new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8)));
+
+        Mockito.when(httpClient.send(Mockito.any(), Mockito.eq(BodyHandlers.ofInputStream())))
+               .thenReturn(fileUrlResponse);
+
+        Assertions.assertThrows(SLException.class, () -> testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID, FILE_URL));
     }
 
     private void assertMetadataMatches(FileEntry expected, FileMetadata actual) {
