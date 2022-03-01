@@ -1,10 +1,10 @@
 package com.sap.cloud.lm.sl.cf.web.configuration;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.FileSystemFileStorageFactoryBean;
 import com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.ObjectStoreFileStorageFactoryBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
 public class FileStorageConfiguration {
@@ -18,6 +18,7 @@ public class FileStorageConfiguration {
     }
 
     @Bean
+    @Profile("cf")
     public ObjectStoreFileStorageFactoryBean objectStoreFileStorage() {
         return new ObjectStoreFileStorageFactoryBean(OBJECT_STORE_SERVICE_NAME);
     }
