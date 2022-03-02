@@ -191,5 +191,5 @@ public final class Messages {
     public static final String REMOVING_SENSITIVE_ELEMENT = "Removing sensitive element: {0}";
     public static final String DELETING_SUBSCRIPTION = "Deleting configuration subscription: {0}";
     public static final String DELETING_ENTRY = "Deleting configuration entry: {0}";
-
+    public static final String ACCESS_TOKEN_RETRIEVED = "Access token for user \"{0}\" is retrieved from the token store, expiration date \"{1}\"";
 }

@@ -1,12 +1,17 @@
 package com.sap.cloud.lm.sl.cf.core.cf.service;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Component;
+
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
 
 /**
  * Provides functionality for persisting, updating and removing tokens from a token store
@@ -15,13 +20,14 @@ import org.springframework.stereotype.Component;
 @Profile("cf")
 public class TokenService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenService.class);
+
     @Autowired
     protected JdbcTokenStore tokenStore;
 
     /**
      * Chooses a token among all tokens for this user in the token store.
      * 
-     * @param tokenStore the token store to search in
      * @param userName the username
      * @return the chosen token, or null if no token was found
      */
@@ -37,7 +43,14 @@ public class TokenService {
                 token = tokenx;
             }
         }
+        logTokenInformation(userName, token);
         return token;
+    }
+
+    private void logTokenInformation(String userName, OAuth2AccessToken token) {
+        if (token != null) {
+            LOGGER.debug(MessageFormat.format(Messages.ACCESS_TOKEN_RETRIEVED, userName, token.getExpiration()));
+        }
     }
 
     /**

@@ -1,14 +1,9 @@
 package com.sap.cloud.lm.sl.cf.web.security;
 
-import com.sap.cloud.lm.sl.cf.client.TokenProvider;
-import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
-import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.ClientFactory;
-import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
-import com.sap.cloud.lm.sl.cf.web.message.Messages;
-import com.sap.cloud.lm.sl.common.util.Pair;
+import java.text.MessageFormat;
+
+import javax.inject.Named;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.slf4j.Logger;
@@ -26,7 +21,16 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
-import javax.inject.Named;
+import com.sap.cloud.lm.sl.cf.client.TokenProvider;
+import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
+import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.ClientFactory;
+import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
+import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
+import com.sap.cloud.lm.sl.cf.web.message.Messages;
+import com.sap.cloud.lm.sl.common.util.Pair;
 
 @Named("customAuthenticationProvider")
 public class CustomAuthenticationProvider implements AuthenticationProvider {
@@ -73,7 +77,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                 } else {
                     String message = "Null access token returned by cloud controller";
                     AuditLoggingProvider.getFacade()
-                            .logSecurityIncident(message);
+                        .logSecurityIncident(message);
                     throw new AuthenticationServiceException(message);
                 }
             }
@@ -84,9 +88,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                 token = tokenParserChain.parse(token.getValue());
 
                 // Create an authentication for the token and store it in the token store
-                auth2 = SecurityUtil.createAuthentication(SecurityUtil.CLIENT_ID, token.getScope(), SecurityUtil.getTokenUserInfo(token));
+                UserInfo userInfo = SecurityUtil.getTokenUserInfo(token);
+                auth2 = SecurityUtil.createAuthentication(SecurityUtil.CLIENT_ID, token.getScope(), userInfo);
                 try {
                     tokenStore.storeAccessToken(token, auth2);
+                    LOGGER.debug(MessageFormat.format(Messages.TOKEN_LOADED_INTO_TOKEN_STORE, token.getExpiresIn(), userInfo.getName()));
                 } catch (DataIntegrityViolationException e) {
                     LOGGER.debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION, e);
                     // Ignoring the exception as the token and authentication are already persisted
@@ -98,7 +104,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         } catch (CloudOperationException e) {
             String message = Messages.CANNOT_AUTHENTICATE_WITH_CLOUD_CONTROLLER;
             AuditLoggingProvider.getFacade()
-                    .logSecurityIncident(message);
+                .logSecurityIncident(message);
             throw new BadCredentialsException(message, e);
         }
     }
