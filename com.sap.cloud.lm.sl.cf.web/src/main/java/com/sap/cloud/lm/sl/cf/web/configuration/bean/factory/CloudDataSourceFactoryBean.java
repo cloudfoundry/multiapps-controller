@@ -2,6 +2,8 @@ package com.sap.cloud.lm.sl.cf.web.configuration.bean.factory;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cloud.Cloud;
@@ -13,6 +15,8 @@ import org.springframework.cloud.service.relational.DataSourceConfig;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, InitializingBean {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CloudDataSourceFactoryBean.class);
 
     private String serviceName;
     private DataSource defaultDataSource;
@@ -58,10 +62,11 @@ public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, Init
             if (serviceName != null && !serviceName.isEmpty()) {
                 int maxPoolSize = configuration.getDbConnectionThreads();
                 DataSourceConfig config = new DataSourceConfig(new PoolConfig(maxPoolSize, 30000), null);
-                dataSource = getSpringCloud().getServiceConnector(serviceName, DataSource.class, config);
+                Cloud springCloud = getSpringCloud();
+                dataSource = springCloud.getServiceConnector(serviceName, DataSource.class, config);
             }
         } catch (CloudException e) {
-            // Do nothing
+            LOGGER.error(e.getMessage(), e);
         }
         return dataSource;
     }
