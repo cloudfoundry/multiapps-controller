@@ -32,7 +32,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessListener.class);
-
+    Supplier<ZonedDateTime> currentTimeSupplier = ZonedDateTime::now;
     @Inject
     private OperationDao operationDao;
     @Inject
@@ -41,8 +41,6 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     @Inject
     private ApplicationConfiguration configuration;
-
-    Supplier<ZonedDateTime> currentTimeSupplier = ZonedDateTime::now;
 
     @Override
     protected void notifyInternal(DelegateExecution context) {

@@ -14,19 +14,19 @@ public enum ServiceOperationType {
         this.name = name;
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
-
     public static ServiceOperationType fromString(String value) {
         for (ServiceOperationType type : ServiceOperationType.values()) {
             if (type.toString()
-                .equals(value)) {
+                    .equals(value)) {
                 return type;
             }
         }
         throw new IllegalStateException(MessageFormat.format(Messages.ILLEGAL_SERVICE_OPERATION_TYPE, value));
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
 }

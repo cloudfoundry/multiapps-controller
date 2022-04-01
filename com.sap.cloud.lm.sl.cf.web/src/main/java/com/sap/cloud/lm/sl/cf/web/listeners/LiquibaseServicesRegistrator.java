@@ -22,9 +22,9 @@ public class LiquibaseServicesRegistrator implements ServletContextListener {
     public void contextInitialized(ServletContextEvent event) {
         LockService lockService = new RecoveringLockService();
         LockServiceFactory.getInstance()
-            .register(lockService);
+                          .register(lockService);
         LOGGER.info(MessageFormat.format(Messages.REGISTERED_0_AS_LIQUIBASE_LOCK_SERVICE, lockService.getClass()
-            .getName()));
+                                                                                                     .getName()));
     }
 
     @Override

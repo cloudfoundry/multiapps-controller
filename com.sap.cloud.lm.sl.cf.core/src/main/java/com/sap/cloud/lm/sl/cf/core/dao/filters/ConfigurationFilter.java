@@ -23,6 +23,42 @@ import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 @XmlAccessorType(value = XmlAccessType.FIELD)
 public class ConfigurationFilter {
 
+    public static final BiFunction<String, Map<String, Object>, Boolean> CONTENT_FILTER = new BiFunction<String, Map<String, Object>, Boolean>() {
+
+        @Override
+        public Boolean apply(String content, Map<String, Object> requiredProperties) {
+            if (requiredProperties == null || requiredProperties.isEmpty()) {
+                return true;
+            }
+            Map<String, Object> parsedContent = getParsedContent(content);
+            if (parsedContent == null) {
+                return false;
+            }
+            return requiredProperties.entrySet()
+                                     .stream()
+                                     .allMatch(requiredEntry -> exists(parsedContent, requiredEntry));
+        }
+
+        private boolean exists(Map<String, Object> content, Map.Entry<String, Object> requiredEntry) {
+            Object actualValue = content.get(requiredEntry.getKey());
+            return actualValue != null && actualValue.equals(requiredEntry.getValue());
+        }
+
+        private Map<String, Object> getParsedContent(String content) {
+            if (content == null) {
+                return null;
+            }
+            try {
+                Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MapWithNumbersAdapterFactory())
+                                             .create();
+                return gson.fromJson(content, new TypeToken<Map<String, Object>>() {
+                }.getType());
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+    };
     @Expose
     @XmlElement(name = "provider-id")
     private String providerId;
@@ -40,7 +76,6 @@ public class ConfigurationFilter {
     @Expose
     @XmlElement(name = "provider-version")
     private String providerVersion;
-
     private transient boolean strictTargetSpace;
 
     public ConfigurationFilter() {
@@ -48,12 +83,12 @@ public class ConfigurationFilter {
     }
 
     public ConfigurationFilter(String providerNid, String providerId, String providerVersion, CloudTarget targetSpace,
-        Map<String, Object> requiredContent) {
+                               Map<String, Object> requiredContent) {
         this(providerNid, providerId, providerVersion, targetSpace, requiredContent, true);
     }
 
     public ConfigurationFilter(String providerNid, String providerId, String providerVersion, CloudTarget targetSpace,
-        Map<String, Object> requiredContent, boolean strictTargetSpace) {
+                               Map<String, Object> requiredContent, boolean strictTargetSpace) {
         this.providerId = providerId;
         this.requiredContent = requiredContent;
         this.providerNid = providerNid;
@@ -97,47 +132,10 @@ public class ConfigurationFilter {
             return false;
         }
         if (providerVersion != null && (entry.getProviderVersion() == null || !entry.getProviderVersion()
-            .satisfies(providerVersion))) {
+                                                                                    .satisfies(providerVersion))) {
             return false;
         }
         return requiredContent == null || CONTENT_FILTER.apply(entry.getContent(), requiredContent);
     }
-
-    public static final BiFunction<String, Map<String, Object>, Boolean> CONTENT_FILTER = new BiFunction<String, Map<String, Object>, Boolean>() {
-
-        @Override
-        public Boolean apply(String content, Map<String, Object> requiredProperties) {
-            if (requiredProperties == null || requiredProperties.isEmpty()) {
-                return true;
-            }
-            Map<String, Object> parsedContent = getParsedContent(content);
-            if (parsedContent == null) {
-                return false;
-            }
-            return requiredProperties.entrySet()
-                .stream()
-                .allMatch(requiredEntry -> exists(parsedContent, requiredEntry));
-        }
-
-        private boolean exists(Map<String, Object> content, Map.Entry<String, Object> requiredEntry) {
-            Object actualValue = content.get(requiredEntry.getKey());
-            return actualValue != null && actualValue.equals(requiredEntry.getValue());
-        }
-
-        private Map<String, Object> getParsedContent(String content) {
-            if (content == null) {
-                return null;
-            }
-            try {
-                Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MapWithNumbersAdapterFactory())
-                    .create();
-                return gson.fromJson(content, new TypeToken<Map<String, Object>>() {
-                }.getType());
-            } catch (Exception e) {
-                return null;
-            }
-        }
-
-    };
 
 }

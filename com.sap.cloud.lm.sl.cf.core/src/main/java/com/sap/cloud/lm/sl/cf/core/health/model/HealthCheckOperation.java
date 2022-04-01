@@ -37,6 +37,20 @@ public class HealthCheckOperation {
         this.user = builder.user;
     }
 
+    public static HealthCheckOperation fromOperation(Operation operation) {
+        long durationInSeconds = ChronoUnit.SECONDS.between(operation.getStartedAt(), operation.getEndedAt());
+        return new Builder().id(operation.getProcessId())
+                            .type(operation.getProcessType())
+                            .startedAt(operation.getStartedAt())
+                            .endedAt(operation.getEndedAt())
+                            .durationInSeconds(durationInSeconds)
+                            .state(operation.getState())
+                            .spaceId(operation.getSpaceId())
+                            .mtaId(operation.getMtaId())
+                            .user(operation.getUser())
+                            .build();
+    }
+
     public String getId() {
         return id;
     }
@@ -71,20 +85,6 @@ public class HealthCheckOperation {
 
     public String getUser() {
         return user;
-    }
-
-    public static HealthCheckOperation fromOperation(Operation operation) {
-        long durationInSeconds = ChronoUnit.SECONDS.between(operation.getStartedAt(), operation.getEndedAt());
-        return new Builder().id(operation.getProcessId())
-            .type(operation.getProcessType())
-            .startedAt(operation.getStartedAt())
-            .endedAt(operation.getEndedAt())
-            .durationInSeconds(durationInSeconds)
-            .state(operation.getState())
-            .spaceId(operation.getSpaceId())
-            .mtaId(operation.getMtaId())
-            .user(operation.getUser())
-            .build();
     }
 
     public static class Builder {

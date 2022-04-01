@@ -29,12 +29,6 @@ public class OccupiedPortsDetectorTest {
         this.expectedPorts = expectedPorts;
     }
 
-    @Before
-    public void setUp() throws Exception {
-        String applicationJson = TestUtil.getResourceAsString(applicationJsonLocation, getClass());
-        this.application = JsonUtil.fromJson(applicationJson, CloudApplication.class);
-    }
-
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -65,6 +59,12 @@ public class OccupiedPortsDetectorTest {
             },
 // @formatter:on
         });
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        String applicationJson = TestUtil.getResourceAsString(applicationJsonLocation, getClass());
+        this.application = JsonUtil.fromJson(applicationJson, CloudApplication.class);
     }
 
     @Test

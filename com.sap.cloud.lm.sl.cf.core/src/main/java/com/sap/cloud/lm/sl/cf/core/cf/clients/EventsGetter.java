@@ -20,10 +20,10 @@ public class EventsGetter extends CustomControllerClient {
 
     private static final String GUID = "guid";
     private static final String EVENTS_URL = "/v2/events?q=actee:{guid}&order-by:timestamp&order-direction=desc";
-    
+
     private static final String USER_PROVIDED_SERVICE_EVENT_TYPE_DELETE = "audit.user_provided_service_instance.delete";
     private static final String SERVICE_EVENT_TYPE_DELETE = "audit.service_instance.delete";
-    
+
     private CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
 
     @Inject
@@ -40,25 +40,24 @@ public class EventsGetter extends CustomControllerClient {
     public List<CloudEvent> getEvents(UUID uuid, CloudControllerClient client) {
         Map<String, Object> queryParames = buildQueryParameters(uuid);
         String controllerUrl = client.getCloudControllerUrl()
-            .toString();
+                                     .toString();
 
         RestTemplate restTemplate = getRestTemplate(client);
 
         List<Map<String, Object>> resources = getAllResources(restTemplate, controllerUrl, EVENTS_URL, queryParames);
 
         return resources.stream()
-            .filter(Objects::nonNull)
-            .map(map -> resourceMapper.mapResource(map, CloudEvent.class))
-            .collect(Collectors.toList());
+                        .filter(Objects::nonNull)
+                        .map(map -> resourceMapper.mapResource(map, CloudEvent.class))
+                        .collect(Collectors.toList());
     }
-    
+
     public CloudEvent getLastEvent(UUID uuid, CloudControllerClient client) {
         List<CloudEvent> events = getEvents(uuid, client);
         return events.isEmpty() ? null : events.get(0);
     }
 
     public boolean isDeleteEvent(String eventType) {
-        return SERVICE_EVENT_TYPE_DELETE.equalsIgnoreCase(eventType)
-            || USER_PROVIDED_SERVICE_EVENT_TYPE_DELETE.equalsIgnoreCase(eventType);
+        return SERVICE_EVENT_TYPE_DELETE.equalsIgnoreCase(eventType) || USER_PROVIDED_SERVICE_EVENT_TYPE_DELETE.equalsIgnoreCase(eventType);
     }
 }

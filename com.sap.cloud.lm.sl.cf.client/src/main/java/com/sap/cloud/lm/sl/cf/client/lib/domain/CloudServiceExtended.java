@@ -42,12 +42,12 @@ public class CloudServiceExtended extends CloudService {
         this.credentials = credentials;
     }
 
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
     public List<String> getTags() {
         return this.tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
     public boolean isOptional() {

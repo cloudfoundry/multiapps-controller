@@ -150,23 +150,51 @@ public class SupportedParameters {
     public static final String ORG = "org";
     public static final String SPACE = "space";
 
-    public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Collections.unmodifiableSet(
-        new HashSet<>(Arrays.asList(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION, MTA_ID, MTA_VERSION, MTA_PROVIDES_DEPENDENCY)));
+    public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(PROVIDER_NID,
+                                                                                                                                 PROVIDER_ID,
+                                                                                                                                 TARGET,
+                                                                                                                                 VERSION,
+                                                                                                                                 MTA_ID,
+                                                                                                                                 MTA_VERSION,
+                                                                                                                                 MTA_PROVIDES_DEPENDENCY)));
 
-    public static final Set<String> APP_PROPS = Collections
-        .unmodifiableSet(new HashSet<>(Arrays.asList(APP_NAME, HOST, HOSTS, DOMAIN, DOMAINS, PORT, PORTS, COMMAND, BUILDPACK,
-            HEALTH_CHECK_TYPE, HEALTH_CHECK_HTTP_ENDPOINT, ENABLE_SSH, STACK, HEALTH_CHECK_TIMEOUT, IDLE_HOST, MEMORY, INSTANCES,
-            NO_HOSTNAME, NO_ROUTE, IDLE_PORT, IDLE_DOMAIN, DISK_QUOTA, IDLE_PORTS, IDLE_DOMAINS, IDLE_HOSTS, TASKS, RESTART_ON_ENV_CHANGE,
-            VCAP_APPLICATION_ENV, VCAP_SERVICES_ENV, USER_PROVIDED_ENV, KEEP_EXISTING_ROUTES)));
+    public static final Set<String> APP_PROPS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(APP_NAME, HOST, HOSTS, DOMAIN,
+                                                                                                        DOMAINS, PORT, PORTS, COMMAND,
+                                                                                                        BUILDPACK, HEALTH_CHECK_TYPE,
+                                                                                                        HEALTH_CHECK_HTTP_ENDPOINT,
+                                                                                                        ENABLE_SSH, STACK,
+                                                                                                        HEALTH_CHECK_TIMEOUT, IDLE_HOST,
+                                                                                                        MEMORY, INSTANCES, NO_HOSTNAME,
+                                                                                                        NO_ROUTE, IDLE_PORT, IDLE_DOMAIN,
+                                                                                                        DISK_QUOTA, IDLE_PORTS,
+                                                                                                        IDLE_DOMAINS, IDLE_HOSTS, TASKS,
+                                                                                                        RESTART_ON_ENV_CHANGE,
+                                                                                                        VCAP_APPLICATION_ENV,
+                                                                                                        VCAP_SERVICES_ENV,
+                                                                                                        USER_PROVIDED_ENV,
+                                                                                                        KEEP_EXISTING_ROUTES)));
 
-    public static final Set<String> SERVICE_PROPS = Collections
-        .unmodifiableSet(new HashSet<>(Arrays.asList(SERVICE_NAME, SERVICE, SERVICE_PLAN, SERVICE_PROVIDER,
-            SERVICE_VERSION, SERVICE_CONFIG, SERVICE_CONFIG_PATH, SERVICE_TAGS, SERVICE_KEY_NAME)));
+    public static final Set<String> SERVICE_PROPS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(SERVICE_NAME, SERVICE,
+                                                                                                            SERVICE_PLAN, SERVICE_PROVIDER,
+                                                                                                            SERVICE_VERSION, SERVICE_CONFIG,
+                                                                                                            SERVICE_CONFIG_PATH,
+                                                                                                            SERVICE_TAGS,
+                                                                                                            SERVICE_KEY_NAME)));
 
     public static final Set<String> APP_ATTRIBUTES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(EXECUTE_APP, SUCCESS_MARKER,
-        FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID, REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
-        REGISTER_SERVICE_URL_SERVICE_URL, CREATE_SERVICE_BROKER, SERVICE_BROKER_NAME, SERVICE_BROKER_USERNAME, SERVICE_BROKER_PASSWORD,
-        SERVICE_BROKER_URL, SERVICE_BROKER_SPACE_SCOPED, DEPENDENCY_TYPE, NO_START, UPLOAD_TIMEOUT)));
+                                                                                                             FAILURE_MARKER, STOP_APP,
+                                                                                                             CHECK_DEPLOY_ID,
+                                                                                                             REGISTER_SERVICE_URL,
+                                                                                                             REGISTER_SERVICE_URL_SERVICE_NAME,
+                                                                                                             REGISTER_SERVICE_URL_SERVICE_URL,
+                                                                                                             CREATE_SERVICE_BROKER,
+                                                                                                             SERVICE_BROKER_NAME,
+                                                                                                             SERVICE_BROKER_USERNAME,
+                                                                                                             SERVICE_BROKER_PASSWORD,
+                                                                                                             SERVICE_BROKER_URL,
+                                                                                                             SERVICE_BROKER_SPACE_SCOPED,
+                                                                                                             DEPENDENCY_TYPE, NO_START,
+                                                                                                             UPLOAD_TIMEOUT)));
 
     public static final Set<String> SPECIAL_MT_PROPS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(DEFAULT_RT)));
 

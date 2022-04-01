@@ -25,14 +25,14 @@ public class ClientReleaser {
 
     public void releaseClient() {
         HistoryService historyService = Context.getProcessEngineConfiguration()
-            .getHistoryService();
+                                               .getHistoryService();
         String processInstanceId = event.getProcessInstanceId();
 
         String user = getCurrentUser(historyService, processInstanceId);
         String spaceName = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_SPACE).getValue();
         String orgName = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_ORG).getValue();
         String spaceId = (String) getHistoricVarInstanceValue(historyService, processInstanceId,
-            com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID).getValue();
+                                                              com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID).getValue();
 
         try {
             clientProvider.releaseClient(user, orgName, spaceName);
@@ -52,8 +52,8 @@ public class ClientReleaser {
 
     public HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId, String parameter) {
         return historyService.createHistoricVariableInstanceQuery()
-            .processInstanceId(processInstanceId)
-            .variableName(parameter)
-            .singleResult();
+                             .processInstanceId(processInstanceId)
+                             .variableName(parameter)
+                             .singleResult();
     }
 }

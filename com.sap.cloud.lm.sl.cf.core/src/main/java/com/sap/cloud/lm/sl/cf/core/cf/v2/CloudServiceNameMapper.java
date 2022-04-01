@@ -15,7 +15,7 @@ public class CloudServiceNameMapper {
     private DeploymentDescriptor deploymentDescriptor;
 
     public CloudServiceNameMapper(CloudModelConfiguration configuration, PropertiesAccessor propertiesAccessor,
-        DeploymentDescriptor deploymentDescriptor) {
+                                  DeploymentDescriptor deploymentDescriptor) {
         this.configuration = configuration;
         this.propertiesAccessor = propertiesAccessor;
         this.deploymentDescriptor = deploymentDescriptor;
@@ -34,6 +34,6 @@ public class CloudServiceNameMapper {
 
     public String getServiceName(String name) {
         return NameUtil.getServiceName(name, deploymentDescriptor.getId(), configuration.shouldUseNamespaces(),
-            configuration.shouldUseNamespacesForServices());
+                                       configuration.shouldUseNamespacesForServices());
     }
 }

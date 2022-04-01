@@ -42,6 +42,14 @@ public class ConfigurationEntryDaoTest {
 
     private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("TestDefault");
 
+    private static ConfigurationEntryDao createDao() {
+        ConfigurationEntryDtoDao dtoDao = new ConfigurationEntryDtoDao();
+        dtoDao.entityManagerFactory = EMF;
+        ConfigurationEntryDao dao = new ConfigurationEntryDao();
+        dao.dao = dtoDao;
+        return dao;
+    }
+
     @RunWith(Parameterized.class)
     public static class ConfigurationEntryDaoParameterizedTest {
 
@@ -163,7 +171,7 @@ public class ConfigurationEntryDaoTest {
                 {
                     new FindAllTest(new FindTestInput(null, "id-2", null, null, null, null, Arrays.asList(new CloudTarget("org-2", "space-2")), ""),
                         new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-20.json")),
-                },              
+                },
                 // (21)
                 {
                     new FindAllTest(new FindTestInput(null, null, "0.1.0", null, null, null, Arrays.asList(new CloudTarget("myorg", "*")), ""),
@@ -183,8 +191,8 @@ public class ConfigurationEntryDaoTest {
                 {
                     new FindAllTest(new FindTestInput(null, null, null, null, MapUtil.asMap("type", "test"), null, Arrays.asList(new CloudTarget("org-3", "space-3"), new CloudTarget("org-4", "space-4")), ""),
                         new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-24.json")),
-                }, 
-                // (25)               
+                },
+                // (25)
                 {
                     new FindAllTest(new FindTestInput(null, "s-2", null, null, null, null, Arrays.asList(new CloudTarget("myorg1", "myspace1")), ""),
                         new Expectation("[]")),
@@ -198,13 +206,22 @@ public class ConfigurationEntryDaoTest {
             });
         }
 
+        private static List<ConfigurationEntry> findConfigurationEntries(FindTestInput input, ConfigurationEntryDao dao) {
+            return dao.find(input.nid, input.id, input.version, input.target, input.requiredProperties, input.mtaId, input.cloudTargets);
+        }
+
+        private static List<ConfigurationEntry> findConfigurationEntriesGuid(FindTestInput input, ConfigurationEntryDao dao) {
+            return dao.find(input.spaceId);
+        }
+
         @Before
         public void prepare() throws Exception {
             Type type = new TypeToken<List<ConfigurationEntry>>() {
             }.getType();
 
-            List<ConfigurationEntry> entries = JsonUtil
-                .convertJsonToList(TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION, getClass()), type);
+            List<ConfigurationEntry> entries = JsonUtil.convertJsonToList(TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION,
+                                                                                                       getClass()),
+                                                                          type);
 
             for (ConfigurationEntry entry : entries) {
                 dao.add(entry);
@@ -226,7 +243,7 @@ public class ConfigurationEntryDaoTest {
         private static class RemoveTestInput extends FindTestInput {
 
             public RemoveTestInput(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
-                List<CloudTarget> cloudTargets, String spaceId) {
+                                   List<CloudTarget> cloudTargets, String spaceId) {
                 super(nid, id, version, target, requiredProperties, null, cloudTargets, spaceId);
             }
 
@@ -237,7 +254,8 @@ public class ConfigurationEntryDaoTest {
             public ConfigurationEntry configurationEntry;
 
             public UpdateTestInput(String nid, String id, String version, CloudTarget target, String configurationEntryLocation,
-                List<CloudTarget> cloudTarget, String spaceId) throws Exception {
+                                   List<CloudTarget> cloudTarget, String spaceId)
+                throws Exception {
                 super(nid, id, version, target, Collections.emptyMap(), null, cloudTarget, spaceId);
                 configurationEntry = TestInput.loadJsonInput(configurationEntryLocation, ConfigurationEntry.class, getClass());
             }
@@ -252,7 +270,7 @@ public class ConfigurationEntryDaoTest {
             public List<CloudTarget> cloudTargets;
 
             public FindTestInput(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
-                String mtaId, List<CloudTarget> cloudTargets, String spaceId) {
+                                 String mtaId, List<CloudTarget> cloudTargets, String spaceId) {
                 this.version = version;
                 this.nid = nid;
                 this.target = target;
@@ -309,7 +327,8 @@ public class ConfigurationEntryDaoTest {
                 TestUtil.test(() -> {
 
                     return dao.update(findConfigurationEntries(input, dao).get(0)
-                        .getId(), input.configurationEntry);
+                                                                          .getId(),
+                                      input.configurationEntry);
 
                 }, expectation, getClass(), new JsonSerializationOptions(true, false));
             }
@@ -318,11 +337,11 @@ public class ConfigurationEntryDaoTest {
 
         private static class AddTest extends TestCase<AddTestInput> {
 
+            ConfigurationEntryDao dao = createDao();
+
             public AddTest(AddTestInput input, Expectation expectation) {
                 super(input, expectation);
             }
-
-            ConfigurationEntryDao dao = createDao();
 
             @Override
             public void test() {
@@ -337,18 +356,18 @@ public class ConfigurationEntryDaoTest {
 
         private static class FindTest extends TestCase<FindTestInput> {
 
+            ConfigurationEntryDao dao = createDao();
+
             public FindTest(FindTestInput input, Expectation expectation) {
                 super(input, expectation);
             }
-
-            ConfigurationEntryDao dao = createDao();
 
             @Override
             public void test() {
                 TestUtil.test(() -> {
 
                     return dao.find(findConfigurationEntries(input, dao).get(0)
-                        .getId());
+                                                                        .getId());
 
                 }, expectation, getClass(), new JsonSerializationOptions(true, false));
             }
@@ -383,14 +402,6 @@ public class ConfigurationEntryDaoTest {
 
                 }, expectation, getClass(), new JsonSerializationOptions(true, false));
             }
-        }
-
-        private static List<ConfigurationEntry> findConfigurationEntries(FindTestInput input, ConfigurationEntryDao dao) {
-            return dao.find(input.nid, input.id, input.version, input.target, input.requiredProperties, input.mtaId, input.cloudTargets);
-        }
-
-        private static List<ConfigurationEntry> findConfigurationEntriesGuid(FindTestInput input, ConfigurationEntryDao dao) {
-            return dao.find(input.spaceId);
         }
     }
 
@@ -441,14 +452,6 @@ public class ConfigurationEntryDaoTest {
             throw new UnsupportedOperationException();
         }
 
-    }
-
-    private static ConfigurationEntryDao createDao() {
-        ConfigurationEntryDtoDao dtoDao = new ConfigurationEntryDtoDao();
-        dtoDao.entityManagerFactory = EMF;
-        ConfigurationEntryDao dao = new ConfigurationEntryDao();
-        dao.dao = dtoDao;
-        return dao;
     }
 
 }

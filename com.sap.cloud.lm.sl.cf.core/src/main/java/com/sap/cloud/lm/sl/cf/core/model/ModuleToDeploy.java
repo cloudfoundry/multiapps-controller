@@ -8,25 +8,26 @@ public class ModuleToDeploy {
     private String name;
     private String type;
     private Set<String> deployedAfter = new HashSet<>();
-    
+
     public ModuleToDeploy(String name, String type) {
         this.name = name;
         this.type = type;
     }
-    
+
     public ModuleToDeploy(String name, String type, Set<String> deployedAfter) {
         this.name = name;
         this.type = type;
         this.deployedAfter = deployedAfter;
     }
-    
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public String getType() {
         return type;
     }
@@ -42,5 +43,5 @@ public class ModuleToDeploy {
     public void setDeployedAfter(Set<String> deployedAfter) {
         this.deployedAfter = deployedAfter;
     }
-    
+
 }

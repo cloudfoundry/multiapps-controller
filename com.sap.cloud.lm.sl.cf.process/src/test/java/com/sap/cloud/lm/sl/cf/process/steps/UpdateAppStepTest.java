@@ -43,16 +43,18 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
 
     private final StepInput input;
     private final String expectedExceptionMessage;
-
-    private List<String> notRequiredServices = new ArrayList<>();
-    private List<String> expectedServicesToBind = new ArrayList<>();
-
-    private ApplicationStagingUpdater applicationUpdaterMock = Mockito.mock(ApplicationStagingUpdater.class);
-
-    private PlatformType platform;
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    private List<String> notRequiredServices = new ArrayList<>();
+    private List<String> expectedServicesToBind = new ArrayList<>();
+    private ApplicationStagingUpdater applicationUpdaterMock = Mockito.mock(ApplicationStagingUpdater.class);
+    private PlatformType platform;
+
+    public UpdateAppStepTest(String input, String expectedExceptionMessage, PlatformType platform) throws Exception {
+        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, UpdateAppStepTest.class), StepInput.class);
+        this.platform = platform;
+        this.expectedExceptionMessage = expectedExceptionMessage;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -131,12 +133,6 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
         });
     }
 
-    public UpdateAppStepTest(String input, String expectedExceptionMessage, PlatformType platform) throws Exception {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, UpdateAppStepTest.class), StepInput.class);
-        this.platform = platform;
-        this.expectedExceptionMessage = expectedExceptionMessage;
-    }
-
     @Before
     public void setUp() throws Exception {
         if (expectedExceptionMessage != null) {
@@ -162,41 +158,41 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
         if (input.updateStaging && platform == PlatformType.XS2) {
             Mockito.verify(client)
-                .updateApplicationStaging(Mockito.eq(appName), Mockito.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
+                   .updateApplicationStaging(Mockito.eq(appName), Mockito.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
         }
         if (input.updateMemory) {
             Mockito.verify(client)
-                .updateApplicationMemory(appName, cloudApp.getMemory());
+                   .updateApplicationMemory(appName, cloudApp.getMemory());
         }
         if (input.updateDiskQuota) {
             Mockito.verify(client)
-                .updateApplicationDiskQuota(appName, cloudApp.getDiskQuota());
+                   .updateApplicationDiskQuota(appName, cloudApp.getDiskQuota());
         }
         if (input.updateUris) {
             Mockito.verify(client)
-                .updateApplicationUris(appName, cloudApp.getUris());
+                   .updateApplicationUris(appName, cloudApp.getUris());
         }
         if (input.updateEnv) {
             Mockito.verify(client)
-                .updateApplicationEnv(appName, cloudApp.getEnvAsMap());
+                   .updateApplicationEnv(appName, cloudApp.getEnvAsMap());
         }
         if (platform == PlatformType.CF) {
             Mockito.verify(applicationUpdaterMock)
-                .updateApplicationStaging(eq(client), eq(cloudApp.getName()),
-                    Matchers.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
+                   .updateApplicationStaging(eq(client), eq(cloudApp.getName()),
+                                             Matchers.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
         }
     }
 
     private void validateBindServices() {
         Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp()
-            .getBindingParameters();
+                                                                                     .getBindingParameters();
         for (String serviceToBind : expectedServicesToBind) {
             if (currentBindingParameters != null && currentBindingParameters.get(serviceToBind) != null) {
                 Mockito.verify(client)
-                    .bindService(input.existingApplication.name, serviceToBind, currentBindingParameters.get(serviceToBind));
+                       .bindService(input.existingApplication.name, serviceToBind, currentBindingParameters.get(serviceToBind));
             } else {
                 Mockito.verify(client)
-                    .bindService(input.existingApplication.name, serviceToBind);
+                       .bindService(input.existingApplication.name, serviceToBind);
             }
         }
     }
@@ -204,7 +200,7 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
     private void validateUnbindServices() {
         for (String notRquiredService : notRequiredServices) {
             Mockito.verify(client)
-                .unbindService(input.existingApplication.name, notRquiredService);
+                   .unbindService(input.existingApplication.name, notRquiredService);
         }
     }
 
@@ -214,7 +210,7 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
         prepareServicesToBind();
 
         Mockito.when(configuration.getPlatformType())
-            .thenReturn(platform);
+               .thenReturn(platform);
 
         prepareExistingServiceBindings();
     }
@@ -227,22 +223,22 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
                 serviceBindings.add(simpleBinding.toCloudServiceBinding());
             }
             Mockito.when(cloudServiceInstance.getBindings())
-                .thenReturn(serviceBindings);
+                   .thenReturn(serviceBindings);
             Mockito.when(client.getServiceInstance(serviceName))
-                .thenReturn(cloudServiceInstance);
+                   .thenReturn(cloudServiceInstance);
         }
 
         for (String serviceName : input.existingServiceKeys.keySet()) {
             List<ServiceKey> serviceKeys = input.existingServiceKeys.get(serviceName);
             Mockito.when(client.getServiceKeys(eq(serviceName)))
-                .thenReturn(ListUtil.upcast(serviceKeys));
+                   .thenReturn(ListUtil.upcast(serviceKeys));
         }
     }
 
     private List<CloudServiceExtended> mapToCloudServices() {
         return input.application.services.stream()
-            .map(serviceName -> mapToCloudService(serviceName))
-            .collect(Collectors.toList());
+                                         .map(serviceName -> mapToCloudService(serviceName))
+                                         .collect(Collectors.toList());
     }
 
     private CloudServiceExtended mapToCloudService(String serviceName) {
@@ -262,7 +258,7 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
             }
 
             Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp()
-                .getBindingParameters();
+                                                                                         .getBindingParameters();
 
             boolean existingBindingParametersAreEmptyOrNull = existingBindingForApplication.bindingOptions == null
                 || existingBindingForApplication.bindingOptions.isEmpty();
@@ -275,7 +271,7 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
                 continue;
             }
             if (!currentBindingParametersAreNull && !currentBindingParameters.get(service)
-                .equals(existingBindingForApplication.bindingOptions)) {
+                                                                             .equals(existingBindingForApplication.bindingOptions)) {
                 expectedServicesToBind.add(service);
                 continue;
             }
@@ -284,8 +280,8 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
 
     private void prepareDiscontinuedServices() {
         List<String> discontinuedServices = input.existingApplication.services.stream()
-            .filter((service) -> !input.application.services.contains(service))
-            .collect(Collectors.toList());
+                                                                              .filter((service) -> !input.application.services.contains(service))
+                                                                              .collect(Collectors.toList());
         notRequiredServices.addAll(discontinuedServices);
     }
 
@@ -310,6 +306,11 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
         byte[] serviceKeysToInjectByteArray = JsonUtil.toBinaryJson(new HashMap<>());
         context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
+    }
+
+    @Override
+    protected UpdateAppStep createStep() {
+        return new UpdateAppStep();
     }
 
     private static class StepInput {
@@ -352,19 +353,28 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
         Boolean sshEnabled;
 
         CloudApplicationExtended toCloudApp() {
-            CloudApplicationExtended cloudApp = new CloudApplicationExtended(name, command, buildpackUrl, memory, instances, uris, services,
-                AppState.STARTED, Collections.emptyList(), Collections.emptyList(), null);
+            CloudApplicationExtended cloudApp = new CloudApplicationExtended(name,
+                                                                             command,
+                                                                             buildpackUrl,
+                                                                             memory,
+                                                                             instances,
+                                                                             uris,
+                                                                             services,
+                                                                             AppState.STARTED,
+                                                                             Collections.emptyList(),
+                                                                             Collections.emptyList(),
+                                                                             null);
             cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
             cloudApp.setDiskQuota(diskQuota);
             cloudApp.setStaging(new Staging.StagingBuilder().command(command)
-                .buildpackUrl(buildpackUrl)
-                .stack(null)
-                .healthCheckTimeout(0)
-                .detectedBuildpack("none")
-                .healthCheckType(healthCheckType)
-                .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
-                .sshEnabled(sshEnabled)
-                .build());
+                                                            .buildpackUrl(buildpackUrl)
+                                                            .stack(null)
+                                                            .healthCheckTimeout(0)
+                                                            .detectedBuildpack("none")
+                                                            .healthCheckType(healthCheckType)
+                                                            .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
+                                                            .sshEnabled(sshEnabled)
+                                                            .build());
             cloudApp.setBindingParameters(bindingParameters);
             cloudApp.setServiceKeysToInject(serviceKeysToInject);
             return cloudApp;
@@ -382,11 +392,6 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
         CloudServiceExtended toCloudService() {
             return new CloudServiceExtended(new Meta(NameUtil.getUUID(name), null, null), name);
         }
-    }
-
-    @Override
-    protected UpdateAppStep createStep() {
-        return new UpdateAppStep();
     }
 
 }

@@ -64,27 +64,30 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
-        BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
-        ApplicationConfiguration configuration) {
+                                                                              BiFunction<String, String, String> spaceIdSupplier,
+                                                                              ConfigurationEntryDao dao, CloudTarget cloudTarget,
+                                                                              ApplicationConfiguration configuration) {
         return getHelperDelegate().getConfigurationReferencesResolver(deploymentDescriptor, platform, spaceIdSupplier, dao, cloudTarget,
-            configuration);
+                                                                      configuration);
     }
 
     @Override
-    public ConfigurationReferencesResolver getConfigurationReferencesResolver(ConfigurationEntryDao dao,
-        ConfigurationFilterParser filterParser, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+    public ConfigurationReferencesResolver
+           getConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser, CloudTarget cloudTarget,
+                                              ApplicationConfiguration configuration) {
         return getHelperDelegate().getConfigurationReferencesResolver(dao, filterParser, cloudTarget, configuration);
     }
 
     @Override
     public DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
-        List<ParameterValidator> parameterValidators) {
+                                                                          List<ParameterValidator> parameterValidators) {
         return getHelperDelegate().getDescriptorParametersValidator(descriptor, parameterValidators);
     }
 
     @Override
     public DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
-        List<ParameterValidator> parameterValidators, boolean doNotCorrect) {
+                                                                          List<ParameterValidator> parameterValidators,
+                                                                          boolean doNotCorrect) {
         return getHelperDelegate().getDescriptorParametersValidator(descriptor, parameterValidators);
     }
 
@@ -105,7 +108,7 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
 
     @Override
     public UserProvidedResourceResolver getUserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor,
-        Platform platform) {
+                                                                        Platform platform) {
         return getHelperDelegate().getUserProvidedResourceResolver(resourceHelper, descriptor, platform);
     }
 
@@ -121,21 +124,23 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
 
     @Override
     public ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
+                                                                          CloudModelConfiguration configuration, DeployedMta deployedMta,
+                                                                          SystemParameters systemParameters,
+                                                                          XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
         return getHelperDelegate().getApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
-            xsPlaceholderResolver, deployId);
+                                                                    xsPlaceholderResolver, deployId);
     }
 
     @Override
     public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        PropertiesAccessor propertiesAccessor, CloudModelConfiguration configuration) {
+                                                                  PropertiesAccessor propertiesAccessor,
+                                                                  CloudModelConfiguration configuration) {
         return getHelperDelegate().getServicesCloudModelBuilder(deploymentDescriptor, propertiesAccessor, configuration);
     }
 
     @Override
     public ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        PropertiesAccessor propertiesAccessor) {
+                                                                        PropertiesAccessor propertiesAccessor) {
         return getHelperDelegate().getServiceKeysCloudModelBuilder(deploymentDescriptor, propertiesAccessor);
     }
 

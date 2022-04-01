@@ -43,19 +43,8 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("node-hello-mtad.yaml",
-        ProcessDescriptorStepTest.class);
+                                                                                               ProcessDescriptorStepTest.class);
     private static final Platform PLATFORM = loadPlatform(CONFIGURATION_PARSER, "platform-01.json", ProcessDescriptorStepTest.class);
-
-    private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
-
-        @Override
-        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, Platform platformType,
-            SystemParameters systemParameters, ConfigurationEntryDao dao, BiFunction<String, String, String> spaceIdSupplier,
-            CloudTarget cloudTarget) {
-            return resolver;
-        }
-    }
-
     @Mock
     private MtaDescriptorPropertiesResolver resolver;
     @Mock
@@ -68,7 +57,10 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
 
     private void prepareContext() throws Exception {
         StepsUtil.setSystemParameters(context,
-            new SystemParameters(Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap()));
+                                      new SystemParameters(Collections.emptyMap(),
+                                                           Collections.emptyMap(),
+                                                           Collections.emptyMap(),
+                                                           Collections.emptyMap()));
 
         StepsUtil.setUnresolvedDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
         StepsUtil.setXsPlaceholderReplacementValues(context, MapUtil.asMap(SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER, 999));
@@ -91,7 +83,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
         TestUtil.test(() -> StepsUtil.getSubscriptionsToCreate(context), new Expectation("[]"), getClass());
 
         TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context),
-            new Expectation(Expectation.Type.RESOURCE, "node-hello-mtad-1.yaml.json"), getClass());
+                      new Expectation(Expectation.Type.RESOURCE, "node-hello-mtad-1.yaml.json"), getClass());
     }
 
     @Test(expected = SLException.class)
@@ -108,13 +100,13 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
         when(spaceGetter.findSpace(client, ORG_NAME, SPACE_NAME)).thenReturn(space);
 
         assertEquals("cc51b819-7428-3ab7-9cef-9e94fe778cc9", step.getSpaceIdSupplier(client)
-            .apply(ORG_NAME, SPACE_NAME));
+                                                                 .apply(ORG_NAME, SPACE_NAME));
     }
 
     @Test
     public void testGetSpaceIdSupplier2() {
         assertNull(step.getSpaceIdSupplier(client)
-            .apply("not-initial", SPACE_NAME));
+                       .apply("not-initial", SPACE_NAME));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -128,6 +120,17 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     @Override
     protected ProcessDescriptorStep createStep() {
         return new ProcessDescriptorStepMock();
+    }
+
+    private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
+
+        @Override
+        protected MtaDescriptorPropertiesResolver
+                  getMtaDescriptorPropertiesResolver(HandlerFactory factory, Platform platformType, SystemParameters systemParameters,
+                                                     ConfigurationEntryDao dao, BiFunction<String, String, String> spaceIdSupplier,
+                                                     CloudTarget cloudTarget) {
+            return resolver;
+        }
     }
 
 }

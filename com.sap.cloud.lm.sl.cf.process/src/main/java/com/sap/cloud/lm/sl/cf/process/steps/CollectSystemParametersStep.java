@@ -43,14 +43,12 @@ import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CollectSystemParametersStep extends SyncFlowableStep {
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
-    @Inject
-    private ApplicationConfiguration configuration;
-
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
     protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance()
-        .getTime());
+                                                                                                               .getTime());
+    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    @Inject
+    private ApplicationConfiguration configuration;
 
     protected StepPhase executeStep(ExecutionWrapper execution) {
         return executeStepInternal(execution, false);
@@ -72,7 +70,8 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
             }
 
             SystemParametersBuilder systemParametersBuilder = createParametersBuilder(execution.getContext(), client, portAllocator,
-                portBasedRouting, defaultDomainName, reserveTemporaryRoute);
+                                                                                      portBasedRouting, defaultDomainName,
+                                                                                      reserveTemporaryRoute);
             DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext());
             SystemParameters systemParameters = systemParametersBuilder.build(descriptor);
             getStepLogger().debug(Messages.SYSTEM_PARAMETERS, secureSerializer.toJson(systemParameters));
@@ -84,7 +83,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                 getStepLogger().debug(Messages.ALLOCATED_PORTS, portAllocator.getAllocatedPorts());
             }
             execution.getContext()
-                .setVariable(Constants.VAR_PORT_BASED_ROUTING, portBasedRouting);
+                     .setVariable(Constants.VAR_PORT_BASED_ROUTING, portBasedRouting);
 
             StepsUtil.setSystemParameters(execution.getContext(), systemParameters);
         } catch (CloudOperationException coe) {
@@ -119,14 +118,15 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
     }
 
     private SystemParametersBuilder createParametersBuilder(DelegateExecution context, CloudControllerClient client,
-        PortAllocator portAllocator, boolean portBasedRouting, String defaultDomainName, boolean reserveTemporaryRoute) {
+                                                            PortAllocator portAllocator, boolean portBasedRouting, String defaultDomainName,
+                                                            boolean reserveTemporaryRoute) {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
         boolean useNamespacesForServices = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES);
         int majorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
         boolean useNamespaces = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES);
 
         String authorizationEndpoint = client.getCloudInfo()
-            .getAuthorizationEndpoint();
+                                             .getAuthorizationEndpoint();
         int routerPort = configuration.getRouterPort();
         String user = (String) context.getVariable(Constants.VAR_USER);
 
@@ -134,19 +134,37 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
         String deployServiceUrl = getDeployServiceUrl(client);
         Map<String, Object> xsPlaceholderReplacementValues = buildXsPlaceholderReplacementValues(defaultDomainName, authorizationEndpoint,
-            deployServiceUrl, routerPort, controllerUrl.toString(), controllerUrl.getProtocol());
+                                                                                                 deployServiceUrl, routerPort,
+                                                                                                 controllerUrl.toString(),
+                                                                                                 controllerUrl.getProtocol());
         StepsUtil.setXsPlaceholderReplacementValues(context, xsPlaceholderReplacementValues);
 
         boolean areXsPlaceholdersSupported = configuration.areXsPlaceholdersSupported();
 
-        return new SystemParametersBuilder(StepsUtil.getOrg(context), StepsUtil.getSpace(context), user, defaultDomainName,
-            configuration.getPlatformType(), controllerUrl, authorizationEndpoint, deployServiceUrl, routerPort, portBasedRouting,
-            reserveTemporaryRoute, portAllocator, useNamespaces, useNamespacesForServices, deployedMta, credentialsGeneratorSupplier.get(),
-            majorSchemaVersion, areXsPlaceholdersSupported, timestampSupplier);
+        return new SystemParametersBuilder(StepsUtil.getOrg(context),
+                                           StepsUtil.getSpace(context),
+                                           user,
+                                           defaultDomainName,
+                                           configuration.getPlatformType(),
+                                           controllerUrl,
+                                           authorizationEndpoint,
+                                           deployServiceUrl,
+                                           routerPort,
+                                           portBasedRouting,
+                                           reserveTemporaryRoute,
+                                           portAllocator,
+                                           useNamespaces,
+                                           useNamespacesForServices,
+                                           deployedMta,
+                                           credentialsGeneratorSupplier.get(),
+                                           majorSchemaVersion,
+                                           areXsPlaceholdersSupported,
+                                           timestampSupplier);
     }
 
     private Map<String, Object> buildXsPlaceholderReplacementValues(String defaultDomain, String authorizationEndpoint,
-        String deployServiceUrl, int routerPort, String controllerEndpoint, String protocol) {
+                                                                    String deployServiceUrl, int routerPort, String controllerEndpoint,
+                                                                    String protocol) {
         Map<String, Object> result = new TreeMap<>();
         result.put(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER, controllerEndpoint);
         result.put(SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER, routerPort);
@@ -183,8 +201,8 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         if (deploymentType == DeploymentType.REDEPLOYMENT) {
             throw new ContentException(Messages.SAME_VERSION_ALREADY_DEPLOYED);
         }
-        throw new IllegalStateException(
-            MessageFormat.format(Messages.VERSION_RULE_DOES_NOT_ALLOW_DEPLOYMENT_TYPE, versionRule, deploymentType));
+        throw new IllegalStateException(MessageFormat.format(Messages.VERSION_RULE_DOES_NOT_ALLOW_DEPLOYMENT_TYPE, versionRule,
+                                                             deploymentType));
     }
 
     private DeploymentType getDeploymentType(DeployedMta deployedMta, Version newMtaVersion) {
@@ -192,12 +210,12 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
             return DeploymentType.DEPLOYMENT;
         }
         if (deployedMta.getMetadata()
-            .isVersionUnknown()) {
+                       .isVersionUnknown()) {
             getStepLogger().warn(Messages.IGNORING_VERSION_RULE);
             return DeploymentType.UPGRADE;
         }
         Version deployedMtaVersion = deployedMta.getMetadata()
-            .getVersion();
+                                                .getVersion();
         getStepLogger().info(Messages.DEPLOYED_MTA_VERSION, deployedMtaVersion);
         return DeploymentType.fromVersions(deployedMtaVersion, newMtaVersion);
     }

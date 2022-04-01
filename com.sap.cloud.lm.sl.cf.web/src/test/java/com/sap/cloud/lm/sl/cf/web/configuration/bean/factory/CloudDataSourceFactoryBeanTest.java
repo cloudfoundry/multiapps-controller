@@ -24,14 +24,6 @@ import com.sap.cloud.lm.sl.cf.core.util.LambdaArgumentMatcher;
 
 public class CloudDataSourceFactoryBeanTest {
 
-    private final class TestedCloudDataSourceFactoryBean extends CloudDataSourceFactoryBean {
-
-        @Override
-        protected Cloud getSpringCloud() {
-            return springCloudMock;
-        }
-    }
-
     @Mock
     private DataSource defaultDataSource;
     @Mock
@@ -40,7 +32,6 @@ public class CloudDataSourceFactoryBeanTest {
     private ApplicationConfiguration configurationMock;
     @Mock
     private Cloud springCloudMock;
-
     private CloudDataSourceFactoryBean testedFactory;
 
     @Before
@@ -65,11 +56,10 @@ public class CloudDataSourceFactoryBeanTest {
 
         when(configurationMock.getDbConnectionThreads()).thenReturn(DB_CONNECTIONS);
 
-        ArgumentMatcher<DataSourceConfig> dataSourceConfigMatcher = new LambdaArgumentMatcher<DataSourceConfig>(
-            (Object input) -> DB_CONNECTIONS == ((DataSourceConfig) input).getPoolConfig()
-                .getMaxTotal());
-        when(springCloudMock.getServiceConnector(eq(SERVICE_NAME), eq(DataSource.class), argThat(dataSourceConfigMatcher)))
-            .thenReturn(createdDataSource);
+        ArgumentMatcher<DataSourceConfig> dataSourceConfigMatcher = new LambdaArgumentMatcher<DataSourceConfig>((Object input) -> DB_CONNECTIONS == ((DataSourceConfig) input).getPoolConfig()
+                                                                                                                                                                              .getMaxTotal());
+        when(springCloudMock.getServiceConnector(eq(SERVICE_NAME), eq(DataSource.class),
+                                                 argThat(dataSourceConfigMatcher))).thenReturn(createdDataSource);
 
         testedFactory.setDefaultDataSource(defaultDataSource);
         testedFactory.setServiceName(SERVICE_NAME);
@@ -93,5 +83,13 @@ public class CloudDataSourceFactoryBeanTest {
 
         verify(springCloudMock, atLeastOnce()).getServiceConnector(any(), any(), any());
         assertEquals(testedFactory.getObject(), defaultDataSource);
+    }
+
+    private final class TestedCloudDataSourceFactoryBean extends CloudDataSourceFactoryBean {
+
+        @Override
+        protected Cloud getSpringCloud() {
+            return springCloudMock;
+        }
     }
 }

@@ -28,6 +28,13 @@ public class UriUtilTest {
         private String expectedDomain;
         private String expectedPath;
 
+        public HostAndDomainTest(String uri, String expectedHost, String expectedDomain, String expectedPath) {
+            this.uri = uri;
+            this.expectedHost = expectedHost;
+            this.expectedDomain = expectedDomain;
+            this.expectedPath = expectedPath;
+        }
+
         @Parameters
         public static Iterable<Object[]> getParameters() {
             return Arrays.asList(new Object[][] {
@@ -76,16 +83,9 @@ public class UriUtilTest {
                 {
                     "deploy-service.cfapps.industrycloud-staging.siemens.com", "deploy-service", "cfapps.industrycloud-staging.siemens.com", null
                 },
-                
+
 // @formatter:on
             });
-        }
-
-        public HostAndDomainTest(String uri, String expectedHost, String expectedDomain, String expectedPath) {
-            this.uri = uri;
-            this.expectedHost = expectedHost;
-            this.expectedDomain = expectedDomain;
-            this.expectedPath = expectedPath;
         }
 
         @Test
@@ -111,6 +111,11 @@ public class UriUtilTest {
     public static class TestRemovePort {
         private String uri;
         private String expectedUri;
+
+        public TestRemovePort(String uri, String expectedUri) {
+            this.uri = uri;
+            this.expectedUri = expectedUri;
+        }
 
         @Parameters
         public static Iterable<Object[]> getParameters() {
@@ -168,11 +173,6 @@ public class UriUtilTest {
             });
         }
 
-        public TestRemovePort(String uri, String expectedUri) {
-            this.uri = uri;
-            this.expectedUri = expectedUri;
-        }
-
         @Test
         public void testRemovePort() {
             String uriWithoutPort = UriUtil.removePort(uri);
@@ -185,6 +185,11 @@ public class UriUtilTest {
         private String uri;
         private String expectedUri;
 
+        public TestGetUriWithoutScheme(String uri, String expectedUri) {
+            this.uri = uri;
+            this.expectedUri = expectedUri;
+        }
+
         @Parameters
         public static Iterable<Object[]> getParameters() {
             return Arrays.asList(new Object[][] {
@@ -194,16 +199,11 @@ public class UriUtilTest {
                     "https://valid-host.valid-domain", "valid-host.valid-domain"
                 },
                 // (01) Test with port in the uri
-                {                    
+                {
                     "tcp://10.244.0.34.xip.io:4443", "10.244.0.34.xip.io:4443"
                 }
 // @formatter:on
             });
-        }
-
-        public TestGetUriWithoutScheme(String uri, String expectedUri) {
-            this.uri = uri;
-            this.expectedUri = expectedUri;
         }
 
         @Test
@@ -220,6 +220,14 @@ public class UriUtilTest {
         private String uri;
         private boolean isPortBasedRouting;
         private boolean expectedResult;
+
+        public routeMatchesUriTest(String routeInput, String uri, boolean isPortBasedRouting, boolean expectedResult)
+            throws ParsingException, IOException {
+            this.routeInput = JsonUtil.fromJson(TestUtil.getResourceAsString(routeInput, UriUtil.class), CloudRoute.class);
+            this.uri = uri;
+            this.isPortBasedRouting = isPortBasedRouting;
+            this.expectedResult = expectedResult;
+        }
 
         @Parameters
         public static Iterable<Object[]> getParameters() {
@@ -247,14 +255,6 @@ public class UriUtilTest {
                 }
 // @formatter:on
             });
-        }
-
-        public routeMatchesUriTest(String routeInput, String uri, boolean isPortBasedRouting, boolean expectedResult)
-            throws ParsingException, IOException {
-            this.routeInput = JsonUtil.fromJson(TestUtil.getResourceAsString(routeInput, UriUtil.class), CloudRoute.class);
-            this.uri = uri;
-            this.isPortBasedRouting = isPortBasedRouting;
-            this.expectedResult = expectedResult;
         }
 
         @Test

@@ -9,7 +9,7 @@ public class SecurityContextUtil {
 
     public static UserInfo getUserInfo() {
         Authentication authentication = SecurityContextHolder.getContext()
-            .getAuthentication();
+                                                             .getAuthentication();
         return authentication == null ? null : (UserInfo) authentication.getPrincipal();
     }
 

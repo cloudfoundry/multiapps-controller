@@ -12,9 +12,8 @@ import org.slf4j.LoggerFactory;
 @Named
 public class RetryProcessAction extends ProcessAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RetryProcessAction.class);
-
     public static final String ACTION_ID_RETRY = "retry";
+    private static final Logger LOGGER = LoggerFactory.getLogger(RetryProcessAction.class);
 
     @Inject
     public RetryProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions) {

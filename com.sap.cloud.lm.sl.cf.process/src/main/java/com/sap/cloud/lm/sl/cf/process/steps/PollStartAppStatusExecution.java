@@ -28,17 +28,27 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class PollStartAppStatusExecution implements AsyncExecution {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PollStartAppStatusExecution.class);
-
-    enum StartupStatus {
-        STARTING, STARTED, CRASHED, FLAPPING
-    }
-
     private RecentLogsRetriever recentLogsRetriever;
     private ApplicationConfiguration configuration;
-
     public PollStartAppStatusExecution(RecentLogsRetriever recentLogsRetriever, ApplicationConfiguration configuration) {
         this.recentLogsRetriever = recentLogsRetriever;
         this.configuration = configuration;
+    }
+
+    private static List<InstanceInfo> getApplicationInstances(CloudControllerClient client, CloudApplication app) {
+        InstancesInfo instancesInfo = client.getApplicationInstances(app);
+        return (instancesInfo != null) ? instancesInfo.getInstances() : null;
+    }
+
+    private static int getInstanceCount(List<InstanceInfo> instances, InstanceState state) {
+        int count = 0;
+        for (InstanceInfo instance : instances) {
+            if (instance.getState()
+                        .equals(state)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     @Override
@@ -48,10 +58,11 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
         try {
             execution.getStepLogger()
-                .debug(Messages.CHECKING_APP_STATUS, app.getName());
+                     .debug(Messages.CHECKING_APP_STATUS, app.getName());
 
             StartupStatus status = getStartupStatus(execution, client, app.getName());
-            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger().getProcessLoggerProvider();
+            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
+                                                                   .getProcessLoggerProvider();
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
             return checkStartupStatus(execution, app, status);
         } catch (CloudOperationException coe) {
@@ -66,12 +77,12 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
     protected void onError(ExecutionWrapper execution, String message, Exception e) {
         execution.getStepLogger()
-            .error(e, message);
+                 .error(e, message);
     }
 
     protected void onError(ExecutionWrapper execution, String message) {
         execution.getStepLogger()
-            .error(message);
+                 .error(message);
     }
 
     protected CloudApplication getAppToPoll(DelegateExecution context) {
@@ -123,10 +134,10 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             List<String> uris = app.getUris();
             if (uris.isEmpty()) {
                 execution.getStepLogger()
-                    .info(Messages.APP_STARTED, app.getName());
+                         .info(Messages.APP_STARTED, app.getName());
             } else {
                 execution.getStepLogger()
-                    .info(Messages.APP_STARTED_URLS, app.getName(), String.join(",", uris));
+                         .info(Messages.APP_STARTED_URLS, app.getName(), String.join(",", uris));
             }
             return AsyncExecutionState.FINISHED;
         }
@@ -143,7 +154,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     }
 
     private void showInstancesStatus(ExecutionWrapper execution, String appName, List<InstanceInfo> instances, int runningInstances,
-        int expectedInstances) {
+                                     int expectedInstances) {
 
         // Determine state counts
         Map<String, Integer> stateCounts = new HashMap<>();
@@ -152,7 +163,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         } else {
             for (InstanceInfo instance : instances) {
                 final String state = instance.getState()
-                    .toString();
+                                             .toString();
                 final Integer stateCount = stateCounts.get(state);
                 stateCounts.put(state, (stateCount == null) ? 1 : (stateCount + 1));
             }
@@ -162,29 +173,18 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         List<String> stateStrings = new ArrayList<>();
         for (Map.Entry<String, Integer> sc : stateCounts.entrySet()) {
             stateStrings.add(format("{0} {1}", sc.getValue(), sc.getKey()
-                .toLowerCase()));
+                                                                .toLowerCase()));
         }
 
         // Print message
-        String message = format(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, appName, runningInstances, expectedInstances, String.join(",", stateStrings));
+        String message = format(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, appName, runningInstances, expectedInstances,
+                                String.join(",", stateStrings));
         execution.getStepLogger()
-            .debug(message);
+                 .debug(message);
     }
 
-    private static List<InstanceInfo> getApplicationInstances(CloudControllerClient client, CloudApplication app) {
-        InstancesInfo instancesInfo = client.getApplicationInstances(app);
-        return (instancesInfo != null) ? instancesInfo.getInstances() : null;
-    }
-
-    private static int getInstanceCount(List<InstanceInfo> instances, InstanceState state) {
-        int count = 0;
-        for (InstanceInfo instance : instances) {
-            if (instance.getState()
-                .equals(state)) {
-                count++;
-            }
-        }
-        return count;
+    enum StartupStatus {
+        STARTING, STARTED, CRASHED, FLAPPING
     }
 
 }

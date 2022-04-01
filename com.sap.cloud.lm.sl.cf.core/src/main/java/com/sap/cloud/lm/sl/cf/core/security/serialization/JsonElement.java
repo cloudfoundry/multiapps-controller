@@ -21,7 +21,7 @@ public class JsonElement<T extends com.google.gson.JsonElement> implements Eleme
     @Override
     public boolean isSimpleElement() {
         return gsonElement.isJsonPrimitive() && gsonElement.getAsJsonPrimitive()
-            .isString();
+                                                           .isString();
     }
 
     @Override

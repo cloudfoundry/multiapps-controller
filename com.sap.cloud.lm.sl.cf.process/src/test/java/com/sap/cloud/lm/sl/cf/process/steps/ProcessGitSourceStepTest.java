@@ -56,9 +56,9 @@ public class ProcessGitSourceStepTest extends SyncFlowableStepTest<ProcessGitSou
         String repoName = "someRepo";
         String urlService = "https://somehost.com/service/someService";
         Mockito.when(cloudInfo.getServiceUrl("git-service"))
-            .thenReturn(urlService);
+               .thenReturn(urlService);
         Mockito.when(client.getCloudInfo())
-            .thenReturn(cloudInfo);
+               .thenReturn(cloudInfo);
         // step.clientSupplier = (context) -> client;
         context.setVariable(Constants.PARAM_GIT_URI, repoName);
 
@@ -80,6 +80,10 @@ public class ProcessGitSourceStepTest extends SyncFlowableStepTest<ProcessGitSou
 
         String repository;
 
+        public ZipRepoContentTest(String stepInput) {
+            repository = stepInput;
+        }
+
         @Parameters
         public static Iterable<Object[]> getParameters() {
             return Arrays.asList(new Object[][] {
@@ -100,24 +104,20 @@ public class ProcessGitSourceStepTest extends SyncFlowableStepTest<ProcessGitSou
             });
         }
 
-        public ZipRepoContentTest(String stepInput) {
-            repository = stepInput;
-        }
-
         @Test
         public void testZipRepoContent() throws Exception {
             Path repoDir = Paths.get(getClass().getResource(repository)
-                .toURI());
+                                               .toURI());
             Path mtarZip = null;
             try {
                 mtarZip = step.zipRepoContent(repoDir.toAbsolutePath());
                 URI jarMtarUri = URI.create("jar:" + mtarZip.toAbsolutePath()
-                    .toUri()
-                    .toString());
+                                                            .toUri()
+                                                            .toString());
                 try (FileSystem mtarFS = FileSystems.newFileSystem(jarMtarUri, new HashMap<>())) {
                     Path mtarRoot = mtarFS.getRootDirectories()
-                        .iterator()
-                        .next();
+                                          .iterator()
+                                          .next();
                     assertFalse(Files.exists(mtarRoot.resolve(".git")));
                     assertFalse(Files.exists(mtarRoot.resolve(".gitignore")));
                     assertTrue(Files.exists(mtarRoot.resolve("a/cool-script.script")));

@@ -23,15 +23,23 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 @RunWith(Parameterized.class)
 public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskStep> {
 
-    @Mock
-    private RecentLogsRetriever recentLogsRetriever;
-
     private static final int START_TIMEOUT = 900;
     private static final String TASK_NAME = "foo";
     private static final String APPLICATION_NAME = "bar";
-
     private static final UUID TASK_UUID = UUID.randomUUID();
     private static final CloudApplicationExtended APPLICATION = new CloudApplicationExtended(null, APPLICATION_NAME);
+    @Mock
+    private RecentLogsRetriever recentLogsRetriever;
+    private CloudTask.State currentTaskState;
+    private long currentTime;
+    private AsyncExecutionState expectedExecutionStatus;
+    private CloudTask task = new CloudTask(new Meta(TASK_UUID, null, null), TASK_NAME);
+
+    public PollExecuteTaskStatusStepTest(CloudTask.State currentTaskState, long currentTime, AsyncExecutionState expectedExecutionStatus) {
+        this.currentTaskState = currentTaskState;
+        this.currentTime = currentTime;
+        this.expectedExecutionStatus = expectedExecutionStatus;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -79,18 +87,6 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
             },
 // @formatter:on
         });
-    }
-
-    private CloudTask.State currentTaskState;
-    private long currentTime;
-    private AsyncExecutionState expectedExecutionStatus;
-
-    private CloudTask task = new CloudTask(new Meta(TASK_UUID, null, null), TASK_NAME);
-
-    public PollExecuteTaskStatusStepTest(CloudTask.State currentTaskState, long currentTime, AsyncExecutionState expectedExecutionStatus) {
-        this.currentTaskState = currentTaskState;
-        this.currentTime = currentTime;
-        this.expectedExecutionStatus = expectedExecutionStatus;
     }
 
     @Before

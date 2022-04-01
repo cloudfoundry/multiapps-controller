@@ -40,10 +40,16 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
     private final StepInput stepInput;
     private final String expectedExceptionMessage;
     private final boolean isArchiveChunked;
-    private FilePartsMerger merger;
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    private FilePartsMerger merger;
+
+    public ValidateDeployParametersStepTest(StepInput stepInput, String expectedExceptionMessage, boolean isArchiveChunked)
+        throws FileStorageException {
+        this.stepInput = stepInput;
+        this.expectedExceptionMessage = expectedExceptionMessage;
+        this.isArchiveChunked = isArchiveChunked;
+    }
 
     @Parameters
     public static Object[][] getParameters() {
@@ -51,28 +57,31 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
             new Object[] { new StepInput(null, null, -1, null),
                 MessageFormat.format(Messages.ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE, "-1", "startTimeout"), false },
             new Object[] { new StepInput(NOT_EXISTING_FILE_ID, null, 1, null),
-                MessageFormat.format(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1, "notExistingFileId", "space-id"), false },
+                MessageFormat.format(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1, "notExistingFileId",
+                                     "space-id"),
+                false },
             new Object[] { new StepInput(EXISTING_FILE_ID, NOT_EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, null),
-                MessageFormat.format(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1, "notExistingFileId", "space-id"), false },
+                MessageFormat.format(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1, "notExistingFileId",
+                                     "space-id"),
+                false },
             new Object[] { new StepInput(EXISTING_FILE_ID, EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, "asd"),
                 MessageFormat.format(Messages.ERROR_PARAMETER_1_IS_NOT_VALID_VALID_VALUES_ARE_2, "asd", "versionRule", ""), false },
             new Object[] { new StepInput(EXISTING_FILE_ID, EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, VersionRule.HIGHER.toString()),
                 null, false },
             new Object[] { new StepInput(EXISTING_FILE_ID, EXISTING_BIGGER_FILE_ID, 1, VersionRule.HIGHER.toString()),
                 MessageFormat.format(com.sap.cloud.lm.sl.mta.message.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
-                    "1048577", "extDescriptorFile", "1048576"),
+                                     "1048577", "extDescriptorFile", "1048576"),
                 false },
-            new Object[] {
-                new StepInput(MERGED_ARCHIVE_NAME + ".part.0," + MERGED_ARCHIVE_NAME + ".part.1," + MERGED_ARCHIVE_NAME + ".part.2", null,
-                    1, VersionRule.HIGHER.toString()),
-                null, true } };
+            new Object[] { new StepInput(MERGED_ARCHIVE_NAME + ".part.0," + MERGED_ARCHIVE_NAME + ".part.1," + MERGED_ARCHIVE_NAME
+                + ".part.2", null, 1, VersionRule.HIGHER.toString()), null, true } };
     }
 
-    public ValidateDeployParametersStepTest(StepInput stepInput, String expectedExceptionMessage, boolean isArchiveChunked)
-        throws FileStorageException {
-        this.stepInput = stepInput;
-        this.expectedExceptionMessage = expectedExceptionMessage;
-        this.isArchiveChunked = isArchiveChunked;
+    private static FileEntry createFileEntry(String id, String name, long size) {
+        FileEntry fe = new FileEntry();
+        fe.setId(id);
+        fe.setName(name);
+        fe.setSize(BigInteger.valueOf(size));
+        return fe;
     }
 
     @Before
@@ -86,9 +95,10 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
 
     private void prepareConfiguration() {
         Mockito.when(configuration.getMaxMtaDescriptorSize())
-            .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
+               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
         Mockito.when(configuration.getFileConfiguration())
-            .thenReturn(new DefaultConfiguration(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE, ApplicationConfiguration.DEFAULT_SCAN_UPLOADS));
+               .thenReturn(new DefaultConfiguration(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE,
+                                                    ApplicationConfiguration.DEFAULT_SCAN_UPLOADS));
 
     }
 
@@ -102,7 +112,7 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
         assertStepFinishedSuccessfully();
         if (isArchiveChunked) {
             Path mergedArchiveAbsolutePath = Paths.get(MERGED_ARCHIVE_NAME)
-                .toAbsolutePath();
+                                                  .toAbsolutePath();
             assertFalse(Files.exists(mergedArchiveAbsolutePath));
         }
     }
@@ -125,37 +135,34 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
 
     private void prepareFileService() throws FileStorageException {
         Mockito.when(fileService.getFile("space-id", EXISTING_FILE_ID))
-            .thenReturn(createFileEntry(EXISTING_FILE_ID, null, 1024 * 1024l));
+               .thenReturn(createFileEntry(EXISTING_FILE_ID, null, 1024 * 1024l));
         Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.0"))
-            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.0", MERGED_ARCHIVE_NAME + ".part.0", 1024 * 1024l));
+               .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.0", MERGED_ARCHIVE_NAME + ".part.0", 1024 * 1024l));
 
         Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.1"))
-            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.1", MERGED_ARCHIVE_NAME + ".part.1", 1024 * 1024l));
+               .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.1", MERGED_ARCHIVE_NAME + ".part.1", 1024 * 1024l));
 
         Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.2"))
-            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.2", MERGED_ARCHIVE_NAME + ".part.2", 1024 * 1024l));
+               .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.2", MERGED_ARCHIVE_NAME + ".part.2", 1024 * 1024l));
 
         Mockito.when(fileService.getFile("space-id", EXISTING_BIGGER_FILE_ID))
-            .thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024l + 1));
+               .thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024l + 1));
         Mockito.when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID))
-            .thenReturn(null);
-        Mockito
-            .when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("service-id"), Mockito.any(), Mockito.any(), Mockito.<File> any()))
-            .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024l));
+               .thenReturn(null);
+        Mockito.when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("service-id"), Mockito.any(), Mockito.any(),
+                                         Mockito.<File> any()))
+               .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024l));
     }
 
     private void prepareArchiveMerger() {
         merger = Mockito.mock(FilePartsMerger.class);
         Mockito.when(merger.getMergedFilePath())
-            .thenReturn(Paths.get(MERGED_ARCHIVE_TEST_MTAR));
+               .thenReturn(Paths.get(MERGED_ARCHIVE_TEST_MTAR));
     }
 
-    private static FileEntry createFileEntry(String id, String name, long size) {
-        FileEntry fe = new FileEntry();
-        fe.setId(id);
-        fe.setName(name);
-        fe.setSize(BigInteger.valueOf(size));
-        return fe;
+    @Override
+    protected ValidateDeployParametersStep createStep() {
+        return new ValidateDeployParametersStep();
     }
 
     private static class StepInput {
@@ -171,11 +178,6 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
             this.startTimeout = startTimeout;
             this.versionRule = versionRule;
         }
-    }
-
-    @Override
-    protected ValidateDeployParametersStep createStep() {
-        return new ValidateDeployParametersStep();
     }
 
 }

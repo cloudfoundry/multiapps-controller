@@ -88,7 +88,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
         new SafeExecutor().executeSafely(() -> setOperationInAbortedState(correlationId));
 
         HistoryService historyService = Context.getProcessEngineConfiguration()
-            .getHistoryService();
+                                               .getHistoryService();
 
         new SafeExecutor().executeSafely(() -> deleteAllocatedRoutes(historyService, processInstanceId));
         new SafeExecutor().executeSafely(() -> deleteDeploymentFiles(historyService, processInstanceId));
@@ -105,7 +105,8 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
 
     private String getCorrelationId(FlowableEngineEvent event) {
         HistoricVariableInstance correlationId = getHistoricVarInstanceValue(Context.getProcessEngineConfiguration()
-            .getHistoryService(), event.getProcessInstanceId(), Constants.VAR_CORRELATION_ID);
+                                                                                    .getHistoryService(),
+                                                                             event.getProcessInstanceId(), Constants.VAR_CORRELATION_ID);
         if (correlationId != null) {
             return (String) correlationId.getValue();
         }
@@ -124,13 +125,14 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
 
     protected void deleteAllocatedRoutes(HistoryService historyService, String processInstanceId) {
         HistoricVariableInstance allocatedPortsInstance = getHistoricVarInstanceValue(historyService, processInstanceId,
-            Constants.VAR_ALLOCATED_PORTS);
+                                                                                      Constants.VAR_ALLOCATED_PORTS);
         if (allocatedPortsInstance == null) {
             return;
         }
         CloudControllerClient client = getCloudFoundryClient(historyService, processInstanceId);
         String defaultDomain = client.getDefaultDomain() != null ? client.getDefaultDomain()
-            .getName() : null;
+                                                                         .getName()
+            : null;
         if (defaultDomain == null) {
             LOGGER.warn(Messages.COULD_NOT_COMPUTE_DEFAULT_DOMAIN);
             return;
@@ -158,12 +160,12 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
             return;
         }
         HistoricVariableInstance extensionDescriptorFileIds = getHistoricVarInstanceValue(historyService, processInstanceId,
-            Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
+                                                                                          Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
         HistoricVariableInstance appArchiveFileIds = getHistoricVarInstanceValue(historyService, processInstanceId,
-            Constants.PARAM_APP_ARCHIVE_ID);
+                                                                                 Constants.PARAM_APP_ARCHIVE_ID);
 
         String spaceId = (String) getHistoricVarInstanceValue(historyService, processInstanceId,
-            com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID).getValue();
+                                                              com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID).getValue();
 
         FileSweeper fileSweeper = new FileSweeper(spaceId, getBeanProvider().getFileService());
         fileSweeper.sweep(extensionDescriptorFileIds);
@@ -182,11 +184,11 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
     }
 
     protected HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId,
-        String parameter) {
+                                                                   String parameter) {
         return historyService.createHistoricVariableInstanceQuery()
-            .processInstanceId(processInstanceId)
-            .variableName(parameter)
-            .singleResult();
+                             .processInstanceId(processInstanceId)
+                             .variableName(parameter)
+                             .singleResult();
     }
 
     private CloudControllerClientProvider getClientProvider() {

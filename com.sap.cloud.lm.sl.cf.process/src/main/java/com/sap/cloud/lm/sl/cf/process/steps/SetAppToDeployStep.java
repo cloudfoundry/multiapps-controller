@@ -24,13 +24,13 @@ public class SetAppToDeployStep extends SyncFlowableStep {
         try {
             List<CloudApplicationExtended> appsToDeploy = StepsUtil.getAppsToDeploy(execution.getContext());
             CloudApplicationExtended appToDeploy = appsToDeploy.stream()
-                .filter(app -> app.getModuleName()
-                    .equals(moduleToDeploy.getName()))
-                .findFirst()
-                .get();
-            
+                                                               .filter(app -> app.getModuleName()
+                                                                                 .equals(moduleToDeploy.getName()))
+                                                               .findFirst()
+                                                               .get();
+
             StepsUtil.setApp(execution.getContext(), appToDeploy);
-            
+
             return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_SETTING_APP, moduleToDeploy.getName());

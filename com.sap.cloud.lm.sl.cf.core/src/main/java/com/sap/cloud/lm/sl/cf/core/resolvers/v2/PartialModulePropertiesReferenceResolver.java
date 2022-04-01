@@ -13,7 +13,7 @@ public class PartialModulePropertiesReferenceResolver extends ModulePropertiesRe
     private List<String> dependenciesToIgnore;
 
     public PartialModulePropertiesReferenceResolver(DeploymentDescriptor descriptor, Module module, Map<String, Object> properties,
-        String prefix, List<String> dependenciesToIgnore) {
+                                                    String prefix, List<String> dependenciesToIgnore) {
         super(descriptor, module, properties, prefix, new ResolverBuilder());
         this.dependenciesToIgnore = dependenciesToIgnore;
     }

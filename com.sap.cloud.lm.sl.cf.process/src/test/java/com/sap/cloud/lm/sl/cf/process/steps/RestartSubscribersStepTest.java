@@ -33,9 +33,9 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
 
         // Then:
         Mockito.verify(clientProvider, Mockito.atLeastOnce())
-            .getControllerClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString());
+               .getControllerClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString());
         Mockito.verify(clientProvider, Mockito.atLeastOnce())
-            .getControllerClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString());
+               .getControllerClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString());
     }
 
     @Test
@@ -49,9 +49,9 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class);
         CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class);
         Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString()))
-            .thenReturn(clientForSpaceFoo);
+               .thenReturn(clientForSpaceFoo);
         Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString()))
-            .thenReturn(clientForSpaceBar);
+               .thenReturn(clientForSpaceBar);
 
         // When:
         step.execute(context);
@@ -59,13 +59,13 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         // Then:
         assertStepFinishedSuccessfully();
         Mockito.verify(clientForSpaceFoo)
-            .stopApplication("app-1");
+               .stopApplication("app-1");
         Mockito.verify(clientForSpaceFoo)
-            .startApplication("app-1");
+               .startApplication("app-1");
         Mockito.verify(clientForSpaceBar)
-            .stopApplication("app-2");
+               .stopApplication("app-2");
         Mockito.verify(clientForSpaceBar)
-            .startApplication("app-2");
+               .startApplication("app-2");
     }
 
     @Test
@@ -80,9 +80,9 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         XsCloudControllerClient clientForSpaceBar = Mockito.mock(XsCloudControllerClient.class);
 
         Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString()))
-            .thenReturn(clientForSpaceFoo);
+               .thenReturn(clientForSpaceFoo);
         Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString()))
-            .thenReturn(clientForSpaceBar);
+               .thenReturn(clientForSpaceBar);
 
         // When:
         step.execute(context);
@@ -90,13 +90,13 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         // Then:
         assertStepFinishedSuccessfully();
         Mockito.verify(clientForSpaceFoo)
-            .stopApplication("app-1");
+               .stopApplication("app-1");
         Mockito.verify(clientForSpaceFoo)
-            .startApplication("app-1", false);
+               .startApplication("app-1", false);
         Mockito.verify(clientForSpaceBar)
-            .stopApplication("app-2");
+               .stopApplication("app-2");
         Mockito.verify(clientForSpaceBar)
-            .startApplication("app-2", false);
+               .startApplication("app-2", false);
     }
 
     @Test
@@ -120,8 +120,8 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         StepsUtil.setUpdatedSubscribers(context, updatedSubscribers);
 
         Mockito.doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR))
-            .when(client)
-            .stopApplication("app-1");
+               .when(client)
+               .stopApplication("app-1");
 
         // When:
         step.execute(context);
@@ -129,11 +129,11 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         // Then:
         assertStepFinishedSuccessfully();
         Mockito.verify(client)
-            .stopApplication("app-1");
+               .stopApplication("app-1");
         Mockito.verify(client)
-            .stopApplication("app-2");
+               .stopApplication("app-2");
         Mockito.verify(client)
-            .startApplication("app-2", false);
+               .startApplication("app-2", false);
     }
 
     private CloudApplication createCloudApplication(String appName, CloudSpace space) {

@@ -19,11 +19,10 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class ConfigurationEntriesUtil {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationEntriesUtil.class);
-
     public static final String PROVIDER_NID = "mta";
-    private static final String PROVIDER_ID_DELIMITER = ":";
     public static final String TARGET_DELIMITER = " ";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationEntriesUtil.class);
+    private static final String PROVIDER_ID_DELIMITER = ":";
 
     public static String computeProviderId(String mtaId, String providedDependencyName) {
         return mtaId + PROVIDER_ID_DELIMITER + providedDependencyName;
@@ -35,7 +34,7 @@ public class ConfigurationEntriesUtil {
     }
 
     public static List<ConfigurationEntry> findConfigurationEntries(ConfigurationEntryDao dao, ConfigurationFilter filter,
-        List<CloudTarget> cloudTargets, CloudTarget globalConfigTarget) {
+                                                                    List<CloudTarget> cloudTargets, CloudTarget globalConfigTarget) {
         String providerNid = filter.getProviderNid();
         String org = null;
         String space = null;
@@ -48,11 +47,10 @@ public class ConfigurationEntriesUtil {
         String providerId = filter.getProviderId();
 
         Map<String, Object> requiredContent = filter.getRequiredContent();
-        LOGGER.debug(
-            "searching for configuration entries with provider nid {}, id {}, version {}, org {}, space {}, content {}, visibleTargets {}",
-            providerNid, providerId, providerVersion, org, space, requiredContent, cloudTargets);
+        LOGGER.debug("searching for configuration entries with provider nid {}, id {}, version {}, org {}, space {}, content {}, visibleTargets {}",
+                     providerNid, providerId, providerVersion, org, space, requiredContent, cloudTargets);
         List<ConfigurationEntry> result = dao.find(providerNid, providerId, providerVersion, targetSpace, requiredContent, null,
-            cloudTargets);
+                                                   cloudTargets);
         if (!result.isEmpty()) {
             LOGGER.debug("result found {}", result);
             return result;
@@ -61,14 +59,15 @@ public class ConfigurationEntriesUtil {
             return Collections.emptyList();
         }
         return findConfigurationEntriesInGlobalConfigurationSpace(dao, providerNid, providerVersion, providerId, requiredContent,
-            cloudTargets, globalConfigTarget);
+                                                                  cloudTargets, globalConfigTarget);
     }
 
-    public static List<ConfigurationEntry> findConfigurationEntriesInGlobalConfigurationSpace(ConfigurationEntryDao dao, String providerNid,
-        String providerVersion, String providerId, Map<String, Object> requiredContent, List<CloudTarget> cloudTargets, CloudTarget globalConfigTarget) {
-        LOGGER.debug(
-            "searching for configuration entries with provider nid {}, id {}, version {}, global config space space {}, content {}, visibleTargets {}",
-            providerNid, providerId, providerVersion, globalConfigTarget, requiredContent, cloudTargets);
+    public static List<ConfigurationEntry>
+           findConfigurationEntriesInGlobalConfigurationSpace(ConfigurationEntryDao dao, String providerNid, String providerVersion,
+                                                              String providerId, Map<String, Object> requiredContent,
+                                                              List<CloudTarget> cloudTargets, CloudTarget globalConfigTarget) {
+        LOGGER.debug("searching for configuration entries with provider nid {}, id {}, version {}, global config space space {}, content {}, visibleTargets {}",
+                     providerNid, providerId, providerVersion, globalConfigTarget, requiredContent, cloudTargets);
         return dao.find(providerNid, providerId, providerVersion, globalConfigTarget, requiredContent, null, cloudTargets);
     }
 
@@ -81,7 +80,7 @@ public class ConfigurationEntriesUtil {
 
         return new CloudTarget(deployServiceOrgName, globalConfigSpace);
     }
-    
+
     public static String computeTargetSpace(CloudTarget target) {
         return target.getOrg() + TARGET_DELIMITER + target.getSpace();
     }

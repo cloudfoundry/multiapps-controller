@@ -19,6 +19,11 @@ public class ConfigurationSubscriptionTest {
 
     private final String jsonContent, xmlContent;
 
+    public ConfigurationSubscriptionTest(String jsonInput, String expectedXml) throws IOException {
+        this.jsonContent = TestUtil.getResourceAsString(jsonInput, getClass());
+        this.xmlContent = TestUtil.getResourceAsString(expectedXml, getClass());
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -28,11 +33,6 @@ public class ConfigurationSubscriptionTest {
             },
 // @formatter:on
         });
-    }
-
-    public ConfigurationSubscriptionTest(String jsonInput, String expectedXml) throws IOException {
-        this.jsonContent = TestUtil.getResourceAsString(jsonInput, getClass());
-        this.xmlContent = TestUtil.getResourceAsString(expectedXml, getClass());
     }
 
     @Test

@@ -37,31 +37,24 @@ public class MtaConfigurationPurgerTest {
     private static final String APPLICATION_NAME_TO_KEEP = "app-to-keep";
     private static final String APPLICATION_NAME_TO_REMOVE = "app-to-remove";
     private static final String RESOURCE_LOCATION = "application-env-01.json";
-    private final ConfigurationEntry ENTRY_TO_DELETE = createEntry(ENTRY_ID_TO_REMOVE, "remove:true");
-    private final ConfigurationSubscription SUBSCRIPTION_TO_DELETE = createSubscription(SUBSCRIPTION_ID_TO_REMOVE,
-        APPLICATION_NAME_TO_REMOVE);
-
     private final static String TARGET_SPACE = "space";
     private final static String TARGET_ORG = "org";
-
-    @Mock
-    CloudControllerClient client;
-    
-    @Mock
-    SpaceGetter spaceGetter;
-
-    @Mock
-    ConfigurationEntryDao entryDao;
-
-    @Mock
-    ConfigurationSubscriptionDao subscriptionDao;
-
-    @Mock
-    AuditLoggingFacadeSLImpl auditLoggingFacade;
-
     private static List<CloudApplication> applications = new ArrayList<>();
     private static List<ConfigurationEntry> configurationEntries = new ArrayList<>();
     private static List<ConfigurationSubscription> configurationSubscriptions = new ArrayList<>();
+    private final ConfigurationEntry ENTRY_TO_DELETE = createEntry(ENTRY_ID_TO_REMOVE, "remove:true");
+    private final ConfigurationSubscription SUBSCRIPTION_TO_DELETE = createSubscription(SUBSCRIPTION_ID_TO_REMOVE,
+                                                                                        APPLICATION_NAME_TO_REMOVE);
+    @Mock
+    CloudControllerClient client;
+    @Mock
+    SpaceGetter spaceGetter;
+    @Mock
+    ConfigurationEntryDao entryDao;
+    @Mock
+    ConfigurationSubscriptionDao subscriptionDao;
+    @Mock
+    AuditLoggingFacadeSLImpl auditLoggingFacade;
 
     @Before
     public void setUp() throws IOException {
@@ -77,43 +70,43 @@ public class MtaConfigurationPurgerTest {
         MtaConfigurationPurger purger = new MtaConfigurationPurger(client, spaceGetter, entryDao, subscriptionDao);
         purger.purge("org", "space");
         Mockito.verify(entryDao)
-            .remove(ENTRY_ID_TO_REMOVE);
+               .remove(ENTRY_ID_TO_REMOVE);
         Mockito.verify(subscriptionDao)
-            .remove(SUBSCRIPTION_ID_TO_REMOVE);
+               .remove(SUBSCRIPTION_ID_TO_REMOVE);
 
         Mockito.verify(entryDao, Mockito.never())
-            .remove(ENTRY_ID_TO_KEEP_1);
+               .remove(ENTRY_ID_TO_KEEP_1);
         Mockito.verify(entryDao, Mockito.never())
-            .remove(ENTRY_ID_TO_KEEP_2);
+               .remove(ENTRY_ID_TO_KEEP_2);
         Mockito.verify(subscriptionDao, Mockito.never())
-            .remove(SUBSCRIPTION_ID_TO_KEEP);
+               .remove(SUBSCRIPTION_ID_TO_KEEP);
         Mockito.verify(auditLoggingFacade)
-            .logConfigDelete(ENTRY_TO_DELETE);
+               .logConfigDelete(ENTRY_TO_DELETE);
         Mockito.verify(auditLoggingFacade)
-            .logConfigDelete(SUBSCRIPTION_TO_DELETE);
+               .logConfigDelete(SUBSCRIPTION_TO_DELETE);
     }
 
     private void initApplicationsMock() throws IOException {
         applications.add(createApplication(APPLICATION_NAME_TO_KEEP, getAppEnvFromFile(RESOURCE_LOCATION)));
         applications.add(createApplication("app-2", new HashMap<>()));
         Mockito.when(client.getApplications())
-            .thenReturn(applications);
+               .thenReturn(applications);
     }
 
     private void initConfigurationEntriesMock() {
         configurationEntries.add(ENTRY_TO_DELETE);
         configurationEntries.add(createEntry(ENTRY_ID_TO_KEEP_1, "anatz:dependency-1"));
         configurationEntries.add(createEntry(ENTRY_ID_TO_KEEP_2, "anatz:dependency-2"));
-        Mockito
-            .when(entryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, new CloudTarget(TARGET_ORG, TARGET_SPACE), null, null))
-            .thenReturn(configurationEntries);
+        Mockito.when(entryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, new CloudTarget(TARGET_ORG, TARGET_SPACE), null,
+                                   null))
+               .thenReturn(configurationEntries);
     }
 
     private void initConfigurationSubscriptionsMock() {
         configurationSubscriptions.add(SUBSCRIPTION_TO_DELETE);
         configurationSubscriptions.add(createSubscription(SUBSCRIPTION_ID_TO_KEEP, APPLICATION_NAME_TO_KEEP));
         Mockito.when(subscriptionDao.findAll(null, null, null, null))
-            .thenReturn(configurationSubscriptions);
+               .thenReturn(configurationSubscriptions);
     }
 
     private CloudApplication createApplication(String appName, Map<Object, Object> env) {
@@ -131,8 +124,14 @@ public class MtaConfigurationPurgerTest {
     }
 
     private ConfigurationEntry createEntry(int id, String providerId) {
-        return new ConfigurationEntry(id, ConfigurationEntriesUtil.PROVIDER_NID, providerId, Version.parseVersion("1.0.0"),
-            new CloudTarget(TARGET_ORG, TARGET_SPACE), null, null, null);
+        return new ConfigurationEntry(id,
+                                      ConfigurationEntriesUtil.PROVIDER_NID,
+                                      providerId,
+                                      Version.parseVersion("1.0.0"),
+                                      new CloudTarget(TARGET_ORG, TARGET_SPACE),
+                                      null,
+                                      null,
+                                      null);
     }
 
 }

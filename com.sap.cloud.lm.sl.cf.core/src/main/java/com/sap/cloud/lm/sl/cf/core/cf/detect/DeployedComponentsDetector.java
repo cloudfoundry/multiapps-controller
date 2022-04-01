@@ -42,16 +42,21 @@ public class DeployedComponentsDetector {
                     ? appMetadata.getProvidedDependencyNames()
                     : new ArrayList<>();
                 List<String> appServices = (appMetadata.getServices() != null) ? appMetadata.getServices() : new ArrayList<>();
-                
+
                 DeployedMtaMetadata mtaMetadata = appMetadata.getMtaMetadata();
 
                 List<DeployedMtaModule> modules = modulesMap.getOrDefault(mtaMetadata, new ArrayList<>());
                 Date createdOn = app.getMeta()
-                    .getCreated();
+                                    .getCreated();
                 Date updatedOn = app.getMeta()
-                    .getUpdated();
-                DeployedMtaModule module = new DeployedMtaModule(moduleName, appName, createdOn, updatedOn, appServices,
-                    providedDependencies, app.getUris());
+                                    .getUpdated();
+                DeployedMtaModule module = new DeployedMtaModule(moduleName,
+                                                                 appName,
+                                                                 createdOn,
+                                                                 updatedOn,
+                                                                 appServices,
+                                                                 providedDependencies,
+                                                                 app.getUris());
                 modules.add(module);
                 modulesMap.put(mtaMetadata, modules);
 
@@ -68,7 +73,7 @@ public class DeployedComponentsDetector {
     }
 
     private DeployedComponents createComponents(Map<DeployedMtaMetadata, List<DeployedMtaModule>> modulesMap,
-        Map<DeployedMtaMetadata, Set<String>> servicesMap, List<String> standaloneApps) {
+                                                Map<DeployedMtaMetadata, Set<String>> servicesMap, List<String> standaloneApps) {
         List<DeployedMta> mtas = new ArrayList<>();
         for (Entry<DeployedMtaMetadata, List<DeployedMtaModule>> entry : modulesMap.entrySet()) {
             List<DeployedMtaModule> modules = entry.getValue();
@@ -94,17 +99,17 @@ public class DeployedComponentsDetector {
 
     private Set<String> getMtaIds(List<DeployedMta> mtas) {
         return mtas.stream()
-            .map(mta -> mta.getMetadata()
-                .getId())
-            .collect(Collectors.toSet());
+                   .map(mta -> mta.getMetadata()
+                                  .getId())
+                   .collect(Collectors.toSet());
     }
 
     private List<DeployedMta> getMtasWithSameId(List<DeployedMta> mtas, String id) {
         return mtas.stream()
-            .filter(mta -> mta.getMetadata()
-                .getId()
-                .equals(id))
-            .collect(Collectors.toList());
+                   .filter(mta -> mta.getMetadata()
+                                     .getId()
+                                     .equals(id))
+                   .collect(Collectors.toList());
     }
 
     private DeployedMta mergeMtas(String mtaId, List<DeployedMta> mtas) {

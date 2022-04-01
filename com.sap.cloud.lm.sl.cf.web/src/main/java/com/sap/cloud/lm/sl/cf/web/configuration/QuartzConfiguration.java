@@ -22,10 +22,10 @@ import com.sap.cloud.lm.sl.cf.process.jobs.CleanUpJob;
 @Configuration
 public class QuartzConfiguration {
 
-    private static final String QUARTZ_POSTGRESQL_PROPERTIES = "quartz.postgresql.properties";
-    private static final String QUARTZ_HANA_PROPERTIES = "quartz.hana.properties";
     public static final String CLEAN_UP_TRIGGER_NAME = "cleanUpTrigger";
     public static final String TRIGGER_GROUP = "DEFAULT";
+    private static final String QUARTZ_POSTGRESQL_PROPERTIES = "quartz.postgresql.properties";
+    private static final String QUARTZ_HANA_PROPERTIES = "quartz.hana.properties";
 
     @Bean
     public JobDetailFactoryBean cleanUpJobDetail() {

@@ -69,8 +69,8 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
     @Test
     public void testExecute4() throws Exception {
         when(client.getApplications()).thenReturn(Collections.emptyList());
-        when(componentsDetector.detectAllDeployedComponents(Collections.emptyList()))
-            .thenReturn(new DeployedComponents(Collections.emptyList(), Collections.emptyList()));
+        when(componentsDetector.detectAllDeployedComponents(Collections.emptyList())).thenReturn(new DeployedComponents(Collections.emptyList(),
+                                                                                                                        Collections.emptyList()));
 
         step.execute(context);
 

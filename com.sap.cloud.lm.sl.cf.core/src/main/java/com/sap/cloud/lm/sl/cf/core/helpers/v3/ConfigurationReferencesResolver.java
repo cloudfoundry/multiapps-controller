@@ -30,7 +30,8 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     private List<Resource> inactiveConfigResources = new ArrayList<>();
 
     public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
-        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+                                           BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget,
+                                           ApplicationConfiguration configuration) {
         super(dao, filterParser, spaceIdSupplier, cloudTarget, configuration);
     }
 
@@ -65,9 +66,10 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     }
 
     @Override
-    protected List<com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency> expandRequiredDependencyIfNecessary(
-        com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor, PropertiesContainer dependencyOwner,
-        com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency dependency) {
+    protected List<com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency>
+              expandRequiredDependencyIfNecessary(com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor,
+                                                  PropertiesContainer dependencyOwner,
+                                                  com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency dependency) {
         RequiredDependency dependencyV3 = (RequiredDependency) dependency;
         ResolvedConfigurationReference resolvedReference = resolvedReferences.get(dependencyV3.getName());
 
@@ -89,14 +91,15 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
         }
 
         if (resolvedReference.getResolvedResources()
-            .isEmpty()) {
+                             .isEmpty()) {
             setEmptyListProperty(dependencyOwner, dependencyV3);
         }
 
         List<com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency> expandedDependencies = resolvedReference.getResolvedResources()
-            .stream()
-            .map(resource -> createRequiredDependency(resource, dependencyV3))
-            .collect(Collectors.toList());
+                                                                                                          .stream()
+                                                                                                          .map(resource -> createRequiredDependency(resource,
+                                                                                                                                                    dependencyV3))
+                                                                                                          .collect(Collectors.toList());
         expandedDependenciesMap.put(dependencyV3, expandedDependencies);
         return expandedDependencies;
     }
@@ -108,8 +111,8 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
 
     private boolean refersToInactiveResource(RequiredDependency dependency) {
         return inactiveConfigResources.stream()
-            .anyMatch(resource -> resource.getName()
-                .equals(dependency.getName()));
+                                      .anyMatch(resource -> resource.getName()
+                                                                    .equals(dependency.getName()));
     }
 
     protected List<RequiredDependency> getUpdatedRequiredDependencies(DeploymentDescriptor descriptor, Resource resource) {
@@ -123,7 +126,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
 
     @Override
     protected RequiredDependency createRequiredDependency(com.sap.cloud.lm.sl.mta.model.v2.Resource resource,
-        com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency dependency) {
+                                                          com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency dependency) {
         RequiredDependency.Builder builder = new RequiredDependency.Builder();
         builder.setName(resource.getName());
         RequiredDependency dependency3 = cast(dependency);
@@ -146,15 +149,17 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
         if (!isActive(sourceResource)) {
             inactiveConfigResources.add((Resource) sourceResource);
             // bind empty collection of resources to this config resource in order to replace it with nothing so it is not processed
-            ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter, sourceResource,
-                Collections.emptyList());
+            ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter,
+                                                                                                  sourceResource,
+                                                                                                  Collections.emptyList());
             resolvedReferences.put(sourceResource.getName(), resolvedReference);
             return;
         }
         List<com.sap.cloud.lm.sl.mta.model.v2.Resource> resolvedResources = configurationResolver.resolve(sourceResource,
-            configurationFilter, cloudTarget);
-        ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter, sourceResource,
-            resolvedResources);
+                                                                                                          configurationFilter, cloudTarget);
+        ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter,
+                                                                                              sourceResource,
+                                                                                              resolvedResources);
         resolvedReferences.put(sourceResource.getName(), resolvedReference);
     }
 

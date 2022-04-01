@@ -25,6 +25,15 @@ public abstract class ClientFactory {
     @Autowired
     private UAAClient uaaClient;
 
+    private static CloudCredentials createCredentials(String userName, String password) {
+        return new CloudCredentials(userName, password, SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
+    }
+
+    private static CloudCredentials createCredentials(OAuth2AccessToken token) {
+        boolean refreshable = (token.getRefreshToken() != null);
+        return new CloudCredentials(token, refreshable);
+    }
+
     public Pair<CloudControllerClient, TokenProvider> createClient(String userName, String password) {
         return createClient(createCredentials(userName, password));
     }
@@ -49,14 +58,5 @@ public abstract class ClientFactory {
 
     protected OauthClient createOauthClient(RestTemplate restTemplate) {
         return new OauthClientExtended(uaaClient.getUaaUrl(), restTemplate, tokenService);
-    }
-
-    private static CloudCredentials createCredentials(String userName, String password) {
-        return new CloudCredentials(userName, password, SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
-    }
-
-    private static CloudCredentials createCredentials(OAuth2AccessToken token) {
-        boolean refreshable = (token.getRefreshToken() != null);
-        return new CloudCredentials(token, refreshable);
     }
 }

@@ -14,7 +14,7 @@ public class IncrementIndexStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         // Continue the iteration over the collection:
         String indexVariableName = (String) execution.getContext()
-            .getVariable(Constants.VAR_INDEX_VARIABLE_NAME);
+                                                     .getVariable(Constants.VAR_INDEX_VARIABLE_NAME);
         StepsUtil.incrementVariable(execution.getContext(), indexVariableName);
 
         return StepPhase.DONE;

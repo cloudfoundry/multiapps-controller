@@ -21,6 +21,22 @@ public class OperationMetadata {
         return new OperationMetadataBuilder();
     }
 
+    public Set<ParameterMetadata> getParameters() {
+        return parameters;
+    }
+
+    public String getDiagramId() {
+        return diagramId;
+    }
+
+    public List<String> getPreviousDiagramIds() {
+        return previousDiagramIds;
+    }
+
+    public List<String> getVersions() {
+        return versions;
+    }
+
     public static class OperationMetadataBuilder {
 
         protected Set<ParameterMetadata> parameters;
@@ -57,22 +73,6 @@ public class OperationMetadata {
             return this;
         }
 
-    }
-
-    public Set<ParameterMetadata> getParameters() {
-        return parameters;
-    }
-
-    public String getDiagramId() {
-        return diagramId;
-    }
-
-    public List<String> getPreviousDiagramIds() {
-        return previousDiagramIds;
-    }
-
-    public List<String> getVersions() {
-        return versions;
     }
 
 }

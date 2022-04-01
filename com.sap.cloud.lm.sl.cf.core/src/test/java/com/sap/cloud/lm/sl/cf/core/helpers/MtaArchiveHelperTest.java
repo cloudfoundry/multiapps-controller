@@ -29,6 +29,14 @@ public class MtaArchiveHelperTest {
     private static MtaArchiveHelper helper;
     private static DeploymentDescriptor descriptor;
 
+    public MtaArchiveHelperTest(String mtarLocation, String deploymentDescriptorLocation) throws SLException {
+        InputStream stream = getClass().getResourceAsStream(mtarLocation);
+        helper = new MtaArchiveHelper(ArchiveHandler.getManifest(stream, ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE));
+
+        DescriptorParser parser = new DescriptorParser();
+        descriptor = parser.parseDeploymentDescriptorYaml(getClass().getResourceAsStream(deploymentDescriptorLocation));
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -36,14 +44,6 @@ public class MtaArchiveHelperTest {
             { "mta-archive-helper-1.mtar", "mta-archive-helper-1.yaml" },
             // (1) With modules and resources
             { "mta-archive-helper-2.mtar", "mta-archive-helper-2.yaml" } });
-    }
-
-    public MtaArchiveHelperTest(String mtarLocation, String deploymentDescriptorLocation) throws SLException {
-        InputStream stream = getClass().getResourceAsStream(mtarLocation);
-        helper = new MtaArchiveHelper(ArchiveHandler.getManifest(stream, ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE));
-
-        DescriptorParser parser = new DescriptorParser();
-        descriptor = parser.parseDeploymentDescriptorYaml(getClass().getResourceAsStream(deploymentDescriptorLocation));
     }
 
     @Before
@@ -55,7 +55,7 @@ public class MtaArchiveHelperTest {
     public void testResources() {
         Set<String> descriptorResources = getResourcesNamesFromDescriptor();
         Set<String> mtaResources = helper.getMtaArchiveResources()
-            .keySet();
+                                         .keySet();
 
         assertEquals(descriptorResources.size(), mtaResources.size());
 
@@ -68,7 +68,7 @@ public class MtaArchiveHelperTest {
     public void testDependencies() {
         Set<String> descriptorDependencies = getRequiredDependenciesNamesFromDescriptor();
         Set<String> mtaDependencies = helper.getMtaRequiresDependencies()
-            .keySet();
+                                            .keySet();
 
         assertEquals(descriptorDependencies.size(), mtaDependencies.size());
 
@@ -79,18 +79,18 @@ public class MtaArchiveHelperTest {
 
     private Set<String> getResourcesNamesFromDescriptor() {
         return descriptor.getResources2()
-            .stream()
-            .map(Resource::getName)
-            .collect(Collectors.toSet());
+                         .stream()
+                         .map(Resource::getName)
+                         .collect(Collectors.toSet());
     }
 
     private Set<String> getRequiredDependenciesNamesFromDescriptor() {
         return descriptor.getModules2()
-            .stream()
-            .map(Module::getRequiredDependencies2)
-            .flatMap(dependency -> dependency.stream()
-                .map(RequiredDependency::getName))
-            .collect(Collectors.toSet());
+                         .stream()
+                         .map(Module::getRequiredDependencies2)
+                         .flatMap(dependency -> dependency.stream()
+                                                          .map(RequiredDependency::getName))
+                         .collect(Collectors.toSet());
     }
 
 }

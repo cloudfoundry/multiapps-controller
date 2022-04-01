@@ -4,8 +4,8 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
@@ -37,13 +37,15 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
         for (CloudServiceOffering offering : offerings) {
             for (CloudServicePlan plan : offering.getCloudServicePlans()) {
                 if (plan.getName()
-                    .equals(newPlan)) {
+                        .equals(newPlan)) {
                     return plan;
                 }
             }
         }
-        throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
-            MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, service.getName(), newPlan, service.getLabel()));
+        throw new CloudOperationException(HttpStatus.NOT_FOUND,
+                                          HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                          MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, service.getName(), newPlan,
+                                                               service.getLabel()));
     }
 
     private List<CloudServiceOffering> getServiceOfferings(CloudControllerClient client, CloudService service) {
@@ -55,8 +57,8 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
 
     private List<CloudServiceOffering> filterByLabel(List<CloudServiceOffering> offerings, String label) {
         return offerings.stream()
-            .filter(offering -> label.equals(offering.getLabel()))
-            .collect(Collectors.toList());
+                        .filter(offering -> label.equals(offering.getLabel()))
+                        .collect(Collectors.toList());
     }
 
     protected List<CloudServiceOffering> filterByVersion(List<CloudServiceOffering> offerings, String version) {
@@ -64,8 +66,8 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
             return offerings;
         }
         return offerings.stream()
-            .filter(offering -> version.equals(offering.getVersion()))
-            .collect(Collectors.toList());
+                        .filter(offering -> version.equals(offering.getVersion()))
+                        .collect(Collectors.toList());
     }
 
 }

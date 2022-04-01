@@ -23,12 +23,16 @@ import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 public class UserProvidedResourceResolverTest {
 
     protected static final String USER_PROVIDED_SERVICE_TYPE = ResourceType.USER_PROVIDED_SERVICE.toString();
-
+    protected UserProvidedResourceResolver resolver;
     private String descriptorLocation;
     private String platformLocation;
     private Expectation expectation;
 
-    protected UserProvidedResourceResolver resolver;
+    public UserProvidedResourceResolverTest(String descriptorLocation, String platformLocation, Expectation expectation) {
+        this.descriptorLocation = descriptorLocation;
+        this.platformLocation = platformLocation;
+        this.expectation = expectation;
+    }
 
     @Parameters
     public static Collection<Object[]> getParameters() {
@@ -45,12 +49,6 @@ public class UserProvidedResourceResolverTest {
             },
 // @formatter:on
         });
-    }
-
-    public UserProvidedResourceResolverTest(String descriptorLocation, String platformLocation, Expectation expectation) {
-        this.descriptorLocation = descriptorLocation;
-        this.platformLocation = platformLocation;
-        this.expectation = expectation;
     }
 
     @Before

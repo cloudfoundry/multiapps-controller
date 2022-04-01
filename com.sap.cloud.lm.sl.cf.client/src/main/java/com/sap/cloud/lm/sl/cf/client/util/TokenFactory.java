@@ -44,7 +44,7 @@ public class TokenFactory {
 
     public OAuth2AccessToken createDummyToken(String userName, String clientId) {
         List<String> scope = Arrays.asList(SCOPE_CC_READ, SCOPE_CC_WRITE, SCOPE_CC_ADMIN, SCOPE_SCIM_USERIDS, SCOPE_PASSWORD_WRITE,
-            SCOPE_OPENID);
+                                           SCOPE_OPENID);
         Map<String, Object> dummyTokenInfo = new HashMap<>();
         dummyTokenInfo.put(SCOPE, scope);
         dummyTokenInfo.put(EXP, Long.MAX_VALUE / 1000);

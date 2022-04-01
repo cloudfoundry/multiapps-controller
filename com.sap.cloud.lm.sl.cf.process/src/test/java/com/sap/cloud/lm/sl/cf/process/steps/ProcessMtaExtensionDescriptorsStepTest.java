@@ -32,7 +32,7 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
     public void testExecute() throws FileStorageException {
         final String extensionDescriptorString1 = "abc";
         final String extensionDescriptorString2 = "def";
-//        final ExtensionDescriptor extensionDescriptor1 = StepsTestUtil.loadExtensionDescriptor("config-01.mtaext", getClass());
+        // final ExtensionDescriptor extensionDescriptor1 = StepsTestUtil.loadExtensionDescriptor("config-01.mtaext", getClass());
         final ExtensionDescriptor extensionDescriptor2 = StepsTestUtil.loadExtensionDescriptor("config-02.mtaext", getClass());
         final ExtensionDescriptor extensionDescriptor3 = StepsTestUtil.loadExtensionDescriptor("config-01.mtaext", getClass());
         final List<ExtensionDescriptor> extensionDescriptorChain = Arrays.asList(extensionDescriptor2, extensionDescriptor3);
@@ -40,11 +40,11 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
         prepare(Arrays.asList(extensionDescriptorString1, extensionDescriptorString2));
         DescriptorParserFacade descriptorParserFacade = Mockito.mock(DescriptorParserFacade.class);
         Mockito.when(descriptorParserFacade.parseExtensionDescriptor(Mockito.<InputStream> any()))
-            .thenReturn(extensionDescriptor2,extensionDescriptor3);
+               .thenReturn(extensionDescriptor2, extensionDescriptor3);
 
         ExtensionDescriptorChainBuilder extensionDescriptorChainBuilder = Mockito.mock(ExtensionDescriptorChainBuilder.class);
         Mockito.when(extensionDescriptorChainBuilder.build(Mockito.any(), Mockito.eq(extensionDescriptorChain)))
-            .thenReturn(extensionDescriptorChain);
+               .thenReturn(extensionDescriptorChain);
 
         step.descriptorParserFacade = descriptorParserFacade;
         step.extensionDescriptorChainBuilder = extensionDescriptorChainBuilder;
@@ -82,24 +82,25 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
         Mockito.doAnswer((invocation) -> {
             FileDownloadProcessor contentProcessor = (FileDownloadProcessor) invocation.getArguments()[0];
             String fileId = contentProcessor.getFileEntry()
-                .getId();
+                                            .getId();
             String fileContent = fileIdToExtensionDescriptor.get(fileId);
 
             contentProcessor.processContent(IOUtils.toInputStream(fileContent, StandardCharsets.UTF_8));
             return null;
         })
-            .when(fileService)
-            .processFileContent(Mockito.any());
+               .when(fileService)
+               .processFileContent(Mockito.any());
     }
 
     private Map<String, String> generateIds(List<String> extensionDescriptors) {
         return extensionDescriptors.stream()
-            .collect(Collectors.toMap(extensionDescriptor -> generateRandomId(), extensionDescriptor -> extensionDescriptor));
+                                   .collect(Collectors.toMap(extensionDescriptor -> generateRandomId(),
+                                                             extensionDescriptor -> extensionDescriptor));
     }
 
     private String generateRandomId() {
         return UUID.randomUUID()
-            .toString();
+                   .toString();
     }
 
     @Override

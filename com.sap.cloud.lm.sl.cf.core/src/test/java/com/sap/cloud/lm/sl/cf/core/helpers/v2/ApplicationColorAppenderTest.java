@@ -16,6 +16,13 @@ import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 @RunWith(Parameterized.class)
 public class ApplicationColorAppenderTest {
 
+    private String deploymentDescriptorString;
+    private Expectation expectation;
+    public ApplicationColorAppenderTest(String deploymentDescritorString, Expectation expectation) {
+        this.deploymentDescriptorString = deploymentDescritorString;
+        this.expectation = expectation;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -32,18 +39,10 @@ public class ApplicationColorAppenderTest {
         });
     }
 
-    private String deploymentDescriptorString;
-    private Expectation expectation;
-
-    public ApplicationColorAppenderTest(String deploymentDescritorString, Expectation expectation) {
-        this.deploymentDescriptorString = deploymentDescritorString;
-        this.expectation = expectation;
-    }
-
     @Test
     public void testPrepare() throws Exception {
-        DeploymentDescriptor descriptor = getDescriptorParser()
-            .parseDeploymentDescriptorYaml(TestUtil.getResourceAsString(deploymentDescriptorString, getClass()));
+        DeploymentDescriptor descriptor = getDescriptorParser().parseDeploymentDescriptorYaml(TestUtil.getResourceAsString(deploymentDescriptorString,
+                                                                                                                           getClass()));
 
         TestUtil.test(() -> {
 

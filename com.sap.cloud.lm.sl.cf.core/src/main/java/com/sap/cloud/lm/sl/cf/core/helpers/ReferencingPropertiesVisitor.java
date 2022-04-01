@@ -27,8 +27,8 @@ public abstract class ReferencingPropertiesVisitor implements SimplePropertyVisi
     private List<Reference> removeIrrelevant(List<Reference> references) {
         if (relevantReferencesFilter != null) {
             return references.stream()
-                .filter(relevantReferencesFilter)
-                .collect(Collectors.toList());
+                             .filter(relevantReferencesFilter)
+                             .collect(Collectors.toList());
         }
         return references;
     }

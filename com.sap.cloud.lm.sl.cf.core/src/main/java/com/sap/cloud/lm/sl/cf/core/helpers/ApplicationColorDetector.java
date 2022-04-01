@@ -39,8 +39,9 @@ public class ApplicationColorDetector {
                 deployedApplicationColor = (moduleApplicationColor);
             }
             if (deployedApplicationColor != moduleApplicationColor) {
-                throw new ConflictException(Messages.CONFLICTING_APP_COLORS, deployedMta.getMetadata()
-                    .getId());
+                throw new ConflictException(Messages.CONFLICTING_APP_COLORS,
+                                            deployedMta.getMetadata()
+                                                       .getId());
             }
         }
         return deployedApplicationColor;
@@ -49,7 +50,7 @@ public class ApplicationColorDetector {
     private ApplicationColor getApplicationColor(DeployedMtaModule deployedMtaModule) {
         for (ApplicationColor color : ApplicationColor.values()) {
             if (deployedMtaModule.getAppName()
-                .endsWith(color.asSuffix())) {
+                                 .endsWith(color.asSuffix())) {
                 return color;
             }
         }

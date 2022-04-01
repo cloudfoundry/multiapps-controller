@@ -9,40 +9,44 @@ public class ParameterMetadata {
     private Boolean required;
     private ParameterType type;
 
+    public static ParameterMetadataBuilder builder() {
+        return new ParameterMetadataBuilder();
+    }
+
     public String getId() {
         return id;
-    }
-
-    public Object getDefaultValue() {
-        return defaultValue;
-    }
-
-    public Boolean getRequired() {
-        return required;
-    }
-
-    public ParameterType getType() {
-        return type;
     }
 
     public void setId(String id) {
         this.id = id;
     }
 
+    public Object getDefaultValue() {
+        return defaultValue;
+    }
+
     public void setDefaultValue(Object defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    public Boolean getRequired() {
+        return required;
     }
 
     public void setRequired(Boolean required) {
         this.required = required;
     }
 
+    public ParameterType getType() {
+        return type;
+    }
+
     public void setType(ParameterType type) {
         this.type = type;
     }
 
-    public static ParameterMetadataBuilder builder() {
-        return new ParameterMetadataBuilder();
+    public enum ParameterType {
+        STRING, INTEGER, BOOLEAN, TABLE
     }
 
     public static class ParameterMetadataBuilder {
@@ -81,10 +85,6 @@ public class ParameterMetadata {
             this.type = type;
             return this;
         }
-    }
-
-    public enum ParameterType {
-        STRING, INTEGER, BOOLEAN, TABLE
     }
 
 }

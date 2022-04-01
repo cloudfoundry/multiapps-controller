@@ -41,6 +41,12 @@ public class ConfigurationSubscriptionDaoTest {
 
     private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("TestDefault");
 
+    private static ConfigurationSubscriptionDao getDao() {
+        ConfigurationSubscriptionDao dao = new ConfigurationSubscriptionDao();
+        dao.dao = new ConfigurationSubscriptionDtoDao(EMF);
+        return dao;
+    }
+
     @RunWith(Parameterized.class)
     public static class ConfigurationSubscriptionDaoTest1 {
 
@@ -131,13 +137,29 @@ public class ConfigurationSubscriptionDaoTest {
             });
         }
 
+        private static List<ConfigurationSubscription> findAll(FindAllTestInput input, ConfigurationSubscriptionDao dao) {
+            return dao.findAll(input.entries);
+        }
+
+        private static List<ConfigurationSubscription> findAll(String guid, ConfigurationSubscriptionDao dao) {
+            List<ConfigurationSubscription> subscriptions = dao.findAll(guid);
+            return subscriptions;
+        }
+
+        private static ConfigurationSubscription findOne(FindOneTestInput input, ConfigurationSubscriptionDao dao) {
+            List<ConfigurationSubscription> subscriptions = dao.findAll(input.mtaId, input.appName, input.spaceId, input.resourceName);
+            assertEquals(1, subscriptions.size());
+            return subscriptions.get(0);
+        }
+
         @Before
         public void insertDatabaseEntries() throws Exception {
             Type type = new TypeToken<List<ConfigurationSubscription>>() {
             }.getType();
 
-            List<ConfigurationSubscription> subscriptions = JsonUtil
-                .convertJsonToList(TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION, getClass()), type);
+            List<ConfigurationSubscription> subscriptions = JsonUtil.convertJsonToList(TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION,
+                                                                                                                    getClass()),
+                                                                                       type);
 
             for (ConfigurationSubscription subscription : subscriptions) {
                 dao.add(subscription);
@@ -215,16 +237,16 @@ public class ConfigurationSubscriptionDaoTest {
 
         private static class RemoveTest extends TestCase<RemoveTestInput> {
 
+            private ConfigurationSubscriptionDao dao = getDao();
+
             public RemoveTest(RemoveTestInput input, Expectation expectation) {
                 super(input, expectation);
             }
 
-            private ConfigurationSubscriptionDao dao = getDao();
-
             @Override
             protected void test() throws Exception {
                 TestUtil.test(() -> dao.remove(findOne(input, dao).getId()), expectation, getClass(),
-                    new JsonSerializationOptions(true, false));
+                              new JsonSerializationOptions(true, false));
             }
 
         }
@@ -257,16 +279,16 @@ public class ConfigurationSubscriptionDaoTest {
 
         private static class UpdateTest extends TestCase<UpdateTestInput> {
 
+            private ConfigurationSubscriptionDao dao = getDao();
+
             public UpdateTest(UpdateTestInput input, Expectation expectation) {
                 super(input, expectation);
             }
 
-            private ConfigurationSubscriptionDao dao = getDao();
-
             @Override
             protected void test() throws Exception {
                 TestUtil.test(() -> dao.update(findOne(input, dao).getId(), input.subscription), expectation, getClass(),
-                    new JsonSerializationOptions(true, false));
+                              new JsonSerializationOptions(true, false));
             }
 
         }
@@ -282,21 +304,6 @@ public class ConfigurationSubscriptionDaoTest {
                 TestUtil.test(() -> getDao().add(input.subscription), expectation, getClass(), new JsonSerializationOptions(true, false));
             }
 
-        }
-
-        private static List<ConfigurationSubscription> findAll(FindAllTestInput input, ConfigurationSubscriptionDao dao) {
-            return dao.findAll(input.entries);
-        }
-
-        private static List<ConfigurationSubscription> findAll(String guid, ConfigurationSubscriptionDao dao) {
-            List<ConfigurationSubscription> subscriptions = dao.findAll(guid);
-            return subscriptions;
-        }
-
-        private static ConfigurationSubscription findOne(FindOneTestInput input, ConfigurationSubscriptionDao dao) {
-            List<ConfigurationSubscription> subscriptions = dao.findAll(input.mtaId, input.appName, input.spaceId, input.resourceName);
-            assertEquals(1, subscriptions.size());
-            return subscriptions.get(0);
         }
 
     }
@@ -318,8 +325,14 @@ public class ConfigurationSubscriptionDaoTest {
             try {
                 ResourceDto resourceDto = new ResourceDto("", Collections.emptyMap());
                 ModuleDto moduleDto = new ModuleDto("", Collections.emptyMap(), Collections.emptyList(), Collections.emptyList());
-                getDao().update(1, new ConfigurationSubscription(0, "", "", "", new ConfigurationFilter(null, null, null, null, null),
-                    moduleDto, resourceDto));
+                getDao().update(1,
+                                new ConfigurationSubscription(0,
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              new ConfigurationFilter(null, null, null, null, null),
+                                                              moduleDto,
+                                                              resourceDto));
                 fail();
             } catch (SLException e) {
                 assertEquals(MessageFormat.format(Messages.CONFIGURATION_SUBSCRIPTION_NOT_FOUND, 1), e.getMessage());
@@ -336,12 +349,6 @@ public class ConfigurationSubscriptionDaoTest {
             }
         }
 
-    }
-
-    private static ConfigurationSubscriptionDao getDao() {
-        ConfigurationSubscriptionDao dao = new ConfigurationSubscriptionDao();
-        dao.dao = new ConfigurationSubscriptionDtoDao(EMF);
-        return dao;
     }
 
 }

@@ -10,7 +10,7 @@ public class PingResource {
     @GET
     public Response ping() {
         return Response.ok("pong")
-            .build();
+                       .build();
     }
 
 }

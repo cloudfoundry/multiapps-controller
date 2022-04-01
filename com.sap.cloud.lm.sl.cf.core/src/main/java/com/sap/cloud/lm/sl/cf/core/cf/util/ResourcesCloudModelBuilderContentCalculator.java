@@ -16,7 +16,7 @@ public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBu
     private UserMessageLogger userMessageLogger;
 
     public ResourcesCloudModelBuilderContentCalculator(List<String> resourcesSpecifiedForDeployment, PropertiesAccessor propertiesAccessor,
-        UserMessageLogger userMessageLogger) {
+                                                       UserMessageLogger userMessageLogger) {
         this.resourcesSpecifiedForDeployment = resourcesSpecifiedForDeployment;
         this.propertiesAccessor = propertiesAccessor;
         this.userMessageLogger = userMessageLogger;
@@ -25,10 +25,10 @@ public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBu
     @Override
     public List<Resource> calculateContentForBuilding(List<? extends Resource> elements) {
         return elements.stream()
-            .filter(resource -> isActive(resource))
-            .filter(this::isResourceSpecifiedForDeployment)
-            .filter(resource -> isService(resource))
-            .collect(Collectors.toList());
+                       .filter(resource -> isActive(resource))
+                       .filter(this::isResourceSpecifiedForDeployment)
+                       .filter(resource -> isService(resource))
+                       .collect(Collectors.toList());
     }
 
     private boolean isService(Resource resource) {

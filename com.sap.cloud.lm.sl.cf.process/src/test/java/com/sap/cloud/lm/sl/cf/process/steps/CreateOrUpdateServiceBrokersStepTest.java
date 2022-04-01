@@ -42,23 +42,31 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
     private final String inputLocation;
     private final String expectedOutputLocation;
     private final String expectedWarningMessage;
-
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     private StepInput input;
     private StepOutput expectedOutput;
-
     @Mock
     private ServiceBrokerCreator serviceBrokerCreator;
     @Mock
     private ServiceBrokersGetter serviceBrokersGetter;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @InjectMocks
     private CreateOrUpdateServiceBrokersStep step = new CreateOrUpdateServiceBrokersStep();
     private CloudOperationException updateException;
     private CloudOperationException createException;
     private Class<? extends Throwable> expectedExceptionClass;
+
+    public CreateOrUpdateServiceBrokersStepTest(String inputLocation, String expectedOutputLocation, String expectedWarningMessage,
+                                                String expectedExceptionMessage, Class<? extends Throwable> expectedExceptionClass,
+                                                CloudOperationException createException, CloudOperationException updateException) {
+        this.expectedOutputLocation = expectedOutputLocation;
+        this.expectedWarningMessage = expectedWarningMessage;
+        this.expectedExceptionMessage = expectedExceptionMessage;
+        this.expectedExceptionClass = (expectedExceptionClass != null) ? expectedExceptionClass : SLException.class;
+        this.inputLocation = inputLocation;
+        this.updateException = updateException;
+        this.createException = createException;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -112,11 +120,11 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
             {
                 "create-service-brokers-step-input-09.json", null, null, "Controller operation failed: 418 I'm a teapot", CloudControllerException.class, null, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT),
             },
-            // (12) Create/update calls for should fail, because both create and update throw an exception and failsafe option is not set: 
+            // (12) Create/update calls for should fail, because both create and update throw an exception and failsafe option is not set:
             {
                 "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", null, "Controller operation failed: 403 Forbidden", CloudControllerException.class, new CloudOperationException(HttpStatus.FORBIDDEN), new CloudOperationException(HttpStatus.FORBIDDEN),
             },
-            // (13) Create/update calls for both brokers should be made, although both create and update throw an exception but failsafe option is set: 
+            // (13) Create/update calls for both brokers should be made, although both create and update throw an exception but failsafe option is set:
             {
                 "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", "Could not create service broker \"bar-broker\". Operation forbidden. Only admin users can manage service brokers!", null, null, new CloudOperationException(HttpStatus.FORBIDDEN), new CloudOperationException(HttpStatus.FORBIDDEN),
             },
@@ -140,18 +148,6 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
         });
     }
 
-    public CreateOrUpdateServiceBrokersStepTest(String inputLocation, String expectedOutputLocation, String expectedWarningMessage,
-        String expectedExceptionMessage, Class<? extends Throwable> expectedExceptionClass, CloudOperationException createException,
-        CloudOperationException updateException) {
-        this.expectedOutputLocation = expectedOutputLocation;
-        this.expectedWarningMessage = expectedWarningMessage;
-        this.expectedExceptionMessage = expectedExceptionMessage;
-        this.expectedExceptionClass = (expectedExceptionClass != null) ? expectedExceptionClass : SLException.class;
-        this.inputLocation = inputLocation;
-        this.updateException = updateException;
-        this.createException = createException;
-    }
-
     @Before
     public void setUp() throws Exception {
         loadParameters();
@@ -170,16 +166,16 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
         assertEquals(JsonUtil.toJson(expectedOutput, true), JsonUtil.toJson(actualOutput, true));
         if (expectedWarningMessage != null) {
             Mockito.verify(stepLogger)
-                .warn(expectedWarningMessage);
+                   .warn(expectedWarningMessage);
         }
 
         List<CloudServiceBrokerExtended> actuallyCreatedServiceBrokers = StepsUtil.getServiceBrokersToCreate(context);
         Collections.sort(actuallyCreatedServiceBrokers, (broker1, broker2) -> broker1.getName()
-            .compareTo(broker2.getName()));
+                                                                                     .compareTo(broker2.getName()));
         List<CloudServiceBrokerExtended> expectedServiceBrokersToCreate = new ArrayList<>(expectedOutput.createdServiceBrokers);
         expectedServiceBrokersToCreate.addAll(expectedOutput.updatedServiceBrokers);
         Collections.sort(expectedServiceBrokersToCreate, (broker1, broker2) -> broker1.getName()
-            .compareTo(broker2.getName()));
+                                                                                      .compareTo(broker2.getName()));
 
         assertEquals(JsonUtil.toJson(expectedServiceBrokersToCreate, true), JsonUtil.toJson(actuallyCreatedServiceBrokers, true));
     }
@@ -196,7 +192,7 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
         context.setVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);
         input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
         Mockito.when(configuration.getPlatformType())
-            .thenReturn(input.platformType);
+               .thenReturn(input.platformType);
     }
 
     private void prepareContext() {
@@ -206,26 +202,26 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
 
     private List<CloudApplicationExtended> toCloudApplications(List<SimpleApplication> applications) {
         return applications.stream()
-            .map((application) -> application.toCloudApplication())
-            .collect(Collectors.toList());
+                           .map((application) -> application.toCloudApplication())
+                           .collect(Collectors.toList());
     }
 
     private void prepareClient() {
         Mockito.when(serviceBrokersGetter.getServiceBrokers(client))
-            .thenReturn(input.existingServiceBrokers);
+               .thenReturn(input.existingServiceBrokers);
         if (updateException != null) {
             Mockito.doThrow(updateException)
-                .when(client)
-                .updateServiceBroker(Mockito.any());
+                   .when(client)
+                   .updateServiceBroker(Mockito.any());
         }
         if (createException != null) {
             Mockito.doThrow(createException)
-                .when(serviceBrokerCreator)
-                .createServiceBroker(Mockito.any(), Mockito.any());
+                   .when(serviceBrokerCreator)
+                   .createServiceBroker(Mockito.any(), Mockito.any());
         }
         for (SimpleApplication application : input.applications) {
             Mockito.when(client.getApplication(application.name))
-                .thenReturn(application.toCloudApplication());
+                   .thenReturn(application.toCloudApplication());
         }
     }
 
@@ -236,16 +232,21 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
         ArgumentCaptor<CloudServiceBrokerExtended> createArgumentCaptor = ArgumentCaptor.forClass(CloudServiceBrokerExtended.class);
         int expectedCreatedBrokersCnt = expectedOutput.createdServiceBrokers.size();
         Mockito.verify(serviceBrokerCreator, Mockito.times(expectedCreatedBrokersCnt))
-            .createServiceBroker(Mockito.eq(client), createArgumentCaptor.capture());
+               .createServiceBroker(Mockito.eq(client), createArgumentCaptor.capture());
         actualOutput.createdServiceBrokers = createArgumentCaptor.getAllValues();
 
         ArgumentCaptor<CloudServiceBrokerExtended> updateArgumentCaptor = ArgumentCaptor.forClass(CloudServiceBrokerExtended.class);
         int expectedUpdatedBrokersCnt = expectedOutput.updatedServiceBrokers.size();
         Mockito.verify(client, Mockito.times(expectedUpdatedBrokersCnt))
-            .updateServiceBroker(updateArgumentCaptor.capture());
+               .updateServiceBroker(updateArgumentCaptor.capture());
         actualOutput.updatedServiceBrokers = updateArgumentCaptor.getAllValues();
 
         return actualOutput;
+    }
+
+    @Override
+    protected CreateOrUpdateServiceBrokersStep createStep() {
+        return new CreateOrUpdateServiceBrokersStep();
     }
 
     private static class StepInput {
@@ -271,11 +272,6 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
             return application;
         }
 
-    }
-
-    @Override
-    protected CreateOrUpdateServiceBrokersStep createStep() {
-        return new CreateOrUpdateServiceBrokersStep();
     }
 
 }

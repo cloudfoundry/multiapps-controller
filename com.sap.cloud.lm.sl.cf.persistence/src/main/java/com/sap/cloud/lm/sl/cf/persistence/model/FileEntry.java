@@ -91,8 +91,8 @@ public class FileEntry {
 
     @Override
     public String toString() {
-        return "FileEntry [id=" + id + ", name=" + name + ", namespace=" + namespace + ", space=" + space + ", digest="
-            + digest + ", modified=" + modified + "]";
+        return "FileEntry [id=" + id + ", name=" + name + ", namespace=" + namespace + ", space=" + space + ", digest=" + digest
+            + ", modified=" + modified + "]";
     }
 
 }

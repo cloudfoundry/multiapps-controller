@@ -34,7 +34,8 @@ public class AdminResource {
     }
 
     private void ensureUserIsAuthorized(String resourceAction) {
-        authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), appConfiguration.getSpaceId(), resourceAction);
+        authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), appConfiguration.getSpaceId(),
+                                                    resourceAction);
     }
 
 }

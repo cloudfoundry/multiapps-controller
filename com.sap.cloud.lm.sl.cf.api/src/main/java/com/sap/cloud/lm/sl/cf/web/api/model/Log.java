@@ -159,13 +159,27 @@ public class Log {
         StringBuilder sb = new StringBuilder();
         sb.append("class Log {\n");
 
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    lastModified: ").append(toIndentedString(lastModified)).append("\n");
-        sb.append("    content: ").append(toIndentedString(content)).append("\n");
-        sb.append("    size: ").append(toIndentedString(size)).append("\n");
-        sb.append("    displayName: ").append(toIndentedString(displayName)).append("\n");
-        sb.append("    description: ").append(toIndentedString(description)).append("\n");
-        sb.append("    externalInfo: ").append(toIndentedString(externalInfo)).append("\n");
+        sb.append("    id: ")
+          .append(toIndentedString(id))
+          .append("\n");
+        sb.append("    lastModified: ")
+          .append(toIndentedString(lastModified))
+          .append("\n");
+        sb.append("    content: ")
+          .append(toIndentedString(content))
+          .append("\n");
+        sb.append("    size: ")
+          .append(toIndentedString(size))
+          .append("\n");
+        sb.append("    displayName: ")
+          .append(toIndentedString(displayName))
+          .append("\n");
+        sb.append("    description: ")
+          .append(toIndentedString(description))
+          .append("\n");
+        sb.append("    externalInfo: ")
+          .append(toIndentedString(externalInfo))
+          .append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -177,6 +191,7 @@ public class Log {
         if (o == null) {
             return "null";
         }
-        return o.toString().replace("\n", "\n    ");
+        return o.toString()
+                .replace("\n", "\n    ");
     }
 }

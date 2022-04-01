@@ -40,13 +40,16 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
 
     private final StepInput stepInput;
     private final String expectedExceptionMessage;
-
-    private CloudApplicationExtended application;
-
-    private ApplicationStagingUpdater applicationUpdater = Mockito.mock(ApplicationStagingUpdater.class);
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    private CloudApplicationExtended application;
+    private ApplicationStagingUpdater applicationUpdater = Mockito.mock(ApplicationStagingUpdater.class);
+
+    public CreateAppStepTest(String stepInput, String expectedExceptionMessage, PlatformType platform) throws Exception {
+        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CreateAppStepTest.class), StepInput.class);
+        this.stepInput.platform = platform;
+        this.expectedExceptionMessage = expectedExceptionMessage;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -83,15 +86,9 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
                 "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service\"",
                 PlatformType.XS2
             },
-          
+
 // @formatter:on
         });
-    }
-
-    public CreateAppStepTest(String stepInput, String expectedExceptionMessage, PlatformType platform) throws Exception {
-        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CreateAppStepTest.class), StepInput.class);
-        this.stepInput.platform = platform;
-        this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
     @Before
@@ -114,7 +111,7 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
     private void validateApplicationUpdate() {
         if (stepInput.platform == PlatformType.CF) {
             Mockito.verify(applicationUpdater)
-                .updateApplicationStaging(eq(client), eq(application.getName()), eq(application.getStaging()));
+                   .updateApplicationStaging(eq(client), eq(application.getName()), eq(application.getStaging()));
         }
     }
 
@@ -138,9 +135,9 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
 
     private List<CloudServiceExtended> mapToCloudServiceExtended() {
         return application.getServices()
-            .stream()
-            .map(serviceName -> extracted(serviceName))
-            .collect(Collectors.toList());
+                          .stream()
+                          .map(serviceName -> extracted(serviceName))
+                          .collect(Collectors.toList());
     }
 
     private CloudServiceExtended extracted(String serviceName) {
@@ -154,28 +151,28 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
 
     private void prepareClient() {
         Mockito.when(configuration.getPlatformType())
-            .thenReturn(stepInput.platform);
+               .thenReturn(stepInput.platform);
         for (SimpleService simpleService : stepInput.services) {
             CloudServiceExtended service = simpleService.toCloudServiceExtended();
             if (!service.isOptional()) {
                 Mockito.when(client.getService(service.getName()))
-                    .thenReturn(service);
+                       .thenReturn(service);
             }
         }
 
         for (String appName : stepInput.bindingErrors.keySet()) {
             String serviceName = stepInput.bindingErrors.get(appName);
-            Mockito
-                .doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                    "Something happened!"))
-                .when((XsCloudControllerClient) client)
-                .bindService(Mockito.eq(appName), Mockito.eq(serviceName), Mockito.any());
+            Mockito.doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR,
+                                                        HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                                                        "Something happened!"))
+                   .when((XsCloudControllerClient) client)
+                   .bindService(Mockito.eq(appName), Mockito.eq(serviceName), Mockito.any());
         }
 
         for (String serviceName : stepInput.existingServiceKeys.keySet()) {
             List<ServiceKey> serviceKeys = stepInput.existingServiceKeys.get(serviceName);
             Mockito.when(client.getServiceKeys(eq(serviceName)))
-                .thenReturn(ListUtil.upcast(serviceKeys));
+                   .thenReturn(ListUtil.upcast(serviceKeys));
         }
     }
 
@@ -184,23 +181,23 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
         Integer memory = (application.getMemory() != 0) ? application.getMemory() : null;
 
         Mockito.verify(client)
-            .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
-                eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()), eq(null));
+               .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
+                                  eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()), eq(null));
         for (String service : application.getServices()) {
             if (!isOptional(service)) {
                 if (application.getBindingParameters() == null || application.getBindingParameters()
-                    .get(service) == null) {
+                                                                             .get(service) == null) {
                     Mockito.verify(client)
-                        .bindService(application.getName(), service);
+                           .bindService(application.getName(), service);
                 } else {
                     Mockito.verify(client)
-                        .bindService(application.getName(), service, application.getBindingParameters()
-                            .get(service));
+                           .bindService(application.getName(), service, application.getBindingParameters()
+                                                                                   .get(service));
                 }
             }
         }
         Mockito.verify(client)
-            .updateApplicationEnv(eq(application.getName()), eq(application.getEnvAsMap()));
+               .updateApplicationEnv(eq(application.getName()), eq(application.getEnvAsMap()));
     }
 
     private boolean isOptional(String service) {
@@ -210,6 +207,11 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
             }
         }
         return false;
+    }
+
+    @Override
+    protected CreateAppStep createStep() {
+        return new CreateAppStep();
     }
 
     private static class StepInput {
@@ -231,11 +233,6 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
             service.setOptional(isOptional);
             return service;
         }
-    }
-
-    @Override
-    protected CreateAppStep createStep() {
-        return new CreateAppStep();
     }
 
     public static class TestWithDocker extends SyncFlowableStepTest<CreateAppStep> {
@@ -261,7 +258,7 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
             byte[] serviceKeysToInjectByteArray = JsonUtil.toBinaryJson(new HashMap<>());
             context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
             stepInput.applications.get(0)
-                .setDockerInfo(dockerInfo);
+                                  .setDockerInfo(dockerInfo);
             StepsUtil.setAppsToDeploy(context, stepInput.applications);
             StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
         }
@@ -284,7 +281,7 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
 
         private void prepareConfiguration() {
             Mockito.when(configuration.getPlatformType())
-                .thenReturn(stepInput.platform);
+                   .thenReturn(stepInput.platform);
         }
 
         @Test
@@ -341,10 +338,10 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
             Integer memory = (application.getMemory() != 0) ? application.getMemory() : null;
 
             Mockito.verify(client)
-                .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
-                    eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()), eq(dockerInfo));
+                   .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
+                                      eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()), eq(dockerInfo));
             Mockito.verify(client)
-                .updateApplicationEnv(eq(application.getName()), eq(application.getEnvAsMap()));
+                   .updateApplicationEnv(eq(application.getName()), eq(application.getEnvAsMap()));
         }
 
         @Override

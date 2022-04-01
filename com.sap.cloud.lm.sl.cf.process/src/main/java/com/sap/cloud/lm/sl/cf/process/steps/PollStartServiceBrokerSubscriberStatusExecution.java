@@ -9,20 +9,20 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 public class PollStartServiceBrokerSubscriberStatusExecution extends PollStartAppStatusExecution {
 
     public PollStartServiceBrokerSubscriberStatusExecution(RecentLogsRetriever recentLogsRetriever,
-        ApplicationConfiguration configuration) {
+                                                           ApplicationConfiguration configuration) {
         super(recentLogsRetriever, configuration);
     }
 
     @Override
     protected void onError(ExecutionWrapper execution, String message, Exception e) {
         execution.getStepLogger()
-            .warn(e, message);
+                 .warn(e, message);
     }
 
     @Override
     protected void onError(ExecutionWrapper execution, String message) {
         execution.getStepLogger()
-            .warn(message);
+                 .warn(message);
     }
 
     @Override

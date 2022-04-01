@@ -26,6 +26,11 @@ public class ApplicationEnvironmentUpdaterTest {
     private ApplicationEnvironmentUpdater applicationEnvironmentUpdater;
     private CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
 
+    public ApplicationEnvironmentUpdaterTest(String input, Expectation expectation) throws Exception {
+        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, getClass()), Input.class);
+        this.expectation = expectation;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -41,11 +46,6 @@ public class ApplicationEnvironmentUpdaterTest {
         });
     }
 
-    public ApplicationEnvironmentUpdaterTest(String input, Expectation expectation) throws Exception {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, getClass()), Input.class);
-        this.expectation = expectation;
-    }
-
     @Before
     public void prepare() {
         applicationEnvironmentUpdater = new ApplicationEnvironmentUpdater(input.app.toCloudApplication(), client).withPrettyPrinting(false);
@@ -57,7 +57,7 @@ public class ApplicationEnvironmentUpdaterTest {
         applicationEnvironmentUpdater.updateApplicationEnvironment(input.envPropertyKey, input.newKey, input.newValue);
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
         Mockito.verify(client)
-            .updateApplicationEnv(Mockito.eq(input.app.name), (Map<String, String>) captor.capture());
+               .updateApplicationEnv(Mockito.eq(input.app.name), (Map<String, String>) captor.capture());
         TestUtil.test(() -> captor.getValue(), expectation, getClass());
     }
 

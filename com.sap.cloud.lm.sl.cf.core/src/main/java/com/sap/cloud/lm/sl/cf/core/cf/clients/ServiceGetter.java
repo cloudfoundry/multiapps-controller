@@ -16,7 +16,7 @@ public class ServiceGetter {
 
     @Inject
     public ServiceGetter(@Qualifier("serviceInstanceGetter") AbstractServiceGetter serviceInstanceGetter,
-        @Qualifier("userProvidedServiceInstanceGetter") AbstractServiceGetter userProvidedServiceInstanceGetter) {
+                         @Qualifier("userProvidedServiceInstanceGetter") AbstractServiceGetter userProvidedServiceInstanceGetter) {
 
         this.serviceInstanceGetter = serviceInstanceGetter;
         this.userProvidedServiceInstanceGetter = userProvidedServiceInstanceGetter;

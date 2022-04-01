@@ -18,20 +18,28 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.common.ContentException;;
+import com.sap.cloud.lm.sl.common.ContentException;
+
+;
 
 @RunWith(Parameterized.class)
 public class MemoryParametersParserTest {
 
+    private static final Integer DEFAULT_MEMORY = 100;
+    private final MemoryParametersParser parser = new MemoryParametersParser(SupportedParameters.MEMORY, "100");
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     private String memoryString;
     private Integer expectedParsedMemory;
     private Class<? extends RuntimeException> expectedExceptionClass;
     private List<Map<String, Object>> parametersList = new ArrayList<>();
-    private static final Integer DEFAULT_MEMORY = 100;
-    private final MemoryParametersParser parser = new MemoryParametersParser(SupportedParameters.MEMORY, "100");
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public MemoryParametersParserTest(String memoryString, Integer expectedParsedMemory,
+                                      Class<? extends RuntimeException> expectedExceptionClass) {
+        this.memoryString = memoryString;
+        this.expectedParsedMemory = expectedParsedMemory;
+        this.expectedExceptionClass = expectedExceptionClass;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -78,13 +86,6 @@ public class MemoryParametersParserTest {
             }
 // @formatter:on
         });
-    }
-
-    public MemoryParametersParserTest(String memoryString, Integer expectedParsedMemory,
-        Class<? extends RuntimeException> expectedExceptionClass) {
-        this.memoryString = memoryString;
-        this.expectedParsedMemory = expectedParsedMemory;
-        this.expectedExceptionClass = expectedExceptionClass;
     }
 
     @Before

@@ -30,7 +30,19 @@ import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectMtaSchemaVersionStep> {
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("build-cloud-model.yaml",
-        DetectMtaSchemaVersionStepTest.class);
+                                                                                               DetectMtaSchemaVersionStepTest.class);
+    @Mock
+    public SchemaVersionDetector versionDetector;
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+    private String schemaVersion;
+    private int expectedMajor;
+    private String expectedExceptionMessage;
+    public DetectMtaSchemaVersionStepTest(String schemaVersion, int expectedMajor, String expectedExceptionMessage) {
+        this.schemaVersion = schemaVersion;
+        this.expectedMajor = expectedMajor;
+        this.expectedExceptionMessage = expectedExceptionMessage;
+    }
 
     @Parameters
     public static Collection<Object[]> getParameters() {
@@ -66,21 +78,6 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
             },
 // @formatter:on
         });
-    }
-
-    @Mock
-    public SchemaVersionDetector versionDetector;
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    private String schemaVersion;
-    private int expectedMajor;
-    private String expectedExceptionMessage;
-
-    public DetectMtaSchemaVersionStepTest(String schemaVersion, int expectedMajor, String expectedExceptionMessage) {
-        this.schemaVersion = schemaVersion;
-        this.expectedMajor = expectedMajor;
-        this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
     @Before

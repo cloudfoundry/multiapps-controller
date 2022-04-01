@@ -17,6 +17,11 @@ public class ObjectToEnvironmentValueConverterTest {
     private String objectJsonFilePath;
     private Expectation expectation;
 
+    public ObjectToEnvironmentValueConverterTest(String objectJsonFilePath, Expectation expectation) {
+        this.objectJsonFilePath = objectJsonFilePath;
+        this.expectation = expectation;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -47,11 +52,6 @@ public class ObjectToEnvironmentValueConverterTest {
             },
 // @formatter:on
         });
-    }
-
-    public ObjectToEnvironmentValueConverterTest(String objectJsonFilePath, Expectation expectation) {
-        this.objectJsonFilePath = objectJsonFilePath;
-        this.expectation = expectation;
     }
 
     @Test

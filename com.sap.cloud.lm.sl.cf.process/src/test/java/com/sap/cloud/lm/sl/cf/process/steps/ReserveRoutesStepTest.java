@@ -14,8 +14,8 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort.ApplicationPortType;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -24,6 +24,10 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 public class ReserveRoutesStepTest extends SyncFlowableStepTest<ReserveRoutesStep> {
 
     private StepInput stepInput;
+
+    public ReserveRoutesStepTest(String stepInput) throws IOException, ParsingException {
+        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, ReserveRoutesStepTest.class), StepInput.class);
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -39,10 +43,6 @@ public class ReserveRoutesStepTest extends SyncFlowableStepTest<ReserveRoutesSte
             }
 // @formatter:on
         });
-    }
-
-    public ReserveRoutesStepTest(String stepInput) throws IOException, ParsingException {
-        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, ReserveRoutesStepTest.class), StepInput.class);
     }
 
     @Before
@@ -79,7 +79,7 @@ public class ReserveRoutesStepTest extends SyncFlowableStepTest<ReserveRoutesSte
         for (String domain : stepInput.domains) {
             boolean tcps = ApplicationPortType.TCPS.equals(applicationPort.getPortType());
             Mockito.verify(client)
-                .reserveTcpPort(applicationPort.getPort(), domain, tcps);
+                   .reserveTcpPort(applicationPort.getPort(), domain, tcps);
         }
     }
 

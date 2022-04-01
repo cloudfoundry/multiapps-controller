@@ -21,7 +21,8 @@ public class SecureJsonSerializer extends SecureSerializer<JsonElement<com.googl
 
     private Gson getGson() {
         return (configuration.formattedOutputIsEnabled() ? new GsonBuilder().setPrettyPrinting()
-            .create() : new Gson());
+                                                                            .create()
+            : new Gson());
     }
 
 }

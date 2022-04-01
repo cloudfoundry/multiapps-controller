@@ -4,510 +4,123 @@
 package com.sap.cloud.lm.sl.cf.client.events;
 
 public final class ErrorFactory {
-  private ErrorFactory() {}
-  public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistryLite registry) {
-  }
+    private static final com.google.protobuf.Descriptors.Descriptor internal_static_events_Error_descriptor;
+    private static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internal_static_events_Error_fieldAccessorTable;
+    private static com.google.protobuf.Descriptors.FileDescriptor descriptor;
 
-  public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistry registry) {
-    registerAllExtensions(
-        (com.google.protobuf.ExtensionRegistryLite) registry);
-  }
-  public interface ErrorOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:events.Error)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <pre>
-     *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
-     * </pre>
-     *
-     * <code>required string source = 1;</code>
-     */
-    boolean hasSource();
-    /**
-     * <pre>
-     *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
-     * </pre>
-     *
-     * <code>required string source = 1;</code>
-     */
-    java.lang.String getSource();
-    /**
-     * <pre>
-     *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
-     * </pre>
-     *
-     * <code>required string source = 1;</code>
-     */
-    com.google.protobuf.ByteString
-        getSourceBytes();
-
-    /**
-     * <pre>
-     *&#47; Numeric error code. This is provided for programmatic responses to the error.
-     * </pre>
-     *
-     * <code>required int32 code = 2;</code>
-     */
-    boolean hasCode();
-    /**
-     * <pre>
-     *&#47; Numeric error code. This is provided for programmatic responses to the error.
-     * </pre>
-     *
-     * <code>required int32 code = 2;</code>
-     */
-    int getCode();
-
-    /**
-     * <pre>
-     *&#47; Error description (preferably human-readable).
-     * </pre>
-     *
-     * <code>required string message = 3;</code>
-     */
-    boolean hasMessage();
-    /**
-     * <pre>
-     *&#47; Error description (preferably human-readable).
-     * </pre>
-     *
-     * <code>required string message = 3;</code>
-     */
-    java.lang.String getMessage();
-    /**
-     * <pre>
-     *&#47; Error description (preferably human-readable).
-     * </pre>
-     *
-     * <code>required string message = 3;</code>
-     */
-    com.google.protobuf.ByteString
-        getMessageBytes();
-  }
-  /**
-   * <pre>
-   *&#47; An Error event represents an error in the originating process.
-   * </pre>
-   *
-   * Protobuf type {@code events.Error}
-   */
-  public  static final class Error extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:events.Error)
-      ErrorOrBuilder {
-    // Use Error.newBuilder() to construct.
-    private Error(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private Error() {
-      source_ = "";
-      code_ = 0;
-      message_ = "";
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return this.unknownFields;
-    }
-    private Error(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
+    static {
+        java.lang.String[] descriptorData = { "\n\013error.proto\022\006events\"6\n\005Error\022\016\n\006source"
+            + "\030\001 \002(\t\022\014\n\004code\030\002 \002(\005\022\017\n\007message\030\003 \002(\tB1\n"
+            + "!org.cloudfoundry.dropsonde.eventsB\014Erro" + "rFactory" };
+        com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner = new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+            public com.google.protobuf.ExtensionRegistry assignDescriptors(com.google.protobuf.Descriptors.FileDescriptor root) {
+                descriptor = root;
+                return null;
             }
-            case 10: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000001;
-              source_ = bs;
-              break;
-            }
-            case 16: {
-              bitField0_ |= 0x00000002;
-              code_ = input.readInt32();
-              break;
-            }
-            case 26: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000004;
-              message_ = bs;
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-            return ErrorFactory.internal_static_events_Error_descriptor;
+        };
+        com.google.protobuf.Descriptors.FileDescriptor.internalBuildGeneratedFileFrom(descriptorData,
+                                                                                      new com.google.protobuf.Descriptors.FileDescriptor[] {},
+                                                                                      assigner);
+        internal_static_events_Error_descriptor = getDescriptor().getMessageTypes()
+                                                                 .get(0);
+        internal_static_events_Error_fieldAccessorTable = new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(internal_static_events_Error_descriptor,
+                                                                                                                        new java.lang.String[] {
+                                                                                                                            "Source",
+                                                                                                                            "Code",
+                                                                                                                            "Message", });
     }
 
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return ErrorFactory.internal_static_events_Error_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-ErrorFactory.Error.class,
-                ErrorFactory.Error.Builder.class);
+    private ErrorFactory() {
     }
 
-    private int bitField0_;
-    public static final int SOURCE_FIELD_NUMBER = 1;
-    private volatile java.lang.Object source_;
-    /**
-     * <pre>
-     *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
-     * </pre>
-     *
-     * <code>required string source = 1;</code>
-     */
-    public boolean hasSource() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <pre>
-     *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
-     * </pre>
-     *
-     * <code>required string source = 1;</code>
-     */
-    public java.lang.String getSource() {
-      java.lang.Object ref = source_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          source_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <pre>
-     *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
-     * </pre>
-     *
-     * <code>required string source = 1;</code>
-     */
-    public com.google.protobuf.ByteString
-        getSourceBytes() {
-      java.lang.Object ref = source_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        source_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
+    public static void registerAllExtensions(com.google.protobuf.ExtensionRegistryLite registry) {
     }
 
-    public static final int CODE_FIELD_NUMBER = 2;
-    private int code_;
-    /**
-     * <pre>
-     *&#47; Numeric error code. This is provided for programmatic responses to the error.
-     * </pre>
-     *
-     * <code>required int32 code = 2;</code>
-     */
-    public boolean hasCode() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    /**
-     * <pre>
-     *&#47; Numeric error code. This is provided for programmatic responses to the error.
-     * </pre>
-     *
-     * <code>required int32 code = 2;</code>
-     */
-    public int getCode() {
-      return code_;
+    public static void registerAllExtensions(com.google.protobuf.ExtensionRegistry registry) {
+        registerAllExtensions((com.google.protobuf.ExtensionRegistryLite) registry);
     }
 
-    public static final int MESSAGE_FIELD_NUMBER = 3;
-    private volatile java.lang.Object message_;
-    /**
-     * <pre>
-     *&#47; Error description (preferably human-readable).
-     * </pre>
-     *
-     * <code>required string message = 3;</code>
-     */
-    public boolean hasMessage() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    /**
-     * <pre>
-     *&#47; Error description (preferably human-readable).
-     * </pre>
-     *
-     * <code>required string message = 3;</code>
-     */
-    public java.lang.String getMessage() {
-      java.lang.Object ref = message_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          message_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <pre>
-     *&#47; Error description (preferably human-readable).
-     * </pre>
-     *
-     * <code>required string message = 3;</code>
-     */
-    public com.google.protobuf.ByteString
-        getMessageBytes() {
-      java.lang.Object ref = message_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        message_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
+    public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor() {
+        return descriptor;
     }
 
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
+    public interface ErrorOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:events.Error)
+        com.google.protobuf.MessageOrBuilder {
 
-      if (!hasSource()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasCode()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasMessage()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      memoizedIsInitialized = 1;
-      return true;
+        /**
+         * <pre>
+         *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
+         * </pre>
+         *
+         * <code>required string source = 1;</code>
+         */
+        boolean hasSource();
+
+        /**
+         * <pre>
+         *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
+         * </pre>
+         *
+         * <code>required string source = 1;</code>
+         */
+        java.lang.String getSource();
+
+        /**
+         * <pre>
+         *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
+         * </pre>
+         *
+         * <code>required string source = 1;</code>
+         */
+        com.google.protobuf.ByteString getSourceBytes();
+
+        /**
+         * <pre>
+         *&#47; Numeric error code. This is provided for programmatic responses to the error.
+         * </pre>
+         *
+         * <code>required int32 code = 2;</code>
+         */
+        boolean hasCode();
+
+        /**
+         * <pre>
+         *&#47; Numeric error code. This is provided for programmatic responses to the error.
+         * </pre>
+         *
+         * <code>required int32 code = 2;</code>
+         */
+        int getCode();
+
+        /**
+         * <pre>
+         *&#47; Error description (preferably human-readable).
+         * </pre>
+         *
+         * <code>required string message = 3;</code>
+         */
+        boolean hasMessage();
+
+        /**
+         * <pre>
+         *&#47; Error description (preferably human-readable).
+         * </pre>
+         *
+         * <code>required string message = 3;</code>
+         */
+        java.lang.String getMessage();
+
+        /**
+         * <pre>
+         *&#47; Error description (preferably human-readable).
+         * </pre>
+         *
+         * <code>required string message = 3;</code>
+         */
+        com.google.protobuf.ByteString getMessageBytes();
     }
 
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, source_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeInt32(2, code_);
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, message_);
-      }
-      unknownFields.writeTo(output);
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, source_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(2, code_);
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, message_);
-      }
-      size += unknownFields.getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-            if (!(obj instanceof ErrorFactory.Error)) {
-        return super.equals(obj);
-      }
-            ErrorFactory.Error other = (ErrorFactory.Error) obj;
-
-      boolean result = true;
-      result = result && (hasSource() == other.hasSource());
-      if (hasSource()) {
-        result = result && getSource()
-            .equals(other.getSource());
-      }
-      result = result && (hasCode() == other.hasCode());
-      if (hasCode()) {
-        result = result && (getCode()
-            == other.getCode());
-      }
-      result = result && (hasMessage() == other.hasMessage());
-      if (hasMessage()) {
-        result = result && getMessage()
-            .equals(other.getMessage());
-      }
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
-      if (hasSource()) {
-        hash = (37 * hash) + SOURCE_FIELD_NUMBER;
-        hash = (53 * hash) + getSource().hashCode();
-      }
-      if (hasCode()) {
-        hash = (37 * hash) + CODE_FIELD_NUMBER;
-        hash = (53 * hash) + getCode();
-      }
-      if (hasMessage()) {
-        hash = (37 * hash) + MESSAGE_FIELD_NUMBER;
-        hash = (53 * hash) + getMessage().hashCode();
-      }
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-        public static ErrorFactory.Error parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-
-        public static ErrorFactory.Error parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-
-        public static ErrorFactory.Error parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-
-        public static ErrorFactory.Error parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-
-        public static ErrorFactory.Error parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-
-        public static ErrorFactory.Error parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-        public static ErrorFactory.Error parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-
-        public static ErrorFactory.Error parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-
-        public static ErrorFactory.Error parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-
-        public static ErrorFactory.Error parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-
-        public static Builder newBuilder(ErrorFactory.Error prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
     /**
      * <pre>
      *&#47; An Error event represents an error in the originating process.
@@ -515,508 +128,853 @@ ErrorFactory.Error.class,
      *
      * Protobuf type {@code events.Error}
      */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:events.Error)
-            ErrorFactory.ErrorOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-                return ErrorFactory.internal_static_events_Error_descriptor;
-      }
+    public static final class Error extends com.google.protobuf.GeneratedMessageV3 implements
+        // @@protoc_insertion_point(message_implements:events.Error)
+        ErrorOrBuilder {
+        public static final int SOURCE_FIELD_NUMBER = 1;
+        public static final int CODE_FIELD_NUMBER = 2;
+        public static final int MESSAGE_FIELD_NUMBER = 3;
+        @java.lang.Deprecated
+        public static final com.google.protobuf.Parser<Error> PARSER = new com.google.protobuf.AbstractParser<Error>() {
+            public Error parsePartialFrom(com.google.protobuf.CodedInputStream input,
+                                          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+                return new Error(input, extensionRegistry);
+            }
+        };
+        private static final long serialVersionUID = 0L;
+        // @@protoc_insertion_point(class_scope:events.Error)
+        private static final ErrorFactory.Error DEFAULT_INSTANCE;
 
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-                return ErrorFactory.internal_static_events_Error_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                    ErrorFactory.Error.class, ErrorFactory.Error.Builder.class);
-      }
+        static {
+            DEFAULT_INSTANCE = new ErrorFactory.Error();
+        }
+
+        private int bitField0_;
+        private volatile java.lang.Object source_;
+        private int code_;
+        private volatile java.lang.Object message_;
+        private byte memoizedIsInitialized = -1;
+
+        // Use Error.newBuilder() to construct.
+        private Error(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+            super(builder);
+        }
+        private Error() {
+            source_ = "";
+            code_ = 0;
+            message_ = "";
+        }
+
+        private Error(com.google.protobuf.CodedInputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            this();
+            int mutable_bitField0_ = 0;
+            com.google.protobuf.UnknownFieldSet.Builder unknownFields = com.google.protobuf.UnknownFieldSet.newBuilder();
+            try {
+                boolean done = false;
+                while (!done) {
+                    int tag = input.readTag();
+                    switch (tag) {
+                        case 0:
+                            done = true;
+                            break;
+                        default: {
+                            if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
+                                done = true;
+                            }
+                            break;
+                        }
+                        case 10: {
+                            com.google.protobuf.ByteString bs = input.readBytes();
+                            bitField0_ |= 0x00000001;
+                            source_ = bs;
+                            break;
+                        }
+                        case 16: {
+                            bitField0_ |= 0x00000002;
+                            code_ = input.readInt32();
+                            break;
+                        }
+                        case 26: {
+                            com.google.protobuf.ByteString bs = input.readBytes();
+                            bitField0_ |= 0x00000004;
+                            message_ = bs;
+                            break;
+                        }
+                    }
+                }
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                throw e.setUnfinishedMessage(this);
+            } catch (java.io.IOException e) {
+                throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
+            } finally {
+                this.unknownFields = unknownFields.build();
+                makeExtensionsImmutable();
+            }
+        }
+
+        public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+            return ErrorFactory.internal_static_events_Error_descriptor;
+        }
+
+        public static ErrorFactory.Error parseFrom(com.google.protobuf.ByteString data)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+
+        public static ErrorFactory.Error parseFrom(com.google.protobuf.ByteString data,
+                                                   com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+
+        public static ErrorFactory.Error parseFrom(byte[] data) throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+
+        public static ErrorFactory.Error parseFrom(byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+
+        public static ErrorFactory.Error parseFrom(java.io.InputStream input) throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+        }
+
+        public static ErrorFactory.Error parseFrom(java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public static ErrorFactory.Error parseDelimitedFrom(java.io.InputStream input) throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
+        }
+
+        public static ErrorFactory.Error parseDelimitedFrom(java.io.InputStream input,
+                                                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public static ErrorFactory.Error parseFrom(com.google.protobuf.CodedInputStream input) throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+        }
+
+        public static ErrorFactory.Error parseFrom(com.google.protobuf.CodedInputStream input,
+                                                   com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public static Builder newBuilder() {
+            return DEFAULT_INSTANCE.toBuilder();
+        }
+
+        public static Builder newBuilder(ErrorFactory.Error prototype) {
+            return DEFAULT_INSTANCE.toBuilder()
+                                   .mergeFrom(prototype);
+        }
+
+        public static ErrorFactory.Error getDefaultInstance() {
+            return DEFAULT_INSTANCE;
+        }
+
+        public static com.google.protobuf.Parser<Error> parser() {
+            return PARSER;
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+            return this.unknownFields;
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+            return ErrorFactory.internal_static_events_Error_fieldAccessorTable.ensureFieldAccessorsInitialized(ErrorFactory.Error.class,
+                                                                                                                ErrorFactory.Error.Builder.class);
+        }
+
+        /**
+         * <pre>
+         *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
+         * </pre>
+         *
+         * <code>required string source = 1;</code>
+         */
+        public boolean hasSource() {
+            return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+
+        /**
+         * <pre>
+         *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
+         * </pre>
+         *
+         * <code>required string source = 1;</code>
+         */
+        public java.lang.String getSource() {
+            java.lang.Object ref = source_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                if (bs.isValidUtf8()) {
+                    source_ = s;
+                }
+                return s;
+            }
+        }
+
+        /**
+         * <pre>
+         *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
+         * </pre>
+         *
+         * <code>required string source = 1;</code>
+         */
+        public com.google.protobuf.ByteString getSourceBytes() {
+            java.lang.Object ref = source_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                source_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <pre>
+         *&#47; Numeric error code. This is provided for programmatic responses to the error.
+         * </pre>
+         *
+         * <code>required int32 code = 2;</code>
+         */
+        public boolean hasCode() {
+            return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+
+        /**
+         * <pre>
+         *&#47; Numeric error code. This is provided for programmatic responses to the error.
+         * </pre>
+         *
+         * <code>required int32 code = 2;</code>
+         */
+        public int getCode() {
+            return code_;
+        }
+
+        /**
+         * <pre>
+         *&#47; Error description (preferably human-readable).
+         * </pre>
+         *
+         * <code>required string message = 3;</code>
+         */
+        public boolean hasMessage() {
+            return ((bitField0_ & 0x00000004) == 0x00000004);
+        }
+
+        /**
+         * <pre>
+         *&#47; Error description (preferably human-readable).
+         * </pre>
+         *
+         * <code>required string message = 3;</code>
+         */
+        public java.lang.String getMessage() {
+            java.lang.Object ref = message_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                if (bs.isValidUtf8()) {
+                    message_ = s;
+                }
+                return s;
+            }
+        }
+
+        /**
+         * <pre>
+         *&#47; Error description (preferably human-readable).
+         * </pre>
+         *
+         * <code>required string message = 3;</code>
+         */
+        public com.google.protobuf.ByteString getMessageBytes() {
+            java.lang.Object ref = message_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                message_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized == 1)
+                return true;
+            if (isInitialized == 0)
+                return false;
+
+            if (!hasSource()) {
+                memoizedIsInitialized = 0;
+                return false;
+            }
+            if (!hasCode()) {
+                memoizedIsInitialized = 0;
+                return false;
+            }
+            if (!hasMessage()) {
+                memoizedIsInitialized = 0;
+                return false;
+            }
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 1, source_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                output.writeInt32(2, code_);
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 3, message_);
+            }
+            unknownFields.writeTo(output);
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSize;
+            if (size != -1)
+                return size;
+
+            size = 0;
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, source_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                size += com.google.protobuf.CodedOutputStream.computeInt32Size(2, code_);
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, message_);
+            }
+            size += unknownFields.getSerializedSize();
+            memoizedSize = size;
+            return size;
+        }
+
+        @java.lang.Override
+        public boolean equals(final java.lang.Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof ErrorFactory.Error)) {
+                return super.equals(obj);
+            }
+            ErrorFactory.Error other = (ErrorFactory.Error) obj;
+
+            boolean result = true;
+            result = result && (hasSource() == other.hasSource());
+            if (hasSource()) {
+                result = result && getSource().equals(other.getSource());
+            }
+            result = result && (hasCode() == other.hasCode());
+            if (hasCode()) {
+                result = result && (getCode() == other.getCode());
+            }
+            result = result && (hasMessage() == other.hasMessage());
+            if (hasMessage()) {
+                result = result && getMessage().equals(other.getMessage());
+            }
+            result = result && unknownFields.equals(other.unknownFields);
+            return result;
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            if (memoizedHashCode != 0) {
+                return memoizedHashCode;
+            }
+            int hash = 41;
+            hash = (19 * hash) + getDescriptorForType().hashCode();
+            if (hasSource()) {
+                hash = (37 * hash) + SOURCE_FIELD_NUMBER;
+                hash = (53 * hash) + getSource().hashCode();
+            }
+            if (hasCode()) {
+                hash = (37 * hash) + CODE_FIELD_NUMBER;
+                hash = (53 * hash) + getCode();
+            }
+            if (hasMessage()) {
+                hash = (37 * hash) + MESSAGE_FIELD_NUMBER;
+                hash = (53 * hash) + getMessage().hashCode();
+            }
+            hash = (29 * hash) + unknownFields.hashCode();
+            memoizedHashCode = hash;
+            return hash;
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
+        }
+
+        public Builder toBuilder() {
+            return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+        }
+
+        @java.lang.Override
+        protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+            Builder builder = new Builder(parent);
+            return builder;
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<Error> getParserForType() {
+            return PARSER;
+        }
+
+        public ErrorFactory.Error getDefaultInstanceForType() {
+            return DEFAULT_INSTANCE;
+        }
+
+        /**
+         * <pre>
+         *&#47; An Error event represents an error in the originating process.
+         * </pre>
+         *
+         * Protobuf type {@code events.Error}
+         */
+        public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+            // @@protoc_insertion_point(builder_implements:events.Error)
+            ErrorFactory.ErrorOrBuilder {
+            private int bitField0_;
+            private java.lang.Object source_ = "";
+            private int code_;
+            private java.lang.Object message_ = "";
 
             // Construct using ErrorFactory.Error.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
+            private Builder() {
+                maybeForceBuilderInitialization();
+            }
 
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        source_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        code_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        message_ = "";
-        bitField0_ = (bitField0_ & ~0x00000004);
-        return this;
-      }
+            private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+                super(parent);
+                maybeForceBuilderInitialization();
+            }
 
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
+            public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
                 return ErrorFactory.internal_static_events_Error_descriptor;
-      }
+            }
+
+            protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+                return ErrorFactory.internal_static_events_Error_fieldAccessorTable.ensureFieldAccessorsInitialized(ErrorFactory.Error.class,
+                                                                                                                    ErrorFactory.Error.Builder.class);
+            }
+
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
+                }
+            }
+
+            public Builder clear() {
+                super.clear();
+                source_ = "";
+                bitField0_ = (bitField0_ & ~0x00000001);
+                code_ = 0;
+                bitField0_ = (bitField0_ & ~0x00000002);
+                message_ = "";
+                bitField0_ = (bitField0_ & ~0x00000004);
+                return this;
+            }
+
+            public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+                return ErrorFactory.internal_static_events_Error_descriptor;
+            }
 
             public ErrorFactory.Error getDefaultInstanceForType() {
                 return ErrorFactory.Error.getDefaultInstance();
-      }
+            }
 
             public ErrorFactory.Error build() {
                 ErrorFactory.Error result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
+                if (!result.isInitialized()) {
+                    throw newUninitializedMessageException(result);
+                }
+                return result;
+            }
 
             public ErrorFactory.Error buildPartial() {
                 ErrorFactory.Error result = new ErrorFactory.Error(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.source_ = source_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.code_ = code_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
-        result.message_ = message_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
-      }
+                int from_bitField0_ = bitField0_;
+                int to_bitField0_ = 0;
+                if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+                    to_bitField0_ |= 0x00000001;
+                }
+                result.source_ = source_;
+                if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+                    to_bitField0_ |= 0x00000002;
+                }
+                result.code_ = code_;
+                if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+                    to_bitField0_ |= 0x00000004;
+                }
+                result.message_ = message_;
+                result.bitField0_ = to_bitField0_;
+                onBuilt();
+                return result;
+            }
 
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      public Builder mergeFrom(com.google.protobuf.Message other) {
+            public Builder clone() {
+                return (Builder) super.clone();
+            }
+
+            public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+                return (Builder) super.setField(field, value);
+            }
+
+            public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+                return (Builder) super.clearField(field);
+            }
+
+            public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+                return (Builder) super.clearOneof(oneof);
+            }
+
+            public Builder setRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, int index, Object value) {
+                return (Builder) super.setRepeatedField(field, index, value);
+            }
+
+            public Builder addRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+                return (Builder) super.addRepeatedField(field, value);
+            }
+
+            public Builder mergeFrom(com.google.protobuf.Message other) {
                 if (other instanceof ErrorFactory.Error) {
                     return mergeFrom((ErrorFactory.Error) other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
+                } else {
+                    super.mergeFrom(other);
+                    return this;
+                }
+            }
 
             public Builder mergeFrom(ErrorFactory.Error other) {
                 if (other == ErrorFactory.Error.getDefaultInstance())
                     return this;
-        if (other.hasSource()) {
-          bitField0_ |= 0x00000001;
-          source_ = other.source_;
-          onChanged();
-        }
-        if (other.hasCode()) {
-          setCode(other.getCode());
-        }
-        if (other.hasMessage()) {
-          bitField0_ |= 0x00000004;
-          message_ = other.message_;
-          onChanged();
-        }
-        this.mergeUnknownFields(other.unknownFields);
-        onChanged();
-        return this;
-      }
+                if (other.hasSource()) {
+                    bitField0_ |= 0x00000001;
+                    source_ = other.source_;
+                    onChanged();
+                }
+                if (other.hasCode()) {
+                    setCode(other.getCode());
+                }
+                if (other.hasMessage()) {
+                    bitField0_ |= 0x00000004;
+                    message_ = other.message_;
+                    onChanged();
+                }
+                this.mergeUnknownFields(other.unknownFields);
+                onChanged();
+                return this;
+            }
 
-      public final boolean isInitialized() {
-        if (!hasSource()) {
-          return false;
-        }
-        if (!hasCode()) {
-          return false;
-        }
-        if (!hasMessage()) {
-          return false;
-        }
-        return true;
-      }
+            public final boolean isInitialized() {
+                if (!hasSource()) {
+                    return false;
+                }
+                if (!hasCode()) {
+                    return false;
+                }
+                if (!hasMessage()) {
+                    return false;
+                }
+                return true;
+            }
 
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
+            public Builder mergeFrom(com.google.protobuf.CodedInputStream input,
+                                     com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
                 ErrorFactory.Error parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                try {
+                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
                     parsedMessage = (ErrorFactory.Error) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
+                    throw e.unwrapIOException();
+                } finally {
+                    if (parsedMessage != null) {
+                        mergeFrom(parsedMessage);
+                    }
+                }
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
+             * </pre>
+             *
+             * <code>required string source = 1;</code>
+             */
+            public boolean hasSource() {
+                return ((bitField0_ & 0x00000001) == 0x00000001);
+            }
+
+            /**
+             * <pre>
+             *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
+             * </pre>
+             *
+             * <code>required string source = 1;</code>
+             */
+            public java.lang.String getSource() {
+                java.lang.Object ref = source_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    if (bs.isValidUtf8()) {
+                        source_ = s;
+                    }
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
+             * </pre>
+             *
+             * <code>required string source = 1;</code>
+             */
+            public Builder setSource(java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000001;
+                source_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
+             * </pre>
+             *
+             * <code>required string source = 1;</code>
+             */
+            public com.google.protobuf.ByteString getSourceBytes() {
+                java.lang.Object ref = source_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                    source_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
+             * </pre>
+             *
+             * <code>required string source = 1;</code>
+             */
+            public Builder setSourceBytes(com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000001;
+                source_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
+             * </pre>
+             *
+             * <code>required string source = 1;</code>
+             */
+            public Builder clearSource() {
+                bitField0_ = (bitField0_ & ~0x00000001);
+                source_ = getDefaultInstance().getSource();
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Numeric error code. This is provided for programmatic responses to the error.
+             * </pre>
+             *
+             * <code>required int32 code = 2;</code>
+             */
+            public boolean hasCode() {
+                return ((bitField0_ & 0x00000002) == 0x00000002);
+            }
+
+            /**
+             * <pre>
+             *&#47; Numeric error code. This is provided for programmatic responses to the error.
+             * </pre>
+             *
+             * <code>required int32 code = 2;</code>
+             */
+            public int getCode() {
+                return code_;
+            }
+
+            /**
+             * <pre>
+             *&#47; Numeric error code. This is provided for programmatic responses to the error.
+             * </pre>
+             *
+             * <code>required int32 code = 2;</code>
+             */
+            public Builder setCode(int value) {
+                bitField0_ |= 0x00000002;
+                code_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Numeric error code. This is provided for programmatic responses to the error.
+             * </pre>
+             *
+             * <code>required int32 code = 2;</code>
+             */
+            public Builder clearCode() {
+                bitField0_ = (bitField0_ & ~0x00000002);
+                code_ = 0;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Error description (preferably human-readable).
+             * </pre>
+             *
+             * <code>required string message = 3;</code>
+             */
+            public boolean hasMessage() {
+                return ((bitField0_ & 0x00000004) == 0x00000004);
+            }
+
+            /**
+             * <pre>
+             *&#47; Error description (preferably human-readable).
+             * </pre>
+             *
+             * <code>required string message = 3;</code>
+             */
+            public java.lang.String getMessage() {
+                java.lang.Object ref = message_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    if (bs.isValidUtf8()) {
+                        message_ = s;
+                    }
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; Error description (preferably human-readable).
+             * </pre>
+             *
+             * <code>required string message = 3;</code>
+             */
+            public Builder setMessage(java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000004;
+                message_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Error description (preferably human-readable).
+             * </pre>
+             *
+             * <code>required string message = 3;</code>
+             */
+            public com.google.protobuf.ByteString getMessageBytes() {
+                java.lang.Object ref = message_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                    message_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; Error description (preferably human-readable).
+             * </pre>
+             *
+             * <code>required string message = 3;</code>
+             */
+            public Builder setMessageBytes(com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000004;
+                message_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Error description (preferably human-readable).
+             * </pre>
+             *
+             * <code>required string message = 3;</code>
+             */
+            public Builder clearMessage() {
+                bitField0_ = (bitField0_ & ~0x00000004);
+                message_ = getDefaultInstance().getMessage();
+                onChanged();
+                return this;
+            }
+
+            public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.setUnknownFields(unknownFields);
+            }
+
+            public final Builder mergeUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.mergeUnknownFields(unknownFields);
+            }
+
+            // @@protoc_insertion_point(builder_scope:events.Error)
         }
-        return this;
-      }
-      private int bitField0_;
 
-      private java.lang.Object source_ = "";
-      /**
-       * <pre>
-       *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
-       * </pre>
-       *
-       * <code>required string source = 1;</code>
-       */
-      public boolean hasSource() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <pre>
-       *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
-       * </pre>
-       *
-       * <code>required string source = 1;</code>
-       */
-      public java.lang.String getSource() {
-        java.lang.Object ref = source_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            source_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
-       * </pre>
-       *
-       * <code>required string source = 1;</code>
-       */
-      public com.google.protobuf.ByteString
-          getSourceBytes() {
-        java.lang.Object ref = source_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          source_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
-       * </pre>
-       *
-       * <code>required string source = 1;</code>
-       */
-      public Builder setSource(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-        source_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
-       * </pre>
-       *
-       * <code>required string source = 1;</code>
-       */
-      public Builder clearSource() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        source_ = getDefaultInstance().getSource();
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Source of the error. This may or may not be the same as the Origin in the envelope.
-       * </pre>
-       *
-       * <code>required string source = 1;</code>
-       */
-      public Builder setSourceBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-        source_ = value;
-        onChanged();
-        return this;
-      }
-
-      private int code_ ;
-      /**
-       * <pre>
-       *&#47; Numeric error code. This is provided for programmatic responses to the error.
-       * </pre>
-       *
-       * <code>required int32 code = 2;</code>
-       */
-      public boolean hasCode() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <pre>
-       *&#47; Numeric error code. This is provided for programmatic responses to the error.
-       * </pre>
-       *
-       * <code>required int32 code = 2;</code>
-       */
-      public int getCode() {
-        return code_;
-      }
-      /**
-       * <pre>
-       *&#47; Numeric error code. This is provided for programmatic responses to the error.
-       * </pre>
-       *
-       * <code>required int32 code = 2;</code>
-       */
-      public Builder setCode(int value) {
-        bitField0_ |= 0x00000002;
-        code_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Numeric error code. This is provided for programmatic responses to the error.
-       * </pre>
-       *
-       * <code>required int32 code = 2;</code>
-       */
-      public Builder clearCode() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        code_ = 0;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object message_ = "";
-      /**
-       * <pre>
-       *&#47; Error description (preferably human-readable).
-       * </pre>
-       *
-       * <code>required string message = 3;</code>
-       */
-      public boolean hasMessage() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <pre>
-       *&#47; Error description (preferably human-readable).
-       * </pre>
-       *
-       * <code>required string message = 3;</code>
-       */
-      public java.lang.String getMessage() {
-        java.lang.Object ref = message_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            message_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; Error description (preferably human-readable).
-       * </pre>
-       *
-       * <code>required string message = 3;</code>
-       */
-      public com.google.protobuf.ByteString
-          getMessageBytes() {
-        java.lang.Object ref = message_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          message_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; Error description (preferably human-readable).
-       * </pre>
-       *
-       * <code>required string message = 3;</code>
-       */
-      public Builder setMessage(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000004;
-        message_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Error description (preferably human-readable).
-       * </pre>
-       *
-       * <code>required string message = 3;</code>
-       */
-      public Builder clearMessage() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        message_ = getDefaultInstance().getMessage();
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Error description (preferably human-readable).
-       * </pre>
-       *
-       * <code>required string message = 3;</code>
-       */
-      public Builder setMessageBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000004;
-        message_ = value;
-        onChanged();
-        return this;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:events.Error)
     }
 
-    // @@protoc_insertion_point(class_scope:events.Error)
-        private static final ErrorFactory.Error DEFAULT_INSTANCE;
-    static {
-            DEFAULT_INSTANCE = new ErrorFactory.Error();
-    }
-
-        public static ErrorFactory.Error getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    @java.lang.Deprecated public static final com.google.protobuf.Parser<Error>
-        PARSER = new com.google.protobuf.AbstractParser<Error>() {
-      public Error parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-          return new Error(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<Error> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Error> getParserForType() {
-      return PARSER;
-    }
-
-        public ErrorFactory.Error getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_events_Error_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_events_Error_fieldAccessorTable;
-
-  public static com.google.protobuf.Descriptors.FileDescriptor
-      getDescriptor() {
-    return descriptor;
-  }
-  private static  com.google.protobuf.Descriptors.FileDescriptor
-      descriptor;
-  static {
-    java.lang.String[] descriptorData = {
-      "\n\013error.proto\022\006events\"6\n\005Error\022\016\n\006source" +
-      "\030\001 \002(\t\022\014\n\004code\030\002 \002(\005\022\017\n\007message\030\003 \002(\tB1\n" +
-      "!org.cloudfoundry.dropsonde.eventsB\014Erro" +
-      "rFactory"
-    };
-    com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
-    com.google.protobuf.Descriptors.FileDescriptor
-      .internalBuildGeneratedFileFrom(descriptorData,
-        new com.google.protobuf.Descriptors.FileDescriptor[] {
-        }, assigner);
-    internal_static_events_Error_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_events_Error_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_events_Error_descriptor,
-        new java.lang.String[] { "Source", "Code", "Message", });
-  }
-
-  // @@protoc_insertion_point(outer_class_scope)
+    // @@protoc_insertion_point(outer_class_scope)
 }

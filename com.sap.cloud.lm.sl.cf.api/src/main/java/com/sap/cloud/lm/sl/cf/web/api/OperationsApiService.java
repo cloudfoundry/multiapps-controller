@@ -14,7 +14,7 @@ public interface OperationsApiService {
     public Response getMtaOperation(String operationId, String embed, SecurityContext securityContext, String spaceGuid);
 
     public Response getMtaOperationLogs(String operationId, SecurityContext securityContext, String spaceGuid);
-    
+
     public Response getMtaOperationLogContent(String operationId, String logId, SecurityContext securityContext, String spaceGuid);
 
     public Response getMtaOperations(Integer last, List<String> state, SecurityContext securityContext, String spaceGuid);
@@ -22,5 +22,5 @@ public interface OperationsApiService {
     public Response getOperationActions(String operationId, SecurityContext securityContext, String spaceGuid);
 
     public Response startMtaOperation(Operation operation, SecurityContext securityContext, String spaceGuid);
-    
+
 }

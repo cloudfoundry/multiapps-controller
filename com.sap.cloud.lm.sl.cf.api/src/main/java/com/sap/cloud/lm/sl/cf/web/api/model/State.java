@@ -24,18 +24,10 @@ public enum State {
         value = v;
     }
 
-    public String value() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return String.valueOf(value);
-    }
-
     public static State fromValue(String v) {
         for (State b : State.values()) {
-            if (String.valueOf(b.value).equals(v)) {
+            if (String.valueOf(b.value)
+                      .equals(v)) {
                 return b;
             }
         }
@@ -55,5 +47,14 @@ public enum State {
         finishedStates.add(FINISHED);
         finishedStates.add(ABORTED);
         return finishedStates;
+    }
+
+    public String value() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
     }
 }

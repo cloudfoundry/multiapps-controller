@@ -32,7 +32,7 @@ import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
 public class ConfigurationReferencesResolver extends Visitor {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationReferencesResolver.class);
 
     protected ConfigurationReferenceResolver configurationResolver;
@@ -47,7 +47,8 @@ public class ConfigurationReferencesResolver extends Visitor {
     private List<String> expandedProperties = new ArrayList<>();
 
     public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
-        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+                                           BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget,
+                                           ApplicationConfiguration configuration) {
         this.dao = dao;
         this.filterParser = filterParser;
         this.spaceIdSupplier = spaceIdSupplier;
@@ -55,24 +56,24 @@ public class ConfigurationReferencesResolver extends Visitor {
         this.configuration = configuration;
         this.configurationResolver = createReferenceResolver(dao);
     }
-    
+
     public void resolve(DeploymentDescriptor descriptor) {
         descriptor.accept(this);
         insertResolvedResources(descriptor);
     }
-    
+
     protected void insertResolvedResources(DeploymentDescriptor descriptor) {
         descriptor.setResources2(getResolvedResources(descriptor));
         updateReferencesToResolvedResources(descriptor);
     }
-    
+
     protected List<Resource> getResolvedResources(DeploymentDescriptor descriptor) {
         return descriptor.getResources2()
-            .stream()
-            .flatMap(resource -> getResolvedResources(resource).stream())
-            .collect(Collectors.toList());
+                         .stream()
+                         .flatMap(resource -> getResolvedResources(resource).stream())
+                         .collect(Collectors.toList());
     }
-    
+
     protected List<Resource> getResolvedResources(Resource resource) {
         ResolvedConfigurationReference reference = resolvedReferences.get(resource.getName());
         if (reference != null) {
@@ -98,8 +99,8 @@ public class ConfigurationReferencesResolver extends Visitor {
 
     protected List<String> getNames(List<RequiredDependency> dependencies) {
         return dependencies.stream()
-            .map(RequiredDependency::getName)
-            .collect(Collectors.toList());
+                           .map(RequiredDependency::getName)
+                           .collect(Collectors.toList());
     }
 
     protected List<RequiredDependency> getUpdatedRequiredDependencies(DeploymentDescriptor descriptor, Module module) {
@@ -110,8 +111,7 @@ public class ConfigurationReferencesResolver extends Visitor {
         return requiredDependencies;
     }
 
-    protected RequiredDependency createRequiredDependency(Resource resource,
-        RequiredDependency dependency) {
+    protected RequiredDependency createRequiredDependency(Resource resource, RequiredDependency dependency) {
         RequiredDependency.Builder builder = new RequiredDependency.Builder();
         builder.setName(resource.getName());
         builder.setGroup(dependency.getGroup());
@@ -122,7 +122,8 @@ public class ConfigurationReferencesResolver extends Visitor {
     }
 
     protected List<RequiredDependency> expandRequiredDependencyIfNecessary(DeploymentDescriptor descriptor,
-        PropertiesContainer dependencyOwner, RequiredDependency dependency) {
+                                                                           PropertiesContainer dependencyOwner,
+                                                                           RequiredDependency dependency) {
         ResolvedConfigurationReference resolvedReference = resolvedReferences.get(dependency.getName());
 
         if (!refersToResolvedResource(dependency)) {
@@ -135,19 +136,19 @@ public class ConfigurationReferencesResolver extends Visitor {
         }
 
         if (resolvedReference.getResolvedResources()
-            .isEmpty()) {
+                             .isEmpty()) {
             String listName = dependency.getList();
             dependencyOwner.setProperties(putEmptyListProperty(dependencyOwner.getProperties(), listName));
         }
 
         List<RequiredDependency> expandedDependencies = resolvedReference.getResolvedResources()
-            .stream()
-            .map(resource -> createRequiredDependency(resource, dependency))
-            .collect(Collectors.toList());
+                                                                         .stream()
+                                                                         .map(resource -> createRequiredDependency(resource, dependency))
+                                                                         .collect(Collectors.toList());
         expandedDependenciesMap.put(dependency, expandedDependencies);
         return expandedDependencies;
     }
-    
+
     protected void makeSureIsResolvedToSingleResource(String resolvedResourceName, List<Resource> resultingResources) {
         if (resultingResources.size() > 1) {
             LOGGER.debug(Messages.MULTIPLE_CONFIGURATION_ENTRIES, resolvedResourceName, resultingResources);
@@ -178,11 +179,11 @@ public class ConfigurationReferencesResolver extends Visitor {
     public Map<String, ResolvedConfigurationReference> getResolvedReferences() {
         return resolvedReferences;
     }
-    
+
     protected ConfigurationReferenceResolver createReferenceResolver(ConfigurationEntryDao dao) {
         return new ConfigurationReferenceResolver(dao, configuration);
     }
-    
+
     @Override
     public void visit(ElementContext context, Resource sourceResource) {
         ConfigurationFilter configurationFilter = filterParser.parse(sourceResource);
@@ -191,8 +192,9 @@ public class ConfigurationReferencesResolver extends Visitor {
             return;
         }
         List<Resource> resolvedResources = configurationResolver.resolve(sourceResource, configurationFilter, cloudTarget);
-        ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter, sourceResource,
-            resolvedResources);
+        ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter,
+                                                                                              sourceResource,
+                                                                                              resolvedResources);
         resolvedReferences.put(sourceResource.getName(), resolvedReference);
     }
 }

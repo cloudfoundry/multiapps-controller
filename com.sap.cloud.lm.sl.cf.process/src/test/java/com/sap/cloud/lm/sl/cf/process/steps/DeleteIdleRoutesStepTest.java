@@ -31,26 +31,13 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 @RunWith(Parameterized.class)
 public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRoutesStep> {
 
-    private static class StepInput {
-
-        public String appsToDeployLocation;
-
-        public StepInput(String appsToDeployLocation) {
-            this.appsToDeployLocation = appsToDeployLocation;
-        }
-
-    }
-
-    private static class StepOutput {
-
-        public List<String> urisToDelete;
-        public String appsToDeployLocation;
-
-        public StepOutput(String appsToDeployLocation, List<String> urisToDelete) {
-            this.urisToDelete = urisToDelete;
-            this.appsToDeployLocation = appsToDeployLocation;
-        }
-
+    private List<CloudApplicationExtended> expectedAppsToDeploy;
+    private List<CloudApplicationExtended> appsToDeploy;
+    private StepOutput output;
+    private StepInput input;
+    public DeleteIdleRoutesStepTest(StepInput input, StepOutput output) {
+        this.output = output;
+        this.input = input;
     }
 
     @Parameters
@@ -73,17 +60,6 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
         });
     }
 
-    private List<CloudApplicationExtended> expectedAppsToDeploy;
-    private List<CloudApplicationExtended> appsToDeploy;
-
-    private StepOutput output;
-    private StepInput input;
-
-    public DeleteIdleRoutesStepTest(StepInput input, StepOutput output) {
-        this.output = output;
-        this.input = input;
-    }
-
     @Before
     public void setUp() throws Exception {
         loadParameters();
@@ -93,11 +69,11 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
 
     private void loadParameters() throws Exception {
         expectedAppsToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(output.appsToDeployLocation, getClass()),
-            new TypeToken<List<CloudApplicationExtended>>() {
-            }.getType());
+                                                 new TypeToken<List<CloudApplicationExtended>>() {
+                                                 }.getType());
         appsToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(input.appsToDeployLocation, getClass()),
-            new TypeToken<List<CloudApplicationExtended>>() {
-            }.getType());
+                                         new TypeToken<List<CloudApplicationExtended>>() {
+                                         }.getType());
     }
 
     private void prepareContext() {
@@ -139,6 +115,28 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
     @Override
     protected DeleteIdleRoutesStep createStep() {
         return new DeleteIdleRoutesStep();
+    }
+
+    private static class StepInput {
+
+        public String appsToDeployLocation;
+
+        public StepInput(String appsToDeployLocation) {
+            this.appsToDeployLocation = appsToDeployLocation;
+        }
+
+    }
+
+    private static class StepOutput {
+
+        public List<String> urisToDelete;
+        public String appsToDeployLocation;
+
+        public StepOutput(String appsToDeployLocation, List<String> urisToDelete) {
+            this.urisToDelete = urisToDelete;
+            this.appsToDeployLocation = appsToDeployLocation;
+        }
+
     }
 
 }

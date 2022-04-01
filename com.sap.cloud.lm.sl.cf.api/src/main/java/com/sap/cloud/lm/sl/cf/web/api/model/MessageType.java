@@ -21,6 +21,16 @@ public enum MessageType {
         value = v;
     }
 
+    public static MessageType fromValue(String v) {
+        for (MessageType b : MessageType.values()) {
+            if (String.valueOf(b.value)
+                      .equals(v)) {
+                return b;
+            }
+        }
+        return null;
+    }
+
     public String value() {
         return value;
     }
@@ -28,14 +38,5 @@ public enum MessageType {
     @Override
     public String toString() {
         return String.valueOf(value);
-    }
-
-    public static MessageType fromValue(String v) {
-        for (MessageType b : MessageType.values()) {
-            if (String.valueOf(b.value).equals(v)) {
-                return b;
-            }
-        }
-        return null;
     }
 }

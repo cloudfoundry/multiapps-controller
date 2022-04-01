@@ -42,15 +42,15 @@ public class JwtTokenParserTest {
         OAuth2AccessToken token = parser.parse(correctToken);
         Assert.assertNotNull(token);
         Assert.assertTrue(!token.getAdditionalInformation()
-            .isEmpty());
+                                .isEmpty());
         Assert.assertEquals("cf", token.getAdditionalInformation()
-            .get("client_id"));
+                                       .get("client_id"));
         Assert.assertNotNull(token.getAdditionalInformation()
-            .get("exp"));
+                                  .get("exp"));
         Assert.assertNotNull(token.getAdditionalInformation()
-            .get("scope"));
+                                  .get("scope"));
         Assert.assertEquals("test_test", token.getAdditionalInformation()
-            .get("user_name"));
+                                              .get("user_name"));
     }
 
     @Test
@@ -68,7 +68,8 @@ public class JwtTokenParserTest {
         expectedException.expectMessage("Unsupported verifier algorithm not-supported-algorith");
 
         JwtTokenParser parser = new JwtTokenParserMock(new TokenFactory(),
-            mockUaaCLient(false, "not-supported-algorith", "not-at-all-matters"), true);
+                                                       mockUaaCLient(false, "not-supported-algorith", "not-at-all-matters"),
+                                                       true);
         parser.parse("not-important-token-string");
     }
 
@@ -80,27 +81,27 @@ public class JwtTokenParserTest {
         UAAClient client = Mockito.mock(UAAClient.class);
         if (callRealReadToken) {
             Mockito.when(client.readTokenKey())
-                .thenCallRealMethod();
+                   .thenCallRealMethod();
         }
         if (alghoritm != null && alghoritmValue != null) {
             Mockito.when(client.readTokenKey())
-                .thenReturn(new HashMap<String, Object>() {
-                    private static final long serialVersionUID = 1L;
+                   .thenReturn(new HashMap<String, Object>() {
+                       private static final long serialVersionUID = 1L;
 
-                    {
-                        put("alg", alghoritm);
-                        put("value", alghoritmValue);
-                    };
-                });
+                       {
+                           put("alg", alghoritm);
+                           put("value", alghoritmValue);
+                       };
+                   });
         } else {
             if (alghoritm != null) {
                 Mockito.when(client.readTokenKey())
-                    .thenReturn(MapUtil.asMap("alg", alghoritm));
+                       .thenReturn(MapUtil.asMap("alg", alghoritm));
             }
 
             if (alghoritmValue != null) {
                 Mockito.when(client.readTokenKey())
-                    .thenReturn(MapUtil.asMap("value", alghoritmValue));
+                       .thenReturn(MapUtil.asMap("value", alghoritmValue));
             }
         }
         return client;

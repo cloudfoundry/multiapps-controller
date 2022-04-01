@@ -28,6 +28,10 @@ public class CheckAppStepTest extends SyncFlowableStepTest<CheckAppStep> {
     private CloudApplication expectedResult;
     private CloudApplication application;
 
+    public CheckAppStepTest(String stepInput) throws IOException, ParsingException {
+        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CheckAppStepTest.class), StepInput.class);
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -42,10 +46,6 @@ public class CheckAppStepTest extends SyncFlowableStepTest<CheckAppStep> {
             },
 // @formatter:on
         });
-    }
-
-    public CheckAppStepTest(String stepInput) throws IOException, ParsingException {
-        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CheckAppStepTest.class), StepInput.class);
     }
 
     @Before
@@ -79,22 +79,22 @@ public class CheckAppStepTest extends SyncFlowableStepTest<CheckAppStep> {
     private void prepareClient() {
         if (stepInput.isExistingApplication) {
             Mockito.when(client.getApplication(application.getName(), false))
-                .thenReturn(expectedResult);
+                   .thenReturn(expectedResult);
         } else {
             Mockito.when(client.getApplication(application.getName(), false))
-                .thenReturn(null);
+                   .thenReturn(null);
         }
+    }
+
+    @Override
+    protected CheckAppStep createStep() {
+        return new CheckAppStep();
     }
 
     private static class StepInput {
         boolean isExistingApplication;
         int applicationIndex;
         List<CloudApplicationExtended> applications;
-    }
-
-    @Override
-    protected CheckAppStep createStep() {
-        return new CheckAppStep();
     }
 
 }

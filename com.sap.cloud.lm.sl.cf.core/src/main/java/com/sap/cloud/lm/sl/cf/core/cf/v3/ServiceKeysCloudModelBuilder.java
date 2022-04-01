@@ -13,13 +13,12 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
-
 public class ServiceKeysCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder {
 
     public ServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor) {
         super(deploymentDescriptor, propertiesAccessor);
     }
-    
+
     @Override
     public Map<String, List<ServiceKey>> build() {
         Map<String, List<ServiceKey>> serviceKeys = new HashMap<>();

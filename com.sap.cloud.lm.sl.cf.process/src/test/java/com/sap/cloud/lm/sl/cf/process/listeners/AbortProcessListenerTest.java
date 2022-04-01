@@ -37,6 +37,24 @@ public class AbortProcessListenerTest {
     public static class AbortProcessListenerFileCleanupTest {
 
         private static final String SPACE_ID = "space-id";
+        private final String archiveIds;
+        private final String extensionDescriptorIds;
+        private final boolean shouldKeepFiles;
+        private final String[] expectedFileIdsToSweep;
+        @InjectMocks
+        BeanProvider beanProvider = BeanProvider.getInstance();
+        @InjectMocks
+        AbortProcessListener abortListener = new AbortProcessListenerMock();
+        @Mock
+        private FileService fileService;
+
+        public AbortProcessListenerFileCleanupTest(String archiveIds, String extensionDescriptorIds, boolean shouldKeepFiles,
+                                                   String[] expectedFileIdsToSweep) {
+            this.archiveIds = archiveIds;
+            this.extensionDescriptorIds = extensionDescriptorIds;
+            this.shouldKeepFiles = shouldKeepFiles;
+            this.expectedFileIdsToSweep = expectedFileIdsToSweep;
+        }
 
         @Parameters
         public static Iterable<Object[]> getParameters() {
@@ -86,28 +104,6 @@ public class AbortProcessListenerTest {
             });
         }
 
-        private final String archiveIds;
-        private final String extensionDescriptorIds;
-        private final boolean shouldKeepFiles;
-        private final String[] expectedFileIdsToSweep;
-
-        @Mock
-        private FileService fileService;
-
-        @InjectMocks
-        BeanProvider beanProvider = BeanProvider.getInstance();
-
-        @InjectMocks
-        AbortProcessListener abortListener = new AbortProcessListenerMock();
-
-        public AbortProcessListenerFileCleanupTest(String archiveIds, String extensionDescriptorIds, boolean shouldKeepFiles,
-            String[] expectedFileIdsToSweep) {
-            this.archiveIds = archiveIds;
-            this.extensionDescriptorIds = extensionDescriptorIds;
-            this.shouldKeepFiles = shouldKeepFiles;
-            this.expectedFileIdsToSweep = expectedFileIdsToSweep;
-        }
-
         @Before
         public void setUp() {
             MockitoAnnotations.initMocks(this);
@@ -118,7 +114,7 @@ public class AbortProcessListenerTest {
             abortListener.deleteDeploymentFiles(mock(HistoryService.class), PROCESS_INSTANCE_ID);
             for (String fileId : expectedFileIdsToSweep) {
                 Mockito.verify(fileService)
-                    .deleteFile(SPACE_ID, fileId);
+                       .deleteFile(SPACE_ID, fileId);
             }
         }
 
@@ -128,7 +124,7 @@ public class AbortProcessListenerTest {
 
             @Override
             protected HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId,
-                String parameter) {
+                                                                           String parameter) {
                 switch (parameter) {
                     case com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID:
                         return createInstanceMock(SPACE_ID);
@@ -146,7 +142,7 @@ public class AbortProcessListenerTest {
             private HistoricVariableInstance createInstanceMock(Object parameterValue) {
                 HistoricVariableInstance instanceMock = Mockito.mock(HistoricVariableInstance.class);
                 Mockito.when(instanceMock.getValue())
-                    .thenReturn(parameterValue);
+                       .thenReturn(parameterValue);
                 return instanceMock;
             }
 
@@ -160,19 +156,15 @@ public class AbortProcessListenerTest {
         private static final String ORG = "initial";
         private static final String DEFAULT_DOMAIN = "localhost";
         private static final String USER = "XSMASTER";
-
+        @InjectMocks
+        BeanProvider beanProvider = BeanProvider.getInstance();
+        @InjectMocks
+        AbortProcessListener abortListener = new AbortProcessListenerMock();
         private Set<Integer> allocatedPorts;
-
         @Mock
         private CloudControllerClientProvider clientProvider;
         @Mock
         private CloudControllerClient client;
-
-        @InjectMocks
-        BeanProvider beanProvider = BeanProvider.getInstance();
-
-        @InjectMocks
-        AbortProcessListener abortListener = new AbortProcessListenerMock();
 
         @Before
         public void setUp() {
@@ -182,33 +174,33 @@ public class AbortProcessListenerTest {
         @Test
         public void testDeleteAllocatedRoutes1() throws Exception {
             Mockito.when(clientProvider.getControllerClient(USER, ORG, SPACE, null))
-                .thenReturn(client);
+                   .thenReturn(client);
             Mockito.when(client.getDefaultDomain())
-                .thenReturn(new CloudDomain(null, DEFAULT_DOMAIN, null));
+                   .thenReturn(new CloudDomain(null, DEFAULT_DOMAIN, null));
             Mockito.doThrow(CloudOperationException.class)
-                .when(client)
-                .deleteRoute(Integer.toString(1), DEFAULT_DOMAIN);
+                   .when(client)
+                   .deleteRoute(Integer.toString(1), DEFAULT_DOMAIN);
             Mockito.doThrow(CloudOperationException.class)
-                .when(client)
-                .deleteRoute(Integer.toString(3), DEFAULT_DOMAIN);
+                   .when(client)
+                   .deleteRoute(Integer.toString(3), DEFAULT_DOMAIN);
 
             allocatedPorts = new TreeSet<>(Arrays.asList(1, 2, 3, 4));
 
             abortListener.deleteAllocatedRoutes(mock(HistoryService.class), PROCESS_INSTANCE_ID);
 
             Mockito.verify(client)
-                .deleteRoute(Integer.toString(2), DEFAULT_DOMAIN);
+                   .deleteRoute(Integer.toString(2), DEFAULT_DOMAIN);
             Mockito.verify(client)
-                .deleteRoute(Integer.toString(4), DEFAULT_DOMAIN);
+                   .deleteRoute(Integer.toString(4), DEFAULT_DOMAIN);
         }
 
         @Test
         public void testDeleteAllocatedRoutes2() throws Exception {
             Mockito.when(clientProvider.getControllerClient(USER, ORG, SPACE, null))
-                .thenReturn(client);
+                   .thenReturn(client);
             abortListener.deleteAllocatedRoutes(mock(HistoryService.class), PROCESS_INSTANCE_ID);
             Mockito.verify(client, Mockito.never())
-                .deleteRoute(Mockito.anyString(), Mockito.any());
+                   .deleteRoute(Mockito.anyString(), Mockito.any());
         }
 
         private class AbortProcessListenerMock extends AbortProcessListener {
@@ -217,7 +209,7 @@ public class AbortProcessListenerTest {
 
             @Override
             protected HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId,
-                String parameter) {
+                                                                           String parameter) {
                 switch (parameter) {
                     case Constants.VAR_ALLOCATED_PORTS:
                         return createInstanceMock(JsonUtil.toBinaryJson(allocatedPorts));
@@ -235,7 +227,7 @@ public class AbortProcessListenerTest {
             private HistoricVariableInstance createInstanceMock(Object parameterValue) {
                 HistoricVariableInstance instanceMock = Mockito.mock(HistoricVariableInstance.class);
                 Mockito.when(instanceMock.getValue())
-                    .thenReturn(parameterValue);
+                       .thenReturn(parameterValue);
                 return instanceMock;
             }
 

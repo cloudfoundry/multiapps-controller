@@ -55,28 +55,23 @@ import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
-    private ServiceOperationExecutor serviceOperationExecutor = new ServiceOperationExecutor();
-    
-    @Inject
-    private ServiceCreator serviceCreator;
-    
-    @Inject
-    private ServiceInstanceGetter serviceInstanceGetter;
-
-    @Inject
-    private ApplicationConfiguration configuration;
-
     @Inject
     @Named("serviceUpdater")
     protected ServiceUpdater serviceUpdater;
+    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    private ServiceOperationExecutor serviceOperationExecutor = new ServiceOperationExecutor();
+    @Inject
+    private ServiceCreator serviceCreator;
+    @Inject
+    private ServiceInstanceGetter serviceInstanceGetter;
+    @Inject
+    private ApplicationConfiguration configuration;
 
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
         try {
             execution.getStepLogger()
-                .debug(Messages.CREATING_OR_UPDATING_SERVICES);
+                     .debug(Messages.CREATING_OR_UPDATING_SERVICES);
 
             CloudControllerClient client = execution.getControllerClient();
             Map<String, List<String>> defaultTags = computeDefaultTags(client);
@@ -90,9 +85,10 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
             Map<String, List<ServiceKey>> serviceKeys = StepsUtil.getServiceKeysToCreate(execution.getContext());
 
             Map<String, ServiceOperationType> triggeredServiceOperations = createOrUpdateServices(execution, client, services,
-                existingServicesMap, serviceKeys, defaultTags);
+                                                                                                  existingServicesMap, serviceKeys,
+                                                                                                  defaultTags);
             execution.getStepLogger()
-                .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
+                     .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
             StepsUtil.setTriggeredServiceOperations(execution.getContext(), triggeredServiceOperations);
 
             getStepLogger().debug(Messages.SERVICES_CREATED_OR_UPDATED);
@@ -109,9 +105,10 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
         return servicesMap;
     }
 
-    private Map<String, ServiceOperationType> createOrUpdateServices(ExecutionWrapper execution, CloudControllerClient client,
-        List<CloudServiceExtended> services, Map<String, CloudService> existingServices, Map<String, List<ServiceKey>> serviceKeys,
-        Map<String, List<String>> defaultTags) {
+    private Map<String, ServiceOperationType>
+            createOrUpdateServices(ExecutionWrapper execution, CloudControllerClient client, List<CloudServiceExtended> services,
+                                   Map<String, CloudService> existingServices, Map<String, List<ServiceKey>> serviceKeys,
+                                   Map<String, List<String>> defaultTags) {
 
         Map<String, ServiceOperationType> triggeredOperations = new TreeMap<>();
         String spaceId = StepsUtil.getSpaceId(execution.getContext());
@@ -120,14 +117,13 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
             try {
                 List<String> defaultTagsForService = defaultTags.getOrDefault(service.getLabel(), Collections.emptyList());
                 ServiceOperationType triggeredOperation = createOrUpdateService(execution, client, spaceId, service, existingService,
-                    defaultTagsForService);
+                                                                                defaultTagsForService);
                 triggeredOperations.put(service.getName(), triggeredOperation);
                 List<ServiceKey> serviceKeysForService = serviceKeys.getOrDefault(service.getName(), Collections.emptyList());
                 createOrUpdateServiceKeys(serviceKeysForService, service, client, execution);
             } catch (CloudOperationException | FileStorageException | SLException e) {
-                String msg = MessageFormat.format(
-                    existingService == null ? Messages.ERROR_CREATING_SERVICE : Messages.ERROR_UPDATING_SERVICE, service.getName(),
-                    service.getLabel(), service.getPlan(), e.getMessage());
+                String msg = MessageFormat.format(existingService == null ? Messages.ERROR_CREATING_SERVICE
+                    : Messages.ERROR_UPDATING_SERVICE, service.getName(), service.getLabel(), service.getPlan(), e.getMessage());
                 throw new SLException(e, msg);
             }
         }
@@ -135,13 +131,14 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
     }
 
     private void createOrUpdateServiceKeys(List<ServiceKey> serviceKeys, CloudServiceExtended service, CloudControllerClient client,
-        ExecutionWrapper execution) {
+                                           ExecutionWrapper execution) {
         // User provided services cannot have service keys.
         if (service.isUserProvided()) {
             return;
         }
         List<ServiceKey> existingServiceKeys = serviceOperationExecutor.executeServiceOperation(service,
-            () -> client.getServiceKeys(service.getName()), getStepLogger());
+                                                                                                () -> client.getServiceKeys(service.getName()),
+                                                                                                getStepLogger());
 
         if (existingServiceKeys == null) {
             return;
@@ -159,9 +156,9 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
             createServiceKeys(client, serviceKeysToUpdate);
         } else {
             serviceKeysToDelete.forEach(key -> getStepLogger().warn(Messages.WILL_NOT_DELETE_SERVICE_KEY, key.getName(), key.getService()
-                .getName()));
+                                                                                                                            .getName()));
             serviceKeysToUpdate.forEach(key -> getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_KEY, key.getName(), key.getService()
-                .getName()));
+                                                                                                                            .getName()));
         }
         createServiceKeys(client, serviceKeysToCreate);
     }
@@ -172,20 +169,20 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
 
     private List<ServiceKey> getServiceKeysToCreate(List<ServiceKey> serviceKeys, List<ServiceKey> existingServiceKeys) {
         return serviceKeys.stream()
-            .filter(key -> shouldCreate(key, existingServiceKeys))
-            .collect(Collectors.toList());
+                          .filter(key -> shouldCreate(key, existingServiceKeys))
+                          .collect(Collectors.toList());
     }
 
     private List<ServiceKey> getServiceKeysToUpdate(List<ServiceKey> serviceKeys, List<ServiceKey> existingServiceKeys) {
         return serviceKeys.stream()
-            .filter(key -> shouldUpdate(key, existingServiceKeys))
-            .collect(Collectors.toList());
+                          .filter(key -> shouldUpdate(key, existingServiceKeys))
+                          .collect(Collectors.toList());
     }
 
     private List<ServiceKey> getServiceKeysToDelete(List<ServiceKey> serviceKeys, List<ServiceKey> existingServiceKeys) {
         return existingServiceKeys.stream()
-            .filter(key -> shouldDelete(key, serviceKeys))
-            .collect(Collectors.toList());
+                                  .filter(key -> shouldDelete(key, serviceKeys))
+                                  .collect(Collectors.toList());
     }
 
     private boolean shouldCreate(ServiceKey key, List<ServiceKey> existingKeys) {
@@ -203,10 +200,10 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
 
     private ServiceKey getWithName(List<ServiceKey> serviceKeys, String name) {
         return serviceKeys.stream()
-            .filter(key -> key.getName()
-                .equals(name))
-            .findAny()
-            .orElse(null);
+                          .filter(key -> key.getName()
+                                            .equals(name))
+                          .findAny()
+                          .orElse(null);
     }
 
     private boolean areServiceKeysEqual(ServiceKey key1, ServiceKey key2) {
@@ -215,31 +212,34 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
 
     private void deleteServiceKeys(CloudControllerClient client, List<ServiceKey> serviceKeys) {
         serviceKeys.stream()
-            .forEach(key -> deleteServiceKey(client, key));
+                   .forEach(key -> deleteServiceKey(client, key));
     }
 
     private void createServiceKeys(CloudControllerClient client, List<ServiceKey> serviceKeys) {
         serviceKeys.stream()
-            .forEach(key -> createServiceKey(client, key));
+                   .forEach(key -> createServiceKey(client, key));
     }
 
     private void createServiceKey(CloudControllerClient client, ServiceKey key) {
         getStepLogger().info(Messages.CREATING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService()
-            .getName());
+                                                                                          .getName());
         client.createServiceKey(key.getService()
-            .getName(), key.getName(), key.getParameters());
+                                   .getName(),
+                                key.getName(), key.getParameters());
         getStepLogger().debug(Messages.CREATED_SERVICE_KEY, key.getName());
     }
 
     private void deleteServiceKey(CloudControllerClient client, ServiceKey key) {
         getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService()
-            .getName());
+                                                                                          .getName());
         client.deleteServiceKey(key.getService()
-            .getName(), key.getName());
+                                   .getName(),
+                                key.getName());
     }
 
     private ServiceOperationType createOrUpdateService(ExecutionWrapper execution, CloudControllerClient client, String spaceId,
-        CloudServiceExtended service, CloudService existingService, List<String> defaultTags) throws FileStorageException {
+                                                       CloudServiceExtended service, CloudService existingService, List<String> defaultTags)
+        throws FileStorageException {
 
         // Set service parameters if a file containing their values exists:
         String fileName = StepsUtil.getResourceFileName(execution.getContext(), service.getResourceName());
@@ -250,7 +250,7 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
         }
         if (existingService == null) {
             serviceOperationExecutor.executeServiceOperation(service, () -> createService(execution.getContext(), client, service),
-                getStepLogger());
+                                                             getStepLogger());
             return ServiceOperationType.CREATE;
         }
 
@@ -262,9 +262,9 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
                 return null;
             }
             serviceOperationExecutor.executeServiceOperation(service, () -> deleteService(execution.getContext(), client, service),
-                getStepLogger());
+                                                             getStepLogger());
             serviceOperationExecutor.executeServiceOperation(service, () -> createService(execution.getContext(), client, service),
-                getStepLogger());
+                                                             getStepLogger());
             return ServiceOperationType.UPDATE;
         }
         ServiceOperationType type = null;
@@ -290,8 +290,8 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
     }
 
     private void updateServicePlan(CloudControllerClient client, CloudServiceExtended service) {
-        getStepLogger()
-            .debug(MessageFormat.format("Updating service plan of a service {0} with new plan: {1}", service.getName(), service.getPlan()));
+        getStepLogger().debug(MessageFormat.format("Updating service plan of a service {0} with new plan: {1}", service.getName(),
+                                                   service.getPlan()));
         if (service.shouldIgnoreUpdateErrors()) {
             serviceUpdater.updateServicePlanQuietly(client, service.getName(), service.getPlan());
         } else {
@@ -300,7 +300,7 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
     }
 
     private List<ServiceAction> determineActions(CloudControllerClient client, String spaceId, CloudServiceExtended service,
-        CloudService existingService, List<String> defaultTags) {
+                                                 CloudService existingService, List<String> defaultTags) {
         List<ServiceAction> actions = new ArrayList<>();
 
         getStepLogger().debug("Determining action to be performed on existing service...");
@@ -416,7 +416,8 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
     }
 
     private void setServiceParameters(DelegateExecution context, CloudServiceExtended service, final String appArchiveId,
-        final String fileName) throws FileStorageException {
+                                      final String fileName)
+        throws FileStorageException {
         FileContentProcessor parametersFileProcessor = appArchiveStream -> {
             try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize())) {
                 mergeCredentials(service, is);
@@ -424,8 +425,9 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
             }
         };
-        fileService
-            .processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId, parametersFileProcessor));
+        fileService.processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
+                                                                        appArchiveId,
+                                                                        parametersFileProcessor));
     }
 
     private void mergeCredentials(CloudServiceExtended service, InputStream credentialsJson) {
@@ -448,7 +450,7 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
     }
 
     private boolean shouldUpdateTags(CloudControllerClient client, String spaceId, CloudServiceExtended service,
-        CloudService existingService, List<String> defaultTags) {
+                                     CloudService existingService, List<String> defaultTags) {
         if (service.isUserProvided()) {
             return false;
         }
@@ -473,28 +475,28 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
     }
 
     private List<String> getBoundAppNames(CloudControllerClient client, List<CloudApplicationExtended> apps,
-        List<CloudApplication> appsToUndeploy, List<CloudServiceBinding> bindings) {
+                                          List<CloudApplication> appsToUndeploy, List<CloudServiceBinding> bindings) {
         Set<String> appNames = apps.stream()
-            .map(CloudApplication::getName)
-            .collect(Collectors.toSet());
+                                   .map(CloudApplication::getName)
+                                   .collect(Collectors.toSet());
         appNames.addAll(appsToUndeploy.stream()
-            .map(CloudApplication::getName)
-            .collect(Collectors.toSet()));
+                                      .map(CloudApplication::getName)
+                                      .collect(Collectors.toSet()));
 
         List<CloudApplication> existingApps = client.getApplications();
         return bindings.stream()
-            .map(binding -> StepsUtil.getBoundApplication(existingApps, binding.getAppGuid())
-                .getName())
-            .filter(appNames::contains)
-            .collect(Collectors.toList());
-    }
-
-    private enum ServiceAction {
-        ACTION_UPDATE_CREDENTIALS, ACTION_RECREATE, ACTION_UPDATE_TAGS, ACTION_UPDATE_SERVICE_PLAN
+                       .map(binding -> StepsUtil.getBoundApplication(existingApps, binding.getAppGuid())
+                                                .getName())
+                       .filter(appNames::contains)
+                       .collect(Collectors.toList());
     }
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
         return Arrays.asList(new PollServiceCreateOrUpdateOperationsExecution(serviceInstanceGetter));
+    }
+
+    private enum ServiceAction {
+        ACTION_UPDATE_CREDENTIALS, ACTION_RECREATE, ACTION_UPDATE_TAGS, ACTION_UPDATE_SERVICE_PLAN
     }
 }

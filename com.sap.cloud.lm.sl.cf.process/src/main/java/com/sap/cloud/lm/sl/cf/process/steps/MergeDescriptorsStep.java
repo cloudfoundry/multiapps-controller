@@ -34,7 +34,7 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
             Platform platform = StepsUtil.getPlatform(execution.getContext());
 
             DeploymentDescriptor descriptor = getMtaDescriptorMerger(handlerFactory, platform).merge(deploymentDescriptor,
-                extensionDescriptors);
+                                                                                                     extensionDescriptors);
 
             StepsUtil.setUnresolvedDeploymentDescriptor(execution.getContext(), descriptor);
         } catch (SLException e) {

@@ -17,6 +17,13 @@ import com.sap.cloud.lm.sl.mta.model.v2.Module;
 @RunWith(Parameterized.class)
 public class TasksValidatorTest {
 
+    private String locationOfFileContainingTasks;
+    private boolean expectedResult;
+    public TasksValidatorTest(String locationOfFileContainingTasks, boolean expectedResult) {
+        this.locationOfFileContainingTasks = locationOfFileContainingTasks;
+        this.expectedResult = expectedResult;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -61,14 +68,6 @@ public class TasksValidatorTest {
         });
     }
 
-    private String locationOfFileContainingTasks;
-    private boolean expectedResult;
-
-    public TasksValidatorTest(String locationOfFileContainingTasks, boolean expectedResult) {
-        this.locationOfFileContainingTasks = locationOfFileContainingTasks;
-        this.expectedResult = expectedResult;
-    }
-
     @Test
     public void testValidate() throws Exception {
         String tasksJson = TestUtil.getResourceAsString(locationOfFileContainingTasks, getClass());
@@ -79,7 +78,7 @@ public class TasksValidatorTest {
     @Test
     public void testGetContainerType() {
         assertTrue(new TasksValidator().getContainerType()
-            .isAssignableFrom(Module.class));
+                                       .isAssignableFrom(Module.class));
     }
 
 }

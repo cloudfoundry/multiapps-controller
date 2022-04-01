@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 public class CustomControllerClientErrorHandlerTest {
 
     private static final ExecutionRetrier NULL_RETRIER = new ExecutionRetrier().withRetryCount(0)
-        .withWaitTimeBetweenRetriesInMillis(0);
+                                                                               .withWaitTimeBetweenRetriesInMillis(0);
 
     public static class StandardTest {
 
@@ -38,6 +38,13 @@ public class CustomControllerClientErrorHandlerTest {
 
     @RunWith(Parameterized.class)
     public static class ParameterizedTest {
+
+        private HttpStatusCodeException exceptionToThrow;
+        private CloudOperationException expected;
+        public ParameterizedTest(HttpStatusCodeException exceptionToThrow, CloudOperationException expected) {
+            this.exceptionToThrow = exceptionToThrow;
+            this.expected = expected;
+        }
 
         @Parameters
         public static Iterable<Object[]> getParameters() throws IOException {
@@ -67,12 +74,19 @@ public class CustomControllerClientErrorHandlerTest {
             });
         }
 
-        private HttpStatusCodeException exceptionToThrow;
-        private CloudOperationException expected;
-
-        public ParameterizedTest(HttpStatusCodeException exceptionToThrow, CloudOperationException expected) {
-            this.exceptionToThrow = exceptionToThrow;
-            this.expected = expected;
+        private static HttpStatusCodeException prepareHttpStatusCodeException(HttpStatus statusCode, String statusText,
+                                                                              String locationOfFileContainingResponseBody)
+            throws IOException {
+            HttpStatusCodeException exception = Mockito.mock(HttpStatusCodeException.class);
+            Mockito.when(exception.getStatusCode())
+                   .thenReturn(statusCode);
+            Mockito.when(exception.getStatusText())
+                   .thenReturn(statusText);
+            String responseBody = TestUtil.getResourceAsString(locationOfFileContainingResponseBody,
+                                                               CustomControllerClientErrorHandlerTest.class);
+            Mockito.when(exception.getResponseBodyAsString())
+                   .thenReturn(responseBody);
+            return exception;
         }
 
         @Test
@@ -88,20 +102,6 @@ public class CustomControllerClientErrorHandlerTest {
                 return;
             }
             fail();
-        }
-
-        private static HttpStatusCodeException prepareHttpStatusCodeException(HttpStatus statusCode, String statusText,
-            String locationOfFileContainingResponseBody) throws IOException {
-            HttpStatusCodeException exception = Mockito.mock(HttpStatusCodeException.class);
-            Mockito.when(exception.getStatusCode())
-                .thenReturn(statusCode);
-            Mockito.when(exception.getStatusText())
-                .thenReturn(statusText);
-            String responseBody = TestUtil.getResourceAsString(locationOfFileContainingResponseBody,
-                CustomControllerClientErrorHandlerTest.class);
-            Mockito.when(exception.getResponseBodyAsString())
-                .thenReturn(responseBody);
-            return exception;
         }
 
     }

@@ -21,6 +21,14 @@ public class XsPlaceholderResolverInvokerTest {
     private static final String PROTOCOL = "http";
     private static final String _AUTH_ENDPOINT = "http://localhost:9999/uaa";
     private static final String DS_SERVICE_URL = "http://localhost:8888";
+    private Integer schemaVersion;
+    private String descriptorLocation;
+    private Expectation expectation;
+    public XsPlaceholderResolverInvokerTest(String descriptorLocation, Integer schemaVersion, Expectation expectation) {
+        this.schemaVersion = schemaVersion;
+        this.descriptorLocation = descriptorLocation;
+        this.expectation = expectation;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -32,16 +40,6 @@ public class XsPlaceholderResolverInvokerTest {
             },
 // @formatter:on
         });
-    }
-
-    private Integer schemaVersion;
-    private String descriptorLocation;
-    private Expectation expectation;
-
-    public XsPlaceholderResolverInvokerTest(String descriptorLocation, Integer schemaVersion, Expectation expectation) {
-        this.schemaVersion = schemaVersion;
-        this.descriptorLocation = descriptorLocation;
-        this.expectation = expectation;
     }
 
     @Test

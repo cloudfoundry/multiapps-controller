@@ -19,7 +19,7 @@ public class DeployedMtaMetadataDto {
     public DeployedMtaMetadataDto(DeployedMtaMetadata metadata) {
         this.id = metadata.getId();
         this.version = metadata.getVersion()
-            .toString();
+                               .toString();
     }
 
     public String getId() {

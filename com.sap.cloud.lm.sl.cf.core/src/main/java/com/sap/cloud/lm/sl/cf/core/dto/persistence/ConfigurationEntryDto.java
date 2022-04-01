@@ -42,54 +42,33 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 @XmlAccessorType(value = XmlAccessType.FIELD)
 public class ConfigurationEntryDto {
 
-    public static class FieldNames {
-
-        public static final String ID = "id";
-        public static final String PROVIDER_ID = "providerId";
-        public static final String PROVIDER_VERSION = "providerVersion";
-        public static final String PROVIDER_NID = "providerNid";
-        public static final String TARGET_ORG = "targetOrg";
-        public static final String TARGET_SPACE = "targetSpace";
-        public static final String SPACE_ID = "spaceId";
-        public static final String CONTENT = "content";
-        public static final String VISIBILITY = "visibility";
-    }
-
     @XmlElement
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.CONFIGURATION_ENTRY_SEQUENCE)
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_ID)
     private long id;
-
     @XmlElement(name = "provider-nid")
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_NID, nullable = false)
     private String providerNid;
-
     @XmlElement(name = "provider-id")
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_ID, nullable = false)
     private String providerId;
-
     @XmlElement(name = "provider-version")
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_VERSION, nullable = false)
     private String providerVersion;
-
     @XmlElement(name = "target-org")
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_TARGET_ORG, nullable = false)
     private String targetOrg;
-
     @XmlElement(name = "target-space")
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_TARGET_SPACE, nullable = false)
     private String targetSpace;
-
     @XmlElement(name = "space-id")
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_SPACE_ID, nullable = false)
     private String spaceId;
-
     @XmlElement
     @Lob
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_CONTENT)
     private String content;
-
     @XmlElement(name = "visibility")
     @Lob
     @Column(name = TableColumnNames.CONFIGURATION_CLOUD_TARGET, nullable = true)
@@ -100,7 +79,7 @@ public class ConfigurationEntryDto {
     }
 
     public ConfigurationEntryDto(long id, String providerNid, String providerId, String providerVersion, String targetOrg,
-        String targetSpace, String content, String visibility, String spaceId) {
+                                 String targetSpace, String content, String visibility, String spaceId) {
         this.id = id;
         this.providerNid = providerNid;
         this.providerId = providerId;
@@ -119,10 +98,10 @@ public class ConfigurationEntryDto {
         this.providerVersion = getNotNull(entry.getProviderVersion());
         this.targetSpace = entry.getTargetSpace() == null ? null
             : entry.getTargetSpace()
-                .getSpace();
+                   .getSpace();
         this.targetOrg = entry.getTargetSpace() == null ? null
             : entry.getTargetSpace()
-                .getOrg();
+                   .getOrg();
         this.content = entry.getContent();
         this.visibility = entry.getVisibility() == null ? null : JsonUtil.toJson(entry.getVisibility());
         this.spaceId = entry.getSpaceId();
@@ -161,8 +140,14 @@ public class ConfigurationEntryDto {
     }
 
     public ConfigurationEntry toConfigurationEntry() {
-        return new ConfigurationEntry(id, getOriginal(providerNid), providerId, getParsedVersion(getOriginal(providerVersion)),
-            new CloudTarget(targetOrg, targetSpace), content, getParsedVisibility(visibility), spaceId);
+        return new ConfigurationEntry(id,
+                                      getOriginal(providerNid),
+                                      providerId,
+                                      getParsedVersion(getOriginal(providerVersion)),
+                                      new CloudTarget(targetOrg, targetSpace),
+                                      content,
+                                      getParsedVisibility(visibility),
+                                      spaceId);
     }
 
     private Version getParsedVersion(String versionString) {
@@ -200,5 +185,18 @@ public class ConfigurationEntryDto {
 
     public void setSpaceId(String spaceId) {
         this.spaceId = spaceId;
+    }
+
+    public static class FieldNames {
+
+        public static final String ID = "id";
+        public static final String PROVIDER_ID = "providerId";
+        public static final String PROVIDER_VERSION = "providerVersion";
+        public static final String PROVIDER_NID = "providerNid";
+        public static final String TARGET_ORG = "targetOrg";
+        public static final String TARGET_SPACE = "targetSpace";
+        public static final String SPACE_ID = "spaceId";
+        public static final String CONTENT = "content";
+        public static final String VISIBILITY = "visibility";
     }
 }

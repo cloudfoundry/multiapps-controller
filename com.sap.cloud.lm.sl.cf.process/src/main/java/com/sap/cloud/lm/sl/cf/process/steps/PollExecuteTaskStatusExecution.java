@@ -40,11 +40,11 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
             execution.getStepLogger()
-                .error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
+                     .error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
             throw e;
         } catch (SLException e) {
             execution.getStepLogger()
-                .error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
+                     .error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
             throw e;
         }
     }
@@ -73,28 +73,29 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
             List<CloudTask> allTasksForApp = client.getTasks(app.getName());
 
             return findTaskWithGuid(allTasksForApp, taskToPoll.getMeta()
-                .getGuid()).getState();
+                                                              .getGuid()).getState();
         }
 
         private CloudTask findTaskWithGuid(List<CloudTask> allTasksForApp, UUID guid) {
             return allTasksForApp.stream()
-                .filter(task -> task.getMeta()
-                    .getGuid()
-                    .equals(guid))
-                .findAny()
-                .orElseThrow(() -> new IllegalStateException(MessageFormat.format(Messages.COULD_NOT_FIND_TASK_WITH_GUID, guid)));
+                                 .filter(task -> task.getMeta()
+                                                     .getGuid()
+                                                     .equals(guid))
+                                 .findAny()
+                                 .orElseThrow(() -> new IllegalStateException(MessageFormat.format(Messages.COULD_NOT_FIND_TASK_WITH_GUID,
+                                                                                                   guid)));
         }
 
         private void reportCurrentState(CloudTask.State currentState) {
             execution.getStepLogger()
-                .info(Messages.TASK_EXECUTION_STATUS, currentState.toString()
-                    .toLowerCase());
+                     .info(Messages.TASK_EXECUTION_STATUS, currentState.toString()
+                                                                       .toLowerCase());
         }
 
         private void saveAppLogs() {
             CloudControllerClient client = execution.getControllerClient();
             ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
-                .getProcessLoggerProvider();
+                                                                   .getProcessLoggerProvider();
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
         }
 
@@ -112,7 +113,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         private AsyncExecutionState handleFinalState(CloudTask.State state) {
             if (state.equals(CloudTask.State.FAILED)) {
                 execution.getStepLogger()
-                    .error(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToPoll.getName(), app.getName());
+                         .error(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToPoll.getName(), app.getName());
                 return AsyncExecutionState.ERROR;
             }
             return AsyncExecutionState.FINISHED;

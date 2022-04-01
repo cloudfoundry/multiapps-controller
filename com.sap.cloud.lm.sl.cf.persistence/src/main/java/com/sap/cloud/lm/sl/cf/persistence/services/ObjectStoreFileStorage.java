@@ -42,36 +42,36 @@ public class ObjectStoreFileStorage implements FileStorage {
     public void addFile(FileEntry fileEntry, InputStream fileStream) throws FileStorageException {
         String entryName = fileEntry.getId();
         long fileSize = fileEntry.getSize()
-            .longValue();
+                                 .longValue();
         Blob blob = blobStore.blobBuilder(entryName)
-            .payload(fileStream)
-            .contentDisposition(fileEntry.getName())
-            .contentType(MediaType.OCTET_STREAM.toString())
-            .contentLength(fileSize)
-            .userMetadata(createFileEntryMetadata(fileEntry))
-            .build();
+                             .payload(fileStream)
+                             .contentDisposition(fileEntry.getName())
+                             .contentType(MediaType.OCTET_STREAM.toString())
+                             .contentLength(fileSize)
+                             .userMetadata(createFileEntryMetadata(fileEntry))
+                             .build();
         try {
             blobStore.putBlob(container, blob);
             LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2, fileEntry.getId(), fileSize));
         } catch (ContainerNotFoundException e) {
-            throw new FileStorageException(
-                MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(), fileEntry.getNamespace()));
+            throw new FileStorageException(MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(),
+                                                                fileEntry.getNamespace()));
         }
     }
 
     @Override
     public List<FileEntry> getFileEntriesWithoutContent(List<FileEntry> fileEntries) throws FileStorageException {
         Set<String> existingFiles = blobStore.list(container)
-            .stream()
-            .map(StorageMetadata::getName)
-            .collect(Collectors.toSet());
+                                             .stream()
+                                             .map(StorageMetadata::getName)
+                                             .collect(Collectors.toSet());
 
         return fileEntries.stream()
-            .filter(fileEntry -> {
-                String id = fileEntry.getId();
-                return !existingFiles.contains(id);
-            })
-            .collect(Collectors.toList());
+                          .filter(fileEntry -> {
+                              String id = fileEntry.getId();
+                              return !existingFiles.contains(id);
+                          })
+                          .collect(Collectors.toList());
     }
 
     @Override
@@ -115,7 +115,7 @@ public class ObjectStoreFileStorage implements FileStorage {
         metadata.put(FileService.FileServiceColumnNames.SPACE.toLowerCase(), fileEntry.getSpace());
         metadata.put(FileService.FileServiceColumnNames.FILE_NAME.toLowerCase(), fileEntry.getName());
         metadata.put(FileService.FileServiceColumnNames.MODIFIED.toLowerCase(), Long.toString(fileEntry.getModified()
-            .getTime()));
+                                                                                                       .getTime()));
         if (fileEntry.getNamespace() != null) {
             metadata.put(FileService.FileServiceColumnNames.NAMESPACE.toLowerCase(), fileEntry.getNamespace());
         }
@@ -124,10 +124,10 @@ public class ObjectStoreFileStorage implements FileStorage {
 
     private int removeBlobsByFilter(Predicate<? super StorageMetadata> filter) {
         Set<String> entriesToDelete = blobStore.list(container, new ListContainerOptions().withDetails())
-            .stream()
-            .filter(filter)
-            .map(StorageMetadata::getName)
-            .collect(Collectors.toSet());
+                                               .stream()
+                                               .filter(filter)
+                                               .map(StorageMetadata::getName)
+                                               .collect(Collectors.toSet());
 
         if (!entriesToDelete.isEmpty()) {
             blobStore.removeBlobs(container, entriesToDelete);

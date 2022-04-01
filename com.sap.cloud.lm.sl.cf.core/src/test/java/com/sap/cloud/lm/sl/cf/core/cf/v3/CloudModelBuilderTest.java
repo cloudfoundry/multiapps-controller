@@ -26,10 +26,20 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
     private UserMessageLogger userMessageLogger;
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
-        String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices, String[] mtaArchiveModules,
-        String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps) {
-        super(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, deployedMtaLocation, useNamespaces,
-            useNamespacesForServices, mtaArchiveModules, mtaModules, deployedApps, expectedServices, expectedApps);
+                                 String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices,
+                                 String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, Expectation expectedServices,
+                                 Expectation expectedApps) {
+        super(deploymentDescriptorLocation,
+              extensionDescriptorLocation,
+              platformsLocation,
+              deployedMtaLocation,
+              useNamespaces,
+              useNamespacesForServices,
+              mtaArchiveModules,
+              mtaModules,
+              deployedApps,
+              expectedServices,
+              expectedApps);
         MockitoAnnotations.initMocks(this);
     }
 
@@ -58,19 +68,24 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
 
     @Override
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration) {
+                                                                     CloudModelConfiguration configuration) {
         return new ServicesCloudModelBuilder(deploymentDescriptor, getPropertiesAccessor(), configuration);
     }
 
     @Override
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver) {
+                                                                             CloudModelConfiguration configuration, DeployedMta deployedMta,
+                                                                             SystemParameters systemParameters,
+                                                                             XsPlaceholderResolver xsPlaceholderResolver) {
         deploymentDescriptor = new DescriptorReferenceResolver((com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor) deploymentDescriptor,
-            new ResolverBuilder(), new ResolverBuilder()).resolve();
-        return new com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder(
-            (com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor) deploymentDescriptor, configuration, deployedMta, systemParameters,
-            xsPlaceholderResolver, DEPLOY_ID);
+                                                               new ResolverBuilder(),
+                                                               new ResolverBuilder()).resolve();
+        return new com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder((com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor) deploymentDescriptor,
+                                                                                   configuration,
+                                                                                   deployedMta,
+                                                                                   systemParameters,
+                                                                                   xsPlaceholderResolver,
+                                                                                   DEPLOY_ID);
     }
 
     @Override
@@ -82,6 +97,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
     public void testWarnMessage() {
         resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources2());
         Mockito.verify(userMessageLogger)
-            .warn(Mockito.anyString(), Mockito.any());
+               .warn(Mockito.anyString(), Mockito.any());
     }
 }

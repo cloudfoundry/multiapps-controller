@@ -24,10 +24,9 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PublishConfigurationEntriesStep extends SyncFlowableStep {
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
     @Inject
     ConfigurationEntryDao configurationEntryDao;
+    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -77,16 +76,16 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
     }
 
     private void infoConfigurationPublishment(ConfigurationEntry entry) {
-        if(!CommonUtil.isNullOrEmpty(entry.getContent())) {
+        if (!CommonUtil.isNullOrEmpty(entry.getContent())) {
             getStepLogger().info(MessageFormat.format(Messages.PUBLISHING_PUBLIC_PROVIDED_DEPENDENCY, entry.getProviderId()));
         }
     }
 
     private ConfigurationEntry getExistingEntry(ConfigurationEntry targetEntry) {
         List<ConfigurationEntry> existingEntries = configurationEntryDao.find(targetEntry.getProviderNid(), targetEntry.getProviderId(),
-            targetEntry.getProviderVersion()
-                .toString(),
-            targetEntry.getTargetSpace(), Collections.emptyMap(), null);
+                                                                              targetEntry.getProviderVersion()
+                                                                                         .toString(),
+                                                                              targetEntry.getTargetSpace(), Collections.emptyMap(), null);
         return existingEntries.isEmpty() ? null : existingEntries.get(0);
     }
 

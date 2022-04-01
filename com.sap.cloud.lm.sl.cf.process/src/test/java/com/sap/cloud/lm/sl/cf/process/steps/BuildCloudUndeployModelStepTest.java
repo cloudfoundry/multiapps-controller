@@ -35,6 +35,20 @@ import com.sap.cloud.lm.sl.mta.model.v2.Module;
 public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildCloudUndeployModelStep> {
 
     private static final String SPACE_ID = "sap";
+    @Mock
+    private ConfigurationSubscriptionDao dao;
+    private StepInput input;
+    private StepOutput output;
+    private List<CloudApplicationExtended> deployedApps;
+    private List<CloudApplicationExtended> appsToDeploy;
+    private List<ConfigurationSubscription> subscriptionsToCreate;
+    private List<ConfigurationSubscription> existingSubscriptions;
+    private DeployedMta deployedMta;
+    private DeploymentDescriptor deploymentDescriptor;
+    public BuildCloudUndeployModelStepTest(StepInput input, StepOutput output) {
+        this.input = input;
+        this.output = output;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -109,29 +123,11 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         });
     }
 
-    @Mock
-    private ConfigurationSubscriptionDao dao;
-
-    private StepInput input;
-    private StepOutput output;
-
-    private List<CloudApplicationExtended> deployedApps;
-    private List<CloudApplicationExtended> appsToDeploy;
-    private List<ConfigurationSubscription> subscriptionsToCreate;
-    private List<ConfigurationSubscription> existingSubscriptions;
-    private DeployedMta deployedMta;
-    private DeploymentDescriptor deploymentDescriptor;
-
     private List<CloudApplicationExtended> prepareApplicationServices(List<CloudApplicationExtended> appsToDeploy, List<String> services) {
         for (CloudApplicationExtended app : appsToDeploy) {
             app.setServices(services);
         }
         return appsToDeploy;
-    }
-
-    public BuildCloudUndeployModelStepTest(StepInput input, StepOutput output) {
-        this.input = input;
-        this.output = output;
     }
 
     @Before
@@ -145,8 +141,8 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     private void prepareDeploymentDescriptor() {
         DeploymentDescriptor.Builder builder = new DeploymentDescriptor.Builder();
         List<Module> modules = input.deploymentDescriptorModules.stream()
-            .map(this::getModuleFromName)
-            .collect(Collectors.toList());
+                                                                .map(this::getModuleFromName)
+                                                                .collect(Collectors.toList());
         builder.setModules2(modules);
         builder.setSchemaVersion("1");
         builder.setId("id");
@@ -196,14 +192,15 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     private void prepareDao() {
         if (deployedMta != null) {
             when(dao.findAll(deployedMta.getMetadata()
-                .getId(), null, SPACE_ID, null)).thenReturn(filter(existingSubscriptions));
+                                        .getId(),
+                             null, SPACE_ID, null)).thenReturn(filter(existingSubscriptions));
         }
     }
 
     private List<ConfigurationSubscription> filter(List<ConfigurationSubscription> existingSubscriptions) {
         return existingSubscriptions.stream()
-            .filter((subscription) -> SPACE_ID.equals(subscription.getSpaceId()))
-            .collect(Collectors.toList());
+                                    .filter((subscription) -> SPACE_ID.equals(subscription.getSpaceId()))
+                                    .collect(Collectors.toList());
     }
 
     @Test
@@ -217,7 +214,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         assertEquals(output.appsToUndeployNames, getNames(StepsUtil.getAppsToUndeploy(context)));
 
         TestUtil.test(() -> StepsUtil.getSubscriptionsToDelete(context), output.subscriptionsToDeleteExpectation, getClass(),
-            new JsonSerializationOptions(true, false));
+                      new JsonSerializationOptions(true, false));
     }
 
     private List<String> getNames(List<CloudApplication> appsToUndeploy) {
@@ -225,8 +222,13 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
             return null;
         }
         return appsToUndeploy.stream()
-            .map((app) -> app.getName())
-            .collect(Collectors.toList());
+                             .map((app) -> app.getName())
+                             .collect(Collectors.toList());
+    }
+
+    @Override
+    protected BuildCloudUndeployModelStep createStep() {
+        return new BuildCloudUndeployModelStep();
     }
 
     private static class StepInput {
@@ -241,8 +243,8 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         public Set<String> deploymentDescriptorModules;
 
         public StepInput(String appsToDeployLocation, List<String> services, String deployedAppsLocation, Set<String> mtaModules,
-            String deployedMtaLocation, String subscriptionsToCreateLocation, String existingSubscriptionsLocation,
-            Set<String> deploymentDescriptorModules) {
+                         String deployedMtaLocation, String subscriptionsToCreateLocation, String existingSubscriptionsLocation,
+                         Set<String> deploymentDescriptorModules) {
             this.appsToDeployLocation = appsToDeployLocation;
             this.services = services;
             this.deployedAppsLocation = deployedAppsLocation;
@@ -267,11 +269,6 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
             this.subscriptionsToDeleteExpectation = subscriptionsToDeleteExpectation;
         }
 
-    }
-
-    @Override
-    protected BuildCloudUndeployModelStep createStep() {
-        return new BuildCloudUndeployModelStep();
     }
 
 }

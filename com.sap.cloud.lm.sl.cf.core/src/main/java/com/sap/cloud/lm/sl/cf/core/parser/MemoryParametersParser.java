@@ -21,11 +21,6 @@ public class MemoryParametersParser implements ParametersParser<Integer> {
         this.defaultMemory = defaultMemory;
     }
 
-    @Override
-    public Integer parse(List<Map<String, Object>> parametersList) {
-        return parseMemory((String) getPropertyValue(parametersList, parameterName, defaultMemory));
-    }
-
     public static Integer parseMemory(String value) {
         if (value == null) {
             return null;
@@ -41,6 +36,11 @@ public class MemoryParametersParser implements ParametersParser<Integer> {
 
     private static int getNumberFromString(String value) {
         return Integer.parseInt(value.replaceAll("[^0-9]", ""));
+    }
+
+    @Override
+    public Integer parse(List<Map<String, Object>> parametersList) {
+        return parseMemory((String) getPropertyValue(parametersList, parameterName, defaultMemory));
     }
 
 }

@@ -4,1794 +4,452 @@
 package com.sap.cloud.lm.sl.cf.client.events;
 
 public final class EventFactory {
-  private EventFactory() {}
-  public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistryLite registry) {
-  }
+    private static final com.google.protobuf.Descriptors.Descriptor internal_static_events_Envelope_descriptor;
+    private static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internal_static_events_Envelope_fieldAccessorTable;
+    private static final com.google.protobuf.Descriptors.Descriptor internal_static_events_Envelope_TagsEntry_descriptor;
+    private static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internal_static_events_Envelope_TagsEntry_fieldAccessorTable;
+    private static com.google.protobuf.Descriptors.FileDescriptor descriptor;
 
-  public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistry registry) {
-    registerAllExtensions(
-        (com.google.protobuf.ExtensionRegistryLite) registry);
-  }
-  public interface EnvelopeOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:events.Envelope)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <pre>
-     *&#47; Unique description of the origin of this event.
-     * </pre>
-     *
-     * <code>required string origin = 1;</code>
-     */
-    boolean hasOrigin();
-    /**
-     * <pre>
-     *&#47; Unique description of the origin of this event.
-     * </pre>
-     *
-     * <code>required string origin = 1;</code>
-     */
-    java.lang.String getOrigin();
-    /**
-     * <pre>
-     *&#47; Unique description of the origin of this event.
-     * </pre>
-     *
-     * <code>required string origin = 1;</code>
-     */
-    com.google.protobuf.ByteString
-        getOriginBytes();
-
-    /**
-     * <pre>
-     *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
-     * </pre>
-     *
-     * <code>required .events.Envelope.EventType eventType = 2;</code>
-     */
-    boolean hasEventType();
-    /**
-     * <pre>
-     *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
-     * </pre>
-     *
-     * <code>required .events.Envelope.EventType eventType = 2;</code>
-     */
-    EventFactory.Envelope.EventType getEventType();
-
-    /**
-     * <pre>
-     *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
-     * </pre>
-     *
-     * <code>optional int64 timestamp = 6;</code>
-     */
-    boolean hasTimestamp();
-    /**
-     * <pre>
-     *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
-     * </pre>
-     *
-     * <code>optional int64 timestamp = 6;</code>
-     */
-    long getTimestamp();
-
-    /**
-     * <pre>
-     *&#47; Deployment name (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string deployment = 13;</code>
-     */
-    boolean hasDeployment();
-    /**
-     * <pre>
-     *&#47; Deployment name (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string deployment = 13;</code>
-     */
-    java.lang.String getDeployment();
-    /**
-     * <pre>
-     *&#47; Deployment name (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string deployment = 13;</code>
-     */
-    com.google.protobuf.ByteString
-        getDeploymentBytes();
-
-    /**
-     * <pre>
-     *&#47; Job name (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string job = 14;</code>
-     */
-    boolean hasJob();
-    /**
-     * <pre>
-     *&#47; Job name (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string job = 14;</code>
-     */
-    java.lang.String getJob();
-    /**
-     * <pre>
-     *&#47; Job name (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string job = 14;</code>
-     */
-    com.google.protobuf.ByteString
-        getJobBytes();
-
-    /**
-     * <pre>
-     *&#47; Index of job (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string index = 15;</code>
-     */
-    boolean hasIndex();
-    /**
-     * <pre>
-     *&#47; Index of job (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string index = 15;</code>
-     */
-    java.lang.String getIndex();
-    /**
-     * <pre>
-     *&#47; Index of job (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string index = 15;</code>
-     */
-    com.google.protobuf.ByteString
-        getIndexBytes();
-
-    /**
-     * <pre>
-     *&#47; IP address (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string ip = 16;</code>
-     */
-    boolean hasIp();
-    /**
-     * <pre>
-     *&#47; IP address (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string ip = 16;</code>
-     */
-    java.lang.String getIp();
-    /**
-     * <pre>
-     *&#47; IP address (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string ip = 16;</code>
-     */
-    com.google.protobuf.ByteString
-        getIpBytes();
-
-    /**
-     * <pre>
-     *&#47; key/value tags to include additional identifying information.
-     * </pre>
-     *
-     * <code>map&lt;string, string&gt; tags = 17;</code>
-     */
-    int getTagsCount();
-    /**
-     * <pre>
-     *&#47; key/value tags to include additional identifying information.
-     * </pre>
-     *
-     * <code>map&lt;string, string&gt; tags = 17;</code>
-     */
-    boolean containsTags(
-        java.lang.String key);
-    /**
-     * Use {@link #getTagsMap()} instead.
-     */
-    @java.lang.Deprecated
-    java.util.Map<java.lang.String, java.lang.String>
-    getTags();
-    /**
-     * <pre>
-     *&#47; key/value tags to include additional identifying information.
-     * </pre>
-     *
-     * <code>map&lt;string, string&gt; tags = 17;</code>
-     */
-    java.util.Map<java.lang.String, java.lang.String>
-    getTagsMap();
-    /**
-     * <pre>
-     *&#47; key/value tags to include additional identifying information.
-     * </pre>
-     *
-     * <code>map&lt;string, string&gt; tags = 17;</code>
-     */
-
-    java.lang.String getTagsOrDefault(
-        java.lang.String key,
-        java.lang.String defaultValue);
-    /**
-     * <pre>
-     *&#47; key/value tags to include additional identifying information.
-     * </pre>
-     *
-     * <code>map&lt;string, string&gt; tags = 17;</code>
-     */
-
-    java.lang.String getTagsOrThrow(
-        java.lang.String key);
-
-    /**
-     * <pre>
-     * Removed Heartbeat at position 3
-     * </pre>
-     *
-     * <code>optional .events.HttpStart httpStart = 4;</code>
-     */
-    boolean hasHttpStart();
-    /**
-     * <pre>
-     * Removed Heartbeat at position 3
-     * </pre>
-     *
-     * <code>optional .events.HttpStart httpStart = 4;</code>
-     */
-    HttpFactory.HttpStart getHttpStart();
-    /**
-     * <pre>
-     * Removed Heartbeat at position 3
-     * </pre>
-     *
-     * <code>optional .events.HttpStart httpStart = 4;</code>
-     */
-    HttpFactory.HttpStartOrBuilder getHttpStartOrBuilder();
-
-    /**
-     * <code>optional .events.HttpStop httpStop = 5;</code>
-     */
-    boolean hasHttpStop();
-    /**
-     * <code>optional .events.HttpStop httpStop = 5;</code>
-     */
-    HttpFactory.HttpStop getHttpStop();
-    /**
-     * <code>optional .events.HttpStop httpStop = 5;</code>
-     */
-    HttpFactory.HttpStopOrBuilder getHttpStopOrBuilder();
-
-    /**
-     * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-     */
-    boolean hasHttpStartStop();
-    /**
-     * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-     */
-    HttpFactory.HttpStartStop getHttpStartStop();
-    /**
-     * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-     */
-    HttpFactory.HttpStartStopOrBuilder getHttpStartStopOrBuilder();
-
-    /**
-     * <code>optional .events.LogMessage logMessage = 8;</code>
-     */
-    boolean hasLogMessage();
-    /**
-     * <code>optional .events.LogMessage logMessage = 8;</code>
-     */
-    LogFactory.LogMessage getLogMessage();
-    /**
-     * <code>optional .events.LogMessage logMessage = 8;</code>
-     */
-    LogFactory.LogMessageOrBuilder getLogMessageOrBuilder();
-
-    /**
-     * <code>optional .events.ValueMetric valueMetric = 9;</code>
-     */
-    boolean hasValueMetric();
-    /**
-     * <code>optional .events.ValueMetric valueMetric = 9;</code>
-     */
-    MetricFactory.ValueMetric getValueMetric();
-    /**
-     * <code>optional .events.ValueMetric valueMetric = 9;</code>
-     */
-    MetricFactory.ValueMetricOrBuilder getValueMetricOrBuilder();
-
-    /**
-     * <code>optional .events.CounterEvent counterEvent = 10;</code>
-     */
-    boolean hasCounterEvent();
-    /**
-     * <code>optional .events.CounterEvent counterEvent = 10;</code>
-     */
-    MetricFactory.CounterEvent getCounterEvent();
-    /**
-     * <code>optional .events.CounterEvent counterEvent = 10;</code>
-     */
-    MetricFactory.CounterEventOrBuilder getCounterEventOrBuilder();
-
-    /**
-     * <code>optional .events.Error error = 11;</code>
-     */
-    boolean hasError();
-    /**
-     * <code>optional .events.Error error = 11;</code>
-     */
-    ErrorFactory.Error getError();
-    /**
-     * <code>optional .events.Error error = 11;</code>
-     */
-    ErrorFactory.ErrorOrBuilder getErrorOrBuilder();
-
-    /**
-     * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-     */
-    boolean hasContainerMetric();
-    /**
-     * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-     */
-    MetricFactory.ContainerMetric getContainerMetric();
-    /**
-     * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-     */
-    MetricFactory.ContainerMetricOrBuilder getContainerMetricOrBuilder();
-  }
-  /**
-   * <pre>
-   *&#47; Envelope wraps an Event and adds metadata.
-   * </pre>
-   *
-   * Protobuf type {@code events.Envelope}
-   */
-  public  static final class Envelope extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:events.Envelope)
-      EnvelopeOrBuilder {
-    // Use Envelope.newBuilder() to construct.
-    private Envelope(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private Envelope() {
-      origin_ = "";
-      eventType_ = 2;
-      timestamp_ = 0L;
-      deployment_ = "";
-      job_ = "";
-      index_ = "";
-      ip_ = "";
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return this.unknownFields;
-    }
-    private Envelope(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
+    static {
+        java.lang.String[] descriptorData = {
+            "\n\016envelope.proto\022\006events\032\nhttp.proto\032\tlo" + "g.proto\032\014metric.proto\032\013error.proto\"\306\005\n\010E"
+                + "nvelope\022\016\n\006origin\030\001 \002(\t\022-\n\teventType\030\002 \002"
+                + "(\0162\032.events.Envelope.EventType\022\021\n\ttimest"
+                + "amp\030\006 \001(\003\022\022\n\ndeployment\030\r \001(\t\022\013\n\003job\030\016 \001"
+                + "(\t\022\r\n\005index\030\017 \001(\t\022\n\n\002ip\030\020 \001(\t\022(\n\004tags\030\021 "
+                + "\003(\0132\032.events.Envelope.TagsEntry\022$\n\thttpS"
+                + "tart\030\004 \001(\0132\021.events.HttpStart\022\"\n\010httpSto"
+                + "p\030\005 \001(\0132\020.events.HttpStop\022,\n\rhttpStartSt"
+                + "op\030\007 \001(\0132\025.events.HttpStartStop\022&\n\nlogMe",
+            "ssage\030\010 \001(\0132\022.events.LogMessage\022(\n\013value"
+                + "Metric\030\t \001(\0132\023.events.ValueMetric\022*\n\014cou"
+                + "nterEvent\030\n \001(\0132\024.events.CounterEvent\022\034\n"
+                + "\005error\030\013 \001(\0132\r.events.Error\0220\n\017container"
+                + "Metric\030\014 \001(\0132\027.events.ContainerMetric\032+\n"
+                + "\tTagsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\002"
+                + "8\001\"\216\001\n\tEventType\022\r\n\tHttpStart\020\002\022\014\n\010HttpS"
+                + "top\020\003\022\021\n\rHttpStartStop\020\004\022\016\n\nLogMessage\020\005"
+                + "\022\017\n\013ValueMetric\020\006\022\020\n\014CounterEvent\020\007\022\t\n\005E"
+                + "rror\020\010\022\023\n\017ContainerMetric\020\tB1\n!org.cloud",
+            "foundry.dropsonde.eventsB\014EventFactory" };
+        com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner = new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+            public com.google.protobuf.ExtensionRegistry assignDescriptors(com.google.protobuf.Descriptors.FileDescriptor root) {
+                descriptor = root;
+                return null;
             }
-            case 10: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000001;
-              origin_ = bs;
-              break;
-            }
-            case 16: {
-              int rawValue = input.readEnum();
-              EventFactory.Envelope.EventType value = EventFactory.Envelope.EventType.valueOf(rawValue);
-              if (value == null) {
-                unknownFields.mergeVarintField(2, rawValue);
-              } else {
-                bitField0_ |= 0x00000002;
-                eventType_ = rawValue;
-              }
-              break;
-            }
-            case 34: {
-              HttpFactory.HttpStart.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000080) == 0x00000080)) {
-                subBuilder = httpStart_.toBuilder();
-              }
-              httpStart_ = input.readMessage(HttpFactory.HttpStart.PARSER, extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(httpStart_);
-                httpStart_ = subBuilder.buildPartial();
-              }
-              bitField0_ |= 0x00000080;
-              break;
-            }
-            case 42: {
-              HttpFactory.HttpStop.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000100) == 0x00000100)) {
-                subBuilder = httpStop_.toBuilder();
-              }
-              httpStop_ = input.readMessage(HttpFactory.HttpStop.PARSER, extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(httpStop_);
-                httpStop_ = subBuilder.buildPartial();
-              }
-              bitField0_ |= 0x00000100;
-              break;
-            }
-            case 48: {
-              bitField0_ |= 0x00000004;
-              timestamp_ = input.readInt64();
-              break;
-            }
-            case 58: {
-              HttpFactory.HttpStartStop.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000200) == 0x00000200)) {
-                subBuilder = httpStartStop_.toBuilder();
-              }
-              httpStartStop_ = input.readMessage(HttpFactory.HttpStartStop.PARSER, extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(httpStartStop_);
-                httpStartStop_ = subBuilder.buildPartial();
-              }
-              bitField0_ |= 0x00000200;
-              break;
-            }
-            case 66: {
-              LogFactory.LogMessage.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000400) == 0x00000400)) {
-                subBuilder = logMessage_.toBuilder();
-              }
-              logMessage_ = input.readMessage(LogFactory.LogMessage.PARSER, extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(logMessage_);
-                logMessage_ = subBuilder.buildPartial();
-              }
-              bitField0_ |= 0x00000400;
-              break;
-            }
-            case 74: {
-              MetricFactory.ValueMetric.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000800) == 0x00000800)) {
-                subBuilder = valueMetric_.toBuilder();
-              }
-              valueMetric_ = input.readMessage(MetricFactory.ValueMetric.PARSER, extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(valueMetric_);
-                valueMetric_ = subBuilder.buildPartial();
-              }
-              bitField0_ |= 0x00000800;
-              break;
-            }
-            case 82: {
-              MetricFactory.CounterEvent.Builder subBuilder = null;
-              if (((bitField0_ & 0x00001000) == 0x00001000)) {
-                subBuilder = counterEvent_.toBuilder();
-              }
-              counterEvent_ = input.readMessage(MetricFactory.CounterEvent.PARSER, extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(counterEvent_);
-                counterEvent_ = subBuilder.buildPartial();
-              }
-              bitField0_ |= 0x00001000;
-              break;
-            }
-            case 90: {
-              ErrorFactory.Error.Builder subBuilder = null;
-              if (((bitField0_ & 0x00002000) == 0x00002000)) {
-                subBuilder = error_.toBuilder();
-              }
-              error_ = input.readMessage(ErrorFactory.Error.PARSER, extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(error_);
-                error_ = subBuilder.buildPartial();
-              }
-              bitField0_ |= 0x00002000;
-              break;
-            }
-            case 98: {
-              MetricFactory.ContainerMetric.Builder subBuilder = null;
-              if (((bitField0_ & 0x00004000) == 0x00004000)) {
-                subBuilder = containerMetric_.toBuilder();
-              }
-              containerMetric_ = input.readMessage(MetricFactory.ContainerMetric.PARSER, extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(containerMetric_);
-                containerMetric_ = subBuilder.buildPartial();
-              }
-              bitField0_ |= 0x00004000;
-              break;
-            }
-            case 106: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000008;
-              deployment_ = bs;
-              break;
-            }
-            case 114: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000010;
-              job_ = bs;
-              break;
-            }
-            case 122: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000020;
-              index_ = bs;
-              break;
-            }
-            case 130: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000040;
-              ip_ = bs;
-              break;
-            }
-            case 138: {
-              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
-                tags_ = com.google.protobuf.MapField.newMapField(
-                    TagsDefaultEntryHolder.defaultEntry);
-                mutable_bitField0_ |= 0x00000080;
-              }
-              com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
-              tags__ = input.readMessage(
-                  TagsDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-              tags_.getMutableMap().put(
-                  tags__.getKey(), tags__.getValue());
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
+        };
+        com.google.protobuf.Descriptors.FileDescriptor.internalBuildGeneratedFileFrom(descriptorData,
+                                                                                      new com.google.protobuf.Descriptors.FileDescriptor[] {
+                                                                                          HttpFactory.getDescriptor(),
+                                                                                          LogFactory.getDescriptor(),
+                                                                                          MetricFactory.getDescriptor(),
+                                                                                          ErrorFactory.getDescriptor(), },
+                                                                                      assigner);
+        internal_static_events_Envelope_descriptor = getDescriptor().getMessageTypes()
+                                                                    .get(0);
+        internal_static_events_Envelope_fieldAccessorTable = new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(internal_static_events_Envelope_descriptor,
+                                                                                                                           new java.lang.String[] {
+                                                                                                                               "Origin",
+                                                                                                                               "EventType",
+                                                                                                                               "Timestamp",
+                                                                                                                               "Deployment",
+                                                                                                                               "Job",
+                                                                                                                               "Index",
+                                                                                                                               "Ip", "Tags",
+                                                                                                                               "HttpStart",
+                                                                                                                               "HttpStop",
+                                                                                                                               "HttpStartStop",
+                                                                                                                               "LogMessage",
+                                                                                                                               "ValueMetric",
+                                                                                                                               "CounterEvent",
+                                                                                                                               "Error",
+                                                                                                                               "ContainerMetric", });
+        internal_static_events_Envelope_TagsEntry_descriptor = internal_static_events_Envelope_descriptor.getNestedTypes()
+                                                                                                         .get(0);
+        internal_static_events_Envelope_TagsEntry_fieldAccessorTable = new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(internal_static_events_Envelope_TagsEntry_descriptor,
+                                                                                                                                     new java.lang.String[] {
+                                                                                                                                         "Key",
+                                                                                                                                         "Value", });
+        HttpFactory.getDescriptor();
+        LogFactory.getDescriptor();
+        MetricFactory.getDescriptor();
+        ErrorFactory.getDescriptor();
     }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return EventFactory.internal_static_events_Envelope_descriptor;
+    private EventFactory() {
     }
 
-    @SuppressWarnings({"rawtypes"})
-    protected com.google.protobuf.MapField internalGetMapField(
-        int number) {
-      switch (number) {
-        case 17:
-          return internalGetTags();
-        default:
-          throw new RuntimeException(
-              "Invalid map field number: " + number);
-      }
-    }
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return EventFactory.internal_static_events_Envelope_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              EventFactory.Envelope.class, EventFactory.Envelope.Builder.class);
+    public static void registerAllExtensions(com.google.protobuf.ExtensionRegistryLite registry) {
     }
 
-    /**
-     * <pre>
-     *&#47; Type of the wrapped event.
-     * </pre>
-     *
-     * Protobuf enum {@code events.Envelope.EventType}
-     */
-    public enum EventType
-        implements com.google.protobuf.ProtocolMessageEnum {
-      /**
-       * <pre>
-       * Removed Heartbeat at position 1
-       * </pre>
-       *
-       * <code>HttpStart = 2;</code>
-       */
-      HttpStart(2),
-      /**
-       * <code>HttpStop = 3;</code>
-       */
-      HttpStop(3),
-      /**
-       * <code>HttpStartStop = 4;</code>
-       */
-      HttpStartStop(4),
-      /**
-       * <code>LogMessage = 5;</code>
-       */
-      LogMessage(5),
-      /**
-       * <code>ValueMetric = 6;</code>
-       */
-      ValueMetric(6),
-      /**
-       * <code>CounterEvent = 7;</code>
-       */
-      CounterEvent(7),
-      /**
-       * <code>Error = 8;</code>
-       */
-      Error(8),
-      /**
-       * <code>ContainerMetric = 9;</code>
-       */
-      ContainerMetric(9),
-      ;
-
-      /**
-       * <pre>
-       * Removed Heartbeat at position 1
-       * </pre>
-       *
-       * <code>HttpStart = 2;</code>
-       */
-      public static final int HttpStart_VALUE = 2;
-      /**
-       * <code>HttpStop = 3;</code>
-       */
-      public static final int HttpStop_VALUE = 3;
-      /**
-       * <code>HttpStartStop = 4;</code>
-       */
-      public static final int HttpStartStop_VALUE = 4;
-      /**
-       * <code>LogMessage = 5;</code>
-       */
-      public static final int LogMessage_VALUE = 5;
-      /**
-       * <code>ValueMetric = 6;</code>
-       */
-      public static final int ValueMetric_VALUE = 6;
-      /**
-       * <code>CounterEvent = 7;</code>
-       */
-      public static final int CounterEvent_VALUE = 7;
-      /**
-       * <code>Error = 8;</code>
-       */
-      public static final int Error_VALUE = 8;
-      /**
-       * <code>ContainerMetric = 9;</code>
-       */
-      public static final int ContainerMetric_VALUE = 9;
-
-
-      public final int getNumber() {
-        return value;
-      }
-
-      /**
-       * @deprecated Use {@link #forNumber(int)} instead.
-       */
-      @java.lang.Deprecated
-      public static EventType valueOf(int value) {
-        return forNumber(value);
-      }
-
-      public static EventType forNumber(int value) {
-        switch (value) {
-          case 2: return HttpStart;
-          case 3: return HttpStop;
-          case 4: return HttpStartStop;
-          case 5: return LogMessage;
-          case 6: return ValueMetric;
-          case 7: return CounterEvent;
-          case 8: return Error;
-          case 9: return ContainerMetric;
-          default: return null;
-        }
-      }
-
-      public static com.google.protobuf.Internal.EnumLiteMap<EventType>
-          internalGetValueMap() {
-        return internalValueMap;
-      }
-      private static final com.google.protobuf.Internal.EnumLiteMap<
-          EventType> internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<EventType>() {
-              public EventType findValueByNumber(int number) {
-                return EventType.forNumber(number);
-              }
-            };
-
-      public final com.google.protobuf.Descriptors.EnumValueDescriptor
-          getValueDescriptor() {
-        return getDescriptor().getValues().get(ordinal());
-      }
-      public final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptorForType() {
-        return getDescriptor();
-      }
-      public static final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptor() {
-        return EventFactory.Envelope.getDescriptor().getEnumTypes().get(0);
-      }
-
-      private static final EventType[] VALUES = values();
-
-      public static EventType valueOf(
-          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-        if (desc.getType() != getDescriptor()) {
-          throw new java.lang.IllegalArgumentException(
-            "EnumValueDescriptor is not for this type.");
-        }
-        return VALUES[desc.getIndex()];
-      }
-
-      private final int value;
-
-      private EventType(int value) {
-        this.value = value;
-      }
-
-      // @@protoc_insertion_point(enum_scope:events.Envelope.EventType)
+    public static void registerAllExtensions(com.google.protobuf.ExtensionRegistry registry) {
+        registerAllExtensions((com.google.protobuf.ExtensionRegistryLite) registry);
     }
 
-    private int bitField0_;
-    public static final int ORIGIN_FIELD_NUMBER = 1;
-    private volatile java.lang.Object origin_;
-    /**
-     * <pre>
-     *&#47; Unique description of the origin of this event.
-     * </pre>
-     *
-     * <code>required string origin = 1;</code>
-     */
-    public boolean hasOrigin() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <pre>
-     *&#47; Unique description of the origin of this event.
-     * </pre>
-     *
-     * <code>required string origin = 1;</code>
-     */
-    public java.lang.String getOrigin() {
-      java.lang.Object ref = origin_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          origin_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <pre>
-     *&#47; Unique description of the origin of this event.
-     * </pre>
-     *
-     * <code>required string origin = 1;</code>
-     */
-    public com.google.protobuf.ByteString
-        getOriginBytes() {
-      java.lang.Object ref = origin_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        origin_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
+    public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor() {
+        return descriptor;
     }
 
-    public static final int EVENTTYPE_FIELD_NUMBER = 2;
-    private int eventType_;
-    /**
-     * <pre>
-     *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
-     * </pre>
-     *
-     * <code>required .events.Envelope.EventType eventType = 2;</code>
-     */
-    public boolean hasEventType() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    /**
-     * <pre>
-     *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
-     * </pre>
-     *
-     * <code>required .events.Envelope.EventType eventType = 2;</code>
-     */
-    public EventFactory.Envelope.EventType getEventType() {
-      EventFactory.Envelope.EventType result = EventFactory.Envelope.EventType.valueOf(eventType_);
-      return result == null ? EventFactory.Envelope.EventType.HttpStart : result;
+    public interface EnvelopeOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:events.Envelope)
+        com.google.protobuf.MessageOrBuilder {
+
+        /**
+         * <pre>
+         *&#47; Unique description of the origin of this event.
+         * </pre>
+         *
+         * <code>required string origin = 1;</code>
+         */
+        boolean hasOrigin();
+
+        /**
+         * <pre>
+         *&#47; Unique description of the origin of this event.
+         * </pre>
+         *
+         * <code>required string origin = 1;</code>
+         */
+        java.lang.String getOrigin();
+
+        /**
+         * <pre>
+         *&#47; Unique description of the origin of this event.
+         * </pre>
+         *
+         * <code>required string origin = 1;</code>
+         */
+        com.google.protobuf.ByteString getOriginBytes();
+
+        /**
+         * <pre>
+         *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
+         * </pre>
+         *
+         * <code>required .events.Envelope.EventType eventType = 2;</code>
+         */
+        boolean hasEventType();
+
+        /**
+         * <pre>
+         *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
+         * </pre>
+         *
+         * <code>required .events.Envelope.EventType eventType = 2;</code>
+         */
+        EventFactory.Envelope.EventType getEventType();
+
+        /**
+         * <pre>
+         *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
+         * </pre>
+         *
+         * <code>optional int64 timestamp = 6;</code>
+         */
+        boolean hasTimestamp();
+
+        /**
+         * <pre>
+         *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
+         * </pre>
+         *
+         * <code>optional int64 timestamp = 6;</code>
+         */
+        long getTimestamp();
+
+        /**
+         * <pre>
+         *&#47; Deployment name (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string deployment = 13;</code>
+         */
+        boolean hasDeployment();
+
+        /**
+         * <pre>
+         *&#47; Deployment name (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string deployment = 13;</code>
+         */
+        java.lang.String getDeployment();
+
+        /**
+         * <pre>
+         *&#47; Deployment name (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string deployment = 13;</code>
+         */
+        com.google.protobuf.ByteString getDeploymentBytes();
+
+        /**
+         * <pre>
+         *&#47; Job name (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string job = 14;</code>
+         */
+        boolean hasJob();
+
+        /**
+         * <pre>
+         *&#47; Job name (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string job = 14;</code>
+         */
+        java.lang.String getJob();
+
+        /**
+         * <pre>
+         *&#47; Job name (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string job = 14;</code>
+         */
+        com.google.protobuf.ByteString getJobBytes();
+
+        /**
+         * <pre>
+         *&#47; Index of job (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string index = 15;</code>
+         */
+        boolean hasIndex();
+
+        /**
+         * <pre>
+         *&#47; Index of job (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string index = 15;</code>
+         */
+        java.lang.String getIndex();
+
+        /**
+         * <pre>
+         *&#47; Index of job (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string index = 15;</code>
+         */
+        com.google.protobuf.ByteString getIndexBytes();
+
+        /**
+         * <pre>
+         *&#47; IP address (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string ip = 16;</code>
+         */
+        boolean hasIp();
+
+        /**
+         * <pre>
+         *&#47; IP address (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string ip = 16;</code>
+         */
+        java.lang.String getIp();
+
+        /**
+         * <pre>
+         *&#47; IP address (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string ip = 16;</code>
+         */
+        com.google.protobuf.ByteString getIpBytes();
+
+        /**
+         * <pre>
+         *&#47; key/value tags to include additional identifying information.
+         * </pre>
+         *
+         * <code>map&lt;string, string&gt; tags = 17;</code>
+         */
+        int getTagsCount();
+
+        /**
+         * <pre>
+         *&#47; key/value tags to include additional identifying information.
+         * </pre>
+         *
+         * <code>map&lt;string, string&gt; tags = 17;</code>
+         */
+        boolean containsTags(java.lang.String key);
+
+        /**
+         * Use {@link #getTagsMap()} instead.
+         */
+        @java.lang.Deprecated
+        java.util.Map<java.lang.String, java.lang.String> getTags();
+
+        /**
+         * <pre>
+         *&#47; key/value tags to include additional identifying information.
+         * </pre>
+         *
+         * <code>map&lt;string, string&gt; tags = 17;</code>
+         */
+        java.util.Map<java.lang.String, java.lang.String> getTagsMap();
+
+        /**
+         * <pre>
+         *&#47; key/value tags to include additional identifying information.
+         * </pre>
+         *
+         * <code>map&lt;string, string&gt; tags = 17;</code>
+         */
+
+        java.lang.String getTagsOrDefault(java.lang.String key, java.lang.String defaultValue);
+
+        /**
+         * <pre>
+         *&#47; key/value tags to include additional identifying information.
+         * </pre>
+         *
+         * <code>map&lt;string, string&gt; tags = 17;</code>
+         */
+
+        java.lang.String getTagsOrThrow(java.lang.String key);
+
+        /**
+         * <pre>
+         * Removed Heartbeat at position 3
+         * </pre>
+         *
+         * <code>optional .events.HttpStart httpStart = 4;</code>
+         */
+        boolean hasHttpStart();
+
+        /**
+         * <pre>
+         * Removed Heartbeat at position 3
+         * </pre>
+         *
+         * <code>optional .events.HttpStart httpStart = 4;</code>
+         */
+        HttpFactory.HttpStart getHttpStart();
+
+        /**
+         * <pre>
+         * Removed Heartbeat at position 3
+         * </pre>
+         *
+         * <code>optional .events.HttpStart httpStart = 4;</code>
+         */
+        HttpFactory.HttpStartOrBuilder getHttpStartOrBuilder();
+
+        /**
+         * <code>optional .events.HttpStop httpStop = 5;</code>
+         */
+        boolean hasHttpStop();
+
+        /**
+         * <code>optional .events.HttpStop httpStop = 5;</code>
+         */
+        HttpFactory.HttpStop getHttpStop();
+
+        /**
+         * <code>optional .events.HttpStop httpStop = 5;</code>
+         */
+        HttpFactory.HttpStopOrBuilder getHttpStopOrBuilder();
+
+        /**
+         * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+         */
+        boolean hasHttpStartStop();
+
+        /**
+         * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+         */
+        HttpFactory.HttpStartStop getHttpStartStop();
+
+        /**
+         * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+         */
+        HttpFactory.HttpStartStopOrBuilder getHttpStartStopOrBuilder();
+
+        /**
+         * <code>optional .events.LogMessage logMessage = 8;</code>
+         */
+        boolean hasLogMessage();
+
+        /**
+         * <code>optional .events.LogMessage logMessage = 8;</code>
+         */
+        LogFactory.LogMessage getLogMessage();
+
+        /**
+         * <code>optional .events.LogMessage logMessage = 8;</code>
+         */
+        LogFactory.LogMessageOrBuilder getLogMessageOrBuilder();
+
+        /**
+         * <code>optional .events.ValueMetric valueMetric = 9;</code>
+         */
+        boolean hasValueMetric();
+
+        /**
+         * <code>optional .events.ValueMetric valueMetric = 9;</code>
+         */
+        MetricFactory.ValueMetric getValueMetric();
+
+        /**
+         * <code>optional .events.ValueMetric valueMetric = 9;</code>
+         */
+        MetricFactory.ValueMetricOrBuilder getValueMetricOrBuilder();
+
+        /**
+         * <code>optional .events.CounterEvent counterEvent = 10;</code>
+         */
+        boolean hasCounterEvent();
+
+        /**
+         * <code>optional .events.CounterEvent counterEvent = 10;</code>
+         */
+        MetricFactory.CounterEvent getCounterEvent();
+
+        /**
+         * <code>optional .events.CounterEvent counterEvent = 10;</code>
+         */
+        MetricFactory.CounterEventOrBuilder getCounterEventOrBuilder();
+
+        /**
+         * <code>optional .events.Error error = 11;</code>
+         */
+        boolean hasError();
+
+        /**
+         * <code>optional .events.Error error = 11;</code>
+         */
+        ErrorFactory.Error getError();
+
+        /**
+         * <code>optional .events.Error error = 11;</code>
+         */
+        ErrorFactory.ErrorOrBuilder getErrorOrBuilder();
+
+        /**
+         * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+         */
+        boolean hasContainerMetric();
+
+        /**
+         * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+         */
+        MetricFactory.ContainerMetric getContainerMetric();
+
+        /**
+         * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+         */
+        MetricFactory.ContainerMetricOrBuilder getContainerMetricOrBuilder();
     }
 
-    public static final int TIMESTAMP_FIELD_NUMBER = 6;
-    private long timestamp_;
-    /**
-     * <pre>
-     *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
-     * </pre>
-     *
-     * <code>optional int64 timestamp = 6;</code>
-     */
-    public boolean hasTimestamp() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    /**
-     * <pre>
-     *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
-     * </pre>
-     *
-     * <code>optional int64 timestamp = 6;</code>
-     */
-    public long getTimestamp() {
-      return timestamp_;
-    }
-
-    public static final int DEPLOYMENT_FIELD_NUMBER = 13;
-    private volatile java.lang.Object deployment_;
-    /**
-     * <pre>
-     *&#47; Deployment name (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string deployment = 13;</code>
-     */
-    public boolean hasDeployment() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
-    }
-    /**
-     * <pre>
-     *&#47; Deployment name (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string deployment = 13;</code>
-     */
-    public java.lang.String getDeployment() {
-      java.lang.Object ref = deployment_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          deployment_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <pre>
-     *&#47; Deployment name (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string deployment = 13;</code>
-     */
-    public com.google.protobuf.ByteString
-        getDeploymentBytes() {
-      java.lang.Object ref = deployment_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        deployment_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int JOB_FIELD_NUMBER = 14;
-    private volatile java.lang.Object job_;
-    /**
-     * <pre>
-     *&#47; Job name (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string job = 14;</code>
-     */
-    public boolean hasJob() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    /**
-     * <pre>
-     *&#47; Job name (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string job = 14;</code>
-     */
-    public java.lang.String getJob() {
-      java.lang.Object ref = job_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          job_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <pre>
-     *&#47; Job name (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string job = 14;</code>
-     */
-    public com.google.protobuf.ByteString
-        getJobBytes() {
-      java.lang.Object ref = job_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        job_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int INDEX_FIELD_NUMBER = 15;
-    private volatile java.lang.Object index_;
-    /**
-     * <pre>
-     *&#47; Index of job (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string index = 15;</code>
-     */
-    public boolean hasIndex() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
-    }
-    /**
-     * <pre>
-     *&#47; Index of job (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string index = 15;</code>
-     */
-    public java.lang.String getIndex() {
-      java.lang.Object ref = index_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          index_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <pre>
-     *&#47; Index of job (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string index = 15;</code>
-     */
-    public com.google.protobuf.ByteString
-        getIndexBytes() {
-      java.lang.Object ref = index_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        index_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int IP_FIELD_NUMBER = 16;
-    private volatile java.lang.Object ip_;
-    /**
-     * <pre>
-     *&#47; IP address (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string ip = 16;</code>
-     */
-    public boolean hasIp() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
-    }
-    /**
-     * <pre>
-     *&#47; IP address (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string ip = 16;</code>
-     */
-    public java.lang.String getIp() {
-      java.lang.Object ref = ip_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          ip_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <pre>
-     *&#47; IP address (used to uniquely identify source).
-     * </pre>
-     *
-     * <code>optional string ip = 16;</code>
-     */
-    public com.google.protobuf.ByteString
-        getIpBytes() {
-      java.lang.Object ref = ip_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        ip_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int TAGS_FIELD_NUMBER = 17;
-    private static final class TagsDefaultEntryHolder {
-      static final com.google.protobuf.MapEntry<
-          java.lang.String, java.lang.String> defaultEntry =
-              com.google.protobuf.MapEntry
-              .<java.lang.String, java.lang.String>newDefaultInstance(
-                  EventFactory.internal_static_events_Envelope_TagsEntry_descriptor, 
-                  com.google.protobuf.WireFormat.FieldType.STRING,
-                  "",
-                  com.google.protobuf.WireFormat.FieldType.STRING,
-                  "");
-    }
-    private com.google.protobuf.MapField<
-        java.lang.String, java.lang.String> tags_;
-    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
-    internalGetTags() {
-      if (tags_ == null) {
-        return com.google.protobuf.MapField.emptyMapField(
-            TagsDefaultEntryHolder.defaultEntry);
-      }
-      return tags_;
-    }
-
-    public int getTagsCount() {
-      return internalGetTags().getMap().size();
-    }
-    /**
-     * <pre>
-     *&#47; key/value tags to include additional identifying information.
-     * </pre>
-     *
-     * <code>map&lt;string, string&gt; tags = 17;</code>
-     */
-
-    public boolean containsTags(
-        java.lang.String key) {
-      if (key == null) { throw new java.lang.NullPointerException(); }
-      return internalGetTags().getMap().containsKey(key);
-    }
-    /**
-     * Use {@link #getTagsMap()} instead.
-     */
-    @java.lang.Deprecated
-    public java.util.Map<java.lang.String, java.lang.String> getTags() {
-      return getTagsMap();
-    }
-    /**
-     * <pre>
-     *&#47; key/value tags to include additional identifying information.
-     * </pre>
-     *
-     * <code>map&lt;string, string&gt; tags = 17;</code>
-     */
-
-    public java.util.Map<java.lang.String, java.lang.String> getTagsMap() {
-      return internalGetTags().getMap();
-    }
-    /**
-     * <pre>
-     *&#47; key/value tags to include additional identifying information.
-     * </pre>
-     *
-     * <code>map&lt;string, string&gt; tags = 17;</code>
-     */
-
-    public java.lang.String getTagsOrDefault(
-        java.lang.String key,
-        java.lang.String defaultValue) {
-      if (key == null) { throw new java.lang.NullPointerException(); }
-      java.util.Map<java.lang.String, java.lang.String> map =
-          internalGetTags().getMap();
-      return map.containsKey(key) ? map.get(key) : defaultValue;
-    }
-    /**
-     * <pre>
-     *&#47; key/value tags to include additional identifying information.
-     * </pre>
-     *
-     * <code>map&lt;string, string&gt; tags = 17;</code>
-     */
-
-    public java.lang.String getTagsOrThrow(
-        java.lang.String key) {
-      if (key == null) { throw new java.lang.NullPointerException(); }
-      java.util.Map<java.lang.String, java.lang.String> map =
-          internalGetTags().getMap();
-      if (!map.containsKey(key)) {
-        throw new java.lang.IllegalArgumentException();
-      }
-      return map.get(key);
-    }
-
-    public static final int HTTPSTART_FIELD_NUMBER = 4;
-    private HttpFactory.HttpStart httpStart_;
-    /**
-     * <pre>
-     * Removed Heartbeat at position 3
-     * </pre>
-     *
-     * <code>optional .events.HttpStart httpStart = 4;</code>
-     */
-    public boolean hasHttpStart() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
-    }
-    /**
-     * <pre>
-     * Removed Heartbeat at position 3
-     * </pre>
-     *
-     * <code>optional .events.HttpStart httpStart = 4;</code>
-     */
-    public HttpFactory.HttpStart getHttpStart() {
-      return httpStart_ == null ? HttpFactory.HttpStart.getDefaultInstance() : httpStart_;
-    }
-    /**
-     * <pre>
-     * Removed Heartbeat at position 3
-     * </pre>
-     *
-     * <code>optional .events.HttpStart httpStart = 4;</code>
-     */
-    public HttpFactory.HttpStartOrBuilder getHttpStartOrBuilder() {
-      return httpStart_ == null ? HttpFactory.HttpStart.getDefaultInstance() : httpStart_;
-    }
-
-    public static final int HTTPSTOP_FIELD_NUMBER = 5;
-    private HttpFactory.HttpStop httpStop_;
-    /**
-     * <code>optional .events.HttpStop httpStop = 5;</code>
-     */
-    public boolean hasHttpStop() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
-    }
-    /**
-     * <code>optional .events.HttpStop httpStop = 5;</code>
-     */
-    public HttpFactory.HttpStop getHttpStop() {
-      return httpStop_ == null ? HttpFactory.HttpStop.getDefaultInstance() : httpStop_;
-    }
-    /**
-     * <code>optional .events.HttpStop httpStop = 5;</code>
-     */
-    public HttpFactory.HttpStopOrBuilder getHttpStopOrBuilder() {
-      return httpStop_ == null ? HttpFactory.HttpStop.getDefaultInstance() : httpStop_;
-    }
-
-    public static final int HTTPSTARTSTOP_FIELD_NUMBER = 7;
-    private HttpFactory.HttpStartStop httpStartStop_;
-    /**
-     * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-     */
-    public boolean hasHttpStartStop() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
-    }
-    /**
-     * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-     */
-    public HttpFactory.HttpStartStop getHttpStartStop() {
-      return httpStartStop_ == null ? HttpFactory.HttpStartStop.getDefaultInstance() : httpStartStop_;
-    }
-    /**
-     * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-     */
-    public HttpFactory.HttpStartStopOrBuilder getHttpStartStopOrBuilder() {
-      return httpStartStop_ == null ? HttpFactory.HttpStartStop.getDefaultInstance() : httpStartStop_;
-    }
-
-    public static final int LOGMESSAGE_FIELD_NUMBER = 8;
-    private LogFactory.LogMessage logMessage_;
-    /**
-     * <code>optional .events.LogMessage logMessage = 8;</code>
-     */
-    public boolean hasLogMessage() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
-    }
-    /**
-     * <code>optional .events.LogMessage logMessage = 8;</code>
-     */
-    public LogFactory.LogMessage getLogMessage() {
-      return logMessage_ == null ? LogFactory.LogMessage.getDefaultInstance() : logMessage_;
-    }
-    /**
-     * <code>optional .events.LogMessage logMessage = 8;</code>
-     */
-    public LogFactory.LogMessageOrBuilder getLogMessageOrBuilder() {
-      return logMessage_ == null ? LogFactory.LogMessage.getDefaultInstance() : logMessage_;
-    }
-
-    public static final int VALUEMETRIC_FIELD_NUMBER = 9;
-    private MetricFactory.ValueMetric valueMetric_;
-    /**
-     * <code>optional .events.ValueMetric valueMetric = 9;</code>
-     */
-    public boolean hasValueMetric() {
-      return ((bitField0_ & 0x00000800) == 0x00000800);
-    }
-    /**
-     * <code>optional .events.ValueMetric valueMetric = 9;</code>
-     */
-    public MetricFactory.ValueMetric getValueMetric() {
-      return valueMetric_ == null ? MetricFactory.ValueMetric.getDefaultInstance() : valueMetric_;
-    }
-    /**
-     * <code>optional .events.ValueMetric valueMetric = 9;</code>
-     */
-    public MetricFactory.ValueMetricOrBuilder getValueMetricOrBuilder() {
-      return valueMetric_ == null ? MetricFactory.ValueMetric.getDefaultInstance() : valueMetric_;
-    }
-
-    public static final int COUNTEREVENT_FIELD_NUMBER = 10;
-    private MetricFactory.CounterEvent counterEvent_;
-    /**
-     * <code>optional .events.CounterEvent counterEvent = 10;</code>
-     */
-    public boolean hasCounterEvent() {
-      return ((bitField0_ & 0x00001000) == 0x00001000);
-    }
-    /**
-     * <code>optional .events.CounterEvent counterEvent = 10;</code>
-     */
-    public MetricFactory.CounterEvent getCounterEvent() {
-      return counterEvent_ == null ? MetricFactory.CounterEvent.getDefaultInstance() : counterEvent_;
-    }
-    /**
-     * <code>optional .events.CounterEvent counterEvent = 10;</code>
-     */
-    public MetricFactory.CounterEventOrBuilder getCounterEventOrBuilder() {
-      return counterEvent_ == null ? MetricFactory.CounterEvent.getDefaultInstance() : counterEvent_;
-    }
-
-    public static final int ERROR_FIELD_NUMBER = 11;
-    private ErrorFactory.Error error_;
-    /**
-     * <code>optional .events.Error error = 11;</code>
-     */
-    public boolean hasError() {
-      return ((bitField0_ & 0x00002000) == 0x00002000);
-    }
-    /**
-     * <code>optional .events.Error error = 11;</code>
-     */
-    public ErrorFactory.Error getError() {
-      return error_ == null ? ErrorFactory.Error.getDefaultInstance() : error_;
-    }
-    /**
-     * <code>optional .events.Error error = 11;</code>
-     */
-    public ErrorFactory.ErrorOrBuilder getErrorOrBuilder() {
-      return error_ == null ? ErrorFactory.Error.getDefaultInstance() : error_;
-    }
-
-    public static final int CONTAINERMETRIC_FIELD_NUMBER = 12;
-    private MetricFactory.ContainerMetric containerMetric_;
-    /**
-     * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-     */
-    public boolean hasContainerMetric() {
-      return ((bitField0_ & 0x00004000) == 0x00004000);
-    }
-    /**
-     * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-     */
-    public MetricFactory.ContainerMetric getContainerMetric() {
-      return containerMetric_ == null ? MetricFactory.ContainerMetric.getDefaultInstance() : containerMetric_;
-    }
-    /**
-     * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-     */
-    public MetricFactory.ContainerMetricOrBuilder getContainerMetricOrBuilder() {
-      return containerMetric_ == null ? MetricFactory.ContainerMetric.getDefaultInstance() : containerMetric_;
-    }
-
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      if (!hasOrigin()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasEventType()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (hasHttpStart()) {
-        if (!getHttpStart().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      if (hasHttpStop()) {
-        if (!getHttpStop().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      if (hasHttpStartStop()) {
-        if (!getHttpStartStop().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      if (hasLogMessage()) {
-        if (!getLogMessage().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      if (hasValueMetric()) {
-        if (!getValueMetric().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      if (hasCounterEvent()) {
-        if (!getCounterEvent().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      if (hasError()) {
-        if (!getError().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      if (hasContainerMetric()) {
-        if (!getContainerMetric().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, origin_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeEnum(2, eventType_);
-      }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeMessage(4, getHttpStart());
-      }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        output.writeMessage(5, getHttpStop());
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeInt64(6, timestamp_);
-      }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        output.writeMessage(7, getHttpStartStop());
-      }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        output.writeMessage(8, getLogMessage());
-      }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        output.writeMessage(9, getValueMetric());
-      }
-      if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        output.writeMessage(10, getCounterEvent());
-      }
-      if (((bitField0_ & 0x00002000) == 0x00002000)) {
-        output.writeMessage(11, getError());
-      }
-      if (((bitField0_ & 0x00004000) == 0x00004000)) {
-        output.writeMessage(12, getContainerMetric());
-      }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 13, deployment_);
-      }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 14, job_);
-      }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 15, index_);
-      }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 16, ip_);
-      }
-      com.google.protobuf.GeneratedMessageV3
-        .serializeStringMapTo(
-          output,
-          internalGetTags(),
-          TagsDefaultEntryHolder.defaultEntry,
-          17);
-      unknownFields.writeTo(output);
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, origin_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(2, eventType_);
-      }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(4, getHttpStart());
-      }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(5, getHttpStop());
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(6, timestamp_);
-      }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(7, getHttpStartStop());
-      }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(8, getLogMessage());
-      }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(9, getValueMetric());
-      }
-      if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(10, getCounterEvent());
-      }
-      if (((bitField0_ & 0x00002000) == 0x00002000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(11, getError());
-      }
-      if (((bitField0_ & 0x00004000) == 0x00004000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(12, getContainerMetric());
-      }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(13, deployment_);
-      }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(14, job_);
-      }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(15, index_);
-      }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(16, ip_);
-      }
-      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
-           : internalGetTags().getMap().entrySet()) {
-        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
-        tags__ = TagsDefaultEntryHolder.defaultEntry.newBuilderForType()
-            .setKey(entry.getKey())
-            .setValue(entry.getValue())
-            .build();
-        size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(17, tags__);
-      }
-      size += unknownFields.getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof EventFactory.Envelope)) {
-        return super.equals(obj);
-      }
-      EventFactory.Envelope other = (EventFactory.Envelope) obj;
-
-      boolean result = true;
-      result = result && (hasOrigin() == other.hasOrigin());
-      if (hasOrigin()) {
-        result = result && getOrigin()
-            .equals(other.getOrigin());
-      }
-      result = result && (hasEventType() == other.hasEventType());
-      if (hasEventType()) {
-        result = result && eventType_ == other.eventType_;
-      }
-      result = result && (hasTimestamp() == other.hasTimestamp());
-      if (hasTimestamp()) {
-        result = result && (getTimestamp()
-            == other.getTimestamp());
-      }
-      result = result && (hasDeployment() == other.hasDeployment());
-      if (hasDeployment()) {
-        result = result && getDeployment()
-            .equals(other.getDeployment());
-      }
-      result = result && (hasJob() == other.hasJob());
-      if (hasJob()) {
-        result = result && getJob()
-            .equals(other.getJob());
-      }
-      result = result && (hasIndex() == other.hasIndex());
-      if (hasIndex()) {
-        result = result && getIndex()
-            .equals(other.getIndex());
-      }
-      result = result && (hasIp() == other.hasIp());
-      if (hasIp()) {
-        result = result && getIp()
-            .equals(other.getIp());
-      }
-      result = result && internalGetTags().equals(
-          other.internalGetTags());
-      result = result && (hasHttpStart() == other.hasHttpStart());
-      if (hasHttpStart()) {
-        result = result && getHttpStart()
-            .equals(other.getHttpStart());
-      }
-      result = result && (hasHttpStop() == other.hasHttpStop());
-      if (hasHttpStop()) {
-        result = result && getHttpStop()
-            .equals(other.getHttpStop());
-      }
-      result = result && (hasHttpStartStop() == other.hasHttpStartStop());
-      if (hasHttpStartStop()) {
-        result = result && getHttpStartStop()
-            .equals(other.getHttpStartStop());
-      }
-      result = result && (hasLogMessage() == other.hasLogMessage());
-      if (hasLogMessage()) {
-        result = result && getLogMessage()
-            .equals(other.getLogMessage());
-      }
-      result = result && (hasValueMetric() == other.hasValueMetric());
-      if (hasValueMetric()) {
-        result = result && getValueMetric()
-            .equals(other.getValueMetric());
-      }
-      result = result && (hasCounterEvent() == other.hasCounterEvent());
-      if (hasCounterEvent()) {
-        result = result && getCounterEvent()
-            .equals(other.getCounterEvent());
-      }
-      result = result && (hasError() == other.hasError());
-      if (hasError()) {
-        result = result && getError()
-            .equals(other.getError());
-      }
-      result = result && (hasContainerMetric() == other.hasContainerMetric());
-      if (hasContainerMetric()) {
-        result = result && getContainerMetric()
-            .equals(other.getContainerMetric());
-      }
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
-      if (hasOrigin()) {
-        hash = (37 * hash) + ORIGIN_FIELD_NUMBER;
-        hash = (53 * hash) + getOrigin().hashCode();
-      }
-      if (hasEventType()) {
-        hash = (37 * hash) + EVENTTYPE_FIELD_NUMBER;
-        hash = (53 * hash) + eventType_;
-      }
-      if (hasTimestamp()) {
-        hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
-        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-            getTimestamp());
-      }
-      if (hasDeployment()) {
-        hash = (37 * hash) + DEPLOYMENT_FIELD_NUMBER;
-        hash = (53 * hash) + getDeployment().hashCode();
-      }
-      if (hasJob()) {
-        hash = (37 * hash) + JOB_FIELD_NUMBER;
-        hash = (53 * hash) + getJob().hashCode();
-      }
-      if (hasIndex()) {
-        hash = (37 * hash) + INDEX_FIELD_NUMBER;
-        hash = (53 * hash) + getIndex().hashCode();
-      }
-      if (hasIp()) {
-        hash = (37 * hash) + IP_FIELD_NUMBER;
-        hash = (53 * hash) + getIp().hashCode();
-      }
-      if (!internalGetTags().getMap().isEmpty()) {
-        hash = (37 * hash) + TAGS_FIELD_NUMBER;
-        hash = (53 * hash) + internalGetTags().hashCode();
-      }
-      if (hasHttpStart()) {
-        hash = (37 * hash) + HTTPSTART_FIELD_NUMBER;
-        hash = (53 * hash) + getHttpStart().hashCode();
-      }
-      if (hasHttpStop()) {
-        hash = (37 * hash) + HTTPSTOP_FIELD_NUMBER;
-        hash = (53 * hash) + getHttpStop().hashCode();
-      }
-      if (hasHttpStartStop()) {
-        hash = (37 * hash) + HTTPSTARTSTOP_FIELD_NUMBER;
-        hash = (53 * hash) + getHttpStartStop().hashCode();
-      }
-      if (hasLogMessage()) {
-        hash = (37 * hash) + LOGMESSAGE_FIELD_NUMBER;
-        hash = (53 * hash) + getLogMessage().hashCode();
-      }
-      if (hasValueMetric()) {
-        hash = (37 * hash) + VALUEMETRIC_FIELD_NUMBER;
-        hash = (53 * hash) + getValueMetric().hashCode();
-      }
-      if (hasCounterEvent()) {
-        hash = (37 * hash) + COUNTEREVENT_FIELD_NUMBER;
-        hash = (53 * hash) + getCounterEvent().hashCode();
-      }
-      if (hasError()) {
-        hash = (37 * hash) + ERROR_FIELD_NUMBER;
-        hash = (53 * hash) + getError().hashCode();
-      }
-      if (hasContainerMetric()) {
-        hash = (37 * hash) + CONTAINERMETRIC_FIELD_NUMBER;
-        hash = (53 * hash) + getContainerMetric().hashCode();
-      }
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static EventFactory.Envelope parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static EventFactory.Envelope parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static EventFactory.Envelope parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static EventFactory.Envelope parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static EventFactory.Envelope parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static EventFactory.Envelope parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static EventFactory.Envelope parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static EventFactory.Envelope parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static EventFactory.Envelope parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static EventFactory.Envelope parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(EventFactory.Envelope prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
     /**
      * <pre>
      *&#47; Envelope wraps an Event and adds metadata.
@@ -1799,2272 +457,3616 @@ public final class EventFactory {
      *
      * Protobuf type {@code events.Envelope}
      */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:events.Envelope)
-        EventFactory.EnvelopeOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return EventFactory.internal_static_events_Envelope_descriptor;
-      }
-
-      @SuppressWarnings({"rawtypes"})
-      protected com.google.protobuf.MapField internalGetMapField(
-          int number) {
-        switch (number) {
-          case 17:
-            return internalGetTags();
-          default:
-            throw new RuntimeException(
-                "Invalid map field number: " + number);
-        }
-      }
-      @SuppressWarnings({"rawtypes"})
-      protected com.google.protobuf.MapField internalGetMutableMapField(
-          int number) {
-        switch (number) {
-          case 17:
-            return internalGetMutableTags();
-          default:
-            throw new RuntimeException(
-                "Invalid map field number: " + number);
-        }
-      }
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return EventFactory.internal_static_events_Envelope_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                EventFactory.Envelope.class, EventFactory.Envelope.Builder.class);
-      }
-
-      // Construct using EventFactory.Envelope.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-          getHttpStartFieldBuilder();
-          getHttpStopFieldBuilder();
-          getHttpStartStopFieldBuilder();
-          getLogMessageFieldBuilder();
-          getValueMetricFieldBuilder();
-          getCounterEventFieldBuilder();
-          getErrorFieldBuilder();
-          getContainerMetricFieldBuilder();
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        origin_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        eventType_ = 2;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        timestamp_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000004);
-        deployment_ = "";
-        bitField0_ = (bitField0_ & ~0x00000008);
-        job_ = "";
-        bitField0_ = (bitField0_ & ~0x00000010);
-        index_ = "";
-        bitField0_ = (bitField0_ & ~0x00000020);
-        ip_ = "";
-        bitField0_ = (bitField0_ & ~0x00000040);
-        internalGetMutableTags().clear();
-        if (httpStartBuilder_ == null) {
-          httpStart_ = null;
-        } else {
-          httpStartBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000100);
-        if (httpStopBuilder_ == null) {
-          httpStop_ = null;
-        } else {
-          httpStopBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000200);
-        if (httpStartStopBuilder_ == null) {
-          httpStartStop_ = null;
-        } else {
-          httpStartStopBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000400);
-        if (logMessageBuilder_ == null) {
-          logMessage_ = null;
-        } else {
-          logMessageBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000800);
-        if (valueMetricBuilder_ == null) {
-          valueMetric_ = null;
-        } else {
-          valueMetricBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00001000);
-        if (counterEventBuilder_ == null) {
-          counterEvent_ = null;
-        } else {
-          counterEventBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00002000);
-        if (errorBuilder_ == null) {
-          error_ = null;
-        } else {
-          errorBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00004000);
-        if (containerMetricBuilder_ == null) {
-          containerMetric_ = null;
-        } else {
-          containerMetricBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00008000);
-        return this;
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return EventFactory.internal_static_events_Envelope_descriptor;
-      }
-
-      public EventFactory.Envelope getDefaultInstanceForType() {
-        return EventFactory.Envelope.getDefaultInstance();
-      }
-
-      public EventFactory.Envelope build() {
-        EventFactory.Envelope result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public EventFactory.Envelope buildPartial() {
-        EventFactory.Envelope result = new EventFactory.Envelope(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.origin_ = origin_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.eventType_ = eventType_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
-        result.timestamp_ = timestamp_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000008;
-        }
-        result.deployment_ = deployment_;
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-          to_bitField0_ |= 0x00000010;
-        }
-        result.job_ = job_;
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000020;
-        }
-        result.index_ = index_;
-        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
-          to_bitField0_ |= 0x00000040;
-        }
-        result.ip_ = ip_;
-        result.tags_ = internalGetTags();
-        result.tags_.makeImmutable();
-        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
-          to_bitField0_ |= 0x00000080;
-        }
-        if (httpStartBuilder_ == null) {
-          result.httpStart_ = httpStart_;
-        } else {
-          result.httpStart_ = httpStartBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
-          to_bitField0_ |= 0x00000100;
-        }
-        if (httpStopBuilder_ == null) {
-          result.httpStop_ = httpStop_;
-        } else {
-          result.httpStop_ = httpStopBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
-          to_bitField0_ |= 0x00000200;
-        }
-        if (httpStartStopBuilder_ == null) {
-          result.httpStartStop_ = httpStartStop_;
-        } else {
-          result.httpStartStop_ = httpStartStopBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
-          to_bitField0_ |= 0x00000400;
-        }
-        if (logMessageBuilder_ == null) {
-          result.logMessage_ = logMessage_;
-        } else {
-          result.logMessage_ = logMessageBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
-          to_bitField0_ |= 0x00000800;
-        }
-        if (valueMetricBuilder_ == null) {
-          result.valueMetric_ = valueMetric_;
-        } else {
-          result.valueMetric_ = valueMetricBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
-          to_bitField0_ |= 0x00001000;
-        }
-        if (counterEventBuilder_ == null) {
-          result.counterEvent_ = counterEvent_;
-        } else {
-          result.counterEvent_ = counterEventBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
-          to_bitField0_ |= 0x00002000;
-        }
-        if (errorBuilder_ == null) {
-          result.error_ = error_;
-        } else {
-          result.error_ = errorBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
-          to_bitField0_ |= 0x00004000;
-        }
-        if (containerMetricBuilder_ == null) {
-          result.containerMetric_ = containerMetric_;
-        } else {
-          result.containerMetric_ = containerMetricBuilder_.build();
-        }
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof EventFactory.Envelope) {
-          return mergeFrom((EventFactory.Envelope)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(EventFactory.Envelope other) {
-        if (other == EventFactory.Envelope.getDefaultInstance()) return this;
-        if (other.hasOrigin()) {
-          bitField0_ |= 0x00000001;
-          origin_ = other.origin_;
-          onChanged();
-        }
-        if (other.hasEventType()) {
-          setEventType(other.getEventType());
-        }
-        if (other.hasTimestamp()) {
-          setTimestamp(other.getTimestamp());
-        }
-        if (other.hasDeployment()) {
-          bitField0_ |= 0x00000008;
-          deployment_ = other.deployment_;
-          onChanged();
-        }
-        if (other.hasJob()) {
-          bitField0_ |= 0x00000010;
-          job_ = other.job_;
-          onChanged();
-        }
-        if (other.hasIndex()) {
-          bitField0_ |= 0x00000020;
-          index_ = other.index_;
-          onChanged();
-        }
-        if (other.hasIp()) {
-          bitField0_ |= 0x00000040;
-          ip_ = other.ip_;
-          onChanged();
-        }
-        internalGetMutableTags().mergeFrom(
-            other.internalGetTags());
-        if (other.hasHttpStart()) {
-          mergeHttpStart(other.getHttpStart());
-        }
-        if (other.hasHttpStop()) {
-          mergeHttpStop(other.getHttpStop());
-        }
-        if (other.hasHttpStartStop()) {
-          mergeHttpStartStop(other.getHttpStartStop());
-        }
-        if (other.hasLogMessage()) {
-          mergeLogMessage(other.getLogMessage());
-        }
-        if (other.hasValueMetric()) {
-          mergeValueMetric(other.getValueMetric());
-        }
-        if (other.hasCounterEvent()) {
-          mergeCounterEvent(other.getCounterEvent());
-        }
-        if (other.hasError()) {
-          mergeError(other.getError());
-        }
-        if (other.hasContainerMetric()) {
-          mergeContainerMetric(other.getContainerMetric());
-        }
-        this.mergeUnknownFields(other.unknownFields);
-        onChanged();
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        if (!hasOrigin()) {
-          return false;
-        }
-        if (!hasEventType()) {
-          return false;
-        }
-        if (hasHttpStart()) {
-          if (!getHttpStart().isInitialized()) {
-            return false;
-          }
-        }
-        if (hasHttpStop()) {
-          if (!getHttpStop().isInitialized()) {
-            return false;
-          }
-        }
-        if (hasHttpStartStop()) {
-          if (!getHttpStartStop().isInitialized()) {
-            return false;
-          }
-        }
-        if (hasLogMessage()) {
-          if (!getLogMessage().isInitialized()) {
-            return false;
-          }
-        }
-        if (hasValueMetric()) {
-          if (!getValueMetric().isInitialized()) {
-            return false;
-          }
-        }
-        if (hasCounterEvent()) {
-          if (!getCounterEvent().isInitialized()) {
-            return false;
-          }
-        }
-        if (hasError()) {
-          if (!getError().isInitialized()) {
-            return false;
-          }
-        }
-        if (hasContainerMetric()) {
-          if (!getContainerMetric().isInitialized()) {
-            return false;
-          }
-        }
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        EventFactory.Envelope parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (EventFactory.Envelope) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      private int bitField0_;
-
-      private java.lang.Object origin_ = "";
-      /**
-       * <pre>
-       *&#47; Unique description of the origin of this event.
-       * </pre>
-       *
-       * <code>required string origin = 1;</code>
-       */
-      public boolean hasOrigin() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <pre>
-       *&#47; Unique description of the origin of this event.
-       * </pre>
-       *
-       * <code>required string origin = 1;</code>
-       */
-      public java.lang.String getOrigin() {
-        java.lang.Object ref = origin_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            origin_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; Unique description of the origin of this event.
-       * </pre>
-       *
-       * <code>required string origin = 1;</code>
-       */
-      public com.google.protobuf.ByteString
-          getOriginBytes() {
-        java.lang.Object ref = origin_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          origin_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; Unique description of the origin of this event.
-       * </pre>
-       *
-       * <code>required string origin = 1;</code>
-       */
-      public Builder setOrigin(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-        origin_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Unique description of the origin of this event.
-       * </pre>
-       *
-       * <code>required string origin = 1;</code>
-       */
-      public Builder clearOrigin() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        origin_ = getDefaultInstance().getOrigin();
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Unique description of the origin of this event.
-       * </pre>
-       *
-       * <code>required string origin = 1;</code>
-       */
-      public Builder setOriginBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-        origin_ = value;
-        onChanged();
-        return this;
-      }
-
-      private int eventType_ = 2;
-      /**
-       * <pre>
-       *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
-       * </pre>
-       *
-       * <code>required .events.Envelope.EventType eventType = 2;</code>
-       */
-      public boolean hasEventType() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <pre>
-       *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
-       * </pre>
-       *
-       * <code>required .events.Envelope.EventType eventType = 2;</code>
-       */
-      public EventFactory.Envelope.EventType getEventType() {
-        EventFactory.Envelope.EventType result = EventFactory.Envelope.EventType.valueOf(eventType_);
-        return result == null ? EventFactory.Envelope.EventType.HttpStart : result;
-      }
-      /**
-       * <pre>
-       *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
-       * </pre>
-       *
-       * <code>required .events.Envelope.EventType eventType = 2;</code>
-       */
-      public Builder setEventType(EventFactory.Envelope.EventType value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000002;
-        eventType_ = value.getNumber();
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
-       * </pre>
-       *
-       * <code>required .events.Envelope.EventType eventType = 2;</code>
-       */
-      public Builder clearEventType() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        eventType_ = 2;
-        onChanged();
-        return this;
-      }
-
-      private long timestamp_ ;
-      /**
-       * <pre>
-       *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
-       * </pre>
-       *
-       * <code>optional int64 timestamp = 6;</code>
-       */
-      public boolean hasTimestamp() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <pre>
-       *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
-       * </pre>
-       *
-       * <code>optional int64 timestamp = 6;</code>
-       */
-      public long getTimestamp() {
-        return timestamp_;
-      }
-      /**
-       * <pre>
-       *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
-       * </pre>
-       *
-       * <code>optional int64 timestamp = 6;</code>
-       */
-      public Builder setTimestamp(long value) {
-        bitField0_ |= 0x00000004;
-        timestamp_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
-       * </pre>
-       *
-       * <code>optional int64 timestamp = 6;</code>
-       */
-      public Builder clearTimestamp() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        timestamp_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object deployment_ = "";
-      /**
-       * <pre>
-       *&#47; Deployment name (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string deployment = 13;</code>
-       */
-      public boolean hasDeployment() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
-      }
-      /**
-       * <pre>
-       *&#47; Deployment name (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string deployment = 13;</code>
-       */
-      public java.lang.String getDeployment() {
-        java.lang.Object ref = deployment_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            deployment_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; Deployment name (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string deployment = 13;</code>
-       */
-      public com.google.protobuf.ByteString
-          getDeploymentBytes() {
-        java.lang.Object ref = deployment_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          deployment_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; Deployment name (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string deployment = 13;</code>
-       */
-      public Builder setDeployment(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000008;
-        deployment_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Deployment name (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string deployment = 13;</code>
-       */
-      public Builder clearDeployment() {
-        bitField0_ = (bitField0_ & ~0x00000008);
-        deployment_ = getDefaultInstance().getDeployment();
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Deployment name (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string deployment = 13;</code>
-       */
-      public Builder setDeploymentBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000008;
-        deployment_ = value;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object job_ = "";
-      /**
-       * <pre>
-       *&#47; Job name (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string job = 14;</code>
-       */
-      public boolean hasJob() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
-      }
-      /**
-       * <pre>
-       *&#47; Job name (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string job = 14;</code>
-       */
-      public java.lang.String getJob() {
-        java.lang.Object ref = job_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            job_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; Job name (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string job = 14;</code>
-       */
-      public com.google.protobuf.ByteString
-          getJobBytes() {
-        java.lang.Object ref = job_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          job_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; Job name (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string job = 14;</code>
-       */
-      public Builder setJob(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000010;
-        job_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Job name (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string job = 14;</code>
-       */
-      public Builder clearJob() {
-        bitField0_ = (bitField0_ & ~0x00000010);
-        job_ = getDefaultInstance().getJob();
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Job name (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string job = 14;</code>
-       */
-      public Builder setJobBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000010;
-        job_ = value;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object index_ = "";
-      /**
-       * <pre>
-       *&#47; Index of job (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string index = 15;</code>
-       */
-      public boolean hasIndex() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
-      }
-      /**
-       * <pre>
-       *&#47; Index of job (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string index = 15;</code>
-       */
-      public java.lang.String getIndex() {
-        java.lang.Object ref = index_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            index_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; Index of job (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string index = 15;</code>
-       */
-      public com.google.protobuf.ByteString
-          getIndexBytes() {
-        java.lang.Object ref = index_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          index_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; Index of job (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string index = 15;</code>
-       */
-      public Builder setIndex(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000020;
-        index_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Index of job (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string index = 15;</code>
-       */
-      public Builder clearIndex() {
-        bitField0_ = (bitField0_ & ~0x00000020);
-        index_ = getDefaultInstance().getIndex();
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; Index of job (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string index = 15;</code>
-       */
-      public Builder setIndexBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000020;
-        index_ = value;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object ip_ = "";
-      /**
-       * <pre>
-       *&#47; IP address (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string ip = 16;</code>
-       */
-      public boolean hasIp() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
-      }
-      /**
-       * <pre>
-       *&#47; IP address (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string ip = 16;</code>
-       */
-      public java.lang.String getIp() {
-        java.lang.Object ref = ip_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            ip_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; IP address (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string ip = 16;</code>
-       */
-      public com.google.protobuf.ByteString
-          getIpBytes() {
-        java.lang.Object ref = ip_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          ip_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <pre>
-       *&#47; IP address (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string ip = 16;</code>
-       */
-      public Builder setIp(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000040;
-        ip_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; IP address (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string ip = 16;</code>
-       */
-      public Builder clearIp() {
-        bitField0_ = (bitField0_ & ~0x00000040);
-        ip_ = getDefaultInstance().getIp();
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; IP address (used to uniquely identify source).
-       * </pre>
-       *
-       * <code>optional string ip = 16;</code>
-       */
-      public Builder setIpBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000040;
-        ip_ = value;
-        onChanged();
-        return this;
-      }
-
-      private com.google.protobuf.MapField<
-          java.lang.String, java.lang.String> tags_;
-      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
-      internalGetTags() {
-        if (tags_ == null) {
-          return com.google.protobuf.MapField.emptyMapField(
-              TagsDefaultEntryHolder.defaultEntry);
-        }
-        return tags_;
-      }
-      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
-      internalGetMutableTags() {
-        onChanged();;
-        if (tags_ == null) {
-          tags_ = com.google.protobuf.MapField.newMapField(
-              TagsDefaultEntryHolder.defaultEntry);
-        }
-        if (!tags_.isMutable()) {
-          tags_ = tags_.copy();
-        }
-        return tags_;
-      }
-
-      public int getTagsCount() {
-        return internalGetTags().getMap().size();
-      }
-      /**
-       * <pre>
-       *&#47; key/value tags to include additional identifying information.
-       * </pre>
-       *
-       * <code>map&lt;string, string&gt; tags = 17;</code>
-       */
-
-      public boolean containsTags(
-          java.lang.String key) {
-        if (key == null) { throw new java.lang.NullPointerException(); }
-        return internalGetTags().getMap().containsKey(key);
-      }
-      /**
-       * Use {@link #getTagsMap()} instead.
-       */
-      @java.lang.Deprecated
-      public java.util.Map<java.lang.String, java.lang.String> getTags() {
-        return getTagsMap();
-      }
-      /**
-       * <pre>
-       *&#47; key/value tags to include additional identifying information.
-       * </pre>
-       *
-       * <code>map&lt;string, string&gt; tags = 17;</code>
-       */
-
-      public java.util.Map<java.lang.String, java.lang.String> getTagsMap() {
-        return internalGetTags().getMap();
-      }
-      /**
-       * <pre>
-       *&#47; key/value tags to include additional identifying information.
-       * </pre>
-       *
-       * <code>map&lt;string, string&gt; tags = 17;</code>
-       */
-
-      public java.lang.String getTagsOrDefault(
-          java.lang.String key,
-          java.lang.String defaultValue) {
-        if (key == null) { throw new java.lang.NullPointerException(); }
-        java.util.Map<java.lang.String, java.lang.String> map =
-            internalGetTags().getMap();
-        return map.containsKey(key) ? map.get(key) : defaultValue;
-      }
-      /**
-       * <pre>
-       *&#47; key/value tags to include additional identifying information.
-       * </pre>
-       *
-       * <code>map&lt;string, string&gt; tags = 17;</code>
-       */
-
-      public java.lang.String getTagsOrThrow(
-          java.lang.String key) {
-        if (key == null) { throw new java.lang.NullPointerException(); }
-        java.util.Map<java.lang.String, java.lang.String> map =
-            internalGetTags().getMap();
-        if (!map.containsKey(key)) {
-          throw new java.lang.IllegalArgumentException();
-        }
-        return map.get(key);
-      }
-
-      public Builder clearTags() {
-        getMutableTags().clear();
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; key/value tags to include additional identifying information.
-       * </pre>
-       *
-       * <code>map&lt;string, string&gt; tags = 17;</code>
-       */
-
-      public Builder removeTags(
-          java.lang.String key) {
-        if (key == null) { throw new java.lang.NullPointerException(); }
-        getMutableTags().remove(key);
-        return this;
-      }
-      /**
-       * Use alternate mutation accessors instead.
-       */
-      @java.lang.Deprecated
-      public java.util.Map<java.lang.String, java.lang.String>
-      getMutableTags() {
-        return internalGetMutableTags().getMutableMap();
-      }
-      /**
-       * <pre>
-       *&#47; key/value tags to include additional identifying information.
-       * </pre>
-       *
-       * <code>map&lt;string, string&gt; tags = 17;</code>
-       */
-      public Builder putTags(
-          java.lang.String key,
-          java.lang.String value) {
-        if (key == null) { throw new java.lang.NullPointerException(); }
-        if (value == null) { throw new java.lang.NullPointerException(); }
-        getMutableTags().put(key, value);
-        return this;
-      }
-      /**
-       * <pre>
-       *&#47; key/value tags to include additional identifying information.
-       * </pre>
-       *
-       * <code>map&lt;string, string&gt; tags = 17;</code>
-       */
-
-      public Builder putAllTags(
-          java.util.Map<java.lang.String, java.lang.String> values) {
-        getMutableTags().putAll(values);
-        return this;
-      }
-
-      private HttpFactory.HttpStart httpStart_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          HttpFactory.HttpStart, HttpFactory.HttpStart.Builder, HttpFactory.HttpStartOrBuilder> httpStartBuilder_;
-      /**
-       * <pre>
-       * Removed Heartbeat at position 3
-       * </pre>
-       *
-       * <code>optional .events.HttpStart httpStart = 4;</code>
-       */
-      public boolean hasHttpStart() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
-      }
-      /**
-       * <pre>
-       * Removed Heartbeat at position 3
-       * </pre>
-       *
-       * <code>optional .events.HttpStart httpStart = 4;</code>
-       */
-      public HttpFactory.HttpStart getHttpStart() {
-        if (httpStartBuilder_ == null) {
-          return httpStart_ == null ? HttpFactory.HttpStart.getDefaultInstance() : httpStart_;
-        } else {
-          return httpStartBuilder_.getMessage();
-        }
-      }
-      /**
-       * <pre>
-       * Removed Heartbeat at position 3
-       * </pre>
-       *
-       * <code>optional .events.HttpStart httpStart = 4;</code>
-       */
-      public Builder setHttpStart(HttpFactory.HttpStart value) {
-        if (httpStartBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          httpStart_ = value;
-          onChanged();
-        } else {
-          httpStartBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00000100;
-        return this;
-      }
-      /**
-       * <pre>
-       * Removed Heartbeat at position 3
-       * </pre>
-       *
-       * <code>optional .events.HttpStart httpStart = 4;</code>
-       */
-      public Builder setHttpStart(
-          HttpFactory.HttpStart.Builder builderForValue) {
-        if (httpStartBuilder_ == null) {
-          httpStart_ = builderForValue.build();
-          onChanged();
-        } else {
-          httpStartBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00000100;
-        return this;
-      }
-      /**
-       * <pre>
-       * Removed Heartbeat at position 3
-       * </pre>
-       *
-       * <code>optional .events.HttpStart httpStart = 4;</code>
-       */
-      public Builder mergeHttpStart(HttpFactory.HttpStart value) {
-        if (httpStartBuilder_ == null) {
-          if (((bitField0_ & 0x00000100) == 0x00000100) &&
-              httpStart_ != null &&
-              httpStart_ != HttpFactory.HttpStart.getDefaultInstance()) {
-            httpStart_ =
-              HttpFactory.HttpStart.newBuilder(httpStart_).mergeFrom(value).buildPartial();
-          } else {
-            httpStart_ = value;
-          }
-          onChanged();
-        } else {
-          httpStartBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00000100;
-        return this;
-      }
-      /**
-       * <pre>
-       * Removed Heartbeat at position 3
-       * </pre>
-       *
-       * <code>optional .events.HttpStart httpStart = 4;</code>
-       */
-      public Builder clearHttpStart() {
-        if (httpStartBuilder_ == null) {
-          httpStart_ = null;
-          onChanged();
-        } else {
-          httpStartBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000100);
-        return this;
-      }
-      /**
-       * <pre>
-       * Removed Heartbeat at position 3
-       * </pre>
-       *
-       * <code>optional .events.HttpStart httpStart = 4;</code>
-       */
-      public HttpFactory.HttpStart.Builder getHttpStartBuilder() {
-        bitField0_ |= 0x00000100;
-        onChanged();
-        return getHttpStartFieldBuilder().getBuilder();
-      }
-      /**
-       * <pre>
-       * Removed Heartbeat at position 3
-       * </pre>
-       *
-       * <code>optional .events.HttpStart httpStart = 4;</code>
-       */
-      public HttpFactory.HttpStartOrBuilder getHttpStartOrBuilder() {
-        if (httpStartBuilder_ != null) {
-          return httpStartBuilder_.getMessageOrBuilder();
-        } else {
-          return httpStart_ == null ?
-              HttpFactory.HttpStart.getDefaultInstance() : httpStart_;
-        }
-      }
-      /**
-       * <pre>
-       * Removed Heartbeat at position 3
-       * </pre>
-       *
-       * <code>optional .events.HttpStart httpStart = 4;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          HttpFactory.HttpStart, HttpFactory.HttpStart.Builder, HttpFactory.HttpStartOrBuilder> 
-          getHttpStartFieldBuilder() {
-        if (httpStartBuilder_ == null) {
-          httpStartBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              HttpFactory.HttpStart, HttpFactory.HttpStart.Builder, HttpFactory.HttpStartOrBuilder>(
-                  getHttpStart(),
-                  getParentForChildren(),
-                  isClean());
-          httpStart_ = null;
-        }
-        return httpStartBuilder_;
-      }
-
-      private HttpFactory.HttpStop httpStop_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          HttpFactory.HttpStop, HttpFactory.HttpStop.Builder, HttpFactory.HttpStopOrBuilder> httpStopBuilder_;
-      /**
-       * <code>optional .events.HttpStop httpStop = 5;</code>
-       */
-      public boolean hasHttpStop() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
-      }
-      /**
-       * <code>optional .events.HttpStop httpStop = 5;</code>
-       */
-      public HttpFactory.HttpStop getHttpStop() {
-        if (httpStopBuilder_ == null) {
-          return httpStop_ == null ? HttpFactory.HttpStop.getDefaultInstance() : httpStop_;
-        } else {
-          return httpStopBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .events.HttpStop httpStop = 5;</code>
-       */
-      public Builder setHttpStop(HttpFactory.HttpStop value) {
-        if (httpStopBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          httpStop_ = value;
-          onChanged();
-        } else {
-          httpStopBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00000200;
-        return this;
-      }
-      /**
-       * <code>optional .events.HttpStop httpStop = 5;</code>
-       */
-      public Builder setHttpStop(
-          HttpFactory.HttpStop.Builder builderForValue) {
-        if (httpStopBuilder_ == null) {
-          httpStop_ = builderForValue.build();
-          onChanged();
-        } else {
-          httpStopBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00000200;
-        return this;
-      }
-      /**
-       * <code>optional .events.HttpStop httpStop = 5;</code>
-       */
-      public Builder mergeHttpStop(HttpFactory.HttpStop value) {
-        if (httpStopBuilder_ == null) {
-          if (((bitField0_ & 0x00000200) == 0x00000200) &&
-              httpStop_ != null &&
-              httpStop_ != HttpFactory.HttpStop.getDefaultInstance()) {
-            httpStop_ =
-              HttpFactory.HttpStop.newBuilder(httpStop_).mergeFrom(value).buildPartial();
-          } else {
-            httpStop_ = value;
-          }
-          onChanged();
-        } else {
-          httpStopBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00000200;
-        return this;
-      }
-      /**
-       * <code>optional .events.HttpStop httpStop = 5;</code>
-       */
-      public Builder clearHttpStop() {
-        if (httpStopBuilder_ == null) {
-          httpStop_ = null;
-          onChanged();
-        } else {
-          httpStopBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000200);
-        return this;
-      }
-      /**
-       * <code>optional .events.HttpStop httpStop = 5;</code>
-       */
-      public HttpFactory.HttpStop.Builder getHttpStopBuilder() {
-        bitField0_ |= 0x00000200;
-        onChanged();
-        return getHttpStopFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .events.HttpStop httpStop = 5;</code>
-       */
-      public HttpFactory.HttpStopOrBuilder getHttpStopOrBuilder() {
-        if (httpStopBuilder_ != null) {
-          return httpStopBuilder_.getMessageOrBuilder();
-        } else {
-          return httpStop_ == null ?
-              HttpFactory.HttpStop.getDefaultInstance() : httpStop_;
-        }
-      }
-      /**
-       * <code>optional .events.HttpStop httpStop = 5;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          HttpFactory.HttpStop, HttpFactory.HttpStop.Builder, HttpFactory.HttpStopOrBuilder> 
-          getHttpStopFieldBuilder() {
-        if (httpStopBuilder_ == null) {
-          httpStopBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              HttpFactory.HttpStop, HttpFactory.HttpStop.Builder, HttpFactory.HttpStopOrBuilder>(
-                  getHttpStop(),
-                  getParentForChildren(),
-                  isClean());
-          httpStop_ = null;
-        }
-        return httpStopBuilder_;
-      }
-
-      private HttpFactory.HttpStartStop httpStartStop_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          HttpFactory.HttpStartStop, HttpFactory.HttpStartStop.Builder, HttpFactory.HttpStartStopOrBuilder> httpStartStopBuilder_;
-      /**
-       * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-       */
-      public boolean hasHttpStartStop() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
-      }
-      /**
-       * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-       */
-      public HttpFactory.HttpStartStop getHttpStartStop() {
-        if (httpStartStopBuilder_ == null) {
-          return httpStartStop_ == null ? HttpFactory.HttpStartStop.getDefaultInstance() : httpStartStop_;
-        } else {
-          return httpStartStopBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-       */
-      public Builder setHttpStartStop(HttpFactory.HttpStartStop value) {
-        if (httpStartStopBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          httpStartStop_ = value;
-          onChanged();
-        } else {
-          httpStartStopBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00000400;
-        return this;
-      }
-      /**
-       * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-       */
-      public Builder setHttpStartStop(
-          HttpFactory.HttpStartStop.Builder builderForValue) {
-        if (httpStartStopBuilder_ == null) {
-          httpStartStop_ = builderForValue.build();
-          onChanged();
-        } else {
-          httpStartStopBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00000400;
-        return this;
-      }
-      /**
-       * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-       */
-      public Builder mergeHttpStartStop(HttpFactory.HttpStartStop value) {
-        if (httpStartStopBuilder_ == null) {
-          if (((bitField0_ & 0x00000400) == 0x00000400) &&
-              httpStartStop_ != null &&
-              httpStartStop_ != HttpFactory.HttpStartStop.getDefaultInstance()) {
-            httpStartStop_ =
-              HttpFactory.HttpStartStop.newBuilder(httpStartStop_).mergeFrom(value).buildPartial();
-          } else {
-            httpStartStop_ = value;
-          }
-          onChanged();
-        } else {
-          httpStartStopBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00000400;
-        return this;
-      }
-      /**
-       * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-       */
-      public Builder clearHttpStartStop() {
-        if (httpStartStopBuilder_ == null) {
-          httpStartStop_ = null;
-          onChanged();
-        } else {
-          httpStartStopBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000400);
-        return this;
-      }
-      /**
-       * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-       */
-      public HttpFactory.HttpStartStop.Builder getHttpStartStopBuilder() {
-        bitField0_ |= 0x00000400;
-        onChanged();
-        return getHttpStartStopFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-       */
-      public HttpFactory.HttpStartStopOrBuilder getHttpStartStopOrBuilder() {
-        if (httpStartStopBuilder_ != null) {
-          return httpStartStopBuilder_.getMessageOrBuilder();
-        } else {
-          return httpStartStop_ == null ?
-              HttpFactory.HttpStartStop.getDefaultInstance() : httpStartStop_;
-        }
-      }
-      /**
-       * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          HttpFactory.HttpStartStop, HttpFactory.HttpStartStop.Builder, HttpFactory.HttpStartStopOrBuilder> 
-          getHttpStartStopFieldBuilder() {
-        if (httpStartStopBuilder_ == null) {
-          httpStartStopBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              HttpFactory.HttpStartStop, HttpFactory.HttpStartStop.Builder, HttpFactory.HttpStartStopOrBuilder>(
-                  getHttpStartStop(),
-                  getParentForChildren(),
-                  isClean());
-          httpStartStop_ = null;
-        }
-        return httpStartStopBuilder_;
-      }
-
-      private LogFactory.LogMessage logMessage_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          LogFactory.LogMessage, LogFactory.LogMessage.Builder, LogFactory.LogMessageOrBuilder> logMessageBuilder_;
-      /**
-       * <code>optional .events.LogMessage logMessage = 8;</code>
-       */
-      public boolean hasLogMessage() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
-      }
-      /**
-       * <code>optional .events.LogMessage logMessage = 8;</code>
-       */
-      public LogFactory.LogMessage getLogMessage() {
-        if (logMessageBuilder_ == null) {
-          return logMessage_ == null ? LogFactory.LogMessage.getDefaultInstance() : logMessage_;
-        } else {
-          return logMessageBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .events.LogMessage logMessage = 8;</code>
-       */
-      public Builder setLogMessage(LogFactory.LogMessage value) {
-        if (logMessageBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          logMessage_ = value;
-          onChanged();
-        } else {
-          logMessageBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00000800;
-        return this;
-      }
-      /**
-       * <code>optional .events.LogMessage logMessage = 8;</code>
-       */
-      public Builder setLogMessage(
-          LogFactory.LogMessage.Builder builderForValue) {
-        if (logMessageBuilder_ == null) {
-          logMessage_ = builderForValue.build();
-          onChanged();
-        } else {
-          logMessageBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00000800;
-        return this;
-      }
-      /**
-       * <code>optional .events.LogMessage logMessage = 8;</code>
-       */
-      public Builder mergeLogMessage(LogFactory.LogMessage value) {
-        if (logMessageBuilder_ == null) {
-          if (((bitField0_ & 0x00000800) == 0x00000800) &&
-              logMessage_ != null &&
-              logMessage_ != LogFactory.LogMessage.getDefaultInstance()) {
-            logMessage_ =
-              LogFactory.LogMessage.newBuilder(logMessage_).mergeFrom(value).buildPartial();
-          } else {
-            logMessage_ = value;
-          }
-          onChanged();
-        } else {
-          logMessageBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00000800;
-        return this;
-      }
-      /**
-       * <code>optional .events.LogMessage logMessage = 8;</code>
-       */
-      public Builder clearLogMessage() {
-        if (logMessageBuilder_ == null) {
-          logMessage_ = null;
-          onChanged();
-        } else {
-          logMessageBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000800);
-        return this;
-      }
-      /**
-       * <code>optional .events.LogMessage logMessage = 8;</code>
-       */
-      public LogFactory.LogMessage.Builder getLogMessageBuilder() {
-        bitField0_ |= 0x00000800;
-        onChanged();
-        return getLogMessageFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .events.LogMessage logMessage = 8;</code>
-       */
-      public LogFactory.LogMessageOrBuilder getLogMessageOrBuilder() {
-        if (logMessageBuilder_ != null) {
-          return logMessageBuilder_.getMessageOrBuilder();
-        } else {
-          return logMessage_ == null ?
-              LogFactory.LogMessage.getDefaultInstance() : logMessage_;
-        }
-      }
-      /**
-       * <code>optional .events.LogMessage logMessage = 8;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          LogFactory.LogMessage, LogFactory.LogMessage.Builder, LogFactory.LogMessageOrBuilder> 
-          getLogMessageFieldBuilder() {
-        if (logMessageBuilder_ == null) {
-          logMessageBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              LogFactory.LogMessage, LogFactory.LogMessage.Builder, LogFactory.LogMessageOrBuilder>(
-                  getLogMessage(),
-                  getParentForChildren(),
-                  isClean());
-          logMessage_ = null;
-        }
-        return logMessageBuilder_;
-      }
-
-      private MetricFactory.ValueMetric valueMetric_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          MetricFactory.ValueMetric, MetricFactory.ValueMetric.Builder, MetricFactory.ValueMetricOrBuilder> valueMetricBuilder_;
-      /**
-       * <code>optional .events.ValueMetric valueMetric = 9;</code>
-       */
-      public boolean hasValueMetric() {
-        return ((bitField0_ & 0x00001000) == 0x00001000);
-      }
-      /**
-       * <code>optional .events.ValueMetric valueMetric = 9;</code>
-       */
-      public MetricFactory.ValueMetric getValueMetric() {
-        if (valueMetricBuilder_ == null) {
-          return valueMetric_ == null ? MetricFactory.ValueMetric.getDefaultInstance() : valueMetric_;
-        } else {
-          return valueMetricBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .events.ValueMetric valueMetric = 9;</code>
-       */
-      public Builder setValueMetric(MetricFactory.ValueMetric value) {
-        if (valueMetricBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          valueMetric_ = value;
-          onChanged();
-        } else {
-          valueMetricBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00001000;
-        return this;
-      }
-      /**
-       * <code>optional .events.ValueMetric valueMetric = 9;</code>
-       */
-      public Builder setValueMetric(
-          MetricFactory.ValueMetric.Builder builderForValue) {
-        if (valueMetricBuilder_ == null) {
-          valueMetric_ = builderForValue.build();
-          onChanged();
-        } else {
-          valueMetricBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00001000;
-        return this;
-      }
-      /**
-       * <code>optional .events.ValueMetric valueMetric = 9;</code>
-       */
-      public Builder mergeValueMetric(MetricFactory.ValueMetric value) {
-        if (valueMetricBuilder_ == null) {
-          if (((bitField0_ & 0x00001000) == 0x00001000) &&
-              valueMetric_ != null &&
-              valueMetric_ != MetricFactory.ValueMetric.getDefaultInstance()) {
-            valueMetric_ =
-              MetricFactory.ValueMetric.newBuilder(valueMetric_).mergeFrom(value).buildPartial();
-          } else {
-            valueMetric_ = value;
-          }
-          onChanged();
-        } else {
-          valueMetricBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00001000;
-        return this;
-      }
-      /**
-       * <code>optional .events.ValueMetric valueMetric = 9;</code>
-       */
-      public Builder clearValueMetric() {
-        if (valueMetricBuilder_ == null) {
-          valueMetric_ = null;
-          onChanged();
-        } else {
-          valueMetricBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00001000);
-        return this;
-      }
-      /**
-       * <code>optional .events.ValueMetric valueMetric = 9;</code>
-       */
-      public MetricFactory.ValueMetric.Builder getValueMetricBuilder() {
-        bitField0_ |= 0x00001000;
-        onChanged();
-        return getValueMetricFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .events.ValueMetric valueMetric = 9;</code>
-       */
-      public MetricFactory.ValueMetricOrBuilder getValueMetricOrBuilder() {
-        if (valueMetricBuilder_ != null) {
-          return valueMetricBuilder_.getMessageOrBuilder();
-        } else {
-          return valueMetric_ == null ?
-              MetricFactory.ValueMetric.getDefaultInstance() : valueMetric_;
-        }
-      }
-      /**
-       * <code>optional .events.ValueMetric valueMetric = 9;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          MetricFactory.ValueMetric, MetricFactory.ValueMetric.Builder, MetricFactory.ValueMetricOrBuilder> 
-          getValueMetricFieldBuilder() {
-        if (valueMetricBuilder_ == null) {
-          valueMetricBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              MetricFactory.ValueMetric, MetricFactory.ValueMetric.Builder, MetricFactory.ValueMetricOrBuilder>(
-                  getValueMetric(),
-                  getParentForChildren(),
-                  isClean());
-          valueMetric_ = null;
-        }
-        return valueMetricBuilder_;
-      }
-
-      private MetricFactory.CounterEvent counterEvent_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          MetricFactory.CounterEvent, MetricFactory.CounterEvent.Builder, MetricFactory.CounterEventOrBuilder> counterEventBuilder_;
-      /**
-       * <code>optional .events.CounterEvent counterEvent = 10;</code>
-       */
-      public boolean hasCounterEvent() {
-        return ((bitField0_ & 0x00002000) == 0x00002000);
-      }
-      /**
-       * <code>optional .events.CounterEvent counterEvent = 10;</code>
-       */
-      public MetricFactory.CounterEvent getCounterEvent() {
-        if (counterEventBuilder_ == null) {
-          return counterEvent_ == null ? MetricFactory.CounterEvent.getDefaultInstance() : counterEvent_;
-        } else {
-          return counterEventBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .events.CounterEvent counterEvent = 10;</code>
-       */
-      public Builder setCounterEvent(MetricFactory.CounterEvent value) {
-        if (counterEventBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          counterEvent_ = value;
-          onChanged();
-        } else {
-          counterEventBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00002000;
-        return this;
-      }
-      /**
-       * <code>optional .events.CounterEvent counterEvent = 10;</code>
-       */
-      public Builder setCounterEvent(
-          MetricFactory.CounterEvent.Builder builderForValue) {
-        if (counterEventBuilder_ == null) {
-          counterEvent_ = builderForValue.build();
-          onChanged();
-        } else {
-          counterEventBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00002000;
-        return this;
-      }
-      /**
-       * <code>optional .events.CounterEvent counterEvent = 10;</code>
-       */
-      public Builder mergeCounterEvent(MetricFactory.CounterEvent value) {
-        if (counterEventBuilder_ == null) {
-          if (((bitField0_ & 0x00002000) == 0x00002000) &&
-              counterEvent_ != null &&
-              counterEvent_ != MetricFactory.CounterEvent.getDefaultInstance()) {
-            counterEvent_ =
-              MetricFactory.CounterEvent.newBuilder(counterEvent_).mergeFrom(value).buildPartial();
-          } else {
-            counterEvent_ = value;
-          }
-          onChanged();
-        } else {
-          counterEventBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00002000;
-        return this;
-      }
-      /**
-       * <code>optional .events.CounterEvent counterEvent = 10;</code>
-       */
-      public Builder clearCounterEvent() {
-        if (counterEventBuilder_ == null) {
-          counterEvent_ = null;
-          onChanged();
-        } else {
-          counterEventBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00002000);
-        return this;
-      }
-      /**
-       * <code>optional .events.CounterEvent counterEvent = 10;</code>
-       */
-      public MetricFactory.CounterEvent.Builder getCounterEventBuilder() {
-        bitField0_ |= 0x00002000;
-        onChanged();
-        return getCounterEventFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .events.CounterEvent counterEvent = 10;</code>
-       */
-      public MetricFactory.CounterEventOrBuilder getCounterEventOrBuilder() {
-        if (counterEventBuilder_ != null) {
-          return counterEventBuilder_.getMessageOrBuilder();
-        } else {
-          return counterEvent_ == null ?
-              MetricFactory.CounterEvent.getDefaultInstance() : counterEvent_;
-        }
-      }
-      /**
-       * <code>optional .events.CounterEvent counterEvent = 10;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          MetricFactory.CounterEvent, MetricFactory.CounterEvent.Builder, MetricFactory.CounterEventOrBuilder> 
-          getCounterEventFieldBuilder() {
-        if (counterEventBuilder_ == null) {
-          counterEventBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              MetricFactory.CounterEvent, MetricFactory.CounterEvent.Builder, MetricFactory.CounterEventOrBuilder>(
-                  getCounterEvent(),
-                  getParentForChildren(),
-                  isClean());
-          counterEvent_ = null;
-        }
-        return counterEventBuilder_;
-      }
-
-      private ErrorFactory.Error error_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          ErrorFactory.Error, ErrorFactory.Error.Builder, ErrorFactory.ErrorOrBuilder> errorBuilder_;
-      /**
-       * <code>optional .events.Error error = 11;</code>
-       */
-      public boolean hasError() {
-        return ((bitField0_ & 0x00004000) == 0x00004000);
-      }
-      /**
-       * <code>optional .events.Error error = 11;</code>
-       */
-      public ErrorFactory.Error getError() {
-        if (errorBuilder_ == null) {
-          return error_ == null ? ErrorFactory.Error.getDefaultInstance() : error_;
-        } else {
-          return errorBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .events.Error error = 11;</code>
-       */
-      public Builder setError(ErrorFactory.Error value) {
-        if (errorBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          error_ = value;
-          onChanged();
-        } else {
-          errorBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00004000;
-        return this;
-      }
-      /**
-       * <code>optional .events.Error error = 11;</code>
-       */
-      public Builder setError(
-          ErrorFactory.Error.Builder builderForValue) {
-        if (errorBuilder_ == null) {
-          error_ = builderForValue.build();
-          onChanged();
-        } else {
-          errorBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00004000;
-        return this;
-      }
-      /**
-       * <code>optional .events.Error error = 11;</code>
-       */
-      public Builder mergeError(ErrorFactory.Error value) {
-        if (errorBuilder_ == null) {
-          if (((bitField0_ & 0x00004000) == 0x00004000) &&
-              error_ != null &&
-              error_ != ErrorFactory.Error.getDefaultInstance()) {
-            error_ =
-              ErrorFactory.Error.newBuilder(error_).mergeFrom(value).buildPartial();
-          } else {
-            error_ = value;
-          }
-          onChanged();
-        } else {
-          errorBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00004000;
-        return this;
-      }
-      /**
-       * <code>optional .events.Error error = 11;</code>
-       */
-      public Builder clearError() {
-        if (errorBuilder_ == null) {
-          error_ = null;
-          onChanged();
-        } else {
-          errorBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00004000);
-        return this;
-      }
-      /**
-       * <code>optional .events.Error error = 11;</code>
-       */
-      public ErrorFactory.Error.Builder getErrorBuilder() {
-        bitField0_ |= 0x00004000;
-        onChanged();
-        return getErrorFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .events.Error error = 11;</code>
-       */
-      public ErrorFactory.ErrorOrBuilder getErrorOrBuilder() {
-        if (errorBuilder_ != null) {
-          return errorBuilder_.getMessageOrBuilder();
-        } else {
-          return error_ == null ?
-              ErrorFactory.Error.getDefaultInstance() : error_;
-        }
-      }
-      /**
-       * <code>optional .events.Error error = 11;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          ErrorFactory.Error, ErrorFactory.Error.Builder, ErrorFactory.ErrorOrBuilder> 
-          getErrorFieldBuilder() {
-        if (errorBuilder_ == null) {
-          errorBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              ErrorFactory.Error, ErrorFactory.Error.Builder, ErrorFactory.ErrorOrBuilder>(
-                  getError(),
-                  getParentForChildren(),
-                  isClean());
-          error_ = null;
-        }
-        return errorBuilder_;
-      }
-
-      private MetricFactory.ContainerMetric containerMetric_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          MetricFactory.ContainerMetric, MetricFactory.ContainerMetric.Builder, MetricFactory.ContainerMetricOrBuilder> containerMetricBuilder_;
-      /**
-       * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-       */
-      public boolean hasContainerMetric() {
-        return ((bitField0_ & 0x00008000) == 0x00008000);
-      }
-      /**
-       * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-       */
-      public MetricFactory.ContainerMetric getContainerMetric() {
-        if (containerMetricBuilder_ == null) {
-          return containerMetric_ == null ? MetricFactory.ContainerMetric.getDefaultInstance() : containerMetric_;
-        } else {
-          return containerMetricBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-       */
-      public Builder setContainerMetric(MetricFactory.ContainerMetric value) {
-        if (containerMetricBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          containerMetric_ = value;
-          onChanged();
-        } else {
-          containerMetricBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00008000;
-        return this;
-      }
-      /**
-       * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-       */
-      public Builder setContainerMetric(
-          MetricFactory.ContainerMetric.Builder builderForValue) {
-        if (containerMetricBuilder_ == null) {
-          containerMetric_ = builderForValue.build();
-          onChanged();
-        } else {
-          containerMetricBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00008000;
-        return this;
-      }
-      /**
-       * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-       */
-      public Builder mergeContainerMetric(MetricFactory.ContainerMetric value) {
-        if (containerMetricBuilder_ == null) {
-          if (((bitField0_ & 0x00008000) == 0x00008000) &&
-              containerMetric_ != null &&
-              containerMetric_ != MetricFactory.ContainerMetric.getDefaultInstance()) {
-            containerMetric_ =
-              MetricFactory.ContainerMetric.newBuilder(containerMetric_).mergeFrom(value).buildPartial();
-          } else {
-            containerMetric_ = value;
-          }
-          onChanged();
-        } else {
-          containerMetricBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00008000;
-        return this;
-      }
-      /**
-       * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-       */
-      public Builder clearContainerMetric() {
-        if (containerMetricBuilder_ == null) {
-          containerMetric_ = null;
-          onChanged();
-        } else {
-          containerMetricBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00008000);
-        return this;
-      }
-      /**
-       * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-       */
-      public MetricFactory.ContainerMetric.Builder getContainerMetricBuilder() {
-        bitField0_ |= 0x00008000;
-        onChanged();
-        return getContainerMetricFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-       */
-      public MetricFactory.ContainerMetricOrBuilder getContainerMetricOrBuilder() {
-        if (containerMetricBuilder_ != null) {
-          return containerMetricBuilder_.getMessageOrBuilder();
-        } else {
-          return containerMetric_ == null ?
-              MetricFactory.ContainerMetric.getDefaultInstance() : containerMetric_;
-        }
-      }
-      /**
-       * <code>optional .events.ContainerMetric containerMetric = 12;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          MetricFactory.ContainerMetric, MetricFactory.ContainerMetric.Builder, MetricFactory.ContainerMetricOrBuilder> 
-          getContainerMetricFieldBuilder() {
-        if (containerMetricBuilder_ == null) {
-          containerMetricBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              MetricFactory.ContainerMetric, MetricFactory.ContainerMetric.Builder, MetricFactory.ContainerMetricOrBuilder>(
-                  getContainerMetric(),
-                  getParentForChildren(),
-                  isClean());
-          containerMetric_ = null;
-        }
-        return containerMetricBuilder_;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:events.Envelope)
-    }
-
-    // @@protoc_insertion_point(class_scope:events.Envelope)
-    private static final EventFactory.Envelope DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new EventFactory.Envelope();
-    }
-
-    public static EventFactory.Envelope getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    @java.lang.Deprecated public static final com.google.protobuf.Parser<Envelope>
-        PARSER = new com.google.protobuf.AbstractParser<Envelope>() {
-      public Envelope parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-          return new Envelope(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<Envelope> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Envelope> getParserForType() {
-      return PARSER;
-    }
-
-    public EventFactory.Envelope getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_events_Envelope_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_events_Envelope_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_events_Envelope_TagsEntry_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_events_Envelope_TagsEntry_fieldAccessorTable;
-
-  public static com.google.protobuf.Descriptors.FileDescriptor
-      getDescriptor() {
-    return descriptor;
-  }
-  private static  com.google.protobuf.Descriptors.FileDescriptor
-      descriptor;
-  static {
-    java.lang.String[] descriptorData = {
-      "\n\016envelope.proto\022\006events\032\nhttp.proto\032\tlo" +
-      "g.proto\032\014metric.proto\032\013error.proto\"\306\005\n\010E" +
-      "nvelope\022\016\n\006origin\030\001 \002(\t\022-\n\teventType\030\002 \002" +
-      "(\0162\032.events.Envelope.EventType\022\021\n\ttimest" +
-      "amp\030\006 \001(\003\022\022\n\ndeployment\030\r \001(\t\022\013\n\003job\030\016 \001" +
-      "(\t\022\r\n\005index\030\017 \001(\t\022\n\n\002ip\030\020 \001(\t\022(\n\004tags\030\021 " +
-      "\003(\0132\032.events.Envelope.TagsEntry\022$\n\thttpS" +
-      "tart\030\004 \001(\0132\021.events.HttpStart\022\"\n\010httpSto" +
-      "p\030\005 \001(\0132\020.events.HttpStop\022,\n\rhttpStartSt" +
-      "op\030\007 \001(\0132\025.events.HttpStartStop\022&\n\nlogMe",
-      "ssage\030\010 \001(\0132\022.events.LogMessage\022(\n\013value" +
-      "Metric\030\t \001(\0132\023.events.ValueMetric\022*\n\014cou" +
-      "nterEvent\030\n \001(\0132\024.events.CounterEvent\022\034\n" +
-      "\005error\030\013 \001(\0132\r.events.Error\0220\n\017container" +
-      "Metric\030\014 \001(\0132\027.events.ContainerMetric\032+\n" +
-      "\tTagsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\002" +
-      "8\001\"\216\001\n\tEventType\022\r\n\tHttpStart\020\002\022\014\n\010HttpS" +
-      "top\020\003\022\021\n\rHttpStartStop\020\004\022\016\n\nLogMessage\020\005" +
-      "\022\017\n\013ValueMetric\020\006\022\020\n\014CounterEvent\020\007\022\t\n\005E" +
-      "rror\020\010\022\023\n\017ContainerMetric\020\tB1\n!org.cloud",
-      "foundry.dropsonde.eventsB\014EventFactory"
-    };
-    com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
+    public static final class Envelope extends com.google.protobuf.GeneratedMessageV3 implements
+        // @@protoc_insertion_point(message_implements:events.Envelope)
+        EnvelopeOrBuilder {
+        public static final int ORIGIN_FIELD_NUMBER = 1;
+        public static final int EVENTTYPE_FIELD_NUMBER = 2;
+        public static final int TIMESTAMP_FIELD_NUMBER = 6;
+        public static final int DEPLOYMENT_FIELD_NUMBER = 13;
+        public static final int JOB_FIELD_NUMBER = 14;
+        public static final int INDEX_FIELD_NUMBER = 15;
+        public static final int IP_FIELD_NUMBER = 16;
+        public static final int TAGS_FIELD_NUMBER = 17;
+        public static final int HTTPSTART_FIELD_NUMBER = 4;
+        public static final int HTTPSTOP_FIELD_NUMBER = 5;
+        public static final int HTTPSTARTSTOP_FIELD_NUMBER = 7;
+        public static final int LOGMESSAGE_FIELD_NUMBER = 8;
+        public static final int VALUEMETRIC_FIELD_NUMBER = 9;
+        public static final int COUNTEREVENT_FIELD_NUMBER = 10;
+        public static final int ERROR_FIELD_NUMBER = 11;
+        public static final int CONTAINERMETRIC_FIELD_NUMBER = 12;
+        @java.lang.Deprecated
+        public static final com.google.protobuf.Parser<Envelope> PARSER = new com.google.protobuf.AbstractParser<Envelope>() {
+            public Envelope parsePartialFrom(com.google.protobuf.CodedInputStream input,
+                                             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+                return new Envelope(input, extensionRegistry);
+            }
         };
-    com.google.protobuf.Descriptors.FileDescriptor
-      .internalBuildGeneratedFileFrom(descriptorData,
-        new com.google.protobuf.Descriptors.FileDescriptor[] {
-          HttpFactory.getDescriptor(),
-          LogFactory.getDescriptor(),
-          MetricFactory.getDescriptor(),
-          ErrorFactory.getDescriptor(),
-        }, assigner);
-    internal_static_events_Envelope_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_events_Envelope_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_events_Envelope_descriptor,
-        new java.lang.String[] { "Origin", "EventType", "Timestamp", "Deployment", "Job", "Index", "Ip", "Tags", "HttpStart", "HttpStop", "HttpStartStop", "LogMessage", "ValueMetric", "CounterEvent", "Error", "ContainerMetric", });
-    internal_static_events_Envelope_TagsEntry_descriptor =
-      internal_static_events_Envelope_descriptor.getNestedTypes().get(0);
-    internal_static_events_Envelope_TagsEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_events_Envelope_TagsEntry_descriptor,
-        new java.lang.String[] { "Key", "Value", });
-    HttpFactory.getDescriptor();
-    LogFactory.getDescriptor();
-    MetricFactory.getDescriptor();
-    ErrorFactory.getDescriptor();
-  }
+        private static final long serialVersionUID = 0L;
+        // @@protoc_insertion_point(class_scope:events.Envelope)
+        private static final EventFactory.Envelope DEFAULT_INSTANCE;
 
-  // @@protoc_insertion_point(outer_class_scope)
+        static {
+            DEFAULT_INSTANCE = new EventFactory.Envelope();
+        }
+
+        private int bitField0_;
+        private volatile java.lang.Object origin_;
+        private int eventType_;
+        private long timestamp_;
+        private volatile java.lang.Object deployment_;
+        private volatile java.lang.Object job_;
+        private volatile java.lang.Object index_;
+        private volatile java.lang.Object ip_;
+        private com.google.protobuf.MapField<java.lang.String, java.lang.String> tags_;
+        private HttpFactory.HttpStart httpStart_;
+        private HttpFactory.HttpStop httpStop_;
+        private HttpFactory.HttpStartStop httpStartStop_;
+        private LogFactory.LogMessage logMessage_;
+        private MetricFactory.ValueMetric valueMetric_;
+        private MetricFactory.CounterEvent counterEvent_;
+        private ErrorFactory.Error error_;
+        private MetricFactory.ContainerMetric containerMetric_;
+        private byte memoizedIsInitialized = -1;
+        // Use Envelope.newBuilder() to construct.
+        private Envelope(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+            super(builder);
+        }
+
+        private Envelope() {
+            origin_ = "";
+            eventType_ = 2;
+            timestamp_ = 0L;
+            deployment_ = "";
+            job_ = "";
+            index_ = "";
+            ip_ = "";
+        }
+
+        private Envelope(com.google.protobuf.CodedInputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            this();
+            int mutable_bitField0_ = 0;
+            com.google.protobuf.UnknownFieldSet.Builder unknownFields = com.google.protobuf.UnknownFieldSet.newBuilder();
+            try {
+                boolean done = false;
+                while (!done) {
+                    int tag = input.readTag();
+                    switch (tag) {
+                        case 0:
+                            done = true;
+                            break;
+                        default: {
+                            if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
+                                done = true;
+                            }
+                            break;
+                        }
+                        case 10: {
+                            com.google.protobuf.ByteString bs = input.readBytes();
+                            bitField0_ |= 0x00000001;
+                            origin_ = bs;
+                            break;
+                        }
+                        case 16: {
+                            int rawValue = input.readEnum();
+                            EventFactory.Envelope.EventType value = EventFactory.Envelope.EventType.valueOf(rawValue);
+                            if (value == null) {
+                                unknownFields.mergeVarintField(2, rawValue);
+                            } else {
+                                bitField0_ |= 0x00000002;
+                                eventType_ = rawValue;
+                            }
+                            break;
+                        }
+                        case 34: {
+                            HttpFactory.HttpStart.Builder subBuilder = null;
+                            if (((bitField0_ & 0x00000080) == 0x00000080)) {
+                                subBuilder = httpStart_.toBuilder();
+                            }
+                            httpStart_ = input.readMessage(HttpFactory.HttpStart.PARSER, extensionRegistry);
+                            if (subBuilder != null) {
+                                subBuilder.mergeFrom(httpStart_);
+                                httpStart_ = subBuilder.buildPartial();
+                            }
+                            bitField0_ |= 0x00000080;
+                            break;
+                        }
+                        case 42: {
+                            HttpFactory.HttpStop.Builder subBuilder = null;
+                            if (((bitField0_ & 0x00000100) == 0x00000100)) {
+                                subBuilder = httpStop_.toBuilder();
+                            }
+                            httpStop_ = input.readMessage(HttpFactory.HttpStop.PARSER, extensionRegistry);
+                            if (subBuilder != null) {
+                                subBuilder.mergeFrom(httpStop_);
+                                httpStop_ = subBuilder.buildPartial();
+                            }
+                            bitField0_ |= 0x00000100;
+                            break;
+                        }
+                        case 48: {
+                            bitField0_ |= 0x00000004;
+                            timestamp_ = input.readInt64();
+                            break;
+                        }
+                        case 58: {
+                            HttpFactory.HttpStartStop.Builder subBuilder = null;
+                            if (((bitField0_ & 0x00000200) == 0x00000200)) {
+                                subBuilder = httpStartStop_.toBuilder();
+                            }
+                            httpStartStop_ = input.readMessage(HttpFactory.HttpStartStop.PARSER, extensionRegistry);
+                            if (subBuilder != null) {
+                                subBuilder.mergeFrom(httpStartStop_);
+                                httpStartStop_ = subBuilder.buildPartial();
+                            }
+                            bitField0_ |= 0x00000200;
+                            break;
+                        }
+                        case 66: {
+                            LogFactory.LogMessage.Builder subBuilder = null;
+                            if (((bitField0_ & 0x00000400) == 0x00000400)) {
+                                subBuilder = logMessage_.toBuilder();
+                            }
+                            logMessage_ = input.readMessage(LogFactory.LogMessage.PARSER, extensionRegistry);
+                            if (subBuilder != null) {
+                                subBuilder.mergeFrom(logMessage_);
+                                logMessage_ = subBuilder.buildPartial();
+                            }
+                            bitField0_ |= 0x00000400;
+                            break;
+                        }
+                        case 74: {
+                            MetricFactory.ValueMetric.Builder subBuilder = null;
+                            if (((bitField0_ & 0x00000800) == 0x00000800)) {
+                                subBuilder = valueMetric_.toBuilder();
+                            }
+                            valueMetric_ = input.readMessage(MetricFactory.ValueMetric.PARSER, extensionRegistry);
+                            if (subBuilder != null) {
+                                subBuilder.mergeFrom(valueMetric_);
+                                valueMetric_ = subBuilder.buildPartial();
+                            }
+                            bitField0_ |= 0x00000800;
+                            break;
+                        }
+                        case 82: {
+                            MetricFactory.CounterEvent.Builder subBuilder = null;
+                            if (((bitField0_ & 0x00001000) == 0x00001000)) {
+                                subBuilder = counterEvent_.toBuilder();
+                            }
+                            counterEvent_ = input.readMessage(MetricFactory.CounterEvent.PARSER, extensionRegistry);
+                            if (subBuilder != null) {
+                                subBuilder.mergeFrom(counterEvent_);
+                                counterEvent_ = subBuilder.buildPartial();
+                            }
+                            bitField0_ |= 0x00001000;
+                            break;
+                        }
+                        case 90: {
+                            ErrorFactory.Error.Builder subBuilder = null;
+                            if (((bitField0_ & 0x00002000) == 0x00002000)) {
+                                subBuilder = error_.toBuilder();
+                            }
+                            error_ = input.readMessage(ErrorFactory.Error.PARSER, extensionRegistry);
+                            if (subBuilder != null) {
+                                subBuilder.mergeFrom(error_);
+                                error_ = subBuilder.buildPartial();
+                            }
+                            bitField0_ |= 0x00002000;
+                            break;
+                        }
+                        case 98: {
+                            MetricFactory.ContainerMetric.Builder subBuilder = null;
+                            if (((bitField0_ & 0x00004000) == 0x00004000)) {
+                                subBuilder = containerMetric_.toBuilder();
+                            }
+                            containerMetric_ = input.readMessage(MetricFactory.ContainerMetric.PARSER, extensionRegistry);
+                            if (subBuilder != null) {
+                                subBuilder.mergeFrom(containerMetric_);
+                                containerMetric_ = subBuilder.buildPartial();
+                            }
+                            bitField0_ |= 0x00004000;
+                            break;
+                        }
+                        case 106: {
+                            com.google.protobuf.ByteString bs = input.readBytes();
+                            bitField0_ |= 0x00000008;
+                            deployment_ = bs;
+                            break;
+                        }
+                        case 114: {
+                            com.google.protobuf.ByteString bs = input.readBytes();
+                            bitField0_ |= 0x00000010;
+                            job_ = bs;
+                            break;
+                        }
+                        case 122: {
+                            com.google.protobuf.ByteString bs = input.readBytes();
+                            bitField0_ |= 0x00000020;
+                            index_ = bs;
+                            break;
+                        }
+                        case 130: {
+                            com.google.protobuf.ByteString bs = input.readBytes();
+                            bitField0_ |= 0x00000040;
+                            ip_ = bs;
+                            break;
+                        }
+                        case 138: {
+                            if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
+                                tags_ = com.google.protobuf.MapField.newMapField(TagsDefaultEntryHolder.defaultEntry);
+                                mutable_bitField0_ |= 0x00000080;
+                            }
+                            com.google.protobuf.MapEntry<java.lang.String, java.lang.String> tags__ = input.readMessage(TagsDefaultEntryHolder.defaultEntry.getParserForType(),
+                                                                                                                        extensionRegistry);
+                            tags_.getMutableMap()
+                                 .put(tags__.getKey(), tags__.getValue());
+                            break;
+                        }
+                    }
+                }
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                throw e.setUnfinishedMessage(this);
+            } catch (java.io.IOException e) {
+                throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
+            } finally {
+                this.unknownFields = unknownFields.build();
+                makeExtensionsImmutable();
+            }
+        }
+
+        public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+            return EventFactory.internal_static_events_Envelope_descriptor;
+        }
+
+        public static EventFactory.Envelope parseFrom(com.google.protobuf.ByteString data)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+
+        public static EventFactory.Envelope parseFrom(com.google.protobuf.ByteString data,
+                                                      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+
+        public static EventFactory.Envelope parseFrom(byte[] data) throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+
+        public static EventFactory.Envelope parseFrom(byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+
+        public static EventFactory.Envelope parseFrom(java.io.InputStream input) throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+        }
+
+        public static EventFactory.Envelope parseFrom(java.io.InputStream input,
+                                                      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public static EventFactory.Envelope parseDelimitedFrom(java.io.InputStream input) throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
+        }
+
+        public static EventFactory.Envelope parseDelimitedFrom(java.io.InputStream input,
+                                                               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public static EventFactory.Envelope parseFrom(com.google.protobuf.CodedInputStream input) throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+        }
+
+        public static EventFactory.Envelope parseFrom(com.google.protobuf.CodedInputStream input,
+                                                      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public static Builder newBuilder() {
+            return DEFAULT_INSTANCE.toBuilder();
+        }
+
+        public static Builder newBuilder(EventFactory.Envelope prototype) {
+            return DEFAULT_INSTANCE.toBuilder()
+                                   .mergeFrom(prototype);
+        }
+
+        public static EventFactory.Envelope getDefaultInstance() {
+            return DEFAULT_INSTANCE;
+        }
+
+        public static com.google.protobuf.Parser<Envelope> parser() {
+            return PARSER;
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+            return this.unknownFields;
+        }
+
+        @SuppressWarnings({ "rawtypes" })
+        protected com.google.protobuf.MapField internalGetMapField(int number) {
+            switch (number) {
+                case 17:
+                    return internalGetTags();
+                default:
+                    throw new RuntimeException("Invalid map field number: " + number);
+            }
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+            return EventFactory.internal_static_events_Envelope_fieldAccessorTable.ensureFieldAccessorsInitialized(EventFactory.Envelope.class,
+                                                                                                                   EventFactory.Envelope.Builder.class);
+        }
+
+        /**
+         * <pre>
+         *&#47; Unique description of the origin of this event.
+         * </pre>
+         *
+         * <code>required string origin = 1;</code>
+         */
+        public boolean hasOrigin() {
+            return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+
+        /**
+         * <pre>
+         *&#47; Unique description of the origin of this event.
+         * </pre>
+         *
+         * <code>required string origin = 1;</code>
+         */
+        public java.lang.String getOrigin() {
+            java.lang.Object ref = origin_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                if (bs.isValidUtf8()) {
+                    origin_ = s;
+                }
+                return s;
+            }
+        }
+
+        /**
+         * <pre>
+         *&#47; Unique description of the origin of this event.
+         * </pre>
+         *
+         * <code>required string origin = 1;</code>
+         */
+        public com.google.protobuf.ByteString getOriginBytes() {
+            java.lang.Object ref = origin_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                origin_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <pre>
+         *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
+         * </pre>
+         *
+         * <code>required .events.Envelope.EventType eventType = 2;</code>
+         */
+        public boolean hasEventType() {
+            return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+
+        /**
+         * <pre>
+         *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
+         * </pre>
+         *
+         * <code>required .events.Envelope.EventType eventType = 2;</code>
+         */
+        public EventFactory.Envelope.EventType getEventType() {
+            EventFactory.Envelope.EventType result = EventFactory.Envelope.EventType.valueOf(eventType_);
+            return result == null ? EventFactory.Envelope.EventType.HttpStart : result;
+        }
+
+        /**
+         * <pre>
+         *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
+         * </pre>
+         *
+         * <code>optional int64 timestamp = 6;</code>
+         */
+        public boolean hasTimestamp() {
+            return ((bitField0_ & 0x00000004) == 0x00000004);
+        }
+
+        /**
+         * <pre>
+         *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
+         * </pre>
+         *
+         * <code>optional int64 timestamp = 6;</code>
+         */
+        public long getTimestamp() {
+            return timestamp_;
+        }
+
+        /**
+         * <pre>
+         *&#47; Deployment name (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string deployment = 13;</code>
+         */
+        public boolean hasDeployment() {
+            return ((bitField0_ & 0x00000008) == 0x00000008);
+        }
+
+        /**
+         * <pre>
+         *&#47; Deployment name (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string deployment = 13;</code>
+         */
+        public java.lang.String getDeployment() {
+            java.lang.Object ref = deployment_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                if (bs.isValidUtf8()) {
+                    deployment_ = s;
+                }
+                return s;
+            }
+        }
+
+        /**
+         * <pre>
+         *&#47; Deployment name (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string deployment = 13;</code>
+         */
+        public com.google.protobuf.ByteString getDeploymentBytes() {
+            java.lang.Object ref = deployment_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                deployment_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <pre>
+         *&#47; Job name (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string job = 14;</code>
+         */
+        public boolean hasJob() {
+            return ((bitField0_ & 0x00000010) == 0x00000010);
+        }
+
+        /**
+         * <pre>
+         *&#47; Job name (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string job = 14;</code>
+         */
+        public java.lang.String getJob() {
+            java.lang.Object ref = job_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                if (bs.isValidUtf8()) {
+                    job_ = s;
+                }
+                return s;
+            }
+        }
+
+        /**
+         * <pre>
+         *&#47; Job name (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string job = 14;</code>
+         */
+        public com.google.protobuf.ByteString getJobBytes() {
+            java.lang.Object ref = job_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                job_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <pre>
+         *&#47; Index of job (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string index = 15;</code>
+         */
+        public boolean hasIndex() {
+            return ((bitField0_ & 0x00000020) == 0x00000020);
+        }
+
+        /**
+         * <pre>
+         *&#47; Index of job (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string index = 15;</code>
+         */
+        public java.lang.String getIndex() {
+            java.lang.Object ref = index_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                if (bs.isValidUtf8()) {
+                    index_ = s;
+                }
+                return s;
+            }
+        }
+
+        /**
+         * <pre>
+         *&#47; Index of job (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string index = 15;</code>
+         */
+        public com.google.protobuf.ByteString getIndexBytes() {
+            java.lang.Object ref = index_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                index_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <pre>
+         *&#47; IP address (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string ip = 16;</code>
+         */
+        public boolean hasIp() {
+            return ((bitField0_ & 0x00000040) == 0x00000040);
+        }
+
+        /**
+         * <pre>
+         *&#47; IP address (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string ip = 16;</code>
+         */
+        public java.lang.String getIp() {
+            java.lang.Object ref = ip_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                if (bs.isValidUtf8()) {
+                    ip_ = s;
+                }
+                return s;
+            }
+        }
+
+        /**
+         * <pre>
+         *&#47; IP address (used to uniquely identify source).
+         * </pre>
+         *
+         * <code>optional string ip = 16;</code>
+         */
+        public com.google.protobuf.ByteString getIpBytes() {
+            java.lang.Object ref = ip_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                ip_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        private com.google.protobuf.MapField<java.lang.String, java.lang.String> internalGetTags() {
+            if (tags_ == null) {
+                return com.google.protobuf.MapField.emptyMapField(TagsDefaultEntryHolder.defaultEntry);
+            }
+            return tags_;
+        }
+
+        public int getTagsCount() {
+            return internalGetTags().getMap()
+                                    .size();
+        }
+
+        /**
+         * <pre>
+         *&#47; key/value tags to include additional identifying information.
+         * </pre>
+         *
+         * <code>map&lt;string, string&gt; tags = 17;</code>
+         */
+
+        public boolean containsTags(java.lang.String key) {
+            if (key == null) {
+                throw new java.lang.NullPointerException();
+            }
+            return internalGetTags().getMap()
+                                    .containsKey(key);
+        }
+
+        /**
+         * Use {@link #getTagsMap()} instead.
+         */
+        @java.lang.Deprecated
+        public java.util.Map<java.lang.String, java.lang.String> getTags() {
+            return getTagsMap();
+        }
+
+        /**
+         * <pre>
+         *&#47; key/value tags to include additional identifying information.
+         * </pre>
+         *
+         * <code>map&lt;string, string&gt; tags = 17;</code>
+         */
+
+        public java.util.Map<java.lang.String, java.lang.String> getTagsMap() {
+            return internalGetTags().getMap();
+        }
+
+        /**
+         * <pre>
+         *&#47; key/value tags to include additional identifying information.
+         * </pre>
+         *
+         * <code>map&lt;string, string&gt; tags = 17;</code>
+         */
+
+        public java.lang.String getTagsOrDefault(java.lang.String key, java.lang.String defaultValue) {
+            if (key == null) {
+                throw new java.lang.NullPointerException();
+            }
+            java.util.Map<java.lang.String, java.lang.String> map = internalGetTags().getMap();
+            return map.containsKey(key) ? map.get(key) : defaultValue;
+        }
+
+        /**
+         * <pre>
+         *&#47; key/value tags to include additional identifying information.
+         * </pre>
+         *
+         * <code>map&lt;string, string&gt; tags = 17;</code>
+         */
+
+        public java.lang.String getTagsOrThrow(java.lang.String key) {
+            if (key == null) {
+                throw new java.lang.NullPointerException();
+            }
+            java.util.Map<java.lang.String, java.lang.String> map = internalGetTags().getMap();
+            if (!map.containsKey(key)) {
+                throw new java.lang.IllegalArgumentException();
+            }
+            return map.get(key);
+        }
+
+        /**
+         * <pre>
+         * Removed Heartbeat at position 3
+         * </pre>
+         *
+         * <code>optional .events.HttpStart httpStart = 4;</code>
+         */
+        public boolean hasHttpStart() {
+            return ((bitField0_ & 0x00000080) == 0x00000080);
+        }
+
+        /**
+         * <pre>
+         * Removed Heartbeat at position 3
+         * </pre>
+         *
+         * <code>optional .events.HttpStart httpStart = 4;</code>
+         */
+        public HttpFactory.HttpStart getHttpStart() {
+            return httpStart_ == null ? HttpFactory.HttpStart.getDefaultInstance() : httpStart_;
+        }
+
+        /**
+         * <pre>
+         * Removed Heartbeat at position 3
+         * </pre>
+         *
+         * <code>optional .events.HttpStart httpStart = 4;</code>
+         */
+        public HttpFactory.HttpStartOrBuilder getHttpStartOrBuilder() {
+            return httpStart_ == null ? HttpFactory.HttpStart.getDefaultInstance() : httpStart_;
+        }
+
+        /**
+         * <code>optional .events.HttpStop httpStop = 5;</code>
+         */
+        public boolean hasHttpStop() {
+            return ((bitField0_ & 0x00000100) == 0x00000100);
+        }
+
+        /**
+         * <code>optional .events.HttpStop httpStop = 5;</code>
+         */
+        public HttpFactory.HttpStop getHttpStop() {
+            return httpStop_ == null ? HttpFactory.HttpStop.getDefaultInstance() : httpStop_;
+        }
+
+        /**
+         * <code>optional .events.HttpStop httpStop = 5;</code>
+         */
+        public HttpFactory.HttpStopOrBuilder getHttpStopOrBuilder() {
+            return httpStop_ == null ? HttpFactory.HttpStop.getDefaultInstance() : httpStop_;
+        }
+
+        /**
+         * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+         */
+        public boolean hasHttpStartStop() {
+            return ((bitField0_ & 0x00000200) == 0x00000200);
+        }
+
+        /**
+         * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+         */
+        public HttpFactory.HttpStartStop getHttpStartStop() {
+            return httpStartStop_ == null ? HttpFactory.HttpStartStop.getDefaultInstance() : httpStartStop_;
+        }
+
+        /**
+         * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+         */
+        public HttpFactory.HttpStartStopOrBuilder getHttpStartStopOrBuilder() {
+            return httpStartStop_ == null ? HttpFactory.HttpStartStop.getDefaultInstance() : httpStartStop_;
+        }
+
+        /**
+         * <code>optional .events.LogMessage logMessage = 8;</code>
+         */
+        public boolean hasLogMessage() {
+            return ((bitField0_ & 0x00000400) == 0x00000400);
+        }
+
+        /**
+         * <code>optional .events.LogMessage logMessage = 8;</code>
+         */
+        public LogFactory.LogMessage getLogMessage() {
+            return logMessage_ == null ? LogFactory.LogMessage.getDefaultInstance() : logMessage_;
+        }
+
+        /**
+         * <code>optional .events.LogMessage logMessage = 8;</code>
+         */
+        public LogFactory.LogMessageOrBuilder getLogMessageOrBuilder() {
+            return logMessage_ == null ? LogFactory.LogMessage.getDefaultInstance() : logMessage_;
+        }
+
+        /**
+         * <code>optional .events.ValueMetric valueMetric = 9;</code>
+         */
+        public boolean hasValueMetric() {
+            return ((bitField0_ & 0x00000800) == 0x00000800);
+        }
+
+        /**
+         * <code>optional .events.ValueMetric valueMetric = 9;</code>
+         */
+        public MetricFactory.ValueMetric getValueMetric() {
+            return valueMetric_ == null ? MetricFactory.ValueMetric.getDefaultInstance() : valueMetric_;
+        }
+
+        /**
+         * <code>optional .events.ValueMetric valueMetric = 9;</code>
+         */
+        public MetricFactory.ValueMetricOrBuilder getValueMetricOrBuilder() {
+            return valueMetric_ == null ? MetricFactory.ValueMetric.getDefaultInstance() : valueMetric_;
+        }
+
+        /**
+         * <code>optional .events.CounterEvent counterEvent = 10;</code>
+         */
+        public boolean hasCounterEvent() {
+            return ((bitField0_ & 0x00001000) == 0x00001000);
+        }
+
+        /**
+         * <code>optional .events.CounterEvent counterEvent = 10;</code>
+         */
+        public MetricFactory.CounterEvent getCounterEvent() {
+            return counterEvent_ == null ? MetricFactory.CounterEvent.getDefaultInstance() : counterEvent_;
+        }
+
+        /**
+         * <code>optional .events.CounterEvent counterEvent = 10;</code>
+         */
+        public MetricFactory.CounterEventOrBuilder getCounterEventOrBuilder() {
+            return counterEvent_ == null ? MetricFactory.CounterEvent.getDefaultInstance() : counterEvent_;
+        }
+
+        /**
+         * <code>optional .events.Error error = 11;</code>
+         */
+        public boolean hasError() {
+            return ((bitField0_ & 0x00002000) == 0x00002000);
+        }
+
+        /**
+         * <code>optional .events.Error error = 11;</code>
+         */
+        public ErrorFactory.Error getError() {
+            return error_ == null ? ErrorFactory.Error.getDefaultInstance() : error_;
+        }
+
+        /**
+         * <code>optional .events.Error error = 11;</code>
+         */
+        public ErrorFactory.ErrorOrBuilder getErrorOrBuilder() {
+            return error_ == null ? ErrorFactory.Error.getDefaultInstance() : error_;
+        }
+
+        /**
+         * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+         */
+        public boolean hasContainerMetric() {
+            return ((bitField0_ & 0x00004000) == 0x00004000);
+        }
+
+        /**
+         * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+         */
+        public MetricFactory.ContainerMetric getContainerMetric() {
+            return containerMetric_ == null ? MetricFactory.ContainerMetric.getDefaultInstance() : containerMetric_;
+        }
+
+        /**
+         * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+         */
+        public MetricFactory.ContainerMetricOrBuilder getContainerMetricOrBuilder() {
+            return containerMetric_ == null ? MetricFactory.ContainerMetric.getDefaultInstance() : containerMetric_;
+        }
+
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized == 1)
+                return true;
+            if (isInitialized == 0)
+                return false;
+
+            if (!hasOrigin()) {
+                memoizedIsInitialized = 0;
+                return false;
+            }
+            if (!hasEventType()) {
+                memoizedIsInitialized = 0;
+                return false;
+            }
+            if (hasHttpStart()) {
+                if (!getHttpStart().isInitialized()) {
+                    memoizedIsInitialized = 0;
+                    return false;
+                }
+            }
+            if (hasHttpStop()) {
+                if (!getHttpStop().isInitialized()) {
+                    memoizedIsInitialized = 0;
+                    return false;
+                }
+            }
+            if (hasHttpStartStop()) {
+                if (!getHttpStartStop().isInitialized()) {
+                    memoizedIsInitialized = 0;
+                    return false;
+                }
+            }
+            if (hasLogMessage()) {
+                if (!getLogMessage().isInitialized()) {
+                    memoizedIsInitialized = 0;
+                    return false;
+                }
+            }
+            if (hasValueMetric()) {
+                if (!getValueMetric().isInitialized()) {
+                    memoizedIsInitialized = 0;
+                    return false;
+                }
+            }
+            if (hasCounterEvent()) {
+                if (!getCounterEvent().isInitialized()) {
+                    memoizedIsInitialized = 0;
+                    return false;
+                }
+            }
+            if (hasError()) {
+                if (!getError().isInitialized()) {
+                    memoizedIsInitialized = 0;
+                    return false;
+                }
+            }
+            if (hasContainerMetric()) {
+                if (!getContainerMetric().isInitialized()) {
+                    memoizedIsInitialized = 0;
+                    return false;
+                }
+            }
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 1, origin_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                output.writeEnum(2, eventType_);
+            }
+            if (((bitField0_ & 0x00000080) == 0x00000080)) {
+                output.writeMessage(4, getHttpStart());
+            }
+            if (((bitField0_ & 0x00000100) == 0x00000100)) {
+                output.writeMessage(5, getHttpStop());
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                output.writeInt64(6, timestamp_);
+            }
+            if (((bitField0_ & 0x00000200) == 0x00000200)) {
+                output.writeMessage(7, getHttpStartStop());
+            }
+            if (((bitField0_ & 0x00000400) == 0x00000400)) {
+                output.writeMessage(8, getLogMessage());
+            }
+            if (((bitField0_ & 0x00000800) == 0x00000800)) {
+                output.writeMessage(9, getValueMetric());
+            }
+            if (((bitField0_ & 0x00001000) == 0x00001000)) {
+                output.writeMessage(10, getCounterEvent());
+            }
+            if (((bitField0_ & 0x00002000) == 0x00002000)) {
+                output.writeMessage(11, getError());
+            }
+            if (((bitField0_ & 0x00004000) == 0x00004000)) {
+                output.writeMessage(12, getContainerMetric());
+            }
+            if (((bitField0_ & 0x00000008) == 0x00000008)) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 13, deployment_);
+            }
+            if (((bitField0_ & 0x00000010) == 0x00000010)) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 14, job_);
+            }
+            if (((bitField0_ & 0x00000020) == 0x00000020)) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 15, index_);
+            }
+            if (((bitField0_ & 0x00000040) == 0x00000040)) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 16, ip_);
+            }
+            com.google.protobuf.GeneratedMessageV3.serializeStringMapTo(output, internalGetTags(), TagsDefaultEntryHolder.defaultEntry, 17);
+            unknownFields.writeTo(output);
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSize;
+            if (size != -1)
+                return size;
+
+            size = 0;
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, origin_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                size += com.google.protobuf.CodedOutputStream.computeEnumSize(2, eventType_);
+            }
+            if (((bitField0_ & 0x00000080) == 0x00000080)) {
+                size += com.google.protobuf.CodedOutputStream.computeMessageSize(4, getHttpStart());
+            }
+            if (((bitField0_ & 0x00000100) == 0x00000100)) {
+                size += com.google.protobuf.CodedOutputStream.computeMessageSize(5, getHttpStop());
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                size += com.google.protobuf.CodedOutputStream.computeInt64Size(6, timestamp_);
+            }
+            if (((bitField0_ & 0x00000200) == 0x00000200)) {
+                size += com.google.protobuf.CodedOutputStream.computeMessageSize(7, getHttpStartStop());
+            }
+            if (((bitField0_ & 0x00000400) == 0x00000400)) {
+                size += com.google.protobuf.CodedOutputStream.computeMessageSize(8, getLogMessage());
+            }
+            if (((bitField0_ & 0x00000800) == 0x00000800)) {
+                size += com.google.protobuf.CodedOutputStream.computeMessageSize(9, getValueMetric());
+            }
+            if (((bitField0_ & 0x00001000) == 0x00001000)) {
+                size += com.google.protobuf.CodedOutputStream.computeMessageSize(10, getCounterEvent());
+            }
+            if (((bitField0_ & 0x00002000) == 0x00002000)) {
+                size += com.google.protobuf.CodedOutputStream.computeMessageSize(11, getError());
+            }
+            if (((bitField0_ & 0x00004000) == 0x00004000)) {
+                size += com.google.protobuf.CodedOutputStream.computeMessageSize(12, getContainerMetric());
+            }
+            if (((bitField0_ & 0x00000008) == 0x00000008)) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(13, deployment_);
+            }
+            if (((bitField0_ & 0x00000010) == 0x00000010)) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(14, job_);
+            }
+            if (((bitField0_ & 0x00000020) == 0x00000020)) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(15, index_);
+            }
+            if (((bitField0_ & 0x00000040) == 0x00000040)) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(16, ip_);
+            }
+            for (java.util.Map.Entry<java.lang.String, java.lang.String> entry : internalGetTags().getMap()
+                                                                                                  .entrySet()) {
+                com.google.protobuf.MapEntry<java.lang.String, java.lang.String> tags__ = TagsDefaultEntryHolder.defaultEntry.newBuilderForType()
+                                                                                                                             .setKey(entry.getKey())
+                                                                                                                             .setValue(entry.getValue())
+                                                                                                                             .build();
+                size += com.google.protobuf.CodedOutputStream.computeMessageSize(17, tags__);
+            }
+            size += unknownFields.getSerializedSize();
+            memoizedSize = size;
+            return size;
+        }
+
+        @java.lang.Override
+        public boolean equals(final java.lang.Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof EventFactory.Envelope)) {
+                return super.equals(obj);
+            }
+            EventFactory.Envelope other = (EventFactory.Envelope) obj;
+
+            boolean result = true;
+            result = result && (hasOrigin() == other.hasOrigin());
+            if (hasOrigin()) {
+                result = result && getOrigin().equals(other.getOrigin());
+            }
+            result = result && (hasEventType() == other.hasEventType());
+            if (hasEventType()) {
+                result = result && eventType_ == other.eventType_;
+            }
+            result = result && (hasTimestamp() == other.hasTimestamp());
+            if (hasTimestamp()) {
+                result = result && (getTimestamp() == other.getTimestamp());
+            }
+            result = result && (hasDeployment() == other.hasDeployment());
+            if (hasDeployment()) {
+                result = result && getDeployment().equals(other.getDeployment());
+            }
+            result = result && (hasJob() == other.hasJob());
+            if (hasJob()) {
+                result = result && getJob().equals(other.getJob());
+            }
+            result = result && (hasIndex() == other.hasIndex());
+            if (hasIndex()) {
+                result = result && getIndex().equals(other.getIndex());
+            }
+            result = result && (hasIp() == other.hasIp());
+            if (hasIp()) {
+                result = result && getIp().equals(other.getIp());
+            }
+            result = result && internalGetTags().equals(other.internalGetTags());
+            result = result && (hasHttpStart() == other.hasHttpStart());
+            if (hasHttpStart()) {
+                result = result && getHttpStart().equals(other.getHttpStart());
+            }
+            result = result && (hasHttpStop() == other.hasHttpStop());
+            if (hasHttpStop()) {
+                result = result && getHttpStop().equals(other.getHttpStop());
+            }
+            result = result && (hasHttpStartStop() == other.hasHttpStartStop());
+            if (hasHttpStartStop()) {
+                result = result && getHttpStartStop().equals(other.getHttpStartStop());
+            }
+            result = result && (hasLogMessage() == other.hasLogMessage());
+            if (hasLogMessage()) {
+                result = result && getLogMessage().equals(other.getLogMessage());
+            }
+            result = result && (hasValueMetric() == other.hasValueMetric());
+            if (hasValueMetric()) {
+                result = result && getValueMetric().equals(other.getValueMetric());
+            }
+            result = result && (hasCounterEvent() == other.hasCounterEvent());
+            if (hasCounterEvent()) {
+                result = result && getCounterEvent().equals(other.getCounterEvent());
+            }
+            result = result && (hasError() == other.hasError());
+            if (hasError()) {
+                result = result && getError().equals(other.getError());
+            }
+            result = result && (hasContainerMetric() == other.hasContainerMetric());
+            if (hasContainerMetric()) {
+                result = result && getContainerMetric().equals(other.getContainerMetric());
+            }
+            result = result && unknownFields.equals(other.unknownFields);
+            return result;
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            if (memoizedHashCode != 0) {
+                return memoizedHashCode;
+            }
+            int hash = 41;
+            hash = (19 * hash) + getDescriptorForType().hashCode();
+            if (hasOrigin()) {
+                hash = (37 * hash) + ORIGIN_FIELD_NUMBER;
+                hash = (53 * hash) + getOrigin().hashCode();
+            }
+            if (hasEventType()) {
+                hash = (37 * hash) + EVENTTYPE_FIELD_NUMBER;
+                hash = (53 * hash) + eventType_;
+            }
+            if (hasTimestamp()) {
+                hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
+                hash = (53 * hash) + com.google.protobuf.Internal.hashLong(getTimestamp());
+            }
+            if (hasDeployment()) {
+                hash = (37 * hash) + DEPLOYMENT_FIELD_NUMBER;
+                hash = (53 * hash) + getDeployment().hashCode();
+            }
+            if (hasJob()) {
+                hash = (37 * hash) + JOB_FIELD_NUMBER;
+                hash = (53 * hash) + getJob().hashCode();
+            }
+            if (hasIndex()) {
+                hash = (37 * hash) + INDEX_FIELD_NUMBER;
+                hash = (53 * hash) + getIndex().hashCode();
+            }
+            if (hasIp()) {
+                hash = (37 * hash) + IP_FIELD_NUMBER;
+                hash = (53 * hash) + getIp().hashCode();
+            }
+            if (!internalGetTags().getMap()
+                                  .isEmpty()) {
+                hash = (37 * hash) + TAGS_FIELD_NUMBER;
+                hash = (53 * hash) + internalGetTags().hashCode();
+            }
+            if (hasHttpStart()) {
+                hash = (37 * hash) + HTTPSTART_FIELD_NUMBER;
+                hash = (53 * hash) + getHttpStart().hashCode();
+            }
+            if (hasHttpStop()) {
+                hash = (37 * hash) + HTTPSTOP_FIELD_NUMBER;
+                hash = (53 * hash) + getHttpStop().hashCode();
+            }
+            if (hasHttpStartStop()) {
+                hash = (37 * hash) + HTTPSTARTSTOP_FIELD_NUMBER;
+                hash = (53 * hash) + getHttpStartStop().hashCode();
+            }
+            if (hasLogMessage()) {
+                hash = (37 * hash) + LOGMESSAGE_FIELD_NUMBER;
+                hash = (53 * hash) + getLogMessage().hashCode();
+            }
+            if (hasValueMetric()) {
+                hash = (37 * hash) + VALUEMETRIC_FIELD_NUMBER;
+                hash = (53 * hash) + getValueMetric().hashCode();
+            }
+            if (hasCounterEvent()) {
+                hash = (37 * hash) + COUNTEREVENT_FIELD_NUMBER;
+                hash = (53 * hash) + getCounterEvent().hashCode();
+            }
+            if (hasError()) {
+                hash = (37 * hash) + ERROR_FIELD_NUMBER;
+                hash = (53 * hash) + getError().hashCode();
+            }
+            if (hasContainerMetric()) {
+                hash = (37 * hash) + CONTAINERMETRIC_FIELD_NUMBER;
+                hash = (53 * hash) + getContainerMetric().hashCode();
+            }
+            hash = (29 * hash) + unknownFields.hashCode();
+            memoizedHashCode = hash;
+            return hash;
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
+        }
+
+        public Builder toBuilder() {
+            return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+        }
+
+        @java.lang.Override
+        protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+            Builder builder = new Builder(parent);
+            return builder;
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<Envelope> getParserForType() {
+            return PARSER;
+        }
+
+        public EventFactory.Envelope getDefaultInstanceForType() {
+            return DEFAULT_INSTANCE;
+        }
+
+        /**
+         * <pre>
+         *&#47; Type of the wrapped event.
+         * </pre>
+         *
+         * Protobuf enum {@code events.Envelope.EventType}
+         */
+        public enum EventType implements com.google.protobuf.ProtocolMessageEnum {
+            /**
+             * <pre>
+             * Removed Heartbeat at position 1
+             * </pre>
+             *
+             * <code>HttpStart = 2;</code>
+             */
+            HttpStart(2),
+            /**
+             * <code>HttpStop = 3;</code>
+             */
+            HttpStop(3),
+            /**
+             * <code>HttpStartStop = 4;</code>
+             */
+            HttpStartStop(4),
+            /**
+             * <code>LogMessage = 5;</code>
+             */
+            LogMessage(5),
+            /**
+             * <code>ValueMetric = 6;</code>
+             */
+            ValueMetric(6),
+            /**
+             * <code>CounterEvent = 7;</code>
+             */
+            CounterEvent(7),
+            /**
+             * <code>Error = 8;</code>
+             */
+            Error(8),
+            /**
+             * <code>ContainerMetric = 9;</code>
+             */
+            ContainerMetric(9),;
+
+            /**
+             * <pre>
+             * Removed Heartbeat at position 1
+             * </pre>
+             *
+             * <code>HttpStart = 2;</code>
+             */
+            public static final int HttpStart_VALUE = 2;
+            /**
+             * <code>HttpStop = 3;</code>
+             */
+            public static final int HttpStop_VALUE = 3;
+            /**
+             * <code>HttpStartStop = 4;</code>
+             */
+            public static final int HttpStartStop_VALUE = 4;
+            /**
+             * <code>LogMessage = 5;</code>
+             */
+            public static final int LogMessage_VALUE = 5;
+            /**
+             * <code>ValueMetric = 6;</code>
+             */
+            public static final int ValueMetric_VALUE = 6;
+            /**
+             * <code>CounterEvent = 7;</code>
+             */
+            public static final int CounterEvent_VALUE = 7;
+            /**
+             * <code>Error = 8;</code>
+             */
+            public static final int Error_VALUE = 8;
+            /**
+             * <code>ContainerMetric = 9;</code>
+             */
+            public static final int ContainerMetric_VALUE = 9;
+            private static final com.google.protobuf.Internal.EnumLiteMap<EventType> internalValueMap = new com.google.protobuf.Internal.EnumLiteMap<EventType>() {
+                public EventType findValueByNumber(int number) {
+                    return EventType.forNumber(number);
+                }
+            };
+            private static final EventType[] VALUES = values();
+            private final int value;
+
+            private EventType(int value) {
+                this.value = value;
+            }
+
+            /**
+             * @deprecated Use {@link #forNumber(int)} instead.
+             */
+            @java.lang.Deprecated
+            public static EventType valueOf(int value) {
+                return forNumber(value);
+            }
+
+            public static EventType forNumber(int value) {
+                switch (value) {
+                    case 2:
+                        return HttpStart;
+                    case 3:
+                        return HttpStop;
+                    case 4:
+                        return HttpStartStop;
+                    case 5:
+                        return LogMessage;
+                    case 6:
+                        return ValueMetric;
+                    case 7:
+                        return CounterEvent;
+                    case 8:
+                        return Error;
+                    case 9:
+                        return ContainerMetric;
+                    default:
+                        return null;
+                }
+            }
+
+            public static com.google.protobuf.Internal.EnumLiteMap<EventType> internalGetValueMap() {
+                return internalValueMap;
+            }
+
+            public static final com.google.protobuf.Descriptors.EnumDescriptor getDescriptor() {
+                return EventFactory.Envelope.getDescriptor()
+                                            .getEnumTypes()
+                                            .get(0);
+            }
+
+            public static EventType valueOf(com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+                if (desc.getType() != getDescriptor()) {
+                    throw new java.lang.IllegalArgumentException("EnumValueDescriptor is not for this type.");
+                }
+                return VALUES[desc.getIndex()];
+            }
+
+            public final int getNumber() {
+                return value;
+            }
+
+            public final com.google.protobuf.Descriptors.EnumValueDescriptor getValueDescriptor() {
+                return getDescriptor().getValues()
+                                      .get(ordinal());
+            }
+
+            public final com.google.protobuf.Descriptors.EnumDescriptor getDescriptorForType() {
+                return getDescriptor();
+            }
+
+            // @@protoc_insertion_point(enum_scope:events.Envelope.EventType)
+        }
+
+        private static final class TagsDefaultEntryHolder {
+            static final com.google.protobuf.MapEntry<java.lang.String, java.lang.String> defaultEntry = com.google.protobuf.MapEntry.<java.lang.String, java.lang.String> newDefaultInstance(EventFactory.internal_static_events_Envelope_TagsEntry_descriptor,
+                                                                                                                                                                                              com.google.protobuf.WireFormat.FieldType.STRING,
+                                                                                                                                                                                              "",
+                                                                                                                                                                                              com.google.protobuf.WireFormat.FieldType.STRING,
+                                                                                                                                                                                              "");
+        }
+
+        /**
+         * <pre>
+         *&#47; Envelope wraps an Event and adds metadata.
+         * </pre>
+         *
+         * Protobuf type {@code events.Envelope}
+         */
+        public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+            // @@protoc_insertion_point(builder_implements:events.Envelope)
+            EventFactory.EnvelopeOrBuilder {
+            private int bitField0_;
+            private java.lang.Object origin_ = "";
+            private int eventType_ = 2;
+            private long timestamp_;
+            private java.lang.Object deployment_ = "";
+            private java.lang.Object job_ = "";
+            private java.lang.Object index_ = "";
+            private java.lang.Object ip_ = "";
+            private com.google.protobuf.MapField<java.lang.String, java.lang.String> tags_;
+            private HttpFactory.HttpStart httpStart_ = null;
+            private com.google.protobuf.SingleFieldBuilderV3<HttpFactory.HttpStart, HttpFactory.HttpStart.Builder, HttpFactory.HttpStartOrBuilder> httpStartBuilder_;
+            private HttpFactory.HttpStop httpStop_ = null;
+            private com.google.protobuf.SingleFieldBuilderV3<HttpFactory.HttpStop, HttpFactory.HttpStop.Builder, HttpFactory.HttpStopOrBuilder> httpStopBuilder_;
+            private HttpFactory.HttpStartStop httpStartStop_ = null;
+            private com.google.protobuf.SingleFieldBuilderV3<HttpFactory.HttpStartStop, HttpFactory.HttpStartStop.Builder, HttpFactory.HttpStartStopOrBuilder> httpStartStopBuilder_;
+            private LogFactory.LogMessage logMessage_ = null;
+            private com.google.protobuf.SingleFieldBuilderV3<LogFactory.LogMessage, LogFactory.LogMessage.Builder, LogFactory.LogMessageOrBuilder> logMessageBuilder_;
+            private MetricFactory.ValueMetric valueMetric_ = null;
+            private com.google.protobuf.SingleFieldBuilderV3<MetricFactory.ValueMetric, MetricFactory.ValueMetric.Builder, MetricFactory.ValueMetricOrBuilder> valueMetricBuilder_;
+            private MetricFactory.CounterEvent counterEvent_ = null;
+            private com.google.protobuf.SingleFieldBuilderV3<MetricFactory.CounterEvent, MetricFactory.CounterEvent.Builder, MetricFactory.CounterEventOrBuilder> counterEventBuilder_;
+            private ErrorFactory.Error error_ = null;
+            private com.google.protobuf.SingleFieldBuilderV3<ErrorFactory.Error, ErrorFactory.Error.Builder, ErrorFactory.ErrorOrBuilder> errorBuilder_;
+            private MetricFactory.ContainerMetric containerMetric_ = null;
+            private com.google.protobuf.SingleFieldBuilderV3<MetricFactory.ContainerMetric, MetricFactory.ContainerMetric.Builder, MetricFactory.ContainerMetricOrBuilder> containerMetricBuilder_;
+
+            // Construct using EventFactory.Envelope.newBuilder()
+            private Builder() {
+                maybeForceBuilderInitialization();
+            }
+
+            private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+                super(parent);
+                maybeForceBuilderInitialization();
+            }
+
+            public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+                return EventFactory.internal_static_events_Envelope_descriptor;
+            }
+
+            @SuppressWarnings({ "rawtypes" })
+            protected com.google.protobuf.MapField internalGetMapField(int number) {
+                switch (number) {
+                    case 17:
+                        return internalGetTags();
+                    default:
+                        throw new RuntimeException("Invalid map field number: " + number);
+                }
+            }
+
+            @SuppressWarnings({ "rawtypes" })
+            protected com.google.protobuf.MapField internalGetMutableMapField(int number) {
+                switch (number) {
+                    case 17:
+                        return internalGetMutableTags();
+                    default:
+                        throw new RuntimeException("Invalid map field number: " + number);
+                }
+            }
+
+            protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+                return EventFactory.internal_static_events_Envelope_fieldAccessorTable.ensureFieldAccessorsInitialized(EventFactory.Envelope.class,
+                                                                                                                       EventFactory.Envelope.Builder.class);
+            }
+
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
+                    getHttpStartFieldBuilder();
+                    getHttpStopFieldBuilder();
+                    getHttpStartStopFieldBuilder();
+                    getLogMessageFieldBuilder();
+                    getValueMetricFieldBuilder();
+                    getCounterEventFieldBuilder();
+                    getErrorFieldBuilder();
+                    getContainerMetricFieldBuilder();
+                }
+            }
+
+            public Builder clear() {
+                super.clear();
+                origin_ = "";
+                bitField0_ = (bitField0_ & ~0x00000001);
+                eventType_ = 2;
+                bitField0_ = (bitField0_ & ~0x00000002);
+                timestamp_ = 0L;
+                bitField0_ = (bitField0_ & ~0x00000004);
+                deployment_ = "";
+                bitField0_ = (bitField0_ & ~0x00000008);
+                job_ = "";
+                bitField0_ = (bitField0_ & ~0x00000010);
+                index_ = "";
+                bitField0_ = (bitField0_ & ~0x00000020);
+                ip_ = "";
+                bitField0_ = (bitField0_ & ~0x00000040);
+                internalGetMutableTags().clear();
+                if (httpStartBuilder_ == null) {
+                    httpStart_ = null;
+                } else {
+                    httpStartBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00000100);
+                if (httpStopBuilder_ == null) {
+                    httpStop_ = null;
+                } else {
+                    httpStopBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00000200);
+                if (httpStartStopBuilder_ == null) {
+                    httpStartStop_ = null;
+                } else {
+                    httpStartStopBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00000400);
+                if (logMessageBuilder_ == null) {
+                    logMessage_ = null;
+                } else {
+                    logMessageBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00000800);
+                if (valueMetricBuilder_ == null) {
+                    valueMetric_ = null;
+                } else {
+                    valueMetricBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00001000);
+                if (counterEventBuilder_ == null) {
+                    counterEvent_ = null;
+                } else {
+                    counterEventBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00002000);
+                if (errorBuilder_ == null) {
+                    error_ = null;
+                } else {
+                    errorBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00004000);
+                if (containerMetricBuilder_ == null) {
+                    containerMetric_ = null;
+                } else {
+                    containerMetricBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00008000);
+                return this;
+            }
+
+            public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+                return EventFactory.internal_static_events_Envelope_descriptor;
+            }
+
+            public EventFactory.Envelope getDefaultInstanceForType() {
+                return EventFactory.Envelope.getDefaultInstance();
+            }
+
+            public EventFactory.Envelope build() {
+                EventFactory.Envelope result = buildPartial();
+                if (!result.isInitialized()) {
+                    throw newUninitializedMessageException(result);
+                }
+                return result;
+            }
+
+            public EventFactory.Envelope buildPartial() {
+                EventFactory.Envelope result = new EventFactory.Envelope(this);
+                int from_bitField0_ = bitField0_;
+                int to_bitField0_ = 0;
+                if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+                    to_bitField0_ |= 0x00000001;
+                }
+                result.origin_ = origin_;
+                if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+                    to_bitField0_ |= 0x00000002;
+                }
+                result.eventType_ = eventType_;
+                if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+                    to_bitField0_ |= 0x00000004;
+                }
+                result.timestamp_ = timestamp_;
+                if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+                    to_bitField0_ |= 0x00000008;
+                }
+                result.deployment_ = deployment_;
+                if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+                    to_bitField0_ |= 0x00000010;
+                }
+                result.job_ = job_;
+                if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+                    to_bitField0_ |= 0x00000020;
+                }
+                result.index_ = index_;
+                if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+                    to_bitField0_ |= 0x00000040;
+                }
+                result.ip_ = ip_;
+                result.tags_ = internalGetTags();
+                result.tags_.makeImmutable();
+                if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
+                    to_bitField0_ |= 0x00000080;
+                }
+                if (httpStartBuilder_ == null) {
+                    result.httpStart_ = httpStart_;
+                } else {
+                    result.httpStart_ = httpStartBuilder_.build();
+                }
+                if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+                    to_bitField0_ |= 0x00000100;
+                }
+                if (httpStopBuilder_ == null) {
+                    result.httpStop_ = httpStop_;
+                } else {
+                    result.httpStop_ = httpStopBuilder_.build();
+                }
+                if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+                    to_bitField0_ |= 0x00000200;
+                }
+                if (httpStartStopBuilder_ == null) {
+                    result.httpStartStop_ = httpStartStop_;
+                } else {
+                    result.httpStartStop_ = httpStartStopBuilder_.build();
+                }
+                if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
+                    to_bitField0_ |= 0x00000400;
+                }
+                if (logMessageBuilder_ == null) {
+                    result.logMessage_ = logMessage_;
+                } else {
+                    result.logMessage_ = logMessageBuilder_.build();
+                }
+                if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
+                    to_bitField0_ |= 0x00000800;
+                }
+                if (valueMetricBuilder_ == null) {
+                    result.valueMetric_ = valueMetric_;
+                } else {
+                    result.valueMetric_ = valueMetricBuilder_.build();
+                }
+                if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
+                    to_bitField0_ |= 0x00001000;
+                }
+                if (counterEventBuilder_ == null) {
+                    result.counterEvent_ = counterEvent_;
+                } else {
+                    result.counterEvent_ = counterEventBuilder_.build();
+                }
+                if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
+                    to_bitField0_ |= 0x00002000;
+                }
+                if (errorBuilder_ == null) {
+                    result.error_ = error_;
+                } else {
+                    result.error_ = errorBuilder_.build();
+                }
+                if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
+                    to_bitField0_ |= 0x00004000;
+                }
+                if (containerMetricBuilder_ == null) {
+                    result.containerMetric_ = containerMetric_;
+                } else {
+                    result.containerMetric_ = containerMetricBuilder_.build();
+                }
+                result.bitField0_ = to_bitField0_;
+                onBuilt();
+                return result;
+            }
+
+            public Builder clone() {
+                return (Builder) super.clone();
+            }
+
+            public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+                return (Builder) super.setField(field, value);
+            }
+
+            public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+                return (Builder) super.clearField(field);
+            }
+
+            public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+                return (Builder) super.clearOneof(oneof);
+            }
+
+            public Builder setRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, int index, Object value) {
+                return (Builder) super.setRepeatedField(field, index, value);
+            }
+
+            public Builder addRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+                return (Builder) super.addRepeatedField(field, value);
+            }
+
+            public Builder mergeFrom(com.google.protobuf.Message other) {
+                if (other instanceof EventFactory.Envelope) {
+                    return mergeFrom((EventFactory.Envelope) other);
+                } else {
+                    super.mergeFrom(other);
+                    return this;
+                }
+            }
+
+            public Builder mergeFrom(EventFactory.Envelope other) {
+                if (other == EventFactory.Envelope.getDefaultInstance())
+                    return this;
+                if (other.hasOrigin()) {
+                    bitField0_ |= 0x00000001;
+                    origin_ = other.origin_;
+                    onChanged();
+                }
+                if (other.hasEventType()) {
+                    setEventType(other.getEventType());
+                }
+                if (other.hasTimestamp()) {
+                    setTimestamp(other.getTimestamp());
+                }
+                if (other.hasDeployment()) {
+                    bitField0_ |= 0x00000008;
+                    deployment_ = other.deployment_;
+                    onChanged();
+                }
+                if (other.hasJob()) {
+                    bitField0_ |= 0x00000010;
+                    job_ = other.job_;
+                    onChanged();
+                }
+                if (other.hasIndex()) {
+                    bitField0_ |= 0x00000020;
+                    index_ = other.index_;
+                    onChanged();
+                }
+                if (other.hasIp()) {
+                    bitField0_ |= 0x00000040;
+                    ip_ = other.ip_;
+                    onChanged();
+                }
+                internalGetMutableTags().mergeFrom(other.internalGetTags());
+                if (other.hasHttpStart()) {
+                    mergeHttpStart(other.getHttpStart());
+                }
+                if (other.hasHttpStop()) {
+                    mergeHttpStop(other.getHttpStop());
+                }
+                if (other.hasHttpStartStop()) {
+                    mergeHttpStartStop(other.getHttpStartStop());
+                }
+                if (other.hasLogMessage()) {
+                    mergeLogMessage(other.getLogMessage());
+                }
+                if (other.hasValueMetric()) {
+                    mergeValueMetric(other.getValueMetric());
+                }
+                if (other.hasCounterEvent()) {
+                    mergeCounterEvent(other.getCounterEvent());
+                }
+                if (other.hasError()) {
+                    mergeError(other.getError());
+                }
+                if (other.hasContainerMetric()) {
+                    mergeContainerMetric(other.getContainerMetric());
+                }
+                this.mergeUnknownFields(other.unknownFields);
+                onChanged();
+                return this;
+            }
+
+            public final boolean isInitialized() {
+                if (!hasOrigin()) {
+                    return false;
+                }
+                if (!hasEventType()) {
+                    return false;
+                }
+                if (hasHttpStart()) {
+                    if (!getHttpStart().isInitialized()) {
+                        return false;
+                    }
+                }
+                if (hasHttpStop()) {
+                    if (!getHttpStop().isInitialized()) {
+                        return false;
+                    }
+                }
+                if (hasHttpStartStop()) {
+                    if (!getHttpStartStop().isInitialized()) {
+                        return false;
+                    }
+                }
+                if (hasLogMessage()) {
+                    if (!getLogMessage().isInitialized()) {
+                        return false;
+                    }
+                }
+                if (hasValueMetric()) {
+                    if (!getValueMetric().isInitialized()) {
+                        return false;
+                    }
+                }
+                if (hasCounterEvent()) {
+                    if (!getCounterEvent().isInitialized()) {
+                        return false;
+                    }
+                }
+                if (hasError()) {
+                    if (!getError().isInitialized()) {
+                        return false;
+                    }
+                }
+                if (hasContainerMetric()) {
+                    if (!getContainerMetric().isInitialized()) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            public Builder mergeFrom(com.google.protobuf.CodedInputStream input,
+                                     com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+                EventFactory.Envelope parsedMessage = null;
+                try {
+                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                    parsedMessage = (EventFactory.Envelope) e.getUnfinishedMessage();
+                    throw e.unwrapIOException();
+                } finally {
+                    if (parsedMessage != null) {
+                        mergeFrom(parsedMessage);
+                    }
+                }
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Unique description of the origin of this event.
+             * </pre>
+             *
+             * <code>required string origin = 1;</code>
+             */
+            public boolean hasOrigin() {
+                return ((bitField0_ & 0x00000001) == 0x00000001);
+            }
+
+            /**
+             * <pre>
+             *&#47; Unique description of the origin of this event.
+             * </pre>
+             *
+             * <code>required string origin = 1;</code>
+             */
+            public java.lang.String getOrigin() {
+                java.lang.Object ref = origin_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    if (bs.isValidUtf8()) {
+                        origin_ = s;
+                    }
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; Unique description of the origin of this event.
+             * </pre>
+             *
+             * <code>required string origin = 1;</code>
+             */
+            public Builder setOrigin(java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000001;
+                origin_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Unique description of the origin of this event.
+             * </pre>
+             *
+             * <code>required string origin = 1;</code>
+             */
+            public com.google.protobuf.ByteString getOriginBytes() {
+                java.lang.Object ref = origin_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                    origin_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; Unique description of the origin of this event.
+             * </pre>
+             *
+             * <code>required string origin = 1;</code>
+             */
+            public Builder setOriginBytes(com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000001;
+                origin_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Unique description of the origin of this event.
+             * </pre>
+             *
+             * <code>required string origin = 1;</code>
+             */
+            public Builder clearOrigin() {
+                bitField0_ = (bitField0_ & ~0x00000001);
+                origin_ = getDefaultInstance().getOrigin();
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
+             * </pre>
+             *
+             * <code>required .events.Envelope.EventType eventType = 2;</code>
+             */
+            public boolean hasEventType() {
+                return ((bitField0_ & 0x00000002) == 0x00000002);
+            }
+
+            /**
+             * <pre>
+             *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
+             * </pre>
+             *
+             * <code>required .events.Envelope.EventType eventType = 2;</code>
+             */
+            public EventFactory.Envelope.EventType getEventType() {
+                EventFactory.Envelope.EventType result = EventFactory.Envelope.EventType.valueOf(eventType_);
+                return result == null ? EventFactory.Envelope.EventType.HttpStart : result;
+            }
+
+            /**
+             * <pre>
+             *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
+             * </pre>
+             *
+             * <code>required .events.Envelope.EventType eventType = 2;</code>
+             */
+            public Builder setEventType(EventFactory.Envelope.EventType value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000002;
+                eventType_ = value.getNumber();
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Type of wrapped event. Only the optional field corresponding to the value of eventType should be set.
+             * </pre>
+             *
+             * <code>required .events.Envelope.EventType eventType = 2;</code>
+             */
+            public Builder clearEventType() {
+                bitField0_ = (bitField0_ & ~0x00000002);
+                eventType_ = 2;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
+             * </pre>
+             *
+             * <code>optional int64 timestamp = 6;</code>
+             */
+            public boolean hasTimestamp() {
+                return ((bitField0_ & 0x00000004) == 0x00000004);
+            }
+
+            /**
+             * <pre>
+             *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
+             * </pre>
+             *
+             * <code>optional int64 timestamp = 6;</code>
+             */
+            public long getTimestamp() {
+                return timestamp_;
+            }
+
+            /**
+             * <pre>
+             *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
+             * </pre>
+             *
+             * <code>optional int64 timestamp = 6;</code>
+             */
+            public Builder setTimestamp(long value) {
+                bitField0_ |= 0x00000004;
+                timestamp_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; UNIX timestamp (in nanoseconds) event was wrapped in this Envelope.
+             * </pre>
+             *
+             * <code>optional int64 timestamp = 6;</code>
+             */
+            public Builder clearTimestamp() {
+                bitField0_ = (bitField0_ & ~0x00000004);
+                timestamp_ = 0L;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Deployment name (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string deployment = 13;</code>
+             */
+            public boolean hasDeployment() {
+                return ((bitField0_ & 0x00000008) == 0x00000008);
+            }
+
+            /**
+             * <pre>
+             *&#47; Deployment name (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string deployment = 13;</code>
+             */
+            public java.lang.String getDeployment() {
+                java.lang.Object ref = deployment_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    if (bs.isValidUtf8()) {
+                        deployment_ = s;
+                    }
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; Deployment name (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string deployment = 13;</code>
+             */
+            public Builder setDeployment(java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000008;
+                deployment_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Deployment name (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string deployment = 13;</code>
+             */
+            public com.google.protobuf.ByteString getDeploymentBytes() {
+                java.lang.Object ref = deployment_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                    deployment_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; Deployment name (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string deployment = 13;</code>
+             */
+            public Builder setDeploymentBytes(com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000008;
+                deployment_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Deployment name (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string deployment = 13;</code>
+             */
+            public Builder clearDeployment() {
+                bitField0_ = (bitField0_ & ~0x00000008);
+                deployment_ = getDefaultInstance().getDeployment();
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Job name (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string job = 14;</code>
+             */
+            public boolean hasJob() {
+                return ((bitField0_ & 0x00000010) == 0x00000010);
+            }
+
+            /**
+             * <pre>
+             *&#47; Job name (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string job = 14;</code>
+             */
+            public java.lang.String getJob() {
+                java.lang.Object ref = job_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    if (bs.isValidUtf8()) {
+                        job_ = s;
+                    }
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; Job name (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string job = 14;</code>
+             */
+            public Builder setJob(java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000010;
+                job_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Job name (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string job = 14;</code>
+             */
+            public com.google.protobuf.ByteString getJobBytes() {
+                java.lang.Object ref = job_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                    job_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; Job name (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string job = 14;</code>
+             */
+            public Builder setJobBytes(com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000010;
+                job_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Job name (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string job = 14;</code>
+             */
+            public Builder clearJob() {
+                bitField0_ = (bitField0_ & ~0x00000010);
+                job_ = getDefaultInstance().getJob();
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Index of job (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string index = 15;</code>
+             */
+            public boolean hasIndex() {
+                return ((bitField0_ & 0x00000020) == 0x00000020);
+            }
+
+            /**
+             * <pre>
+             *&#47; Index of job (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string index = 15;</code>
+             */
+            public java.lang.String getIndex() {
+                java.lang.Object ref = index_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    if (bs.isValidUtf8()) {
+                        index_ = s;
+                    }
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; Index of job (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string index = 15;</code>
+             */
+            public Builder setIndex(java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000020;
+                index_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Index of job (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string index = 15;</code>
+             */
+            public com.google.protobuf.ByteString getIndexBytes() {
+                java.lang.Object ref = index_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                    index_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; Index of job (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string index = 15;</code>
+             */
+            public Builder setIndexBytes(com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000020;
+                index_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; Index of job (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string index = 15;</code>
+             */
+            public Builder clearIndex() {
+                bitField0_ = (bitField0_ & ~0x00000020);
+                index_ = getDefaultInstance().getIndex();
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; IP address (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string ip = 16;</code>
+             */
+            public boolean hasIp() {
+                return ((bitField0_ & 0x00000040) == 0x00000040);
+            }
+
+            /**
+             * <pre>
+             *&#47; IP address (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string ip = 16;</code>
+             */
+            public java.lang.String getIp() {
+                java.lang.Object ref = ip_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    if (bs.isValidUtf8()) {
+                        ip_ = s;
+                    }
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; IP address (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string ip = 16;</code>
+             */
+            public Builder setIp(java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000040;
+                ip_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; IP address (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string ip = 16;</code>
+             */
+            public com.google.protobuf.ByteString getIpBytes() {
+                java.lang.Object ref = ip_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                    ip_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+
+            /**
+             * <pre>
+             *&#47; IP address (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string ip = 16;</code>
+             */
+            public Builder setIpBytes(com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000040;
+                ip_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; IP address (used to uniquely identify source).
+             * </pre>
+             *
+             * <code>optional string ip = 16;</code>
+             */
+            public Builder clearIp() {
+                bitField0_ = (bitField0_ & ~0x00000040);
+                ip_ = getDefaultInstance().getIp();
+                onChanged();
+                return this;
+            }
+
+            private com.google.protobuf.MapField<java.lang.String, java.lang.String> internalGetTags() {
+                if (tags_ == null) {
+                    return com.google.protobuf.MapField.emptyMapField(TagsDefaultEntryHolder.defaultEntry);
+                }
+                return tags_;
+            }
+
+            private com.google.protobuf.MapField<java.lang.String, java.lang.String> internalGetMutableTags() {
+                onChanged();
+                ;
+                if (tags_ == null) {
+                    tags_ = com.google.protobuf.MapField.newMapField(TagsDefaultEntryHolder.defaultEntry);
+                }
+                if (!tags_.isMutable()) {
+                    tags_ = tags_.copy();
+                }
+                return tags_;
+            }
+
+            public int getTagsCount() {
+                return internalGetTags().getMap()
+                                        .size();
+            }
+
+            /**
+             * <pre>
+             *&#47; key/value tags to include additional identifying information.
+             * </pre>
+             *
+             * <code>map&lt;string, string&gt; tags = 17;</code>
+             */
+
+            public boolean containsTags(java.lang.String key) {
+                if (key == null) {
+                    throw new java.lang.NullPointerException();
+                }
+                return internalGetTags().getMap()
+                                        .containsKey(key);
+            }
+
+            /**
+             * Use {@link #getTagsMap()} instead.
+             */
+            @java.lang.Deprecated
+            public java.util.Map<java.lang.String, java.lang.String> getTags() {
+                return getTagsMap();
+            }
+
+            /**
+             * <pre>
+             *&#47; key/value tags to include additional identifying information.
+             * </pre>
+             *
+             * <code>map&lt;string, string&gt; tags = 17;</code>
+             */
+
+            public java.util.Map<java.lang.String, java.lang.String> getTagsMap() {
+                return internalGetTags().getMap();
+            }
+
+            /**
+             * <pre>
+             *&#47; key/value tags to include additional identifying information.
+             * </pre>
+             *
+             * <code>map&lt;string, string&gt; tags = 17;</code>
+             */
+
+            public java.lang.String getTagsOrDefault(java.lang.String key, java.lang.String defaultValue) {
+                if (key == null) {
+                    throw new java.lang.NullPointerException();
+                }
+                java.util.Map<java.lang.String, java.lang.String> map = internalGetTags().getMap();
+                return map.containsKey(key) ? map.get(key) : defaultValue;
+            }
+
+            /**
+             * <pre>
+             *&#47; key/value tags to include additional identifying information.
+             * </pre>
+             *
+             * <code>map&lt;string, string&gt; tags = 17;</code>
+             */
+
+            public java.lang.String getTagsOrThrow(java.lang.String key) {
+                if (key == null) {
+                    throw new java.lang.NullPointerException();
+                }
+                java.util.Map<java.lang.String, java.lang.String> map = internalGetTags().getMap();
+                if (!map.containsKey(key)) {
+                    throw new java.lang.IllegalArgumentException();
+                }
+                return map.get(key);
+            }
+
+            public Builder clearTags() {
+                getMutableTags().clear();
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; key/value tags to include additional identifying information.
+             * </pre>
+             *
+             * <code>map&lt;string, string&gt; tags = 17;</code>
+             */
+
+            public Builder removeTags(java.lang.String key) {
+                if (key == null) {
+                    throw new java.lang.NullPointerException();
+                }
+                getMutableTags().remove(key);
+                return this;
+            }
+
+            /**
+             * Use alternate mutation accessors instead.
+             */
+            @java.lang.Deprecated
+            public java.util.Map<java.lang.String, java.lang.String> getMutableTags() {
+                return internalGetMutableTags().getMutableMap();
+            }
+
+            /**
+             * <pre>
+             *&#47; key/value tags to include additional identifying information.
+             * </pre>
+             *
+             * <code>map&lt;string, string&gt; tags = 17;</code>
+             */
+            public Builder putTags(java.lang.String key, java.lang.String value) {
+                if (key == null) {
+                    throw new java.lang.NullPointerException();
+                }
+                if (value == null) {
+                    throw new java.lang.NullPointerException();
+                }
+                getMutableTags().put(key, value);
+                return this;
+            }
+
+            /**
+             * <pre>
+             *&#47; key/value tags to include additional identifying information.
+             * </pre>
+             *
+             * <code>map&lt;string, string&gt; tags = 17;</code>
+             */
+
+            public Builder putAllTags(java.util.Map<java.lang.String, java.lang.String> values) {
+                getMutableTags().putAll(values);
+                return this;
+            }
+
+            /**
+             * <pre>
+             * Removed Heartbeat at position 3
+             * </pre>
+             *
+             * <code>optional .events.HttpStart httpStart = 4;</code>
+             */
+            public boolean hasHttpStart() {
+                return ((bitField0_ & 0x00000100) == 0x00000100);
+            }
+
+            /**
+             * <pre>
+             * Removed Heartbeat at position 3
+             * </pre>
+             *
+             * <code>optional .events.HttpStart httpStart = 4;</code>
+             */
+            public HttpFactory.HttpStart getHttpStart() {
+                if (httpStartBuilder_ == null) {
+                    return httpStart_ == null ? HttpFactory.HttpStart.getDefaultInstance() : httpStart_;
+                } else {
+                    return httpStartBuilder_.getMessage();
+                }
+            }
+
+            /**
+             * <pre>
+             * Removed Heartbeat at position 3
+             * </pre>
+             *
+             * <code>optional .events.HttpStart httpStart = 4;</code>
+             */
+            public Builder setHttpStart(HttpFactory.HttpStart value) {
+                if (httpStartBuilder_ == null) {
+                    if (value == null) {
+                        throw new NullPointerException();
+                    }
+                    httpStart_ = value;
+                    onChanged();
+                } else {
+                    httpStartBuilder_.setMessage(value);
+                }
+                bitField0_ |= 0x00000100;
+                return this;
+            }
+
+            /**
+             * <pre>
+             * Removed Heartbeat at position 3
+             * </pre>
+             *
+             * <code>optional .events.HttpStart httpStart = 4;</code>
+             */
+            public Builder setHttpStart(HttpFactory.HttpStart.Builder builderForValue) {
+                if (httpStartBuilder_ == null) {
+                    httpStart_ = builderForValue.build();
+                    onChanged();
+                } else {
+                    httpStartBuilder_.setMessage(builderForValue.build());
+                }
+                bitField0_ |= 0x00000100;
+                return this;
+            }
+
+            /**
+             * <pre>
+             * Removed Heartbeat at position 3
+             * </pre>
+             *
+             * <code>optional .events.HttpStart httpStart = 4;</code>
+             */
+            public Builder mergeHttpStart(HttpFactory.HttpStart value) {
+                if (httpStartBuilder_ == null) {
+                    if (((bitField0_ & 0x00000100) == 0x00000100) && httpStart_ != null
+                        && httpStart_ != HttpFactory.HttpStart.getDefaultInstance()) {
+                        httpStart_ = HttpFactory.HttpStart.newBuilder(httpStart_)
+                                                          .mergeFrom(value)
+                                                          .buildPartial();
+                    } else {
+                        httpStart_ = value;
+                    }
+                    onChanged();
+                } else {
+                    httpStartBuilder_.mergeFrom(value);
+                }
+                bitField0_ |= 0x00000100;
+                return this;
+            }
+
+            /**
+             * <pre>
+             * Removed Heartbeat at position 3
+             * </pre>
+             *
+             * <code>optional .events.HttpStart httpStart = 4;</code>
+             */
+            public Builder clearHttpStart() {
+                if (httpStartBuilder_ == null) {
+                    httpStart_ = null;
+                    onChanged();
+                } else {
+                    httpStartBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00000100);
+                return this;
+            }
+
+            /**
+             * <pre>
+             * Removed Heartbeat at position 3
+             * </pre>
+             *
+             * <code>optional .events.HttpStart httpStart = 4;</code>
+             */
+            public HttpFactory.HttpStart.Builder getHttpStartBuilder() {
+                bitField0_ |= 0x00000100;
+                onChanged();
+                return getHttpStartFieldBuilder().getBuilder();
+            }
+
+            /**
+             * <pre>
+             * Removed Heartbeat at position 3
+             * </pre>
+             *
+             * <code>optional .events.HttpStart httpStart = 4;</code>
+             */
+            public HttpFactory.HttpStartOrBuilder getHttpStartOrBuilder() {
+                if (httpStartBuilder_ != null) {
+                    return httpStartBuilder_.getMessageOrBuilder();
+                } else {
+                    return httpStart_ == null ? HttpFactory.HttpStart.getDefaultInstance() : httpStart_;
+                }
+            }
+
+            /**
+             * <pre>
+             * Removed Heartbeat at position 3
+             * </pre>
+             *
+             * <code>optional .events.HttpStart httpStart = 4;</code>
+             */
+            private com.google.protobuf.SingleFieldBuilderV3<HttpFactory.HttpStart, HttpFactory.HttpStart.Builder, HttpFactory.HttpStartOrBuilder>
+                    getHttpStartFieldBuilder() {
+                if (httpStartBuilder_ == null) {
+                    httpStartBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<HttpFactory.HttpStart, HttpFactory.HttpStart.Builder, HttpFactory.HttpStartOrBuilder>(getHttpStart(),
+                                                                                                                                                                           getParentForChildren(),
+                                                                                                                                                                           isClean());
+                    httpStart_ = null;
+                }
+                return httpStartBuilder_;
+            }
+
+            /**
+             * <code>optional .events.HttpStop httpStop = 5;</code>
+             */
+            public boolean hasHttpStop() {
+                return ((bitField0_ & 0x00000200) == 0x00000200);
+            }
+
+            /**
+             * <code>optional .events.HttpStop httpStop = 5;</code>
+             */
+            public HttpFactory.HttpStop getHttpStop() {
+                if (httpStopBuilder_ == null) {
+                    return httpStop_ == null ? HttpFactory.HttpStop.getDefaultInstance() : httpStop_;
+                } else {
+                    return httpStopBuilder_.getMessage();
+                }
+            }
+
+            /**
+             * <code>optional .events.HttpStop httpStop = 5;</code>
+             */
+            public Builder setHttpStop(HttpFactory.HttpStop value) {
+                if (httpStopBuilder_ == null) {
+                    if (value == null) {
+                        throw new NullPointerException();
+                    }
+                    httpStop_ = value;
+                    onChanged();
+                } else {
+                    httpStopBuilder_.setMessage(value);
+                }
+                bitField0_ |= 0x00000200;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.HttpStop httpStop = 5;</code>
+             */
+            public Builder setHttpStop(HttpFactory.HttpStop.Builder builderForValue) {
+                if (httpStopBuilder_ == null) {
+                    httpStop_ = builderForValue.build();
+                    onChanged();
+                } else {
+                    httpStopBuilder_.setMessage(builderForValue.build());
+                }
+                bitField0_ |= 0x00000200;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.HttpStop httpStop = 5;</code>
+             */
+            public Builder mergeHttpStop(HttpFactory.HttpStop value) {
+                if (httpStopBuilder_ == null) {
+                    if (((bitField0_ & 0x00000200) == 0x00000200) && httpStop_ != null
+                        && httpStop_ != HttpFactory.HttpStop.getDefaultInstance()) {
+                        httpStop_ = HttpFactory.HttpStop.newBuilder(httpStop_)
+                                                        .mergeFrom(value)
+                                                        .buildPartial();
+                    } else {
+                        httpStop_ = value;
+                    }
+                    onChanged();
+                } else {
+                    httpStopBuilder_.mergeFrom(value);
+                }
+                bitField0_ |= 0x00000200;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.HttpStop httpStop = 5;</code>
+             */
+            public Builder clearHttpStop() {
+                if (httpStopBuilder_ == null) {
+                    httpStop_ = null;
+                    onChanged();
+                } else {
+                    httpStopBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00000200);
+                return this;
+            }
+
+            /**
+             * <code>optional .events.HttpStop httpStop = 5;</code>
+             */
+            public HttpFactory.HttpStop.Builder getHttpStopBuilder() {
+                bitField0_ |= 0x00000200;
+                onChanged();
+                return getHttpStopFieldBuilder().getBuilder();
+            }
+
+            /**
+             * <code>optional .events.HttpStop httpStop = 5;</code>
+             */
+            public HttpFactory.HttpStopOrBuilder getHttpStopOrBuilder() {
+                if (httpStopBuilder_ != null) {
+                    return httpStopBuilder_.getMessageOrBuilder();
+                } else {
+                    return httpStop_ == null ? HttpFactory.HttpStop.getDefaultInstance() : httpStop_;
+                }
+            }
+
+            /**
+             * <code>optional .events.HttpStop httpStop = 5;</code>
+             */
+            private com.google.protobuf.SingleFieldBuilderV3<HttpFactory.HttpStop, HttpFactory.HttpStop.Builder, HttpFactory.HttpStopOrBuilder>
+                    getHttpStopFieldBuilder() {
+                if (httpStopBuilder_ == null) {
+                    httpStopBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<HttpFactory.HttpStop, HttpFactory.HttpStop.Builder, HttpFactory.HttpStopOrBuilder>(getHttpStop(),
+                                                                                                                                                                       getParentForChildren(),
+                                                                                                                                                                       isClean());
+                    httpStop_ = null;
+                }
+                return httpStopBuilder_;
+            }
+
+            /**
+             * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+             */
+            public boolean hasHttpStartStop() {
+                return ((bitField0_ & 0x00000400) == 0x00000400);
+            }
+
+            /**
+             * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+             */
+            public HttpFactory.HttpStartStop getHttpStartStop() {
+                if (httpStartStopBuilder_ == null) {
+                    return httpStartStop_ == null ? HttpFactory.HttpStartStop.getDefaultInstance() : httpStartStop_;
+                } else {
+                    return httpStartStopBuilder_.getMessage();
+                }
+            }
+
+            /**
+             * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+             */
+            public Builder setHttpStartStop(HttpFactory.HttpStartStop value) {
+                if (httpStartStopBuilder_ == null) {
+                    if (value == null) {
+                        throw new NullPointerException();
+                    }
+                    httpStartStop_ = value;
+                    onChanged();
+                } else {
+                    httpStartStopBuilder_.setMessage(value);
+                }
+                bitField0_ |= 0x00000400;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+             */
+            public Builder setHttpStartStop(HttpFactory.HttpStartStop.Builder builderForValue) {
+                if (httpStartStopBuilder_ == null) {
+                    httpStartStop_ = builderForValue.build();
+                    onChanged();
+                } else {
+                    httpStartStopBuilder_.setMessage(builderForValue.build());
+                }
+                bitField0_ |= 0x00000400;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+             */
+            public Builder mergeHttpStartStop(HttpFactory.HttpStartStop value) {
+                if (httpStartStopBuilder_ == null) {
+                    if (((bitField0_ & 0x00000400) == 0x00000400) && httpStartStop_ != null
+                        && httpStartStop_ != HttpFactory.HttpStartStop.getDefaultInstance()) {
+                        httpStartStop_ = HttpFactory.HttpStartStop.newBuilder(httpStartStop_)
+                                                                  .mergeFrom(value)
+                                                                  .buildPartial();
+                    } else {
+                        httpStartStop_ = value;
+                    }
+                    onChanged();
+                } else {
+                    httpStartStopBuilder_.mergeFrom(value);
+                }
+                bitField0_ |= 0x00000400;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+             */
+            public Builder clearHttpStartStop() {
+                if (httpStartStopBuilder_ == null) {
+                    httpStartStop_ = null;
+                    onChanged();
+                } else {
+                    httpStartStopBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00000400);
+                return this;
+            }
+
+            /**
+             * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+             */
+            public HttpFactory.HttpStartStop.Builder getHttpStartStopBuilder() {
+                bitField0_ |= 0x00000400;
+                onChanged();
+                return getHttpStartStopFieldBuilder().getBuilder();
+            }
+
+            /**
+             * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+             */
+            public HttpFactory.HttpStartStopOrBuilder getHttpStartStopOrBuilder() {
+                if (httpStartStopBuilder_ != null) {
+                    return httpStartStopBuilder_.getMessageOrBuilder();
+                } else {
+                    return httpStartStop_ == null ? HttpFactory.HttpStartStop.getDefaultInstance() : httpStartStop_;
+                }
+            }
+
+            /**
+             * <code>optional .events.HttpStartStop httpStartStop = 7;</code>
+             */
+            private com.google.protobuf.SingleFieldBuilderV3<HttpFactory.HttpStartStop, HttpFactory.HttpStartStop.Builder, HttpFactory.HttpStartStopOrBuilder>
+                    getHttpStartStopFieldBuilder() {
+                if (httpStartStopBuilder_ == null) {
+                    httpStartStopBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<HttpFactory.HttpStartStop, HttpFactory.HttpStartStop.Builder, HttpFactory.HttpStartStopOrBuilder>(getHttpStartStop(),
+                                                                                                                                                                                           getParentForChildren(),
+                                                                                                                                                                                           isClean());
+                    httpStartStop_ = null;
+                }
+                return httpStartStopBuilder_;
+            }
+
+            /**
+             * <code>optional .events.LogMessage logMessage = 8;</code>
+             */
+            public boolean hasLogMessage() {
+                return ((bitField0_ & 0x00000800) == 0x00000800);
+            }
+
+            /**
+             * <code>optional .events.LogMessage logMessage = 8;</code>
+             */
+            public LogFactory.LogMessage getLogMessage() {
+                if (logMessageBuilder_ == null) {
+                    return logMessage_ == null ? LogFactory.LogMessage.getDefaultInstance() : logMessage_;
+                } else {
+                    return logMessageBuilder_.getMessage();
+                }
+            }
+
+            /**
+             * <code>optional .events.LogMessage logMessage = 8;</code>
+             */
+            public Builder setLogMessage(LogFactory.LogMessage value) {
+                if (logMessageBuilder_ == null) {
+                    if (value == null) {
+                        throw new NullPointerException();
+                    }
+                    logMessage_ = value;
+                    onChanged();
+                } else {
+                    logMessageBuilder_.setMessage(value);
+                }
+                bitField0_ |= 0x00000800;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.LogMessage logMessage = 8;</code>
+             */
+            public Builder setLogMessage(LogFactory.LogMessage.Builder builderForValue) {
+                if (logMessageBuilder_ == null) {
+                    logMessage_ = builderForValue.build();
+                    onChanged();
+                } else {
+                    logMessageBuilder_.setMessage(builderForValue.build());
+                }
+                bitField0_ |= 0x00000800;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.LogMessage logMessage = 8;</code>
+             */
+            public Builder mergeLogMessage(LogFactory.LogMessage value) {
+                if (logMessageBuilder_ == null) {
+                    if (((bitField0_ & 0x00000800) == 0x00000800) && logMessage_ != null
+                        && logMessage_ != LogFactory.LogMessage.getDefaultInstance()) {
+                        logMessage_ = LogFactory.LogMessage.newBuilder(logMessage_)
+                                                           .mergeFrom(value)
+                                                           .buildPartial();
+                    } else {
+                        logMessage_ = value;
+                    }
+                    onChanged();
+                } else {
+                    logMessageBuilder_.mergeFrom(value);
+                }
+                bitField0_ |= 0x00000800;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.LogMessage logMessage = 8;</code>
+             */
+            public Builder clearLogMessage() {
+                if (logMessageBuilder_ == null) {
+                    logMessage_ = null;
+                    onChanged();
+                } else {
+                    logMessageBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00000800);
+                return this;
+            }
+
+            /**
+             * <code>optional .events.LogMessage logMessage = 8;</code>
+             */
+            public LogFactory.LogMessage.Builder getLogMessageBuilder() {
+                bitField0_ |= 0x00000800;
+                onChanged();
+                return getLogMessageFieldBuilder().getBuilder();
+            }
+
+            /**
+             * <code>optional .events.LogMessage logMessage = 8;</code>
+             */
+            public LogFactory.LogMessageOrBuilder getLogMessageOrBuilder() {
+                if (logMessageBuilder_ != null) {
+                    return logMessageBuilder_.getMessageOrBuilder();
+                } else {
+                    return logMessage_ == null ? LogFactory.LogMessage.getDefaultInstance() : logMessage_;
+                }
+            }
+
+            /**
+             * <code>optional .events.LogMessage logMessage = 8;</code>
+             */
+            private com.google.protobuf.SingleFieldBuilderV3<LogFactory.LogMessage, LogFactory.LogMessage.Builder, LogFactory.LogMessageOrBuilder>
+                    getLogMessageFieldBuilder() {
+                if (logMessageBuilder_ == null) {
+                    logMessageBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<LogFactory.LogMessage, LogFactory.LogMessage.Builder, LogFactory.LogMessageOrBuilder>(getLogMessage(),
+                                                                                                                                                                            getParentForChildren(),
+                                                                                                                                                                            isClean());
+                    logMessage_ = null;
+                }
+                return logMessageBuilder_;
+            }
+
+            /**
+             * <code>optional .events.ValueMetric valueMetric = 9;</code>
+             */
+            public boolean hasValueMetric() {
+                return ((bitField0_ & 0x00001000) == 0x00001000);
+            }
+
+            /**
+             * <code>optional .events.ValueMetric valueMetric = 9;</code>
+             */
+            public MetricFactory.ValueMetric getValueMetric() {
+                if (valueMetricBuilder_ == null) {
+                    return valueMetric_ == null ? MetricFactory.ValueMetric.getDefaultInstance() : valueMetric_;
+                } else {
+                    return valueMetricBuilder_.getMessage();
+                }
+            }
+
+            /**
+             * <code>optional .events.ValueMetric valueMetric = 9;</code>
+             */
+            public Builder setValueMetric(MetricFactory.ValueMetric value) {
+                if (valueMetricBuilder_ == null) {
+                    if (value == null) {
+                        throw new NullPointerException();
+                    }
+                    valueMetric_ = value;
+                    onChanged();
+                } else {
+                    valueMetricBuilder_.setMessage(value);
+                }
+                bitField0_ |= 0x00001000;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.ValueMetric valueMetric = 9;</code>
+             */
+            public Builder setValueMetric(MetricFactory.ValueMetric.Builder builderForValue) {
+                if (valueMetricBuilder_ == null) {
+                    valueMetric_ = builderForValue.build();
+                    onChanged();
+                } else {
+                    valueMetricBuilder_.setMessage(builderForValue.build());
+                }
+                bitField0_ |= 0x00001000;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.ValueMetric valueMetric = 9;</code>
+             */
+            public Builder mergeValueMetric(MetricFactory.ValueMetric value) {
+                if (valueMetricBuilder_ == null) {
+                    if (((bitField0_ & 0x00001000) == 0x00001000) && valueMetric_ != null
+                        && valueMetric_ != MetricFactory.ValueMetric.getDefaultInstance()) {
+                        valueMetric_ = MetricFactory.ValueMetric.newBuilder(valueMetric_)
+                                                                .mergeFrom(value)
+                                                                .buildPartial();
+                    } else {
+                        valueMetric_ = value;
+                    }
+                    onChanged();
+                } else {
+                    valueMetricBuilder_.mergeFrom(value);
+                }
+                bitField0_ |= 0x00001000;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.ValueMetric valueMetric = 9;</code>
+             */
+            public Builder clearValueMetric() {
+                if (valueMetricBuilder_ == null) {
+                    valueMetric_ = null;
+                    onChanged();
+                } else {
+                    valueMetricBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00001000);
+                return this;
+            }
+
+            /**
+             * <code>optional .events.ValueMetric valueMetric = 9;</code>
+             */
+            public MetricFactory.ValueMetric.Builder getValueMetricBuilder() {
+                bitField0_ |= 0x00001000;
+                onChanged();
+                return getValueMetricFieldBuilder().getBuilder();
+            }
+
+            /**
+             * <code>optional .events.ValueMetric valueMetric = 9;</code>
+             */
+            public MetricFactory.ValueMetricOrBuilder getValueMetricOrBuilder() {
+                if (valueMetricBuilder_ != null) {
+                    return valueMetricBuilder_.getMessageOrBuilder();
+                } else {
+                    return valueMetric_ == null ? MetricFactory.ValueMetric.getDefaultInstance() : valueMetric_;
+                }
+            }
+
+            /**
+             * <code>optional .events.ValueMetric valueMetric = 9;</code>
+             */
+            private com.google.protobuf.SingleFieldBuilderV3<MetricFactory.ValueMetric, MetricFactory.ValueMetric.Builder, MetricFactory.ValueMetricOrBuilder>
+                    getValueMetricFieldBuilder() {
+                if (valueMetricBuilder_ == null) {
+                    valueMetricBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<MetricFactory.ValueMetric, MetricFactory.ValueMetric.Builder, MetricFactory.ValueMetricOrBuilder>(getValueMetric(),
+                                                                                                                                                                                         getParentForChildren(),
+                                                                                                                                                                                         isClean());
+                    valueMetric_ = null;
+                }
+                return valueMetricBuilder_;
+            }
+
+            /**
+             * <code>optional .events.CounterEvent counterEvent = 10;</code>
+             */
+            public boolean hasCounterEvent() {
+                return ((bitField0_ & 0x00002000) == 0x00002000);
+            }
+
+            /**
+             * <code>optional .events.CounterEvent counterEvent = 10;</code>
+             */
+            public MetricFactory.CounterEvent getCounterEvent() {
+                if (counterEventBuilder_ == null) {
+                    return counterEvent_ == null ? MetricFactory.CounterEvent.getDefaultInstance() : counterEvent_;
+                } else {
+                    return counterEventBuilder_.getMessage();
+                }
+            }
+
+            /**
+             * <code>optional .events.CounterEvent counterEvent = 10;</code>
+             */
+            public Builder setCounterEvent(MetricFactory.CounterEvent value) {
+                if (counterEventBuilder_ == null) {
+                    if (value == null) {
+                        throw new NullPointerException();
+                    }
+                    counterEvent_ = value;
+                    onChanged();
+                } else {
+                    counterEventBuilder_.setMessage(value);
+                }
+                bitField0_ |= 0x00002000;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.CounterEvent counterEvent = 10;</code>
+             */
+            public Builder setCounterEvent(MetricFactory.CounterEvent.Builder builderForValue) {
+                if (counterEventBuilder_ == null) {
+                    counterEvent_ = builderForValue.build();
+                    onChanged();
+                } else {
+                    counterEventBuilder_.setMessage(builderForValue.build());
+                }
+                bitField0_ |= 0x00002000;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.CounterEvent counterEvent = 10;</code>
+             */
+            public Builder mergeCounterEvent(MetricFactory.CounterEvent value) {
+                if (counterEventBuilder_ == null) {
+                    if (((bitField0_ & 0x00002000) == 0x00002000) && counterEvent_ != null
+                        && counterEvent_ != MetricFactory.CounterEvent.getDefaultInstance()) {
+                        counterEvent_ = MetricFactory.CounterEvent.newBuilder(counterEvent_)
+                                                                  .mergeFrom(value)
+                                                                  .buildPartial();
+                    } else {
+                        counterEvent_ = value;
+                    }
+                    onChanged();
+                } else {
+                    counterEventBuilder_.mergeFrom(value);
+                }
+                bitField0_ |= 0x00002000;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.CounterEvent counterEvent = 10;</code>
+             */
+            public Builder clearCounterEvent() {
+                if (counterEventBuilder_ == null) {
+                    counterEvent_ = null;
+                    onChanged();
+                } else {
+                    counterEventBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00002000);
+                return this;
+            }
+
+            /**
+             * <code>optional .events.CounterEvent counterEvent = 10;</code>
+             */
+            public MetricFactory.CounterEvent.Builder getCounterEventBuilder() {
+                bitField0_ |= 0x00002000;
+                onChanged();
+                return getCounterEventFieldBuilder().getBuilder();
+            }
+
+            /**
+             * <code>optional .events.CounterEvent counterEvent = 10;</code>
+             */
+            public MetricFactory.CounterEventOrBuilder getCounterEventOrBuilder() {
+                if (counterEventBuilder_ != null) {
+                    return counterEventBuilder_.getMessageOrBuilder();
+                } else {
+                    return counterEvent_ == null ? MetricFactory.CounterEvent.getDefaultInstance() : counterEvent_;
+                }
+            }
+
+            /**
+             * <code>optional .events.CounterEvent counterEvent = 10;</code>
+             */
+            private com.google.protobuf.SingleFieldBuilderV3<MetricFactory.CounterEvent, MetricFactory.CounterEvent.Builder, MetricFactory.CounterEventOrBuilder>
+                    getCounterEventFieldBuilder() {
+                if (counterEventBuilder_ == null) {
+                    counterEventBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<MetricFactory.CounterEvent, MetricFactory.CounterEvent.Builder, MetricFactory.CounterEventOrBuilder>(getCounterEvent(),
+                                                                                                                                                                                             getParentForChildren(),
+                                                                                                                                                                                             isClean());
+                    counterEvent_ = null;
+                }
+                return counterEventBuilder_;
+            }
+
+            /**
+             * <code>optional .events.Error error = 11;</code>
+             */
+            public boolean hasError() {
+                return ((bitField0_ & 0x00004000) == 0x00004000);
+            }
+
+            /**
+             * <code>optional .events.Error error = 11;</code>
+             */
+            public ErrorFactory.Error getError() {
+                if (errorBuilder_ == null) {
+                    return error_ == null ? ErrorFactory.Error.getDefaultInstance() : error_;
+                } else {
+                    return errorBuilder_.getMessage();
+                }
+            }
+
+            /**
+             * <code>optional .events.Error error = 11;</code>
+             */
+            public Builder setError(ErrorFactory.Error value) {
+                if (errorBuilder_ == null) {
+                    if (value == null) {
+                        throw new NullPointerException();
+                    }
+                    error_ = value;
+                    onChanged();
+                } else {
+                    errorBuilder_.setMessage(value);
+                }
+                bitField0_ |= 0x00004000;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.Error error = 11;</code>
+             */
+            public Builder setError(ErrorFactory.Error.Builder builderForValue) {
+                if (errorBuilder_ == null) {
+                    error_ = builderForValue.build();
+                    onChanged();
+                } else {
+                    errorBuilder_.setMessage(builderForValue.build());
+                }
+                bitField0_ |= 0x00004000;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.Error error = 11;</code>
+             */
+            public Builder mergeError(ErrorFactory.Error value) {
+                if (errorBuilder_ == null) {
+                    if (((bitField0_ & 0x00004000) == 0x00004000) && error_ != null && error_ != ErrorFactory.Error.getDefaultInstance()) {
+                        error_ = ErrorFactory.Error.newBuilder(error_)
+                                                   .mergeFrom(value)
+                                                   .buildPartial();
+                    } else {
+                        error_ = value;
+                    }
+                    onChanged();
+                } else {
+                    errorBuilder_.mergeFrom(value);
+                }
+                bitField0_ |= 0x00004000;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.Error error = 11;</code>
+             */
+            public Builder clearError() {
+                if (errorBuilder_ == null) {
+                    error_ = null;
+                    onChanged();
+                } else {
+                    errorBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00004000);
+                return this;
+            }
+
+            /**
+             * <code>optional .events.Error error = 11;</code>
+             */
+            public ErrorFactory.Error.Builder getErrorBuilder() {
+                bitField0_ |= 0x00004000;
+                onChanged();
+                return getErrorFieldBuilder().getBuilder();
+            }
+
+            /**
+             * <code>optional .events.Error error = 11;</code>
+             */
+            public ErrorFactory.ErrorOrBuilder getErrorOrBuilder() {
+                if (errorBuilder_ != null) {
+                    return errorBuilder_.getMessageOrBuilder();
+                } else {
+                    return error_ == null ? ErrorFactory.Error.getDefaultInstance() : error_;
+                }
+            }
+
+            /**
+             * <code>optional .events.Error error = 11;</code>
+             */
+            private com.google.protobuf.SingleFieldBuilderV3<ErrorFactory.Error, ErrorFactory.Error.Builder, ErrorFactory.ErrorOrBuilder>
+                    getErrorFieldBuilder() {
+                if (errorBuilder_ == null) {
+                    errorBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<ErrorFactory.Error, ErrorFactory.Error.Builder, ErrorFactory.ErrorOrBuilder>(getError(),
+                                                                                                                                                              getParentForChildren(),
+                                                                                                                                                              isClean());
+                    error_ = null;
+                }
+                return errorBuilder_;
+            }
+
+            /**
+             * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+             */
+            public boolean hasContainerMetric() {
+                return ((bitField0_ & 0x00008000) == 0x00008000);
+            }
+
+            /**
+             * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+             */
+            public MetricFactory.ContainerMetric getContainerMetric() {
+                if (containerMetricBuilder_ == null) {
+                    return containerMetric_ == null ? MetricFactory.ContainerMetric.getDefaultInstance() : containerMetric_;
+                } else {
+                    return containerMetricBuilder_.getMessage();
+                }
+            }
+
+            /**
+             * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+             */
+            public Builder setContainerMetric(MetricFactory.ContainerMetric value) {
+                if (containerMetricBuilder_ == null) {
+                    if (value == null) {
+                        throw new NullPointerException();
+                    }
+                    containerMetric_ = value;
+                    onChanged();
+                } else {
+                    containerMetricBuilder_.setMessage(value);
+                }
+                bitField0_ |= 0x00008000;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+             */
+            public Builder setContainerMetric(MetricFactory.ContainerMetric.Builder builderForValue) {
+                if (containerMetricBuilder_ == null) {
+                    containerMetric_ = builderForValue.build();
+                    onChanged();
+                } else {
+                    containerMetricBuilder_.setMessage(builderForValue.build());
+                }
+                bitField0_ |= 0x00008000;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+             */
+            public Builder mergeContainerMetric(MetricFactory.ContainerMetric value) {
+                if (containerMetricBuilder_ == null) {
+                    if (((bitField0_ & 0x00008000) == 0x00008000) && containerMetric_ != null
+                        && containerMetric_ != MetricFactory.ContainerMetric.getDefaultInstance()) {
+                        containerMetric_ = MetricFactory.ContainerMetric.newBuilder(containerMetric_)
+                                                                        .mergeFrom(value)
+                                                                        .buildPartial();
+                    } else {
+                        containerMetric_ = value;
+                    }
+                    onChanged();
+                } else {
+                    containerMetricBuilder_.mergeFrom(value);
+                }
+                bitField0_ |= 0x00008000;
+                return this;
+            }
+
+            /**
+             * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+             */
+            public Builder clearContainerMetric() {
+                if (containerMetricBuilder_ == null) {
+                    containerMetric_ = null;
+                    onChanged();
+                } else {
+                    containerMetricBuilder_.clear();
+                }
+                bitField0_ = (bitField0_ & ~0x00008000);
+                return this;
+            }
+
+            /**
+             * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+             */
+            public MetricFactory.ContainerMetric.Builder getContainerMetricBuilder() {
+                bitField0_ |= 0x00008000;
+                onChanged();
+                return getContainerMetricFieldBuilder().getBuilder();
+            }
+
+            /**
+             * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+             */
+            public MetricFactory.ContainerMetricOrBuilder getContainerMetricOrBuilder() {
+                if (containerMetricBuilder_ != null) {
+                    return containerMetricBuilder_.getMessageOrBuilder();
+                } else {
+                    return containerMetric_ == null ? MetricFactory.ContainerMetric.getDefaultInstance() : containerMetric_;
+                }
+            }
+
+            /**
+             * <code>optional .events.ContainerMetric containerMetric = 12;</code>
+             */
+            private com.google.protobuf.SingleFieldBuilderV3<MetricFactory.ContainerMetric, MetricFactory.ContainerMetric.Builder, MetricFactory.ContainerMetricOrBuilder>
+                    getContainerMetricFieldBuilder() {
+                if (containerMetricBuilder_ == null) {
+                    containerMetricBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<MetricFactory.ContainerMetric, MetricFactory.ContainerMetric.Builder, MetricFactory.ContainerMetricOrBuilder>(getContainerMetric(),
+                                                                                                                                                                                                         getParentForChildren(),
+                                                                                                                                                                                                         isClean());
+                    containerMetric_ = null;
+                }
+                return containerMetricBuilder_;
+            }
+
+            public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.setUnknownFields(unknownFields);
+            }
+
+            public final Builder mergeUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.mergeUnknownFields(unknownFields);
+            }
+
+            // @@protoc_insertion_point(builder_scope:events.Envelope)
+        }
+
+    }
+
+    // @@protoc_insertion_point(outer_class_scope)
 }

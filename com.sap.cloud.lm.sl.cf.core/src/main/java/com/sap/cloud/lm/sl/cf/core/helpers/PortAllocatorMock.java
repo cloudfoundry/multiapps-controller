@@ -30,13 +30,13 @@ public class PortAllocatorMock implements PortAllocator {
     }
 
     @Override
-    public void setAllocatedPorts(Set<Integer> allocatedPorts) {
-        this.allocatedPorts = allocatedPorts;
+    public Set<Integer> getAllocatedPorts() {
+        return allocatedPorts;
     }
 
     @Override
-    public Set<Integer> getAllocatedPorts() {
-        return allocatedPorts;
+    public void setAllocatedPorts(Set<Integer> allocatedPorts) {
+        this.allocatedPorts = allocatedPorts;
     }
 
     @Override

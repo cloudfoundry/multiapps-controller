@@ -5,13 +5,14 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
+
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
 
 public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
 
@@ -48,7 +49,7 @@ public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
     @Override
     public void logConfig(AuditableConfiguration configuration) {
         String message = MessageFormat.format(Messages.AUDIT_LOG_CONFIG, configuration.getConfigurationType(),
-            configuration.getConfigurationName());
+                                              configuration.getConfigurationName());
         writeMessage(auditLogManager.getConfigLogger(), message, Level.INFO);
     }
 
@@ -67,7 +68,7 @@ public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
     @Override
     public void logConfigCreate(AuditableConfiguration configuration) {
         String message = MessageFormat.format(Messages.AUDIT_LOG_CREATE_CONFIG, configuration.getConfigurationType(),
-            configuration.getConfigurationName());
+                                              configuration.getConfigurationName());
         writeMessage(auditLogManager.getConfigLogger(), message, Level.INFO);
     }
 

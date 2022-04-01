@@ -24,12 +24,11 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
         List<ModuleToDeploy> allModulesToDeploy = StepsUtil.getModulesToDeploy(execution.getContext());
         List<ModuleToDeploy> completedApplications = StepsUtil.getIteratedModulesInParallel(execution.getContext());
         List<String> completedModuleNames = completedApplications.stream()
-            .map(ModuleToDeploy::getName)
-            .collect(Collectors.toList());
+                                                                 .map(ModuleToDeploy::getName)
+                                                                 .collect(Collectors.toList());
 
         // Set next iteration data
-        List<ModuleToDeploy> modulesForNextIteration = computeApplicationsForNextIteration(allModulesToDeploy,
-            completedModuleNames);
+        List<ModuleToDeploy> modulesForNextIteration = computeApplicationsForNextIteration(allModulesToDeploy, completedModuleNames);
         StepsUtil.setModulesToIterateInParallel(execution.getContext(), modulesForNextIteration);
 
         // Mark next iteration data as computed
@@ -40,16 +39,17 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
     }
 
     private List<ModuleToDeploy> computeApplicationsForNextIteration(List<ModuleToDeploy> allModulesToDeploy,
-        List<String> completedModules) {
+                                                                     List<String> completedModules) {
         allModulesToDeploy.removeIf(module -> completedModules.contains(module.getName()));
         return allModulesToDeploy.stream()
-            .filter(module -> applicationHasAllDependenciesSatisfied(completedModules, module))
-            .collect(Collectors.toList());
+                                 .filter(module -> applicationHasAllDependenciesSatisfied(completedModules, module))
+                                 .collect(Collectors.toList());
     }
 
     private boolean applicationHasAllDependenciesSatisfied(List<String> completedModules, ModuleToDeploy app) {
         return app.getDeployedAfter()
-            .isEmpty() || completedModules.containsAll(app.getDeployedAfter());
+                  .isEmpty()
+            || completedModules.containsAll(app.getDeployedAfter());
     }
 
 }

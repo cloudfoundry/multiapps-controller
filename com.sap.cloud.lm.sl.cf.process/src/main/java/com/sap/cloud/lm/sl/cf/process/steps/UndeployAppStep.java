@@ -73,7 +73,7 @@ public class UndeployAppStep extends SyncFlowableStep {
     private void cancelTask(CloudTask task, CloudApplication appToUndeploy, CloudControllerClient client) {
         getStepLogger().info(Messages.CANCELING_TASK_ON_APP, task.getName(), appToUndeploy.getName());
         client.cancelTask(task.getMeta()
-            .getGuid());
+                              .getGuid());
         getStepLogger().debug(Messages.CANCELED_TASK_ON_APP, task.getName(), appToUndeploy.getName());
     }
 
@@ -95,8 +95,8 @@ public class UndeployAppStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, app.getName(), JsonUtil.toJson(appRoutes));
         client.updateApplicationUris(app.getName(), Collections.emptyList());
         app.getUris()
-            .stream()
-            .forEach(uri -> deleteApplicationRoutes(appRoutes, uri, client));
+           .stream()
+           .forEach(uri -> deleteApplicationRoutes(appRoutes, uri, client));
         getStepLogger().debug(Messages.DELETED_APP_ROUTES, app.getName());
     }
 

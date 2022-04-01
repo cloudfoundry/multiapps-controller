@@ -22,6 +22,13 @@ public class DefaultFileDownloadProcessor implements FileDownloadProcessor {
         this.fileEntry = fileEntry;
     }
 
+    private static FileEntry createFileEntry(String space, String fileId) {
+        FileEntry fileEntry = new FileEntry();
+        fileEntry.setSpace(space);
+        fileEntry.setId(fileId);
+        return fileEntry;
+    }
+
     @Override
     public void processContent(InputStream is) throws NoSuchAlgorithmException, IOException, FileStorageException {
         this.fileContentProcessor.processFileContent(is);
@@ -30,13 +37,6 @@ public class DefaultFileDownloadProcessor implements FileDownloadProcessor {
     @Override
     public FileEntry getFileEntry() {
         return this.fileEntry;
-    }
-
-    private static FileEntry createFileEntry(String space, String fileId) {
-        FileEntry fileEntry = new FileEntry();
-        fileEntry.setSpace(space);
-        fileEntry.setId(fileId);
-        return fileEntry;
     }
 
 }

@@ -18,23 +18,6 @@ import com.sap.cloud.lm.sl.mta.model.v2.Module;
 class RestartOnEnvChangeValidatorTest {
     private RestartOnEnvChangeValidator validator = new RestartOnEnvChangeValidator();
 
-    @Test
-    void testGetParameterName() {
-        assertEquals("restart-on-env-change", validator.getParameterName());
-    }
-
-    @Test
-    void testGetContainerType() {
-        assertTrue(validator.getContainerType()
-            .isAssignableFrom(Module.class));
-    }
-
-    @ParameterizedTest
-    @MethodSource
-    public void testValidate(Map<String, Boolean> restartParameters, boolean isValid) {
-        assertEquals(isValid, validator.isValid(restartParameters));
-    }
-
     public static Stream<Arguments> testValidate() {
         return Stream.of(
         // @formatter:off
@@ -50,7 +33,7 @@ class RestartOnEnvChangeValidatorTest {
             Arguments.of(MapUtil.of(new Pair("vcap-application",false), new Pair("vcap-services",true), new Pair("user-provided","bar.xyz")), false),
             // (6) Test with not map object
             Arguments.of(null, false),
-            // (7) 
+            // (7)
             Arguments.of(MapUtil.of(new Pair("vcap-application",false), new Pair("vcap-services",true), new Pair("user-provided",false)), true),
             // (8)
             Arguments.of(MapUtil.of(new Pair("vcap-application",true), new Pair("vcap-services",true), new Pair("user-provided",false)), true),
@@ -64,5 +47,21 @@ class RestartOnEnvChangeValidatorTest {
         );
     }
 
+    @Test
+    void testGetParameterName() {
+        assertEquals("restart-on-env-change", validator.getParameterName());
+    }
+
+    @Test
+    void testGetContainerType() {
+        assertTrue(validator.getContainerType()
+                            .isAssignableFrom(Module.class));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void testValidate(Map<String, Boolean> restartParameters, boolean isValid) {
+        assertEquals(isValid, validator.isValid(restartParameters));
+    }
 
 }

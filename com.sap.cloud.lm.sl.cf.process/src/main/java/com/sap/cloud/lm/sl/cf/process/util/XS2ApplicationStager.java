@@ -30,13 +30,13 @@ public class XS2ApplicationStager extends ApplicationStager {
 
         return StepPhase.POLL;
     }
-    
+
     @Override
     public StagingState getStagingState(ExecutionWrapper execution, CloudControllerClient client) {
         try {
             StartingInfo startingInfo = StepsUtil.getStartingInfo(execution.getContext());
             int offset = (Integer) execution.getContext()
-                .getVariable(Constants.VAR_OFFSET);
+                                            .getVariable(Constants.VAR_OFFSET);
             String stagingLogs = client.getStagingLogs(startingInfo, offset);
 
             return stagingLogs != null ? new StagingState(PackageState.PENDING, null, getStagingLogs(stagingLogs, offset))
@@ -61,7 +61,7 @@ public class XS2ApplicationStager extends ApplicationStager {
     private StagingState getStagingStateIfExceptionHasOccurred(CloudOperationException e) {
         // "400 Bad Request" might mean that staging had already finished
         if (e.getStatusCode()
-            .equals(HttpStatus.BAD_REQUEST)) {
+             .equals(HttpStatus.BAD_REQUEST)) {
             return new StagingState(PackageState.STAGED, null);
         } else {
             return new StagingState(PackageState.FAILED, e.getMessage());

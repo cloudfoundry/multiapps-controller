@@ -24,6 +24,17 @@ public class FlowableConfigurationTest {
     private ApplicationConfiguration applicationConfiguration;
     private FlowableConfiguration flowableConfiguration = new FlowableConfiguration();
 
+    public static Stream<Arguments> testJobExecutorId() {
+        return Stream.of(
+        // @formatter:off
+            Arguments.of(null, null, RANDOM_ID),
+            Arguments.of(APP_ID, null, RANDOM_ID),
+            Arguments.of(null, APP_INSTANCE_INDEX, RANDOM_ID),
+            Arguments.of(APP_ID, APP_INSTANCE_INDEX, "ds-foo/1/bar")
+        // @formatter:on
+        );
+    }
+
     @BeforeEach
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
@@ -34,24 +45,13 @@ public class FlowableConfigurationTest {
     @MethodSource
     public void testJobExecutorId(String applicationId, Integer applicationInstanceIndex, String expectedJobExecutorId) {
         Mockito.when(applicationConfiguration.getApplicationInstanceIndex())
-            .thenReturn(applicationInstanceIndex);
+               .thenReturn(applicationInstanceIndex);
         Mockito.when(applicationConfiguration.getApplicationId())
-            .thenReturn(applicationId);
+               .thenReturn(applicationId);
 
         String jobExecutorId = flowableConfiguration.jobExecutorId(applicationConfiguration);
 
         assertEquals(expectedJobExecutorId, jobExecutorId);
-    }
-
-    public static Stream<Arguments> testJobExecutorId() {
-        return Stream.of(
-        // @formatter:off
-            Arguments.of(null, null, RANDOM_ID),
-            Arguments.of(APP_ID, null, RANDOM_ID),
-            Arguments.of(null, APP_INSTANCE_INDEX, RANDOM_ID),
-            Arguments.of(APP_ID, APP_INSTANCE_INDEX, "ds-foo/1/bar")
-        // @formatter:on
-        );
     }
 
 }

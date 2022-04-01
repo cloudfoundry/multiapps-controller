@@ -62,7 +62,7 @@ public class SqlFileQueryProvider {
                 statement.setString(6, fileEntry.getDigest());
                 statement.setString(7, fileEntry.getDigestAlgorithm());
                 statement.setTimestamp(8, new Timestamp(fileEntry.getModified()
-                    .getTime()));
+                                                                 .getTime()));
                 getDataSourceDialect().setBlobAsBinaryStream(statement, 9, content);
                 return statement.executeUpdate() > 0;
             } finally {
@@ -84,7 +84,7 @@ public class SqlFileQueryProvider {
                 statement.setString(6, fileEntry.getDigest());
                 statement.setString(7, fileEntry.getDigestAlgorithm());
                 statement.setTimestamp(8, new Timestamp(fileEntry.getModified()
-                    .getTime()));
+                                                                 .getTime()));
                 return statement.executeUpdate() > 0;
             } finally {
                 JdbcUtil.closeQuietly(statement);
@@ -101,7 +101,7 @@ public class SqlFileQueryProvider {
                 statement.setString(2, fileEntry.getDigest());
                 statement.setString(3, fileEntry.getDigestAlgorithm());
                 statement.setTimestamp(4, new Timestamp(fileEntry.getModified()
-                    .getTime()));
+                                                                 .getTime()));
                 getDataSourceDialect().setBlobAsBinaryStream(statement, 5, content);
                 statement.setString(6, fileEntry.getId());
                 return statement.executeUpdate() > 0;
@@ -183,15 +183,15 @@ public class SqlFileQueryProvider {
             try {
                 statement = connection.prepareStatement(getQuery(SELECT_FILE_WITH_CONTENT_BY_ID_AND_SPACE));
                 statement.setString(1, fileDownloadProcessor.getFileEntry()
-                    .getId());
+                                                            .getId());
                 statement.setString(2, fileDownloadProcessor.getFileEntry()
-                    .getSpace());
+                                                            .getSpace());
                 resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     processFileContent(resultSet, fileDownloadProcessor);
                 } else {
                     throw new SQLException(MessageFormat.format(Messages.FILE_NOT_FOUND, fileDownloadProcessor.getFileEntry()
-                        .getId()));
+                                                                                                              .getId()));
                 }
             } finally {
                 JdbcUtil.closeQuietly(resultSet);

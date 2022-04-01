@@ -30,11 +30,20 @@ public class StepLogger implements UserMessageLogger {
     protected Logger simpleStepLogger;
 
     public StepLogger(DelegateExecution context, ProgressMessageService progressMessageService, ProcessLoggerProvider processLoggerProvider,
-        Logger simpleStepLogger) {
+                      Logger simpleStepLogger) {
         this.context = context;
         this.progressMessageService = progressMessageService;
         this.processLoggerProvider = processLoggerProvider;
         this.simpleStepLogger = simpleStepLogger;
+    }
+
+    private static String getExtendedMessage(String message, Exception e) {
+        return message + ": " + e.getMessage();
+    }
+
+    private static String getPrefix(Logger logger) {
+        String name = logger.getName();
+        return "[" + name.substring(name.lastIndexOf('.') + 1) + "] ";
     }
 
     public void logFlowableTask() {
@@ -147,15 +156,14 @@ public class StepLogger implements UserMessageLogger {
         getProcessLogger().trace(getPrefix(simpleStepLogger) + message);
     }
 
-    private static String getExtendedMessage(String message, Exception e) {
-        return message + ": " + e.getMessage();
-    }
-
     private void sendProgressMessage(String message, ProgressMessageType type) {
         try {
             String taskId = StepsUtil.getTaskId(context);
-            progressMessageService.add(
-                new ProgressMessage(StepsUtil.getCorrelationId(context), taskId, type, message, new Timestamp(System.currentTimeMillis())));
+            progressMessageService.add(new ProgressMessage(StepsUtil.getCorrelationId(context),
+                                                           taskId,
+                                                           type,
+                                                           message,
+                                                           new Timestamp(System.currentTimeMillis())));
         } catch (SLException e) {
             getProcessLogger().error(e);
         }
@@ -169,11 +177,6 @@ public class StepLogger implements UserMessageLogger {
         return processLoggerProvider;
     }
 
-    private static String getPrefix(Logger logger) {
-        String name = logger.getName();
-        return "[" + name.substring(name.lastIndexOf('.') + 1) + "] ";
-    }
-
     protected DelegateExecution getContext() {
         return context;
     }
@@ -183,7 +186,7 @@ public class StepLogger implements UserMessageLogger {
     public static class Factory {
 
         public StepLogger create(DelegateExecution context, ProgressMessageService progressMessageService,
-            ProcessLoggerProvider processLoggerProvider, Logger logger) {
+                                 ProcessLoggerProvider processLoggerProvider, Logger logger) {
             return new StepLogger(context, progressMessageService, processLoggerProvider, logger);
         }
 

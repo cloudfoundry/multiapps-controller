@@ -32,8 +32,9 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2.Hel
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
-        BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
-        ApplicationConfiguration configuration) {
+                                                                              BiFunction<String, String, String> spaceIdSupplier,
+                                                                              ConfigurationEntryDao dao, CloudTarget cloudTarget,
+                                                                              ApplicationConfiguration configuration) {
         ParametersChainBuilder v2ParameterChainBuilder = new ParametersChainBuilder(cast(deploymentDescriptor), cast(platform));
         ConfigurationFilterParser v2FilterParser = new ConfigurationFilterParser(cloudTarget, v2ParameterChainBuilder);
         return new ConfigurationReferencesResolver(dao, v2FilterParser, spaceIdSupplier, cloudTarget, configuration);
@@ -41,16 +42,21 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2.Hel
 
     @Override
     public UserProvidedResourceResolver getUserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor,
-        Platform platform) {
+                                                                        Platform platform) {
         return new UserProvidedResourceResolver(resourceHelper, cast(descriptor), cast(platform));
     }
 
     @Override
     public ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
+                                                                          CloudModelConfiguration configuration, DeployedMta deployedMta,
+                                                                          SystemParameters systemParameters,
+                                                                          XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
         return new ApplicationsCloudModelBuilder((com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor) deploymentDescriptor,
-            configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId);
+                                                 configuration,
+                                                 deployedMta,
+                                                 systemParameters,
+                                                 xsPlaceholderResolver,
+                                                 deployId);
     }
 
     @Override
@@ -60,13 +66,14 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2.Hel
 
     @Override
     public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        PropertiesAccessor propertiesAccessor, CloudModelConfiguration configuration) {
+                                                                  PropertiesAccessor propertiesAccessor,
+                                                                  CloudModelConfiguration configuration) {
         return new com.sap.cloud.lm.sl.cf.core.cf.v3.ServicesCloudModelBuilder(deploymentDescriptor, propertiesAccessor, configuration);
     }
 
     @Override
     public ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        PropertiesAccessor propertiesAccessor) {
+                                                                        PropertiesAccessor propertiesAccessor) {
         return new com.sap.cloud.lm.sl.cf.core.cf.v3.ServiceKeysCloudModelBuilder(deploymentDescriptor, propertiesAccessor);
     }
 

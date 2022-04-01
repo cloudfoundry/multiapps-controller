@@ -21,6 +21,11 @@ public class XMLValueFilterTest {
 
     // "\u004f\u0055\u0054\u0020\u0020\u0020\u0050\u004b\u0005\u0006\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0066\u0069"
 
+    public XMLValueFilterTest(String input, String output) {
+        this.input = input;
+        expectedOutput = output;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -47,11 +52,6 @@ public class XMLValueFilterTest {
             },
 // @formatter:on
         });
-    }
-
-    public XMLValueFilterTest(String input, String output) {
-        this.input = input;
-        expectedOutput = output;
     }
 
     @Test

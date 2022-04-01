@@ -25,7 +25,8 @@ public class CFOptimizedSpaceGetterTest extends CFOptimizedSpaceGetterBaseTest {
         Map<String, Object> urlVariables = new HashMap<>();
         urlVariables.put("id", "1");
         when(restTemplate.getForObject(GET_SPACE_ENDPOINT, String.class, urlVariables)).thenReturn(response);
-        TestUtil.test(() -> spaceGetter.getSpace(client, "1"), new Expectation(Expectation.Type.RESOURCE, "expected-cloud-space-00.json"), getClass());
+        TestUtil.test(() -> spaceGetter.getSpace(client, "1"), new Expectation(Expectation.Type.RESOURCE, "expected-cloud-space-00.json"),
+                      getClass());
     }
 
     @Test

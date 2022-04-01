@@ -87,9 +87,15 @@ public class Mta {
         StringBuilder sb = new StringBuilder();
         sb.append("class Mta {\n");
 
-        sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
-        sb.append("    modules: ").append(toIndentedString(modules)).append("\n");
-        sb.append("    services: ").append(toIndentedString(services)).append("\n");
+        sb.append("    metadata: ")
+          .append(toIndentedString(metadata))
+          .append("\n");
+        sb.append("    modules: ")
+          .append(toIndentedString(modules))
+          .append("\n");
+        sb.append("    services: ")
+          .append(toIndentedString(services))
+          .append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -101,6 +107,7 @@ public class Mta {
         if (o == null) {
             return "null";
         }
-        return o.toString().replace("\n", "\n    ");
+        return o.toString()
+                .replace("\n", "\n    ");
     }
 }

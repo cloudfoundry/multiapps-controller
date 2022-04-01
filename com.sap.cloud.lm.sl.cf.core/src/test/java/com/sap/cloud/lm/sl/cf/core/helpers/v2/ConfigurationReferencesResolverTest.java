@@ -33,29 +33,18 @@ import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 public class ConfigurationReferencesResolverTest {
 
     protected static final String SPACE_ID = "SAP";
-
-    protected static class DaoMockConfiguration {
-
-        ConfigurationFilter filter;
-        List<ConfigurationEntry> configurationEntries;
-
-    }
-
     private static Platform platform;
-
-    private String descriptorLocation;
-    private Expectation expectation;
-
     protected ConfigurationEntryDao dao = Mockito.mock(ConfigurationEntryDao.class);
     protected List<DaoMockConfiguration> daoConfigurations;
     protected DeploymentDescriptor descriptor;
     protected ApplicationConfiguration configuration = Mockito.mock(ApplicationConfiguration.class);
-
+    private String descriptorLocation;
+    private Expectation expectation;
     public ConfigurationReferencesResolverTest(String descriptorLocation, String configurationEntriesLocation, Expectation expectation)
         throws Exception {
         this.daoConfigurations = JsonUtil.fromJson(getResourceAsString(configurationEntriesLocation, getClass()),
-            new TypeToken<List<DaoMockConfiguration>>() {
-            }.getType());
+                                                   new TypeToken<List<DaoMockConfiguration>>() {
+                                                   }.getType());
         this.descriptorLocation = descriptorLocation;
         this.expectation = expectation;
     }
@@ -113,7 +102,7 @@ public class ConfigurationReferencesResolverTest {
         for (DaoMockConfiguration configuration : daoConfigurations) {
             ConfigurationFilter filter = configuration.filter;
             when(dao.find(filter.getProviderNid(), filter.getProviderId(), filter.getProviderVersion(), filter.getTargetSpace(),
-                filter.getRequiredContent(), null, null)).thenReturn(configuration.configurationEntries);
+                          filter.getRequiredContent(), null, null)).thenReturn(configuration.configurationEntries);
         }
     }
 
@@ -131,12 +120,15 @@ public class ConfigurationReferencesResolverTest {
 
     protected ConfigurationReferencesResolver getConfigurationResolver(DeploymentDescriptor deploymentDescriptor) {
         String currentOrg = (String) platform.getParameters()
-            .get("org");
+                                             .get("org");
         String currentSpace = (String) platform.getParameters()
-            .get("space");
+                                               .get("space");
         return new ConfigurationReferencesResolver(dao,
-            new ConfigurationFilterParser(new CloudTarget(currentOrg, currentSpace), getPropertiesChainBuilder(descriptor)),
-            (org, space) -> SPACE_ID, null, configuration);
+                                                   new ConfigurationFilterParser(new CloudTarget(currentOrg, currentSpace),
+                                                                                 getPropertiesChainBuilder(descriptor)),
+                                                   (org, space) -> SPACE_ID,
+                                                   null,
+                                                   configuration);
     }
 
     protected ParametersChainBuilder getPropertiesChainBuilder(DeploymentDescriptor descriptor) {
@@ -145,6 +137,13 @@ public class ConfigurationReferencesResolverTest {
 
     protected DescriptorParser getDescriptorParser() {
         return new DescriptorParser();
+    }
+
+    protected static class DaoMockConfiguration {
+
+        ConfigurationFilter filter;
+        List<ConfigurationEntry> configurationEntries;
+
     }
 
 }

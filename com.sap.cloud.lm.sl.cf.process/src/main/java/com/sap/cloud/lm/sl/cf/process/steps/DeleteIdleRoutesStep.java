@@ -33,7 +33,7 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.DELETING_IDLE_URIS);
             CloudControllerClient client = execution.getControllerClient();
             boolean portBasedRouting = (boolean) execution.getContext()
-                .getVariable(Constants.VAR_PORT_BASED_ROUTING);
+                                                          .getVariable(Constants.VAR_PORT_BASED_ROUTING);
 
             List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(execution.getContext());
             for (CloudApplicationExtended app : apps) {
@@ -63,7 +63,7 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
             new ClientHelper(client, spaceGetter).deleteRoute(uri, portRoute);
         } catch (CloudOperationException e) {
             if (!e.getStatusCode()
-                .equals(HttpStatus.CONFLICT)) {
+                  .equals(HttpStatus.CONFLICT)) {
                 throw e;
             }
             getStepLogger().info(Messages.ROUTE_NOT_DELETED, uri);

@@ -21,7 +21,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class ApplicationStagerTest {
 
@@ -52,26 +51,26 @@ public class ApplicationStagerTest {
         execution = Mockito.mock(ExecutionWrapper.class);
         context = Mockito.mock(DelegateExecution.class);
         Mockito.when(client.getBuild(BUILD_GUID))
-            .thenReturn(cloudBuild);
+               .thenReturn(cloudBuild);
         applicationStager = new ApplicationStager();
 
         Mockito.when(context.getVariable(Constants.VAR_BUILD_GUID))
-            .thenReturn(BUILD_GUID);
+               .thenReturn(BUILD_GUID);
         Mockito.when(execution.getContext())
-            .thenReturn(context);
+               .thenReturn(context);
 
         Mockito.when(execution.getControllerClient())
-            .thenReturn(client);
+               .thenReturn(client);
     }
 
     @Test
     public void testBuildStateFailed() {
         Mockito.when(client.getBuild(BUILD_GUID)
-            .getState())
-            .thenReturn(CloudBuild.BuildState.FAILED);
+                           .getState())
+               .thenReturn(CloudBuild.BuildState.FAILED);
         Mockito.when(client.getBuild(BUILD_GUID)
-            .getError())
-            .thenReturn("Error occured while creating a build!");
+                           .getError())
+               .thenReturn("Error occured while creating a build!");
 
         StagingState stagingState = applicationStager.getStagingState(execution, client);
         assertEquals(PackageState.FAILED, stagingState.getState());
@@ -81,8 +80,8 @@ public class ApplicationStagerTest {
     @Test
     public void testBuildStateStaging() {
         Mockito.when(client.getBuild(BUILD_GUID)
-            .getState())
-            .thenReturn(CloudBuild.BuildState.STAGING);
+                           .getState())
+               .thenReturn(CloudBuild.BuildState.STAGING);
 
         StagingState stagingState = applicationStager.getStagingState(execution, client);
         assertEquals(PackageState.PENDING, stagingState.getState());
@@ -92,8 +91,8 @@ public class ApplicationStagerTest {
     @Test
     public void testBuildStateStaged() {
         Mockito.when(client.getBuild(BUILD_GUID)
-            .getState())
-            .thenReturn(CloudBuild.BuildState.STAGED);
+                           .getState())
+               .thenReturn(CloudBuild.BuildState.STAGED);
 
         StagingState stagingState = applicationStager.getStagingState(execution, client);
         assertEquals(PackageState.STAGED, stagingState.getState());
@@ -104,17 +103,17 @@ public class ApplicationStagerTest {
     public void testBindDropletToApp() {
         CloudBuild.Droplet droplet = Mockito.mock(CloudBuild.Droplet.class);
         Mockito.when(client.getBuild(BUILD_GUID)
-            .getDroplet())
-            .thenReturn(droplet);
+                           .getDroplet())
+               .thenReturn(droplet);
         Mockito.when(client.getBuild(BUILD_GUID)
-            .getDroplet()
-            .getGuid())
-            .thenReturn(DROPLET_GUID);
+                           .getDroplet()
+                           .getGuid())
+               .thenReturn(DROPLET_GUID);
 
         applicationStager.bindDropletToApp(execution, APP_GUID, client);
 
         Mockito.verify(client)
-            .bindDropletToApp(DROPLET_GUID, APP_GUID);
+               .bindDropletToApp(DROPLET_GUID, APP_GUID);
     }
 
     @Test
@@ -127,39 +126,39 @@ public class ApplicationStagerTest {
         StepLogger stepLogger = Mockito.mock(StepLogger.class);
         CloudApplication app = Mockito.mock(CloudApplication.class);
         Mockito.when(app.getName())
-            .thenReturn(APP_NAME);
+               .thenReturn(APP_NAME);
         String uploadTokenJson = JsonUtil.toJson(new UploadToken(TOKEN, PACKAGE_GUID));
         Mockito.when(context.getVariable(Constants.VAR_UPLOAD_TOKEN))
-            .thenReturn(uploadTokenJson);
+               .thenReturn(uploadTokenJson);
         CloudBuild build = Mockito.mock(CloudBuild.class);
         Mockito.when(client.createBuild(PACKAGE_GUID))
-            .thenReturn(build);
+               .thenReturn(build);
         CloudEntity.Meta meta = Mockito.mock(CloudEntity.Meta.class);
         Mockito.when(client.createBuild(PACKAGE_GUID)
-            .getMeta())
-            .thenReturn(meta);
+                           .getMeta())
+               .thenReturn(meta);
         Mockito.when(client.createBuild(PACKAGE_GUID)
-            .getMeta()
-            .getGuid())
-            .thenReturn(BUILD_GUID);
+                           .getMeta()
+                           .getGuid())
+               .thenReturn(BUILD_GUID);
 
         StepPhase stepPhase = applicationStager.stageApp(context, client, app, stepLogger);
 
         assertEquals(stepPhase, StepPhase.POLL);
         Mockito.verify(context)
-            .setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
+               .setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
         Mockito.verify(stepLogger)
-            .info(Messages.STAGING_APP, APP_NAME);
+               .info(Messages.STAGING_APP, APP_NAME);
     }
 
     @Test
     public void testIfBuildGuidDoesNotExist() {
         Mockito.when(execution.getContext()
-            .getVariable(Constants.VAR_BUILD_GUID))
-            .thenReturn(null);
-        
+                              .getVariable(Constants.VAR_BUILD_GUID))
+               .thenReturn(null);
+
         StagingState stagingState = applicationStager.getStagingState(execution, client);
-        
+
         assertEquals(PackageState.STAGED, stagingState.getState());
         assertNull(stagingState.getError());
     }

@@ -18,7 +18,7 @@ import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 public class ConfigurationSubscriptionFactoryTest extends com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactoryTest {
 
     public ConfigurationSubscriptionFactoryTest(String mtadFilePath, List<String> configurationResources, String spaceId,
-        Expectation expectation) {
+                                                Expectation expectation) {
         super(mtadFilePath, configurationResources, spaceId, expectation);
     }
 
@@ -48,7 +48,7 @@ public class ConfigurationSubscriptionFactoryTest extends com.sap.cloud.lm.sl.cf
 
     @Override
     protected void testCreate(DeploymentDescriptor mtad, Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId,
-        Expectation expectation) {
+                              Expectation expectation) {
         TestUtil.test(() -> {
             return new ConfigurationSubscriptionFactory().create(mtad, resolvedResources, spaceId);
         }, expectation, getClass());

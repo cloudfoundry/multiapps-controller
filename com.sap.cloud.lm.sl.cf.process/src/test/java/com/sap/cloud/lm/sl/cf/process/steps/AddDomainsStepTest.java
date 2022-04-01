@@ -22,6 +22,11 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
 
     private List<String> nonExistingCustomDomains;
 
+    public AddDomainsStepTest(List<String> existingDomains, List<String> customDomains) {
+        this.existingDomains = existingDomains;
+        this.customDomains = customDomains;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -42,16 +47,11 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
         });
     }
 
-    public AddDomainsStepTest(List<String> existingDomains, List<String> customDomains) {
-        this.existingDomains = existingDomains;
-        this.customDomains = customDomains;
-    }
-
     @Before
     public void setUp() throws Exception {
         prepareContext();
         Mockito.when(client.getDomains())
-            .thenReturn(getExistingDomainsList());
+               .thenReturn(getExistingDomainsList());
         nonExistingCustomDomains = getNonExistingDomainsList();
     }
 
@@ -63,7 +63,7 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
 
         for (String nonExistingCustomDomain : nonExistingCustomDomains) {
             Mockito.verify(client, Mockito.times(1))
-                .addDomain(nonExistingCustomDomain);
+                   .addDomain(nonExistingCustomDomain);
         }
     }
 

@@ -24,6 +24,18 @@ import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 @RunWith(Parameterized.class)
 public class ConfigurationSubscriptionFactoryTest {
 
+    private String mtadFilePath;
+    private List<String> configurationResources;
+    private String spaceId;
+    private Expectation expectation;
+    public ConfigurationSubscriptionFactoryTest(String mtadFilePath, List<String> configurationResources, String spaceId,
+                                                Expectation expectation) {
+        this.mtadFilePath = mtadFilePath;
+        this.configurationResources = configurationResources;
+        this.spaceId = spaceId;
+        this.expectation = expectation;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -44,19 +56,6 @@ public class ConfigurationSubscriptionFactoryTest {
         });
     }
 
-    private String mtadFilePath;
-    private List<String> configurationResources;
-    private String spaceId;
-    private Expectation expectation;
-
-    public ConfigurationSubscriptionFactoryTest(String mtadFilePath, List<String> configurationResources, String spaceId,
-        Expectation expectation) {
-        this.mtadFilePath = mtadFilePath;
-        this.configurationResources = configurationResources;
-        this.spaceId = spaceId;
-        this.expectation = expectation;
-    }
-
     @Test
     public void testCreate() throws Exception {
         String mtadString = TestUtil.getResourceAsString(mtadFilePath, getClass());
@@ -66,7 +65,7 @@ public class ConfigurationSubscriptionFactoryTest {
     }
 
     protected void testCreate(DeploymentDescriptor mtad, Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId,
-        Expectation expectation) {
+                              Expectation expectation) {
         TestUtil.test(() -> {
             return new ConfigurationSubscriptionFactory().create(mtad, resolvedResources, spaceId);
         }, expectation, getClass());
@@ -81,7 +80,7 @@ public class ConfigurationSubscriptionFactoryTest {
     }
 
     private ResolvedConfigurationReference getResolvedConfigurationReference(DeploymentDescriptor descriptor,
-        String configurationResource) {
+                                                                             String configurationResource) {
         DescriptorHandler handler = new DescriptorHandler();
         Resource resource = (Resource) handler.findResource(descriptor, configurationResource);
         return new ResolvedConfigurationReference(createDummyFilter(), resource, Collections.emptyList());

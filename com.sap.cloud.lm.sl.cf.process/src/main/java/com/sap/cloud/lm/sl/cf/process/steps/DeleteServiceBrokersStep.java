@@ -5,9 +5,9 @@ import static com.sap.cloud.lm.sl.cf.process.steps.CreateOrUpdateServiceBrokersS
 import java.text.MessageFormat;
 import java.util.List;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
@@ -52,7 +52,7 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
     }
 
     private void deleteServiceBrokerIfNecessary(DelegateExecution context, CloudApplication app, List<String> serviceBrokersToCreate,
-        CloudControllerClient client) {
+                                                CloudControllerClient client) {
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
         if (!appAttributes.get(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             return;

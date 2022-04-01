@@ -34,14 +34,24 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     private String protocol;
 
     public UriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort, String routePath,
-        boolean includeProtocol, String protocol) {
-        this(portBasedRouting, defaultHost, defaultDomain, defaultPort, SupportedParameters.HOST, SupportedParameters.DOMAIN,
-            SupportedParameters.PORT, SupportedParameters.ROUTE, SupportedParameters.ROUTES, routePath, includeProtocol, protocol);
+                               boolean includeProtocol, String protocol) {
+        this(portBasedRouting,
+             defaultHost,
+             defaultDomain,
+             defaultPort,
+             SupportedParameters.HOST,
+             SupportedParameters.DOMAIN,
+             SupportedParameters.PORT,
+             SupportedParameters.ROUTE,
+             SupportedParameters.ROUTES,
+             routePath,
+             includeProtocol,
+             protocol);
     }
 
     public UriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort,
-        String hostParameterName, String domainParameterName, String portParameterName, String routeParameterName,
-        String routesParameterName, String routePath, boolean includeProtocol, String protocol) {
+                               String hostParameterName, String domainParameterName, String portParameterName, String routeParameterName,
+                               String routesParameterName, String routePath, boolean includeProtocol, String protocol) {
         this.portBasedRouting = portBasedRouting;
         this.includeProtocol = includeProtocol;
         this.defaultHost = defaultHost;
@@ -130,25 +140,25 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         CollectionUtils.addIgnoreNull(allRoutesFound, route);
 
         CollectionUtils.emptyIfNull(routes)
-            .forEach(routesMap -> CollectionUtils.addIgnoreNull(allRoutesFound, (String) routesMap.get(routeParameterName)));
+                       .forEach(routesMap -> CollectionUtils.addIgnoreNull(allRoutesFound, (String) routesMap.get(routeParameterName)));
 
         return allRoutesFound;
     }
 
     private List<String> getDomainsFromRoutes(List<String> routes) {
         return routes.stream()
-            .map(UriUtil::getDomain)
-            .filter(Objects::nonNull)
-            .distinct()
-            .collect(Collectors.toList());
+                     .map(UriUtil::getDomain)
+                     .filter(Objects::nonNull)
+                     .distinct()
+                     .collect(Collectors.toList());
     }
 
     private List<Integer> getPortsFromRoutes(List<String> routes) {
         return routes.stream()
-            .map(UriUtil::getPort)
-            .filter(Objects::nonNull)
-            .distinct()
-            .collect(Collectors.toList());
+                     .map(UriUtil::getPort)
+                     .filter(Objects::nonNull)
+                     .distinct()
+                     .collect(Collectors.toList());
     }
 
     private void addHostBasedUris(Set<String> uris, String domain, List<String> hosts) {
@@ -193,8 +203,8 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         }
 
         return uris.stream()
-            .map(this::addProtocol)
-            .collect(Collectors.toList());
+                   .map(this::addProtocol)
+                   .collect(Collectors.toList());
     }
 
     private String addProtocol(String uri) {

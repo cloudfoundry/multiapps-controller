@@ -31,20 +31,15 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EndProcessListener.class);
-
+    @Inject
+    protected CloudControllerClientProvider clientProvider;
     @Inject
     private CollectedDataSender dataSender;
-
     @Inject
     @Named("fileService")
     private FileService fileService;
-
     @Inject
     private OperationDao operationDao;
-
-    @Inject
-    protected CloudControllerClientProvider clientProvider;
-
     @Inject
     private ApplicationConfiguration configuration;
 

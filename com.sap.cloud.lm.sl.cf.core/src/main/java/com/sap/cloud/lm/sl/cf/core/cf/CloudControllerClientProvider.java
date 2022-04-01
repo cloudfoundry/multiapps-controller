@@ -4,8 +4,8 @@ import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.Map;
 
-import org.apache.commons.collections4.map.ReferenceMap;
 import org.apache.commons.collections4.map.AbstractReferenceMap.ReferenceStrength;
+import org.apache.commons.collections4.map.ReferenceMap;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +35,8 @@ public class CloudControllerClientProvider {
 
     // Cached clients. These are stored in memory-sensitive cache, i.e. no OutOfMemory error would
     // occur before GC tries to release the not-used clients.
-    private Map<String, Pair<CloudControllerClient, TokenProvider>> clients = Collections
-        .synchronizedMap(new ReferenceMap<>(ReferenceStrength.HARD, ReferenceStrength.SOFT));
+    private Map<String, Pair<CloudControllerClient, TokenProvider>> clients = Collections.synchronizedMap(new ReferenceMap<>(ReferenceStrength.HARD,
+                                                                                                                             ReferenceStrength.SOFT));
 
     public CloudControllerClient getControllerClient(String userName, String org, String space, String processId) {
         Pair<CloudControllerClient, TokenProvider> client = retrieveClientForToken(userName, org, space, processId);
@@ -197,18 +197,18 @@ public class CloudControllerClientProvider {
     private String getKey(String userName, String org, String space) {
         StringBuilder sb = new StringBuilder();
         sb.append(userName)
-            .append("|")
-            .append(org)
-            .append("|")
-            .append(space);
+          .append("|")
+          .append(org)
+          .append("|")
+          .append(space);
         return sb.toString();
     }
 
     private String getKey(String userName, String spaceId) {
         StringBuilder sb = new StringBuilder();
         sb.append(userName)
-            .append("|")
-            .append(spaceId);
+          .append("|")
+          .append(spaceId);
         return sb.toString();
     }
 }

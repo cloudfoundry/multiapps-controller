@@ -27,7 +27,8 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     private static final int MTA_MAJOR_VERSION = 3;
 
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
-        DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
+                                         DeployedMta deployedMta, SystemParameters systemParameters,
+                                         XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
         super(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId);
     }
 
@@ -35,7 +36,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     public DeploymentMode getDeploymentMode() {
         DeploymentDescriptor descriptorV3 = cast(deploymentDescriptor);
         boolean parallelDeploymentsEnabled = (Boolean) descriptorV3.getParameters()
-            .getOrDefault(SupportedParameters.ENABLE_PARALLEL_DEPLOYMENTS, false);
+                                                                   .getOrDefault(SupportedParameters.ENABLE_PARALLEL_DEPLOYMENTS, false);
         return parallelDeploymentsEnabled ? DeploymentMode.PARALLEL : DeploymentMode.SEQUENTIAL;
     }
 
@@ -51,8 +52,8 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
 
     @Override
     protected List<String> getApplicationServices(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
-        return getApplicationServices(module,
-            resourceAndType -> filterExistingServicesRule(resourceAndType) && onlyActiveServicesRule(resourceAndType));
+        return getApplicationServices(module, resourceAndType -> filterExistingServicesRule(resourceAndType)
+            && onlyActiveServicesRule(resourceAndType));
     }
 
     @Override

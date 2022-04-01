@@ -13,7 +13,7 @@ public class PartialPropertiesResolver extends PropertiesResolver {
     private List<String> dependenciesToIgnore;
 
     public PartialPropertiesResolver(Map<String, Object> properties, ProvidedValuesResolver valuesResolver,
-        ReferencePattern referencePattern, String prefix, List<String> dependenciesToIgnore) {
+                                     ReferencePattern referencePattern, String prefix, List<String> dependenciesToIgnore) {
         super(properties, valuesResolver, referencePattern, prefix);
         this.dependenciesToIgnore = dependenciesToIgnore;
     }

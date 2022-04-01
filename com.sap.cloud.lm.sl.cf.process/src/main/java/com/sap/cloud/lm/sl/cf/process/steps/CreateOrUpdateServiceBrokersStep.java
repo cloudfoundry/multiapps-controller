@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
@@ -43,6 +43,12 @@ public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
     @Inject
     private ApplicationConfiguration configuration;
 
+    public static List<String> getServiceBrokerNames(List<? extends CloudServiceBroker> serviceBrokers) {
+        return serviceBrokers.stream()
+                             .map(CloudServiceBroker::getName)
+                             .collect(Collectors.toList());
+    }
+
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
@@ -50,8 +56,9 @@ public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
 
             CloudControllerClient client = execution.getControllerClient();
             List<CloudServiceBrokerExtended> existingServiceBrokers = serviceBrokersGetter.getServiceBrokers(client);
-            List<CloudServiceBrokerExtended> serviceBrokersToCreate = getServiceBrokersToCreate(
-                mapApplicationsFromContextToCloudApplications(execution, client), execution.getContext());
+            List<CloudServiceBrokerExtended> serviceBrokersToCreate = getServiceBrokersToCreate(mapApplicationsFromContextToCloudApplications(execution,
+                                                                                                                                              client),
+                                                                                                execution.getContext());
             getStepLogger().debug(MessageFormat.format(Messages.SERVICE_BROKERS, secureSerializer.toJson(serviceBrokersToCreate)));
             List<String> existingServiceBrokerNames = getServiceBrokerNames(existingServiceBrokers);
 
@@ -77,33 +84,32 @@ public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
         }
     }
 
-    private List<CloudApplication> mapApplicationsFromContextToCloudApplications(ExecutionWrapper execution,
-        CloudControllerClient client) {
+    private List<CloudApplication> mapApplicationsFromContextToCloudApplications(ExecutionWrapper execution, CloudControllerClient client) {
         return StepsUtil.getAppsToDeploy(execution.getContext())
-            .stream()
-            .map(app -> client.getApplication(app.getName()))
-            .collect(Collectors.toList());
+                        .stream()
+                        .map(app -> client.getApplication(app.getName()))
+                        .collect(Collectors.toList());
     }
 
     private void updateServiceBroker(DelegateExecution context, CloudServiceBrokerExtended serviceBroker,
-        CloudServiceBrokerExtended existingBroker, CloudControllerClient client) {
+                                     CloudServiceBrokerExtended existingBroker, CloudControllerClient client) {
         serviceBroker.setMeta(existingBroker.getMeta());
         if (existingBroker.getSpaceGuid() != null && serviceBroker.getSpaceGuid() == null) {
             getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_SPACE_SCOPED_TO_GLOBAL,
-                serviceBroker.getName()));
+                                                      serviceBroker.getName()));
         } else if (existingBroker.getSpaceGuid() == null && serviceBroker.getSpaceGuid() != null) {
             getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_GLOBAL_TO_SPACE_SCOPED,
-                serviceBroker.getName()));
+                                                      serviceBroker.getName()));
         }
         updateServiceBroker(context, serviceBroker, client);
     }
 
     private CloudServiceBrokerExtended findServiceBroker(List<CloudServiceBrokerExtended> serviceBrokers, String name) {
         return serviceBrokers.stream()
-            .filter(broker -> broker.getName()
-                .equals(name))
-            .findFirst()
-            .get();
+                             .filter(broker -> broker.getName()
+                                                     .equals(name))
+                             .findFirst()
+                             .get();
     }
 
     private List<CloudServiceBrokerExtended> getServiceBrokersToCreate(List<CloudApplication> appsToDeploy, DelegateExecution context) {
@@ -145,25 +151,22 @@ public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
             throw new ContentException(Messages.MISSING_SERVICE_BROKER_URL, app.getName());
         }
 
-        return new CloudServiceBrokerExtended(serviceBrokerName, serviceBrokerUrl, serviceBrokerUsername, serviceBrokerPassword,
-            serviceBrokerSpaceGuid);
+        return new CloudServiceBrokerExtended(serviceBrokerName,
+                                              serviceBrokerUrl,
+                                              serviceBrokerUsername,
+                                              serviceBrokerPassword,
+                                              serviceBrokerSpaceGuid);
     }
 
     private String getServiceBrokerSpaceGuid(DelegateExecution context, String serviceBrokerName, ApplicationAttributes appAttributes) {
         PlatformType platformType = configuration.getPlatformType();
         boolean isSpaceScoped = appAttributes.get(SupportedParameters.SERVICE_BROKER_SPACE_SCOPED, Boolean.class, false);
         if (platformType == PlatformType.XS2 && isSpaceScoped) {
-            getStepLogger()
-                .warn(MessageFormat.format(Messages.CANNOT_CREATE_SPACE_SCOPED_SERVICE_BROKER_ON_THIS_PLATFORM, serviceBrokerName));
+            getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CREATE_SPACE_SCOPED_SERVICE_BROKER_ON_THIS_PLATFORM,
+                                                      serviceBrokerName));
             return null;
         }
         return isSpaceScoped ? StepsUtil.getSpaceId(context) : null;
-    }
-
-    public static List<String> getServiceBrokerNames(List<? extends CloudServiceBroker> serviceBrokers) {
-        return serviceBrokers.stream()
-            .map(CloudServiceBroker::getName)
-            .collect(Collectors.toList());
     }
 
     protected void updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker, CloudControllerClient client) {

@@ -11,11 +11,11 @@ public class ResourceTypeFinder extends Visitor {
 
     protected String resourceTypeName = null;
     protected String resourceType;
-    
+
     public ResourceTypeFinder(String resourceType) {
         this.resourceType = resourceType;
     }
-    
+
     public String getResourceTypeName() {
         return resourceTypeName;
     }

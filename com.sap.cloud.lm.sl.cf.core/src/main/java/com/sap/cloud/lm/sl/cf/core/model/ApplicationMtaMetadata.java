@@ -13,7 +13,7 @@ public class ApplicationMtaMetadata {
     private final List<String> providedDependencyNames;
 
     public ApplicationMtaMetadata(DeployedMtaMetadata mtaMetadata, List<String> services, String moduleName,
-        List<String> providedDependencyNames) {
+                                  List<String> providedDependencyNames) {
         this.mtaMetadata = mtaMetadata;
         this.services = services;
         this.moduleName = moduleName;

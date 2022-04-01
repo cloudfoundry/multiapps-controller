@@ -40,10 +40,17 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private final StepInput stepInput;
     private final String expectedExceptionMessage;
-    private Map<CloudServiceExtended, CloudServiceInstance> existingServiceInstances;
-    private boolean shouldWarn;
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    private Map<CloudServiceExtended, CloudServiceInstance> existingServiceInstances;
+    private boolean shouldWarn;
+
+    public CheckForCreationConflictsStepTest(String stepInput, String expectedExceptionMessage, boolean shouldWarn) throws Exception {
+        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CheckForCreationConflictsStepTest.class),
+                                           StepInput.class);
+        this.expectedExceptionMessage = expectedExceptionMessage;
+        this.shouldWarn = shouldWarn;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -89,13 +96,6 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
         });
     }
 
-    public CheckForCreationConflictsStepTest(String stepInput, String expectedExceptionMessage, boolean shouldWarn) throws Exception {
-        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CheckForCreationConflictsStepTest.class),
-            StepInput.class);
-        this.expectedExceptionMessage = expectedExceptionMessage;
-        this.shouldWarn = shouldWarn;
-    }
-
     @Before
     public void setUp() throws Exception {
         prepareException();
@@ -111,7 +111,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
         assertStepFinishedSuccessfully();
         if (shouldWarn) {
             Mockito.verify(stepLogger, Mockito.atLeastOnce())
-                .warn(Mockito.anyString());
+                   .warn(Mockito.anyString());
         }
     }
 
@@ -172,8 +172,8 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private List<SimpleApplication> findBoundApplications(String serviceName, List<SimpleApplication> applications) {
         return applications.stream()
-            .filter((application) -> application.boundServices.contains(serviceName))
-            .collect(Collectors.toList());
+                           .filter((application) -> application.boundServices.contains(serviceName))
+                           .collect(Collectors.toList());
     }
 
     private CloudServiceInstance createServiceInstance(CloudServiceExtended service, List<SimpleApplication> boundApplications) {
@@ -185,8 +185,8 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private List<CloudServiceBinding> createServiceBindings(List<SimpleApplication> boundApplications) {
         return boundApplications.stream()
-            .map(boundApplication -> createServiceBinding(boundApplication))
-            .collect(Collectors.toList());
+                                .map(boundApplication -> createServiceBinding(boundApplication))
+                                .collect(Collectors.toList());
     }
 
     private CloudServiceBinding createServiceBinding(SimpleApplication boundApplication) {
@@ -199,7 +199,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
         List<CloudService> existingServices = new ArrayList<>();
         stepInput.existingServices.forEach(service -> existingServices.add(service));
         Mockito.when(client.getServices())
-            .thenReturn(existingServices);
+               .thenReturn(existingServices);
         prepareServiceInstances();
 
     }
@@ -210,7 +210,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private void prepareServiceInstance(CloudServiceExtended service, CloudServiceInstance instance) {
         Mockito.when(client.getServiceInstance(service.getName()))
-            .thenReturn(instance);
+               .thenReturn(instance);
     }
 
     @Override

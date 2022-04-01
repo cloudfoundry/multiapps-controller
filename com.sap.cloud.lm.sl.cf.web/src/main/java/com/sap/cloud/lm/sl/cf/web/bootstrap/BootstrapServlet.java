@@ -51,6 +51,10 @@ public class BootstrapServlet extends HttpServlet {
     @Autowired(required = false)
     private List<AsyncChange> asyncChanges;
 
+    protected static UserInfoProvider getUserInfoProvider() {
+        return SecurityContextUtil::getUserInfo;
+    }
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -62,8 +66,8 @@ public class BootstrapServlet extends HttpServlet {
             initExtras();
             executeAsyncDatabaseChanges();
             processEngine.getProcessEngineConfiguration()
-                .getAsyncExecutor()
-                .start();
+                         .getAsyncExecutor()
+                         .start();
             LOGGER.info(Messages.ALM_SERVICE_ENV_INITIALIZED);
         } catch (Exception e) {
             LOGGER.error("Initialization error", e);
@@ -91,10 +95,6 @@ public class BootstrapServlet extends HttpServlet {
 
     protected void destroyExtras() {
         // Do nothing
-    }
-
-    protected static UserInfoProvider getUserInfoProvider() {
-        return SecurityContextUtil::getUserInfo;
     }
 
     private void initializeProviders() {

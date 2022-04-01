@@ -11,22 +11,6 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 public class NameUtil {
 
-    public static class NameRequirements {
-
-        public static final String XS_APP_NAME_PATTERN = "(?!sap_system)[a-zA-Z0-9\\._\\-\\\\/]{1,240}";
-        public static final String CONTAINER_NAME_PATTERN = "[A-Z0-9][_A-Z0-9]{0,63}";
-
-        public static final int XS_APP_NAME_MAX_LENGTH = 240;
-        public static final int APP_NAME_MAX_LENGTH = 1024;
-        public static final int SERVICE_NAME_MAX_LENGTH = 50; // TODO: Make this configurable.
-        public static final int CONTAINER_NAME_MAX_LENGTH = 64;
-
-        public static final String ENVIRONMENT_NAME_ILLEGAL_CHARACTERS = "[^_a-zA-Z0-9]";
-        public static final String XS_APP_NAME_ILLEGAL_CHARACTERS = "[^a-zA-Z0-9\\._\\-\\\\/]";
-        public static final String CONTAINER_NAME_ILLEGAL_CHARACTERS = "[^_A-Z0-9]";
-
-    }
-
     public static String getNamespacePrefix(String namespaceId) {
         return namespaceId + ".";
     }
@@ -52,13 +36,13 @@ public class NameUtil {
 
     public static String createValidContainerName(String organization, String space, String serviceName) {
         String properOrganization = organization.toUpperCase(Locale.US)
-            .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
+                                                .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
         String properSpace = space.toUpperCase(Locale.US)
-            .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
+                                  .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
         String properServiceName = serviceName.toUpperCase(Locale.US)
-            .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
+                                              .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
         return getNameWithProperLength(String.format("%s_%s_%s", properOrganization, properSpace, properServiceName),
-            NameRequirements.CONTAINER_NAME_MAX_LENGTH).toUpperCase(Locale.US);
+                                       NameRequirements.CONTAINER_NAME_MAX_LENGTH).toUpperCase(Locale.US);
     }
 
     public static String createValidXsAppName(String serviceName) {
@@ -69,7 +53,7 @@ public class NameUtil {
             serviceName = "_";
         }
         return getNameWithProperLength(serviceName.replaceAll(NameRequirements.XS_APP_NAME_ILLEGAL_CHARACTERS, "_"),
-            NameRequirements.XS_APP_NAME_MAX_LENGTH);
+                                       NameRequirements.XS_APP_NAME_MAX_LENGTH);
     }
 
     public static String getNameWithProperLength(String name, int maxLength) {
@@ -104,6 +88,22 @@ public class NameUtil {
             return getPrefixedName(resourceName, Integer.toString(index), delimiter);
         }
         return resourceName;
+    }
+
+    public static class NameRequirements {
+
+        public static final String XS_APP_NAME_PATTERN = "(?!sap_system)[a-zA-Z0-9\\._\\-\\\\/]{1,240}";
+        public static final String CONTAINER_NAME_PATTERN = "[A-Z0-9][_A-Z0-9]{0,63}";
+
+        public static final int XS_APP_NAME_MAX_LENGTH = 240;
+        public static final int APP_NAME_MAX_LENGTH = 1024;
+        public static final int SERVICE_NAME_MAX_LENGTH = 50; // TODO: Make this configurable.
+        public static final int CONTAINER_NAME_MAX_LENGTH = 64;
+
+        public static final String ENVIRONMENT_NAME_ILLEGAL_CHARACTERS = "[^_a-zA-Z0-9]";
+        public static final String XS_APP_NAME_ILLEGAL_CHARACTERS = "[^a-zA-Z0-9\\._\\-\\\\/]";
+        public static final String CONTAINER_NAME_ILLEGAL_CHARACTERS = "[^_A-Z0-9]";
+
     }
 
 }

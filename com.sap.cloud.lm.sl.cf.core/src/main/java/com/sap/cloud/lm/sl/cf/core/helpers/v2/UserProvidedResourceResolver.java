@@ -10,7 +10,6 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
-import com.sap.cloud.lm.sl.mta.builders.v2.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.Platform;
@@ -23,8 +22,7 @@ public class UserProvidedResourceResolver {
     protected DeploymentDescriptor descriptor;
     private ParametersChainBuilder parametersChainBuilder;
 
-    public UserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor,
-        Platform platform) {
+    public UserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor, Platform platform) {
         this.resourceHelper = resourceHelper;
         this.descriptor = descriptor;
         this.parametersChainBuilder = new ParametersChainBuilder(descriptor, platform);
@@ -53,7 +51,8 @@ public class UserProvidedResourceResolver {
             return null;
         }
         Map<String, Object> userProvidedServiceConfig = (Map<String, Object>) getPropertyValue(parametersList,
-            SupportedParameters.USER_PROVIDED_SERVICE_CONFIG, Collections.emptyMap());
+                                                                                               SupportedParameters.USER_PROVIDED_SERVICE_CONFIG,
+                                                                                               Collections.emptyMap());
 
         return createResource(userProvidedServiceName, MapUtil.asMap(SupportedParameters.SERVICE_CONFIG, userProvidedServiceConfig));
     }

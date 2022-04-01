@@ -60,12 +60,12 @@ public class ExecutionRetrier {
     private boolean shouldIgnoreException(CloudOperationException e, Set<HttpStatus> httpStatusesToIgnore) {
         for (HttpStatus status : httpStatusesToIgnore) {
             if (e.getStatusCode()
-                .equals(status)) {
+                 .equals(status)) {
                 return true;
             }
         }
         return e.getStatusCode()
-            .equals(HttpStatus.INTERNAL_SERVER_ERROR)
+                .equals(HttpStatus.INTERNAL_SERVER_ERROR)
             || e.getStatusCode()
                 .equals(HttpStatus.BAD_GATEWAY)
             || e.getStatusCode()

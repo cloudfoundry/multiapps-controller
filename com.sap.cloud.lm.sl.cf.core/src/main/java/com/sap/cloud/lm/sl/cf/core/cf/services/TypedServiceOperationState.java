@@ -17,8 +17,8 @@ public enum TypedServiceOperationState {
             case IN_PROGRESS:
                 return fromOngoingServiceOperation(serviceOperation);
             default:
-                throw new IllegalStateException(
-                    MessageFormat.format(Messages.ILLEGAL_SERVICE_OPERATION_STATE, serviceOperation.getState()));
+                throw new IllegalStateException(MessageFormat.format(Messages.ILLEGAL_SERVICE_OPERATION_STATE,
+                                                                     serviceOperation.getState()));
         }
     }
 

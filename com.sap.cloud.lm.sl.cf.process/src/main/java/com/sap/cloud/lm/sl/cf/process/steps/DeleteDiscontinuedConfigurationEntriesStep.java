@@ -35,14 +35,14 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.DELETING_PUBLISHED_DEPENDENCIES);
         String mtaId = (String) execution.getContext()
-            .getVariable(Constants.PARAM_MTA_ID);
+                                         .getVariable(Constants.PARAM_MTA_ID);
         String org = StepsUtil.getOrg(execution.getContext());
         String space = StepsUtil.getSpace(execution.getContext());
         CloudTarget newTarget = new CloudTarget(org, space);
         CloudTarget oldTarget = new CloudTarget(null, StepsUtil.getSpaceId(execution.getContext()));
 
         List<ConfigurationEntry> publishedConfigurationEntries = StepsUtil.getPublishedEntriesFromSubProcesses(execution.getContext(),
-            flowableFacade);
+                                                                                                               flowableFacade);
 
         List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, newTarget, oldTarget, publishedConfigurationEntries);
         for (ConfigurationEntry entry : entriesToDelete) {
@@ -61,7 +61,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
     }
 
     private List<ConfigurationEntry> getEntriesToDelete(String mtaId, CloudTarget newTarget, CloudTarget oldTarget,
-        List<ConfigurationEntry> publishedEntries) {
+                                                        List<ConfigurationEntry> publishedEntries) {
         List<ConfigurationEntry> entriesWithNewTargetFormat = getEntriesToDelete(mtaId, newTarget, publishedEntries);
         /**
          * TODO: The following line of code should be removed when compatibility with versions lower than 1.18.2 is not required. In these
@@ -78,8 +78,8 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
         List<ConfigurationEntry> allEntriesForCurrentMta = getEntries(mtaId, target);
         List<Long> publishedEntryIds = getEntryIds(publishedEntries);
         return allEntriesForCurrentMta.stream()
-            .filter(entry -> !publishedEntryIds.contains(entry.getId()))
-            .collect(Collectors.toList());
+                                      .filter(entry -> !publishedEntryIds.contains(entry.getId()))
+                                      .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> getEntries(String mtaId, CloudTarget target) {
@@ -88,8 +88,8 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
 
     private List<Long> getEntryIds(List<ConfigurationEntry> configurationEntries) {
         return configurationEntries.stream()
-            .map(ConfigurationEntry::getId)
-            .collect(Collectors.toList());
+                                   .map(ConfigurationEntry::getId)
+                                   .collect(Collectors.toList());
     }
 
 }

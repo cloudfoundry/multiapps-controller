@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.core.validators.parameters.v3.VisibilityValidator;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.v3.ProvidedDependency;
 
@@ -66,6 +65,6 @@ public class VisibilityValidatorTest {
     @Test
     public void testGetContainerType() {
         assertTrue(validator.getContainerType()
-            .isAssignableFrom(ProvidedDependency.class));
+                            .isAssignableFrom(ProvidedDependency.class));
     }
 }

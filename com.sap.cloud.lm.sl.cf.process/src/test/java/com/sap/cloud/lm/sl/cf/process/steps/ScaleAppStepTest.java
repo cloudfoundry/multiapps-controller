@@ -20,6 +20,11 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
     private final SimpleApplication application;
     private final SimpleApplication existingApplication;
 
+    public ScaleAppStepTest(SimpleApplication application, SimpleApplication existingApplication) {
+        this.application = application;
+        this.existingApplication = existingApplication;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -35,11 +40,6 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
             },
             // @formatter:on
         });
-    }
-
-    public ScaleAppStepTest(SimpleApplication application, SimpleApplication existingApplication) {
-        this.application = application;
-        this.existingApplication = existingApplication;
     }
 
     @Before
@@ -71,9 +71,14 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
         if (application.instances != 0) {
             if (existingApplication == null || application.instances != existingApplication.instances) {
                 Mockito.verify(client)
-                    .updateApplicationInstances(application.name, application.instances);
+                       .updateApplicationInstances(application.name, application.instances);
             }
         }
+    }
+
+    @Override
+    protected ScaleAppStep createStep() {
+        return new ScaleAppStep();
     }
 
     static class SimpleApplication {
@@ -91,11 +96,6 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
             app.setInstances(instances);
             return app;
         }
-    }
-
-    @Override
-    protected ScaleAppStep createStep() {
-        return new ScaleAppStep();
     }
 
 }

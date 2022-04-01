@@ -39,6 +39,13 @@ public class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
     private StepInput stepInput;
     private StepOutput stepOutput;
 
+    public UndeployAppStepTest(String stepInputLocation, String stepOutputLocation) throws Exception {
+        String resourceAsString = TestUtil.getResourceAsString(stepInputLocation, UndeployAppStepTest.class);
+        stepInput = JsonUtil.fromJson(resourceAsString, StepInput.class);
+        System.out.println(JsonUtil.toJson(stepInput, true));
+        stepOutput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepOutputLocation, UndeployAppStepTest.class), StepOutput.class);
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -66,7 +73,7 @@ public class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
           // (5) There are not found routes matching app uri:
           {
               "undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json",
-          },          
+          },
           // (6) There are tcp/tcps routes to undeploy (host based routing (XSA)):
           {
               "undeploy-apps-step-input-06.json", "undeploy-apps-step-output-06.json",
@@ -75,19 +82,12 @@ public class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
         });
     }
 
-    public UndeployAppStepTest(String stepInputLocation, String stepOutputLocation) throws Exception {
-        String resourceAsString = TestUtil.getResourceAsString(stepInputLocation, UndeployAppStepTest.class);
-        stepInput = JsonUtil.fromJson(resourceAsString, StepInput.class);
-        System.out.println(JsonUtil.toJson(stepInput, true));
-        stepOutput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepOutputLocation, UndeployAppStepTest.class), StepOutput.class);
-    }
-
     @Before
     public void setUp() throws Exception {
         prepareContext();
         prepareClient();
         Mockito.when(client.areTasksSupported())
-            .thenReturn(!stepInput.tasksPerApplication.isEmpty());
+               .thenReturn(!stepInput.tasksPerApplication.isEmpty());
     }
 
     @Test
@@ -104,7 +104,7 @@ public class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
         assertStepFinishedSuccessfully();
         verify(client).stopApplication(cloudApplication.getName());
         if (!cloudApplication.getUris()
-            .isEmpty()) {
+                             .isEmpty()) {
             verify(client).updateApplicationUris(cloudApplication.getName(), Collections.emptyList());
         }
         verify(client).deleteApplication(cloudApplication.getName());
@@ -140,23 +140,28 @@ public class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
     private void prepareClient() {
         CloudInfoExtended info = Mockito.mock(CloudInfoExtended.class);
         Mockito.when(info.isPortBasedRouting())
-            .thenReturn(stepInput.portBasedRouting);
+               .thenReturn(stepInput.portBasedRouting);
         Mockito.when(client.getCloudInfo())
-            .thenReturn(info);
+               .thenReturn(info);
         Mockito.when(applicationRoutesGetter.getRoutes(any(), anyString()))
-            .thenAnswer((invocation) -> {
+               .thenAnswer((invocation) -> {
 
-                String appName = (String) invocation.getArguments()[1];
-                return stepInput.appRoutesPerApplication.get(appName);
+                   String appName = (String) invocation.getArguments()[1];
+                   return stepInput.appRoutesPerApplication.get(appName);
 
-            });
+               });
         Mockito.when(client.getTasks(anyString()))
-            .thenAnswer((invocation) -> {
+               .thenAnswer((invocation) -> {
 
-                String appName = (String) invocation.getArguments()[0];
-                return stepInput.tasksPerApplication.get(appName);
+                   String appName = (String) invocation.getArguments()[0];
+                   return stepInput.tasksPerApplication.get(appName);
 
-            });
+               });
+    }
+
+    @Override
+    protected UndeployAppStep createStep() {
+        return new UndeployAppStep();
     }
 
     private static class StepInput {
@@ -169,11 +174,6 @@ public class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
     private static class StepOutput {
         private List<Pair<String, String>> expectedRoutesToDelete = Collections.emptyList();
         private List<String> expectedTasksToCancel = Collections.emptyList();
-    }
-
-    @Override
-    protected UndeployAppStep createStep() {
-        return new UndeployAppStep();
     }
 
 }

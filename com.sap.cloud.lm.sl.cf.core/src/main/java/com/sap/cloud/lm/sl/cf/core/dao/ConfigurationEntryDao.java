@@ -18,43 +18,42 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 @Component
 public class ConfigurationEntryDao {
 
+    private static final BiFunction<ConfigurationEntry, String, Boolean> VERSION_FILTER = new VersionFilter();
+    private static final BiFunction<ConfigurationEntry, List<CloudTarget>, Boolean> VISIBILITY_FILTER = new VisibilityFilter();
     @Inject
     protected ConfigurationEntryDtoDao dao;
 
-    private static final BiFunction<ConfigurationEntry, String, Boolean> VERSION_FILTER = new VersionFilter();
-    private static final BiFunction<ConfigurationEntry, List<CloudTarget>, Boolean> VISIBILITY_FILTER = new VisibilityFilter();
-
     public List<ConfigurationEntry> find(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
-        String mtaId, List<CloudTarget> cloudTargets) {
+                                         String mtaId, List<CloudTarget> cloudTargets) {
         return filter(toConfigurationEntries(dao.find(nid, id, target, requiredProperties, mtaId)), version, cloudTargets);
     }
 
     public List<ConfigurationEntry> find(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
-        String mtaId) {
+                                         String mtaId) {
         return find(nid, id, version, target, requiredProperties, mtaId, null);
     }
 
     private List<ConfigurationEntry> filter(List<ConfigurationEntry> entries, String version, List<CloudTarget> cloudTargets) {
         return entries.stream()
-            .filter(entry -> VERSION_FILTER.apply(entry, version))
-            .filter(entry -> VISIBILITY_FILTER.apply(entry, cloudTargets))
-            .collect(Collectors.toList());
+                      .filter(entry -> VERSION_FILTER.apply(entry, version))
+                      .filter(entry -> VISIBILITY_FILTER.apply(entry, cloudTargets))
+                      .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> toConfigurationEntries(List<ConfigurationEntryDto> dtos) {
         return dtos.stream()
-            .map(ConfigurationEntryDto::toConfigurationEntry)
-            .collect(Collectors.toList());
+                   .map(ConfigurationEntryDto::toConfigurationEntry)
+                   .collect(Collectors.toList());
     }
 
     public ConfigurationEntry update(long id, ConfigurationEntry entry) {
         return dao.update(id, new ConfigurationEntryDto(entry))
-            .toConfigurationEntry();
+                  .toConfigurationEntry();
     }
 
     public ConfigurationEntry find(long id) {
         return dao.find(id)
-            .toConfigurationEntry();
+                  .toConfigurationEntry();
     }
 
     public List<ConfigurationEntry> find(String spaceGuid) {
@@ -74,7 +73,7 @@ public class ConfigurationEntryDao {
 
     public ConfigurationEntry add(ConfigurationEntry entry) {
         return dao.add(new ConfigurationEntryDto(entry))
-            .toConfigurationEntry();
+                  .toConfigurationEntry();
     }
 
     public boolean exists(long id) {

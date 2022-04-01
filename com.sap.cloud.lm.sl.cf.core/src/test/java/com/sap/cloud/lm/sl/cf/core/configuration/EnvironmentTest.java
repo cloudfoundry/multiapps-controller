@@ -34,7 +34,7 @@ public class EnvironmentTest {
         variables.put("foo", "bar");
         variables.put("baz", "qux");
         Mockito.when(environmentVariablesAccessor.getAllVariables())
-            .thenReturn(variables);
+               .thenReturn(variables);
 
         assertEquals(variables, environment.getAllVariables());
     }
@@ -42,7 +42,7 @@ public class EnvironmentTest {
     @Test
     public void testGetString() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("cd");
+               .thenReturn("cd");
 
         assertEquals("cd", environment.getString("ab"));
     }
@@ -60,7 +60,7 @@ public class EnvironmentTest {
     @Test
     public void testGetLong() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("12");
+               .thenReturn("12");
 
         assertEquals(12, (long) environment.getLong("ab"));
     }
@@ -73,7 +73,7 @@ public class EnvironmentTest {
     @Test
     public void testGetLongWhenVariableIsInvalid() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("cd");
+               .thenReturn("cd");
 
         assertNull(environment.getLong("ab"));
     }
@@ -81,7 +81,7 @@ public class EnvironmentTest {
     @Test
     public void testGetLongWhenVariableIsInvalidWithDefault() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("cd");
+               .thenReturn("cd");
 
         assertEquals(12, (long) environment.getLong("ab", 12L));
     }
@@ -94,7 +94,7 @@ public class EnvironmentTest {
     @Test
     public void testGetInteger() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("12");
+               .thenReturn("12");
 
         assertEquals(12, (long) environment.getInteger("ab"));
     }
@@ -107,7 +107,7 @@ public class EnvironmentTest {
     @Test
     public void testGetIntegerWhenVariableIsInvalid() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("cd");
+               .thenReturn("cd");
 
         assertNull(environment.getInteger("ab"));
     }
@@ -115,7 +115,7 @@ public class EnvironmentTest {
     @Test
     public void testGetIntegerWhenVariableIsInvalidWithDefault() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("cd");
+               .thenReturn("cd");
 
         assertEquals(12, (int) environment.getInteger("ab", 12));
     }
@@ -128,7 +128,7 @@ public class EnvironmentTest {
     @Test
     public void testGetBoolean() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("false");
+               .thenReturn("false");
 
         assertEquals(false, environment.getBoolean("ab"));
     }
@@ -141,7 +141,7 @@ public class EnvironmentTest {
     @Test
     public void testGetBooleanWhenVariableIsInvalid() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("cd");
+               .thenReturn("cd");
 
         assertEquals(false, environment.getBoolean("ab"));
     }
@@ -154,7 +154,7 @@ public class EnvironmentTest {
     @Test
     public void testGetPositiveIntegerWithNegativeVariable() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("-1");
+               .thenReturn("-1");
 
         assertEquals(Integer.MAX_VALUE, (int) environment.getPositiveInteger("ab", null));
     }
@@ -162,7 +162,7 @@ public class EnvironmentTest {
     @Test
     public void testGetPositiveIntegerWithPositiveVariable() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("+1");
+               .thenReturn("+1");
 
         assertEquals(+1, (int) environment.getPositiveInteger("ab", null));
     }
@@ -170,7 +170,7 @@ public class EnvironmentTest {
     @Test
     public void testGetPositiveIntegerWithZero() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("0");
+               .thenReturn("0");
 
         assertEquals(Integer.MAX_VALUE, (int) environment.getPositiveInteger("ab", null));
     }
@@ -183,7 +183,7 @@ public class EnvironmentTest {
     @Test
     public void testGetNegativeIntegerWithNegativeVariable() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("-1");
+               .thenReturn("-1");
 
         assertEquals(-1, (int) environment.getNegativeInteger("ab", null));
     }
@@ -191,7 +191,7 @@ public class EnvironmentTest {
     @Test
     public void testGetNegativeIntegerWithPositiveVariable() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("+1");
+               .thenReturn("+1");
 
         assertEquals(Integer.MIN_VALUE, (int) environment.getNegativeInteger("ab", null));
     }
@@ -199,7 +199,7 @@ public class EnvironmentTest {
     @Test
     public void testGetNegativeIntegerWithZero() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("0");
+               .thenReturn("0");
 
         assertEquals(Integer.MIN_VALUE, (int) environment.getNegativeInteger("ab", null));
     }
@@ -213,7 +213,7 @@ public class EnvironmentTest {
     public void tetGetVariable() {
         UUID expectedUuid = UUID.fromString("c9fbfbfd-8d54-4cba-958f-25a3f7a14ca7");
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn(expectedUuid.toString());
+               .thenReturn(expectedUuid.toString());
 
         assertEquals(expectedUuid, environment.getVariable("ab", UUID::fromString));
     }
@@ -221,7 +221,7 @@ public class EnvironmentTest {
     @Test
     public void testHasVariable() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("0");
+               .thenReturn("0");
 
         assertTrue(environment.hasVariable("ab"));
     }
@@ -229,7 +229,7 @@ public class EnvironmentTest {
     @Test
     public void testHasVariableWhenVariableIsAnEmptyString() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
-            .thenReturn("");
+               .thenReturn("");
 
         assertFalse(environment.hasVariable("ab"));
     }

@@ -59,11 +59,12 @@ public class SystemParametersBuilder {
     private final PropertiesAccessor propertiesAccessor;
     private final Supplier<String> timestampSupplier;
 
-    public SystemParametersBuilder(String organization, String space, String user, String defaultDomain, PlatformType xsType, URL controllerUrl,
-        String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting, boolean reserveTemporaryRoutes,
-        PortAllocator portAllocator, boolean useNamespaces, boolean useNamespacesForServices, DeployedMta deployedMta,
-        CredentialsGenerator credentialsGenerator, int majorSchemaVersion, boolean areXsPlaceholdersSupported,
-        Supplier<String> timestampSupplier) {
+    public SystemParametersBuilder(String organization, String space, String user, String defaultDomain, PlatformType xsType,
+                                   URL controllerUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort,
+                                   boolean portBasedRouting, boolean reserveTemporaryRoutes, PortAllocator portAllocator,
+                                   boolean useNamespaces, boolean useNamespacesForServices, DeployedMta deployedMta,
+                                   CredentialsGenerator credentialsGenerator, int majorSchemaVersion, boolean areXsPlaceholdersSupported,
+                                   Supplier<String> timestampSupplier) {
         this.targetName = organization + " " + space;
         this.organization = organization;
         this.space = space;
@@ -96,8 +97,10 @@ public class SystemParametersBuilder {
         for (Resource resource : descriptor.getResources2()) {
             resourceParameters.put(resource.getName(), getResourceParameters(resource, descriptor.getId()));
         }
-        return new SystemParameters(getGeneralParameters(), moduleParameters, resourceParameters,
-            SupportedParameters.SINGULAR_PLURAL_MAPPING);
+        return new SystemParameters(getGeneralParameters(),
+                                    moduleParameters,
+                                    resourceParameters,
+                                    SupportedParameters.SINGULAR_PLURAL_MAPPING);
     }
 
     private Map<String, Object> getGeneralParameters() {
@@ -163,7 +166,7 @@ public class SystemParametersBuilder {
                 String defaultIdleUri = isStandardPort ? DEFAULT_IDLE_URI_HOST_PLACEHOLDER
                     : DEFAULT_IDLE_URI_HOST_PLACEHOLDER + ":" + getRouterPort();
                 moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_URI,
-                    appendRoutePathIfPresent(defaultIdleUri, moduleParameters));
+                                           appendRoutePathIfPresent(defaultIdleUri, moduleParameters));
                 defaultUri = defaultIdleUri;
             }
             moduleSystemParameters.put(SupportedParameters.DEFAULT_URI, appendRoutePathIfPresent(defaultUri, moduleParameters));
@@ -203,7 +206,7 @@ public class SystemParametersBuilder {
             moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_PORT, idlePort);
             moduleSystemParameters.put(SupportedParameters.IDLE_PORT, idlePort);
             moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_URI,
-                appendRoutePathIfPresent(DEFAULT_IDLE_PORT_URI, moduleParameters));
+                                       appendRoutePathIfPresent(DEFAULT_IDLE_PORT_URI, moduleParameters));
             defaultPort = idlePort;
         }
         moduleSystemParameters.put(SupportedParameters.DEFAULT_PORT, defaultPort);
@@ -227,7 +230,7 @@ public class SystemParametersBuilder {
         resourceSystemParameters.put(SupportedParameters.SERVICE, "");
         resourceSystemParameters.put(SupportedParameters.SERVICE_PLAN, "");
         resourceSystemParameters.put(SupportedParameters.DEFAULT_CONTAINER_NAME,
-            NameUtil.createValidContainerName(organization, space, resource.getName()));
+                                     NameUtil.createValidContainerName(organization, space, resource.getName()));
         resourceSystemParameters.put(SupportedParameters.DEFAULT_XS_APP_NAME, NameUtil.createValidXsAppName(resource.getName()));
 
         resourceSystemParameters.put(SupportedParameters.GENERATED_USER, credentialsGenerator.next(GENERATED_CREDENTIALS_LENGTH));
@@ -241,7 +244,7 @@ public class SystemParametersBuilder {
 
         if (deployedModule != null && !CollectionUtils.isEmpty(deployedModule.getUris())) {
             Integer usedPort = UriUtil.getPort(deployedModule.getUris()
-                .get(0));
+                                                             .get(0));
             if (usedPort != null) {
                 return usedPort;
             }
@@ -274,7 +277,7 @@ public class SystemParametersBuilder {
 
     private String getDefaultHost(String moduleName) {
         String host = (targetName + " " + moduleName).replaceAll("\\s", "-")
-            .toLowerCase();
+                                                     .toLowerCase();
         if (!HOST_VALIDATOR.isValid(host)) {
             return HOST_VALIDATOR.attemptToCorrect(host);
         }

@@ -39,7 +39,7 @@ public class ApplicationAttributesTest {
         ParsingException e = assertThrows(ParsingException.class, () -> appAttributes.get(attributeName, Boolean.class));
 
         String expectedMessage = MessageFormat.format(Messages.ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3, attributeName, APP_NAME,
-            String.class.getSimpleName(), Boolean.class.getSimpleName());
+                                                      String.class.getSimpleName(), Boolean.class.getSimpleName());
         assertEquals(expectedMessage, e.getMessage());
     }
 

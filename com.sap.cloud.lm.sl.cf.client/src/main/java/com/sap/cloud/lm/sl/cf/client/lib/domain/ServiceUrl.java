@@ -17,12 +17,12 @@ public class ServiceUrl {
         return serviceName;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public String getUrl() {
+        return url;
     }
 
     public void setUrl(String url) {

@@ -4,335 +4,69 @@
 package com.sap.cloud.lm.sl.cf.client.events;
 
 public final class UuidFactory {
-  private UuidFactory() {}
-  public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistryLite registry) {
-  }
+    private static final com.google.protobuf.Descriptors.Descriptor internal_static_events_UUID_descriptor;
+    private static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internal_static_events_UUID_fieldAccessorTable;
+    private static com.google.protobuf.Descriptors.FileDescriptor descriptor;
 
-  public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistry registry) {
-    registerAllExtensions(
-        (com.google.protobuf.ExtensionRegistryLite) registry);
-  }
-  public interface UUIDOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:events.UUID)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>required uint64 low = 1;</code>
-     */
-    boolean hasLow();
-    /**
-     * <code>required uint64 low = 1;</code>
-     */
-    long getLow();
-
-    /**
-     * <code>required uint64 high = 2;</code>
-     */
-    boolean hasHigh();
-    /**
-     * <code>required uint64 high = 2;</code>
-     */
-    long getHigh();
-  }
-  /**
-   * <pre>
-   *&#47; Type representing a 128-bit UUID.
-   * The bytes of the UUID should be packed in little-endian **byte** (not bit) order. For example, the UUID `f47ac10b-58cc-4372-a567-0e02b2c3d479` should be encoded as `UUID{ low: 0x7243cc580bc17af4, high: 0x79d4c3b2020e67a5 }`
-   * </pre>
-   *
-   * Protobuf type {@code events.UUID}
-   */
-  public  static final class UUID extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:events.UUID)
-      UUIDOrBuilder {
-    // Use UUID.newBuilder() to construct.
-    private UUID(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private UUID() {
-      low_ = 0L;
-      high_ = 0L;
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return this.unknownFields;
-    }
-    private UUID(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
+    static {
+        java.lang.String[] descriptorData = { "\n\nuuid.proto\022\006events\"!\n\004UUID\022\013\n\003low\030\001 \002("
+            + "\004\022\014\n\004high\030\002 \002(\004B0\n!org.cloudfoundry.drop" + "sonde.eventsB\013UuidFactory" };
+        com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner = new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+            public com.google.protobuf.ExtensionRegistry assignDescriptors(com.google.protobuf.Descriptors.FileDescriptor root) {
+                descriptor = root;
+                return null;
             }
-            case 8: {
-              bitField0_ |= 0x00000001;
-              low_ = input.readUInt64();
-              break;
-            }
-            case 16: {
-              bitField0_ |= 0x00000002;
-              high_ = input.readUInt64();
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-            return UuidFactory.internal_static_events_UUID_descriptor;
+        };
+        com.google.protobuf.Descriptors.FileDescriptor.internalBuildGeneratedFileFrom(descriptorData,
+                                                                                      new com.google.protobuf.Descriptors.FileDescriptor[] {},
+                                                                                      assigner);
+        internal_static_events_UUID_descriptor = getDescriptor().getMessageTypes()
+                                                                .get(0);
+        internal_static_events_UUID_fieldAccessorTable = new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(internal_static_events_UUID_descriptor,
+                                                                                                                       new java.lang.String[] {
+                                                                                                                           "Low",
+                                                                                                                           "High", });
     }
 
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return UuidFactory.internal_static_events_UUID_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-UuidFactory.UUID.class,
-                UuidFactory.UUID.Builder.class);
+    private UuidFactory() {
     }
 
-    private int bitField0_;
-    public static final int LOW_FIELD_NUMBER = 1;
-    private long low_;
-    /**
-     * <code>required uint64 low = 1;</code>
-     */
-    public boolean hasLow() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>required uint64 low = 1;</code>
-     */
-    public long getLow() {
-      return low_;
+    public static void registerAllExtensions(com.google.protobuf.ExtensionRegistryLite registry) {
     }
 
-    public static final int HIGH_FIELD_NUMBER = 2;
-    private long high_;
-    /**
-     * <code>required uint64 high = 2;</code>
-     */
-    public boolean hasHigh() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    /**
-     * <code>required uint64 high = 2;</code>
-     */
-    public long getHigh() {
-      return high_;
+    public static void registerAllExtensions(com.google.protobuf.ExtensionRegistry registry) {
+        registerAllExtensions((com.google.protobuf.ExtensionRegistryLite) registry);
     }
 
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      if (!hasLow()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasHigh()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      memoizedIsInitialized = 1;
-      return true;
+    public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor() {
+        return descriptor;
     }
 
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeUInt64(1, low_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeUInt64(2, high_);
-      }
-      unknownFields.writeTo(output);
+    public interface UUIDOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:events.UUID)
+        com.google.protobuf.MessageOrBuilder {
+
+        /**
+         * <code>required uint64 low = 1;</code>
+         */
+        boolean hasLow();
+
+        /**
+         * <code>required uint64 low = 1;</code>
+         */
+        long getLow();
+
+        /**
+         * <code>required uint64 high = 2;</code>
+         */
+        boolean hasHigh();
+
+        /**
+         * <code>required uint64 high = 2;</code>
+         */
+        long getHigh();
     }
 
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(1, low_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(2, high_);
-      }
-      size += unknownFields.getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-            if (!(obj instanceof UuidFactory.UUID)) {
-        return super.equals(obj);
-      }
-            UuidFactory.UUID other = (UuidFactory.UUID) obj;
-
-      boolean result = true;
-      result = result && (hasLow() == other.hasLow());
-      if (hasLow()) {
-        result = result && (getLow()
-            == other.getLow());
-      }
-      result = result && (hasHigh() == other.hasHigh());
-      if (hasHigh()) {
-        result = result && (getHigh()
-            == other.getHigh());
-      }
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
-      if (hasLow()) {
-        hash = (37 * hash) + LOW_FIELD_NUMBER;
-        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-            getLow());
-      }
-      if (hasHigh()) {
-        hash = (37 * hash) + HIGH_FIELD_NUMBER;
-        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-            getHigh());
-      }
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-        public static UuidFactory.UUID parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-
-        public static UuidFactory.UUID parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-
-        public static UuidFactory.UUID parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-
-        public static UuidFactory.UUID parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-
-        public static UuidFactory.UUID parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-
-        public static UuidFactory.UUID parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-        public static UuidFactory.UUID parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-
-        public static UuidFactory.UUID parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-
-        public static UuidFactory.UUID parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-
-        public static UuidFactory.UUID parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-
-        public static Builder newBuilder(UuidFactory.UUID prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
     /**
      * <pre>
      *&#47; Type representing a 128-bit UUID.
@@ -341,308 +75,537 @@ UuidFactory.UUID.class,
      *
      * Protobuf type {@code events.UUID}
      */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:events.UUID)
-            UuidFactory.UUIDOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-                return UuidFactory.internal_static_events_UUID_descriptor;
-      }
+    public static final class UUID extends com.google.protobuf.GeneratedMessageV3 implements
+        // @@protoc_insertion_point(message_implements:events.UUID)
+        UUIDOrBuilder {
+        public static final int LOW_FIELD_NUMBER = 1;
+        public static final int HIGH_FIELD_NUMBER = 2;
+        @java.lang.Deprecated
+        public static final com.google.protobuf.Parser<UUID> PARSER = new com.google.protobuf.AbstractParser<UUID>() {
+            public UUID parsePartialFrom(com.google.protobuf.CodedInputStream input,
+                                         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+                return new UUID(input, extensionRegistry);
+            }
+        };
+        private static final long serialVersionUID = 0L;
+        // @@protoc_insertion_point(class_scope:events.UUID)
+        private static final UuidFactory.UUID DEFAULT_INSTANCE;
 
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-                return UuidFactory.internal_static_events_UUID_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-UuidFactory.UUID.class,
-                    UuidFactory.UUID.Builder.class);
-      }
+        static {
+            DEFAULT_INSTANCE = new UuidFactory.UUID();
+        }
+
+        private int bitField0_;
+        private long low_;
+        private long high_;
+        private byte memoizedIsInitialized = -1;
+
+        // Use UUID.newBuilder() to construct.
+        private UUID(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+            super(builder);
+        }
+
+        private UUID() {
+            low_ = 0L;
+            high_ = 0L;
+        }
+        private UUID(com.google.protobuf.CodedInputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            this();
+            int mutable_bitField0_ = 0;
+            com.google.protobuf.UnknownFieldSet.Builder unknownFields = com.google.protobuf.UnknownFieldSet.newBuilder();
+            try {
+                boolean done = false;
+                while (!done) {
+                    int tag = input.readTag();
+                    switch (tag) {
+                        case 0:
+                            done = true;
+                            break;
+                        default: {
+                            if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
+                                done = true;
+                            }
+                            break;
+                        }
+                        case 8: {
+                            bitField0_ |= 0x00000001;
+                            low_ = input.readUInt64();
+                            break;
+                        }
+                        case 16: {
+                            bitField0_ |= 0x00000002;
+                            high_ = input.readUInt64();
+                            break;
+                        }
+                    }
+                }
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                throw e.setUnfinishedMessage(this);
+            } catch (java.io.IOException e) {
+                throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
+            } finally {
+                this.unknownFields = unknownFields.build();
+                makeExtensionsImmutable();
+            }
+        }
+
+        public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+            return UuidFactory.internal_static_events_UUID_descriptor;
+        }
+
+        public static UuidFactory.UUID parseFrom(com.google.protobuf.ByteString data)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+
+        public static UuidFactory.UUID parseFrom(com.google.protobuf.ByteString data,
+                                                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+
+        public static UuidFactory.UUID parseFrom(byte[] data) throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+
+        public static UuidFactory.UUID parseFrom(byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+
+        public static UuidFactory.UUID parseFrom(java.io.InputStream input) throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+        }
+
+        public static UuidFactory.UUID parseFrom(java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public static UuidFactory.UUID parseDelimitedFrom(java.io.InputStream input) throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
+        }
+
+        public static UuidFactory.UUID parseDelimitedFrom(java.io.InputStream input,
+                                                          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public static UuidFactory.UUID parseFrom(com.google.protobuf.CodedInputStream input) throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+        }
+
+        public static UuidFactory.UUID parseFrom(com.google.protobuf.CodedInputStream input,
+                                                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public static Builder newBuilder() {
+            return DEFAULT_INSTANCE.toBuilder();
+        }
+
+        public static Builder newBuilder(UuidFactory.UUID prototype) {
+            return DEFAULT_INSTANCE.toBuilder()
+                                   .mergeFrom(prototype);
+        }
+
+        public static UuidFactory.UUID getDefaultInstance() {
+            return DEFAULT_INSTANCE;
+        }
+
+        public static com.google.protobuf.Parser<UUID> parser() {
+            return PARSER;
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+            return this.unknownFields;
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+            return UuidFactory.internal_static_events_UUID_fieldAccessorTable.ensureFieldAccessorsInitialized(UuidFactory.UUID.class,
+                                                                                                              UuidFactory.UUID.Builder.class);
+        }
+
+        /**
+         * <code>required uint64 low = 1;</code>
+         */
+        public boolean hasLow() {
+            return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+
+        /**
+         * <code>required uint64 low = 1;</code>
+         */
+        public long getLow() {
+            return low_;
+        }
+
+        /**
+         * <code>required uint64 high = 2;</code>
+         */
+        public boolean hasHigh() {
+            return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+
+        /**
+         * <code>required uint64 high = 2;</code>
+         */
+        public long getHigh() {
+            return high_;
+        }
+
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized == 1)
+                return true;
+            if (isInitialized == 0)
+                return false;
+
+            if (!hasLow()) {
+                memoizedIsInitialized = 0;
+                return false;
+            }
+            if (!hasHigh()) {
+                memoizedIsInitialized = 0;
+                return false;
+            }
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                output.writeUInt64(1, low_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                output.writeUInt64(2, high_);
+            }
+            unknownFields.writeTo(output);
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSize;
+            if (size != -1)
+                return size;
+
+            size = 0;
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                size += com.google.protobuf.CodedOutputStream.computeUInt64Size(1, low_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                size += com.google.protobuf.CodedOutputStream.computeUInt64Size(2, high_);
+            }
+            size += unknownFields.getSerializedSize();
+            memoizedSize = size;
+            return size;
+        }
+
+        @java.lang.Override
+        public boolean equals(final java.lang.Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof UuidFactory.UUID)) {
+                return super.equals(obj);
+            }
+            UuidFactory.UUID other = (UuidFactory.UUID) obj;
+
+            boolean result = true;
+            result = result && (hasLow() == other.hasLow());
+            if (hasLow()) {
+                result = result && (getLow() == other.getLow());
+            }
+            result = result && (hasHigh() == other.hasHigh());
+            if (hasHigh()) {
+                result = result && (getHigh() == other.getHigh());
+            }
+            result = result && unknownFields.equals(other.unknownFields);
+            return result;
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            if (memoizedHashCode != 0) {
+                return memoizedHashCode;
+            }
+            int hash = 41;
+            hash = (19 * hash) + getDescriptorForType().hashCode();
+            if (hasLow()) {
+                hash = (37 * hash) + LOW_FIELD_NUMBER;
+                hash = (53 * hash) + com.google.protobuf.Internal.hashLong(getLow());
+            }
+            if (hasHigh()) {
+                hash = (37 * hash) + HIGH_FIELD_NUMBER;
+                hash = (53 * hash) + com.google.protobuf.Internal.hashLong(getHigh());
+            }
+            hash = (29 * hash) + unknownFields.hashCode();
+            memoizedHashCode = hash;
+            return hash;
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
+        }
+
+        public Builder toBuilder() {
+            return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+        }
+
+        @java.lang.Override
+        protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+            Builder builder = new Builder(parent);
+            return builder;
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<UUID> getParserForType() {
+            return PARSER;
+        }
+
+        public UuidFactory.UUID getDefaultInstanceForType() {
+            return DEFAULT_INSTANCE;
+        }
+
+        /**
+         * <pre>
+         *&#47; Type representing a 128-bit UUID.
+         * The bytes of the UUID should be packed in little-endian **byte** (not bit) order. For example, the UUID `f47ac10b-58cc-4372-a567-0e02b2c3d479` should be encoded as `UUID{ low: 0x7243cc580bc17af4, high: 0x79d4c3b2020e67a5 }`
+         * </pre>
+         *
+         * Protobuf type {@code events.UUID}
+         */
+        public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+            // @@protoc_insertion_point(builder_implements:events.UUID)
+            UuidFactory.UUIDOrBuilder {
+            private int bitField0_;
+            private long low_;
+            private long high_;
 
             // Construct using UuidFactory.UUID.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
+            private Builder() {
+                maybeForceBuilderInitialization();
+            }
 
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        low_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000001);
-        high_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        return this;
-      }
+            private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+                super(parent);
+                maybeForceBuilderInitialization();
+            }
 
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
+            public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
                 return UuidFactory.internal_static_events_UUID_descriptor;
-      }
+            }
+
+            protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+                return UuidFactory.internal_static_events_UUID_fieldAccessorTable.ensureFieldAccessorsInitialized(UuidFactory.UUID.class,
+                                                                                                                  UuidFactory.UUID.Builder.class);
+            }
+
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
+                }
+            }
+
+            public Builder clear() {
+                super.clear();
+                low_ = 0L;
+                bitField0_ = (bitField0_ & ~0x00000001);
+                high_ = 0L;
+                bitField0_ = (bitField0_ & ~0x00000002);
+                return this;
+            }
+
+            public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+                return UuidFactory.internal_static_events_UUID_descriptor;
+            }
 
             public UuidFactory.UUID getDefaultInstanceForType() {
                 return UuidFactory.UUID.getDefaultInstance();
-      }
+            }
 
             public UuidFactory.UUID build() {
                 UuidFactory.UUID result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
+                if (!result.isInitialized()) {
+                    throw newUninitializedMessageException(result);
+                }
+                return result;
+            }
 
             public UuidFactory.UUID buildPartial() {
                 UuidFactory.UUID result = new UuidFactory.UUID(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.low_ = low_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.high_ = high_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
-      }
+                int from_bitField0_ = bitField0_;
+                int to_bitField0_ = 0;
+                if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+                    to_bitField0_ |= 0x00000001;
+                }
+                result.low_ = low_;
+                if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+                    to_bitField0_ |= 0x00000002;
+                }
+                result.high_ = high_;
+                result.bitField0_ = to_bitField0_;
+                onBuilt();
+                return result;
+            }
 
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      public Builder mergeFrom(com.google.protobuf.Message other) {
+            public Builder clone() {
+                return (Builder) super.clone();
+            }
+
+            public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+                return (Builder) super.setField(field, value);
+            }
+
+            public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+                return (Builder) super.clearField(field);
+            }
+
+            public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+                return (Builder) super.clearOneof(oneof);
+            }
+
+            public Builder setRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, int index, Object value) {
+                return (Builder) super.setRepeatedField(field, index, value);
+            }
+
+            public Builder addRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+                return (Builder) super.addRepeatedField(field, value);
+            }
+
+            public Builder mergeFrom(com.google.protobuf.Message other) {
                 if (other instanceof UuidFactory.UUID) {
                     return mergeFrom((UuidFactory.UUID) other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
+                } else {
+                    super.mergeFrom(other);
+                    return this;
+                }
+            }
 
             public Builder mergeFrom(UuidFactory.UUID other) {
                 if (other == UuidFactory.UUID.getDefaultInstance())
                     return this;
-        if (other.hasLow()) {
-          setLow(other.getLow());
-        }
-        if (other.hasHigh()) {
-          setHigh(other.getHigh());
-        }
-        this.mergeUnknownFields(other.unknownFields);
-        onChanged();
-        return this;
-      }
+                if (other.hasLow()) {
+                    setLow(other.getLow());
+                }
+                if (other.hasHigh()) {
+                    setHigh(other.getHigh());
+                }
+                this.mergeUnknownFields(other.unknownFields);
+                onChanged();
+                return this;
+            }
 
-      public final boolean isInitialized() {
-        if (!hasLow()) {
-          return false;
-        }
-        if (!hasHigh()) {
-          return false;
-        }
-        return true;
-      }
+            public final boolean isInitialized() {
+                if (!hasLow()) {
+                    return false;
+                }
+                if (!hasHigh()) {
+                    return false;
+                }
+                return true;
+            }
 
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
+            public Builder mergeFrom(com.google.protobuf.CodedInputStream input,
+                                     com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
                 UuidFactory.UUID parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                try {
+                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
                     parsedMessage = (UuidFactory.UUID) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
+                    throw e.unwrapIOException();
+                } finally {
+                    if (parsedMessage != null) {
+                        mergeFrom(parsedMessage);
+                    }
+                }
+                return this;
+            }
+
+            /**
+             * <code>required uint64 low = 1;</code>
+             */
+            public boolean hasLow() {
+                return ((bitField0_ & 0x00000001) == 0x00000001);
+            }
+
+            /**
+             * <code>required uint64 low = 1;</code>
+             */
+            public long getLow() {
+                return low_;
+            }
+
+            /**
+             * <code>required uint64 low = 1;</code>
+             */
+            public Builder setLow(long value) {
+                bitField0_ |= 0x00000001;
+                low_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <code>required uint64 low = 1;</code>
+             */
+            public Builder clearLow() {
+                bitField0_ = (bitField0_ & ~0x00000001);
+                low_ = 0L;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <code>required uint64 high = 2;</code>
+             */
+            public boolean hasHigh() {
+                return ((bitField0_ & 0x00000002) == 0x00000002);
+            }
+
+            /**
+             * <code>required uint64 high = 2;</code>
+             */
+            public long getHigh() {
+                return high_;
+            }
+
+            /**
+             * <code>required uint64 high = 2;</code>
+             */
+            public Builder setHigh(long value) {
+                bitField0_ |= 0x00000002;
+                high_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <code>required uint64 high = 2;</code>
+             */
+            public Builder clearHigh() {
+                bitField0_ = (bitField0_ & ~0x00000002);
+                high_ = 0L;
+                onChanged();
+                return this;
+            }
+
+            public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.setUnknownFields(unknownFields);
+            }
+
+            public final Builder mergeUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.mergeUnknownFields(unknownFields);
+            }
+
+            // @@protoc_insertion_point(builder_scope:events.UUID)
         }
-        return this;
-      }
-      private int bitField0_;
 
-      private long low_ ;
-      /**
-       * <code>required uint64 low = 1;</code>
-       */
-      public boolean hasLow() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required uint64 low = 1;</code>
-       */
-      public long getLow() {
-        return low_;
-      }
-      /**
-       * <code>required uint64 low = 1;</code>
-       */
-      public Builder setLow(long value) {
-        bitField0_ |= 0x00000001;
-        low_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>required uint64 low = 1;</code>
-       */
-      public Builder clearLow() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        low_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      private long high_ ;
-      /**
-       * <code>required uint64 high = 2;</code>
-       */
-      public boolean hasHigh() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>required uint64 high = 2;</code>
-       */
-      public long getHigh() {
-        return high_;
-      }
-      /**
-       * <code>required uint64 high = 2;</code>
-       */
-      public Builder setHigh(long value) {
-        bitField0_ |= 0x00000002;
-        high_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>required uint64 high = 2;</code>
-       */
-      public Builder clearHigh() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        high_ = 0L;
-        onChanged();
-        return this;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:events.UUID)
     }
 
-    // @@protoc_insertion_point(class_scope:events.UUID)
-        private static final UuidFactory.UUID DEFAULT_INSTANCE;
-    static {
-            DEFAULT_INSTANCE = new UuidFactory.UUID();
-    }
-
-        public static UuidFactory.UUID getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    @java.lang.Deprecated public static final com.google.protobuf.Parser<UUID>
-        PARSER = new com.google.protobuf.AbstractParser<UUID>() {
-      public UUID parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-          return new UUID(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<UUID> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<UUID> getParserForType() {
-      return PARSER;
-    }
-
-        public UuidFactory.UUID getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_events_UUID_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_events_UUID_fieldAccessorTable;
-
-  public static com.google.protobuf.Descriptors.FileDescriptor
-      getDescriptor() {
-    return descriptor;
-  }
-  private static  com.google.protobuf.Descriptors.FileDescriptor
-      descriptor;
-  static {
-    java.lang.String[] descriptorData = {
-      "\n\nuuid.proto\022\006events\"!\n\004UUID\022\013\n\003low\030\001 \002(" +
-      "\004\022\014\n\004high\030\002 \002(\004B0\n!org.cloudfoundry.drop" +
-      "sonde.eventsB\013UuidFactory"
-    };
-    com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
-    com.google.protobuf.Descriptors.FileDescriptor
-      .internalBuildGeneratedFileFrom(descriptorData,
-        new com.google.protobuf.Descriptors.FileDescriptor[] {
-        }, assigner);
-    internal_static_events_UUID_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_events_UUID_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_events_UUID_descriptor,
-        new java.lang.String[] { "Low", "High", });
-  }
-
-  // @@protoc_insertion_point(outer_class_scope)
+    // @@protoc_insertion_point(outer_class_scope)
 }

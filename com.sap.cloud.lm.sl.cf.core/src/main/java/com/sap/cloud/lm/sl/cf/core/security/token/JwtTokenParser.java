@@ -30,13 +30,27 @@ public class JwtTokenParser implements TokenParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenParser.class);
 
     protected final TokenFactory tokenFactory;
-    private volatile Pair<String, String> tokenKey;
     private final UAAClient uaaClient;
+    private volatile Pair<String, String> tokenKey;
 
     @Inject
     public JwtTokenParser(TokenFactory tokenFactory, UAAClient uaaClient) {
         this.tokenFactory = tokenFactory;
         this.uaaClient = uaaClient;
+    }
+
+    private static SignatureVerifier getSignatureVerifier(Pair<String, String> tokenKey) {
+        String key = tokenKey._1;
+        String alg = tokenKey._2;
+        SignatureVerifier verifier = null;
+        // TODO: Find or implement a factory, which would support other algorithms like SHA384withRSA, SHA512withRSA and HmacSHA512.
+        if (alg.equals("SHA256withRSA") || alg.equals("RS256"))
+            verifier = new RsaVerifier(key);
+        else if (alg.equals("HMACSHA256") || alg.equals("HS256"))
+            verifier = new MacSigner(key);
+        else
+            throw new InternalAuthenticationServiceException("Unsupported verifier algorithm " + alg);
+        return verifier;
     }
 
     @Override
@@ -82,20 +96,6 @@ public class JwtTokenParser implements TokenParser {
 
     private void refreshTokenKey() {
         tokenKey = readTokenKey();
-    }
-
-    private static SignatureVerifier getSignatureVerifier(Pair<String, String> tokenKey) {
-        String key = tokenKey._1;
-        String alg = tokenKey._2;
-        SignatureVerifier verifier = null;
-        // TODO: Find or implement a factory, which would support other algorithms like SHA384withRSA, SHA512withRSA and HmacSHA512.
-        if (alg.equals("SHA256withRSA") || alg.equals("RS256"))
-            verifier = new RsaVerifier(key);
-        else if (alg.equals("HMACSHA256") || alg.equals("HS256"))
-            verifier = new MacSigner(key);
-        else
-            throw new InternalAuthenticationServiceException("Unsupported verifier algorithm " + alg);
-        return verifier;
     }
 
     private Pair<String, String> readTokenKey() {

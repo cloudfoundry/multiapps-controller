@@ -74,10 +74,10 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
         try {
             CloudApplication app = client.getApplication(appName);
             return app.getState()
-                .equals(AppState.STARTED);
+                      .equals(AppState.STARTED);
         } catch (CloudOperationException e) {
             if (e.getStatusCode()
-                .equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+                 .equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
                 logger.warn(e.getMessage(), e);
                 return false;
             }

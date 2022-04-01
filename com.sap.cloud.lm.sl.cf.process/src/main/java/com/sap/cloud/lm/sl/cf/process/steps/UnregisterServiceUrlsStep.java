@@ -53,12 +53,12 @@ public class UnregisterServiceUrlsStep extends SyncFlowableStep {
 
     private List<String> getServiceNames(List<ServiceUrl> serviceUrls) {
         return serviceUrls.stream()
-            .map(ServiceUrl::getServiceName)
-            .collect(Collectors.toList());
+                          .map(ServiceUrl::getServiceName)
+                          .collect(Collectors.toList());
     }
 
     private void unregisterServiceUrlIfNecessary(DelegateExecution context, CloudApplication app, List<String> serviceUrlsToRegister,
-        XsCloudControllerClient xsClient) {
+                                                 XsCloudControllerClient xsClient) {
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
         if (!appAttributes.get(SupportedParameters.REGISTER_SERVICE_URL, Boolean.class, false)) {
             return;

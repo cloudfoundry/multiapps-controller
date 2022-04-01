@@ -55,7 +55,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
         StepsUtil.setStartedTask(execution.getContext(), startedTask);
         execution.getContext()
-            .setVariable(Constants.VAR_START_TIME, currentTimeSupplier.get());
+                 .setVariable(Constants.VAR_START_TIME, currentTimeSupplier.get());
         return StepPhase.POLL;
     }
 

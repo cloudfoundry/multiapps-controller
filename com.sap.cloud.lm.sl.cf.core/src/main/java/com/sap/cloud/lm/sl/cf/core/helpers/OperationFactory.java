@@ -18,14 +18,14 @@ public class OperationFactory {
 
     public Operation fromPersistenceDto(OperationDto dto) {
         return new Operation().processId(dto.getProcessId())
-            .processType(toProcessType(dto.getProcessType()))
-            .startedAt(toZonedDateTime(dto.getStartedAt()))
-            .endedAt(toZonedDateTime(dto.getEndedAt()))
-            .spaceId(dto.getSpaceId())
-            .mtaId(dto.getMtaId())
-            .user(dto.getUser())
-            .acquiredLock(dto.hasAcquiredLock())
-            .state(toState(dto.getFinalState()));
+                              .processType(toProcessType(dto.getProcessType()))
+                              .startedAt(toZonedDateTime(dto.getStartedAt()))
+                              .endedAt(toZonedDateTime(dto.getEndedAt()))
+                              .spaceId(dto.getSpaceId())
+                              .mtaId(dto.getMtaId())
+                              .user(dto.getUser())
+                              .acquiredLock(dto.hasAcquiredLock())
+                              .state(toState(dto.getFinalState()));
     }
 
     public OperationDto toPersistenceDto(Operation operation) {
@@ -56,7 +56,7 @@ public class OperationFactory {
     protected Date toDate(ZonedDateTime zonedDateTime) {
         return zonedDateTime == null ? null
             : new Date(zonedDateTime.toInstant()
-                .toEpochMilli());
+                                    .toEpochMilli());
     }
 
     protected ProcessType toProcessType(String processType) {

@@ -69,13 +69,13 @@ public class TaggingRequestInterceptorTest {
         testedInterceptor.intercept(requestStub, body, execution);
         assertNotNull(requestStub.getHeaders());
         assertTrue(requestStub.getHeaders()
-            .containsKey(TaggingRequestInterceptor.TAG_HEADER_NAME));
+                              .containsKey(TaggingRequestInterceptor.TAG_HEADER_NAME));
         String expectedValue = "MTA deploy-service v1.58.0";
         Optional<String> foundValue = requestStub.getHeaders()
-            .get(TaggingRequestInterceptor.TAG_HEADER_NAME)
-            .stream()
-            .filter(value -> value.equals(expectedValue))
-            .findFirst();
+                                                 .get(TaggingRequestInterceptor.TAG_HEADER_NAME)
+                                                 .stream()
+                                                 .filter(value -> value.equals(expectedValue))
+                                                 .findFirst();
         assertTrue(foundValue.isPresent());
     }
 
@@ -89,19 +89,19 @@ public class TaggingRequestInterceptorTest {
         assertTrue(headers.containsKey(TaggingRequestInterceptor.TAG_HEADER_SPACE_NAME));
         String expectedValue = "MTA deploy-service v1.58.0";
         Optional<String> foundValue = headers.get(TaggingRequestInterceptor.TAG_HEADER_NAME)
-            .stream()
-            .filter(value -> value.equals(expectedValue))
-            .findFirst();
+                                             .stream()
+                                             .filter(value -> value.equals(expectedValue))
+                                             .findFirst();
         assertTrue(foundValue.isPresent());
         Optional<String> foundOrgValue = headers.get(TaggingRequestInterceptor.TAG_HEADER_ORG_NAME)
-            .stream()
-            .filter(value -> value.equals(TEST_ORG_VALUE))
-            .findFirst();
+                                                .stream()
+                                                .filter(value -> value.equals(TEST_ORG_VALUE))
+                                                .findFirst();
         assertTrue(foundOrgValue.isPresent());
         Optional<String> foundSpaceValue = headers.get(TaggingRequestInterceptor.TAG_HEADER_SPACE_NAME)
-            .stream()
-            .filter(value -> value.equals(TEST_SPACE_VALUE))
-            .findFirst();
+                                                  .stream()
+                                                  .filter(value -> value.equals(TEST_SPACE_VALUE))
+                                                  .findFirst();
         assertTrue(foundSpaceValue.isPresent());
 
     }
@@ -124,19 +124,19 @@ public class TaggingRequestInterceptorTest {
         HttpHeaders headers = requestStub.getHeaders();
         String expectedValue = testedInterceptor.getHeaderValue(TEST_VERSION_VALUE);
         long tagCount = headers.get(TaggingRequestInterceptor.TAG_HEADER_NAME)
-            .stream()
-            .filter(value -> value.equals(expectedValue))
-            .count();
+                               .stream()
+                               .filter(value -> value.equals(expectedValue))
+                               .count();
         assertEquals("Main tag header occurence is not 1", 1l, tagCount);
         long orgTagCount = headers.get(TaggingRequestInterceptor.TAG_HEADER_ORG_NAME)
-            .stream()
-            .filter(value -> value.equals(TEST_ORG_VALUE))
-            .count();
+                                  .stream()
+                                  .filter(value -> value.equals(TEST_ORG_VALUE))
+                                  .count();
         assertEquals("Org tag header occurence is not 1", 1l, orgTagCount);
         long spaceTagCount = headers.get(TaggingRequestInterceptor.TAG_HEADER_SPACE_NAME)
-            .stream()
-            .filter(value -> value.equals(TEST_SPACE_VALUE))
-            .count();
+                                    .stream()
+                                    .filter(value -> value.equals(TEST_SPACE_VALUE))
+                                    .count();
         assertEquals("Space tag header occurence is not 1", 1l, spaceTagCount);
     }
 }

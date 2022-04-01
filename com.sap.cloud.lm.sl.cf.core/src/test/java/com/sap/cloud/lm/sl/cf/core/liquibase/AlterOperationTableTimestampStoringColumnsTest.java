@@ -26,12 +26,19 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 @RunWith(Parameterized.class)
 public class AlterOperationTableTimestampStoringColumnsTest {
 
-    static class ExpectedOperation {
-
-        String processId;
-        Long startedAtInEpochMillis;
-        Long endedAtInEpochMillis;
-
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+    private AlterOperationTableTimestampStoringColumnsPostgresqlChange change = new AlterOperationTableTimestampStoringColumnsPostgresqlChange();
+    private List<OriginalOperation> originalOperations;
+    private List<ExpectedOperation> expectedOperations;
+    private String originalOperationsJsonLocation;
+    private String expectedOperationsJsonLocation;
+    private Class<? extends Throwable> expectedExceptionType;
+    public AlterOperationTableTimestampStoringColumnsTest(String originalOperationsJsonLocation, String expectedOperationsJsonLocation,
+                                                          Class<? extends Exception> expectedExceptionType) {
+        this.originalOperationsJsonLocation = originalOperationsJsonLocation;
+        this.expectedOperationsJsonLocation = expectedOperationsJsonLocation;
+        this.expectedExceptionType = expectedExceptionType;
     }
 
     @Parameters
@@ -54,22 +61,8 @@ public class AlterOperationTableTimestampStoringColumnsTest {
         });
     }
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    private AlterOperationTableTimestampStoringColumnsPostgresqlChange change = new AlterOperationTableTimestampStoringColumnsPostgresqlChange();
-    private List<OriginalOperation> originalOperations;
-    private List<ExpectedOperation> expectedOperations;
-
-    private String originalOperationsJsonLocation;
-    private String expectedOperationsJsonLocation;
-    private Class<? extends Throwable> expectedExceptionType;
-
-    public AlterOperationTableTimestampStoringColumnsTest(String originalOperationsJsonLocation, String expectedOperationsJsonLocation,
-        Class<? extends Exception> expectedExceptionType) {
-        this.originalOperationsJsonLocation = originalOperationsJsonLocation;
-        this.expectedOperationsJsonLocation = expectedOperationsJsonLocation;
-        this.expectedExceptionType = expectedExceptionType;
+    public static void main(String[] args) {
+        System.out.println(DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now()));
     }
 
     @Before
@@ -117,8 +110,12 @@ public class AlterOperationTableTimestampStoringColumnsTest {
         return timestamp == null ? null : timestamp.getTime();
     }
 
-    public static void main(String[] args) {
-        System.out.println(DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now()));
+    static class ExpectedOperation {
+
+        String processId;
+        Long startedAtInEpochMillis;
+        Long endedAtInEpochMillis;
+
     }
 
 }

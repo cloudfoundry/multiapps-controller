@@ -28,6 +28,10 @@ public abstract class CloudServiceOperatorTest {
     @Mock
     private CloudControllerClient client;
 
+    protected static String getControllerUrl() {
+        return CONTROLLER_URL;
+    }
+
     @Before
     public void prepareClients() throws IOException {
         MockitoAnnotations.initMocks(this);
@@ -37,27 +41,23 @@ public abstract class CloudServiceOperatorTest {
 
     private void prepareRestTemplateFactory() {
         Mockito.when(restTemplateFactory.getRestTemplate(client))
-            .thenReturn(restTemplate);
+               .thenReturn(restTemplate);
     }
 
     private void prepareClient() throws IOException {
         URL controllerUrl = new URL(CONTROLLER_URL);
         Mockito.when(client.getCloudControllerUrl())
-            .thenReturn(controllerUrl);
+               .thenReturn(controllerUrl);
 
         List<CloudServiceOffering> serviceOfferings = loadServiceOfferingsFromFile(SERVICE_OFFERINGS_RESPONSE_PATH);
         Mockito.when(client.getServiceOfferings())
-            .thenReturn(serviceOfferings);
+               .thenReturn(serviceOfferings);
     }
 
     private List<CloudServiceOffering> loadServiceOfferingsFromFile(String filePath) throws IOException {
         String serviceOfferingsJson = TestUtil.getResourceAsString(filePath, getClass());
         return JsonUtil.fromJson(serviceOfferingsJson, new TypeToken<List<CloudServiceOffering>>() {
         }.getType());
-    }
-
-    protected static String getControllerUrl() {
-        return CONTROLLER_URL;
     }
 
     protected RestTemplate getMockedRestTemplate() {

@@ -44,7 +44,7 @@ public class ApplicationFileDigestDetector {
             return DigestHelper.computeFileChecksum(Paths.get(applicationFile.toURI()), "MD5");
         } catch (NoSuchAlgorithmException | IOException e) {
             throw new SLException(MessageFormat.format(Messages.ERROR_COMPUTING_CHECKSUM_OF_FILE, applicationFile.getName(), app.getName()),
-                e);
+                                  e);
         }
     }
 

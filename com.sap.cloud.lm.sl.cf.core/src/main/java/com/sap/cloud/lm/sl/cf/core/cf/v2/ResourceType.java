@@ -10,19 +10,14 @@ public enum ResourceType {
     MANAGED_SERVICE("managed-service", SupportedParameters.SERVICE, SupportedParameters.SERVICE_PLAN), USER_PROVIDED_SERVICE(
         "user-provided-service"), EXISTING_SERVICE("existing-service"), EXISTING_SERVICE_KEY("existing-service-key");
 
-    private String name;
     private final Set<String> requiredParameters = new HashSet<>();
+    private String name;
 
     private ResourceType(String value, String... requiredParameters) {
         this.name = value;
         for (String requiredParameter : requiredParameters) {
             this.requiredParameters.add(requiredParameter);
         }
-    }
-
-    @Override
-    public String toString() {
-        return name;
     }
 
     public static ResourceType get(String value) {
@@ -37,8 +32,13 @@ public enum ResourceType {
         return EnumSet.of(MANAGED_SERVICE, USER_PROVIDED_SERVICE, EXISTING_SERVICE);
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
+
     public Set<String> getRequiredParameters() {
         return requiredParameters;
     }
-    
+
 }

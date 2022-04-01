@@ -15,20 +15,17 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class UriUtil {
 
-    private static final PortValidator PORT_VALIDATOR = new PortValidator();
-
     public static final String DEFAULT_SCHEME_SEPARATOR = "://";
     public static final char DEFAULT_PATH_SEPARATOR = '/';
     public static final char DEFAULT_HOST_DOMAIN_SEPARATOR = '.';
     public static final char DEFAULT_PORT_SEPARATOR = ':';
-
     public static final int STANDARD_HTTP_PORT = 80;
     public static final int STANDARD_HTTPS_PORT = 443;
-
     public static final String TCP_PROTOCOL = "tcp";
     public static final String TCPS_PROTOCOL = "tcps";
     public static final String HTTP_PROTOCOL = "http";
     public static final String HTTPS_PROTOCOL = "https";
+    private static final PortValidator PORT_VALIDATOR = new PortValidator();
 
     public static Map<String, Object> splitUri(String uri) {
         Map<String, Object> splitUri = new HashMap<>();
@@ -68,18 +65,18 @@ public class UriUtil {
         StringBuffer uri = new StringBuffer();
         if (!CommonUtil.isNullOrEmpty(scheme)) {
             uri.append(scheme)
-                .append(UriUtil.DEFAULT_SCHEME_SEPARATOR);
+               .append(UriUtil.DEFAULT_SCHEME_SEPARATOR);
         }
         if (!CommonUtil.isNullOrEmpty(host)) {
             uri.append(host)
-                .append(UriUtil.DEFAULT_HOST_DOMAIN_SEPARATOR);
+               .append(UriUtil.DEFAULT_HOST_DOMAIN_SEPARATOR);
         }
 
         uri.append(domain);
 
         if (!CommonUtil.isNullOrEmpty(port)) {
             uri.append(UriUtil.DEFAULT_PORT_SEPARATOR)
-                .append(port);
+               .append(port);
         }
         if (!CommonUtil.isNullOrEmpty(path)) {
             uri.append(path);
@@ -198,9 +195,9 @@ public class UriUtil {
 
     public static CloudRoute findRoute(List<CloudRoute> routes, String uri, boolean isPortBasedRouting) {
         return routes.stream()
-            .filter(route -> routeMatchesUri(route, uri, isPortBasedRouting))
-            .findAny()
-            .orElseThrow(() -> new NotFoundException(Messages.ROUTE_NOT_FOUND, uri));
+                     .filter(route -> routeMatchesUri(route, uri, isPortBasedRouting))
+                     .findAny()
+                     .orElseThrow(() -> new NotFoundException(Messages.ROUTE_NOT_FOUND, uri));
     }
 
     public static boolean routeMatchesUri(CloudRoute route, String uri, boolean isPortBasedRouting) {
@@ -213,10 +210,10 @@ public class UriUtil {
         String host = hostAndDomain._1;
         String domain = hostAndDomain._2;
         return route.getHost()
-            .equals(host)
+                    .equals(host)
             && route.getDomain()
-                .getName()
-                .equals(domain);
+                    .getName()
+                    .equals(domain);
     }
 
 }

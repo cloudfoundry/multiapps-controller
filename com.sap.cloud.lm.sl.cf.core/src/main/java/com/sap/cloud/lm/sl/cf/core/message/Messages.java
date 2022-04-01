@@ -82,7 +82,7 @@ public final class Messages {
     public static final String SERVICE_MISSING_REQUIRED_PARAMETER = "Service \"{0}\" has missing required parameter: {1}";
     public static final String CONTROLLER_URL_NOT_SPECIFIED = "Controller URL is not specified in the environment.";
     public static final String INVALID_CONTROLLER_URL = "Invalid controller URL \"{0}\".";
-    
+
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
     public static final String UNKNOWN_XS_TYPE = "Unknown XS type \"{0}\". Using default: \"{1}\"";

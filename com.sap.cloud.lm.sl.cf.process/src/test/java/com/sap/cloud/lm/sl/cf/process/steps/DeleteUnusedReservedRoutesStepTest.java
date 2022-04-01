@@ -33,29 +33,14 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 public class DeleteUnusedReservedRoutesStepTest extends SyncFlowableStepTest<DeleteUnusedReservedRoutesStep> {
 
     private static final String DEFAULT_DOMAIN = "localhost";
+    private List<CloudApplicationExtended> appsToDeploy;
+    private StepOutput output;
+    private StepInput input;
+    private PortAllocator portAllocator = new PortAllocatorMock(PortValidator.MIN_PORT_VALUE);
 
-    private static class StepInput {
-
-        public String appsToDeployLocation;
-        public Set<Integer> allocatedPorts;
-        public boolean portBasedRouting;
-
-        public StepInput(String appsToDeployLocation, Set<Integer> allocatedPorts, boolean portBasedRouting) {
-            this.appsToDeployLocation = appsToDeployLocation;
-            this.allocatedPorts = allocatedPorts;
-            this.portBasedRouting = portBasedRouting;
-        }
-
-    }
-
-    private static class StepOutput {
-
-        public Set<Integer> allocatedPorts;
-
-        public StepOutput(Set<Integer> allocatedPorts) {
-            this.allocatedPorts = allocatedPorts;
-        }
-
+    public DeleteUnusedReservedRoutesStepTest(StepInput input, StepOutput output) {
+        this.output = output;
+        this.input = input;
     }
 
     @Parameters
@@ -76,18 +61,6 @@ public class DeleteUnusedReservedRoutesStepTest extends SyncFlowableStepTest<Del
             },
 // @formatter:on
         });
-    }
-
-    private List<CloudApplicationExtended> appsToDeploy;
-
-    private StepOutput output;
-    private StepInput input;
-
-    private PortAllocator portAllocator = new PortAllocatorMock(PortValidator.MIN_PORT_VALUE);
-
-    public DeleteUnusedReservedRoutesStepTest(StepInput input, StepOutput output) {
-        this.output = output;
-        this.input = input;
     }
 
     @Before
@@ -134,6 +107,30 @@ public class DeleteUnusedReservedRoutesStepTest extends SyncFlowableStepTest<Del
     @Override
     protected DeleteUnusedReservedRoutesStep createStep() {
         return new DeleteUnusedReservedRoutesStep();
+    }
+
+    private static class StepInput {
+
+        public String appsToDeployLocation;
+        public Set<Integer> allocatedPorts;
+        public boolean portBasedRouting;
+
+        public StepInput(String appsToDeployLocation, Set<Integer> allocatedPorts, boolean portBasedRouting) {
+            this.appsToDeployLocation = appsToDeployLocation;
+            this.allocatedPorts = allocatedPorts;
+            this.portBasedRouting = portBasedRouting;
+        }
+
+    }
+
+    private static class StepOutput {
+
+        public Set<Integer> allocatedPorts;
+
+        public StepOutput(Set<Integer> allocatedPorts) {
+            this.allocatedPorts = allocatedPorts;
+        }
+
     }
 
 }

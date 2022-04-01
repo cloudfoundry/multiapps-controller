@@ -31,21 +31,13 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
 
     @Mock
     private ConfigurationEntryDao dao;
-
-    private static class StepInput {
-        String org;
-        String space;
-        String spaceId;
-        CloudApplication existingApp;
-        String mtaId;
-        String mtaVersion;
-        List<ConfigurationEntry> publishedEntries = Collections.emptyList();
-        List<ConfigurationEntry> existingEntries = Collections.emptyList();
-    }
-
-    private static class StepOutput {
-        @SuppressWarnings("unused")
-        List<ConfigurationEntry> deletedEntries;
+    private String inputLocation;
+    private String expectedOutputLocation;
+    private StepInput input;
+    private StepOutput expectedOutput;
+    public DeleteDiscontinuedConfigurationEntriesForAppStepTest(String inputLocation, String expectedOutputLocation) {
+        this.inputLocation = inputLocation;
+        this.expectedOutputLocation = expectedOutputLocation;
     }
 
     @Parameters
@@ -80,17 +72,6 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
         });
     }
 
-    private String inputLocation;
-    private String expectedOutputLocation;
-
-    private StepInput input;
-    private StepOutput expectedOutput;
-
-    public DeleteDiscontinuedConfigurationEntriesForAppStepTest(String inputLocation, String expectedOutputLocation) {
-        this.inputLocation = inputLocation;
-        this.expectedOutputLocation = expectedOutputLocation;
-    }
-
     @Before
     public void setUp() throws Exception {
         loadParameters();
@@ -115,16 +96,15 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     }
 
     private void prepareDao() {
-        Mockito
-            .when(dao.find(Mockito.eq(ConfigurationEntriesUtil.PROVIDER_NID), Mockito.eq(null), Mockito.eq(input.mtaVersion), Mockito.any(),
-                Mockito.eq(null), Mockito.eq(input.mtaId)))
-            .thenAnswer((invocation) -> {
-                CloudTarget target = (CloudTarget) invocation.getArguments()[3];
-                return input.existingEntries.stream()
-                    .filter(entry -> entry.getTargetSpace()
-                        .equals(target))
-                    .collect(Collectors.toList());
-            });
+        Mockito.when(dao.find(Mockito.eq(ConfigurationEntriesUtil.PROVIDER_NID), Mockito.eq(null), Mockito.eq(input.mtaVersion),
+                              Mockito.any(), Mockito.eq(null), Mockito.eq(input.mtaId)))
+               .thenAnswer((invocation) -> {
+                   CloudTarget target = (CloudTarget) invocation.getArguments()[3];
+                   return input.existingEntries.stream()
+                                               .filter(entry -> entry.getTargetSpace()
+                                                                     .equals(target))
+                                               .collect(Collectors.toList());
+               });
     }
 
     @Test
@@ -145,6 +125,22 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     @Override
     protected DeleteDiscontinuedConfigurationEntriesForAppStep createStep() {
         return new DeleteDiscontinuedConfigurationEntriesForAppStep();
+    }
+
+    private static class StepInput {
+        String org;
+        String space;
+        String spaceId;
+        CloudApplication existingApp;
+        String mtaId;
+        String mtaVersion;
+        List<ConfigurationEntry> publishedEntries = Collections.emptyList();
+        List<ConfigurationEntry> existingEntries = Collections.emptyList();
+    }
+
+    private static class StepOutput {
+        @SuppressWarnings("unused")
+        List<ConfigurationEntry> deletedEntries;
     }
 
 }

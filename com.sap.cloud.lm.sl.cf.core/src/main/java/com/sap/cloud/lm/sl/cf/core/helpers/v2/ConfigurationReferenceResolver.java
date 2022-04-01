@@ -38,11 +38,11 @@ public class ConfigurationReferenceResolver {
         CloudTarget globalConfigTarget = getGlobalConfigTarget(configuration);
         return asResources(findConfigurationEntries(dao, filter, getCloudTargetsList(cloudTarget), globalConfigTarget), resource);
     }
-    
+
     private List<CloudTarget> getCloudTargetsList(CloudTarget target) {
         return target == null ? null : Arrays.asList(target);
     }
-    
+
     protected List<Resource> asResources(List<ConfigurationEntry> entries, Resource resource) {
         List<Resource> result = new ArrayList<>();
         for (int i = 0; i < entries.size(); i++) {
@@ -66,7 +66,7 @@ public class ConfigurationReferenceResolver {
     protected Map<String, Object> removeConfigurationParameters(Map<String, Object> resourcePropertiesMap) {
         Map<String, Object> result = new TreeMap<>(resourcePropertiesMap);
         result.keySet()
-            .removeAll(SupportedParameters.CONFIGURATION_REFERENCE_PARAMETERS);
+              .removeAll(SupportedParameters.CONFIGURATION_REFERENCE_PARAMETERS);
         return result;
     }
 

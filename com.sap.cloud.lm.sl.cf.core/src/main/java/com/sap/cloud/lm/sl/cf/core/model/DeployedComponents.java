@@ -33,11 +33,11 @@ public class DeployedComponents {
 
     public DeployedMta findDeployedMta(String mtaId) {
         return getMtas().stream()
-            .filter(mta -> mta.getMetadata()
-                .getId()
-                .equalsIgnoreCase(mtaId))
-            .findFirst()
-            .orElse(null);
+                        .filter(mta -> mta.getMetadata()
+                                          .getId()
+                                          .equalsIgnoreCase(mtaId))
+                        .findFirst()
+                        .orElse(null);
     }
 
 }

@@ -19,7 +19,7 @@ public class DescriptorParametersValidator extends ParametersValidator<Deploymen
     }
 
     public DescriptorParametersValidator(DeploymentDescriptor deploymentDescriptor, List<ParameterValidator> parameterValidators,
-        boolean doNotCorrect) {
+                                         boolean doNotCorrect) {
         super("", "", parameterValidators, DeploymentDescriptor.class, doNotCorrect);
         this.descriptor = deploymentDescriptor;
     }

@@ -54,36 +54,41 @@ public class HealthRetrieverTest {
         MockitoAnnotations.initMocks(this);
     }
 
+    private static ZonedDateTime toZonedDateTime(long time) {
+        return ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.of("UTC"));
+    }
+
     @Before
     public void prepareConfiguration() {
         HealthCheckConfiguration healthCheckConfiguration = new HealthCheckConfiguration.Builder().mtaId(MTA_ID)
-            .spaceId(SPACE_ID)
-            .userName(USER_NAME)
-            .timeRangeInSeconds(TIME_RANGE_IN_SECONDS)
-            .build();
+                                                                                                  .spaceId(SPACE_ID)
+                                                                                                  .userName(USER_NAME)
+                                                                                                  .timeRangeInSeconds(TIME_RANGE_IN_SECONDS)
+                                                                                                  .build();
         Mockito.when(configuration.getHealthCheckConfiguration())
-            .thenReturn(healthCheckConfiguration);
+               .thenReturn(healthCheckConfiguration);
     }
 
     @Before
     public void prepareDao() {
         OperationFilter filter = new OperationFilter.Builder().mtaId(MTA_ID)
-            .spaceId(SPACE_ID)
-            .user(USER_NAME)
-            .endedAfter(new Date(TimeUnit.SECONDS.toMillis(CURRENT_TIME_IN_SECONDS - TIME_RANGE_IN_SECONDS)))
-            .inFinalState()
-            .orderByEndTime()
-            .descending()
-            .build();
+                                                              .spaceId(SPACE_ID)
+                                                              .user(USER_NAME)
+                                                              .endedAfter(new Date(TimeUnit.SECONDS.toMillis(CURRENT_TIME_IN_SECONDS
+                                                                  - TIME_RANGE_IN_SECONDS)))
+                                                              .inFinalState()
+                                                              .orderByEndTime()
+                                                              .descending()
+                                                              .build();
         Operation operation = new Operation().mtaId(MTA_ID)
-            .spaceId(SPACE_ID)
-            .user(USER_NAME)
-            .processId(OPERATION_ID)
-            .startedAt(OPERATION_START_TIME)
-            .state(State.FINISHED)
-            .endedAt(OPERATION_END_TIME);
+                                             .spaceId(SPACE_ID)
+                                             .user(USER_NAME)
+                                             .processId(OPERATION_ID)
+                                             .startedAt(OPERATION_START_TIME)
+                                             .state(State.FINISHED)
+                                             .endedAt(OPERATION_END_TIME);
         Mockito.when(operationDao.find(Mockito.argThat(GenericArgumentMatcher.<OperationFilter> forObject(filter))))
-            .thenReturn(Arrays.asList(operation));
+               .thenReturn(Arrays.asList(operation));
     }
 
     @Test
@@ -94,19 +99,15 @@ public class HealthRetrieverTest {
 
         assertTrue(health.isHealthy());
         assertEquals(1, health.getHealthCheckOperations()
-            .size());
+                              .size());
 
         HealthCheckOperation healthCheckOperation = health.getHealthCheckOperations()
-            .get(0);
+                                                          .get(0);
         assertEquals(OPERATION_ID, healthCheckOperation.getId());
         assertEquals(MTA_ID, healthCheckOperation.getMtaId());
         assertEquals(USER_NAME, healthCheckOperation.getUser());
         assertEquals(SPACE_ID, healthCheckOperation.getSpaceId());
         assertEquals(OPERATION_END_TIME_IN_SECONDS - OPERATION_START_TIME_IN_SECONDS, healthCheckOperation.getDurationInSeconds());
-    }
-
-    private static ZonedDateTime toZonedDateTime(long time) {
-        return ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.of("UTC"));
     }
 
 }

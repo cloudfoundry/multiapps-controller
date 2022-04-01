@@ -35,13 +35,12 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class AuthorizationCheckerTest {
 
-    private UserInfo userInfo;
     private static final String ORG = "org";
     private static final String SPACE = "space";
     private static final String USER_ID = "userId";
     private static final String USERNAME = "userName";
     private static final String SPACE_ID = "a72df2e8-b06c-44b2-a8fa-5cadb0239573";
-
+    private UserInfo userInfo;
     @Mock
     private CloudControllerClientProvider clientProvider;
     @Mock
@@ -54,33 +53,33 @@ public class AuthorizationCheckerTest {
     @InjectMocks
     private AuthorizationChecker authorizationChecker;
 
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
-
     public static Stream<Arguments> checkPermissionsTest() {
         return Stream.of(
-            // (0) User has access
-            Arguments.of(true, true),
-            // (1) User has access but no permissions
-            Arguments.of(true, false),
-            // (2) User has permissions but no access
-            Arguments.of(false, true),
-            // (3) User has no permissions and no access
-            Arguments.of(false, false));
+                         // (0) User has access
+                         Arguments.of(true, true),
+                         // (1) User has access but no permissions
+                         Arguments.of(true, false),
+                         // (2) User has permissions but no access
+                         Arguments.of(false, true),
+                         // (3) User has no permissions and no access
+                         Arguments.of(false, false));
     }
 
     public static Stream<Arguments> checkPermissionTest2() {
         return Stream.of(
-            // (0) User has access
-            Arguments.of(true, true),
-            // (1) User has access but no permissions
-            // Arguments.of(true, false),
-            // (3) User has permissions but no access
-            Arguments.of(false, true));
+                         // (0) User has access
+                         Arguments.of(true, true),
+                         // (1) User has access but no permissions
+                         // Arguments.of(true, false),
+                         // (3) User has permissions but no access
+                         Arguments.of(false, true));
         // (4) User has no permissions and no access
         // Arguments.of(false, false));
+    }
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
     }
 
     @ParameterizedTest

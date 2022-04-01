@@ -17,6 +17,17 @@ import com.sap.cloud.lm.sl.mta.model.v2.Module;
 @RunWith(Parameterized.class)
 public class ParametersValidatorHelperTest {
 
+    private List<ParameterValidator> validators = Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(),
+                                                                new RoutesValidator());
+    private ParametersValidatorHelper validatorHelper = new ParametersValidatorHelper(validators, false);
+    private Module container = new Module.Builder().build();
+    private Map<String, Object> initialParameters;
+    private Map<String, Object> correctParameters;
+    public ParametersValidatorHelperTest(Map<String, Object> initialParameters, Map<String, Object> correctParameters) {
+        this.initialParameters = initialParameters;
+        this.correctParameters = correctParameters != null ? correctParameters : initialParameters;
+    }
+
     @SuppressWarnings("serial")
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -72,19 +83,6 @@ public class ParametersValidatorHelperTest {
             },
 // @formatter:on
         });
-    }
-
-    private List<ParameterValidator> validators = Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(),
-        new RoutesValidator());
-    private ParametersValidatorHelper validatorHelper = new ParametersValidatorHelper(validators, false);
-    private Module container = new Module.Builder().build();
-
-    private Map<String, Object> initialParameters;
-    private Map<String, Object> correctParameters;
-
-    public ParametersValidatorHelperTest(Map<String, Object> initialParameters, Map<String, Object> correctParameters) {
-        this.initialParameters = initialParameters;
-        this.correctParameters = correctParameters != null ? correctParameters : initialParameters;
     }
 
     @Test

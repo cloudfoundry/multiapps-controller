@@ -40,6 +40,13 @@ public class EndProcessListenerTest {
     @InjectMocks
     private EndProcessListener listener = new EndProcessListener();
 
+    public EndProcessListenerTest(String archiveIds, String extensionDescriptorIds, boolean keepFiles, String[] expectedFileIdsToSweep) {
+        this.archiveIds = archiveIds;
+        this.extensionDescriptorIds = extensionDescriptorIds;
+        this.keepFiles = keepFiles;
+        this.expectedFileIdsToSweep = expectedFileIdsToSweep;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -78,19 +85,12 @@ public class EndProcessListenerTest {
         });
     }
 
-    public EndProcessListenerTest(String archiveIds, String extensionDescriptorIds, boolean keepFiles, String[] expectedFileIdsToSweep) {
-        this.archiveIds = archiveIds;
-        this.extensionDescriptorIds = extensionDescriptorIds;
-        this.keepFiles = keepFiles;
-        this.expectedFileIdsToSweep = expectedFileIdsToSweep;
-    }
-
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         prepareContext();
         Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(stepLogger);
+               .thenReturn(stepLogger);
     }
 
     private void prepareContext() {
@@ -105,7 +105,7 @@ public class EndProcessListenerTest {
         listener.deleteDeploymentFiles(context);
         for (String fileId : expectedFileIdsToSweep) {
             Mockito.verify(fileService)
-                .deleteFile(SPACE_ID, fileId);
+                   .deleteFile(SPACE_ID, fileId);
         }
     }
 

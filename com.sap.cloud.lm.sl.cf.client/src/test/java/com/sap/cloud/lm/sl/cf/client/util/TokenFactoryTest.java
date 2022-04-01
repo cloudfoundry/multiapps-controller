@@ -19,8 +19,29 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 @RunWith(Enclosed.class)
 public class TokenFactoryTest {
 
+    private static void validateToken(OAuth2AccessToken token, TokenProperties expectedTokenProperties) {
+        TokenProperties tokenProperties = TokenProperties.fromToken(token);
+        assertEquals(expectedTokenProperties.getClientId(), tokenProperties.getClientId());
+        assertEquals(expectedTokenProperties.getUserName(), tokenProperties.getUserName());
+        assertEquals(expectedTokenProperties.getUserId(), tokenProperties.getUserId());
+    }
+
+    private static void validateTokenAdditionalInfo(OAuth2AccessToken token, Map<String, Object> tokenInfo) {
+        Map<String, Object> tokenAdditionalInformation = token.getAdditionalInformation();
+        assertEquals(tokenInfo, tokenAdditionalInformation);
+    }
+
     @RunWith(Parameterized.class)
     public static class DummyTokenFactoryTest {
+
+        private String userName;
+        private String clientId;
+        private TokenFactory tokenFactory = new TokenFactory();
+
+        public DummyTokenFactoryTest(String userName, String clientId) {
+            this.userName = userName;
+            this.clientId = clientId;
+        }
 
         @Parameters
         public static Iterable<Object[]> getParameters() {
@@ -34,16 +55,6 @@ public class TokenFactoryTest {
             });
         }
 
-        private String userName;
-        private String clientId;
-
-        private TokenFactory tokenFactory = new TokenFactory();
-
-        public DummyTokenFactoryTest(String userName, String clientId) {
-            this.userName = userName;
-            this.clientId = clientId;
-        }
-
         @Test
         public void testCreateDummyToken() {
             OAuth2AccessToken token = tokenFactory.createDummyToken(userName, clientId);
@@ -54,6 +65,15 @@ public class TokenFactoryTest {
 
     @RunWith(Parameterized.class)
     public static class OauthTokenFactoryTest {
+
+        private final String tokenString;
+        private final TokenProperties expectedTokenProperties;
+        private TokenFactory tokenFactory = new TokenFactory();
+
+        public OauthTokenFactoryTest(String tokenString, TokenProperties expectedTokenProperties) {
+            this.tokenString = tokenString;
+            this.expectedTokenProperties = expectedTokenProperties;
+        }
 
         @Parameters
         public static Iterable<Object[]> getParameters() {
@@ -83,16 +103,6 @@ public class TokenFactoryTest {
             });
         }
 
-        private final String tokenString;
-        private final TokenProperties expectedTokenProperties;
-
-        private TokenFactory tokenFactory = new TokenFactory();
-
-        public OauthTokenFactoryTest(String tokenString, TokenProperties expectedTokenProperties) {
-            this.tokenString = tokenString;
-            this.expectedTokenProperties = expectedTokenProperties;
-        }
-
         @Test
         public void testCreateToken() {
             OAuth2AccessToken token = tokenFactory.createToken(tokenString);
@@ -105,6 +115,17 @@ public class TokenFactoryTest {
 
     @RunWith(Parameterized.class)
     public static class AdditionalInfoTokenFactoryTest {
+
+        private final String additionalTokenString;
+        private final String tokenString;
+        private final Map<String, Object> tokenInfo;
+        private TokenFactory tokenFactory = new TokenFactory();
+
+        public AdditionalInfoTokenFactoryTest(String additionalTokenString, String tokenString, Map<String, Object> tokenInfo) {
+            this.additionalTokenString = additionalTokenString;
+            this.tokenString = tokenString;
+            this.tokenInfo = tokenInfo;
+        }
 
         @Parameters
         public static Iterable<Object[]> getParameters() {
@@ -120,22 +141,10 @@ public class TokenFactoryTest {
                 {
                     null,
                     "aRh98oYD80teGrkjDFzg3ln55EV3O96y",
-                    MapUtil.of(new Pair<>("scope", Arrays.asList("controller.read")), new Pair<>("exp", 999))               
+                    MapUtil.of(new Pair<>("scope", Arrays.asList("controller.read")), new Pair<>("exp", 999))
                 }
 // @formatter:on
             });
-        }
-
-        private final String additionalTokenString;
-        private final String tokenString;
-        private final Map<String, Object> tokenInfo;
-
-        private TokenFactory tokenFactory = new TokenFactory();
-
-        public AdditionalInfoTokenFactoryTest(String additionalTokenString, String tokenString, Map<String, Object> tokenInfo) {
-            this.additionalTokenString = additionalTokenString;
-            this.tokenString = tokenString;
-            this.tokenInfo = tokenInfo;
         }
 
         @Test
@@ -145,18 +154,6 @@ public class TokenFactoryTest {
             validateTokenAdditionalInfo(token, tokenInfo);
         }
 
-    }
-
-    private static void validateToken(OAuth2AccessToken token, TokenProperties expectedTokenProperties) {
-        TokenProperties tokenProperties = TokenProperties.fromToken(token);
-        assertEquals(expectedTokenProperties.getClientId(), tokenProperties.getClientId());
-        assertEquals(expectedTokenProperties.getUserName(), tokenProperties.getUserName());
-        assertEquals(expectedTokenProperties.getUserId(), tokenProperties.getUserId());
-    }
-
-    private static void validateTokenAdditionalInfo(OAuth2AccessToken token, Map<String, Object> tokenInfo) {
-        Map<String, Object> tokenAdditionalInformation = token.getAdditionalInformation();
-        assertEquals(tokenInfo, tokenAdditionalInformation);
     }
 
 }

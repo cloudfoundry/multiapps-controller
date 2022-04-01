@@ -18,47 +18,25 @@ import javax.persistence.TemporalType;
     @NamedQuery(name = "remove_expired_in_final_state", query = "DELETE FROM OperationDto o WHERE o.finalState IS NOT NULL AND o.startedAt < :expirationTime") })
 public class OperationDto {
 
-    public static class AttributeNames {
-
-        public static final String PROCESS_ID = "processId";
-        public static final String PROCESS_TYPE = "processType";
-        public static final String STARTED_AT = "startedAt";
-        public static final String ENDED_AT = "endedAt";
-        public static final String SPACE_ID = "spaceId";
-        public static final String MTA_ID = "mtaId";
-        public static final String USER = "user";
-        public static final String ACQUIRED_LOCK = "acquiredLock";
-        public static final String FINAL_STATE = "finalState";
-
-    }
-
     @Id
     @Column(name = "process_id")
     private String processId;
-
     @Column(name = "process_type")
     private String processType;
-
     @Column(name = "started_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date startedAt;
-
     @Column(name = "ended_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date endedAt;
-
     @Column(name = "space_id")
     private String spaceId;
-
     @Column(name = "mta_id")
     private String mtaId;
-
     @Column(name = "userx")
     private String user;
-
     @Column(name = "acquired_lock")
     private boolean acquiredLock;
-
     @Column(name = "final_state")
     private String finalState;
 
@@ -67,7 +45,7 @@ public class OperationDto {
     }
 
     public OperationDto(String processId, String processType, Date startedAt, Date endedAt, String spaceId, String mtaId, String user,
-        boolean acquiredLock, String finalState) {
+                        boolean acquiredLock, String finalState) {
         this.processId = processId;
         this.processType = processType;
         this.startedAt = startedAt;
@@ -113,6 +91,20 @@ public class OperationDto {
 
     public String getFinalState() {
         return finalState;
+    }
+
+    public static class AttributeNames {
+
+        public static final String PROCESS_ID = "processId";
+        public static final String PROCESS_TYPE = "processType";
+        public static final String STARTED_AT = "startedAt";
+        public static final String ENDED_AT = "endedAt";
+        public static final String SPACE_ID = "spaceId";
+        public static final String MTA_ID = "mtaId";
+        public static final String USER = "user";
+        public static final String ACQUIRED_LOCK = "acquiredLock";
+        public static final String FINAL_STATE = "finalState";
+
     }
 
 }

@@ -21,6 +21,15 @@ public class ApplicationStartupStateCalculatorTest {
     @RunWith(Parameterized.class)
     public static class CurrentApplicationStartupStateCalculatorTest {
 
+        private final String pathToFileContainingAppJson;
+        private final ApplicationStartupState expectedState;
+        private CloudApplication app;
+
+        public CurrentApplicationStartupStateCalculatorTest(String pathToFileContainingAppJson, ApplicationStartupState expectedState) {
+            this.pathToFileContainingAppJson = pathToFileContainingAppJson;
+            this.expectedState = expectedState;
+        }
+
         @Parameters
         public static Iterable<Object[]> getParameters() {
             return Arrays.asList(new Object[][] {
@@ -53,16 +62,6 @@ public class ApplicationStartupStateCalculatorTest {
             });
         }
 
-        private final String pathToFileContainingAppJson;
-        private final ApplicationStartupState expectedState;
-
-        private CloudApplication app;
-
-        public CurrentApplicationStartupStateCalculatorTest(String pathToFileContainingAppJson, ApplicationStartupState expectedState) {
-            this.pathToFileContainingAppJson = pathToFileContainingAppJson;
-            this.expectedState = expectedState;
-        }
-
         @Before
         public void loadApp() throws Exception {
             String appJson = TestUtil.getResourceAsString(pathToFileContainingAppJson, getClass());
@@ -79,6 +78,18 @@ public class ApplicationStartupStateCalculatorTest {
 
     @RunWith(Parameterized.class)
     public static class DesiredApplicationStartupStateCalculatorTest {
+
+        private final String pathToFileContainingAppJson;
+        private final boolean shouldNotStartAnyApp;
+        private final ApplicationStartupState expectedState;
+        private CloudApplication app;
+
+        public DesiredApplicationStartupStateCalculatorTest(String pathToFileContainingAppJson, boolean shouldNotStartAnyApp,
+                                                            ApplicationStartupState expectedState) {
+            this.pathToFileContainingAppJson = pathToFileContainingAppJson;
+            this.shouldNotStartAnyApp = shouldNotStartAnyApp;
+            this.expectedState = expectedState;
+        }
 
         @Parameters
         public static Iterable<Object[]> getParameters() {
@@ -110,19 +121,6 @@ public class ApplicationStartupStateCalculatorTest {
                 },
                 // @formatter:on
             });
-        }
-
-        private final String pathToFileContainingAppJson;
-        private final boolean shouldNotStartAnyApp;
-        private final ApplicationStartupState expectedState;
-
-        private CloudApplication app;
-
-        public DesiredApplicationStartupStateCalculatorTest(String pathToFileContainingAppJson, boolean shouldNotStartAnyApp,
-            ApplicationStartupState expectedState) {
-            this.pathToFileContainingAppJson = pathToFileContainingAppJson;
-            this.shouldNotStartAnyApp = shouldNotStartAnyApp;
-            this.expectedState = expectedState;
         }
 
         @Before

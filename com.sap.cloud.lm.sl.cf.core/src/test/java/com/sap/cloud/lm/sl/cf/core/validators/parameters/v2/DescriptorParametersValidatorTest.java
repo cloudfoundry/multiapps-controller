@@ -22,9 +22,10 @@ import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
 @RunWith(Parameterized.class)
 public class DescriptorParametersValidatorTest {
-    
+
     protected static final List<ParameterValidator> PARAMETER_VALIDATORS = Arrays.asList(new PortValidator(), new HostValidator(),
-        new DomainValidator(), new TestValidator(), new RouteValidator());
+                                                                                         new DomainValidator(), new TestValidator(),
+                                                                                         new RouteValidator());
 
     private String descriptorLocation;
     private Expectation expectation;
@@ -36,25 +37,11 @@ public class DescriptorParametersValidatorTest {
         this.expectation = expectation;
     }
 
-    @Before
-    public void setUp() throws Exception {
-        String descriptorYaml = TestUtil.getResourceAsString(descriptorLocation, getClass());
-        validator = createDescriptorParametersValidator(getDescriptorParser().parseDeploymentDescriptorYaml(descriptorYaml));
-    }
-
-    protected DescriptorParser getDescriptorParser() {
-        return new DescriptorParser();
-    }
-
-    protected DescriptorParametersValidator createDescriptorParametersValidator(DeploymentDescriptor descriptor) {
-        return new DescriptorParametersValidator(descriptor, PARAMETER_VALIDATORS);
-    }
-
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
-            //TODO
-// @formatter:off
+            // TODO
+            // @formatter:off
             // (0) All parameters are valid:
             {
                 "mtad-01.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-01.yaml.json"),
@@ -98,7 +85,21 @@ public class DescriptorParametersValidatorTest {
 // @formatter:on
         });
     }
-    
+
+    @Before
+    public void setUp() throws Exception {
+        String descriptorYaml = TestUtil.getResourceAsString(descriptorLocation, getClass());
+        validator = createDescriptorParametersValidator(getDescriptorParser().parseDeploymentDescriptorYaml(descriptorYaml));
+    }
+
+    protected DescriptorParser getDescriptorParser() {
+        return new DescriptorParser();
+    }
+
+    protected DescriptorParametersValidator createDescriptorParametersValidator(DeploymentDescriptor descriptor) {
+        return new DescriptorParametersValidator(descriptor, PARAMETER_VALIDATORS);
+    }
+
     @Test
     public void testValidate() {
         TestUtil.test(() -> validator.validate(), expectation, getClass());
