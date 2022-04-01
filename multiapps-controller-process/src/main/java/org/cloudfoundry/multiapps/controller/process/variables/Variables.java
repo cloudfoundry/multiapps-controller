@@ -610,4 +610,9 @@ public interface Variables {
                                                                            })
                                                                            .defaultValue(Collections.emptyList())
                                                                            .build();
+
+    Variable<CloudApplication> EXISTING_APP_TO_POLL = ImmutableJsonBinaryVariable.<CloudApplication> builder()
+                                                                                 .name("existingAppToPoll")
+                                                                                 .type(Variable.typeReference(CloudApplication.class))
+                                                                                 .build();
 }
