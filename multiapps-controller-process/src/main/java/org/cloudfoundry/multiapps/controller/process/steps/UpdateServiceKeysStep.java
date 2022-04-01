@@ -9,9 +9,11 @@ import java.util.stream.Collectors;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.eclipse.jgit.util.StringUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -33,6 +35,9 @@ public class UpdateServiceKeysStep extends ServiceStep {
         Map<String, List<CloudServiceKey>> serviceKeysMap = context.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
         List<CloudServiceKey> serviceKeys = serviceKeysMap.get(service.getResourceName());
         List<CloudServiceKey> existingServiceKeys = getExistingServiceKeys(client, service);
+        String namespace = context.getVariable(Variables.MTA_NAMESPACE);
+        List<CloudServiceKey> existingKeysForNamespace = getFilteredServiceKeys(existingServiceKeys,
+                                                                                key -> hasSameNamespace(key, namespace));
 
         if (existingServiceKeys == null) {
             return OperationExecutionState.FINISHED;
@@ -40,7 +45,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
 
         List<CloudServiceKey> serviceKeysToCreate = getFilteredServiceKeys(serviceKeys, key -> shouldCreate(key, existingServiceKeys));
         List<CloudServiceKey> serviceKeysToUpdate = getFilteredServiceKeys(serviceKeys, key -> shouldUpdate(key, existingServiceKeys));
-        List<CloudServiceKey> serviceKeysToDelete = getFilteredServiceKeys(existingServiceKeys, key -> shouldDelete(key, serviceKeys));
+        List<CloudServiceKey> serviceKeysToDelete = getFilteredServiceKeys(existingKeysForNamespace, key -> shouldDelete(key, serviceKeys));
 
         if (canDeleteServiceKeys(context)) {
             deleteServiceKeys(serviceKeysToDelete, client);
@@ -56,6 +61,22 @@ public class UpdateServiceKeysStep extends ServiceStep {
         createServiceKeys(serviceKeysToCreate, client);
 
         return OperationExecutionState.FINISHED;
+    }
+
+    private boolean hasSameNamespace(CloudServiceKey serviceKey, String namespace) {
+        String keyNamespace = null;
+        if (serviceKey.getV3Metadata() != null && serviceKey.getV3Metadata()
+                                                            .getAnnotations() != null) {
+            keyNamespace = serviceKey.getV3Metadata()
+                                     .getAnnotations()
+                                     .get(MtaMetadataAnnotations.MTA_NAMESPACE);
+        }
+
+        if (StringUtils.isEmptyOrNull(keyNamespace)) {
+            return StringUtils.isEmptyOrNull(namespace);
+        } else {
+            return keyNamespace.equals(namespace);
+        }
     }
 
     @Override
@@ -117,13 +138,13 @@ public class UpdateServiceKeysStep extends ServiceStep {
     private boolean areServiceKeysEqual(CloudServiceKey key1, CloudServiceKey key2) {
         return Objects.equals(key1.getCredentials(), key2.getCredentials()) && Objects.equals(key1.getName(), key2.getName());
     }
-    
+
     private void createServiceKeys(List<CloudServiceKey> serviceKeys, CloudControllerClient client) {
         for (CloudServiceKey key : serviceKeys) {
             createServiceKey(client, key);
         }
     }
-    
+
     private void deleteServiceKeys(List<CloudServiceKey> serviceKeys, CloudControllerClient client) {
         for (CloudServiceKey key : serviceKeys) {
             deleteServiceKey(client, key);

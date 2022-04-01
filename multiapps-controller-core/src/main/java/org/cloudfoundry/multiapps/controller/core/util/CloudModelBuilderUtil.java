@@ -39,20 +39,22 @@ public class CloudModelBuilderUtil {
         return resourceTypesForService.contains(resourceType);
     }
 
-    public static boolean isServiceKey(Resource resource) {
+    public static boolean isExistingServiceKey(Resource resource) {
         if (resource.getType() == null) {
             return false;
         }
         return ResourceType.EXISTING_SERVICE_KEY.equals(getResourceType(resource));
     }
 
-    public static <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
-        return parser.parse(parametersList);
+    public static boolean isUserProvidedService(Resource resource) {
+        if (resource.getType() == null) {
+            return false;
+        }
+        return ResourceType.USER_PROVIDED_SERVICE.equals(getResourceType(resource));
     }
 
-    public static ResourceType getResourceType(Map<String, Object> properties) {
-        String type = (String) properties.getOrDefault(SupportedParameters.TYPE, ResourceType.MANAGED_SERVICE.toString());
-        return ResourceType.get(type);
+    public static <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
+        return parser.parse(parametersList);
     }
 
     public static ApplicationColor getApplicationColor(DeployedMtaApplication deployedApplication) {
@@ -67,6 +69,11 @@ public class CloudModelBuilderUtil {
         return resources.stream()
                         .filter(resource -> ResourceType.EXISTING_SERVICE.equals(getResourceType(resource)))
                         .anyMatch(resource -> serviceName.equals(getServiceName(resource)));
+    }
+
+    public static ResourceType getResourceType(Map<String, Object> properties) {
+        String type = (String) properties.getOrDefault(SupportedParameters.TYPE, ResourceType.MANAGED_SERVICE.toString());
+        return ResourceType.get(type);
     }
 
     private static ResourceType getResourceType(Resource resource) {

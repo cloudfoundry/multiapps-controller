@@ -14,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
+import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.model.SubprocessPhase;
@@ -377,6 +378,12 @@ public interface Variables {
                                                                     .name("deployedMta")
                                                                     .type(Variable.typeReference(DeployedMta.class))
                                                                     .build();
+    Variable<List<DeployedMtaServiceKey>> DEPLOYED_MTA_SERVICE_KEYS = ImmutableJsonBinaryVariable.<List<DeployedMtaServiceKey>> builder()
+                                                                                                 .name("deployedMtaServiceKeys")
+                                                                                                 .type(new TypeReference<>() {
+                                                                                                 })
+                                                                                                 .defaultValue(Collections.emptyList())
+                                                                                                 .build();
     Variable<CloudApplication> EXISTING_APP = ImmutableJsonBinaryVariable.<CloudApplication> builder()
                                                                          .name("existingApp")
                                                                          .type(Variable.typeReference(CloudApplication.class))
@@ -405,6 +412,16 @@ public interface Variables {
                                                                                                      .type(new TypeReference<>() {
                                                                                                      })
                                                                                                      .build();
+    Variable<List<DeployedMtaServiceKey>> SERVICE_KEYS_TO_DELETE = ImmutableJsonBinaryVariable.<List<DeployedMtaServiceKey>> builder()
+                                                                                              .name("serviceKeysToDelete")
+                                                                                              .type(new TypeReference<>() {
+                                                                                              })
+                                                                                              .build();
+    Variable<Map<String, List<CloudServiceKey>>> SERVICE_KEYS_FOR_CONTENT_DEPLOY = ImmutableJsonBinaryVariable.<Map<String, List<CloudServiceKey>>> builder()
+                                                                                                              .name("serviceKeysForContentDeploy")
+                                                                                                              .type(new TypeReference<>() {
+                                                                                                              })
+                                                                                                              .build();
     Variable<String> SERVICE_TO_DELETE = ImmutableSimpleVariable.<String> builder()
                                                                 .name("serviceToDelete")
                                                                 .build();

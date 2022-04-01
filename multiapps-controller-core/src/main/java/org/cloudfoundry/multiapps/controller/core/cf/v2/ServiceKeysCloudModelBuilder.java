@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
@@ -19,14 +20,18 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
 
 public class ServiceKeysCloudModelBuilder {
 
-    protected final DeploymentDescriptor deploymentDescriptor;
+    protected final DeploymentDescriptor descriptor;
+    private final String namespace;
+    private final String spaceGuid;
 
-    public ServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
-        this.deploymentDescriptor = deploymentDescriptor;
+    public ServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String namespace, String spaceGuid) {
+        this.descriptor = deploymentDescriptor;
+        this.namespace = namespace;
+        this.spaceGuid = spaceGuid;
     }
 
     public Map<String, List<CloudServiceKey>> build() {
-        return deploymentDescriptor.getResources()
+        return descriptor.getResources()
                                    .stream()
                                    .filter(CloudModelBuilderUtil::isService)
                                    .collect(Collectors.toMap(Resource::getName, this::getServiceKeysForService));
@@ -47,10 +52,12 @@ public class ServiceKeysCloudModelBuilder {
             parameters = Collections.emptyMap();
         }
         String serviceName = NameUtil.getServiceName(resource);
+        Metadata serviceKeyMetadata = ServiceKeyMetadataBuilder.build(descriptor, namespace, spaceGuid);
 
         return ImmutableCloudServiceKey.builder()
                                        .name(serviceKeyName)
                                        .credentials(parameters)
+                                       .v3Metadata(serviceKeyMetadata)
                                        .serviceInstance(ImmutableCloudServiceInstanceExtended.builder()
                                                                                              .name(serviceName)
                                                                                              .build())

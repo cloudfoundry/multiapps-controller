@@ -257,7 +257,7 @@ public class ApplicationCloudModelBuilder {
 
     protected ServiceKeyToInject getServiceKeyToInject(RequiredDependency dependency) {
         Resource resource = getResource(dependency.getName());
-        if (resource != null && CloudModelBuilderUtil.isServiceKey(resource)) {
+        if (resource != null && CloudModelBuilderUtil.isExistingServiceKey(resource)) {
             return buildServiceKeyToInject(dependency, resource);
         }
         return null;

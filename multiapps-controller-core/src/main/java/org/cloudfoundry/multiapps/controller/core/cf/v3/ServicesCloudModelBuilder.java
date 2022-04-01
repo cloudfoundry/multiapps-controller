@@ -13,7 +13,7 @@ public class ServicesCloudModelBuilder extends org.cloudfoundry.multiapps.contro
     protected CommonServiceParameters getCommonServiceParameters(Resource resource) {
         return new CommonServiceParametersV3(resource);
     }
-    
+
     static class CommonServiceParametersV3 extends CommonServiceParameters {
 
         CommonServiceParametersV3(Resource resource) {

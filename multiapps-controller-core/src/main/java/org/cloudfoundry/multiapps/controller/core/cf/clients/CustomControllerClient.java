@@ -24,9 +24,9 @@ public abstract class CustomControllerClient {
         this.webClient = new WebClientFactory().getWebClient(client);
     }
 
-    protected List<Map<String, Object>> getAllResources(String path) {
+    protected List<Map<String, Object>> getAllResources(String uri) {
         List<Map<String, Object>> allResources = new ArrayList<>();
-        String nextUrl = path;
+        String nextUrl = uri;
         while (!StringUtils.isEmpty(nextUrl)) {
             nextUrl = addPageOfResources(nextUrl, allResources, null);
         }
@@ -43,9 +43,9 @@ public abstract class CustomControllerClient {
         return CloudResourcesWithIncluded.of(allResources, includedResources);
     }
 
-    private String addPageOfResources(String path, List<Map<String, Object>> allResources, Map<String, Object> includedResources) {
+    private String addPageOfResources(String uri, List<Map<String, Object>> allResources, Map<String, Object> includedResources) {
         String response = webClient.get()
-                                   .uri(path)
+                                   .uri(uri)
                                    .retrieve()
                                    .bodyToMono(String.class)
                                    .block();

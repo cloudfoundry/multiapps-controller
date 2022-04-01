@@ -123,6 +123,7 @@ public class Messages {
     public static final String ERROR_DELETING_IDLE_ROUTES = "Error deleting idle routes";
     public static final String ERROR_CREATING_SERVICE_BROKERS = "Error creating service brokers";
     public static final String ERROR_DELETING_SERVICE_BROKERS = "Error deleting service brokers";
+    public static final String ERROR_DELETING_SERVICE_KEYS = "Error deleting old content deploy service keys";
     public static final String ERROR_DETACHING_SERVICES_FROM_MTA = "Error detaching services from MTA";
     public static final String ERROR_UPDATING_SUBSCRIBERS = "Error updating subscribers";
     public static final String ERROR_RESTARTING_SUBSCRIBERS = "Error restarting subscribers";
@@ -324,6 +325,7 @@ public class Messages {
     public static final String MERGING_DESCRIPTORS = "Validating and merging descriptors...";
     public static final String DESCRIPTORS_MERGED = "Descriptors validated and merged";
     public static final String DETECTING_DEPLOYED_MTA = "Detecting deployed MTA...";
+    public static final String DETECTING_MTA_BY_ID_AND_NAMESPACE = "Detecting MTA by id {0} and namespace {1}";
     public static final String DETECTING_COLOR_OF_DEPLOYED_MTA = "Detecting color of deployed MTA...";
     public static final String COLLECTING_SYSTEM_PARAMETERS = "Collecting system parameters...";
     public static final String SYSTEM_PARAMETERS_COLLECTED = "System parameters collected";
@@ -341,6 +343,9 @@ public class Messages {
     public static final String DOMAINS_ADDED = "Domains added";
     public static final String DELETING_DISCONTINUED_SERVICE_0 = "Deleting discontinued service \"{0}\"...";
     public static final String DELETING_SERVICES = "Deleting discontinued services...";
+    public static final String DELETING_OLD_SERVICE_KEYS = "Deleting old service keys for content deploy...";
+    public static final String DELETING_OLD_SERVICE_KEYS_FOR_SERVICE = "Deleting old service keys for content deploy \"{0}\"...";
+    public static final String MISSING_SERVICE_KEYS_TO_DELETE = "Preexisting Service Key marked for deletion was not found after content deploy!";
     public static final String MISSING_SERVICES_TO_DELETE = "Missing services to delete.";
     public static final String SERVICES_ARE_ALREADY_DELETED = "Services \"{0}\" are already deleted";
     public static final String SERVICES_DELETED = "Discontinued services deleted";
@@ -410,6 +415,7 @@ public class Messages {
     public static final String SUBSCRIPTIONS_TO_DELETE = "Subscriptions to delete: {0}";
     public static final String SERVICES_TO_DELETE = "Cloud services to delete: {0}";
     public static final String DEPLOYED_MTA = "Deployed MTA: {0}";
+    public static final String DEPLOYED_MTA_SERVICE_KEYS = "Deployed MTA service keys: {0}";
     public static final String DEPLOYED_MODULES = "Deployed modules: {0}";
     public static final String MTA_ARCHIVE_MODULES = "MTA archive modules: {0}";
     public static final String CUSTOM_DOMAINS = "Custom domains: {0}";
@@ -600,6 +606,12 @@ public class Messages {
     public static final String ASYNC_OPERATION_SERVICE_BROKER_IN_STATE_WITH_WARNINGS = "Async operation of service broker \"{0}\" is in state \"{1}\" warnings \"{2}\"";
     public static final String SETTING_WAIT_AFTER_STOP_FOR_APP_0_TO_1_SECONDS = "Setting wait after stop for \"{0}\" to \"{1}\" seconds";
     public static final String CLEARING_EXISTING_SERVICE_0_METADATA = "Clearing existing service \"{0}\" metadata";
+    public static final String DETECTING_SERVICE_KEYS_FOR_DELETION = "Detecting service keys to delete.";
+    public static final String NO_SERVICE_KEYS_FOR_DELETION = "No deployed service keys detected!";
+    public static final String DEPLOYED_SERVICE_KEYS = "Detected deployed service keys by service \"{0}\"";
+    public static final String NEW_SERVICE_KEYS = "New service keys by service \"{0}\"";
+    public static final String EXISTING_SERVICE_KEYS = "Existing service keys by service \"{0}\"";
+    public static final String SERVICE_KEYS_FOR_DELETION = "Detected service keys to delete \"{0}\"";
 
     protected Messages() {
     }

@@ -97,8 +97,9 @@ public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHand
     }
 
     @Override
-    public ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
-        return new ServiceKeysCloudModelBuilder(deploymentDescriptor);
+    public ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String namespace,
+                                                                        String spaceGuid) {
+        return new ServiceKeysCloudModelBuilder(deploymentDescriptor, namespace, spaceGuid);
     }
 
 }
