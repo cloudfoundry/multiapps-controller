@@ -73,8 +73,8 @@ public class ApplicationRoutesGetter extends CustomControllerClient {
 
     private Map<String, List<Map<String, Object>>> groupByRouteGuid(List<Map<String, Object>> serviceRouteBindings) {
         return serviceRouteBindings.stream()
-                                   .collect(Collectors.groupingBy(
-                                       serviceRouteBinding -> resourceMapper.getRelationshipData(serviceRouteBinding, "route")));
+                                   .collect(Collectors.groupingBy(serviceRouteBinding -> resourceMapper.getRelatedObjectGuid(serviceRouteBinding,
+                                                                                                                             "route", "")));
     }
 
     private List<CloudRouteExtended> toCloudRoutes(CloudResourcesWithIncluded resourcesWithIncluded,
@@ -85,7 +85,7 @@ public class ApplicationRoutesGetter extends CustomControllerClient {
         var domainResources = (List<Map<String, Object>>) resourcesWithIncluded.getIncludedResource("domains");
 
         for (var routeResource : routeResources) {
-            String domainGuid = resourceMapper.getRelationshipData(routeResource, "domain");
+            String domainGuid = resourceMapper.getRelatedObjectGuid(routeResource, "domain", "");
             var domainResource = findDomainResource(domainResources, domainGuid);
             String routeGuid = (String) routeResource.get("guid");
             var serviceRouteBindingsForRoute = serviceRouteBindings.get(routeGuid);

@@ -6,6 +6,7 @@ open module org.cloudfoundry.multiapps.controller.core {
     exports org.cloudfoundry.multiapps.controller.core.cf;
     exports org.cloudfoundry.multiapps.controller.core.cf.apps;
     exports org.cloudfoundry.multiapps.controller.core.cf.clients;
+    exports org.cloudfoundry.multiapps.controller.core.cf.clients.v3;
     exports org.cloudfoundry.multiapps.controller.core.cf.detect;
     exports org.cloudfoundry.multiapps.controller.core.cf.metadata;
     exports org.cloudfoundry.multiapps.controller.core.cf.metadata.criteria;

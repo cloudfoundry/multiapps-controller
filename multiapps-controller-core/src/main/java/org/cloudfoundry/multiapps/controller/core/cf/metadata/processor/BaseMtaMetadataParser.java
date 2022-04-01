@@ -46,9 +46,9 @@ public class BaseMtaMetadataParser {
         }
     }
 
-    protected List<String> parseList(Map<String, String> source, String key) {
-        String moduleBoundMtaServices = source.get(key);
-        return JsonUtil.convertJsonToList(moduleBoundMtaServices, new TypeReference<List<String>>() {
+    protected List<String> parseList(Map<String, String> metadataSourceMap, String key) {
+        String metadataList = metadataSourceMap.get(key);
+        return JsonUtil.convertJsonToList(metadataList, new TypeReference<List<String>>() {
         });
     }
 }

@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
+import org.cloudfoundry.multiapps.controller.process.steps.BuildCloudDeployModelStep;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessMtaArchiveStep;
 import org.cloudfoundry.multiapps.controller.process.util.ModuleDeployProcessGetter;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,6 +16,12 @@ public class ProcessStepsConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public ProcessMtaArchiveStep buildProcessMtaArchiveStep() {
         return new ProcessMtaArchiveStep();
+    }
+
+    @Bean("buildCloudDeployModelStep")
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public BuildCloudDeployModelStep buildCloudDeployModelStep() {
+        return new BuildCloudDeployModelStep();
     }
 
     @Bean("moduleDeployProcessGetter")

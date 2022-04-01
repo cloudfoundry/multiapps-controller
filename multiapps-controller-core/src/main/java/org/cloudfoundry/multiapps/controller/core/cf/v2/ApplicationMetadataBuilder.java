@@ -5,14 +5,11 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
@@ -20,25 +17,15 @@ import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
 public class ApplicationMetadataBuilder {
 
     public static Metadata build(DeploymentDescriptor deploymentDescriptor, String namespace, Module module, List<String> services) {
-        String hashedMtaId = MtaMetadataUtil.getHashedLabel(deploymentDescriptor.getId());
         String mtaModuleAnnotation = buildMtaModuleAnnotation(module);
         String mtaModuleProvidedDependenciesAnnotation = buildMtaModuleProvidedDependenciesAnnotation(module);
         String mtaServicesAnnotation = buildBoundMtaServicesAnnotation(services);
 
-        Metadata.Builder builder = Metadata.builder()
-                                           .label(MtaMetadataLabels.MTA_ID, hashedMtaId)
-                                           .annotation(MtaMetadataAnnotations.MTA_ID, deploymentDescriptor.getId())
-                                           .annotation(MtaMetadataAnnotations.MTA_VERSION, deploymentDescriptor.getVersion())
+        Metadata.Builder builder = MtaMetadataBuilder.init(deploymentDescriptor, namespace)
                                            .annotation(MtaMetadataAnnotations.MTA_MODULE, mtaModuleAnnotation)
                                            .annotation(MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
                                                        mtaModuleProvidedDependenciesAnnotation)
                                            .annotation(MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES, mtaServicesAnnotation);
-
-        if (StringUtils.isNotEmpty(namespace)) {
-            String hashedMtaNamespace = MtaMetadataUtil.getHashedLabel(namespace);
-            builder.label(MtaMetadataLabels.MTA_NAMESPACE, hashedMtaNamespace)
-                   .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, namespace);
-        }
 
         return builder.build();
     }

@@ -72,6 +72,7 @@ public interface CloudHandlerFactory extends HandlerFactory {
 
     ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String namespace);
 
-    ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor);
+    ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String namespace,
+                                                                 String spaceGuid);
 
 }

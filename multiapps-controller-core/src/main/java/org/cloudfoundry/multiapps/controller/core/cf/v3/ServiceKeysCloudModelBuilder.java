@@ -12,13 +12,13 @@ import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 
 public class ServiceKeysCloudModelBuilder extends org.cloudfoundry.multiapps.controller.core.cf.v2.ServiceKeysCloudModelBuilder {
 
-    public ServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
-        super(deploymentDescriptor);
+    public ServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String namespace, String spaceGuid) {
+        super(deploymentDescriptor, namespace, spaceGuid);
     }
 
     @Override
     public Map<String, List<CloudServiceKey>> build() {
-        return deploymentDescriptor.getResources()
+        return descriptor.getResources()
                                    .stream()
                                    .filter(CloudModelBuilderUtil::isService)
                                    .filter(Resource::isActive)
