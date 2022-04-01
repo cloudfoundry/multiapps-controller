@@ -27,7 +27,7 @@
         <javax.inject.version>1</javax.inject.version>
         <log4j.version>2.17.1</log4j.version>
         <slf4j.version>1.7.30</slf4j.version>
-        <commons-io.version>2.6</commons-io.version>
+        <commons-io.version>2.11.0</commons-io.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
         <commons-logging.version>1.2</commons-logging.version>
         <commons-lang3.version>3.8.1</commons-lang3.version>
@@ -53,8 +53,8 @@
         <spring.cloud.core.version>1.2.9.RELEASE</spring.cloud.core.version>
         <hana.cloud.version>1.0.4.RELEASE</hana.cloud.version>
         <quartz.version>2.3.2</quartz.version>
-        <jackson.version>2.10.5</jackson.version>
-        <jackson-databind.version>2.10.5.1</jackson-databind.version>
+        <jackson.version>2.13.2</jackson.version>
+        <jackson-databind.version>2.13.2.2</jackson-databind.version>
         <jackson-asl.version>1.9.13</jackson-asl.version>
         <liquibase.version>3.4.1</liquibase.version>
         <liquibase-slf4j.version>1.2.1</liquibase-slf4j.version>
