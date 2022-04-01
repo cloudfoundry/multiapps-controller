@@ -51,9 +51,9 @@ public class MtaArchiveHelper {
     private Map<String, String> getEntriesWithAttribute(String attributeName) {
         Map<String, String> result = new HashMap<>();
         for (Map.Entry<String, Attributes> entry : manifest.getEntries()
-            .entrySet()) {
+                                                           .entrySet()) {
             String attributeValue = entry.getValue()
-                .getValue(attributeName);
+                                         .getValue(attributeName);
             if (attributeValue == null) {
                 continue;
             }
@@ -61,7 +61,7 @@ public class MtaArchiveHelper {
             MtaPathValidator.validatePath(fileName);
             if (attributeName.equals(ATTR_MTA_MODULE)) {
                 Arrays.asList(attributeValue.split(Constants.MODULE_SEPARATOR))
-                    .forEach(module -> result.put(module.trim(), fileName));
+                      .forEach(module -> result.put(module.trim(), fileName));
             } else {
                 result.put(attributeValue, fileName);
             }

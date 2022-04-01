@@ -1,6 +1,13 @@
 package com.sap.cloud.lm.sl.cf.web.configuration;
 
-import com.sap.cloud.lm.sl.cf.web.security.TokenStoreFactory;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.sql.DataSource;
+import javax.ws.rs.core.HttpHeaders;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -15,12 +22,7 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
-import javax.ws.rs.core.HttpHeaders;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
+import com.sap.cloud.lm.sl.cf.web.security.TokenStoreFactory;
 
 @Configuration
 public class SecurityConfiguration {
@@ -30,8 +32,8 @@ public class SecurityConfiguration {
     @Inject
     @Bean
     public DelegatingAuthenticationEntryPoint
-    delegatingAuthenticationEntryPoint(OAuth2AuthenticationEntryPoint oauthAuthenticationEntryPoint,
-                                       BasicAuthenticationEntryPoint basicAuthenticationEntryPoint) {
+           delegatingAuthenticationEntryPoint(OAuth2AuthenticationEntryPoint oauthAuthenticationEntryPoint,
+                                              BasicAuthenticationEntryPoint basicAuthenticationEntryPoint) {
         LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
         entryPoints.put(this::containsBearerAuthorizationHeader, oauthAuthenticationEntryPoint);
         DelegatingAuthenticationEntryPoint delegatingAuthenticationEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
@@ -71,7 +73,8 @@ public class SecurityConfiguration {
 
     @Inject
     @Bean
-    public JdbcTokenStore tokenStore(@Qualifier("dataSource") DataSource dataSource, @Qualifier("secureStoreDataSource") DataSource secureStoreDataSource) {
+    public JdbcTokenStore tokenStore(@Qualifier("dataSource") DataSource dataSource,
+                                     @Qualifier("secureStoreDataSource") DataSource secureStoreDataSource) {
         return TokenStoreFactory.getTokenStore(dataSource, secureStoreDataSource);
     }
 

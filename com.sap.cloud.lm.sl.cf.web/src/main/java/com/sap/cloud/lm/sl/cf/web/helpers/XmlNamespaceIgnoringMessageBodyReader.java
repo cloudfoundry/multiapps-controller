@@ -43,11 +43,11 @@ public class XmlNamespaceIgnoringMessageBodyReader<T> implements MessageBodyRead
     @SuppressWarnings("unchecked")
     @Override
     public T readFrom(Class<T> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-        MultivaluedMap<String, String> httpHeaders, InputStream entityStream) {
+                      MultivaluedMap<String, String> httpHeaders, InputStream entityStream) {
 
         try {
             Unmarshaller unmarshaller = JAXBContext.newInstance(type)
-                .createUnmarshaller();
+                                                   .createUnmarshaller();
             String declaredNamespaceForType = getDeclaredNamespaceForType(type);
             XMLFilter filter = createXmlFilter(unmarshaller, declaredNamespaceForType);
 
@@ -69,12 +69,12 @@ public class XmlNamespaceIgnoringMessageBodyReader<T> implements MessageBodyRead
 
     private XMLReader createXmlReader() throws SAXException, ParserConfigurationException {
         return factory.newSAXParser()
-            .getXMLReader();
+                      .getXMLReader();
     }
 
     private String getDeclaredNamespaceForType(Class<T> type) {
         XmlSchema xmlSchemaAnnotation = type.getPackage()
-            .getAnnotation(XmlSchema.class);
+                                            .getAnnotation(XmlSchema.class);
         return xmlSchemaAnnotation == null ? null : xmlSchemaAnnotation.namespace();
     }
 

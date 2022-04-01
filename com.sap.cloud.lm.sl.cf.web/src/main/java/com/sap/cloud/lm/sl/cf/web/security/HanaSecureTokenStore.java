@@ -225,7 +225,7 @@ public class HanaSecureTokenStore extends JdbcTokenStore {
      */
     private void throwIfShouldNotIgnore(BadSqlGrammarException e, String procedureName) {
         String errorMessage = e.getCause()
-            .getMessage();
+                               .getMessage();
         if (errorMessage.contains(procedureName)) {
             return;
         }

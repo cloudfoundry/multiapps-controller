@@ -58,10 +58,17 @@ public class UploadAppStepTest {
         private static final String TOKEN = "token";
         private static final String SPACE = "space";
         private static final String APP_ARCHIVE = "sample-app.mtar";
-
+        private final String expectedIOExceptionMessage;
+        private final String expectedCFExceptionMessage;
         public TemporaryFolder tempDir = new TemporaryFolder();
         @Rule
         public ExpectedException expectedException = ExpectedException.none();
+        private File appFile;
+
+        public UploadAppStepParameterizedTest(String expectedIOExceptionMessage, String expectedCFExceptionMessage) {
+            this.expectedIOExceptionMessage = expectedIOExceptionMessage;
+            this.expectedCFExceptionMessage = expectedCFExceptionMessage;
+        }
 
         @Parameters
         public static Iterable<Object[]> getParameters() {
@@ -95,14 +102,8 @@ public class UploadAppStepTest {
             });
         }
 
-        private final String expectedIOExceptionMessage;
-        private final String expectedCFExceptionMessage;
-
-        private File appFile;
-
-        public UploadAppStepParameterizedTest(String expectedIOExceptionMessage, String expectedCFExceptionMessage) {
-            this.expectedIOExceptionMessage = expectedIOExceptionMessage;
-            this.expectedCFExceptionMessage = expectedCFExceptionMessage;
+        private static SLException createException(CloudOperationException e) {
+            return new SLException(e, Messages.CF_ERROR, e.getMessage());
         }
 
         @Before
@@ -178,6 +179,11 @@ public class UploadAppStepTest {
               .processFileContent(any());
         }
 
+        @Override
+        protected UploadAppStep createStep() {
+            return new UploadAppStepMock();
+        }
+
         private class UploadAppStepMock extends UploadAppStep {
 
             public UploadAppStepMock() {
@@ -204,15 +210,6 @@ public class UploadAppStepTest {
                 };
             }
 
-        }
-
-        @Override
-        protected UploadAppStep createStep() {
-            return new UploadAppStepMock();
-        }
-
-        private static SLException createException(CloudOperationException e) {
-            return new SLException(e, Messages.CF_ERROR, e.getMessage());
         }
 
     }

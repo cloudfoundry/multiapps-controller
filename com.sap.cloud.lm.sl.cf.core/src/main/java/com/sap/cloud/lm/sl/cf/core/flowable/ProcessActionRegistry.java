@@ -18,9 +18,9 @@ public class ProcessActionRegistry {
 
     public ProcessAction getAction(String actionId) {
         return processActions.stream()
-            .filter(action -> actionId.equals(action.getActionId()))
-            .findFirst()
-            .orElse(null);
+                             .filter(action -> actionId.equals(action.getActionId()))
+                             .findFirst()
+                             .orElse(null);
     }
 
 }

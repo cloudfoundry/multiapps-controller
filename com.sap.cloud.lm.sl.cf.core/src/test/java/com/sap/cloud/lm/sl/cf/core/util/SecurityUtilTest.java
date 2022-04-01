@@ -13,6 +13,18 @@ import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 
 public class SecurityUtilTest {
 
+    public static Stream<Arguments> testGetTokenUserInfo() {
+        return Stream.of(
+        // @formatter:off
+            // (1) UserInfo with user token
+            Arguments.of("cf","CF_USER", "dUTjdafgtw3wRUMkt4XDu2IidcEHNPoh", null, new UserInfo("cf", "CF_USER", new DefaultOAuth2AccessToken("dUTjdafgtw3wRUMkt4XDu2IidcEHNPoh"))),
+            // (2) UserInfo with exchanged token
+            Arguments.of("cf","CF_USER", "dUTjdafgtw3wRUMkt4XDu2IidcEHNPoh", "Xk2s5nIQPqjzoZ9KPwL2uPUhuiuUsbm2",
+                new UserInfo("cf", "CF_USER", new DefaultOAuth2AccessToken("Xk2s5nIQPqjzoZ9KPwL2uPUhuiuUsbm2")))
+        // @formatter:on
+        );
+    }
+
     @ParameterizedTest
     @MethodSource
     void testGetTokenUserInfo(String userId, String username, String tokenString, String exchangedTokenString, UserInfo expectedUserInfo) {
@@ -23,21 +35,9 @@ public class SecurityUtilTest {
         assertEquals(expectedUserInfo.getId(), userInfo.getId());
         assertEquals(expectedUserInfo.getName(), userInfo.getName());
         assertEquals(expectedUserInfo.getToken()
-            .getValue(),
-            userInfo.getToken()
-                .getValue());
-    }
-
-    public static Stream<Arguments> testGetTokenUserInfo() {
-        return Stream.of(
-        // @formatter:off
-            // (1) UserInfo with user token
-            Arguments.of("cf","CF_USER", "dUTjdafgtw3wRUMkt4XDu2IidcEHNPoh", null, new UserInfo("cf", "CF_USER", new DefaultOAuth2AccessToken("dUTjdafgtw3wRUMkt4XDu2IidcEHNPoh"))),
-            // (2) UserInfo with exchanged token
-            Arguments.of("cf","CF_USER", "dUTjdafgtw3wRUMkt4XDu2IidcEHNPoh", "Xk2s5nIQPqjzoZ9KPwL2uPUhuiuUsbm2", 
-                new UserInfo("cf", "CF_USER", new DefaultOAuth2AccessToken("Xk2s5nIQPqjzoZ9KPwL2uPUhuiuUsbm2")))
-        // @formatter:on
-        );
+                                     .getValue(),
+                     userInfo.getToken()
+                             .getValue());
     }
 
     private Map<String, Object> setAdditionalInformation(String userid, String username, String tokenString, String exchangedTokenString) {

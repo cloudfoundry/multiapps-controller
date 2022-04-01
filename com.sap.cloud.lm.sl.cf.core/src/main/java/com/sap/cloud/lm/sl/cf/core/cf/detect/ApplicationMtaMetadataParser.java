@@ -41,11 +41,11 @@ public class ApplicationMtaMetadataParser {
 
         List<Object> metadataFields = Arrays.asList(mtaMetadata, services, moduleName, providedDependencyNames);
         if (metadataFields.stream()
-            .allMatch(Objects::isNull)) {
+                          .allMatch(Objects::isNull)) {
             return null;
         }
         if (metadataFields.stream()
-            .anyMatch(Objects::isNull)) {
+                          .anyMatch(Objects::isNull)) {
             throw new ParsingException(Messages.MTA_METADATA_FOR_APP_0_IS_INCOMPLETE, app.getName());
         }
         return new ApplicationMtaMetadata(mtaMetadata, services, moduleName, providedDependencyNames);
@@ -62,7 +62,7 @@ public class ApplicationMtaMetadataParser {
 
     private static DeployedMtaMetadata buildMtaMetadata(CloudApplication app, Map<String, Object> mtaMetadata) {
         String exceptionMessage = MessageFormat.format(Messages.ENV_OF_APP_0_CONTAINS_INVALID_VALUE_FOR_1, app.getName(),
-            Constants.ENV_MTA_METADATA);
+                                                       Constants.ENV_MTA_METADATA);
         String id = (String) getRequired(mtaMetadata, Constants.ATTR_ID, exceptionMessage);
         String version = (String) getRequired(mtaMetadata, Constants.ATTR_VERSION, exceptionMessage);
         return new DeployedMtaMetadata(id, Version.parseVersion(version));
@@ -84,7 +84,8 @@ public class ApplicationMtaMetadataParser {
         }
         Map<String, Object> mtaModuleMetadata = JsonUtil.convertJsonToMap(envValue);
         return (String) getRequired(mtaModuleMetadata, Constants.ATTR_NAME,
-            MessageFormat.format(Messages.ENV_OF_APP_0_CONTAINS_INVALID_VALUE_FOR_1, app.getName(), Constants.ENV_MTA_MODULE_METADATA));
+                                    MessageFormat.format(Messages.ENV_OF_APP_0_CONTAINS_INVALID_VALUE_FOR_1, app.getName(),
+                                                         Constants.ENV_MTA_MODULE_METADATA));
     }
 
     private static List<String> parseProvidedDependencyNames(String appName, Map<String, String> appEnv) {

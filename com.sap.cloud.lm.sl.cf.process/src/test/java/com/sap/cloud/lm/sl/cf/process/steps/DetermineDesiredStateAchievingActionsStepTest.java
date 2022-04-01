@@ -29,6 +29,35 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 @RunWith(Parameterized.class)
 public class DetermineDesiredStateAchievingActionsStepTest extends SyncFlowableStepTest<DetermineDesiredStateAchievingActionsStep> {
 
+    private final ApplicationStartupState currentAppState;
+    private final ApplicationStartupState desiredAppState;
+    private final boolean hasAppChanged;
+    private final boolean hasAppPropertiesChanged;
+    private final boolean hasServicesPropertiesChanged;
+    private final boolean hasUserPropertiesChanged;
+    private final Set<ApplicationStateAction> expectedAppStateActions;
+    private RestartParameters appRestartParameters;
+    @Mock
+    private ApplicationStartupStateCalculator appStateCalculator;
+
+    public DetermineDesiredStateAchievingActionsStepTest(ApplicationStartupState currentAppState, boolean shouldRestartOnVcapAppChange,
+                                                         boolean shouldRestartOnVcapServicesChange,
+                                                         boolean shouldRestartOnUserProvidedChange, ApplicationStartupState desiredAppState,
+                                                         boolean hasAppChanged, boolean hasAppPropertiesChanged,
+                                                         boolean hasServicesPropertiesChanged, boolean hasUserPropertiesChanged,
+                                                         Set<ApplicationStateAction> expectedAppStateActions) {
+        this.currentAppState = currentAppState;
+        this.appRestartParameters = new RestartParameters(shouldRestartOnVcapAppChange,
+                                                          shouldRestartOnVcapServicesChange,
+                                                          shouldRestartOnUserProvidedChange);
+        this.desiredAppState = desiredAppState;
+        this.hasAppChanged = hasAppChanged;
+        this.hasAppPropertiesChanged = hasAppPropertiesChanged;
+        this.hasServicesPropertiesChanged = hasServicesPropertiesChanged;
+        this.hasUserPropertiesChanged = hasUserPropertiesChanged;
+        this.expectedAppStateActions = expectedAppStateActions;
+    }
+
     @Parameters
     public static List<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -115,34 +144,6 @@ public class DetermineDesiredStateAchievingActionsStepTest extends SyncFlowableS
             }
             // @formatter:on
         });
-    }
-
-    private final ApplicationStartupState currentAppState;
-    private final ApplicationStartupState desiredAppState;
-    private final boolean hasAppChanged;
-    private final boolean hasAppPropertiesChanged;
-    private final boolean hasServicesPropertiesChanged;
-    private final boolean hasUserPropertiesChanged;
-    private final Set<ApplicationStateAction> expectedAppStateActions;
-
-    private RestartParameters appRestartParameters;
-
-    @Mock
-    private ApplicationStartupStateCalculator appStateCalculator;
-
-    public DetermineDesiredStateAchievingActionsStepTest(ApplicationStartupState currentAppState, boolean shouldRestartOnVcapAppChange,
-        boolean shouldRestartOnVcapServicesChange, boolean shouldRestartOnUserProvidedChange, ApplicationStartupState desiredAppState,
-        boolean hasAppChanged, boolean hasAppPropertiesChanged, boolean hasServicesPropertiesChanged, boolean hasUserPropertiesChanged,
-        Set<ApplicationStateAction> expectedAppStateActions) {
-        this.currentAppState = currentAppState;
-        this.appRestartParameters = new RestartParameters(shouldRestartOnVcapAppChange, shouldRestartOnVcapServicesChange,
-            shouldRestartOnUserProvidedChange);
-        this.desiredAppState = desiredAppState;
-        this.hasAppChanged = hasAppChanged;
-        this.hasAppPropertiesChanged = hasAppPropertiesChanged;
-        this.hasServicesPropertiesChanged = hasServicesPropertiesChanged;
-        this.hasUserPropertiesChanged = hasUserPropertiesChanged;
-        this.expectedAppStateActions = expectedAppStateActions;
     }
 
     @Before

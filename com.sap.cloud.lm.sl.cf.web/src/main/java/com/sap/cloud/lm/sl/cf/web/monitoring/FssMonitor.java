@@ -17,10 +17,9 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 @Component
 public class FssMonitor {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(FssMonitor.class);
     Map<File, Long> usedSpaceMap = new Hashtable<>(1);
     Map<File, LocalDateTime> updateTimesMap = new Hashtable<>(1);
-    private static final Logger LOGGER = LoggerFactory.getLogger(FssMonitor.class);
-
     private Integer updateTimeoutMinutes;
 
     @Inject
@@ -42,7 +41,7 @@ public class FssMonitor {
     private boolean isCacheValid(File filePath) {
         LocalDateTime lastChecked = updateTimesMap.get(filePath);
         LocalDateTime invalidateDeadline = LocalDateTime.now()
-            .minusMinutes(updateTimeoutMinutes);
+                                                        .minusMinutes(updateTimeoutMinutes);
         return invalidateDeadline.isBefore(lastChecked);
     }
 

@@ -17,8 +17,8 @@ public class CleanUpJobTest {
         Cleaner cleaner1 = Mockito.mock(Cleaner.class);
         Cleaner cleaner2 = Mockito.mock(Cleaner.class);
         Mockito.doThrow(new SLException("Will it work?"))
-            .when(cleaner2)
-            .execute(Mockito.any());
+               .when(cleaner2)
+               .execute(Mockito.any());
         Cleaner cleaner3 = Mockito.mock(Cleaner.class);
         List<Cleaner> cleaners = Arrays.asList(cleaner1, cleaner2, cleaner3);
 
@@ -26,12 +26,12 @@ public class CleanUpJobTest {
         cleanUpJob.execute(null);
 
         Mockito.verify(cleaner1)
-            .execute(Mockito.any());
+               .execute(Mockito.any());
         Mockito.verify(cleaner2)
-            .execute(Mockito.any());
+               .execute(Mockito.any());
         // Makes sure that all cleaners are executed even if the ones before them failed.
         Mockito.verify(cleaner3)
-            .execute(Mockito.any());
+               .execute(Mockito.any());
     }
 
     private CleanUpJob createCleanUpJob(ApplicationConfiguration applicationConfiguration, List<Cleaner> cleaners) {

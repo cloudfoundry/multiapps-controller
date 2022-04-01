@@ -23,52 +23,52 @@ import com.sap.cloud.lm.sl.cf.core.shutdown.model.ApplicationShutdownDto;
 @Produces(MediaType.APPLICATION_JSON)
 public class ApplicationShutdownResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationShutdownResource.class);
-
-    private static final long DEFAULT_COOLDOWN_TIMEOUT_IN_SECONDS = 300L; // 5 mins
-
     public static final String ACTION = "shutdown";
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationShutdownResource.class);
+    private static final long DEFAULT_COOLDOWN_TIMEOUT_IN_SECONDS = 300L; // 5 mins
     @Inject
     private FlowableFacade flowableFacade;
 
     @POST
-    public ApplicationShutdownDto shutdownFlowableJobExecutor(@HeaderParam("x-cf-applicationid") String appId,
-        @HeaderParam("x-cf-instanceid") String appInstanceId, @HeaderParam("x-cf-instanceindex") String appInstanceIndex,
-        @QueryParam("cooldownTimeoutInSeconds") String cooldownTimeoutInSecondsParam) {
+    public ApplicationShutdownDto
+           shutdownFlowableJobExecutor(@HeaderParam("x-cf-applicationid") String appId,
+                                       @HeaderParam("x-cf-instanceid") String appInstanceId,
+                                       @HeaderParam("x-cf-instanceindex") String appInstanceIndex,
+                                       @QueryParam("cooldownTimeoutInSeconds") String cooldownTimeoutInSecondsParam) {
 
         long cooldownTimeoutInSeconds = getCooldownTimeoutInSeconds(cooldownTimeoutInSecondsParam);
 
         CompletableFuture.runAsync(() -> {
             LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWN_REQUEST, appId, appInstanceId, appInstanceIndex,
-                cooldownTimeoutInSeconds));
+                                             cooldownTimeoutInSeconds));
             flowableFacade.shutdownJobExecutor(cooldownTimeoutInSeconds);
         })
-            .thenRun(() -> {
-                LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWNED, appId, appInstanceId, appInstanceIndex,
-                    cooldownTimeoutInSeconds));
-            });
+                         .thenRun(() -> {
+                             LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWNED, appId, appInstanceId, appInstanceIndex,
+                                                              cooldownTimeoutInSeconds));
+                         });
 
         return new ApplicationShutdownDto.Builder().isActive(flowableFacade.isJobExecutorActive())
-            .appId(appId)
-            .appInstanceId(appInstanceId)
-            .appInstanceIndex(appInstanceIndex)
-            .cooldownTimeoutInSeconds(cooldownTimeoutInSeconds)
-            .build();
+                                                   .appId(appId)
+                                                   .appInstanceId(appInstanceId)
+                                                   .appInstanceIndex(appInstanceIndex)
+                                                   .cooldownTimeoutInSeconds(cooldownTimeoutInSeconds)
+                                                   .build();
     }
 
     @GET
     public ApplicationShutdownDto getFlowableJobExecutorShutdownStatus(@HeaderParam("x-cf-applicationid") String appId,
-        @HeaderParam("x-cf-instanceid") String appInstanceId, @HeaderParam("x-cf-instanceindex") String appInstanceIndex) {
+                                                                       @HeaderParam("x-cf-instanceid") String appInstanceId,
+                                                                       @HeaderParam("x-cf-instanceindex") String appInstanceIndex) {
 
         ApplicationShutdownDto appShutdownDto = new ApplicationShutdownDto.Builder().isActive(flowableFacade.isJobExecutorActive())
-            .appId(appId)
-            .appInstanceId(appInstanceId)
-            .appInstanceIndex(appInstanceIndex)
-            .build();
+                                                                                    .appId(appId)
+                                                                                    .appInstanceId(appInstanceId)
+                                                                                    .appInstanceIndex(appInstanceIndex)
+                                                                                    .build();
 
-        LOGGER.info(
-            MessageFormat.format(Messages.APP_SHUTDOWN_STATUS_MONITOR, appId, appInstanceId, appInstanceIndex, appShutdownDto.getStatus()));
+        LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWN_STATUS_MONITOR, appId, appInstanceId, appInstanceIndex,
+                                         appShutdownDto.getStatus()));
 
         return appShutdownDto;
     }

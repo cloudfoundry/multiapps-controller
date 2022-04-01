@@ -18,21 +18,22 @@ import com.sap.cloud.lm.sl.mta.resolvers.v2.DescriptorReferenceResolver;
 public class ConfigurationSubscriptionFactory extends com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory {
 
     @Override
-    protected DescriptorReferenceResolver getPartialDescriptorReferenceResolver(
-        com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor, List<String> dependenciesToIgnore) {
+    protected DescriptorReferenceResolver
+              getPartialDescriptorReferenceResolver(com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor,
+                                                    List<String> dependenciesToIgnore) {
         return new PartialDescriptorReferenceResolver((DeploymentDescriptor) descriptor, dependenciesToIgnore);
     }
 
     @Override
     protected ConfigurationSubscription createSubscription(String spaceId, String mtaId, Module module, RequiredDependency dependency,
-        Map<String, ResolvedConfigurationReference> resolvedResources) {
+                                                           Map<String, ResolvedConfigurationReference> resolvedResources) {
         ResolvedConfigurationReference resolvedReference = resolvedResources.get(dependency.getName());
         if (!isActive(resolvedReference.getReference())) {
             return null;
         }
         ConfigurationFilter filter = resolvedReference.getReferenceFilter();
         String appName = (String) module.getParameters()
-            .get(SupportedParameters.APP_NAME);
+                                        .get(SupportedParameters.APP_NAME);
         com.sap.cloud.lm.sl.mta.model.v2.Resource resource = resolvedReference.getReference();
         Module adaptedModule = getContainingOneRequiresDependency(module, dependency);
 

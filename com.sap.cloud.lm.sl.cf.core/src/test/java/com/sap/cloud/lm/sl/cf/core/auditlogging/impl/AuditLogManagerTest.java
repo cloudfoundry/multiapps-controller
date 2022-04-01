@@ -12,11 +12,18 @@ import com.sap.cloud.lm.sl.common.util.TestDataSourceProvider;
 
 public class AuditLogManagerTest {
 
+    private static final String AUDIT_LOG_CHANGELOG_LOCATION = "com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog.xml";
     private DataSource testDataSource;
-
     private AuditLogManager auditLogManager;
 
-    private static final String AUDIT_LOG_CHANGELOG_LOCATION = "com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog.xml";
+    private static UserInfoProvider createTestUserInfoProvider() {
+        return new UserInfoProvider() {
+            @Override
+            public UserInfo getUserInfo() {
+                return null;
+            }
+        };
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -27,26 +34,17 @@ public class AuditLogManagerTest {
     @After
     public void tearDown() throws Exception {
         testDataSource.getConnection()
-            .close();
+                      .close();
     }
 
     @Test
     public void test() throws Exception {
         auditLogManager.getSecurityLogger()
-            .info("That's a security message");
+                       .info("That's a security message");
         Exception e = auditLogManager.getException();
         if (e != null) {
             throw e;
         }
-    }
-
-    private static UserInfoProvider createTestUserInfoProvider() {
-        return new UserInfoProvider() {
-            @Override
-            public UserInfo getUserInfo() {
-                return null;
-            }
-        };
     }
 
 }

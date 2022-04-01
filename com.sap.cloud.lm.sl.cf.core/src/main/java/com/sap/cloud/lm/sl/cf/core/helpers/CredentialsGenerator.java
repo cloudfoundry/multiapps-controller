@@ -20,15 +20,6 @@ public class CredentialsGenerator {
         this.randomGenerator = randomGenerator;
     }
 
-    public String next(int length) {
-        StringBuilder credential = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            int randomIndex = randomGenerator.nextInt(LEGAL_CHARACTERS.length);
-            credential.append(LEGAL_CHARACTERS[randomIndex]);
-        }
-        return credential.toString();
-    }
-
     private static char[] getLegalCharacters() {
         char[] digits = CommonUtil.getCharacterRange('0', '9');
         char[] lowerCaseLetters = CommonUtil.getCharacterRange('a', 'z');
@@ -40,6 +31,15 @@ public class CredentialsGenerator {
         legalCharacters = ArrayUtils.addAll(legalCharacters, specialCharacters);
 
         return legalCharacters;
+    }
+
+    public String next(int length) {
+        StringBuilder credential = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int randomIndex = randomGenerator.nextInt(LEGAL_CHARACTERS.length);
+            credential.append(LEGAL_CHARACTERS[randomIndex]);
+        }
+        return credential.toString();
     }
 
 }

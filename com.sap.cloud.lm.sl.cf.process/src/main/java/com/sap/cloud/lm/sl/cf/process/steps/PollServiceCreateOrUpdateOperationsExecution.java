@@ -32,7 +32,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
 
     @Override
     protected List<CloudServiceExtended> computeServicesToPoll(ExecutionWrapper execution,
-        Map<String, ServiceOperationType> triggeredServiceOperations) {
+                                                               Map<String, ServiceOperationType> triggeredServiceOperations) {
 
         List<CloudServiceExtended> servicesToCreate = getServicesToCreate(execution.getContext());
 
@@ -43,16 +43,18 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
         List<CloudServiceExtended> allServicesToCreate = StepsUtil.getServicesToCreate(context);
         // There's no need to poll the creation or update of user-provided services, because it is done synchronously:
         return allServicesToCreate.stream()
-            .filter(s -> !s.isUserProvided())
-            .collect(Collectors.toList());
+                                  .filter(s -> !s.isUserProvided())
+                                  .collect(Collectors.toList());
     }
 
     @Override
     protected ServiceOperation getLastServiceOperation(ExecutionWrapper execution, CloudControllerClient client,
-        CloudServiceExtended service) {
+                                                       CloudServiceExtended service) {
         Map<String, Object> cloudServiceInstance = serviceOperationExecutor.executeServiceOperation(service,
-            () -> serviceInstanceGetter.getServiceInstanceEntity(client, service.getName(), StepsUtil.getSpaceId(execution.getContext())),
-            execution.getStepLogger());
+                                                                                                    () -> serviceInstanceGetter.getServiceInstanceEntity(client,
+                                                                                                                                                         service.getName(),
+                                                                                                                                                         StepsUtil.getSpaceId(execution.getContext())),
+                                                                                                    execution.getStepLogger());
 
         if (cloudServiceInstance == null || cloudServiceInstance.isEmpty()) {
             handleMissingServiceInstance(execution, service);
@@ -69,7 +71,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
         // Be fault tolerant on failure on update of service
         if (lastOperation.getType() == ServiceOperationType.UPDATE && lastOperation.getState() == ServiceOperationState.FAILED) {
             execution.getStepLogger()
-                .warn(Messages.FAILED_SERVICE_UPDATE, cloudServiceInstance.get(SERVICE_NAME), lastOperation.getDescription());
+                     .warn(Messages.FAILED_SERVICE_UPDATE, cloudServiceInstance.get(SERVICE_NAME), lastOperation.getDescription());
             return new ServiceOperation(lastOperation.getType(), lastOperation.getDescription(), ServiceOperationState.SUCCEEDED);
         }
         return lastOperation;

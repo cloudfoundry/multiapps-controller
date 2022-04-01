@@ -41,7 +41,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
 
             List<ExtensionDescriptor> extensionDescriptors = parseExtensionDescriptors(spaceId, extensionDescriptorFileIds);
             List<ExtensionDescriptor> extensionDescriptorChain = extensionDescriptorChainBuilder.build(deploymentDescriptor,
-                extensionDescriptors);
+                                                                                                       extensionDescriptors);
 
             StepsUtil.setExtensionDescriptorChain(context, extensionDescriptorChain);
         } catch (SLException e) {
@@ -69,8 +69,9 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
                 extensionDescriptors.add(extensionDescriptor);
             };
             for (String extensionDescriptorFileId : fileIds) {
-                fileService
-                    .processFileContent(new DefaultFileDownloadProcessor(spaceId, extensionDescriptorFileId, extensionDescriptorProcessor));
+                fileService.processFileContent(new DefaultFileDownloadProcessor(spaceId,
+                                                                                extensionDescriptorFileId,
+                                                                                extensionDescriptorProcessor));
             }
             getStepLogger().debug(Messages.EXTENSION_DESCRIPTORS, secureSerializationFacade.toJson(extensionDescriptors));
             return extensionDescriptors;

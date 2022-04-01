@@ -55,26 +55,20 @@ public class AnalyticsCollectorTest {
         TRIGGERED_SERVICE_OPERATIONS.put("qux", ServiceOperationType.CREATE);
     }
 
-    protected DelegateExecution context = com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution.createSpyInstance();
-
-    protected FileService fileService = Mockito.mock(FileService.class);
-    @Mock
-    protected ApplicationConfiguration configuration;
-
-    @Spy
-    public DeployProcessAttributesCollector deployProcessAttributesCollector = new DeployProcessAttributesCollector(fileService);
-
     @Spy
     public UndeployProcessAttributesCollector undeployProcessAttributesCollector = new UndeployProcessAttributesCollector();
-
+    protected DelegateExecution context = com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution.createSpyInstance();
+    protected FileService fileService = Mockito.mock(FileService.class);
+    @Spy
+    public DeployProcessAttributesCollector deployProcessAttributesCollector = new DeployProcessAttributesCollector(fileService);
     @Mock
-    private ProcessTypeParser processTypeParser;
-
-    @Mock
-    private ProcessEngineConfiguration processEngineConfiguration;
-
+    protected ApplicationConfiguration configuration;
     @InjectMocks
     protected AnalyticsCollector collector;
+    @Mock
+    private ProcessTypeParser processTypeParser;
+    @Mock
+    private ProcessEngineConfiguration processEngineConfiguration;
 
     @Before
     public void setUp() throws Exception {
@@ -119,8 +113,7 @@ public class AnalyticsCollectorTest {
         when(context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE)).thenReturn(mockedListWithObjects(3));
         when(context.getVariable(Constants.VAR_SERVICE_URLS_TO_REGISTER)).thenReturn(mockedListWithObjects(5));
         when(context.getVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE)).thenReturn(mockedListWithObjects(1));
-        when(context.getVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS))
-            .thenReturn(JsonUtil.toBinaryJson(TRIGGERED_SERVICE_OPERATIONS));
+        when(context.getVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS)).thenReturn(JsonUtil.toBinaryJson(TRIGGERED_SERVICE_OPERATIONS));
         when(context.getVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE)).thenReturn(JsonUtil.toBinaryJson(new Object()));
 
         when(context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE)).thenReturn(mockedListWithObjects(2));

@@ -13,6 +13,10 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Profile("cf")
 public class ProcessTypeParser {
 
+    public static String getServiceId(DelegateExecution context) {
+        return (String) context.getVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID);
+    }
+
     public ProcessType getProcessType(DelegateExecution context) {
         String serviceId = getServiceId(context);
         switch (serviceId) {
@@ -25,10 +29,6 @@ public class ProcessTypeParser {
             default:
                 throw new SLException(Messages.UNKNOWN_SERVICE_ID, serviceId);
         }
-    }
-
-    public static String getServiceId(DelegateExecution context) {
-        return (String) context.getVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID);
     }
 
 }

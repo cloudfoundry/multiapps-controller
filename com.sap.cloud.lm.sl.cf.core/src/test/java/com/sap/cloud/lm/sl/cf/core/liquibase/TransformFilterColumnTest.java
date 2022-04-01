@@ -45,15 +45,15 @@ public class TransformFilterColumnTest {
 
         Map<Long, String> transformedData = transformFilterColumn.transformData(retrievedData);
         assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"space\":\"space\",\"org\":\"org\"}}",
-            transformedData.get(1l));
+                     transformedData.get(1l));
 
         transformedData = transformFilterColumn.transformData(retrievedData);
         assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"space\":\"orgspace\",\"org\":\"\"}}",
-            transformedData.get(2l));
+                     transformedData.get(2l));
 
         transformedData = transformFilterColumn.transformData(retrievedData);
         assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"space\":\"test space sap\",\"org\":\"org\"}}",
-            transformedData.get(3l));
+                     transformedData.get(3l));
     }
 
     @Test

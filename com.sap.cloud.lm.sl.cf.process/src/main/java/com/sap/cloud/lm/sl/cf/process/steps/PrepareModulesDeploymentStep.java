@@ -21,10 +21,9 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 public class PrepareModulesDeploymentStep extends SyncFlowableStep {
 
     @Inject
-    private ApplicationConfiguration configuration;
-
-    @Inject
     protected ProcessTypeParser processTypeParser;
+    @Inject
+    private ApplicationConfiguration configuration;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -35,24 +34,24 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
 
         // Initialize the iteration over the applications list:
         execution.getContext()
-            .setVariable(Constants.VAR_MODULES_COUNT, modulesToDeploy.size());
+                 .setVariable(Constants.VAR_MODULES_COUNT, modulesToDeploy.size());
         execution.getContext()
-            .setVariable(Constants.VAR_MODULES_INDEX, 0);
+                 .setVariable(Constants.VAR_MODULES_INDEX, 0);
         execution.getContext()
-            .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
+                 .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
 
         execution.getContext()
-            .setVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL, configuration.getControllerPollingInterval());
+                 .setVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL, configuration.getControllerPollingInterval());
         execution.getContext()
-            .setVariable(Constants.VAR_PLATFORM_TYPE, configuration.getPlatformType()
-                .toString());
+                 .setVariable(Constants.VAR_PLATFORM_TYPE, configuration.getPlatformType()
+                                                                        .toString());
 
         execution.getContext()
-            .setVariable(Constants.REBUILD_APP_ENV, true);
+                 .setVariable(Constants.REBUILD_APP_ENV, true);
         execution.getContext()
-            .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, true);
+                 .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, true);
         execution.getContext()
-            .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, true);
+                 .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, true);
 
         StepsUtil.setModulesToDeploy(execution.getContext(), modulesToDeploy);
 
@@ -62,8 +61,8 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
 
         return StepPhase.DONE;
     }
-    
-    protected List<ModuleToDeploy> getModulesToDeploy(DelegateExecution context){
+
+    protected List<ModuleToDeploy> getModulesToDeploy(DelegateExecution context) {
         return StepsUtil.getAllModulesToDeploy(context);
     }
 

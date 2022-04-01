@@ -35,10 +35,10 @@ public class ApplicationStagingUpdater extends CustomControllerClient {
 
     private void attemptToUpdateApplicationStaging(CloudControllerClient client, String appName, Staging staging) {
         String applicationsEndpoint = getApplicationsEndpoint(client.getCloudControllerUrl()
-            .toString());
+                                                                    .toString());
         CloudApplication application = client.getApplication(appName);
         UUID applicationId = application.getMeta()
-            .getGuid();
+                                        .getGuid();
         Map<String, Object> stagingParameters = createStagingParameters(staging);
         getRestTemplate(client).put(applicationsEndpoint, stagingParameters, applicationId);
     }
@@ -68,9 +68,12 @@ public class ApplicationStagingUpdater extends CustomControllerClient {
             stagingParameters.put(ENABLE_SSH_PARAMETER, staging.isSshEnabled());
         }
         if (staging.getDockerInfo() != null) {
-            stagingParameters.put(DOCKER_IMAGE, staging.getDockerInfo().getImage());
-            if (staging.getDockerInfo().getDockerCredentials() != null) {
-                stagingParameters.put(DOCKER_CREDENTIALS, staging.getDockerInfo().getDockerCredentials());
+            stagingParameters.put(DOCKER_IMAGE, staging.getDockerInfo()
+                                                       .getImage());
+            if (staging.getDockerInfo()
+                       .getDockerCredentials() != null) {
+                stagingParameters.put(DOCKER_CREDENTIALS, staging.getDockerInfo()
+                                                                 .getDockerCredentials());
             }
         }
         return stagingParameters;

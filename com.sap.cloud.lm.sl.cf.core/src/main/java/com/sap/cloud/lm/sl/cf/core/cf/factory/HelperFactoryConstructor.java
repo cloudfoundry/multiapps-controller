@@ -30,27 +30,29 @@ import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 public interface HelperFactoryConstructor {
 
     ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver, String deployId);
+                                                                   CloudModelConfiguration configuration, DeployedMta deployedMta,
+                                                                   SystemParameters systemParameters,
+                                                                   XsPlaceholderResolver xsPlaceholderResolver, String deployId);
 
     ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
-        CloudModelConfiguration configuration);
+                                                           CloudModelConfiguration configuration);
 
     ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        PropertiesAccessor propertiesAccessor);
+                                                                 PropertiesAccessor propertiesAccessor);
 
     ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
-        BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
-        ApplicationConfiguration configuration);
+                                                                       BiFunction<String, String, String> spaceIdSupplier,
+                                                                       ConfigurationEntryDao dao, CloudTarget cloudTarget,
+                                                                       ApplicationConfiguration configuration);
 
     ConfigurationReferencesResolver getConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
-        CloudTarget cloudTarget, ApplicationConfiguration configuration);
+                                                                       CloudTarget cloudTarget, ApplicationConfiguration configuration);
 
     DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
-        List<ParameterValidator> parameterValidators);
+                                                                   List<ParameterValidator> parameterValidators);
 
     DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
-        List<ParameterValidator> parameterValidators, boolean doNotCorrect);
+                                                                   List<ParameterValidator> parameterValidators, boolean doNotCorrect);
 
     ApplicationColorAppender getApplicationColorAppender(ApplicationColor deployedMtaColor, ApplicationColor applicationType);
 
@@ -59,7 +61,7 @@ public interface HelperFactoryConstructor {
     PlatformMerger getPlatformMerger(Platform platform);
 
     UserProvidedResourceResolver getUserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor,
-        Platform platform);
+                                                                 Platform platform);
 
     PropertiesAccessor getPropertiesAccessor();
 

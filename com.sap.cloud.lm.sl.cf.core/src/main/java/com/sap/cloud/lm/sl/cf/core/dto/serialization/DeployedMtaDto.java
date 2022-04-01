@@ -39,14 +39,14 @@ public class DeployedMtaDto {
 
     private static List<DeployedMtaModuleDto> toDtos(List<DeployedMtaModule> modules) {
         return modules.stream()
-            .map(DeployedMtaModuleDto::new)
-            .collect(Collectors.toList());
+                      .map(DeployedMtaModuleDto::new)
+                      .collect(Collectors.toList());
     }
 
     private static List<DeployedMtaModule> toDeployedMtaModules(List<DeployedMtaModuleDto> modules) {
         return modules.stream()
-            .map(DeployedMtaModuleDto::toDeployedMtaModule)
-            .collect(Collectors.toList());
+                      .map(DeployedMtaModuleDto::toDeployedMtaModule)
+                      .collect(Collectors.toList());
     }
 
     public DeployedMtaMetadataDto getMetadata() {

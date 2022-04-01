@@ -25,10 +25,8 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetectDeployedMtaStep extends SyncFlowableStep {
 
+    protected Function<List<CloudApplication>, DeployedComponents> componentsDetector = deployedApps -> new DeployedComponentsDetector().detectAllDeployedComponents(deployedApps);
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
-    protected Function<List<CloudApplication>, DeployedComponents> componentsDetector = deployedApps -> new DeployedComponentsDetector()
-        .detectAllDeployedComponents(deployedApps);
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -40,15 +38,18 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
             List<CloudApplication> deployedApps = client.getApplications("0");
             StepsUtil.setDeployedApps(execution.getContext(), deployedApps);
             String mtaId = (String) execution.getContext()
-                .getVariable(Constants.PARAM_MTA_ID);
+                                             .getVariable(Constants.PARAM_MTA_ID);
 
             DeployedMta deployedMta = componentsDetector.apply(deployedApps)
-                .findDeployedMta(mtaId);
+                                                        .findDeployedMta(mtaId);
             if (deployedMta == null) {
                 getStepLogger().info(Messages.NO_DEPLOYED_MTA_DETECTED);
             } else {
                 getStepLogger().debug(Messages.DEPLOYED_MTA, JsonUtil.toJson(deployedMta, true));
-                getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, deployedMta.getMetadata().getId(), deployedMta.getMetadata().getVersion()));
+                getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, deployedMta.getMetadata()
+                                                                                                                  .getId(),
+                                                          deployedMta.getMetadata()
+                                                                     .getVersion()));
             }
             StepsUtil.setDeployedMta(execution.getContext(), deployedMta);
             getStepLogger().debug(Messages.DEPLOYED_APPS, secureSerializer.toJson(deployedApps));

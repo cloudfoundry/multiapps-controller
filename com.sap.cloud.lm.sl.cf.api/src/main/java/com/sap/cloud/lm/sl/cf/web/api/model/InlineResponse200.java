@@ -51,7 +51,9 @@ public class InlineResponse200 {
         StringBuilder sb = new StringBuilder();
         sb.append("class InlineResponse200 {\n");
 
-        sb.append("    actionIds: ").append(toIndentedString(actionIds)).append("\n");
+        sb.append("    actionIds: ")
+          .append(toIndentedString(actionIds))
+          .append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -63,6 +65,7 @@ public class InlineResponse200 {
         if (o == null) {
             return "null";
         }
-        return o.toString().replace("\n", "\n    ");
+        return o.toString()
+                .replace("\n", "\n    ");
     }
 }

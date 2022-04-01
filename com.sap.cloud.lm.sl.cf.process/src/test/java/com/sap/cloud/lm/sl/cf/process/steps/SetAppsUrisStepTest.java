@@ -18,6 +18,14 @@ import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 @RunWith(Parameterized.class)
 public class SetAppsUrisStepTest extends SyncFlowableStepTest<SetAppsUrisStep> {
 
+    private List<CloudApplicationExtended> appsToDeploy;
+    private String appsToDeployLocation;
+    private Expectation expectation;
+    public SetAppsUrisStepTest(String appsToDeployLocation, Expectation expectation) {
+        this.appsToDeployLocation = appsToDeployLocation;
+        this.expectation = expectation;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -32,16 +40,6 @@ public class SetAppsUrisStepTest extends SyncFlowableStepTest<SetAppsUrisStep> {
             },
 // @formatter:on
         });
-    }
-
-    private List<CloudApplicationExtended> appsToDeploy;
-
-    private String appsToDeployLocation;
-    private Expectation expectation;
-
-    public SetAppsUrisStepTest(String appsToDeployLocation, Expectation expectation) {
-        this.appsToDeployLocation = appsToDeployLocation;
-        this.expectation = expectation;
     }
 
     @Before

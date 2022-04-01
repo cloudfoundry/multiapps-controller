@@ -1,11 +1,8 @@
 package com.sap.cloud.lm.sl.cf.web.configuration;
 
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
-import com.sap.cloud.lm.sl.cf.persistence.dialects.DataSourceDialect;
-import com.sap.cloud.lm.sl.cf.persistence.dialects.DefaultDataSourceDialect;
-import com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.CloudDataSourceFactoryBean;
-import liquibase.integration.spring.SpringLiquibase;
+import javax.inject.Inject;
+import javax.sql.DataSource;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -15,8 +12,13 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
 
-import javax.inject.Inject;
-import javax.sql.DataSource;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
+import com.sap.cloud.lm.sl.cf.persistence.dialects.DataSourceDialect;
+import com.sap.cloud.lm.sl.cf.persistence.dialects.DefaultDataSourceDialect;
+import com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.CloudDataSourceFactoryBean;
+
+import liquibase.integration.spring.SpringLiquibase;
 
 @Configuration
 @Profile("cf")
@@ -69,12 +71,12 @@ public class DatabaseConfiguration {
     public LocalContainerEntityManagerFactoryBean defaultEntityManagerFactory(DataSource dataSource,
                                                                               EclipseLinkJpaVendorAdapter eclipseLinkJpaVendorAdapter) {
         return getLocalContainerEntityManagerFactoryBean(dataSource, eclipseLinkJpaVendorAdapter,
-                ENTITY_MANAGER_DEFAULT_PERSISTENCE_UNIT_NAME);
+                                                         ENTITY_MANAGER_DEFAULT_PERSISTENCE_UNIT_NAME);
     }
 
     protected LocalContainerEntityManagerFactoryBean
-    getLocalContainerEntityManagerFactoryBean(DataSource dataSource, EclipseLinkJpaVendorAdapter eclipseLinkJpaVendorAdapter,
-                                              String persistenceUnitName) {
+              getLocalContainerEntityManagerFactoryBean(DataSource dataSource, EclipseLinkJpaVendorAdapter eclipseLinkJpaVendorAdapter,
+                                                        String persistenceUnitName) {
         LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setPersistenceUnitName(persistenceUnitName);
         localContainerEntityManagerFactoryBean.setDataSource(dataSource);

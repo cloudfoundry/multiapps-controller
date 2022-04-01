@@ -15,11 +15,11 @@ public class CachedObjectTest {
     public void testGet() {
         Supplier<Long> currentTimeSupplier = Mockito.mock(Supplier.class);
         Mockito.when(currentTimeSupplier.get())
-            .thenReturn(0L, toMillis(5), toMillis(15), toMillis(25), toMillis(30));
+               .thenReturn(0L, toMillis(5), toMillis(15), toMillis(25), toMillis(30));
 
         Supplier<String> refreshFunction = Mockito.mock(Supplier.class);
         Mockito.when(refreshFunction.get())
-            .thenReturn("a", "b");
+               .thenReturn("a", "b");
 
         CachedObject<String> cachedName = new CachedObject<>(10, currentTimeSupplier);
 

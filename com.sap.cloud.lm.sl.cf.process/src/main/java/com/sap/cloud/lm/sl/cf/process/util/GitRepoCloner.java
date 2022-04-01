@@ -31,14 +31,14 @@ import com.sap.cloud.lm.sl.cf.process.steps.ProcessGitSourceStep;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class GitRepoCloner {
-    private String gitServiceUrlString;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessGitSourceStep.class);
     CloneCommand cloneCommand;
+    private String gitServiceUrlString;
     private String userName;
     private String token;
     private String refName;
     private Path gitconfigFilePath;
     private boolean skipSslValidation;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessGitSourceStep.class);
 
     public GitRepoCloner() {
         cloneCommand = Git.cloneRepository();
@@ -60,7 +60,7 @@ public class GitRepoCloner {
     public void cloneRepo(final String gitUri, final Path repoDir) throws GitAPIException, IOException {
         if (Files.exists(repoDir)) {
             LOGGER.debug("Deleting left-over repo dir" + repoDir.toAbsolutePath()
-                .toString());
+                                                                .toString());
             com.sap.cloud.lm.sl.cf.core.util.FileUtils.deleteDirectory(repoDir);
         }
 
@@ -75,7 +75,7 @@ public class GitRepoCloner {
         }
         cloneCommand.setTimeout(290);
         cloneCommand.setDirectory(repoDir.toAbsolutePath()
-            .toFile());
+                                         .toFile());
         cloneCommand.setURI(gitUri);
         LOGGER.debug(MessageFormat.format("cloning repo with url {0} in repo dir {1} ref '{2}'", gitUri, repoDir.toAbsolutePath()));
         try (Git callInstance = cloneCommand.call()) {
@@ -101,11 +101,12 @@ public class GitRepoCloner {
             repoUrl = new URL(gitRepoUri);
         } catch (MalformedURLException e) {
             LOGGER.debug(MessageFormat.format("Failed to parse git-service and user URLs({0} and {1}), skipping token authentication",
-                gitServiceUrlString, gitRepoUri));
+                                              gitServiceUrlString, gitRepoUri));
             return false;
         }
         return repoUrl.getHost()
-            .equals(serviceUrl.getHost()) && repoUrl.getPort() == serviceUrl.getPort();
+                      .equals(serviceUrl.getHost())
+            && repoUrl.getPort() == serviceUrl.getPort();
 
     }
 

@@ -29,9 +29,9 @@ public class DetectTargetStep extends SyncFlowableStep {
             StepsUtil.setPlatform(execution.getContext(), platform);
 
             String space = (String) execution.getContext()
-                .getVariable(Constants.VAR_SPACE);
+                                             .getVariable(Constants.VAR_SPACE);
             String org = (String) execution.getContext()
-                .getVariable(Constants.VAR_ORG);
+                                           .getVariable(Constants.VAR_ORG);
             getStepLogger().info(Messages.DEPLOYING_IN_ORG_0_AND_SPACE_1, org, space);
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_DETECTING_TARGET);

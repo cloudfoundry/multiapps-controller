@@ -69,10 +69,10 @@ public class DeployedMta {
 
     public DeployedMtaModule findDeployedModule(String moduleName) {
         return getModules().stream()
-            .filter(module -> module.getModuleName()
-                .equalsIgnoreCase(moduleName))
-            .findFirst()
-            .orElse(null);
+                           .filter(module -> module.getModuleName()
+                                                   .equalsIgnoreCase(moduleName))
+                           .findFirst()
+                           .orElse(null);
     }
 
 }

@@ -34,6 +34,18 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 public class PollServiceOperationsStepTest extends AsyncStepOperationTest<CreateOrUpdateServicesStep> {
 
     private static final String TEST_SPACE_ID = "test";
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+    @Mock
+    protected CloudControllerClient client;
+    @Mock
+    private ServiceInstanceGetter serviceInstanceGetter;
+    private StepInput input;
+    private String expectedExceptionMessage;
+    public PollServiceOperationsStepTest(String inputLocation, String expectedExceptionMessage) throws ParsingException, IOException {
+        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, PollServiceOperationsStepTest.class), StepInput.class);
+        this.expectedExceptionMessage = expectedExceptionMessage;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -83,20 +95,6 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
         });
     }
 
-    public PollServiceOperationsStepTest(String inputLocation, String expectedExceptionMessage) throws ParsingException, IOException {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, PollServiceOperationsStepTest.class), StepInput.class);
-        this.expectedExceptionMessage = expectedExceptionMessage;
-    }
-
-    @Mock
-    private ServiceInstanceGetter serviceInstanceGetter;
-    @Mock
-    protected CloudControllerClient client;
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-    private StepInput input;
-    private String expectedExceptionMessage;
-
     @Before
     public void setUp() {
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
@@ -116,20 +114,13 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     private void prepareServiceInstanceGetter() {
         for (Entry<String, Object> response : input.serviceInstanceResponse.entrySet()) {
             Mockito.when(serviceInstanceGetter.getServiceInstanceEntity(client, response.getKey(), TEST_SPACE_ID))
-                .thenReturn((Map<String, Object>) response.getValue());
+                   .thenReturn((Map<String, Object>) response.getValue());
         }
     }
 
     @Override
     protected void validateOperationExecutionResult(AsyncExecutionState result) {
         assertEquals(input.expectedStatus, result.toString());
-    }
-
-    private static class StepInput {
-        List<CloudServiceExtended> services;
-        Map<String, ServiceOperationType> triggeredServiceOperations;
-        Map<String, Object> serviceInstanceResponse;
-        String expectedStatus;
     }
 
     @Override
@@ -140,6 +131,13 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     @Override
     protected List<AsyncExecution> getAsyncOperations(ExecutionWrapper wrapper) {
         return step.getAsyncStepExecutions(wrapper);
+    }
+
+    private static class StepInput {
+        List<CloudServiceExtended> services;
+        Map<String, ServiceOperationType> triggeredServiceOperations;
+        Map<String, Object> serviceInstanceResponse;
+        String expectedStatus;
     }
 
 }

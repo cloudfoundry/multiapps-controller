@@ -29,10 +29,18 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 @RunWith(Parameterized.class)
 public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubscriptionsStep> {
 
+    private static final long DUMMY_ID = 9L;
+    private final String inputLocation;
+    private final String expectedExceptionMessage;
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-
-    private static final long DUMMY_ID = 9L;
+    @Mock
+    private ConfigurationSubscriptionDao dao;
+    private StepInput input;
+    public CreateSubscriptionsStepTest(String inputLocation, String expectedExceptionMessage) {
+        this.inputLocation = inputLocation;
+        this.expectedExceptionMessage = expectedExceptionMessage;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -52,18 +60,6 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
             },
 // @formatter:on
         });
-    }
-
-    @Mock
-    private ConfigurationSubscriptionDao dao;
-
-    private final String inputLocation;
-    private final String expectedExceptionMessage;
-    private StepInput input;
-
-    public CreateSubscriptionsStepTest(String inputLocation, String expectedExceptionMessage) {
-        this.inputLocation = inputLocation;
-        this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
     @Before
@@ -94,14 +90,19 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
             if (resourceDto == null) {
                 continue;
             }
-            when(dao.findAll(subscription.getMtaId(), subscription.getAppName(), subscription.getSpaceId(), resourceDto.getName()))
-                .thenReturn(Arrays.asList(setId(subscription, DUMMY_ID)));
+            when(dao.findAll(subscription.getMtaId(), subscription.getAppName(), subscription.getSpaceId(),
+                             resourceDto.getName())).thenReturn(Arrays.asList(setId(subscription, DUMMY_ID)));
         }
     }
 
     private ConfigurationSubscription setId(ConfigurationSubscription subscription, long id) {
-        return new ConfigurationSubscription(id, subscription.getMtaId(), subscription.getSpaceId(), subscription.getAppName(),
-            subscription.getFilter(), subscription.getModuleDto(), subscription.getResourceDto());
+        return new ConfigurationSubscription(id,
+                                             subscription.getMtaId(),
+                                             subscription.getSpaceId(),
+                                             subscription.getAppName(),
+                                             subscription.getFilter(),
+                                             subscription.getModuleDto(),
+                                             subscription.getResourceDto());
     }
 
     @Test
@@ -123,15 +124,20 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
 
         argumentCaptor = ArgumentCaptor.forClass(ConfigurationSubscription.class);
         Mockito.verify(dao, times(input.subscriptionsToUpdate.size()))
-            .update(eq(DUMMY_ID), argumentCaptor.capture());
+               .update(eq(DUMMY_ID), argumentCaptor.capture());
         output.updatedSubscriptions = argumentCaptor.getAllValues();
 
         argumentCaptor = ArgumentCaptor.forClass(ConfigurationSubscription.class);
         Mockito.verify(dao, times(input.subscriptionsToCreate.size()))
-            .add(argumentCaptor.capture());
+               .add(argumentCaptor.capture());
         output.createdSubscriptions = argumentCaptor.getAllValues();
 
         return output;
+    }
+
+    @Override
+    protected CreateSubscriptionsStep createStep() {
+        return new CreateSubscriptionsStep();
     }
 
     private static class StepInput {
@@ -146,11 +152,6 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
         public List<ConfigurationSubscription> createdSubscriptions;
         public List<ConfigurationSubscription> updatedSubscriptions;
 
-    }
-
-    @Override
-    protected CreateSubscriptionsStep createStep() {
-        return new CreateSubscriptionsStep();
     }
 
 }

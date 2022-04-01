@@ -78,21 +78,45 @@ public class ApplicationsCloudModelBuilder {
     protected ParametersChainBuilder parametersChainBuilder;
 
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
-        DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
+                                         DeployedMta deployedMta, SystemParameters systemParameters,
+                                         XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
         HandlerFactory handlerFactory = createHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
         this.propertiesChainBuilder = createPropertiesChainBuilder(deploymentDescriptor);
         this.propertiesAccessor = handlerFactory.getPropertiesAccessor();
         this.deploymentDescriptor = deploymentDescriptor;
         this.configuration = configuration;
-        this.urisCloudModelBuilder = new ApplicationUrisCloudModelBuilder(configuration.isPortBasedRouting(), systemParameters,
-            propertiesAccessor);
+        this.urisCloudModelBuilder = new ApplicationUrisCloudModelBuilder(configuration.isPortBasedRouting(),
+                                                                          systemParameters,
+                                                                          propertiesAccessor);
         this.applicationEnvCloudModelBuilder = createApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor,
-            xsPlaceholderResolver, handler, propertiesAccessor, deployId);
+                                                                                             xsPlaceholderResolver, handler,
+                                                                                             propertiesAccessor, deployId);
         this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
         this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.deployedMta = deployedMta;
         this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
+    }
+
+    protected static CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota,
+                                                                     int memory, int instances, List<String> uris, List<String> idleUris,
+                                                                     List<String> services, List<ServiceKeyToInject> serviceKeysToInject,
+                                                                     Map<Object, Object> env, List<CloudTask> tasks,
+                                                                     DockerInfo dockerInfo) {
+        CloudApplicationExtended app = new CloudApplicationExtended(null, name);
+        app.setModuleName(moduleName);
+        app.setStaging(staging);
+        app.setDiskQuota(diskQuota);
+        app.setMemory(memory);
+        app.setInstances(instances);
+        app.setUris(uris);
+        app.setIdleUris(idleUris);
+        app.setServices(services);
+        app.setServiceKeysToInject(serviceKeysToInject);
+        app.setEnv(env);
+        app.setTasks(tasks);
+        app.setDockerInfo(dockerInfo);
+        return app;
     }
 
     protected HandlerFactory createHandlerFactory() {
@@ -101,10 +125,10 @@ public class ApplicationsCloudModelBuilder {
 
     public List<CloudApplicationExtended> build(List<Module> modulesForDeployment, ModuleToDeployHelper moduleToDeployHelper) {
         return modulesForDeployment.stream()
-            .filter(moduleToDeploy -> isApplication(moduleToDeploy, moduleToDeployHelper))
-            .map(this::getApplication)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+                                   .filter(moduleToDeploy -> isApplication(moduleToDeploy, moduleToDeployHelper))
+                                   .map(this::getApplication)
+                                   .filter(Objects::nonNull)
+                                   .collect(Collectors.toList());
     }
 
     private boolean isApplication(Module moduleToDeploy, ModuleToDeployHelper moduleToDeployHelper) {
@@ -116,14 +140,20 @@ public class ApplicationsCloudModelBuilder {
         return new PropertiesChainBuilder(v2DeploymentDescriptor);
     }
 
-    protected ApplicationEnvironmentCloudModelBuilder createApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration,
-        DeploymentDescriptor deploymentDescriptor, XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler,
-        PropertiesAccessor propertiesAccessor, String deployId) {
+    protected ApplicationEnvironmentCloudModelBuilder
+              createApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration,
+                                                            DeploymentDescriptor deploymentDescriptor,
+                                                            XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler,
+                                                            PropertiesAccessor propertiesAccessor, String deployId) {
         DeploymentDescriptor v2DeploymentDescriptor = deploymentDescriptor;
         DescriptorHandler v2Handler = handler;
         PropertiesAccessor v2PropertiesAccessor = propertiesAccessor;
-        return new ApplicationEnvironmentCloudModelBuilder(configuration, v2DeploymentDescriptor, xsPlaceholderResolver, v2Handler,
-            v2PropertiesAccessor, deployId);
+        return new ApplicationEnvironmentCloudModelBuilder(configuration,
+                                                           v2DeploymentDescriptor,
+                                                           xsPlaceholderResolver,
+                                                           v2Handler,
+                                                           v2PropertiesAccessor,
+                                                           deployId);
     }
 
     protected CloudApplicationExtended getApplication(Module module) {
@@ -148,8 +178,8 @@ public class ApplicationsCloudModelBuilder {
         List<String> applicationDomains = getApplicationDomains(module, parametersList);
         RestartParameters restartParameters = parseParameters(parametersList, new RestartParametersParser());
         return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, resolvedUris,
-            resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks, applicationPorts, applicationDomains, restartParameters,
-            dockerInfo);
+                                      resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks, applicationPorts,
+                                      applicationDomains, restartParameters, dockerInfo);
     }
 
     protected <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
@@ -162,7 +192,7 @@ public class ApplicationsCloudModelBuilder {
 
     protected String getApplicationName(Module module) {
         return (String) propertiesAccessor.getParameters(module)
-            .get(SupportedParameters.APP_NAME);
+                                          .get(SupportedParameters.APP_NAME);
     }
 
     protected List<String> getAllApplicationServices(Module module) {
@@ -189,38 +219,20 @@ public class ApplicationsCloudModelBuilder {
         return parseParameters(propertiesList, new TaskParametersParser(SupportedParameters.TASKS, configuration.isPrettyPrinting()));
     }
 
-    protected CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota, int memory,
-        int instances, List<String> uris, List<String> idleUris, List<String> services, List<ServiceKeyToInject> serviceKeys,
-        Map<Object, Object> env, Map<String, Map<String, Object>> bindingParameters, List<CloudTask> tasks,
-        List<ApplicationPort> applicationPorts, List<String> applicationDomains, RestartParameters restartParameters,
-        DockerInfo dockerInfo) {
+    protected CloudApplicationExtended
+              createCloudApplication(String name, String moduleName, Staging staging, int diskQuota, int memory, int instances,
+                                     List<String> uris, List<String> idleUris, List<String> services, List<ServiceKeyToInject> serviceKeys,
+                                     Map<Object, Object> env, Map<String, Map<String, Object>> bindingParameters, List<CloudTask> tasks,
+                                     List<ApplicationPort> applicationPorts, List<String> applicationDomains,
+                                     RestartParameters restartParameters, DockerInfo dockerInfo) {
         CloudApplicationExtended app = createCloudApplication(name, moduleName, staging, diskQuota, memory, instances, uris, idleUris,
-            services, serviceKeys, env, tasks, dockerInfo);
+                                                              services, serviceKeys, env, tasks, dockerInfo);
         if (bindingParameters != null) {
             app.setBindingParameters(bindingParameters);
         }
         app.setApplicationPorts(applicationPorts);
         app.setDomains(applicationDomains);
         app.setRestartParameters(restartParameters);
-        return app;
-    }
-
-    protected static CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota,
-        int memory, int instances, List<String> uris, List<String> idleUris, List<String> services,
-        List<ServiceKeyToInject> serviceKeysToInject, Map<Object, Object> env, List<CloudTask> tasks, DockerInfo dockerInfo) {
-        CloudApplicationExtended app = new CloudApplicationExtended(null, name);
-        app.setModuleName(moduleName);
-        app.setStaging(staging);
-        app.setDiskQuota(diskQuota);
-        app.setMemory(memory);
-        app.setInstances(instances);
-        app.setUris(uris);
-        app.setIdleUris(idleUris);
-        app.setServices(services);
-        app.setServiceKeysToInject(serviceKeysToInject);
-        app.setEnv(env);
-        app.setTasks(tasks);
-        app.setDockerInfo(dockerInfo);
         return app;
     }
 
@@ -248,14 +260,14 @@ public class ApplicationsCloudModelBuilder {
         Resource resource = getResource(dependency.getName());
         if (resource != null) {
             MapUtil.addNonNull(result, cloudServiceNameMapper.getServiceName(resource.getName()),
-                getBindingParameters(dependency, module.getName()));
+                               getBindingParameters(dependency, module.getName()));
         }
     }
 
     @SuppressWarnings("unchecked")
     protected Map<String, Object> getBindingParameters(RequiredDependency dependency, String moduleName) {
         Object bindingParameters = dependency.getParameters()
-            .get(SupportedParameters.SERVICE_BINDING_CONFIG);
+                                             .get(SupportedParameters.SERVICE_BINDING_CONFIG);
         if (bindingParameters == null) {
             return null;
         }
@@ -268,9 +280,9 @@ public class ApplicationsCloudModelBuilder {
     protected String getInvalidServiceBindingConfigTypeErrorMessage(String moduleName, String dependencyName, Object bindingParameters) {
         String prefix = ValidatorUtil.getPrefixedName(moduleName, dependencyName);
         return MessageFormat.format(com.sap.cloud.lm.sl.mta.message.Messages.INVALID_TYPE_FOR_KEY,
-            ValidatorUtil.getPrefixedName(prefix, SupportedParameters.SERVICE_BINDING_CONFIG), Map.class.getSimpleName(),
-            bindingParameters.getClass()
-                .getSimpleName());
+                                    ValidatorUtil.getPrefixedName(prefix, SupportedParameters.SERVICE_BINDING_CONFIG),
+                                    Map.class.getSimpleName(), bindingParameters.getClass()
+                                                                                .getSimpleName());
     }
 
     protected List<String> getApplicationServices(Module module, Predicate<ResourceAndResourceType> filterRule) {
@@ -315,10 +327,9 @@ public class ApplicationsCloudModelBuilder {
         String serviceName = PropertiesUtil.getRequiredParameter(resourceParameters, SupportedParameters.SERVICE_NAME);
         String serviceKeyName = (String) resourceParameters.getOrDefault(SupportedParameters.SERVICE_KEY_NAME, resource.getName());
         String envVarName = (String) dependency.getParameters()
-            .getOrDefault(SupportedParameters.ENV_VAR_NAME, serviceKeyName);
+                                               .getOrDefault(SupportedParameters.ENV_VAR_NAME, serviceKeyName);
         return new ServiceKeyToInject(envVarName, serviceName, serviceKeyName);
     }
-
 
     protected List<ApplicationPort> getApplicationPorts(Module module, List<Map<String, Object>> parametersList) {
         List<Integer> ports = urisCloudModelBuilder.getApplicationPorts(module, parametersList);

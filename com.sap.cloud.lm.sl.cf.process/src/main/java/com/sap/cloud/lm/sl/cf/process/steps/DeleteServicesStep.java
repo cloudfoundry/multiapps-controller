@@ -62,9 +62,9 @@ public class DeleteServicesStep extends AsyncFlowableStep {
             if (xsClient == null) {
                 Map<String, CloudServiceExtended> servicesData = getServicesData(servicesToDelete, execution);
                 List<String> servicesWithoutData = getServicesWithoutData(servicesToDelete, servicesData);
-                if(!servicesWithoutData.isEmpty()) {
+                if (!servicesWithoutData.isEmpty()) {
                     execution.getStepLogger()
-                    .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
+                             .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
                     servicesToDelete.removeAll(servicesWithoutData);
                 }
                 StepsUtil.setServicesData(execution.getContext(), servicesData);
@@ -73,7 +73,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
             Map<String, ServiceOperationType> triggeredServiceOperations = deleteServices(client, servicesToDelete);
 
             execution.getStepLogger()
-                .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
+                     .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
             StepsUtil.setTriggeredServiceOperations(execution.getContext(), triggeredServiceOperations);
 
             getStepLogger().debug(Messages.SERVICES_DELETED);
@@ -88,16 +88,16 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         CloudControllerClient client = execution.getControllerClient();
 
         return serviceNames.parallelStream()
-            .map(name -> client.getService(name, false))
-            .filter(Objects::nonNull)
-            .map(service -> new CloudServiceExtended(service.getMeta(), service.getName()))
-            .collect(Collectors.toMap(e -> e.getName(), e -> e));
+                           .map(name -> client.getService(name, false))
+                           .filter(Objects::nonNull)
+                           .map(service -> new CloudServiceExtended(service.getMeta(), service.getName()))
+                           .collect(Collectors.toMap(e -> e.getName(), e -> e));
     }
 
     private List<String> getServicesWithoutData(List<String> servicesToDelete, Map<String, CloudServiceExtended> servicesData) {
         return servicesToDelete.stream()
-            .filter(name -> servicesData.get(name) == null)
-            .collect(Collectors.toList());
+                               .filter(name -> servicesData.get(name) == null)
+                               .collect(Collectors.toList());
     }
 
     private Map<String, ServiceOperationType> deleteServices(CloudControllerClient client, List<String> serviceNames) {
@@ -185,7 +185,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         }
         CloudService service = serviceInstance.getService();
         return MessageFormat.format(Messages.ERROR_DELETING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
-            e.getMessage());
+                                    e.getMessage());
     }
 
     private void logBindings(List<CloudServiceBinding> bindings) {

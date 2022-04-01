@@ -30,7 +30,8 @@ public class CloudApplicationExtended extends CloudApplication {
     }
 
     public CloudApplicationExtended(String name, String command, String buildpackUrl, int memory, int instances, List<String> uris,
-        List<String> serviceNames, AppState state, List<ApplicationPort> applicationPorts, List<String> domains, DockerInfo dockerInfo) {
+                                    List<String> serviceNames, AppState state, List<ApplicationPort> applicationPorts, List<String> domains,
+                                    DockerInfo dockerInfo) {
         super(name, command, buildpackUrl, memory, instances, uris, serviceNames, state);
         this.applicationPorts = applicationPorts;
         this.domains = domains;

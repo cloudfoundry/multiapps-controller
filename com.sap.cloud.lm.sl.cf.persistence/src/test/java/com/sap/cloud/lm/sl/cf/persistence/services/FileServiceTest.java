@@ -37,8 +37,8 @@ public class FileServiceTest extends DatabaseFileServiceTest {
     @Test
     public void addFileUploadFileErrorTest() throws Exception {
         Mockito.doThrow(new FileStorageException("expected exception"))
-            .when(fileStorage)
-            .addFile((FileEntry) Mockito.any(), (InputStream) Mockito.any());
+               .when(fileStorage)
+               .addFile((FileEntry) Mockito.any(), (InputStream) Mockito.any());
 
         InputStream resourceStream = getResource(PIC_RESOURCE_NAME);
         String space = SPACE_1;
@@ -48,7 +48,7 @@ public class FileServiceTest extends DatabaseFileServiceTest {
             fail("addFile should fail with exception");
         } catch (FileStorageException e) {
             Mockito.verify(fileStorage, Mockito.times(1))
-                .addFile((FileEntry) Mockito.any(), (InputStream) Mockito.any());
+                   .addFile((FileEntry) Mockito.any(), (InputStream) Mockito.any());
             List<FileEntry> listFiles = fileService.listFiles(space, namespace);
             assertEquals(0, listFiles.size());
         }
@@ -56,32 +56,33 @@ public class FileServiceTest extends DatabaseFileServiceTest {
 
     @Test
     public void processFileContentTest() throws Exception {
-        DefaultFileDownloadProcessor downloadProcessor = new DefaultFileDownloadProcessor(SPACE_1, "1111-2222-3333-4444",
-            Mockito.mock(FileContentProcessor.class));
+        DefaultFileDownloadProcessor downloadProcessor = new DefaultFileDownloadProcessor(SPACE_1,
+                                                                                          "1111-2222-3333-4444",
+                                                                                          Mockito.mock(FileContentProcessor.class));
         fileService.processFileContent(downloadProcessor);
         Mockito.verify(fileStorage, Mockito.times(1))
-            .processFileContent(Mockito.eq(downloadProcessor));
+               .processFileContent(Mockito.eq(downloadProcessor));
     }
 
     @Test
     public void deleteBySpaceAndNamespaceTest() throws Exception {
         super.deleteBySpaceAndNamespaceTest();
         Mockito.verify(fileStorage, Mockito.times(1))
-            .deleteFilesBySpaceAndNamespace(Mockito.eq(SPACE_1), Mockito.eq(NAMESPACE_1));
+               .deleteFilesBySpaceAndNamespace(Mockito.eq(SPACE_1), Mockito.eq(NAMESPACE_1));
     }
 
     @Test
     public void deleteBySpaceAndNamespaceWithTwoNamespacesTest() throws Exception {
         super.deleteBySpaceAndNamespaceWithTwoNamespacesTest();
         Mockito.verify(fileStorage, Mockito.times(1))
-            .deleteFilesBySpaceAndNamespace(Mockito.eq(SPACE_1), Mockito.eq(NAMESPACE_1));
+               .deleteFilesBySpaceAndNamespace(Mockito.eq(SPACE_1), Mockito.eq(NAMESPACE_1));
     }
 
     @Test
     public void deleteBySpaceTest() throws Exception {
         super.deleteBySpaceTest();
         Mockito.verify(fileStorage, Mockito.times(1))
-            .deleteFilesBySpace(Mockito.eq(SPACE_1));
+               .deleteFilesBySpace(Mockito.eq(SPACE_1));
     }
 
     @Test
@@ -91,12 +92,12 @@ public class FileServiceTest extends DatabaseFileServiceTest {
         boolean deleteFile = fileService.deleteFile(SPACE_2, fileEntry.getId());
         assertFalse(deleteFile);
         Mockito.verify(fileStorage, Mockito.times(1))
-            .deleteFile(Mockito.eq(fileEntry.getId()), Mockito.eq(SPACE_2));
+               .deleteFile(Mockito.eq(fileEntry.getId()), Mockito.eq(SPACE_2));
 
         deleteFile = fileService.deleteFile(SPACE_1, fileEntry.getId());
         assertTrue(deleteFile);
         Mockito.verify(fileStorage, Mockito.times(1))
-            .deleteFile(Mockito.eq(fileEntry.getId()), Mockito.eq(SPACE_1));
+               .deleteFile(Mockito.eq(fileEntry.getId()), Mockito.eq(SPACE_1));
     }
 
     @Test
@@ -104,15 +105,15 @@ public class FileServiceTest extends DatabaseFileServiceTest {
         FileEntry fileEntry = addTestFile(SPACE_1, NAMESPACE_1);
 
         Mockito.doThrow(new FileStorageException("expected exception"))
-            .when(fileStorage)
-            .deleteFile(Mockito.eq(fileEntry.getId()), Mockito.eq(SPACE_1));
+               .when(fileStorage)
+               .deleteFile(Mockito.eq(fileEntry.getId()), Mockito.eq(SPACE_1));
 
         try {
             fileService.deleteFile(SPACE_1, fileEntry.getId());
             fail("deleteFile should fail with an exception!");
         } catch (FileStorageException e) {
             Mockito.verify(fileStorage, Mockito.times(1))
-                .deleteFile(Mockito.eq(fileEntry.getId()), Mockito.eq(SPACE_1));
+                   .deleteFile(Mockito.eq(fileEntry.getId()), Mockito.eq(SPACE_1));
             FileEntry fileStillExists = fileService.getFile(SPACE_1, fileEntry.getId());
             assertNotNull(fileStillExists);
         }
@@ -122,7 +123,7 @@ public class FileServiceTest extends DatabaseFileServiceTest {
     public void deleteByModificationTimeTest() throws Exception {
         super.deleteByModificationTimeTest();
         Mockito.verify(fileStorage, Mockito.times(1))
-            .deleteFilesModifiedBefore((Date) Mockito.any());
+               .deleteFilesModifiedBefore((Date) Mockito.any());
     }
 
     @Test
@@ -133,7 +134,7 @@ public class FileServiceTest extends DatabaseFileServiceTest {
         addTestFile(SPACE_1, NAMESPACE_2);
         addTestFile(SPACE_2, NAMESPACE_2);
         Mockito.when(fileStorage.getFileEntriesWithoutContent(Mockito.anyList()))
-            .thenReturn(Arrays.asList(noContent, noContent2));
+               .thenReturn(Arrays.asList(noContent, noContent2));
         int deleteWithoutContent = fileService.deleteFilesEntriesWithoutContent();
         assertEquals(2, deleteWithoutContent);
         assertNull(fileService.getFile(SPACE_1, noContent.getId()));
@@ -144,7 +145,7 @@ public class FileServiceTest extends DatabaseFileServiceTest {
     protected FileEntry addFile(String space, String namespace, String fileName, String resourceName) throws Exception {
         FileEntry fileEntry = super.addFile(space, namespace, fileName, resourceName);
         Mockito.verify(fileStorage, Mockito.times(1))
-            .addFile(Mockito.eq(fileEntry), (InputStream) Mockito.any());
+               .addFile(Mockito.eq(fileEntry), (InputStream) Mockito.any());
         return fileEntry;
     }
 
@@ -156,6 +157,6 @@ public class FileServiceTest extends DatabaseFileServiceTest {
     @Override
     protected void verifyFileIsStored(FileEntry fileEntry) throws Exception {
         Mockito.verify(fileStorage, Mockito.times(1))
-            .addFile(Mockito.eq(fileEntry), (InputStream) Mockito.any());
+               .addFile(Mockito.eq(fileEntry), (InputStream) Mockito.any());
     }
 }

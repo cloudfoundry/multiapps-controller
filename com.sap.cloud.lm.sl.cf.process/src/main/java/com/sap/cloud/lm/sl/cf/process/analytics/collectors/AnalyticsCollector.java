@@ -25,22 +25,17 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 public class AnalyticsCollector {
 
     @Inject
-    private ApplicationConfiguration configuration;
-
-    @Inject
     public DeployProcessAttributesCollector deployProcessAttributesCollector;
-
     @Inject
     public UndeployProcessAttributesCollector undeployProcessAttributesCollector;
-
-    @Inject
-    private ProcessTypeParser processTypeParser;
-
-    @Inject
-    private ProcessEngineConfiguration processEngineConfiguration;
-
     Supplier<Long> endTimeSupplier = System::currentTimeMillis;
     Supplier<ZoneId> timeZoneSupplier = ZoneId::systemDefault;
+    @Inject
+    private ApplicationConfiguration configuration;
+    @Inject
+    private ProcessTypeParser processTypeParser;
+    @Inject
+    private ProcessEngineConfiguration processEngineConfiguration;
 
     public AnalyticsData collectAnalyticsData(DelegateExecution context) {
         String processId = context.getProcessInstanceId();
@@ -50,15 +45,25 @@ public class AnalyticsCollector {
         long processDuration = getProcessDurationInSeconds(context, processId);
         String mtaId = (String) context.getVariable(Constants.PARAM_MTA_ID);
         String platform = configuration.getPlatformType()
-            .toString();
+                                       .toString();
         String org = StepsUtil.getOrg(context);
         String space = StepsUtil.getSpace(context);
         String controllerUrl = configuration.getControllerUrl()
-            .toString();
+                                            .toString();
         AbstractCommonProcessAttributes attributes = getProcessType(processType).collectProcessVariables(context);
 
-        return new AnalyticsData(processId, processType, startTime, endTime, processDuration, null, mtaId, platform, org, space, controllerUrl,
-            attributes);
+        return new AnalyticsData(processId,
+                                 processType,
+                                 startTime,
+                                 endTime,
+                                 processDuration,
+                                 null,
+                                 mtaId,
+                                 platform,
+                                 org,
+                                 space,
+                                 controllerUrl,
+                                 attributes);
 
     }
 
@@ -75,10 +80,10 @@ public class AnalyticsCollector {
     public long getStartTime(DelegateExecution context, String processId) {
         HistoryService historyService = processEngineConfiguration.getHistoryService();
         HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
-            .processInstanceId(processId)
-            .singleResult();
+                                                                .processInstanceId(processId)
+                                                                .singleResult();
         return processInstance.getStartTime()
-            .getTime();
+                              .getTime();
     }
 
     protected long getEndTime() {

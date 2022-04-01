@@ -71,11 +71,11 @@ public class OperationsCleaner implements Cleaner {
 
     private List<Operation> getActiveOperationsPage(Date expirationTime, int pageIndex) {
         OperationFilter filter = new OperationFilter.Builder().inNonFinalState()
-            .startedBefore(expirationTime)
-            .firstElement(pageIndex * pageSize)
-            .maxResults(pageSize)
-            .orderByProcessId()
-            .build();
+                                                              .startedBefore(expirationTime)
+                                                              .firstElement(pageIndex * pageSize)
+                                                              .maxResults(pageSize)
+                                                              .orderByProcessId()
+                                                              .build();
         return dao.find(filter);
     }
 

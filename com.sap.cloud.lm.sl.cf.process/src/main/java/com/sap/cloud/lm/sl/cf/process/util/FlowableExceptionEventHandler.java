@@ -42,7 +42,7 @@ public class FlowableExceptionEventHandler {
         String flowableExceptionStackTrace = ExceptionUtils.getStackTrace(flowableExceptionEvent.getCause());
         LOGGER.error(flowableExceptionStackTrace);
         String flowableExceptionMessage = flowableExceptionEvent.getCause()
-            .getMessage();
+                                                                .getMessage();
 
         if (flowableExceptionMessage == null) {
             return;
@@ -61,8 +61,11 @@ public class FlowableExceptionEventHandler {
         String taskId = getCurrentTaskId(flowableEngineEvent);
         String errorMessage = MessageFormat.format(Messages.EXCEPTION_OCCURED_ERROR_MSG, flowableExceptionMessage);
         String processInstanceId = getProcessInstanceId(flowableEngineEvent);
-        progressMessageService.add(new ProgressMessage(processInstanceId, taskId, ProgressMessageType.ERROR, errorMessage,
-            new Timestamp(System.currentTimeMillis())));
+        progressMessageService.add(new ProgressMessage(processInstanceId,
+                                                       taskId,
+                                                       ProgressMessageType.ERROR,
+                                                       errorMessage,
+                                                       new Timestamp(System.currentTimeMillis())));
     }
 
     private String getCurrentTaskId(FlowableEngineEvent flowableEngineEvent) {
@@ -76,11 +79,11 @@ public class FlowableExceptionEventHandler {
         try {
             // This is needed because when there are parallel CallActivity, the query will return multiple results for just one Execution
             List<Execution> currentExecutionsForProcess = Context.getProcessEngineConfiguration()
-                .getRuntimeService()
-                .createExecutionQuery()
-                .executionId(flowableEngineEvent.getExecutionId())
-                .processInstanceId(flowableEngineEvent.getProcessInstanceId())
-                .list();
+                                                                 .getRuntimeService()
+                                                                 .createExecutionQuery()
+                                                                 .executionId(flowableEngineEvent.getExecutionId())
+                                                                 .processInstanceId(flowableEngineEvent.getProcessInstanceId())
+                                                                 .list();
 
             // Based on the above comment, one of the executions will have null activityId(because it will be the monitoring one) and thus
             // should be excluded from the list of executions
@@ -94,9 +97,9 @@ public class FlowableExceptionEventHandler {
 
     private Execution findCurrentExecution(List<Execution> currentExecutionsForProcess) {
         return currentExecutionsForProcess.stream()
-            .filter(execution -> execution.getActivityId() != null)
-            .findFirst()
-            .orElse(null);
+                                          .filter(execution -> execution.getActivityId() != null)
+                                          .findFirst()
+                                          .orElse(null);
     }
 
     private String getProcessInstanceId(FlowableEvent event) {
@@ -105,8 +108,8 @@ public class FlowableExceptionEventHandler {
 
     private String getVariable(FlowableEngineEvent event, String variableName) {
         VariableInstance variableInstance = Context.getProcessEngineConfiguration()
-            .getRuntimeService()
-            .getVariableInstance(event.getExecutionId(), variableName);
+                                                   .getRuntimeService()
+                                                   .getVariableInstance(event.getExecutionId(), variableName);
 
         if (variableInstance == null) {
             return getVariableFromHistoryService(event, variableName);
@@ -117,11 +120,11 @@ public class FlowableExceptionEventHandler {
 
     private String getVariableFromHistoryService(FlowableEngineEvent event, String variableName) {
         HistoricVariableInstance historicVariableInstance = Context.getProcessEngineConfiguration()
-            .getHistoryService()
-            .createHistoricVariableInstanceQuery()
-            .executionId(event.getExecutionId())
-            .variableName(variableName)
-            .singleResult();
+                                                                   .getHistoryService()
+                                                                   .createHistoricVariableInstanceQuery()
+                                                                   .executionId(event.getExecutionId())
+                                                                   .variableName(variableName)
+                                                                   .singleResult();
 
         if (historicVariableInstance == null) {
             return null;

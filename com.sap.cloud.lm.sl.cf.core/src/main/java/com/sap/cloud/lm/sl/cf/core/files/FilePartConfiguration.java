@@ -11,7 +11,8 @@ public class FilePartConfiguration {
     private static final String DEFAULT_PART_EXTENSION = ".mtar";
 
     public static final FilePartConfiguration DEFAULT_FILE_PART_CONFIGURATION = new FilePartConfiguration(DEFAULT_PART_EXTENSION,
-        DEFAULT_MAX_FILE_SIZE, DEFAULT_PART_POSTFIX);
+                                                                                                          DEFAULT_MAX_FILE_SIZE,
+                                                                                                          DEFAULT_PART_POSTFIX);
 
     private String fileExtension;
     private long maxFileSize;
@@ -45,7 +46,7 @@ public class FilePartConfiguration {
             filePartsPath = Files.createTempDirectory(FILE_PARTS_TEMP_DIR_PREFIX);
         }
         return filePartsPath.toAbsolutePath()
-            .toString();
+                            .toString();
     }
 
 }

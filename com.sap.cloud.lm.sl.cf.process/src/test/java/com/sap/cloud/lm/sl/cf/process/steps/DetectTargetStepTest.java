@@ -19,25 +19,8 @@ import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 @RunWith(Parameterized.class)
 public class DetectTargetStepTest extends SyncFlowableStepTest<DetectTargetStep> {
 
-    private static class StepInput {
-
-        public String platformLocation;
-        public String org;
-        public String space;
-        public int majorSchemaVersion;
-
-        public StepInput(String platformLocation, String org, String space, int majorSchemaVersion) {
-            this.platformLocation = platformLocation;
-            this.org = org;
-            this.space = space;
-            this.majorSchemaVersion = majorSchemaVersion;
-        }
-
-    }
-
     private Expectation expectation;
     private StepInput input;
-
     public DetectTargetStepTest(StepInput input, Expectation expectation) {
         this.expectation = expectation;
         this.input = input;
@@ -72,7 +55,7 @@ public class DetectTargetStepTest extends SyncFlowableStepTest<DetectTargetStep>
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, input.majorSchemaVersion);
         Platform platform = loadPlatform();
         Mockito.when(configuration.getPlatform(Mockito.any(), Mockito.anyInt()))
-        .thenReturn(platform);
+               .thenReturn(platform);
     }
 
     private Platform loadPlatform() {
@@ -83,6 +66,22 @@ public class DetectTargetStepTest extends SyncFlowableStepTest<DetectTargetStep>
     @Override
     protected DetectTargetStep createStep() {
         return new DetectTargetStep();
+    }
+
+    private static class StepInput {
+
+        public String platformLocation;
+        public String org;
+        public String space;
+        public int majorSchemaVersion;
+
+        public StepInput(String platformLocation, String org, String space, int majorSchemaVersion) {
+            this.platformLocation = platformLocation;
+            this.org = org;
+            this.space = space;
+            this.majorSchemaVersion = majorSchemaVersion;
+        }
+
     }
 
 }

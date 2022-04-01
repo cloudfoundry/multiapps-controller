@@ -33,7 +33,7 @@ public class CleanUpJob implements Job {
     @Override
     public void execute(JobExecutionContext context) {
         LOGGER.info(LOG_MARKER, format(Messages.CLEAN_UP_JOB_STARTED_BY_APPLICATION_INSTANCE_0_AT_1,
-            configuration.getApplicationInstanceIndex(), Instant.now()));
+                                       configuration.getApplicationInstanceIndex(), Instant.now()));
 
         Date expirationTime = computeExpirationTime();
         LOGGER.info(LOG_MARKER, format(Messages.WILL_CLEAN_UP_DATA_STORED_BEFORE_0, expirationTime));
@@ -48,7 +48,7 @@ public class CleanUpJob implements Job {
     private Date computeExpirationTime() {
         long maxTtlForOldData = configuration.getMaxTtlForOldData();
         return Date.from(Instant.now()
-            .minusSeconds(maxTtlForOldData));
+                                .minusSeconds(maxTtlForOldData));
     }
 
     private void executeSafely(Runnable r) {

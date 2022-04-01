@@ -47,12 +47,9 @@ public class StartProcessListenerTest {
     private final String processInstanceId;
     private final ProcessType processType;
     private final String exceptionMessage;
-
-    private DelegateExecution context = MockDelegateExecution.createSpyInstance();
-
     @Rule
     public ExpectedException exception = ExpectedException.none();
-
+    private DelegateExecution context = MockDelegateExecution.createSpyInstance();
     @Mock
     private OperationDao dao;
     @Mock
@@ -75,6 +72,12 @@ public class StartProcessListenerTest {
     @InjectMocks
     private StartProcessListener listener = new StartProcessListener();
 
+    public StartProcessListenerTest(String processInstanceId, ProcessType processType, String exceptionMessage) {
+        this.processType = processType;
+        this.processInstanceId = processInstanceId;
+        this.exceptionMessage = exceptionMessage;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -91,20 +94,16 @@ public class StartProcessListenerTest {
         });
     }
 
-    public StartProcessListenerTest(String processInstanceId, ProcessType processType, String exceptionMessage) {
-        this.processType = processType;
-        this.processInstanceId = processInstanceId;
-        this.exceptionMessage = exceptionMessage;
-    }
-
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         loadParameters();
         prepareContext();
         Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(stepLogger);
-        Mockito.doNothing().when(processLogsPersister).persistLogs(Mockito.any());
+               .thenReturn(stepLogger);
+        Mockito.doNothing()
+               .when(processLogsPersister)
+               .persistLogs(Mockito.any());
     }
 
     @Test
@@ -117,11 +116,11 @@ public class StartProcessListenerTest {
     private void prepareContext() {
         listener.currentTimeSupplier = currentTimeSupplier;
         Mockito.when(context.getProcessInstanceId())
-            .thenReturn(processInstanceId);
+               .thenReturn(processInstanceId);
         Mockito.when(context.getVariables())
-            .thenReturn(Collections.emptyMap());
+               .thenReturn(Collections.emptyMap());
         Mockito.when(processTypeParser.getProcessType(context))
-            .thenReturn(processType);
+               .thenReturn(processType);
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         context.setVariable(Constants.VAR_USER, USER);
     }
@@ -136,13 +135,13 @@ public class StartProcessListenerTest {
     private void verifyOperationInsertion() throws SLException, ConflictException {
         String user = StepsUtil.determineCurrentUser(context, stepLogger);
         Operation operation = new Operation().processId(processInstanceId)
-            .processType(processType)
-            .spaceId(SPACE_ID)
-            .startedAt(START_TIME)
-            .user(user)
-            .acquiredLock(false);
+                                             .processType(processType)
+                                             .spaceId(SPACE_ID)
+                                             .startedAt(START_TIME)
+                                             .user(user)
+                                             .acquiredLock(false);
         Mockito.verify(dao)
-            .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
+               .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
     }
 
 }

@@ -26,8 +26,9 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
     private ModuleToDeployHelper moduleToDeployHelper;
 
     public ModulesCloudModelBuilderContentCalculator(Set<String> mtaModulesInArchive, Set<String> deployedModules,
-        Set<String> allMtaModules, List<String> modulesSpecifiedForDeployment, PropertiesAccessor propertiesAccessor,
-        UserMessageLogger userMessageLogger, ModuleToDeployHelper moduleToDeployHelper) {
+                                                     Set<String> allMtaModules, List<String> modulesSpecifiedForDeployment,
+                                                     PropertiesAccessor propertiesAccessor, UserMessageLogger userMessageLogger,
+                                                     ModuleToDeployHelper moduleToDeployHelper) {
         this.mtaModulesInArchive = mtaModulesInArchive;
         this.deployedModules = deployedModules;
         this.modulesSpecifiedForDeployment = modulesSpecifiedForDeployment;
@@ -41,9 +42,10 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
     public List<Module> calculateContentForBuilding(List<? extends Module> modulesForDeployment) {
         initializeModulesDependecyTypes(modulesForDeployment);
         List<Module> calculatedModules = modulesForDeployment.stream()
-            .filter(module -> shouldDeployModule(module, mtaModulesInArchive, deployedModules))
-            .filter(this::isModuleSpecifiedForDeployment)
-            .collect(Collectors.toList());
+                                                             .filter(module -> shouldDeployModule(module, mtaModulesInArchive,
+                                                                                                  deployedModules))
+                                                             .filter(this::isModuleSpecifiedForDeployment)
+                                                             .collect(Collectors.toList());
         Set<String> unresolvedModules = getUnresolvedModules(calculatedModules);
         if (unresolvedModules.isEmpty()) {
             return calculatedModules;
@@ -53,10 +55,10 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
 
     private Set<String> getUnresolvedModules(List<Module> calculatedModules) {
         Set<String> calculatedModuleNames = calculatedModules.stream()
-            .map(Module::getName)
-            .collect(Collectors.toSet());
+                                                             .map(Module::getName)
+                                                             .collect(Collectors.toSet());
         return SetUtils.difference(allMtaModules, SetUtils.union(calculatedModuleNames, deployedModules))
-            .toSet();
+                       .toSet();
     }
 
     private void initializeModulesDependecyTypes(List<? extends Module> modulesForDeployment) {
@@ -70,7 +72,8 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
 
     protected String getDependencyType(PropertiesAccessor propertiesAccessor, Module module) {
         return (String) propertiesAccessor.getParameters(module)
-            .getOrDefault(SupportedParameters.DEPENDENCY_TYPE, com.sap.cloud.lm.sl.cf.core.Constants.DEPENDENCY_TYPE_SOFT);
+                                          .getOrDefault(SupportedParameters.DEPENDENCY_TYPE,
+                                                        com.sap.cloud.lm.sl.cf.core.Constants.DEPENDENCY_TYPE_SOFT);
     }
 
     private boolean isModuleSpecifiedForDeployment(Module module) {

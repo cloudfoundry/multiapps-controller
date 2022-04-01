@@ -41,15 +41,14 @@ public class FlowableConfiguration {
     private static final int JOB_EXECUTOR_MAX_POOL_SIZE = 32;
     private static final int JOB_EXECUTOR_LOCK_TIME_IN_MILLIS = (int) TimeUnit.MINUTES.toMillis(30);
     private static final String JOB_EXECUTOR_ID_TEMPLATE = "ds-%s/%d/%s";
-
+    protected Supplier<String> randomIdGenerator = () -> UUID.randomUUID()
+                                                             .toString();
     @Value("classpath*:/com/sap/cloud/lm/sl/cf/process/*.bpmn")
     private Resource[] flowableResources;
-    protected Supplier<String> randomIdGenerator = () -> UUID.randomUUID()
-        .toString();
 
     @Inject
     @Bean
-    @DependsOn ("coreChangelog")
+    @DependsOn("coreChangelog")
     public ProcessEngine processEngine(ApplicationContext applicationContext, SpringProcessEngineConfiguration processEngineConfiguration)
         throws Exception {
         ProcessEngineFactoryBean processEngineFactoryBean = new ProcessEngineFactoryBean();
@@ -60,9 +59,9 @@ public class FlowableConfiguration {
 
     @Inject
     @Bean
-    @DependsOn ("coreChangelog")
+    @DependsOn("coreChangelog")
     public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager,
-        AsyncExecutor jobExecutor) {
+                                                                       AsyncExecutor jobExecutor) {
         SpringProcessEngineConfiguration processEngineConfiguration = new SpringProcessEngineConfiguration();
         processEngineConfiguration.setDatabaseSchemaUpdate(DATABASE_SCHEMA_UPDATE);
         processEngineConfiguration.setDataSource(dataSource);

@@ -30,6 +30,11 @@ public class UnregisterServiceUrlsStepTest extends SyncFlowableStepTest<Unregist
 
     private StepInput input;
 
+    public UnregisterServiceUrlsStepTest(String inputLocation, String[] expectedUnregisteredServiceUrls) {
+        this.inputLocation = inputLocation;
+        this.expectedUnregisteredServiceUrls = expectedUnregisteredServiceUrls;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -54,11 +59,6 @@ public class UnregisterServiceUrlsStepTest extends SyncFlowableStepTest<Unregist
         });
     }
 
-    public UnregisterServiceUrlsStepTest(String inputLocation, String[] expectedUnregisteredServiceUrls) {
-        this.inputLocation = inputLocation;
-        this.expectedUnregisteredServiceUrls = expectedUnregisteredServiceUrls;
-    }
-
     @Before
     public void setUp() throws Exception {
         loadParameters();
@@ -76,8 +76,8 @@ public class UnregisterServiceUrlsStepTest extends SyncFlowableStepTest<Unregist
 
     private List<CloudApplication> toCloudApplications(List<SimpleApplication> apps) {
         return apps.stream()
-            .map((app) -> app.toCloudApplication())
-            .collect(Collectors.toList());
+                   .map((app) -> app.toCloudApplication())
+                   .collect(Collectors.toList());
     }
 
     @Test
@@ -94,9 +94,14 @@ public class UnregisterServiceUrlsStepTest extends SyncFlowableStepTest<Unregist
     private String[] captureStepOutput() {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(client, Mockito.times(expectedUnregisteredServiceUrls.length))
-            .unregisterServiceURL(captor.capture());
+               .unregisterServiceURL(captor.capture());
         return captor.getAllValues()
-            .toArray(new String[0]);
+                     .toArray(new String[0]);
+    }
+
+    @Override
+    protected UnregisterServiceUrlsStep createStep() {
+        return new UnregisterServiceUrlsStep();
     }
 
     private static class StepInput {
@@ -115,11 +120,6 @@ public class UnregisterServiceUrlsStepTest extends SyncFlowableStepTest<Unregist
             return app;
         }
 
-    }
-
-    @Override
-    protected UnregisterServiceUrlsStep createStep() {
-        return new UnregisterServiceUrlsStep();
     }
 
 }

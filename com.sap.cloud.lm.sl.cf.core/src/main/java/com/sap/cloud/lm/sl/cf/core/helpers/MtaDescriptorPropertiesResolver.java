@@ -44,15 +44,15 @@ public class MtaDescriptorPropertiesResolver {
     private final HandlerFactory handlerFactory;
     private final Platform platform;
     private final SystemParameters systemParameters;
-    private BiFunction<String, String, String> spaceIdSupplier;
     private final ConfigurationEntryDao dao;
     private final CloudTarget cloudTarget;
-    private List<ConfigurationSubscription> subscriptions;
     private final ApplicationConfiguration configuration;
+    private BiFunction<String, String, String> spaceIdSupplier;
+    private List<ConfigurationSubscription> subscriptions;
 
     public MtaDescriptorPropertiesResolver(HandlerFactory handlerFactory, Platform platform, SystemParameters systemParameters,
-        BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
-        ApplicationConfiguration configuration) {
+                                           BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao,
+                                           CloudTarget cloudTarget, ApplicationConfiguration configuration) {
         this.handlerFactory = handlerFactory;
         this.platform = platform;
         this.systemParameters = systemParameters;
@@ -64,54 +64,52 @@ public class MtaDescriptorPropertiesResolver {
 
     public List<ParameterValidator> getValidatorsList() {
         return Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(), new RoutesValidator(),
-            new ModuleSystemParameterCopier(SupportedParameters.APP_NAME, systemParameters), new TasksValidator(),
-            new VisibilityValidator(), new RestartOnEnvChangeValidator());
+                             new ModuleSystemParameterCopier(SupportedParameters.APP_NAME, systemParameters), new TasksValidator(),
+                             new VisibilityValidator(), new RestartOnEnvChangeValidator());
     }
 
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {
         // Resolve placeholders in parameters:
-        descriptor = handlerFactory
-            .getDescriptorPlaceholderResolver(descriptor, platform, systemParameters, new NullPropertiesResolverBuilder(),
-                new ResolverBuilder())
-            .resolve();
+        descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, platform, systemParameters,
+                                                                     new NullPropertiesResolverBuilder(), new ResolverBuilder())
+                                   .resolve();
 
         List<ParameterValidator> validatorsList = getValidatorsList();
         descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, validatorsList)
-            .validate();
+                                   .validate();
         LOGGER.debug(format(Messages.DEPLOYMENT_DESCRIPTOR_AFTER_PARAMETER_CORRECTION, secureSerializer.toJson(descriptor)));
 
         // Resolve placeholders in properties:
-        descriptor = handlerFactory
-            .getDescriptorPlaceholderResolver(descriptor, platform, systemParameters, new ResolverBuilder(),
-                new NullPropertiesResolverBuilder())
-            .resolve();
+        descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, platform, systemParameters, new ResolverBuilder(),
+                                                                     new NullPropertiesResolverBuilder())
+                                   .resolve();
 
         DeploymentDescriptor descriptorWithUnresolvedReferences = descriptor.copyOf();
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(descriptor, platform, spaceIdSupplier,
-            dao, cloudTarget, configuration);
+                                                                                                     dao, cloudTarget, configuration);
         resolver.resolve(descriptor);
         LOGGER.debug(format(Messages.DEPLOYMENT_DESCRIPTOR_AFTER_CROSS_MTA_DEPENDENCY_RESOLUTION, secureSerializer.toJson(descriptor)));
 
         subscriptions = createSubscriptions(descriptorWithUnresolvedReferences, resolver.getResolvedReferences());
         LOGGER.debug(format(Messages.SUBSCRIPTIONS, secureSerializer.toJson(subscriptions)));
 
-        descriptor = handlerFactory
-            .getDescriptorReferenceResolver(descriptor, new ResolverBuilder(), new ResolverBuilder(), new ResolverBuilder())
-            .resolve();
+        descriptor = handlerFactory.getDescriptorReferenceResolver(descriptor, new ResolverBuilder(), new ResolverBuilder(),
+                                                                   new ResolverBuilder())
+                                   .resolve();
         LOGGER.debug(format(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(descriptor)));
 
         descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, validatorsList, true)
-            .validate();
+                                   .validate();
 
         return descriptor;
     }
 
     private List<ConfigurationSubscription> createSubscriptions(DeploymentDescriptor descriptorWithUnresolvedReferences,
-        Map<String, ResolvedConfigurationReference> resolvedResources) {
+                                                                Map<String, ResolvedConfigurationReference> resolvedResources) {
         String spaceId = spaceIdSupplier.apply(cloudTarget.getOrg(), cloudTarget.getSpace());
         return handlerFactory.getConfigurationSubscriptionFactory()
-            .create(descriptorWithUnresolvedReferences, resolvedResources, spaceId);
+                             .create(descriptorWithUnresolvedReferences, resolvedResources, spaceId);
     }
 
     public List<ConfigurationSubscription> getSubscriptions() {

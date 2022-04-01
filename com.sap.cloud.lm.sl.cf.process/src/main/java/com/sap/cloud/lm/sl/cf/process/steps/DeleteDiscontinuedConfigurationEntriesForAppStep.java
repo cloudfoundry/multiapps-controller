@@ -37,7 +37,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
         }
         getStepLogger().info(Messages.DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP, existingApp.getName());
         String mtaId = (String) execution.getContext()
-            .getVariable(Constants.PARAM_MTA_ID);
+                                         .getVariable(Constants.PARAM_MTA_ID);
         ApplicationMtaMetadata mtaMetadata = ApplicationMtaMetadataParser.parseAppMetadata(existingApp);
         if (mtaMetadata == null) {
             return StepPhase.DONE;
@@ -48,12 +48,12 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
         CloudTarget newTarget = new CloudTarget(org, space);
         CloudTarget oldTarget = new CloudTarget(null, StepsUtil.getSpaceId(execution.getContext()));
         String oldMtaVersion = mtaMetadata.getMtaMetadata()
-            .getVersion()
-            .toString();
+                                          .getVersion()
+                                          .toString();
         List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntries(execution.getContext());
 
         List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, oldMtaVersion, newTarget, oldTarget, providedDependencyNames,
-            publishedEntries);
+                                                                      publishedEntries);
         for (ConfigurationEntry entry : entriesToDelete) {
             try {
                 configurationEntryDao.remove(entry.getId());
@@ -69,7 +69,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
     }
 
     private List<ConfigurationEntry> getEntriesToDelete(String mtaId, String mtaVersion, CloudTarget newTarget, CloudTarget oldTarget,
-        List<String> providedDependencyNames, List<ConfigurationEntry> publishedEntries) {
+                                                        List<String> providedDependencyNames, List<ConfigurationEntry> publishedEntries) {
         List<ConfigurationEntry> entriesWithNewTargetFormat = getEntries(mtaId, mtaVersion, newTarget);
         /**
          * TODO: The following line of code should be removed when compatibility with versions lower than 1.18.2 is not required. In these
@@ -81,38 +81,40 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
         List<ConfigurationEntry> entriesWithOldTargetFormat = getEntries(mtaId, mtaVersion, oldTarget);
         List<ConfigurationEntry> allEntriesForCurrentMta = ListUtils.union(entriesWithNewTargetFormat, entriesWithOldTargetFormat);
         List<ConfigurationEntry> entriesForCurrentModule = getConfigurationEntriesWithProviderIds(allEntriesForCurrentMta,
-            getProviderIds(mtaId, providedDependencyNames));
+                                                                                                  getProviderIds(mtaId,
+                                                                                                                 providedDependencyNames));
         return getEntriesNotUpdatedByThisProcess(entriesForCurrentModule, publishedEntries);
     }
 
     private List<ConfigurationEntry> getEntriesNotUpdatedByThisProcess(List<ConfigurationEntry> entriesForCurrentModule,
-        List<ConfigurationEntry> publishedEntries) {
+                                                                       List<ConfigurationEntry> publishedEntries) {
         return entriesForCurrentModule.stream()
-            .filter(entry -> !hasId(entry, publishedEntries))
-            .collect(Collectors.toList());
+                                      .filter(entry -> !hasId(entry, publishedEntries))
+                                      .collect(Collectors.toList());
     }
 
     private boolean hasId(ConfigurationEntry entry, List<ConfigurationEntry> publishedEntries) {
         return publishedEntries.stream()
-            .anyMatch(publishedEntry -> publishedEntry.getId() == entry.getId());
+                               .anyMatch(publishedEntry -> publishedEntry.getId() == entry.getId());
     }
 
     private List<String> getProviderIds(String mtaId, List<String> providedDependencyNames) {
         return providedDependencyNames.stream()
-            .map(providedDependencyName -> ConfigurationEntriesUtil.computeProviderId(mtaId, providedDependencyName))
-            .collect(Collectors.toList());
+                                      .map(providedDependencyName -> ConfigurationEntriesUtil.computeProviderId(mtaId,
+                                                                                                                providedDependencyName))
+                                      .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> getConfigurationEntriesWithProviderIds(List<ConfigurationEntry> entries, List<String> providerIds) {
         return entries.stream()
-            .filter(entry -> hasProviderId(entry, providerIds))
-            .collect(Collectors.toList());
+                      .filter(entry -> hasProviderId(entry, providerIds))
+                      .collect(Collectors.toList());
     }
 
     private boolean hasProviderId(ConfigurationEntry entry, List<String> providerIds) {
         return providerIds.stream()
-            .anyMatch(providerId -> entry.getProviderId()
-                .equals(providerId));
+                          .anyMatch(providerId -> entry.getProviderId()
+                                                       .equals(providerId));
     }
 
     private List<ConfigurationEntry> getEntries(String mtaId, String mtaVersion, CloudTarget target) {

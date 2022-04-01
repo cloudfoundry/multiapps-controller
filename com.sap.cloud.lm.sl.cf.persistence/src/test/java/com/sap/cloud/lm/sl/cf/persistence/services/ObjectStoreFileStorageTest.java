@@ -52,16 +52,16 @@ public class ObjectStoreFileStorageTest {
         createBlobStoreContext();
         fileStorage = new ObjectStoreFileStorage(blobStoreContext.getBlobStore(), CONTAINER);
         spaceId = UUID.randomUUID()
-            .toString();
+                      .toString();
         namespace = UUID.randomUUID()
-            .toString();
+                        .toString();
     }
 
     private void createBlobStoreContext() {
         blobStoreContext = ContextBuilder.newBuilder("transient")
-            .buildView(BlobStoreContext.class);
+                                         .buildView(BlobStoreContext.class);
         blobStoreContext.getBlobStore()
-            .createContainerInLocation(null, CONTAINER);
+                        .createContainerInLocation(null, CONTAINER);
     }
 
     @After
@@ -88,7 +88,7 @@ public class ObjectStoreFileStorageTest {
         List<FileEntry> withoutContent = fileStorage.getFileEntriesWithoutContent(fileEntries);
         assertEquals(1, withoutContent.size());
         assertEquals(nonExistingFile.getId(), withoutContent.get(0)
-            .getId());
+                                                            .getId());
     }
 
     @Test
@@ -151,7 +151,7 @@ public class ObjectStoreFileStorageTest {
         assertFileExists(false, fileEntryToDelete1);
         assertFileExists(false, fileEntryToDelete2);
         assertNull(blobStoreContext.getBlobStore()
-            .getBlob(CONTAINER, blobWithNoMetadataId));
+                                   .getBlob(CONTAINER, blobWithNoMetadataId));
     }
 
     private String addBlobWithNoMetadata() throws Exception {
@@ -159,14 +159,14 @@ public class ObjectStoreFileStorageTest {
         Path path = Paths.get(TEST_FILE_LOCATION);
         long fileSize = FileUtils.sizeOf(path.toFile());
         String id = UUID.randomUUID()
-            .toString();
+                        .toString();
         Blob blob = blobStore.blobBuilder(id)
-            .payload(new FileInputStream(path.toFile()))
-            .contentDisposition(path.getFileName()
-                .toString())
-            .contentType(MediaType.OCTET_STREAM.toString())
-            .contentLength(fileSize)
-            .build();
+                             .payload(new FileInputStream(path.toFile()))
+                             .contentDisposition(path.getFileName()
+                                                     .toString())
+                             .contentType(MediaType.OCTET_STREAM.toString())
+                             .contentLength(fileSize)
+                             .build();
         blobStore.putBlob(CONTAINER, blob);
         return id;
     }
@@ -175,7 +175,7 @@ public class ObjectStoreFileStorageTest {
     public void processFileContent() throws Exception {
         FileEntry fileEntry = addFile(TEST_FILE_LOCATION);
         String testFileDigest = DigestHelper.computeFileChecksum(Paths.get(TEST_FILE_LOCATION), DIGEST_METHOD)
-            .toLowerCase();
+                                            .toLowerCase();
         validateFileContent(fileEntry, testFileDigest);
     }
 
@@ -184,7 +184,7 @@ public class ObjectStoreFileStorageTest {
         String fileId = "not-existing-file-id";
         String fileSpace = "not-existing-space-id";
         String fileDigest = DigestHelper.computeFileChecksum(Paths.get(TEST_FILE_LOCATION), DIGEST_METHOD)
-            .toLowerCase();
+                                        .toLowerCase();
         FileEntry dummyFileEntry = new FileEntry();
         dummyFileEntry.setId(fileId);
         dummyFileEntry.setSpace(fileSpace);
@@ -192,17 +192,21 @@ public class ObjectStoreFileStorageTest {
     }
 
     private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {
-        fileStorage
-            .processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(), storedFile.getId(), new FileContentProcessor() {
-                @Override
-                public void processFileContent(InputStream contentStream) throws NoSuchAlgorithmException, IOException {
-                    // make a digest out of the content and compare it to the original
-                    final byte[] digest = calculateFileDigest(contentStream);
-                    assertEquals(expectedFileChecksum, DatatypeConverter.printHexBinary(digest)
-                        .toLowerCase());
-                }
+        fileStorage.processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(),
+                                                                        storedFile.getId(),
+                                                                        new FileContentProcessor() {
+                                                                            @Override
+                                                                            public void processFileContent(InputStream contentStream)
+                                                                                throws NoSuchAlgorithmException, IOException {
+                                                                                // make a digest out of the content and compare it to the
+                                                                                // original
+                                                                                final byte[] digest = calculateFileDigest(contentStream);
+                                                                                assertEquals(expectedFileChecksum,
+                                                                                             DatatypeConverter.printHexBinary(digest)
+                                                                                                              .toLowerCase());
+                                                                            }
 
-            }));
+                                                                        }));
     }
 
     private byte[] calculateFileDigest(InputStream contentStream) throws NoSuchAlgorithmException, IOException {
@@ -225,7 +229,7 @@ public class ObjectStoreFileStorageTest {
 
     private FileEntry addFile(String pathString, String space, String namespace, Date date) throws Exception {
         Path testFilePath = Paths.get(pathString)
-            .toAbsolutePath();
+                                 .toAbsolutePath();
         FileEntry fileEntry = createFileEntry(space, namespace);
         enrichFileEntry(fileEntry, testFilePath, date);
         fileStorage.addFile(fileEntry, Files.newInputStream(testFilePath));
@@ -239,7 +243,7 @@ public class ObjectStoreFileStorageTest {
     private FileEntry createFileEntry(String space, String namespace) {
         FileEntry fileEntry = new FileEntry();
         fileEntry.setId(UUID.randomUUID()
-            .toString());
+                            .toString());
         fileEntry.setSpace(space);
         fileEntry.setNamespace(namespace);
         return fileEntry;
@@ -251,12 +255,12 @@ public class ObjectStoreFileStorageTest {
         fileEntry.setSize(bigInteger);
         fileEntry.setModified(date != null ? date : new Date(System.currentTimeMillis()));
         fileEntry.setName(path.getFileName()
-            .toString());
+                              .toString());
     }
 
     private void assertFileExists(boolean exceptedFileExist, FileEntry actualFile) {
         Blob blob = blobStoreContext.getBlobStore()
-            .getBlob(CONTAINER, actualFile.getId());
+                                    .getBlob(CONTAINER, actualFile.getId());
         boolean blobExists = blob != null;
 
         assertEquals(exceptedFileExist, blobExists);

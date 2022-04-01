@@ -26,10 +26,11 @@ public class FileSplitter {
 
     public FileSplitter(Path filePath) throws IOException {
         this(filePath.getFileName()
-            .toString(),
-            filePath.toAbsolutePath()
-                .toString(),
-            Files.newInputStream(filePath), null);
+                     .toString(),
+             filePath.toAbsolutePath()
+                     .toString(),
+             Files.newInputStream(filePath),
+             null);
         this.fileSize = Files.size(filePath);
     }
 

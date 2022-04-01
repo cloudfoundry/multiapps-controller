@@ -15,9 +15,7 @@ import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class StepsUtilTest {
 
@@ -38,24 +36,24 @@ public class StepsUtilTest {
 
         assertEquals(1, actualServicesToCreate.size());
         assertTrue(!actualServicesToCreate.get(0)
-            .getCredentials()
-            .isEmpty());
+                                          .getCredentials()
+                                          .isEmpty());
         assertEquals(Integer.class, actualServicesToCreate.get(0)
-            .getCredentials()
-            .get("integer-value")
-            .getClass());
+                                                          .getCredentials()
+                                                          .get("integer-value")
+                                                          .getClass());
         assertEquals(Integer.class, actualServicesToCreate.get(0)
-            .getCredentials()
-            .get("int-double-value")
-            .getClass());
+                                                          .getCredentials()
+                                                          .get("int-double-value")
+                                                          .getClass());
         assertEquals(Double.class, actualServicesToCreate.get(0)
-            .getCredentials()
-            .get("real-double-value")
-            .getClass());
+                                                         .getCredentials()
+                                                         .get("real-double-value")
+                                                         .getClass());
         assertEquals(String.class, actualServicesToCreate.get(0)
-            .getCredentials()
-            .get("string-value")
-            .getClass());
+                                                         .getCredentials()
+                                                         .get("string-value")
+                                                         .getClass());
     }
 
     @Test
@@ -75,43 +73,43 @@ public class StepsUtilTest {
 
         assertEquals(1, actualAppsToDeploy.size());
         assertTrue(!actualAppsToDeploy.get(0)
-            .getBindingParameters()
-            .isEmpty());
+                                      .getBindingParameters()
+                                      .isEmpty());
         assertTrue(!actualAppsToDeploy.get(0)
-            .getBindingParameters()
-            .get("service-1")
-            .isEmpty());
+                                      .getBindingParameters()
+                                      .get("service-1")
+                                      .isEmpty());
         assertEquals(Integer.class, actualAppsToDeploy.get(0)
-            .getBindingParameters()
-            .get("service-1")
-            .get("integer-value")
-            .getClass());
+                                                      .getBindingParameters()
+                                                      .get("service-1")
+                                                      .get("integer-value")
+                                                      .getClass());
         assertEquals(Integer.class, actualAppsToDeploy.get(0)
-            .getBindingParameters()
-            .get("service-1")
-            .get("int-double-value")
-            .getClass());
+                                                      .getBindingParameters()
+                                                      .get("service-1")
+                                                      .get("int-double-value")
+                                                      .getClass());
         assertEquals(Double.class, actualAppsToDeploy.get(0)
-            .getBindingParameters()
-            .get("service-1")
-            .get("real-double-value")
-            .getClass());
+                                                     .getBindingParameters()
+                                                     .get("service-1")
+                                                     .get("real-double-value")
+                                                     .getClass());
         assertEquals(String.class, actualAppsToDeploy.get(0)
-            .getBindingParameters()
-            .get("service-1")
-            .get("string-value")
-            .getClass());
+                                                     .getBindingParameters()
+                                                     .get("service-1")
+                                                     .get("string-value")
+                                                     .getClass());
     }
-    
+
     @Test
     public void testSetAndGetUploadToken() {
         UploadToken expectedUploadToken = new UploadToken();
         expectedUploadToken.setPackageGuid(UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93"));
         expectedUploadToken.setToken("token");
-        
+
         StepsUtil.setUploadToken(expectedUploadToken, context);
         UploadToken actualUploadToken = StepsUtil.getUploadToken(context);
-        
+
         assertEquals(expectedUploadToken.getToken(), actualUploadToken.getToken());
         assertEquals(expectedUploadToken.getPackageGuid(), actualUploadToken.getPackageGuid());
     }

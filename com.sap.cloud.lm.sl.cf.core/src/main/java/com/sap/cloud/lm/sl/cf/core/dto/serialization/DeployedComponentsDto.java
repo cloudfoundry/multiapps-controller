@@ -35,14 +35,14 @@ public class DeployedComponentsDto {
 
     private static List<DeployedMtaDto> toDtos(List<DeployedMta> mtas) {
         return mtas.stream()
-            .map(DeployedMtaDto::new)
-            .collect(Collectors.toList());
+                   .map(DeployedMtaDto::new)
+                   .collect(Collectors.toList());
     }
 
     private static List<DeployedMta> toDeployedMtas(List<DeployedMtaDto> mtas) {
         return mtas.stream()
-            .map(DeployedMtaDto::toDeployedMta)
-            .collect(Collectors.toList());
+                   .map(DeployedMtaDto::toDeployedMta)
+                   .collect(Collectors.toList());
     }
 
     public List<DeployedMtaDto> getMtas() {

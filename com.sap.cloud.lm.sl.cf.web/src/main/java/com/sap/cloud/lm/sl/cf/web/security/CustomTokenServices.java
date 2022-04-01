@@ -32,7 +32,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
 
     @Inject
     public CustomTokenServices(TokenStore tokenStore, TokenFactory tokenFactory, ApplicationConfiguration configuration,
-        TokenParserChain tokenParserChain) {
+                               TokenParserChain tokenParserChain) {
         this.tokenStore = tokenStore;
         this.tokenParserChain = tokenParserChain;
         if (configuration.shouldSkipSslValidation()) {
@@ -65,7 +65,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
             auth = SecurityUtil.createAuthentication(tokenProperties.getClientId(), token.getScope(), SecurityUtil.getTokenUserInfo(token));
             try {
                 LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.web.message.Messages.TOKEN_LOADED_INTO_TOKEN_STORE,
-                    token.getExpiresIn(), tokenProperties.getUserName()));
+                                                 token.getExpiresIn(), tokenProperties.getUserName()));
                 tokenStore.storeAccessToken(token, auth);
             } catch (DataIntegrityViolationException e) {
                 LOGGER.debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION, e);
@@ -93,7 +93,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
 
     private void logToAuditLogAndThrow(String message) {
         AuditLoggingProvider.getFacade()
-            .logSecurityIncident(message);
+                            .logSecurityIncident(message);
         throw new InvalidTokenException(message);
     }
 

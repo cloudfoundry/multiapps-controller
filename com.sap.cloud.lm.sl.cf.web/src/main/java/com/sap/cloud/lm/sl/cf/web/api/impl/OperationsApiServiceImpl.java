@@ -23,7 +23,6 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
@@ -61,6 +60,7 @@ import com.sap.cloud.lm.sl.common.NotFoundException;
 @RequestScoped
 public class OperationsApiServiceImpl implements OperationsApiService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsApiServiceImpl.class);
     @Inject
     private CloudControllerClientProvider clientProvider;
     @Inject
@@ -77,8 +77,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private ProgressMessageService progressMessageService;
     @Inject
     private ProcessActionRegistry processActionRegistry;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsApiServiceImpl.class);
 
     @Override
     public Response getMtaOperations(Integer last, List<String> state, SecurityContext securityContext, String spaceGuid) {

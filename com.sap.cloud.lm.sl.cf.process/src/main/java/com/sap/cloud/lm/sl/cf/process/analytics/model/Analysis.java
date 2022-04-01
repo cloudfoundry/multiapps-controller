@@ -9,15 +9,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(value = XmlAccessType.FIELD)
 public class Analysis {
 
+    @XmlElement(name = "title")
+    private String title;
+    @XmlElement(name = "general_scenario_details")
+    private GeneralScenarioDetails generalScenarioDetails;
+
     public Analysis() {
         super();
     }
-
-    @XmlElement(name = "title")
-    private String title;
-
-    @XmlElement(name = "general_scenario_details")
-    private GeneralScenarioDetails generalScenarioDetails;
 
     public String getTitle() {
         return title;

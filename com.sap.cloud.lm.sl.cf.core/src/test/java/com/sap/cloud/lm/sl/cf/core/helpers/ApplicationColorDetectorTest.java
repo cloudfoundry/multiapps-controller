@@ -16,6 +16,14 @@ import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 @RunWith(Parameterized.class)
 public class ApplicationColorDetectorTest {
 
+    private final String deployedMtaJsonLocation;
+    private final Expectation[] expectations;
+    private DeployedMta deployedMta;
+    public ApplicationColorDetectorTest(String deployedMtaJsonLocation, Expectation[] expectations) {
+        this.deployedMtaJsonLocation = deployedMtaJsonLocation;
+        this.expectations = expectations;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -52,27 +60,18 @@ public class ApplicationColorDetectorTest {
         });
     }
 
-    private DeployedMta deployedMta;
-
-    private final String deployedMtaJsonLocation;
-    private final Expectation[] expectations;
-
-    public ApplicationColorDetectorTest(String deployedMtaJsonLocation, Expectation[] expectations) {
-        this.deployedMtaJsonLocation = deployedMtaJsonLocation;
-        this.expectations = expectations;
-    }
-
     @Before
     public void setUp() throws Exception {
         if (deployedMtaJsonLocation != null) {
             deployedMta = JsonUtil.fromJson(TestUtil.getResourceAsString(deployedMtaJsonLocation, ApplicationColorDetectorTest.class),
-                DeployedMta.class);
+                                            DeployedMta.class);
         }
     }
 
     @Test
     public void testDetectSingularDeployedApplicationColor() {
-        TestUtil.test(() -> new ApplicationColorDetector().detectSingularDeployedApplicationColor(deployedMta), expectations[0], getClass());
+        TestUtil.test(() -> new ApplicationColorDetector().detectSingularDeployedApplicationColor(deployedMta), expectations[0],
+                      getClass());
     }
 
     @Test

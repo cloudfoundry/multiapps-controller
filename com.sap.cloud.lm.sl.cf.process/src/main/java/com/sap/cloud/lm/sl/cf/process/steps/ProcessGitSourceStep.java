@@ -45,12 +45,12 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessGitSourceStep extends SyncFlowableStep {
 
+    public static final String META_INF_PATH = "META-INF";
     private static final String SKIP_SSL_GIT_CONFIG = ".skipSslGitConfig";
     private static final String PATH_SEPARATOR = "/";
     private static final String GIT_SERVICE_URL_KEY = "git-service";
     private static final String REPOSITORY_DIRECTORY_NAME = "repos";
     private static final String MTAR_EXTENTION = ".mtar";
-    public static final String META_INF_PATH = "META-INF";
     private static final String MANIFEST_PATH = "MANIFEST.MF";
     private static final String MTAD_PATH = "mtad.yaml";
 
@@ -64,14 +64,14 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
 
             final String gitUri = getGitUri(execution);
             final String gitRepoPath = (String) execution.getContext()
-                .getVariable(Constants.PARAM_GIT_REPO_PATH);
+                                                         .getVariable(Constants.PARAM_GIT_REPO_PATH);
             String processId = execution.getContext()
-                .getProcessInstanceId();
+                                        .getProcessInstanceId();
             final String repoName = extractRepoName(gitUri, processId);
             final Path reposDir = Paths.get(REPOSITORY_DIRECTORY_NAME, repoName);
             Path gitConfigFilePath = generateGitConfigFilepath(processId);
             if (!reposDir.toFile()
-                .exists()) {
+                         .exists()) {
                 Files.createDirectories(reposDir);
             }
             Path mtarZip = null;
@@ -81,18 +81,18 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
                 getStepLogger().info(Messages.CLONING_REPOSITORY, gitUri);
                 cloner.cloneRepo(gitUri, reposDir);
                 final Path mtaRepoPath = reposDir.resolve(gitRepoPath)
-                    .normalize();
+                                                 .normalize();
                 mtarZip = zipRepoContent(mtaRepoPath);
                 uploadZipToDB(execution.getContext(), mtarZip);
             } finally {
                 try {
                     deleteTemporaryRepositoryDirectory(reposDir);
                     if (gitConfigFilePath.toFile()
-                        .exists()) {
+                                         .exists()) {
                         Files.delete(gitConfigFilePath);
                     }
                     if (mtarZip != null && mtarZip.toFile()
-                        .exists()) {
+                                                  .exists()) {
                         FileUtils.deleteDirectory(mtarZip);
                     }
                 } catch (IOException e) {
@@ -120,7 +120,7 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
         String token;
         try {
             token = clientProvider.getValidToken(userName)
-                .getValue();
+                                  .getValue();
             cloner.setCredentials(userName, token);
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_RETRIEVING_OAUT_TOKEN);
@@ -171,7 +171,7 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
 
     private CloudInfoExtended getCloudInfoExtended(ExecutionWrapper execution) {
         return (CloudInfoExtended) execution.getControllerClient()
-            .getCloudInfo();
+                                            .getCloudInfo();
     }
 
     private boolean isClientExtensionsAvailable(ExecutionWrapper execution) {
@@ -195,16 +195,17 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
         InputStream mtarInputStream = null;
         getStepLogger().info(Messages.UPLOADING_MTAR);
         getStepLogger().debug("uploading file " + mtarZip.toAbsolutePath()
-            .toString() + " to DB");
+                                                         .toString()
+            + " to DB");
         try {
             Configuration fileConfiguration = configuration.getFileConfiguration();
             String spaceId = StepsUtil.getSpaceId(context);
             mtarInputStream = Files.newInputStream(mtarZip);
             String serviceId = StepsUtil.getServiceId(context);
             String mtarName = mtarZip.getFileName()
-                .toString();
+                                     .toString();
             FileEntry entry = fileService.addFile(spaceId, serviceId, mtarName, fileConfiguration.getFileUploadProcessor(),
-                mtarInputStream);
+                                                  mtarInputStream);
             String uploadedMtarId = entry.getId();
             StepsUtil.setArchiveFileId(context, uploadedMtarId);
         } finally {
@@ -244,14 +245,14 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
 
     private boolean shouldOmmitDirectory(Path dir) {
         return dir.toFile()
-            .getName()
-            .equals(org.eclipse.jgit.lib.Constants.DOT_GIT);
+                  .getName()
+                  .equals(org.eclipse.jgit.lib.Constants.DOT_GIT);
     }
 
     private boolean shouldOmmitFile(Path file) {
         return file.toFile()
-            .getName()
-            .equals(org.eclipse.jgit.lib.Constants.DOT_GIT_IGNORE);
+                   .getName()
+                   .equals(org.eclipse.jgit.lib.Constants.DOT_GIT_IGNORE);
     }
 
     private String getPathName(Path parentFolder, Path fileToAppend) {
@@ -262,9 +263,9 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
     private boolean directoryContainsManifest(Path mtaPath) {
         Path metaInfPath = mtaPath.resolve(META_INF_PATH);
         File manifestFile = metaInfPath.resolve(MANIFEST_PATH)
-            .toFile();
+                                       .toFile();
         File mtadFile = metaInfPath.resolve(MTAD_PATH)
-            .toFile();
+                                   .toFile();
         return manifestFile.exists() && mtadFile.exists();
     }
 
@@ -272,6 +273,6 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
 
         // Workaround in JGit for deleting a cloned repository directory
         org.eclipse.jgit.util.FileUtils.delete(clonedRepoDir.toFile(),
-            org.eclipse.jgit.util.FileUtils.RETRY | org.eclipse.jgit.util.FileUtils.RECURSIVE);
+                                               org.eclipse.jgit.util.FileUtils.RETRY | org.eclipse.jgit.util.FileUtils.RECURSIVE);
     }
 }

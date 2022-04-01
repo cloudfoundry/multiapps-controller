@@ -23,6 +23,11 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
 
     private boolean shouldBeStopped;
 
+    public StopAppStepTest(SimpleApplicationWithState application, SimpleApplicationWithState existingApplication) {
+        this.application = application;
+        this.existingApplication = existingApplication;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -41,11 +46,6 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
             },
             // @formatter:on
         });
-    }
-
-    public StopAppStepTest(SimpleApplicationWithState application, SimpleApplicationWithState existingApplication) {
-        this.application = application;
-        this.existingApplication = existingApplication;
     }
 
     @Before
@@ -85,11 +85,16 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
         String appName = application.name;
         if (shouldBeStopped) {
             Mockito.verify(client)
-                .stopApplication(appName);
+                   .stopApplication(appName);
         } else {
             Mockito.verify(client, Mockito.times(0))
-                .stopApplication(appName);
+                   .stopApplication(appName);
         }
+    }
+
+    @Override
+    protected StopAppStep createStep() {
+        return new StopAppStep();
     }
 
     private static class SimpleApplicationWithState extends SimpleApplication {
@@ -106,11 +111,6 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
             app.setState(state);
             return app;
         }
-    }
-
-    @Override
-    protected StopAppStep createStep() {
-        return new StopAppStep();
     }
 
 }

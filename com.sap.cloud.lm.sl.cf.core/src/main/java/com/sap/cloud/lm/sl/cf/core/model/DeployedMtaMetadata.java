@@ -34,20 +34,20 @@ public class DeployedMtaMetadata {
         return id;
     }
 
-    public Version getVersion() {
-        return version;
-    }
-
-    public boolean isVersionUnknown() {
-        return version.equals(UNKNOWN_MTA_VERSION);
-    }
-
     public void setId(String id) {
         this.id = id;
     }
 
+    public Version getVersion() {
+        return version;
+    }
+
     public void setVersion(Version version) {
         this.version = version;
+    }
+
+    public boolean isVersionUnknown() {
+        return version.equals(UNKNOWN_MTA_VERSION);
     }
 
     @Override

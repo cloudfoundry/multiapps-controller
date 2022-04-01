@@ -24,16 +24,13 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 @Component
 public class OperationsHelper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsHelper.class);
     @Inject
     private OperationDao dao;
-
     @Inject
     private ProcessTypeToOperationMetadataMapper metadataMapper;
-
     @Inject
     private FlowableFacade flowableFacade;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsHelper.class);
 
     public List<Operation> findOperations(OperationFilter operationFilter, List<State> statusList) {
         List<Operation> operations = dao.find(operationFilter);
@@ -79,7 +76,7 @@ public class OperationsHelper {
 
     public State computeState(Operation ongoingOperation) {
         LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
-            ongoingOperation.getProcessId()));
+                                          ongoingOperation.getProcessId()));
         return flowableFacade.getProcessInstanceState(ongoingOperation.getProcessId());
     }
 
@@ -88,8 +85,8 @@ public class OperationsHelper {
             return operations;
         }
         return operations.stream()
-            .filter(operation -> statusList.contains(operation.getState()))
-            .collect(Collectors.toList());
+                         .filter(operation -> statusList.contains(operation.getState()))
+                         .collect(Collectors.toList());
     }
 
 }

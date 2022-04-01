@@ -11,6 +11,7 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.PackageState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -28,7 +29,7 @@ public class PollStageAppStatusExecution implements AsyncExecution {
     private RecentLogsRetriever recentLogsRetriever;
 
     private ApplicationStager applicationStager;
-    
+
     public PollStageAppStatusExecution(RecentLogsRetriever recentLogsRetriever, ApplicationStager applicationStager) {
         this.recentLogsRetriever = recentLogsRetriever;
         this.applicationStager = applicationStager;
@@ -41,67 +42,68 @@ public class PollStageAppStatusExecution implements AsyncExecution {
 
         try {
             execution.getStepLogger()
-                .debug(Messages.CHECKING_APP_STATUS, app.getName());
-            
+                     .debug(Messages.CHECKING_APP_STATUS, app.getName());
+
             StagingState state = applicationStager.getStagingState(execution, client);
-     
-            
+
             ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
-                .getProcessLoggerProvider();
+                                                                   .getProcessLoggerProvider();
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
 
-            if (!state.getState().equals(PackageState.STAGED)) {
+            if (!state.getState()
+                      .equals(PackageState.STAGED)) {
                 setStagingLogs(state, execution);
-                
+
                 return checkStagingState(execution, app, state);
             }
 
             execution.getStepLogger()
-                .info(Messages.APP_STAGED, app.getName());
+                     .info(Messages.APP_STAGED, app.getName());
 
             UUID appId = client.getApplication(app.getName())
-                .getMeta()
-                .getGuid();
-            
+                               .getMeta()
+                               .getGuid();
+
             applicationStager.bindDropletToApp(execution, appId, client);
 
             return AsyncExecutionState.FINISHED;
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
             execution.getStepLogger()
-                .error(e, Messages.ERROR_STAGING_APP_1, app.getName());
+                     .error(e, Messages.ERROR_STAGING_APP_1, app.getName());
             throw e;
         } catch (SLException e) {
             execution.getStepLogger()
-                .error(e, Messages.ERROR_STAGING_APP_1, app.getName());
+                     .error(e, Messages.ERROR_STAGING_APP_1, app.getName());
             throw e;
         }
     }
 
     private AsyncExecutionState checkStagingState(ExecutionWrapper execution, CloudApplication app, StagingState state) {
-        if (state.getState().equals(PackageState.FAILED)) {
+        if (state.getState()
+                 .equals(PackageState.FAILED)) {
             // Application staging failed
             String message = format(Messages.ERROR_STAGING_APP_2, app.getName(), state.getError());
             execution.getStepLogger()
-                .error(message);
+                     .error(message);
             return AsyncExecutionState.ERROR;
         }
         // Application not staged yet, wait and try again unless it's a timeout.
         return AsyncExecutionState.RUNNING;
     }
-    
+
     private void setStagingLogs(StagingState state, ExecutionWrapper execution) {
         if (state.getStagingLogs() != null) {
             StagingLogs logs = state.getStagingLogs();
             String stagingLogs = logs.getLogs();
             int offset = logs.getOffset();
-            
+
             stagingLogs = new XMLValueFilter(stagingLogs).getFiltered();
             execution.getStepLogger()
-                .debug(stagingLogs);
+                     .debug(stagingLogs);
             offset += stagingLogs.length();
             execution.getContext()
-                .setVariable(Constants.VAR_OFFSET, offset);
+                     .setVariable(Constants.VAR_OFFSET, offset);
         }
     }
 

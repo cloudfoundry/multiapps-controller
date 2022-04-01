@@ -9,7 +9,7 @@ import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 public class ResourceParametersValidator extends ParametersValidator<Resource> {
 
     protected Resource resource;
-    
+
     public ResourceParametersValidator(Resource resource, ParametersValidatorHelper helper) {
         super("", resource.getName(), helper, Resource.class);
         this.resource = resource;

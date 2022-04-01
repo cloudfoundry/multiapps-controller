@@ -40,9 +40,10 @@ public class DeployProcessAttributes extends AbstractCommonProcessAttributes {
     private Integer serviceKeysToCreate;
 
     public DeployProcessAttributes(Integer subscriptionsToDelete, Integer deletedEntries, Integer appsToUndeploy, Integer servicesToDelete,
-        Integer updatedSubscribers, Integer updatedServiceBrokerSubscribers, Integer mtaSize, Integer customDomains,
-        Integer servicesToCreate, Integer appsToDeploy, Integer publishedEntries, Integer subscriptionsToCreate,
-        Integer serviceUrlsToRegister, Integer serviceBrokersToCreate, Integer triggeredServiceOperations, Integer serviceKeysToCreate) {
+                                   Integer updatedSubscribers, Integer updatedServiceBrokerSubscribers, Integer mtaSize,
+                                   Integer customDomains, Integer servicesToCreate, Integer appsToDeploy, Integer publishedEntries,
+                                   Integer subscriptionsToCreate, Integer serviceUrlsToRegister, Integer serviceBrokersToCreate,
+                                   Integer triggeredServiceOperations, Integer serviceKeysToCreate) {
         super(subscriptionsToDelete, deletedEntries, appsToUndeploy, servicesToDelete, updatedSubscribers, updatedServiceBrokerSubscribers);
         setMtaSize(mtaSize);
         setCustomDomains(customDomains);

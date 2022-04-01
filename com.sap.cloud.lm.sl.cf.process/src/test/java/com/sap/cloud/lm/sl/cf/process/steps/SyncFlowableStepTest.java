@@ -40,12 +40,11 @@ import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 
 public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SyncFlowableStepTest.class);
-
     protected static final String USER_NAME = "dummy";
     protected static final String ORG_NAME = "org";
     protected static final String SPACE_NAME = "space";
     protected static final String SPACE_GUID = "spaceGuid";
+    private static final Logger LOGGER = LoggerFactory.getLogger(SyncFlowableStepTest.class);
     protected String TEST_CORRELATION_ID = "test";
     protected String TEST_TASK_ID = "testTask";
 

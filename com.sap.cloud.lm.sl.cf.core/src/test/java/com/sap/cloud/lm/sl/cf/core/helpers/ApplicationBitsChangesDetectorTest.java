@@ -31,7 +31,7 @@ public class ApplicationBitsChangesDetectorTest {
         appEnv = MapUtil.asMap(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(new TreeMap<Object, Object>()));
         detector = new ApplicationFileDigestDetector(createCloudApplication(appEnv));
         applicationFile = Paths.get(FILE_NAME)
-            .toFile();
+                               .toFile();
     }
 
     @Test

@@ -20,26 +20,6 @@ import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 
 public class DeployedComponentsDetectorTest {
 
-    @ParameterizedTest
-    @MethodSource
-    public void testDetectAllApplications(String appsResourceLocation, Expectation expectation) throws IOException {
-        List<CloudApplication> apps = parseApps(appsResourceLocation);
-        TestUtil.test(() -> new DeployedComponentsDetector().detectAllDeployedComponents(apps), expectation, getClass());
-    }
-
-    private List<CloudApplication> parseApps(String appsResourceLocation) throws IOException {
-        String appsJson = TestUtil.getResourceAsString(appsResourceLocation, getClass());
-        List<TestCloudApplication> testApps = JsonUtil.fromJson(appsJson, new TypeToken<List<TestCloudApplication>>() {
-        }.getType());
-        return toCloudApplications(testApps);
-    }
-
-    private List<CloudApplication> toCloudApplications(List<TestCloudApplication> simpleApplications) {
-        return simpleApplications.stream()
-            .map(TestCloudApplication::toCloudApplication)
-            .collect(Collectors.toList());
-    }
-
     public static Stream<Arguments> testDetectAllApplications() {
         return Stream.of(
 // @formatter:off
@@ -69,6 +49,26 @@ public class DeployedComponentsDetectorTest {
             Arguments.of("apps-12.json", new Expectation(Expectation.Type.EXCEPTION, "Cannot parse MTA metadata for application \"mta-application\". This indicates that MTA reserved variables in the application's environment were modified manually. Either revert the changes or delete the application."))
 // @formatter:on
         );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void testDetectAllApplications(String appsResourceLocation, Expectation expectation) throws IOException {
+        List<CloudApplication> apps = parseApps(appsResourceLocation);
+        TestUtil.test(() -> new DeployedComponentsDetector().detectAllDeployedComponents(apps), expectation, getClass());
+    }
+
+    private List<CloudApplication> parseApps(String appsResourceLocation) throws IOException {
+        String appsJson = TestUtil.getResourceAsString(appsResourceLocation, getClass());
+        List<TestCloudApplication> testApps = JsonUtil.fromJson(appsJson, new TypeToken<List<TestCloudApplication>>() {
+        }.getType());
+        return toCloudApplications(testApps);
+    }
+
+    private List<CloudApplication> toCloudApplications(List<TestCloudApplication> simpleApplications) {
+        return simpleApplications.stream()
+                                 .map(TestCloudApplication::toCloudApplication)
+                                 .collect(Collectors.toList());
     }
 
     private static class TestCloudApplication {

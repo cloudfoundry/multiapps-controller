@@ -38,7 +38,8 @@ public class RouteValidator implements ParameterValidator {
         String path = UriUtil.getPath(routeString);
 
         String correctedRoute = UriUtil.buildUri(scheme, (String) uriParts.get(SupportedParameters.HOST),
-            (String) uriParts.get(SupportedParameters.DOMAIN), (Integer) uriParts.get(SupportedParameters.PORT), path);
+                                                 (String) uriParts.get(SupportedParameters.DOMAIN),
+                                                 (Integer) uriParts.get(SupportedParameters.PORT), path);
 
         if (!isValid(correctedRoute)) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_ROUTE, route);
@@ -72,7 +73,7 @@ public class RouteValidator implements ParameterValidator {
 
         Map<String, Object> uriParts = UriUtil.splitUri(routeString);
         boolean partsAreValid = validators.stream()
-            .allMatch(validator -> partIsValid(validator, uriParts));
+                                          .allMatch(validator -> partIsValid(validator, uriParts));
 
         boolean hostOrPortPresent = uriParts.containsKey(SupportedParameters.HOST) || uriParts.containsKey(SupportedParameters.PORT);
 
@@ -96,8 +97,8 @@ public class RouteValidator implements ParameterValidator {
     @Override
     public boolean canCorrect() {
         return validators.stream()
-            .map(ParameterValidator::canCorrect)
-            .reduce(false, Boolean::logicalOr);
+                         .map(ParameterValidator::canCorrect)
+                         .reduce(false, Boolean::logicalOr);
     }
 
 }

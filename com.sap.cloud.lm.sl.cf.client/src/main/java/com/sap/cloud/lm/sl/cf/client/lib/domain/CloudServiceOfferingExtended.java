@@ -18,7 +18,8 @@ public class CloudServiceOfferingExtended extends CloudServiceOffering {
     }
 
     public CloudServiceOfferingExtended(Meta meta, String name, String provider, String version, String description, boolean active,
-        boolean bindable, String url, String infoUrl, String uniqueId, String extra, String docUrl, List<String> tags) {
+                                        boolean bindable, String url, String infoUrl, String uniqueId, String extra, String docUrl,
+                                        List<String> tags) {
         super(meta, name, provider, version, description, active, bindable, url, infoUrl, uniqueId, extra, docUrl);
         this.tags = tags;
     }

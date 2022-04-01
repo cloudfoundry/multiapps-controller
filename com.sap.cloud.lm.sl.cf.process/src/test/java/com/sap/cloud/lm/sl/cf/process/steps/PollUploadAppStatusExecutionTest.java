@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudJob;
 import org.cloudfoundry.client.lib.domain.Status;
 import org.cloudfoundry.client.lib.domain.Upload;
 import org.cloudfoundry.client.lib.domain.UploadToken;
@@ -37,11 +36,15 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
     private final Status uploadState;
     private final AsyncExecutionState expectedStatus;
     private final String expectedCfExceptionMessage;
-
-    private SimpleApplication application = new SimpleApplication(APP_NAME, 2);
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    private SimpleApplication application = new SimpleApplication(APP_NAME, 2);
+
+    public PollUploadAppStatusExecutionTest(Status uploadState, AsyncExecutionState expectedStatus, String expectedCfExceptionMessage) {
+        this.uploadState = uploadState;
+        this.expectedStatus = expectedStatus;
+        this.expectedCfExceptionMessage = expectedCfExceptionMessage;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -69,12 +72,6 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
             },
 // @formatter:on
         });
-    }
-
-    public PollUploadAppStatusExecutionTest(Status uploadState, AsyncExecutionState expectedStatus, String expectedCfExceptionMessage) {
-        this.uploadState = uploadState;
-        this.expectedStatus = expectedStatus;
-        this.expectedCfExceptionMessage = expectedCfExceptionMessage;
     }
 
     @Before

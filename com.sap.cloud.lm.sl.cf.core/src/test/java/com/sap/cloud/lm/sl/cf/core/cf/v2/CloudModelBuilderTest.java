@@ -60,8 +60,6 @@ public class CloudModelBuilderTest {
     protected final DescriptorParser descriptorParser = getDescriptorParser();
     protected final ConfigurationParser configurationParser = getConfigurationParser();
     protected final DescriptorHandler descriptorHandler = getDescriptorHandler();
-    protected DeploymentDescriptor deploymentDescriptor;
-
     protected final String deploymentDescriptorLocation;
     protected final String extensionDescriptorLocation;
     protected final String platformLocation;
@@ -73,11 +71,28 @@ public class CloudModelBuilderTest {
     protected final Set<String> deployedApps;
     protected final Expectation expectedServices;
     protected final Expectation expectedApps;
-    private ModulesCloudModelBuilderContentCalculator modulesCalculator;
+    protected DeploymentDescriptor deploymentDescriptor;
     protected ResourcesCloudModelBuilderContentCalculator resourcesCalculator;
-
     protected ApplicationsCloudModelBuilder appsBuilder;
     protected ServicesCloudModelBuilder servicesBuilder;
+    private ModulesCloudModelBuilderContentCalculator modulesCalculator;
+
+    public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
+                                 String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices,
+                                 String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, Expectation expectedServices,
+                                 Expectation expectedApps) {
+        this.deploymentDescriptorLocation = deploymentDescriptorLocation;
+        this.extensionDescriptorLocation = extensionDescriptorLocation;
+        this.platformLocation = platformsLocation;
+        this.deployedMtaLocation = deployedMtaLocation;
+        this.useNamespaces = useNamespaces;
+        this.useNamespacesForServices = useNamespacesForServices;
+        this.mtaArchiveModules = new HashSet<>(Arrays.asList(mtaArchiveModules));
+        this.mtaModules = new HashSet<>(Arrays.asList(mtaModules));
+        this.deployedApps = new HashSet<>(Arrays.asList(deployedApps));
+        this.expectedServices = expectedServices;
+        this.expectedApps = expectedApps;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -144,7 +159,7 @@ public class CloudModelBuilderTest {
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", }, // deployedApps
                 new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch1.json"),
-                new Expectation(Expectation.Type.EXCEPTION, "Unresolved MTA modules [java-hello-world-db, java-hello-world-backend]") 
+                new Expectation(Expectation.Type.EXCEPTION, "Unresolved MTA modules [java-hello-world-db, java-hello-world-backend]")
             },
             // (07)
             { "/mta/shine/mtad-v2.yaml", "/mta/shine/config1-v2.mtaext", "/mta/cf-platform-v2.json", null,
@@ -207,7 +222,7 @@ public class CloudModelBuilderTest {
                 new String[] { "webide" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/services.json"),
-                new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/xs2-apps.json"), 
+                new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/xs2-apps.json"),
             },
             // (14) Unknown typed resource parameters:
             { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/xs2-config2-v2.mtaext", "/mta/xs-platform-v2.json", null,
@@ -307,7 +322,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "apps-09.json"),
             },
             // (24) With 'health-check-type' set to 'port':
-            { 
+            {
                 "mtad-health-check-type-port.yaml", "config-03.mtaext", "/mta/xs-platform-v2.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
@@ -317,7 +332,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "apps-with-health-check-type-port.json"),
             },
             // (25) With 'health-check-type' set to 'http' and a non-default 'health-check-http-endpoint':
-            { 
+            {
                 "mtad-health-check-type-http-with-endpoint.yaml", "config-03.mtaext", "/mta/xs-platform-v2.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
@@ -327,7 +342,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "apps-with-health-check-type-http-with-endpoint.json"),
             },
             // (26) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
-            { 
+            {
                 "mtad-health-check-type-http-without-endpoint.yaml", "config-03.mtaext", "/mta/xs-platform-v2.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
@@ -346,7 +361,7 @@ public class CloudModelBuilderTest {
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.RESOURCE, "apps-10.json"),
             },
-            // (28) With 'enable-ssh' set to true: 
+            // (28) With 'enable-ssh' set to true:
             {
                 "mtad-ssh-enabled-true.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
                 false, false,
@@ -356,7 +371,7 @@ public class CloudModelBuilderTest {
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.RESOURCE, "apps-with-ssh-enabled-true.json"),
             },
-            // (29) With 'enable-ssh' set to false: 
+            // (29) With 'enable-ssh' set to false:
             {
                 "mtad-ssh-enabled-false.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
                 false, false,
@@ -378,7 +393,7 @@ public class CloudModelBuilderTest {
             },
             // (31) Do not restart on env change - bg-deploy
             { "mtad-restart-on-env-change.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
-                false, false, 
+                false, false,
                 new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2", "module-3" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -397,7 +412,7 @@ public class CloudModelBuilderTest {
             },
             // (33) With 'keep-existing-routes' set to true and no deployed module:
             {
-                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", 
+                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json",
                 "keep-existing-routes/deployed-mta-without-foo-module.json",
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
@@ -408,7 +423,7 @@ public class CloudModelBuilderTest {
             },
             // (34) With 'keep-existing-routes' set to true and an already deployed module with no URIs:
             {
-                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", 
+                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json",
                 "keep-existing-routes/deployed-mta-without-uris.json",
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
@@ -419,7 +434,7 @@ public class CloudModelBuilderTest {
             },
             // (35) With 'keep-existing-routes' set to true and an already deployed module:
             {
-                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", 
+                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json",
                 "keep-existing-routes/deployed-mta.json",
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
@@ -430,7 +445,7 @@ public class CloudModelBuilderTest {
             },
             // (36) With global 'keep-existing-routes' set to true and an already deployed module:
             {
-                "keep-existing-routes/mtad-with-global-parameter.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", 
+                "keep-existing-routes/mtad-with-global-parameter.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json",
                 "keep-existing-routes/deployed-mta.json",
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
@@ -473,22 +488,6 @@ public class CloudModelBuilderTest {
         });
     }
 
-    public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
-        String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices, String[] mtaArchiveModules,
-        String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps) {
-        this.deploymentDescriptorLocation = deploymentDescriptorLocation;
-        this.extensionDescriptorLocation = extensionDescriptorLocation;
-        this.platformLocation = platformsLocation;
-        this.deployedMtaLocation = deployedMtaLocation;
-        this.useNamespaces = useNamespaces;
-        this.useNamespacesForServices = useNamespacesForServices;
-        this.mtaArchiveModules = new HashSet<>(Arrays.asList(mtaArchiveModules));
-        this.mtaModules = new HashSet<>(Arrays.asList(mtaModules));
-        this.deployedApps = new HashSet<>(Arrays.asList(deployedApps));
-        this.expectedServices = expectedServices;
-        this.expectedApps = expectedApps;
-    }
-
     protected UserMessageLogger getUserMessageLogger() {
         return null;
     }
@@ -514,17 +513,23 @@ public class CloudModelBuilderTest {
     }
 
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration) {
+                                                                     CloudModelConfiguration configuration) {
         return new ServicesCloudModelBuilder(deploymentDescriptor, getPropertiesAccessor(), configuration);
     }
 
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver) {
-        deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor, new ResolverBuilder(), new ResolverBuilder())
-            .resolve();
-        return new ApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
-            DEPLOY_ID);
+                                                                             CloudModelConfiguration configuration, DeployedMta deployedMta,
+                                                                             SystemParameters systemParameters,
+                                                                             XsPlaceholderResolver xsPlaceholderResolver) {
+        deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor,
+                                                               new ResolverBuilder(),
+                                                               new ResolverBuilder()).resolve();
+        return new ApplicationsCloudModelBuilder(deploymentDescriptor,
+                                                 configuration,
+                                                 deployedMta,
+                                                 systemParameters,
+                                                 xsPlaceholderResolver,
+                                                 DEPLOY_ID);
     }
 
     protected PlatformMerger getPlatformMerger(Platform platform, DescriptorHandler handler) {
@@ -558,14 +563,20 @@ public class CloudModelBuilderTest {
         xsPlaceholderResolver.setDefaultDomain(defaultDomain);
         CloudModelConfiguration configuration = createCloudModelConfiguration(defaultDomain);
         appsBuilder = getApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
-            xsPlaceholderResolver);
+                                                       xsPlaceholderResolver);
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
 
-        modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, mtaModules,
-            Collections.emptyList(), getPropertiesAccessor(), getUserMessageLogger(), new ModuleToDeployHelper());
+        modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules,
+                                                                          deployedApps,
+                                                                          mtaModules,
+                                                                          Collections.emptyList(),
+                                                                          getPropertiesAccessor(),
+                                                                          getUserMessageLogger(),
+                                                                          new ModuleToDeployHelper());
 
-        resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(Collections.emptyList(), getPropertiesAccessor(),
-            getUserMessageLogger());
+        resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(Collections.emptyList(),
+                                                                              getPropertiesAccessor(),
+                                                                              getUserMessageLogger());
     }
 
     protected PropertiesAccessor getPropertiesAccessor() {
@@ -602,7 +613,7 @@ public class CloudModelBuilderTest {
             String appName = NameUtil.getApplicationName(module.getName(), descriptor.getId(), useNamespaces);
             if (parameters.containsKey(SupportedParameters.APP_NAME)) {
                 appName = NameUtil.getApplicationName((String) parameters.get(SupportedParameters.APP_NAME), descriptor.getId(),
-                    useNamespaces);
+                                                      useNamespaces);
             }
             parameters.put(SupportedParameters.APP_NAME, appName);
             setParameters(module, parameters);
@@ -638,7 +649,8 @@ public class CloudModelBuilderTest {
         TestUtil.test(new Callable<List<CloudApplicationExtended>>() {
             @Override
             public List<CloudApplicationExtended> call() throws Exception {
-                return appsBuilder.build(modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules2()), new ModuleToDeployHelper());
+                return appsBuilder.build(modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules2()),
+                                         new ModuleToDeployHelper());
             }
         }, expectedApps, getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }

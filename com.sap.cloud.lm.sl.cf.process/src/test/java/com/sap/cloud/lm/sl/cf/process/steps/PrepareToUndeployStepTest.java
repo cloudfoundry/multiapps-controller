@@ -22,7 +22,7 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
 
         step.conflictPreventerSupplier = (dao) -> mock(ProcessConflictPreventer.class);
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
-            .thenReturn(Collections.emptyList());
+               .thenReturn(Collections.emptyList());
     }
 
     @Test

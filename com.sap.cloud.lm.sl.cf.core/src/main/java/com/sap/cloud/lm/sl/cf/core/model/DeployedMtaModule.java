@@ -17,7 +17,7 @@ public class DeployedMtaModule {
     }
 
     public DeployedMtaModule(String moduleName, String appName, Date createdOn, Date updatedOn, List<String> services,
-        List<String> providedDependencyNames, List<String> uris) {
+                             List<String> providedDependencyNames, List<String> uris) {
         this.moduleName = moduleName;
         this.appName = appName;
         this.createdOn = createdOn;
@@ -31,52 +31,52 @@ public class DeployedMtaModule {
         return moduleName;
     }
 
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
     public String getAppName() {
         return appName;
-    }
-
-    public Date getCreatedOn() {
-        return createdOn;
-    }
-
-    public Date getUpdatedOn() {
-        return updatedOn;
-    }
-
-    public List<String> getServices() {
-        return services;
-    }
-
-    public List<String> getProvidedDependencyNames() {
-        return providedDependencyNames;
-    }
-
-    public List<String> getUris() {
-        return uris;
     }
 
     public void setAppName(String appName) {
         this.appName = appName;
     }
 
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
+    public Date getCreatedOn() {
+        return createdOn;
     }
 
     public void setCreatedOn(Date createdOn) {
         this.createdOn = createdOn;
     }
 
+    public Date getUpdatedOn() {
+        return updatedOn;
+    }
+
     public void setUpdatedOn(Date updatedOn) {
         this.updatedOn = updatedOn;
+    }
+
+    public List<String> getServices() {
+        return services;
     }
 
     public void setServices(List<String> services) {
         this.services = services;
     }
 
+    public List<String> getProvidedDependencyNames() {
+        return providedDependencyNames;
+    }
+
     public void setProvidedDependencyNames(List<String> providedDependencyNames) {
         this.providedDependencyNames = providedDependencyNames;
+    }
+
+    public List<String> getUris() {
+        return uris;
     }
 
     public void setUris(List<String> uris) {

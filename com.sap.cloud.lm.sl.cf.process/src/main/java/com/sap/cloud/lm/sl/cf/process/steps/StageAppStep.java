@@ -48,7 +48,7 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
         return Arrays.asList(new PollStageAppStatusExecution(recentLogsRetriever,
-            ApplicationStagerFactory.createApplicationStager(configuration.getPlatformType())));
+                                                             ApplicationStagerFactory.createApplicationStager(configuration.getPlatformType())));
     }
 
     @Override

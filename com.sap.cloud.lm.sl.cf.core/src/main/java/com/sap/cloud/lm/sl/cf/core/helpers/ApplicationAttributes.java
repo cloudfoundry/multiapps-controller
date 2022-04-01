@@ -20,25 +20,6 @@ public class ApplicationAttributes {
         this.attributes = attributes;
     }
 
-    public <T> T get(String attributeName, Class<T> attributeClass) {
-        return get(attributeName, attributeClass, null);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T get(String attributeName, Class<T> attributeClass, T defaultValue) {
-        Object attribute = attributes.getOrDefault(attributeName, defaultValue);
-        if (!hasCorrectType(attribute, attributeClass)) {
-            Class<?> actualAttributeClass = attribute.getClass();
-            throw new ParsingException(Messages.ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3, attributeName, appName,
-                actualAttributeClass.getSimpleName(), attributeClass.getSimpleName());
-        }
-        return (T) attribute;
-    }
-
-    private boolean hasCorrectType(Object attribute, Class<?> expectedType) {
-        return attribute == null || expectedType.isInstance(attribute);
-    }
-
     public static ApplicationAttributes fromApplication(CloudApplication app) {
         Map<String, Object> attributes = parseAttributes(app);
         return new ApplicationAttributes(app.getName(), attributes);
@@ -59,6 +40,28 @@ public class ApplicationAttributes {
         } catch (ParsingException e) {
             throw new ParsingException(e, Messages.COULD_NOT_PARSE_ATTRIBUTES_OF_APP_0, app.getName());
         }
+    }
+
+    public <T> T get(String attributeName, Class<T> attributeClass) {
+        return get(attributeName, attributeClass, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T get(String attributeName, Class<T> attributeClass, T defaultValue) {
+        Object attribute = attributes.getOrDefault(attributeName, defaultValue);
+        if (!hasCorrectType(attribute, attributeClass)) {
+            Class<?> actualAttributeClass = attribute.getClass();
+            throw new ParsingException(Messages.ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3,
+                                       attributeName,
+                                       appName,
+                                       actualAttributeClass.getSimpleName(),
+                                       attributeClass.getSimpleName());
+        }
+        return (T) attribute;
+    }
+
+    private boolean hasCorrectType(Object attribute, Class<?> expectedType) {
+        return attribute == null || expectedType.isInstance(attribute);
     }
 
 }

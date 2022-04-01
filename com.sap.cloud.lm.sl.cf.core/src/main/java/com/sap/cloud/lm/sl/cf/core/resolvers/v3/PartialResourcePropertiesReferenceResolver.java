@@ -14,7 +14,7 @@ public class PartialResourcePropertiesReferenceResolver extends ResourceProperti
     private List<String> dependenciesToIgnore;
 
     public PartialResourcePropertiesReferenceResolver(DeploymentDescriptor descriptor, Resource resource, Map<String, Object> properties,
-        String prefix, List<String> dependenciesToIgnore) {
+                                                      String prefix, List<String> dependenciesToIgnore) {
         super(descriptor, resource, properties, prefix, new ResolverBuilder());
         this.dependenciesToIgnore = dependenciesToIgnore;
     }

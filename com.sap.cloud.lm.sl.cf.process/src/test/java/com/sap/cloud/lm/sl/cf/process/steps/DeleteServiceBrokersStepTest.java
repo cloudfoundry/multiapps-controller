@@ -35,13 +35,18 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
     private final String inputLocation;
     private final String[] expectedDeletedBrokers;
     private final String expectedExceptionMessage;
-
-    private CloudOperationException deleteException;
-
-    private StepInput input;
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    private CloudOperationException deleteException;
+    private StepInput input;
+
+    public DeleteServiceBrokersStepTest(String inputLocation, String[] expectedDeletedBrokers, String expectedExceptionMessage,
+                                        CloudOperationException deleteException) {
+        this.expectedDeletedBrokers = expectedDeletedBrokers;
+        this.expectedExceptionMessage = expectedExceptionMessage;
+        this.inputLocation = inputLocation;
+        this.deleteException = deleteException;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -83,14 +88,6 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
         });
     }
 
-    public DeleteServiceBrokersStepTest(String inputLocation, String[] expectedDeletedBrokers, String expectedExceptionMessage,
-        CloudOperationException deleteException) {
-        this.expectedDeletedBrokers = expectedDeletedBrokers;
-        this.expectedExceptionMessage = expectedExceptionMessage;
-        this.inputLocation = inputLocation;
-        this.deleteException = deleteException;
-    }
-
     @Before
     public void setUp() throws Exception {
         loadParameters();
@@ -127,8 +124,8 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
 
     private List<CloudServiceBrokerExtended> toCloudServiceBrokers(List<String> serviceBrokerNames) {
         return serviceBrokerNames.stream()
-            .map((serviceBrokerName) -> toCloudServiceBroker(serviceBrokerName))
-            .collect(Collectors.toList());
+                                 .map((serviceBrokerName) -> toCloudServiceBroker(serviceBrokerName))
+                                 .collect(Collectors.toList());
     }
 
     private CloudServiceBrokerExtended toCloudServiceBroker(String serviceBrokerName) {
@@ -137,46 +134,46 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
 
     private List<CloudApplication> toCloudApplications(List<SimpleApplication> applications) {
         return applications.stream()
-            .map((application) -> application.toCloudApplication())
-            .collect(Collectors.toList());
+                           .map((application) -> application.toCloudApplication())
+                           .collect(Collectors.toList());
     }
 
     private void prepareClient() {
         Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false)))
-            .then(new Answer<CloudServiceBroker>() {
-                @Override
-                public CloudServiceBroker answer(InvocationOnMock invocation) {
-                    String serviceBrokerName = (String) invocation.getArguments()[0];
-                    if (input.existingServiceBrokers.contains(serviceBrokerName)) {
-                        return new CloudServiceBroker(null, serviceBrokerName, null, null, null);
-                    }
-                    return null;
-                }
-            });
+               .then(new Answer<CloudServiceBroker>() {
+                   @Override
+                   public CloudServiceBroker answer(InvocationOnMock invocation) {
+                       String serviceBrokerName = (String) invocation.getArguments()[0];
+                       if (input.existingServiceBrokers.contains(serviceBrokerName)) {
+                           return new CloudServiceBroker(null, serviceBrokerName, null, null, null);
+                       }
+                       return null;
+                   }
+               });
         if (deleteException != null) {
             Mockito.doThrow(deleteException)
-                .when(client)
-                .deleteServiceBroker(Mockito.any());
+                   .when(client)
+                   .deleteServiceBroker(Mockito.any());
         }
     }
 
     private String[] captureStepOutput() {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(client, Mockito.times(expectedDeletedBrokers.length))
-            .deleteServiceBroker(captor.capture());
+               .deleteServiceBroker(captor.capture());
         return captor.getAllValues()
-            .toArray(new String[0]);
+                     .toArray(new String[0]);
+    }
+
+    @Override
+    protected DeleteServiceBrokersStep createStep() {
+        return new DeleteServiceBrokersStep();
     }
 
     private static class StepInput {
         List<String> existingServiceBrokers;
         List<SimpleApplication> applicationsToUndeploy;
         List<String> serviceBrokersToCreate;
-    }
-
-    @Override
-    protected DeleteServiceBrokersStep createStep() {
-        return new DeleteServiceBrokersStep();
     }
 
 }

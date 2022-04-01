@@ -18,30 +18,29 @@ import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 @RunWith(Parameterized.class)
 public class HealthTest {
 
+    private String operationsJsonLocation;
+    private Expectation expectation;
+    private List<Operation> operations;
+
+    public HealthTest(String operationsJsonLocation, Expectation expectation) {
+        this.operationsJsonLocation = operationsJsonLocation;
+        this.expectation = expectation;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameter() {
         return Arrays.asList(new Object[][] {
             // @formatter:off
             // (0)
             {
-                "successful-operations.json", new Expectation(Expectation.Type.RESOURCE, "good-health.json"), 
+                "successful-operations.json", new Expectation(Expectation.Type.RESOURCE, "good-health.json"),
             },
             // (1)
             {
-                "failed-operations.json", new Expectation(Expectation.Type.RESOURCE, "poor-health.json"), 
+                "failed-operations.json", new Expectation(Expectation.Type.RESOURCE, "poor-health.json"),
             },
             // @formatter:on
         });
-    }
-
-    private String operationsJsonLocation;
-    private Expectation expectation;
-
-    private List<Operation> operations;
-
-    public HealthTest(String operationsJsonLocation, Expectation expectation) {
-        this.operationsJsonLocation = operationsJsonLocation;
-        this.expectation = expectation;
     }
 
     @Before

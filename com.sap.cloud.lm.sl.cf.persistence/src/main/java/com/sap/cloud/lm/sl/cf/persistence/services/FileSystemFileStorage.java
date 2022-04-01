@@ -28,10 +28,8 @@ import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 public class FileSystemFileStorage implements FileStorage {
 
     private static final String DEFAULT_FILES_STORAGE_PATH = "files";
-
-    private String storagePath;
-
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private String storagePath;
 
     public FileSystemFileStorage() {
         this(DEFAULT_FILES_STORAGE_PATH);
@@ -50,8 +48,8 @@ public class FileSystemFileStorage implements FileStorage {
             Files.copy(fileStream, newFilePath, StandardCopyOption.REPLACE_EXISTING);
             File newFile = newFilePath.toFile();
             if (!newFile.exists()) {
-                throw new FileStorageException(
-                    MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(), fileEntry.getNamespace()));
+                throw new FileStorageException(MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(),
+                                                                    fileEntry.getNamespace()));
             }
             logger.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2, newFile, newFile.length()));
         } catch (IOException e) {
@@ -110,7 +108,7 @@ public class FileSystemFileStorage implements FileStorage {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     if (attrs.lastModifiedTime()
-                        .compareTo(modificationTimeUpperBound) < 0) {
+                             .compareTo(modificationTimeUpperBound) < 0) {
                         logger.trace(MessageFormat.format(Messages.DELETING_FILE_WITH_PATH_0, file.toString()));
                         boolean deleted = Files.deleteIfExists(file);
                         logger.debug(MessageFormat.format(Messages.DELETED_FILE_0_SUCCESSFULLY_1, file.toString(), deleted));
@@ -132,8 +130,8 @@ public class FileSystemFileStorage implements FileStorage {
     public void processFileContent(FileDownloadProcessor fileDownloadProcessor) throws FileStorageException {
         FileEntry fileEntry = fileDownloadProcessor.getFileEntry();
         if (!hasContent(fileEntry)) {
-            throw new FileStorageException(
-                MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(), fileEntry.getSpace()));
+            throw new FileStorageException(MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(),
+                                                                fileEntry.getSpace()));
         }
         InputStream fileContentStream = null;
         try {
@@ -164,7 +162,7 @@ public class FileSystemFileStorage implements FileStorage {
         try {
             Path filePath = getFilePath(entry);
             return filePath.toFile()
-                .exists();// squid:S3725 - java 8 Files.exists() has poor performance
+                           .exists();// squid:S3725 - java 8 Files.exists() has poor performance
         } catch (IOException e) {
             throw new FileStorageException(e.getMessage(), e);
         }

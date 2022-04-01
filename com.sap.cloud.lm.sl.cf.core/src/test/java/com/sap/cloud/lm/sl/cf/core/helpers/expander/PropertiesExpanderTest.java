@@ -19,6 +19,21 @@ import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 @RunWith(Parameterized.class)
 public class PropertiesExpanderTest {
 
+    private String originalDependencyName;
+    private String propertiesLocation;
+    private List<String> newDependencyNames;
+    private List<String> expandedProperties;
+    private Expectation expectation;
+
+    public PropertiesExpanderTest(String propertiesLocation, String originalDependencyName, List<String> newDependencyNames,
+                                  Expectation expectation, List<String> expandedProperties) {
+        this.newDependencyNames = newDependencyNames;
+        this.propertiesLocation = propertiesLocation;
+        this.originalDependencyName = originalDependencyName;
+        this.expectation = expectation;
+        this.expandedProperties = expandedProperties;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -49,22 +64,6 @@ public class PropertiesExpanderTest {
             },
 // @formatter:on
         });
-    }
-
-    private String originalDependencyName;
-    private String propertiesLocation;
-    private List<String> newDependencyNames;
-    private List<String> expandedProperties;
-
-    private Expectation expectation;
-
-    public PropertiesExpanderTest(String propertiesLocation, String originalDependencyName, List<String> newDependencyNames,
-        Expectation expectation, List<String> expandedProperties) {
-        this.newDependencyNames = newDependencyNames;
-        this.propertiesLocation = propertiesLocation;
-        this.originalDependencyName = originalDependencyName;
-        this.expectation = expectation;
-        this.expandedProperties = expandedProperties;
     }
 
     private static List<String> generateNewDependencyNames(String baseDependencyName, int newDependenciesCnt) {

@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
+
 @Path("/csrf-token")
 @RequestScoped
 
@@ -24,24 +25,23 @@ import io.swagger.annotations.Authorization;
 @Produces({ "application/json" })
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaJAXRSCXFCDIServerCodegen", date = "2017-10-24T11:13:47.492+03:00")
 
-public class CsrfTokenApi  {
+public class CsrfTokenApi {
 
-  @Context SecurityContext securityContext;
+    @Context
+    SecurityContext securityContext;
 
-  @Inject CsrfTokenApiService delegate;
-
+    @Inject
+    CsrfTokenApiService delegate;
 
     @GET
-    
+
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @ApiOperation(value = "", notes = "Retrieves a csrf-token header ", response = Void.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
-            
-        })
-    }, tags={  })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 204, message = "No Content", response = Void.class) })
+
+        }) }, tags = {})
+    @ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class) })
     public Response getCsrfToken() {
         return delegate.getCsrfToken(securityContext);
     }

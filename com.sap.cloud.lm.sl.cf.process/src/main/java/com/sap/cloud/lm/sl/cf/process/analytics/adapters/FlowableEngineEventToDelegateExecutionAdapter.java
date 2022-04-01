@@ -24,11 +24,11 @@ public class FlowableEngineEventToDelegateExecutionAdapter implements DelegateEx
     @Override
     public Object getVariable(String variableName) {
         HistoricVariableInstance result = Context.getProcessEngineConfiguration()
-            .getHistoryService()
-            .createHistoricVariableInstanceQuery()
-            .processInstanceId(getProcessInstanceId())
-            .variableName(variableName)
-            .singleResult();
+                                                 .getHistoryService()
+                                                 .createHistoricVariableInstanceQuery()
+                                                 .processInstanceId(getProcessInstanceId())
+                                                 .variableName(variableName)
+                                                 .singleResult();
         if (result != null) {
             return result.getValue();
         }
@@ -126,6 +126,11 @@ public class FlowableEngineEventToDelegateExecutionAdapter implements DelegateEx
     }
 
     @Override
+    public void setVariables(Map<String, ? extends Object> arg0) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Map<String, Object> getVariables(Collection<String> arg0) {
         throw new UnsupportedOperationException();
     }
@@ -137,6 +142,11 @@ public class FlowableEngineEventToDelegateExecutionAdapter implements DelegateEx
 
     @Override
     public Map<String, Object> getVariablesLocal() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setVariablesLocal(Map<String, ? extends Object> arg0) {
         throw new UnsupportedOperationException();
     }
 
@@ -221,22 +231,17 @@ public class FlowableEngineEventToDelegateExecutionAdapter implements DelegateEx
     }
 
     @Override
-    public void setVariables(Map<String, ? extends Object> arg0) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setVariablesLocal(Map<String, ? extends Object> arg0) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String getCurrentActivityId() {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public String getEventName() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setEventName(String eventName) {
         throw new UnsupportedOperationException();
     }
 
@@ -286,7 +291,17 @@ public class FlowableEngineEventToDelegateExecutionAdapter implements DelegateEx
     }
 
     @Override
+    public void setTransientVariables(Map<String, Object> arg0) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Map<String, Object> getTransientVariablesLocal() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setTransientVariablesLocal(Map<String, Object> arg0) {
         throw new UnsupportedOperationException();
     }
 
@@ -321,22 +336,7 @@ public class FlowableEngineEventToDelegateExecutionAdapter implements DelegateEx
     }
 
     @Override
-    public void setTransientVariables(Map<String, Object> arg0) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setTransientVariablesLocal(Map<String, Object> arg0) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String getRootProcessInstanceId() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setEventName(String eventName) {
         throw new UnsupportedOperationException();
     }
 
@@ -376,12 +376,12 @@ public class FlowableEngineEventToDelegateExecutionAdapter implements DelegateEx
     }
 
     @Override
-    public void setActive(boolean isActive) {
+    public boolean isActive() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean isActive() {
+    public void setActive(boolean isActive) {
         throw new UnsupportedOperationException();
     }
 
@@ -391,12 +391,12 @@ public class FlowableEngineEventToDelegateExecutionAdapter implements DelegateEx
     }
 
     @Override
-    public void setConcurrent(boolean isConcurrent) {
+    public boolean isConcurrent() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean isConcurrent() {
+    public void setConcurrent(boolean isConcurrent) {
         throw new UnsupportedOperationException();
     }
 

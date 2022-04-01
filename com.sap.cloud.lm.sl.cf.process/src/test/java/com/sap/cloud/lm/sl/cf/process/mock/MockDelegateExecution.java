@@ -53,8 +53,16 @@ public class MockDelegateExecution implements DelegateExecution {
     }
 
     @Override
+    public void setVariables(Map<String, ? extends Object> arg0) {
+    }
+
+    @Override
     public Map<String, Object> getVariablesLocal() {
         return null;
+    }
+
+    @Override
+    public void setVariablesLocal(Map<String, ? extends Object> arg0) {
     }
 
     @Override
@@ -114,14 +122,6 @@ public class MockDelegateExecution implements DelegateExecution {
     }
 
     @Override
-    public void setVariables(Map<String, ? extends Object> arg0) {
-    }
-
-    @Override
-    public void setVariablesLocal(Map<String, ? extends Object> arg0) {
-    }
-
-    @Override
     public String getCurrentActivityId() {
         return "1";
     }
@@ -129,6 +129,11 @@ public class MockDelegateExecution implements DelegateExecution {
     @Override
     public String getEventName() {
         return null;
+    }
+
+    @Override
+    public void setEventName(String eventName) {
+
     }
 
     @Override
@@ -300,9 +305,19 @@ public class MockDelegateExecution implements DelegateExecution {
     }
 
     @Override
+    public void setTransientVariables(Map<String, Object> arg0) {
+
+    }
+
+    @Override
     public Map<String, Object> getTransientVariablesLocal() {
 
         return null;
+    }
+
+    @Override
+    public void setTransientVariablesLocal(Map<String, Object> arg0) {
+
     }
 
     @Override
@@ -336,24 +351,9 @@ public class MockDelegateExecution implements DelegateExecution {
     }
 
     @Override
-    public void setTransientVariables(Map<String, Object> arg0) {
-
-    }
-
-    @Override
-    public void setTransientVariablesLocal(Map<String, Object> arg0) {
-
-    }
-
-    @Override
     public String getRootProcessInstanceId() {
 
         return null;
-    }
-
-    @Override
-    public void setEventName(String eventName) {
-
     }
 
     @Override
@@ -366,7 +366,7 @@ public class MockDelegateExecution implements DelegateExecution {
     public FlowElement getCurrentFlowElement() {
         FlowElement mockFlowElement = Mockito.mock(FlowElement.class);
         Mockito.when(mockFlowElement.getName())
-            .thenReturn("Default Name");
+               .thenReturn("Default Name");
         return mockFlowElement;
     }
 
@@ -399,14 +399,14 @@ public class MockDelegateExecution implements DelegateExecution {
     }
 
     @Override
-    public void setActive(boolean isActive) {
-
-    }
-
-    @Override
     public boolean isActive() {
 
         return false;
+    }
+
+    @Override
+    public void setActive(boolean isActive) {
+
     }
 
     @Override
@@ -416,14 +416,14 @@ public class MockDelegateExecution implements DelegateExecution {
     }
 
     @Override
-    public void setConcurrent(boolean isConcurrent) {
-
-    }
-
-    @Override
     public boolean isConcurrent() {
 
         return false;
+    }
+
+    @Override
+    public void setConcurrent(boolean isConcurrent) {
+
     }
 
     @Override

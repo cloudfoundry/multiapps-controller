@@ -35,9 +35,9 @@ public class RoutesValidator implements ParameterValidator {
         for (Map<String, Object> routesElement : routesList) {
 
             boolean hasUnsupportedOrInvalidElement = routesElement.keySet()
-                .stream()
-                .anyMatch(key -> validators.get(key) == null || !validators.get(key)
-                    .isValid(routesElement.get(key)));
+                                                                  .stream()
+                                                                  .anyMatch(key -> validators.get(key) == null || !validators.get(key)
+                                                                                                                             .isValid(routesElement.get(key)));
 
             if (hasUnsupportedOrInvalidElement) {
                 return false;
@@ -56,8 +56,8 @@ public class RoutesValidator implements ParameterValidator {
         }
 
         return routesList.stream()
-            .map(route -> attemptToCorrectParameterMap(route))
-            .collect(Collectors.toList());
+                         .map(route -> attemptToCorrectParameterMap(route))
+                         .collect(Collectors.toList());
     }
 
     private Map<String, Object> attemptToCorrectParameterMap(Map<String, Object> originalElem) {
@@ -93,7 +93,7 @@ public class RoutesValidator implements ParameterValidator {
             }
 
             if (routesList.stream()
-                .anyMatch(route -> !(route instanceof Map))) {
+                          .anyMatch(route -> !(route instanceof Map))) {
                 return null;
             }
 

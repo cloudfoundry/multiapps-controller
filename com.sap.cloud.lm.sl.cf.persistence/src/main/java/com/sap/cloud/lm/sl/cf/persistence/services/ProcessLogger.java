@@ -2,10 +2,11 @@ package com.sap.cloud.lm.sl.cf.persistence.services;
 
 import java.io.File;
 
-import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
+
+import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 
 public class ProcessLogger {
 
@@ -59,7 +60,7 @@ public class ProcessLogger {
     public void warn(Object message, Throwable t) {
         logger.warn(message, t);
     }
-    
+
     public String getProcessId() {
         return processId;
     }

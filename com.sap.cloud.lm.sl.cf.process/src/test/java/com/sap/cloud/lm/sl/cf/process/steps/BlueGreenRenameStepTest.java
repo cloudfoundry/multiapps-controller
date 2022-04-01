@@ -33,12 +33,11 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
     private void prepareContext() throws Exception {
         StepsUtil.setDeployedMta(context,
-            JsonUtil.fromJson(TestUtil.getResourceAsString("deployed-mta-01.json", getClass()), DeployedMta.class));
+                                 JsonUtil.fromJson(TestUtil.getResourceAsString("deployed-mta-01.json", getClass()), DeployedMta.class));
 
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
-        StepsUtil.setUnresolvedDeploymentDescriptor(context,
-            loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));
+        StepsUtil.setUnresolvedDeploymentDescriptor(context, loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));
     }
 
     // Test what happens when there are 0 color(s) deployed:
@@ -50,7 +49,8 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
+        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context),
+                      new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
     }
 
     // Test what happens when there are 1 color(s) deployed:
@@ -62,21 +62,22 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
+        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context),
+                      new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
     }
 
     // Test what happens when there are 2 color(s) deployed:
     @Test
     public void testExecute2() throws Exception {
-        when(applicationColorDetector.detectSingularDeployedApplicationColor(any()))
-            .thenThrow(new ConflictException(Messages.CONFLICTING_APP_COLORS));
+        when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(new ConflictException(Messages.CONFLICTING_APP_COLORS));
         when(applicationColorDetector.detectFirstDeployedApplicationColor(any())).thenReturn(ApplicationColor.GREEN);
 
         step.execute(context);
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
+        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context),
+                      new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
     }
 
     @Override

@@ -49,16 +49,42 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateAppStep extends SyncFlowableStep {
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
     @Autowired
     protected ApplicationStagingUpdater applicationStagingUpdater;
-
-    @Autowired(required = false)
-    ServiceBindingCreator serviceBindingCreator;
-
     @Autowired
     protected ApplicationConfiguration configuration;
+    @Autowired(required = false)
+    ServiceBindingCreator serviceBindingCreator;
+    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+
+    protected static List<CloudServiceExtended> getServices(List<CloudServiceExtended> services, List<String> serviceNames) {
+        return services.stream()
+                       .filter(service -> serviceNames.contains(service.getName()))
+                       .collect(Collectors.toList());
+    }
+
+    private static Map<String, Map<String, Object>>
+            mergeBindingParameters(Map<String, Map<String, Object>> descriptorProvidedBindingParameters,
+                                   Map<String, Map<String, Object>> fileProvidedBindingParameters) {
+        Map<String, Map<String, Object>> bindingParameters = new HashMap<>();
+        Set<String> serviceNames = new HashSet<>(descriptorProvidedBindingParameters.keySet());
+        serviceNames.addAll(fileProvidedBindingParameters.keySet());
+        for (String serviceName : serviceNames) {
+            bindingParameters.put(serviceName, MapUtil.mergeSafely(fileProvidedBindingParameters.get(serviceName),
+                                                                   descriptorProvidedBindingParameters.get(serviceName)));
+        }
+        return bindingParameters;
+    }
+
+    protected static Map<String, Object> getBindingParametersForService(String serviceName,
+                                                                        Map<String, Map<String, Object>> bindingParameters) {
+        return (bindingParameters == null) ? null : bindingParameters.get(serviceName);
+    }
+
+    protected static Map<String, Object> getBindingParametersOrDefault(CloudServiceBinding cloudServiceBinding) {
+        Map<String, Object> bindingParameters = cloudServiceBinding.getBindingOptions();
+        return MapUtils.isEmpty(bindingParameters) ? null : bindingParameters;
+    }
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws FileStorageException {
@@ -88,8 +114,8 @@ public class CreateAppStep extends SyncFlowableStep {
             if (existingApp == null) {
                 if (app.getDockerInfo() != null) {
                     execution.getStepLogger()
-                        .info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, app.getName(), app.getDockerInfo()
-                            .getImage());
+                             .info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, app.getName(), app.getDockerInfo()
+                                                                                              .getImage());
                 }
                 client.createApplication(appName, staging, diskQuota, memory, uris, Collections.emptyList(), app.getDockerInfo());
 
@@ -127,14 +153,14 @@ public class CreateAppStep extends SyncFlowableStep {
     }
 
     protected void injectServiceKeysCredentialsInAppEnv(DelegateExecution context, CloudControllerClient client,
-        CloudApplicationExtended app, Map<String, String> appEnv) {
+                                                        CloudApplicationExtended app, Map<String, String> appEnv) {
         Map<String, String> appServiceKeysCredentials = buildServiceKeysCredentials(client, app, appEnv);
         app.setEnv(MapUtil.upcast(appEnv));
         updateContextWithServiceKeysCredentials(context, app, appServiceKeysCredentials);
     }
 
     private Map<String, String> buildServiceKeysCredentials(CloudControllerClient client, CloudApplicationExtended app,
-        Map<String, String> appEnv) {
+                                                            Map<String, String> appEnv) {
         Map<String, String> appServiceKeysCredentials = new HashMap<>();
         for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
             String serviceKeyCredentials = JsonUtil.toJson(getServiceKeyCredentials(client, serviceKeyToInject), true);
@@ -145,7 +171,7 @@ public class CreateAppStep extends SyncFlowableStep {
     }
 
     private void updateContextWithServiceKeysCredentials(DelegateExecution context, CloudApplicationExtended app,
-        Map<String, String> appServiceKeysCredentials) {
+                                                         Map<String, String> appServiceKeysCredentials) {
         Map<String, Map<String, String>> serviceKeysCredentialsToInject = StepsUtil.getServiceKeysCredentialsToInject(context);
         serviceKeysCredentialsToInject.put(app.getName(), appServiceKeysCredentials);
 
@@ -158,12 +184,13 @@ public class CreateAppStep extends SyncFlowableStep {
         List<ServiceKey> existingServiceKeys = client.getServiceKeys(serviceKeyToInject.getServiceName());
         for (ServiceKey existingServiceKey : existingServiceKeys) {
             if (existingServiceKey.getName()
-                .equals(serviceKeyToInject.getServiceKeyName())) {
+                                  .equals(serviceKeyToInject.getServiceKeyName())) {
                 return existingServiceKey.getCredentials();
             }
         }
-        throw new SLException(Messages.ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT, serviceKeyToInject.getServiceKeyName(),
-            serviceKeyToInject.getServiceName());
+        throw new SLException(Messages.ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT,
+                              serviceKeyToInject.getServiceKeyName(),
+                              serviceKeyToInject.getServiceName());
     }
 
     protected Map<String, Map<String, Object>> getBindingParameters(DelegateExecution context, CloudApplicationExtended app)
@@ -175,32 +202,28 @@ public class CreateAppStep extends SyncFlowableStep {
             descriptorProvidedBindingParameters = Collections.emptyMap();
         }
         Map<String, Map<String, Object>> fileProvidedBindingParameters = getFileProvidedBindingParameters(context, app.getModuleName(),
-            services);
+                                                                                                          services);
         Map<String, Map<String, Object>> bindingParameters = mergeBindingParameters(descriptorProvidedBindingParameters,
-            fileProvidedBindingParameters);
+                                                                                    fileProvidedBindingParameters);
         getStepLogger().debug(Messages.BINDING_PARAMETERS_FOR_APPLICATION, app.getName(), secureSerializer.toJson(bindingParameters));
         return bindingParameters;
     }
 
-    protected static List<CloudServiceExtended> getServices(List<CloudServiceExtended> services, List<String> serviceNames) {
-        return services.stream()
-            .filter(service -> serviceNames.contains(service.getName()))
-            .collect(Collectors.toList());
-    }
-
     private Map<String, Map<String, Object>> getFileProvidedBindingParameters(DelegateExecution context, String moduleName,
-        List<CloudServiceExtended> services) throws FileStorageException {
+                                                                              List<CloudServiceExtended> services)
+        throws FileStorageException {
         Map<String, Map<String, Object>> result = new TreeMap<>();
         for (CloudServiceExtended service : services) {
             String requiredDependencyName = ValidatorUtil.getPrefixedName(moduleName, service.getResourceName(),
-                com.sap.cloud.lm.sl.cf.core.Constants.MTA_ELEMENT_SEPARATOR);
+                                                                          com.sap.cloud.lm.sl.cf.core.Constants.MTA_ELEMENT_SEPARATOR);
             addFileProvidedBindingParameters(context, service.getName(), requiredDependencyName, result);
         }
         return result;
     }
 
     private void addFileProvidedBindingParameters(DelegateExecution context, String serviceName, String requiredDependencyName,
-        Map<String, Map<String, Object>> result) throws FileStorageException {
+                                                  Map<String, Map<String, Object>> result)
+        throws FileStorageException {
         String archiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
         String fileName = StepsUtil.getRequiresFileName(context, requiredDependencyName);
         if (fileName == null) {
@@ -216,29 +239,16 @@ public class CreateAppStep extends SyncFlowableStep {
         fileService.processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), archiveId, fileProcessor));
     }
 
-    private static Map<String, Map<String, Object>> mergeBindingParameters(
-        Map<String, Map<String, Object>> descriptorProvidedBindingParameters,
-        Map<String, Map<String, Object>> fileProvidedBindingParameters) {
-        Map<String, Map<String, Object>> bindingParameters = new HashMap<>();
-        Set<String> serviceNames = new HashSet<>(descriptorProvidedBindingParameters.keySet());
-        serviceNames.addAll(fileProvidedBindingParameters.keySet());
-        for (String serviceName : serviceNames) {
-            bindingParameters.put(serviceName,
-                MapUtil.mergeSafely(fileProvidedBindingParameters.get(serviceName), descriptorProvidedBindingParameters.get(serviceName)));
-        }
-        return bindingParameters;
-    }
-
     private CloudServiceExtended findServiceCloudModel(List<CloudServiceExtended> servicesCloudModel, String serviceName) {
         return servicesCloudModel.stream()
-            .filter(service -> service.getName()
-                .equals(serviceName))
-            .findAny()
-            .orElse(null);
+                                 .filter(service -> service.getName()
+                                                           .equals(serviceName))
+                                 .findAny()
+                                 .orElse(null);
     }
 
     protected void bindService(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
-        Map<String, Object> bindingParameters) {
+                               Map<String, Object> bindingParameters) {
 
         try {
             bindServiceToApplication(execution, client, appName, serviceName, bindingParameters);
@@ -255,7 +265,7 @@ public class CreateAppStep extends SyncFlowableStep {
     }
 
     private void bindServiceToApplication(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
-        Map<String, Object> bindingParameters) {
+                                          Map<String, Object> bindingParameters) {
         if (bindingParameters != null) {
             XsCloudControllerClient xsClient = execution.getXsControllerClient();
             bindServiceWithParameters(xsClient, client, appName, serviceName, bindingParameters);
@@ -266,7 +276,7 @@ public class CreateAppStep extends SyncFlowableStep {
 
     // TODO Fix update of service bindings parameters
     private void bindServiceWithParameters(XsCloudControllerClient xsClient, CloudControllerClient client, String appName,
-        String serviceName, Map<String, Object> bindingParameters) {
+                                           String serviceName, Map<String, Object> bindingParameters) {
         getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters.get(serviceName));
         if (xsClient == null) {
             serviceBindingCreator.bindService(client, appName, serviceName, bindingParameters);
@@ -278,16 +288,6 @@ public class CreateAppStep extends SyncFlowableStep {
     private void bindService(CloudControllerClient client, String appName, String serviceName) {
         getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE, appName, serviceName);
         client.bindService(appName, serviceName);
-    }
-
-    protected static Map<String, Object> getBindingParametersForService(String serviceName,
-        Map<String, Map<String, Object>> bindingParameters) {
-        return (bindingParameters == null) ? null : bindingParameters.get(serviceName);
-    }
-
-    protected static Map<String, Object> getBindingParametersOrDefault(CloudServiceBinding cloudServiceBinding) {
-        Map<String, Object> bindingParameters = cloudServiceBinding.getBindingOptions();
-        return MapUtils.isEmpty(bindingParameters) ? null : bindingParameters;
     }
 
 }

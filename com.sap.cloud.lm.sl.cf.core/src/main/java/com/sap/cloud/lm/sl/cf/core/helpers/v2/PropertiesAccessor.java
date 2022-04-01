@@ -16,7 +16,7 @@ public class PropertiesAccessor {
     public Map<String, Object> getProperties(PropertiesContainer propertiesContainer, Set<String> supportedParameters) {
         return new TreeMap<>(propertiesContainer.getProperties());
     }
-    
+
     public Map<String, Object> getProperties(PropertiesContainer propertiesContainer) {
         return new TreeMap<>(propertiesContainer.getProperties());
     }

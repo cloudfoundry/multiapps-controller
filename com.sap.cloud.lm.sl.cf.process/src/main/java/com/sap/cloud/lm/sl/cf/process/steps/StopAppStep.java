@@ -1,8 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -26,7 +26,7 @@ public class StopAppStep extends SyncFlowableStep {
 
         try {
             if (existingApp != null && !existingApp.getState()
-                .equals(AppState.STOPPED)) {
+                                                   .equals(AppState.STOPPED)) {
                 getStepLogger().info(Messages.STOPPING_APP, app.getName());
 
                 // Get a cloud foundry client

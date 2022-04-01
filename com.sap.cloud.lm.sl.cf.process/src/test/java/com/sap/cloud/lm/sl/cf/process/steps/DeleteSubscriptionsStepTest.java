@@ -27,8 +27,16 @@ import com.sap.cloud.lm.sl.common.NotFoundException;
 @RunWith(Parameterized.class)
 public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubscriptionsStep> {
 
+    private final String expectedExceptionMessage;
+    private final StepInput input;
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    @Mock
+    private ConfigurationSubscriptionDao dao;
+    public DeleteSubscriptionsStepTest(StepInput input, String expectedExceptionMessage) {
+        this.expectedExceptionMessage = expectedExceptionMessage;
+        this.input = input;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -54,17 +62,6 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
         });
     }
 
-    @Mock
-    private ConfigurationSubscriptionDao dao;
-
-    private final String expectedExceptionMessage;
-    private final StepInput input;
-
-    public DeleteSubscriptionsStepTest(StepInput input, String expectedExceptionMessage) {
-        this.expectedExceptionMessage = expectedExceptionMessage;
-        this.input = input;
-    }
-
     @Before
     public void setUp() throws Exception {
         loadParameters();
@@ -78,8 +75,8 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
 
     private List<ConfigurationSubscription> asSubscriptions(List<Integer> subscriptionsToDelete) {
         return subscriptionsToDelete.stream()
-            .map((subscription) -> asSubscription(subscription))
-            .collect(Collectors.toList());
+                                    .map((subscription) -> asSubscription(subscription))
+                                    .collect(Collectors.toList());
     }
 
     private ConfigurationSubscription asSubscription(Integer subscriptionnId) {
@@ -109,12 +106,17 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
         for (Integer subscription : input.existingSubscriptions) {
             if (input.subscriptionsToDelete.contains(subscription)) {
                 Mockito.verify(dao, times(1))
-                    .remove(subscription);
+                       .remove(subscription);
             } else {
                 Mockito.verify(dao, times(0))
-                    .remove(subscription);
+                       .remove(subscription);
             }
         }
+    }
+
+    @Override
+    protected DeleteSubscriptionsStep createStep() {
+        return new DeleteSubscriptionsStep();
     }
 
     private static class StepInput {
@@ -127,11 +129,6 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
             this.existingSubscriptions = existingSubscriptions;
         }
 
-    }
-
-    @Override
-    protected DeleteSubscriptionsStep createStep() {
-        return new DeleteSubscriptionsStep();
     }
 
 }

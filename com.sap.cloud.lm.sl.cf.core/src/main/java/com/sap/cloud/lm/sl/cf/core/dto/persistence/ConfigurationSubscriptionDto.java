@@ -42,44 +42,24 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
     @NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID, query = "SELECT cs FROM ConfigurationSubscriptionDto cs WHERE cs.spaceId = :spaceId") })
 public class ConfigurationSubscriptionDto {
 
-    public static class FieldNames {
-
-        public static final String ID = "id";
-        public static final String MTA_ID = "mtaId";
-        public static final String SPACE_ID = "spaceId";
-        public static final String APP_NAME = "appName";
-        public static final String FILTER = "filter";
-        public static final String MODULE = "module";
-        public static final String RESOURCE_NAME = "resourceName";
-        public static final String RESOURCE_PROP = "resourceProperties";
-
-    }
-
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.CONFIGURATION_SUBSCRIPTION_SEQUENCE)
     @Id
     @Column(name = TableColumnNames.CONFIGURATION_SUBSCRIPTION_ID, nullable = false)
     private long id;
-
     @Column(name = TableColumnNames.CONFIGURATION_SUBSCRIPTION_MTA_ID, nullable = false)
     private String mtaId;
-
     @Column(name = TableColumnNames.CONFIGURATION_SUBSCRIPTION_SPACE_ID, nullable = false)
     private String spaceId;
-
     @Column(name = TableColumnNames.CONFIGURATION_SUBSCRIPTION_APP_NAME, nullable = false)
     private String appName;
-
     @Column(name = TableColumnNames.CONFIGURATION_SUBSCRIPTION_FILTER, nullable = false)
     @Lob
     private String filter;
-
     @Column(name = TableColumnNames.CONFIGURATION_SUBSCRIPTION_RESOURCE_PROP, nullable = false)
     @Lob
     private String resourceProperties;
-
     @Column(name = TableColumnNames.CONFIGURATION_SUBSCRIPTION_RESOURCE_NAME, nullable = false)
     private String resourceName;
-
     @Column(name = TableColumnNames.CONFIGURATION_SUBSCRIPTION_MODULE, nullable = false)
     @Lob
     private String module;
@@ -89,7 +69,7 @@ public class ConfigurationSubscriptionDto {
     }
 
     public ConfigurationSubscriptionDto(long id, String mtaId, String spaceId, String appName, String filter, String moduleContent,
-        String resourceName, String resourceProperties) {
+                                        String resourceName, String resourceProperties) {
         this.id = id;
         this.resourceProperties = resourceProperties;
         this.resourceName = resourceName;
@@ -187,6 +167,19 @@ public class ConfigurationSubscriptionDto {
         } catch (SLException e) {
             throw new IllegalStateException(format(Messages.UNABLE_TO_PARSE_SUBSCRIPTION, e.getMessage()), e);
         }
+    }
+
+    public static class FieldNames {
+
+        public static final String ID = "id";
+        public static final String MTA_ID = "mtaId";
+        public static final String SPACE_ID = "spaceId";
+        public static final String APP_NAME = "appName";
+        public static final String FILTER = "filter";
+        public static final String MODULE = "module";
+        public static final String RESOURCE_NAME = "resourceName";
+        public static final String RESOURCE_PROP = "resourceProperties";
+
     }
 
 }

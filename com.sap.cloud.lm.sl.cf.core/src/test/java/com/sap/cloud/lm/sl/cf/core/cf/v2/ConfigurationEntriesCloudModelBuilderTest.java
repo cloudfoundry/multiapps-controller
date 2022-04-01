@@ -9,7 +9,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.HandlerFactory;
@@ -18,6 +17,22 @@ import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class ConfigurationEntriesCloudModelBuilderTest {
+
+    private String deploymentDescriptorLocation;
+    private int majorSchemaVersion;
+    private String orgName;
+    private String spaceName;
+    private Expectation expectation;
+    private DeploymentDescriptor deploymentDescriptor;
+
+    public ConfigurationEntriesCloudModelBuilderTest(String deploymentDescriptorLocation, int majorSchemaVersion, String orgName,
+                                                     String spaceName, Expectation expectation) {
+        this.deploymentDescriptorLocation = deploymentDescriptorLocation;
+        this.majorSchemaVersion = majorSchemaVersion;
+        this.orgName = orgName;
+        this.spaceName = spaceName;
+        this.expectation = expectation;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -45,23 +60,6 @@ public class ConfigurationEntriesCloudModelBuilderTest {
             },
 // @formatter:on
         });
-    }
-
-    private String deploymentDescriptorLocation;
-    private int majorSchemaVersion;
-    private String orgName;
-    private String spaceName;
-    private Expectation expectation;
-
-    private DeploymentDescriptor deploymentDescriptor;
-
-    public ConfigurationEntriesCloudModelBuilderTest(String deploymentDescriptorLocation, int majorSchemaVersion, String orgName,
-        String spaceName, Expectation expectation) {
-        this.deploymentDescriptorLocation = deploymentDescriptorLocation;
-        this.majorSchemaVersion = majorSchemaVersion;
-        this.orgName = orgName;
-        this.spaceName = spaceName;
-        this.expectation = expectation;
     }
 
     @Before

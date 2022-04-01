@@ -1,18 +1,5 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
-import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
-import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
-import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
-import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.cf.persistence.query.SqlQuery;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.DigestHelper;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Named;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,6 +14,21 @@ import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Named;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
+import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
+import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.query.SqlQuery;
+import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
 @Named("processLogsPersistenceService")
 public class ProcessLogsPersistenceService extends DatabaseFileService {
@@ -72,7 +74,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         List<FileEntry> listFiles = listFiles(space, namespace);
         for (FileEntry fileEntry : listFiles) {
             if (fileEntry.getName()
-                    .equals(fileName)) {
+                         .equals(fileName)) {
                 return fileEntry.getId();
             }
         }
@@ -88,7 +90,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     }
 
     private void appendLog(final String space, final String namespace, final String remoteLogName, File localLog)
-            throws FileStorageException {
+        throws FileStorageException {
         final String fileId = findFileId(space, namespace, remoteLogName);
 
         if (fileId == null) {
@@ -106,7 +108,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     }
 
     private void storeLogFile(final String space, final String namespace, final String remoteLogName, File localLog)
-            throws FileStorageException {
+        throws FileStorageException {
         try (InputStream inputStream = new FileInputStream(localLog)) {
             FileEntry localLogFileEntry = createFileEntry(space, namespace, remoteLogName, localLog);
 
@@ -117,15 +119,17 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     }
 
     private FileEntry createFileEntry(final String space, final String namespace, final String remoteLogName, File localLog)
-            throws NoSuchAlgorithmException, IOException {
-        FileInfo localLogFileInfo = new FileInfo(localLog, BigInteger.valueOf(localLog.length()),
-                DigestHelper.computeFileChecksum(localLog.toPath(), DIGEST_METHOD), DIGEST_METHOD);
+        throws NoSuchAlgorithmException, IOException {
+        FileInfo localLogFileInfo = new FileInfo(localLog,
+                                                 BigInteger.valueOf(localLog.length()),
+                                                 DigestHelper.computeFileChecksum(localLog.toPath(), DIGEST_METHOD),
+                                                 DIGEST_METHOD);
         return createFileEntry(space, namespace, remoteLogName, localLogFileInfo);
     }
 
     private void updateLogFile(String space, String fileId, File localLog, InputStream remoteLogStream) throws FileStorageException {
         try (InputStream localLogStream = new FileInputStream(localLog);
-             InputStream appendedLog = new SequenceInputStream(remoteLogStream, localLogStream)) {
+            InputStream appendedLog = new SequenceInputStream(remoteLogStream, localLogStream)) {
             SqlQuery<Void> updateLogQuery = getUpdateLogQueries(space, fileId, localLog, appendedLog);
             getSqlQueryExecutor().execute(updateLogQuery);
         } catch (SQLException | IOException e) {
@@ -137,10 +141,10 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         return (Connection connection) -> {
             try {
                 FileEntry dbFileEntry = getSqlFileQueryProvider().getRetrieveFileQuery(space, fileId)
-                        .execute(connection);
+                                                                 .execute(connection);
                 FileEntry newFileEntry = addSizeAndDigest(dbFileEntry, localLog);
                 getSqlFileQueryProvider().getUpdateFileQuery(newFileEntry, appendedLog)
-                        .execute(connection);
+                                         .execute(connection);
             } catch (NoSuchAlgorithmException e) {
                 throw new SLException(Messages.ERROR_CALCULATING_FILE_DIGEST, localLog.getName(), e);
             } catch (IOException e) {
@@ -152,9 +156,11 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
 
     private FileEntry addSizeAndDigest(FileEntry dbFileEntry, File localLog) throws NoSuchAlgorithmException, IOException {
         dbFileEntry.setSize(dbFileEntry.getSize()
-                .add(BigInteger.valueOf(localLog.length())));
+                                       .add(BigInteger.valueOf(localLog.length())));
         dbFileEntry.setDigest(DigestHelper.appendDigests(dbFileEntry.getDigest(),
-                DigestHelper.computeFileChecksum(localLog.toPath(), dbFileEntry.getDigestAlgorithm()), dbFileEntry.getDigestAlgorithm()));
+                                                         DigestHelper.computeFileChecksum(localLog.toPath(),
+                                                                                          dbFileEntry.getDigestAlgorithm()),
+                                                         dbFileEntry.getDigestAlgorithm()));
         dbFileEntry.setDigestAlgorithm(dbFileEntry.getDigestAlgorithm());
         dbFileEntry.setModified(new Timestamp(System.currentTimeMillis()));
         return dbFileEntry;

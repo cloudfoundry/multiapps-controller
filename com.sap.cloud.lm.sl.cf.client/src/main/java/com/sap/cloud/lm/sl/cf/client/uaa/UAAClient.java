@@ -24,8 +24,8 @@ public class UAAClient {
         String tokenKeyURL = uaaUrl.toString() + TOKEN_KEY_ENDPOINT;
         ResponseEntity<String> tokenKeyResponse = restTemplate.getForEntity(tokenKeyURL, String.class);
         if (!tokenKeyResponse.hasBody()) {
-            throw new IllegalStateException(
-                MessageFormat.format("Invalid response returned from /token_key: {0}", tokenKeyResponse.getBody()));
+            throw new IllegalStateException(MessageFormat.format("Invalid response returned from /token_key: {0}",
+                                                                 tokenKeyResponse.getBody()));
         }
 
         return JsonUtil.convertJsonToMap(tokenKeyResponse.getBody());

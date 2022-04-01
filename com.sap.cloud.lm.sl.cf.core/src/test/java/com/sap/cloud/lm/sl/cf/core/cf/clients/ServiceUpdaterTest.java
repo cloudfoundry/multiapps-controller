@@ -6,8 +6,8 @@ import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.junit.Before;
@@ -44,7 +44,7 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
         // Given:
         CloudControllerClient client = getMockedClient();
         Mockito.when(client.getService(EXISTING_SERVICE_NAME))
-            .thenReturn(EXISTING_SERVICE);
+               .thenReturn(EXISTING_SERVICE);
 
         // When:
         serviceUpdater.updateServicePlan(client, EXISTING_SERVICE_NAME, "v3.0-small");
@@ -57,7 +57,7 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
         Map<String, Object> serviceRequest = MapUtil.asMap("service_plan_guid", servicePlanGuid);
         String updateServicePlanUrl = getUpdateServicePlanUrl();
         Mockito.verify(getMockedRestTemplate())
-            .put(updateServicePlanUrl, serviceRequest);
+               .put(updateServicePlanUrl, serviceRequest);
     }
 
     private String getUpdateServicePlanUrl() {
@@ -69,16 +69,15 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
         // Given:
         CloudControllerClient client = getMockedClient();
         Mockito.when(client.getService(EXISTING_SERVICE_NAME))
-            .thenReturn(EXISTING_SERVICE);
+               .thenReturn(EXISTING_SERVICE);
 
         try {
             // When:
             serviceUpdater.updateServicePlan(client, EXISTING_SERVICE_NAME, "v3.0-large");
         } catch (CloudOperationException e) {
             // Then:
-            assertEquals(
-                "404 Not Found: Could not create service instance \"foo\". Service plan \"v3.0-large\" from service offering \"mongodb\" was not found.",
-                e.getMessage());
+            assertEquals("404 Not Found: Could not create service instance \"foo\". Service plan \"v3.0-large\" from service offering \"mongodb\" was not found.",
+                         e.getMessage());
         }
     }
 
@@ -87,8 +86,9 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
         // Given:
         CloudControllerClient client = getMockedClient();
         Mockito.when(client.getService(EXISTING_SERVICE_NAME))
-            .thenThrow(
-                new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(), "Service \"foo\" was not found!"));
+               .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND,
+                                                      HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                                      "Service \"foo\" was not found!"));
 
         try {
             // When:

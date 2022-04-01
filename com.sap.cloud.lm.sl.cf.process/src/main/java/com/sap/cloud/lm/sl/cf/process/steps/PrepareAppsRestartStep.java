@@ -27,11 +27,11 @@ public class PrepareAppsRestartStep extends PrepareModulesDeploymentStep {
         super.executeStep(execution);
 
         execution.getContext()
-            .setVariable(Constants.REBUILD_APP_ENV, true);
+                 .setVariable(Constants.REBUILD_APP_ENV, true);
         execution.getContext()
-            .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, false);
+                 .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, false);
         execution.getContext()
-            .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
+                 .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
         StepsUtil.setUseIdleUris(execution.getContext(), false);
         StepsUtil.setSkipUpdateConfigurationEntries(execution.getContext(), false);
 
@@ -44,8 +44,8 @@ public class PrepareAppsRestartStep extends PrepareModulesDeploymentStep {
     protected List<ModuleToDeploy> getModulesToDeploy(DelegateExecution context) {
         List<ModuleToDeploy> allModulesToDeploy = StepsUtil.getAllModulesToDeploy(context);
         return allModulesToDeploy.stream()
-            .filter(module -> moduleToDeployHelper.isApplication(module))
-            .collect(Collectors.toList());
+                                 .filter(module -> moduleToDeployHelper.isApplication(module))
+                                 .collect(Collectors.toList());
     }
 
 }

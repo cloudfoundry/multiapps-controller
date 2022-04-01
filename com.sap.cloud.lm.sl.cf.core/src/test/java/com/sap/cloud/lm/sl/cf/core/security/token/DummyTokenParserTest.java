@@ -26,7 +26,7 @@ public class DummyTokenParserTest {
     @Test
     public void testParseDummyToken() {
         Mockito.when(applicationConfiguration.areDummyTokensEnabled())
-            .thenReturn(true);
+               .thenReturn(true);
 
         OAuth2AccessToken parsedToken = parser.parse("DUMMY");
 
@@ -34,15 +34,15 @@ public class DummyTokenParserTest {
         Assert.assertNotNull(parsedToken.getValue());
         Assert.assertEquals("DUMMY", parsedToken.getValue());
         Assert.assertEquals("dummy", parsedToken.getAdditionalInformation()
-            .get("user_name"));
+                                                .get("user_name"));
         Assert.assertEquals("cf", parsedToken.getAdditionalInformation()
-            .get("client_id"));
+                                             .get("client_id"));
     }
 
     @Test
     public void testParseDummyTokenWhenDummyTokensAreDisabled() {
         Mockito.when(applicationConfiguration.areDummyTokensEnabled())
-            .thenReturn(false);
+               .thenReturn(false);
         OAuth2AccessToken parsedToken = parser.parse("DUMMY");
         Assert.assertNull(parsedToken);
     }
@@ -50,7 +50,7 @@ public class DummyTokenParserTest {
     @Test
     public void testParseDummyTokenWhenTokenIsNotDummy() {
         Mockito.when(applicationConfiguration.areDummyTokensEnabled())
-            .thenReturn(true);
+               .thenReturn(true);
         OAuth2AccessToken parsedToken = parser.parse("NOT_DUMMY_TOKEN_AT_ALL");
         Assert.assertNull(parsedToken);
     }

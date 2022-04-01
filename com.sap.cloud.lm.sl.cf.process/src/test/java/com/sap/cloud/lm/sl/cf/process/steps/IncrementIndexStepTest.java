@@ -18,13 +18,13 @@ public class IncrementIndexStepTest extends SyncFlowableStepTest<IncrementIndexS
 
     private final int index;
 
+    public IncrementIndexStepTest(int index) {
+        this.index = index;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] { { 1 }, { 2 }, { 3 }, { 4 }, { 5 } });
-    }
-
-    public IncrementIndexStepTest(int index) {
-        this.index = index;
     }
 
     @Before

@@ -23,7 +23,7 @@ public class ConfigurationSubscriptionFactory {
     private static final int MTA_MAJOR_SCHEMA_VERSION = 2;
 
     public List<ConfigurationSubscription> create(DeploymentDescriptor descriptor,
-        Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId) {
+                                                  Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId) {
         List<String> dependenciesToIgnore = new ArrayList<>(resolvedResources.keySet());
         descriptor = getPartialDescriptorReferenceResolver(descriptor, dependenciesToIgnore).resolve();
         List<ConfigurationSubscription> result = new ArrayList<>();
@@ -31,24 +31,25 @@ public class ConfigurationSubscriptionFactory {
             for (RequiredDependency dependency : module.getRequiredDependencies2()) {
                 if (shouldCreateSubscription(dependency)) {
                     CollectionUtils.addIgnoreNull(result,
-                        createSubscription(spaceId, descriptor.getId(), module, dependency, resolvedResources));
+                                                  createSubscription(spaceId, descriptor.getId(), module, dependency, resolvedResources));
                 }
             }
         }
         return result;
     }
 
-    protected DescriptorReferenceResolver getPartialDescriptorReferenceResolver(
-        com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor, List<String> dependenciesToIgnore) {
+    protected DescriptorReferenceResolver
+              getPartialDescriptorReferenceResolver(com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor,
+                                                    List<String> dependenciesToIgnore) {
         return new PartialDescriptorReferenceResolver(descriptor, dependenciesToIgnore);
     }
 
     protected ConfigurationSubscription createSubscription(String spaceId, String mtaId, Module module, RequiredDependency dependency,
-        Map<String, ResolvedConfigurationReference> resolvedResources) {
+                                                           Map<String, ResolvedConfigurationReference> resolvedResources) {
         ResolvedConfigurationReference resolvedReference = resolvedResources.get(dependency.getName());
         ConfigurationFilter filter = resolvedReference.getReferenceFilter();
         String appName = (String) module.getParameters()
-            .get(SupportedParameters.APP_NAME);
+                                        .get(SupportedParameters.APP_NAME);
         Resource resource = resolvedReference.getReference();
         Module adaptedModule = getContainingOneRequiresDependency(module, dependency);
 
@@ -74,7 +75,7 @@ public class ConfigurationSubscriptionFactory {
 
     private boolean shouldCreateSubscription(RequiredDependency dependency) {
         return (boolean) dependency.getParameters()
-            .getOrDefault(SupportedParameters.MANAGED, false);
+                                   .getOrDefault(SupportedParameters.MANAGED, false);
     }
 
 }

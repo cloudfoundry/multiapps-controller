@@ -24,14 +24,6 @@ public class CFExceptionMapperTest {
 
     private final CFExceptionMapper exceptionMapper = new CFExceptionMapper();
 
-    @ParameterizedTest
-    @MethodSource
-    public void testToResponse(Throwable throwable, RestResponse expectedResponse) {
-        Response response = exceptionMapper.toResponse(throwable);
-        assertEquals(expectedResponse.getStatus(), response.getStatus());
-        assertEquals(expectedResponse.getEntity(), response.getEntity());
-    }
-
     public static Stream<Arguments> testToResponse() {
         return Stream.of(
         // @formatter:off
@@ -44,6 +36,14 @@ public class CFExceptionMapperTest {
             Arguments.of(new WebApplicationException(ResponseRenderer.renderResponseForStatus(Status.NOT_ACCEPTABLE, "Not acceptable")), new RestResponse(406, "Not acceptable"))
         // @formatter:on
         );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void testToResponse(Throwable throwable, RestResponse expectedResponse) {
+        Response response = exceptionMapper.toResponse(throwable);
+        assertEquals(expectedResponse.getStatus(), response.getStatus());
+        assertEquals(expectedResponse.getEntity(), response.getEntity());
     }
 
 }

@@ -23,16 +23,23 @@ public class SecurityUtil {
 
     public static OAuth2Authentication createAuthentication(String clientId, Set<String> scope, UserInfo userInfo) {
         List<SimpleGrantedAuthority> authorities = getAuthorities(scope);
-        OAuth2Request request = new OAuth2Request(new HashMap<String, String>(), clientId, authorities, true, scope, null, null, null,
-            null);
+        OAuth2Request request = new OAuth2Request(new HashMap<String, String>(),
+                                                  clientId,
+                                                  authorities,
+                                                  true,
+                                                  scope,
+                                                  null,
+                                                  null,
+                                                  null,
+                                                  null);
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userInfo, "", authorities);
         return new OAuth2Authentication(request, auth);
     }
 
     private static List<SimpleGrantedAuthority> getAuthorities(Set<String> scopes) {
         return scopes.stream()
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toList());
+                     .map(SimpleGrantedAuthority::new)
+                     .collect(Collectors.toList());
     }
 
     public static UserInfo getTokenUserInfo(OAuth2AccessToken token) {

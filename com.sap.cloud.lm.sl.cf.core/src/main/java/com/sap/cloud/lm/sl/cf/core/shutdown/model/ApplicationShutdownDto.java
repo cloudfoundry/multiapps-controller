@@ -7,8 +7,8 @@ public class ApplicationShutdownDto {
     private String appInstanceIndex;
     private long cooldownTimeoutInSeconds;
 
-    private ApplicationShutdownDto(Status status, String appId,
-        String appInstanceId, String appInstanceIndex, long cooldownTimeoutInSeconds) {
+    private ApplicationShutdownDto(Status status, String appId, String appInstanceId, String appInstanceIndex,
+                                   long cooldownTimeoutInSeconds) {
         this.status = status;
         this.appId = appId;
         this.appInstanceId = appInstanceId;
@@ -36,6 +36,10 @@ public class ApplicationShutdownDto {
         return cooldownTimeoutInSeconds;
     }
 
+    public static enum Status {
+        FINISHED, RUNNING;
+    }
+
     public static class Builder {
         private boolean isActive = true;
         private String appId;
@@ -43,10 +47,9 @@ public class ApplicationShutdownDto {
         private String appInstanceIndex;
         private long cooldownTimeoutInSeconds;
 
-        public ApplicationShutdownDto build(){
-            return new ApplicationShutdownDto(isActive ? Status.RUNNING : Status.FINISHED, appId, appInstanceId,
-                appInstanceIndex,
-                cooldownTimeoutInSeconds);
+        public ApplicationShutdownDto build() {
+            return new ApplicationShutdownDto(isActive ? Status.RUNNING
+                : Status.FINISHED, appId, appInstanceId, appInstanceIndex, cooldownTimeoutInSeconds);
         }
 
         public Builder isActive(boolean isActive) {
@@ -73,9 +76,5 @@ public class ApplicationShutdownDto {
             this.cooldownTimeoutInSeconds = cooldownTimeoutInSeconds;
             return this;
         }
-    }
-
-    public static enum Status {
-        FINISHED, RUNNING;
     }
 }

@@ -34,14 +34,14 @@ public class ProcessConflictPreventerTest {
     public void testAttemptToAcquireLock() {
         try {
             Operation operation = new Operation().processId(testProcessId)
-                .processType(ProcessType.DEPLOY)
-                .spaceId(testSpaceId)
-                .mtaId(testMtaId)
-                .acquiredLock(false);
+                                                 .processType(ProcessType.DEPLOY)
+                                                 .spaceId(testSpaceId)
+                                                 .mtaId(testMtaId)
+                                                 .acquiredLock(false);
             OperationFilter expectedFilter = new OperationFilter.Builder().mtaId(testMtaId)
-                .spaceId(testSpaceId)
-                .withAcquiredLock()
-                .build();
+                                                                          .spaceId(testSpaceId)
+                                                                          .withAcquiredLock()
+                                                                          .build();
             when(daoMock.find(expectedFilter)).thenReturn(Arrays.asList(operation));
             processConflictPreventerMock.attemptToAcquireLock(testMtaId, testSpaceId, testProcessId);
             verify(daoMock).merge(daoMock.findRequired(testProcessId));
@@ -64,9 +64,9 @@ public class ProcessConflictPreventerTest {
     private OperationDao getOperationDaoMock() throws SLException {
         OperationDao daoMock = mock(OperationDao.class);
         Operation operation = new Operation().processId(testProcessId)
-            .processType(ProcessType.DEPLOY)
-            .mtaId(testMtaId)
-            .acquiredLock(false);
+                                             .processType(ProcessType.DEPLOY)
+                                             .mtaId(testMtaId)
+                                             .acquiredLock(false);
         when(daoMock.findRequired(testProcessId)).thenReturn(operation);
         return daoMock;
     }

@@ -69,7 +69,12 @@ public class ProcessLoggerProvider {
         File logFile = getLocalFile(loggerName);
         LoggerContext loggerContext = initLoggerContext(loggerName, logFile, layout);
         Logger logger = loggerContext.getLogger(loggerName);
-        return new ProcessLogger(loggerContext, logger, logFile, logName, getSpaceId(context), getCorrelationId(context),
+        return new ProcessLogger(loggerContext,
+                                 logger,
+                                 logFile,
+                                 logName,
+                                 getSpaceId(context),
+                                 getCorrelationId(context),
                                  getTaskId(context));
     }
 
@@ -141,8 +146,8 @@ public class ProcessLoggerProvider {
     private boolean hasLoggerSpecificProcessIdAndActivityId(String processId, String activityId, ProcessLogger logger) {
         return logger.getProcessId()
                      .equals(processId)
-               && logger.getActivityId()
-                        .equals(activityId);
+            && logger.getActivityId()
+                     .equals(activityId);
     }
 
     public void remove(ProcessLogger processLogger) {

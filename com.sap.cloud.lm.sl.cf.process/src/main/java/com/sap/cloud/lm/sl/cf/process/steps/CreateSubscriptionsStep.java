@@ -69,14 +69,14 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
         }
         dao.add(subscription);
     }
-    
+
     private void infoSubscriptionCreation(ConfigurationSubscription subscription) {
         if (subscription.getModuleDto() != null && subscription.getResourceDto() != null) {
             getStepLogger().info(MessageFormat.format(Messages.CREATING_SUBSCRIPTION_FROM_0_MODULE_TO_1_RESOURCE,
-                subscription.getModuleDto()
-                    .getName(),
-                subscription.getResourceDto()
-                    .getName()));
+                                                      subscription.getModuleDto()
+                                                                  .getName(),
+                                                      subscription.getResourceDto()
+                                                                  .getName()));
         }
     }
 

@@ -8,7 +8,7 @@ import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 public class ServicesCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder {
 
     public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
-        CloudModelConfiguration configuration) {
+                                     CloudModelConfiguration configuration) {
         super(deploymentDescriptor, propertiesAccessor, configuration);
     }
 

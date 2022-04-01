@@ -10,7 +10,7 @@ public class UnchangedApplicationActionCalculator implements ActionCalculator {
 
     @Override
     public Set<ApplicationStateAction> determineActionsToExecute(ApplicationStartupState currentState,
-        ApplicationStartupState desiredState) {
+                                                                 ApplicationStartupState desiredState) {
         Set<ApplicationStateAction> actionsToExecute = new HashSet<>();
         if (currentState.equals(desiredState)) {
             return actionsToExecute;

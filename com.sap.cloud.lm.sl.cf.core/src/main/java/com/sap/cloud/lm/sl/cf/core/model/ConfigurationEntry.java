@@ -40,7 +40,7 @@ public class ConfigurationEntry implements AuditableConfiguration {
     private String spaceId;
 
     public ConfigurationEntry(long id, String providerNid, String providerId, Version providerVersion, CloudTarget targetSpace,
-        String content, List<CloudTarget> visibility, String spaceId) {
+                              String content, List<CloudTarget> visibility, String spaceId) {
         this.id = id;
         this.providerNid = providerNid;
         this.providerId = providerId;
@@ -52,7 +52,7 @@ public class ConfigurationEntry implements AuditableConfiguration {
     }
 
     public ConfigurationEntry(String providerNid, String providerId, Version providerVersion, CloudTarget targetSpace, String content,
-        List<CloudTarget> cloudTargets, String spaceId) {
+                              List<CloudTarget> cloudTargets, String spaceId) {
         this(0, providerNid, providerId, providerVersion, targetSpace, content, cloudTargets, spaceId);
     }
 

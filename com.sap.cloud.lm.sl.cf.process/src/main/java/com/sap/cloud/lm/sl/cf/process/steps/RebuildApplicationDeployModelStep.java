@@ -32,7 +32,7 @@ public class RebuildApplicationDeployModelStep extends SyncFlowableStep {
 
     @Inject
     private ModuleToDeployHelper moduleToDeployHelper;
-    
+
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         try {
@@ -41,8 +41,8 @@ public class RebuildApplicationDeployModelStep extends SyncFlowableStep {
 
             DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
             Module applicationModule = getApplicationModule(app, descriptor);
-            List<CloudApplicationExtended> modifiedApps = getApplicationsCloudModelBuilder(execution.getContext())
-                .build(Arrays.asList(applicationModule), moduleToDeployHelper);
+            List<CloudApplicationExtended> modifiedApps = getApplicationsCloudModelBuilder(execution.getContext()).build(Arrays.asList(applicationModule),
+                                                                                                                         moduleToDeployHelper);
             CloudApplicationExtended modifiedApp = findApplication(modifiedApps, app.getName());
             setApplicationUris(execution.getContext(), app, modifiedApp);
             app.setIdleUris(modifiedApp.getIdleUris());
@@ -64,12 +64,12 @@ public class RebuildApplicationDeployModelStep extends SyncFlowableStep {
 
     private Module getApplicationModule(CloudApplicationExtended app, DeploymentDescriptor descriptor) {
         return descriptor.getModules2()
-            .stream()
-            .filter(module -> app.getModuleName()
-                .equals(module.getName()))
-            .findFirst()
-            .orElseThrow(() -> new SLException(
-                MessageFormat.format(Messages.MODULE_0_IS_NOT_MATCHING_THE_MODULES_IN_DESCRIPTOR, app.getModuleName())));
+                         .stream()
+                         .filter(module -> app.getModuleName()
+                                              .equals(module.getName()))
+                         .findFirst()
+                         .orElseThrow(() -> new SLException(MessageFormat.format(Messages.MODULE_0_IS_NOT_MATCHING_THE_MODULES_IN_DESCRIPTOR,
+                                                                                 app.getModuleName())));
     }
 
     private void setApplicationUris(DelegateExecution context, CloudApplicationExtended app, CloudApplicationExtended modifiedApp) {
@@ -109,11 +109,11 @@ public class RebuildApplicationDeployModelStep extends SyncFlowableStep {
 
     private CloudApplicationExtended findApplication(List<CloudApplicationExtended> apps, String applicationName) {
         return apps.stream()
-            .filter(app -> app.getName()
-                .equals(applicationName))
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException(
-                MessageFormat.format(Messages.APPLICATION_NOT_FOUND_IN_REBUILT_CLOUD_MODEL, applicationName)));
+                   .filter(app -> app.getName()
+                                     .equals(applicationName))
+                   .findFirst()
+                   .orElseThrow(() -> new IllegalStateException(MessageFormat.format(Messages.APPLICATION_NOT_FOUND_IN_REBUILT_CLOUD_MODEL,
+                                                                                     applicationName)));
     }
 
 }

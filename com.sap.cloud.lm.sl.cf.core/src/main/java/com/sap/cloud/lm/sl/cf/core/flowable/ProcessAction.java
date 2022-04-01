@@ -34,9 +34,9 @@ public abstract class ProcessAction {
 
     private List<AdditionalProcessAction> filterAdditionalActionsForThisAction() {
         return additionalProcessActions.stream()
-            .filter(additionalAction -> additionalAction.getApplicableActionId()
-                .equals(getActionId()))
-            .collect(Collectors.toList());
+                                       .filter(additionalAction -> additionalAction.getApplicableActionId()
+                                                                                   .equals(getActionId()))
+                                       .collect(Collectors.toList());
     }
 
     protected abstract void executeActualProcessAction(String userId, String superProcessInstanceId);

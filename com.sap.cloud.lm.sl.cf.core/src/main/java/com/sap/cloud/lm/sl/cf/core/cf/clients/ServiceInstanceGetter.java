@@ -5,11 +5,11 @@ import org.springframework.stereotype.Component;
 @Component("serviceInstanceGetter")
 public class ServiceInstanceGetter extends AbstractServiceGetter {
 
+    private static final String SERVICE_INSTANCES_URL = "/v2/service_instances?q=name:{name}&q=space_guid:{space_guid}";
+
     protected ServiceInstanceGetter(RestTemplateFactory restTemplateFactory) {
         super(restTemplateFactory);
     }
-
-    private static final String SERVICE_INSTANCES_URL = "/v2/service_instances?q=name:{name}&q=space_guid:{space_guid}";
 
     @Override
     public String getServiceInstanceURL() {

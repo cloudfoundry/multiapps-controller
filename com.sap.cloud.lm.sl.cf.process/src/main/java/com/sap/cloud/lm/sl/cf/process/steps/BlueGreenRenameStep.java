@@ -68,7 +68,7 @@ public class BlueGreenRenameStep extends SyncFlowableStep {
     }
 
     protected void visit(ExecutionWrapper execution, DeploymentDescriptor descriptor, ApplicationColor mtaColor,
-        ApplicationColor deployedMtaColor) {
+                         ApplicationColor deployedMtaColor) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
         ApplicationColorAppender appender = handlerFactory.getApplicationColorAppender(deployedMtaColor, mtaColor);
         descriptor.accept(appender);

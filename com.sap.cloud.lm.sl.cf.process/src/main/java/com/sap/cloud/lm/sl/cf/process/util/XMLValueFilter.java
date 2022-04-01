@@ -6,9 +6,9 @@ package com.sap.cloud.lm.sl.cf.process.util;
  */
 public class XMLValueFilter {
 
-    private String input;
     private static final String illegalXmlCharactersRegex = "[\u0000-\u0008\u000B-\u001F\uFFFE\uFFFF]";
     private static final String replacementXmlChar = "*";
+    private String input;
 
     public XMLValueFilter(String input) {
         this.input = input;

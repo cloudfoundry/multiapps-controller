@@ -26,25 +26,11 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 @RunWith(Parameterized.class)
 public class PrepareAppsDeploymentStepTest extends SyncFlowableStepTest<PrepareModulesDeploymentStep> {
 
-    @Mock
-    private ProcessTypeParser processTypeParser;
-
     private final int count;
     private final ProcessType processType;
     private final boolean skipUpdateConfigurations;
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-         // @formatter:off
-            { 1, ProcessType.DEPLOY, false }, 
-            { 2, ProcessType.DEPLOY, false }, 
-            { 3, ProcessType.DEPLOY, false }, 
-            { 4, ProcessType.BLUE_GREEN_DEPLOY, true }, 
-            { 5, ProcessType.UNDEPLOY, false }
-         // @formatter:on    
-        });
-    }
+    @Mock
+    private ProcessTypeParser processTypeParser;
 
     public PrepareAppsDeploymentStepTest(int count, ProcessType processType, boolean skipUpdateConfigurations) {
         this.count = count;
@@ -52,13 +38,26 @@ public class PrepareAppsDeploymentStepTest extends SyncFlowableStepTest<PrepareM
         this.skipUpdateConfigurations = skipUpdateConfigurations;
     }
 
+    @Parameters
+    public static Iterable<Object[]> getParameters() {
+        return Arrays.asList(new Object[][] {
+         // @formatter:off
+            { 1, ProcessType.DEPLOY, false },
+            { 2, ProcessType.DEPLOY, false },
+            { 3, ProcessType.DEPLOY, false },
+            { 4, ProcessType.BLUE_GREEN_DEPLOY, true },
+            { 5, ProcessType.UNDEPLOY, false }
+         // @formatter:on
+        });
+    }
+
     @Before
     public void setUp() throws Exception {
         prepareContext();
         Mockito.when(configuration.getPlatformType())
-            .thenReturn(ApplicationConfiguration.DEFAULT_TYPE);
+               .thenReturn(ApplicationConfiguration.DEFAULT_TYPE);
         Mockito.when(configuration.getControllerPollingInterval())
-            .thenReturn(ApplicationConfiguration.DEFAULT_CONTROLLER_POLLING_INTERVAL);
+               .thenReturn(ApplicationConfiguration.DEFAULT_CONTROLLER_POLLING_INTERVAL);
         when(processTypeParser.getProcessType(context)).thenReturn(processType);
     }
 
@@ -72,7 +71,7 @@ public class PrepareAppsDeploymentStepTest extends SyncFlowableStepTest<PrepareM
         assertEquals(0, context.getVariable(Constants.VAR_MODULES_INDEX));
         assertEquals(Constants.VAR_MODULES_INDEX, context.getVariable(Constants.VAR_INDEX_VARIABLE_NAME));
         assertEquals(ApplicationConfiguration.DEFAULT_CONTROLLER_POLLING_INTERVAL,
-            context.getVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL));
+                     context.getVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL));
         assertTrue((boolean) context.getVariable(Constants.REBUILD_APP_ENV));
         assertTrue((boolean) context.getVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT));
         assertTrue((boolean) context.getVariable(Constants.EXECUTE_ONE_OFF_TASKS));
@@ -84,7 +83,7 @@ public class PrepareAppsDeploymentStepTest extends SyncFlowableStepTest<PrepareM
         StepsUtil.setAllModulesToDeploy(context, getDummyModules());
         return context;
     }
-    
+
     private List<ModuleToDeploy> getDummyModules() {
         List<ModuleToDeploy> modules = new ArrayList<>();
         for (int i = 0; i < count; i++) {

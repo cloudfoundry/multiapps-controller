@@ -42,16 +42,23 @@ public class AuthorizationChecker {
 
     @Inject
     public AuthorizationChecker(CloudControllerClientProvider clientProvider, SpaceGetter spaceGetter,
-        ApplicationConfiguration applicationConfiguration) {
+                                ApplicationConfiguration applicationConfiguration) {
         this.clientProvider = clientProvider;
         this.spaceGetter = spaceGetter;
         this.applicationConfiguration = applicationConfiguration;
     }
 
+    private static void failWithStatus(Status status, String message) {
+        LOGGER.warn(message);
+        AuditLoggingProvider.getFacade()
+                            .logSecurityIncident(message);
+        throw new WebApplicationException(ResponseRenderer.renderResponseForStatus(status, message));
+    }
+
     public void ensureUserIsAuthorized(HttpServletRequest request, UserInfo userInfo, String organization, String space, String action) {
         try {
             if (!checkPermissions(userInfo, organization, space, request.getMethod()
-                .equals(HttpMethod.GET))) {
+                                                                        .equals(HttpMethod.GET))) {
                 String message = MessageFormat.format(Messages.UNAUTHORISED_OPERATION_ORG_SPACE, action, organization, space);
                 failWithForbiddenStatus(message);
             }
@@ -64,7 +71,7 @@ public class AuthorizationChecker {
     public void ensureUserIsAuthorized(HttpServletRequest request, UserInfo userInfo, String spaceGuid, String action) {
         try {
             if (!checkPermissions(userInfo, spaceGuid, request.getMethod()
-                .equals(HttpMethod.GET))) {
+                                                              .equals(HttpMethod.GET))) {
                 String message = MessageFormat.format(Messages.UNAUTHORISED_OPERATION_SPACE_ID, action, spaceGuid);
                 failWithForbiddenStatus(message);
             }
@@ -82,8 +89,7 @@ public class AuthorizationChecker {
             return true;
         }
         // TODO a lot of cpu time is lost in the getControllerCloient method
-        CloudControllerClientSupportingCustomUserIds client = (CloudControllerClientSupportingCustomUserIds) clientProvider
-            .getControllerClient(userInfo.getName());
+        CloudControllerClientSupportingCustomUserIds client = (CloudControllerClientSupportingCustomUserIds) clientProvider.getControllerClient(userInfo.getName());
         // TODO and some more cpu time in hasPermissions
         return hasPermissions(client, userInfo.getId(), orgName, spaceName, readOnly) && hasAccess(client, orgName, spaceName);
     }
@@ -97,8 +103,7 @@ public class AuthorizationChecker {
         }
 
         UUID spaceUUID = UUID.fromString(spaceGuid);
-        CloudControllerClientSupportingCustomUserIds client = (CloudControllerClientSupportingCustomUserIds) clientProvider
-            .getControllerClient(userInfo.getName());
+        CloudControllerClientSupportingCustomUserIds client = (CloudControllerClientSupportingCustomUserIds) clientProvider.getControllerClient(userInfo.getName());
         if (PlatformType.CF.equals(applicationConfiguration.getPlatformType())) {
             return hasPermissions(client, userInfo.getId(), spaceUUID, readOnly);
         }
@@ -113,16 +118,16 @@ public class AuthorizationChecker {
     private boolean hasPermissions(CloudControllerClientSupportingCustomUserIds client, String userId, UUID spaceGuid, boolean readOnly) {
 
         if (client.getSpaceDeveloperIdsAsStrings(spaceGuid)
-            .contains(userId)) {
+                  .contains(userId)) {
             return true;
         }
         if (readOnly) {
             if (client.getSpaceAuditorIdsAsStrings(spaceGuid)
-                .contains(userId)) {
+                      .contains(userId)) {
                 return true;
             }
             if (client.getSpaceManagerIdsAsStrings(spaceGuid)
-                .contains(userId)) {
+                      .contains(userId)) {
                 return true;
             }
         }
@@ -130,18 +135,18 @@ public class AuthorizationChecker {
     }
 
     private boolean hasPermissions(CloudControllerClientSupportingCustomUserIds client, String userId, String orgName, String spaceName,
-        boolean readOnly) {
+                                   boolean readOnly) {
         if (client.getSpaceDeveloperIdsAsStrings(orgName, spaceName)
-            .contains(userId)) {
+                  .contains(userId)) {
             return true;
         }
         if (readOnly) {
             if (client.getSpaceAuditorIdsAsStrings(orgName, spaceName)
-                .contains(userId)) {
+                      .contains(userId)) {
                 return true;
             }
             if (client.getSpaceManagerIdsAsStrings(orgName, spaceName)
-                .contains(userId)) {
+                      .contains(userId)) {
                 return true;
             }
         }
@@ -154,14 +159,14 @@ public class AuthorizationChecker {
 
     private boolean isDummyToken(UserInfo userInfo) {
         return userInfo.getToken()
-            .getValue()
-            .equals(TokenFactory.DUMMY_TOKEN);
+                       .getValue()
+                       .equals(TokenFactory.DUMMY_TOKEN);
     }
 
     private boolean hasAdminScope(UserInfo userInfo) {
         return userInfo.getToken()
-            .getScope()
-            .contains(TokenFactory.SCOPE_CC_ADMIN);
+                       .getScope()
+                       .contains(TokenFactory.SCOPE_CC_ADMIN);
     }
 
     private void failWithUnauthorizedStatus(String message) {
@@ -170,13 +175,6 @@ public class AuthorizationChecker {
 
     private void failWithForbiddenStatus(String message) {
         failWithStatus(Status.FORBIDDEN, message);
-    }
-
-    private static void failWithStatus(Status status, String message) {
-        LOGGER.warn(message);
-        AuditLoggingProvider.getFacade()
-            .logSecurityIncident(message);
-        throw new WebApplicationException(ResponseRenderer.renderResponseForStatus(status, message));
     }
 
     public ClientHelper getClientHelper(CloudControllerClient client) {

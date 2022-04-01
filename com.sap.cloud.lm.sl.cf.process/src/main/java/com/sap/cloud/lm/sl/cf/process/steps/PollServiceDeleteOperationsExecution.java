@@ -23,7 +23,7 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
 
     @Override
     protected List<CloudServiceExtended> computeServicesToPoll(ExecutionWrapper execution,
-        Map<String, ServiceOperationType> triggeredServiceOperations) {
+                                                               Map<String, ServiceOperationType> triggeredServiceOperations) {
         Map<String, CloudServiceExtended> servicesToDeleteData = getServicesData(execution);
         return getServicesWithTriggeredOperations(servicesToDeleteData.values(), triggeredServiceOperations);
     }
@@ -34,7 +34,7 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
 
     @Override
     protected ServiceOperation getLastServiceOperation(ExecutionWrapper execution, CloudControllerClient client,
-        CloudServiceExtended service) {
+                                                       CloudServiceExtended service) {
         return getLastDeleteServiceOperation(execution, service);
     }
 
@@ -43,7 +43,7 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
             return null;
         }
         boolean isServiceDeleted = isServiceDeleted(execution, service.getMeta()
-            .getGuid());
+                                                                      .getGuid());
         ServiceOperationState operationState = isServiceDeleted ? ServiceOperationState.SUCCEEDED : ServiceOperationState.IN_PROGRESS;
         return new ServiceOperation(ServiceOperationType.DELETE, ServiceOperationType.DELETE.name(), operationState);
     }

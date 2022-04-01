@@ -14,9 +14,8 @@ import org.slf4j.LoggerFactory;
 @Named
 public class ResumeProcessAction extends ProcessAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResumeProcessAction.class);
-
     public static final String ACTION_ID_RESUME = "resume";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResumeProcessAction.class);
 
     @Inject
     public ResumeProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions) {
@@ -27,9 +26,9 @@ public class ResumeProcessAction extends ProcessAction {
     public void executeActualProcessAction(String userId, String superProcessInstanceId) {
         List<String> activeProcessIds = getActiveExecutionIds(superProcessInstanceId);
         List<String> processesAtReceiveTask = activeProcessIds.stream()
-            .filter(processId -> !flowableFacade.findExecutionsAtReceiveTask(processId)
-                .isEmpty())
-            .collect(Collectors.toList());
+                                                              .filter(processId -> !flowableFacade.findExecutionsAtReceiveTask(processId)
+                                                                                                  .isEmpty())
+                                                              .collect(Collectors.toList());
 
         for (String processAtReceiveTask : processesAtReceiveTask) {
             triggerProcessInstance(userId, processAtReceiveTask);
@@ -40,7 +39,7 @@ public class ResumeProcessAction extends ProcessAction {
         List<Execution> executionsAtReceiveTask = flowableFacade.findExecutionsAtReceiveTask(processId);
         if (!executionsAtReceiveTask.isEmpty()) {
             executionsAtReceiveTask.stream()
-                .forEach(execution -> flowableFacade.trigger(userId, execution.getId()));
+                                   .forEach(execution -> flowableFacade.trigger(userId, execution.getId()));
             return;
         }
         LOGGER.warn(MessageFormat.format("Process with id {0} is in undetermined process state", processId));

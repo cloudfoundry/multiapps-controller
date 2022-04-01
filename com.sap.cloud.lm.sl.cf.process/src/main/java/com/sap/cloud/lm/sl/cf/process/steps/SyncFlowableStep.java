@@ -27,19 +27,19 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     @Inject
     protected CloudControllerClientProvider clientProvider;
     @Inject
+    @Named("fileService")
+    protected FileService fileService;
+    protected ProcessStepHelper stepHelper;
+    @Inject
     private StepLogger.Factory stepLoggerFactory;
     @Inject
     private ProgressMessageService progressMessageService;
-    @Inject
-    @Named("fileService")
-    protected FileService fileService;
     @Inject
     private ProcessEngineConfiguration processEngineConfiguration;
     @Inject
     private ProcessLoggerProvider processLoggerProvider;
     @Inject
     private ProcessLogsPersister processLogsPersister;
-    protected ProcessStepHelper stepHelper;
     private StepLogger stepLogger;
 
     @Override
@@ -102,7 +102,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
 
     protected Throwable getWithProperMessage(Throwable t) {
         if (t.getMessage() == null || t.getMessage()
-            .isEmpty()) {
+                                       .isEmpty()) {
             return new Exception("An unknown error occurred", t);
         }
         return t;
@@ -110,8 +110,10 @@ public abstract class SyncFlowableStep implements JavaDelegate {
 
     protected ProcessStepHelper getStepHelper() {
         if (stepHelper == null) {
-            stepHelper = new ProcessStepHelper(getProgressMessageService(), getStepLogger(), getProcessLogsPersister(),
-                processEngineConfiguration);
+            stepHelper = new ProcessStepHelper(getProgressMessageService(),
+                                               getStepLogger(),
+                                               getProcessLogsPersister(),
+                                               processEngineConfiguration);
         }
         return stepHelper;
     }

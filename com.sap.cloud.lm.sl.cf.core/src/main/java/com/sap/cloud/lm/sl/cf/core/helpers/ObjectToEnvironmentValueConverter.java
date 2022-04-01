@@ -23,6 +23,18 @@ public class ObjectToEnvironmentValueConverter {
         this.prettyPrinting = prettyPrinting;
     }
 
+    private static CharacterToReplace getDefaultEscapeCharacter() {
+        return new CharacterToReplace('\\', getPlaceholder('\\'));
+    }
+
+    public static List<EscapeSequenceToReplace> getDefaultCustomEscapeSequences() {
+        return Arrays.asList(new EscapeSequenceToReplace(getDefaultEscapeCharacter(), new CharacterToReplace('$', getPlaceholder('$'))));
+    }
+
+    private static String getPlaceholder(char c) {
+        return String.format("{__DEPLOY_SERVICE_ESCAPED_%s}", (int) c);
+    }
+
     public String convert(Object object) {
         return object instanceof String ? (String) object : toJson(object);
     }
@@ -51,18 +63,6 @@ public class ObjectToEnvironmentValueConverter {
             result = result.replace(markerCharacter.getReplacement(), "" + escapeCharacter.getValue() + markerCharacter.getValue());
         }
         return result;
-    }
-
-    private static CharacterToReplace getDefaultEscapeCharacter() {
-        return new CharacterToReplace('\\', getPlaceholder('\\'));
-    }
-
-    public static List<EscapeSequenceToReplace> getDefaultCustomEscapeSequences() {
-        return Arrays.asList(new EscapeSequenceToReplace(getDefaultEscapeCharacter(), new CharacterToReplace('$', getPlaceholder('$'))));
-    }
-
-    private static String getPlaceholder(char c) {
-        return String.format("{__DEPLOY_SERVICE_ESCAPED_%s}", (int) c);
     }
 
 }

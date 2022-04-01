@@ -21,6 +21,12 @@ import com.sap.cloud.lm.sl.common.ContentException;
 public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProcessStepTest.MockStep> {
 
     private static final String PROCESS_ID = "1234";
+    private Exception exceptionToSimulate;
+    private ErrorType expectedErrorType;
+    public AbstractProcessStepTest(Exception exceptionToSimulate, ErrorType expectedErrorType) {
+        this.exceptionToSimulate = exceptionToSimulate;
+        this.expectedErrorType = expectedErrorType;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -34,18 +40,10 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
         });
     }
 
-    private Exception exceptionToSimulate;
-    private ErrorType expectedErrorType;
-
-    public AbstractProcessStepTest(Exception exceptionToSimulate, ErrorType expectedErrorType) {
-        this.exceptionToSimulate = exceptionToSimulate;
-        this.expectedErrorType = expectedErrorType;
-    }
-
     @Before
     public void setUp() {
         Mockito.when(context.getProcessInstanceId())
-            .thenReturn(PROCESS_ID);
+               .thenReturn(PROCESS_ID);
     }
 
     @Test
@@ -55,8 +53,14 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
             step.execute(context);
             fail();
         } catch (Exception e) {
-            Mockito.verify(context).setVariable(Constants.VAR_ERROR_TYPE, expectedErrorType.toString());
+            Mockito.verify(context)
+                   .setVariable(Constants.VAR_ERROR_TYPE, expectedErrorType.toString());
         }
+    }
+
+    @Override
+    protected MockStep createStep() {
+        return new MockStep();
     }
 
     public static class MockStep extends SyncFlowableStep {
@@ -68,11 +72,6 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
             throw exceptionSupplier.get();
         }
 
-    }
-
-    @Override
-    protected MockStep createStep() {
-        return new MockStep();
     }
 
 }

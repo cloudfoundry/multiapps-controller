@@ -46,37 +46,45 @@ public class HelperFactory implements HelperFactoryConstructor {
 
     @Override
     public ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
-        return new ApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
-            deployId);
+                                                                          CloudModelConfiguration configuration, DeployedMta deployedMta,
+                                                                          SystemParameters systemParameters,
+                                                                          XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
+        return new ApplicationsCloudModelBuilder(deploymentDescriptor,
+                                                 configuration,
+                                                 deployedMta,
+                                                 systemParameters,
+                                                 xsPlaceholderResolver,
+                                                 deployId);
     }
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
-        BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
-        ApplicationConfiguration configuration) {
+                                                                              BiFunction<String, String, String> spaceIdSupplier,
+                                                                              ConfigurationEntryDao dao, CloudTarget cloudTarget,
+                                                                              ApplicationConfiguration configuration) {
         ParametersChainBuilder chainBuilder = new ParametersChainBuilder(cast(deploymentDescriptor), cast(platform));
-        com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser filterParser = new com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser(
-            cloudTarget, chainBuilder);
+        com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser filterParser = new com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser(cloudTarget,
+                                                                                                                                                             chainBuilder);
         return new ConfigurationReferencesResolver(dao, filterParser, spaceIdSupplier, cloudTarget, configuration);
     }
 
     @Override
-    public ConfigurationReferencesResolver getConfigurationReferencesResolver(ConfigurationEntryDao dao,
-        ConfigurationFilterParser filterParser, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+    public ConfigurationReferencesResolver
+           getConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser, CloudTarget cloudTarget,
+                                              ApplicationConfiguration configuration) {
         return new ConfigurationReferencesResolver(dao, cast(filterParser), null, cloudTarget, configuration);
     }
 
     @Override
     public DescriptorParametersValidator getDescriptorParametersValidator(com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor,
-        List<ParameterValidator> parameterValidators) {
+                                                                          List<ParameterValidator> parameterValidators) {
         return new DescriptorParametersValidator(cast(descriptor), parameterValidators);
     }
 
     @Override
     public DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
-        List<ParameterValidator> parameterValidators, boolean doNotCorrect) {
+                                                                          List<ParameterValidator> parameterValidators,
+                                                                          boolean doNotCorrect) {
         return new DescriptorParametersValidator(cast(descriptor), parameterValidators, doNotCorrect);
     }
 
@@ -98,7 +106,7 @@ public class HelperFactory implements HelperFactoryConstructor {
 
     @Override
     public UserProvidedResourceResolver getUserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor,
-        Platform platform) {
+                                                                        Platform platform) {
         return new UserProvidedResourceResolver(resourceHelper, cast(descriptor), cast(platform));
     }
 
@@ -114,13 +122,14 @@ public class HelperFactory implements HelperFactoryConstructor {
 
     @Override
     public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        PropertiesAccessor propertiesAccessor, CloudModelConfiguration configuration) {
+                                                                  PropertiesAccessor propertiesAccessor,
+                                                                  CloudModelConfiguration configuration) {
         return new ServicesCloudModelBuilder(deploymentDescriptor, propertiesAccessor, configuration);
     }
 
     @Override
     public ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        PropertiesAccessor propertiesAccessor) {
+                                                                        PropertiesAccessor propertiesAccessor) {
         return new ServiceKeysCloudModelBuilder(deploymentDescriptor, propertiesAccessor);
     }
 

@@ -34,16 +34,17 @@ public class ServiceBrokersGetterTest {
         this.serviceBrokersGetter = new ServiceBrokersGetter(restTemplateFactory);
         String getServiceBrokersResponse = TestUtil.getResourceAsString("valid-get-service-brokers-response.json", getClass());
         Mockito.when(client.getCloudControllerUrl())
-            .thenReturn(new URL(CONTROLLER_URL));
+               .thenReturn(new URL(CONTROLLER_URL));
         Mockito.when(restTemplateFactory.getRestTemplate(client))
-            .thenReturn(restTemplate);
+               .thenReturn(restTemplate);
         Mockito.when(restTemplate.getForObject(CONTROLLER_URL + SERVICE_BROKERS_ENDPOINT, String.class, Collections.emptyMap()))
-            .thenReturn(getServiceBrokersResponse);
+               .thenReturn(getServiceBrokersResponse);
     }
 
     @Test
     public void testGetServiceBrokers() {
-        TestUtil.test(() -> serviceBrokersGetter.getServiceBrokers(client), new Expectation(Expectation.Type.RESOURCE, "service-brokers.json"), getClass());
+        TestUtil.test(() -> serviceBrokersGetter.getServiceBrokers(client),
+                      new Expectation(Expectation.Type.RESOURCE, "service-brokers.json"), getClass());
     }
 
 }

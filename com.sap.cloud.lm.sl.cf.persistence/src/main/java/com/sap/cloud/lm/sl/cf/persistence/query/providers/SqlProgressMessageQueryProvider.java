@@ -50,10 +50,10 @@ public class SqlProgressMessageQueryProvider {
                 statement.setString(1, message.getProcessId());
                 statement.setString(2, message.getTaskId());
                 statement.setString(3, message.getType()
-                    .name());
+                                              .name());
                 statement.setString(4, message.getText());
                 statement.setTimestamp(5, new Timestamp(message.getTimestamp()
-                    .getTime()));
+                                                               .getTime()));
                 int rowsInserted = statement.executeUpdate();
                 return rowsInserted > 0;
             } finally {
@@ -69,7 +69,7 @@ public class SqlProgressMessageQueryProvider {
                 statement = connection.prepareStatement(getQuery(UPDATE_MESSAGE_BY_ID, tableName));
                 statement.setString(1, newMessage.getText());
                 statement.setTimestamp(2, new Timestamp(newMessage.getTimestamp()
-                    .getTime()));
+                                                                  .getTime()));
                 statement.setLong(3, existingId);
                 int rowsUpdated = statement.executeUpdate();
                 return rowsUpdated == 1;
@@ -106,7 +106,7 @@ public class SqlProgressMessageQueryProvider {
     }
 
     public SqlQuery<Integer> getRemoveByProcessInstanceIdAndTaskIdAndTypeQuery(final String processId, String taskId,
-        ProgressMessageType progressMessageType) {
+                                                                               ProgressMessageType progressMessageType) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {

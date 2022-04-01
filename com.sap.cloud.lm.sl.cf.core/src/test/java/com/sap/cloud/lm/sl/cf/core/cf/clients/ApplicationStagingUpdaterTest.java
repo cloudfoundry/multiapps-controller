@@ -29,6 +29,17 @@ public class ApplicationStagingUpdaterTest {
 
     private static final String CONTROLLER_ENDPOINT = "https://api.cf.sap.com";
     private static final String V2_APPS_ENDPOINT = "https://api.cf.sap.com/v2/apps/{guid}";
+    private RestTemplate restTemplate = Mockito.mock(RestTemplate.class);
+    @Mock
+    private RestTemplateFactory restTemplateFactory;
+    @Mock
+    private CloudControllerClient client;
+    private ApplicationStagingUpdater applicationStagingUpdater;
+    private StepInput input;
+    private Staging updateStaging;
+    public ApplicationStagingUpdaterTest(String inputLocation) throws Exception {
+        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -46,32 +57,16 @@ public class ApplicationStagingUpdaterTest {
         });
     }
 
-    private RestTemplate restTemplate = Mockito.mock(RestTemplate.class);
-
-    @Mock
-    private RestTemplateFactory restTemplateFactory;
-    @Mock
-    private CloudControllerClient client;
-
-    private ApplicationStagingUpdater applicationStagingUpdater;
-
-    private StepInput input;
-    private Staging updateStaging;
-
-    public ApplicationStagingUpdaterTest(String inputLocation) throws Exception {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
-    }
-
     @Before
     public void setUp() throws MalformedURLException {
         MockitoAnnotations.initMocks(this);
         this.applicationStagingUpdater = new ApplicationStagingUpdater(restTemplateFactory);
         Mockito.when(client.getCloudControllerUrl())
-            .thenReturn(new URL(CONTROLLER_ENDPOINT));
+               .thenReturn(new URL(CONTROLLER_ENDPOINT));
         Mockito.when(client.getApplication(input.application.appName))
-            .thenReturn(input.application.toCloudApp());
+               .thenReturn(input.application.toCloudApp());
         Mockito.when(restTemplateFactory.getRestTemplate(Mockito.eq(client)))
-            .thenReturn(restTemplate);
+               .thenReturn(restTemplate);
         updateStaging = input.staging.toStaging();
     }
 
@@ -84,9 +79,9 @@ public class ApplicationStagingUpdaterTest {
 
     private void validateRestCall() {
         Mockito.verify(restTemplate)
-            .put(Mockito.eq(V2_APPS_ENDPOINT), Mockito.eq(getStagingMap(updateStaging)), Mockito.eq(input.application.toCloudApp()
-                .getMeta()
-                .getGuid()));
+               .put(Mockito.eq(V2_APPS_ENDPOINT), Mockito.eq(getStagingMap(updateStaging)), Mockito.eq(input.application.toCloudApp()
+                                                                                                                        .getMeta()
+                                                                                                                        .getGuid()));
     }
 
     private Map<String, Object> getStagingMap(Staging staging) {
@@ -127,12 +122,12 @@ public class ApplicationStagingUpdaterTest {
 
         Staging toStaging() {
             return new Staging.StagingBuilder().command(command)
-                .buildpackUrl(buildpackUrl)
-                .healthCheckTimeout(healthCheckTimeout)
-                .healthCheckType(healthCheckType)
-                .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
-                .sshEnabled(sshEnabled)
-                .build();
+                                               .buildpackUrl(buildpackUrl)
+                                               .healthCheckTimeout(healthCheckTimeout)
+                                               .healthCheckType(healthCheckType)
+                                               .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
+                                               .sshEnabled(sshEnabled)
+                                               .build();
         }
     }
 

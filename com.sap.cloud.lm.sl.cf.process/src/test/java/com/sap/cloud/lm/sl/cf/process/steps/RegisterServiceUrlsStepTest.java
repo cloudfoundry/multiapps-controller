@@ -29,11 +29,16 @@ public class RegisterServiceUrlsStepTest extends SyncFlowableStepTest<RegisterSe
     private final String expectedExceptionMessage;
     private final String inputLocation;
     private final String expectedOutputLocation;
-
-    private StepInput input;
-    private StepOutput expectedOutput;
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    private StepInput input;
+    private StepOutput expectedOutput;
+
+    public RegisterServiceUrlsStepTest(String inputLocation, String expectedOutputLocation, String expectedExceptionMessage) {
+        this.expectedOutputLocation = expectedOutputLocation;
+        this.expectedExceptionMessage = expectedExceptionMessage;
+        this.inputLocation = inputLocation;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -49,12 +54,6 @@ public class RegisterServiceUrlsStepTest extends SyncFlowableStepTest<RegisterSe
             }
 // @formatter:on
         });
-    }
-
-    public RegisterServiceUrlsStepTest(String inputLocation, String expectedOutputLocation, String expectedExceptionMessage) {
-        this.expectedOutputLocation = expectedOutputLocation;
-        this.expectedExceptionMessage = expectedExceptionMessage;
-        this.inputLocation = inputLocation;
     }
 
     @Before
@@ -74,7 +73,7 @@ public class RegisterServiceUrlsStepTest extends SyncFlowableStepTest<RegisterSe
 
         for (ServiceUrl serviceUrl : expectedOutput.serviceUrlsToRegister) {
             Mockito.verify(client)
-                .registerServiceURL(serviceUrl.getServiceName(), serviceUrl.getUrl());
+                   .registerServiceURL(serviceUrl.getServiceName(), serviceUrl.getUrl());
         }
     }
 
@@ -102,8 +101,13 @@ public class RegisterServiceUrlsStepTest extends SyncFlowableStepTest<RegisterSe
 
     private List<CloudApplicationExtended> toCloudApplications() {
         return input.applications.stream()
-            .map(app -> app.toCloudApplicationExtended())
-            .collect(Collectors.toList());
+                                 .map(app -> app.toCloudApplicationExtended())
+                                 .collect(Collectors.toList());
+    }
+
+    @Override
+    protected RegisterServiceUrlsStep createStep() {
+        return new RegisterServiceUrlsStep();
     }
 
     private static class StepInput {
@@ -125,11 +129,6 @@ public class RegisterServiceUrlsStepTest extends SyncFlowableStepTest<RegisterSe
             return app;
         }
 
-    }
-
-    @Override
-    protected RegisterServiceUrlsStep createStep() {
-        return new RegisterServiceUrlsStep();
     }
 
 }

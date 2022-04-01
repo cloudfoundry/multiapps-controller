@@ -37,7 +37,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
 
     public DeleteDiscontinuedConfigurationEntriesStepTest(String stepInputLocation) throws ParsingException, IOException {
         stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInputLocation, DeleteDiscontinuedConfigurationEntriesStepTest.class),
-            StepInput.class);
+                                      StepInput.class);
     }
 
     @Parameters
@@ -76,9 +76,9 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
         CloudTarget oldTarget = new CloudTarget(null, stepInput.spaceId);
 
         Mockito.when(configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, newTarget, null, stepInput.mtaId))
-            .thenReturn(stepInput.allEntriesForMtaWithNewTarget);
+               .thenReturn(stepInput.allEntriesForMtaWithNewTarget);
         Mockito.when(configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, oldTarget, null, stepInput.mtaId))
-            .thenReturn(stepInput.allEntriesForMtaWithOldTarget);
+               .thenReturn(stepInput.allEntriesForMtaWithOldTarget);
     }
 
     private void prepareContext() {
@@ -87,19 +87,19 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
         context.setVariable(Constants.VAR_ORG, stepInput.org);
         context.setVariable(Constants.PARAM_MTA_ID, stepInput.mtaId);
         Mockito.when(context.getProcessInstanceId())
-            .thenReturn("process-instance-id");
+               .thenReturn("process-instance-id");
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
-            .thenReturn(Arrays.asList("test-subprocess-id"));
+               .thenReturn(Arrays.asList("test-subprocess-id"));
         HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
         Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES))
-            .thenReturn(varInstanceMock);
+               .thenReturn(varInstanceMock);
         Mockito.when(varInstanceMock.getValue())
-            .thenReturn(getBytes(stepInput.publishedEntries));
+               .thenReturn(getBytes(stepInput.publishedEntries));
         HistoricVariableInstance varInstanceMockDeletedEntries = Mockito.mock(HistoricVariableInstance.class);
         Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("process-instance-id", Constants.VAR_DELETED_ENTRIES))
-            .thenReturn(varInstanceMockDeletedEntries);
+               .thenReturn(varInstanceMockDeletedEntries);
         Mockito.when(varInstanceMockDeletedEntries.getValue())
-            .thenReturn(getBytes(getEntriesToDelete()));
+               .thenReturn(getBytes(getEntriesToDelete()));
     }
 
     private byte[] getBytes(List<ConfigurationEntry> publishedEntries) {
@@ -113,7 +113,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
         assertStepFinishedSuccessfully();
 
         assertEquals(toJson(getEntriesToDelete()),
-            toJson(StepsUtil.getDeletedEntriesFromProcess(flowableFacadeFacade, context.getProcessInstanceId())));
+                     toJson(StepsUtil.getDeletedEntriesFromProcess(flowableFacadeFacade, context.getProcessInstanceId())));
 
         for (Long id : (stepInput.idsOfExpectedEntriesToDelete)) {
             verify(configurationEntryDao).remove(id);
@@ -130,13 +130,18 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
 
     private ConfigurationEntry findEntry(List<ConfigurationEntry> entries, long id) {
         return entries.stream()
-            .filter((entry) -> entry.getId() == id)
-            .findFirst()
-            .orElse(null);
+                      .filter((entry) -> entry.getId() == id)
+                      .findFirst()
+                      .orElse(null);
     }
 
     private String toJson(List<ConfigurationEntry> entries) {
         return JsonUtil.toJson(entries, true, true, false);
+    }
+
+    @Override
+    protected DeleteDiscontinuedConfigurationEntriesStep createStep() {
+        return new DeleteDiscontinuedConfigurationEntriesStep();
     }
 
     private static class StepInput {
@@ -148,11 +153,6 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
         private String space;
         private String org;
         private String spaceId;
-    }
-
-    @Override
-    protected DeleteDiscontinuedConfigurationEntriesStep createStep() {
-        return new DeleteDiscontinuedConfigurationEntriesStep();
     }
 
 }

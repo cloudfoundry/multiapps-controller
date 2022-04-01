@@ -44,12 +44,50 @@ import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 @Lazy(false)
 public class ApplicationConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfiguration.class);
-
-    public enum DatabaseType {
-        DEFAULTDB, HANA, POSTGRESQL
-    }
-
+    // Default values
+    public static final PlatformType DEFAULT_TYPE = PlatformType.XS2;
+    public static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.DEFAULTDB;
+    public static final List<Platform> DEFAULT_PLATFORMS = Collections.emptyList();
+    public static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
+    public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4 GB(s)
+    public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB(s)
+    public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024l; // 1MB
+    public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024l; // 1GB
+    public static final Boolean DEFAULT_SCAN_UPLOADS = false;
+    public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
+    public static final String DEFAULT_SPACE_ID = "";
+    public static final int DEFAULT_HTTP_ROUTER_PORT = 80;
+    public static final int DEFAULT_HTTPS_ROUTER_PORT = 443;
+    public static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
+    public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
+    public static final String DEFAULT_GLOBAL_AUDITOR_USER = "";
+    public static final String DEFAULT_GLOBAL_AUDITOR_PASSWORD = "";
+    public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
+    public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
+    public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
+    /**
+     * The minimum duration for an Activiti timer is 5 seconds, because when the job manager schedules a new timer, it checks whether that
+     * timer should fire in the next 5 seconds. If so, it hints the job executor that it should execute that timer ASAP. However, there is
+     * some delay between the time when Activiti creates the timer object and when it checks whether its due date is in the next 5 seconds.
+     * This is why we set the controller polling interval to 6 seconds.
+     *
+     * TODO Revert this back to 3 seconds when we adopt version 5.16.0 of Activiti, where the behaviour described above is fixed.
+     *
+     * @see org.activiti.engine.impl.persistence.entity.JobEntityManager#schedule()
+     */
+    public static final Integer DEFAULT_CONTROLLER_POLLING_INTERVAL = 6; // 6 second(s)
+    public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
+    public static final String DEFAULT_VERSION = "N/A";
+    public static final Integer DEFAULT_CHANGE_LOG_LOCK_POLL_RATE = 1; // 1 minute(s)
+    public static final Integer DEFAULT_CHANGE_LOG_LOCK_DURATION = 1; // 1 minute(s)
+    public static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
+    public static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = false;
+    public static final Integer DEFAULT_HEALTH_CHECK_TIME_RANGE = (int) TimeUnit.MINUTES.toSeconds(5);
+    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS = 2;
+    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS = 8;
+    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = 8;
+    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE = 60;
+    public static final Integer DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = 30;
     // Environment variables
     static final String CFG_TYPE = "XS_TYPE";
     static final String CFG_DB_TYPE = "DB_TYPE";
@@ -89,65 +127,11 @@ public class ApplicationConfiguration {
     static final String CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = "AUDIT_LOG_CLIENT_QUEUE_CAPACITY";
     static final String CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE = "AUDIT_LOG_CLIENT_KEEP_ALIVE";
     static final String CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = "FSS_CACHE_UPDATE_TIMEOUT_MINUTES";
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfiguration.class);
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
-
-    // Default values
-    public static final PlatformType DEFAULT_TYPE = PlatformType.XS2;
-    public static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.DEFAULTDB;
-    public static final List<Platform> DEFAULT_PLATFORMS = Collections.emptyList();
-    public static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
-    public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4 GB(s)
-    public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB(s)
-    public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024l; // 1MB
-    public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024l; // 1GB
-    public static final Boolean DEFAULT_SCAN_UPLOADS = false;
-    public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
-    public static final String DEFAULT_SPACE_ID = "";
-    public static final int DEFAULT_HTTP_ROUTER_PORT = 80;
-    public static final int DEFAULT_HTTPS_ROUTER_PORT = 443;
-    public static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
-    public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
-    public static final String DEFAULT_GLOBAL_AUDITOR_USER = "";
-    public static final String DEFAULT_GLOBAL_AUDITOR_PASSWORD = "";
-    public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
-    public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
-    public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
-    /**
-     * The minimum duration for an Activiti timer is 5 seconds, because when the job manager schedules a new timer, it checks whether that
-     * timer should fire in the next 5 seconds. If so, it hints the job executor that it should execute that timer ASAP. However, there is
-     * some delay between the time when Activiti creates the timer object and when it checks whether its due date is in the next 5 seconds.
-     * This is why we set the controller polling interval to 6 seconds.
-     * 
-     * TODO Revert this back to 3 seconds when we adopt version 5.16.0 of Activiti, where the behaviour described above is fixed.
-     * 
-     * @see org.activiti.engine.impl.persistence.entity.JobEntityManager#schedule()
-     */
-    public static final Integer DEFAULT_CONTROLLER_POLLING_INTERVAL = 6; // 6 second(s)
-    public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
-    public static final String DEFAULT_VERSION = "N/A";
-    public static final Integer DEFAULT_CHANGE_LOG_LOCK_POLL_RATE = 1; // 1 minute(s)
-    public static final Integer DEFAULT_CHANGE_LOG_LOCK_DURATION = 1; // 1 minute(s)
-    public static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
-    public static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = false;
-    public static final Integer DEFAULT_HEALTH_CHECK_TIME_RANGE = (int) TimeUnit.MINUTES.toSeconds(5);
-    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS = 2;
-    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS = 8;
-    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = 8;
-    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE = 60;
-    public static final Integer DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = 30;
-
     // Type names
     private static final Map<String, PlatformType> TYPE_NAMES = createTypeNames();
-
-    private static Map<String, PlatformType> createTypeNames() {
-        Map<String, PlatformType> result = new HashMap<>();
-        result.put("XSA", PlatformType.XS2);
-        return Collections.unmodifiableMap(result);
-    }
-
     private final Environment environment;
-
     // Cached configuration settings:
     private Map<String, Object> vcapApplication;
     private PlatformType platformType;
@@ -188,14 +172,18 @@ public class ApplicationConfiguration {
     private Integer auditLogClientQueueCapacity;
     private Integer auditLogClientKeepAlive;
     private Integer fssCacheUpdateTimeoutMinutes;
-
     public ApplicationConfiguration() {
         this(new Environment());
     }
-
     @Inject
     public ApplicationConfiguration(Environment environment) {
         this.environment = environment;
+    }
+
+    private static Map<String, PlatformType> createTypeNames() {
+        Map<String, PlatformType> result = new HashMap<>();
+        result.put("XSA", PlatformType.XS2);
+        return Collections.unmodifiableMap(result);
     }
 
     public void load() {
@@ -245,19 +233,21 @@ public class ApplicationConfiguration {
         Set<String> notSensitiveConfigVariables = getNotSensitiveConfigVariables();
         Map<String, String> env = environment.getAllVariables();
         return env.entrySet()
-            .stream()
-            .filter(envVariable -> notSensitiveConfigVariables.contains(envVariable.getKey()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                  .stream()
+                  .filter(envVariable -> notSensitiveConfigVariables.contains(envVariable.getKey()))
+                  .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private Set<String> getNotSensitiveConfigVariables() {
         return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_DB_TYPE, CFG_PLATFORM, CFG_PLATFORM_V2, CFG_PLATFORM_V3, CFG_MAX_UPLOAD_SIZE,
-            CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE, CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING,
-            CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED, CFG_GLOBAL_AUDITOR_USER, CFG_CONTROLLER_POLLING_INTERVAL,
-            CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE,
-            CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS,
-            CFG_MAIL_API_URL, CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS, CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
-            CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE));
+                                           CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE, CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS,
+                                           CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED,
+                                           CFG_GLOBAL_AUDITOR_USER, CFG_CONTROLLER_POLLING_INTERVAL, CFG_SKIP_SSL_VALIDATION,
+                                           CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE,
+                                           CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE,
+                                           CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL, CFG_AUDIT_LOG_CLIENT_CORE_THREADS,
+                                           CFG_AUDIT_LOG_CLIENT_MAX_THREADS, CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
+                                           CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE));
     }
 
     public Configuration getFileConfiguration() {
@@ -712,7 +702,7 @@ public class ApplicationConfiguration {
 
     private int computeDefaultRouterPort() {
         return getControllerUrl().getProtocol()
-            .equals("http") ? DEFAULT_HTTP_ROUTER_PORT : DEFAULT_HTTPS_ROUTER_PORT;
+                                 .equals("http") ? DEFAULT_HTTP_ROUTER_PORT : DEFAULT_HTTPS_ROUTER_PORT;
     }
 
     private String getDeployServiceUrlFromEnvironment() {
@@ -836,12 +826,11 @@ public class ApplicationConfiguration {
     }
 
     private HealthCheckConfiguration getHealthCheckConfigurationFromEnvironment() {
-        HealthCheckConfiguration healthCheckConfiguration = new HealthCheckConfiguration.Builder()
-            .spaceId(getHealthCheckSpaceIdFromEnvironment())
-            .mtaId(getHealthCheckMtaIdFromEnvironment())
-            .userName(getHealthCheckUserFromEnvironment())
-            .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
-            .build();
+        HealthCheckConfiguration healthCheckConfiguration = new HealthCheckConfiguration.Builder().spaceId(getHealthCheckSpaceIdFromEnvironment())
+                                                                                                  .mtaId(getHealthCheckMtaIdFromEnvironment())
+                                                                                                  .userName(getHealthCheckUserFromEnvironment())
+                                                                                                  .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
+                                                                                                  .build();
         LOGGER.info(format(Messages.HEALTH_CHECK_CONFIGURATION, JsonUtil.toJson(healthCheckConfiguration, true)));
         return healthCheckConfiguration;
     }
@@ -918,6 +907,10 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES, DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES);
         LOGGER.info(format(Messages.FSS_CACHE_UPDATE_TIMEOUT, value));
         return value;
+    }
+
+    public enum DatabaseType {
+        DEFAULTDB, HANA, POSTGRESQL
     }
 
 }

@@ -70,8 +70,8 @@ public class OperationDao {
 
     private List<Operation> toOperations(List<OperationDto> dtos) {
         return dtos.stream()
-            .map(dto -> operationFactory.fromPersistenceDto(dto))
-            .collect(Collectors.toList());
+                   .map(dto -> operationFactory.fromPersistenceDto(dto))
+                   .collect(Collectors.toList());
     }
 
 }

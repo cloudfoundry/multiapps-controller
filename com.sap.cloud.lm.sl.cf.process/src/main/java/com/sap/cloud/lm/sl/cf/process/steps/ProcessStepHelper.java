@@ -35,7 +35,7 @@ public class ProcessStepHelper {
     private ProcessEngineConfiguration processEngineConfiguration;
 
     public ProcessStepHelper(ProgressMessageService progressMessageService, StepLogger stepLogger,
-        ProcessLogsPersister processLogsPersister, ProcessEngineConfiguration processEngineConfigurationSupplier) {
+                             ProcessLogsPersister processLogsPersister, ProcessEngineConfiguration processEngineConfigurationSupplier) {
         this.progressMessageService = progressMessageService;
         this.stepLogger = stepLogger;
         this.processLogsPersister = processLogsPersister;
@@ -44,7 +44,7 @@ public class ProcessStepHelper {
 
     protected void postExecuteStep(DelegateExecution context, StepPhase state) {
         logDebug(MessageFormat.format(Messages.STEP_FINISHED, context.getCurrentFlowElement()
-            .getName()));
+                                                                     .getName()));
 
         processLogsPersister.persistLogs(context);
         context.setVariable(Constants.VAR_STEP_EXECUTION, state.toString());
@@ -75,8 +75,11 @@ public class ProcessStepHelper {
     private void logTaskStartup(DelegateExecution context, String taskId) {
         stepLogger.logFlowableTask();
         String message = MessageFormat.format(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getProcessInstanceId());
-        progressMessageService.add(new ProgressMessage(getCorrelationId(context), taskId, ProgressMessageType.TASK_STARTUP, message,
-            new Timestamp(System.currentTimeMillis())));
+        progressMessageService.add(new ProgressMessage(getCorrelationId(context),
+                                                       taskId,
+                                                       ProgressMessageType.TASK_STARTUP,
+                                                       message,
+                                                       new Timestamp(System.currentTimeMillis())));
     }
 
     protected void logException(DelegateExecution context, Throwable t) {
@@ -94,8 +97,11 @@ public class ProcessStepHelper {
 
     public void storeExceptionInProgressMessageService(DelegateExecution context, Throwable t) {
         try {
-            ProgressMessage msg = new ProgressMessage(getCorrelationId(context), getCurrentActivityId(context), ProgressMessageType.ERROR,
-                MessageFormat.format(Messages.UNEXPECTED_ERROR, t.getMessage()), new Timestamp(System.currentTimeMillis()));
+            ProgressMessage msg = new ProgressMessage(getCorrelationId(context),
+                                                      getCurrentActivityId(context),
+                                                      ProgressMessageType.ERROR,
+                                                      MessageFormat.format(Messages.UNEXPECTED_ERROR, t.getMessage()),
+                                                      new Timestamp(System.currentTimeMillis()));
             progressMessageService.add(msg);
         } catch (SLException e) {
             getProcessLogger().error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
@@ -106,18 +112,18 @@ public class ProcessStepHelper {
     // Check the issue: https://github.com/flowable/flowable-engine/issues/1280
     private String getCurrentActivityId(DelegateExecution context) {
         List<Execution> processExecutions = processEngineConfiguration.getRuntimeService()
-            .createExecutionQuery()
-            .processInstanceId(context.getProcessInstanceId())
-            .list();
+                                                                      .createExecutionQuery()
+                                                                      .processInstanceId(context.getProcessInstanceId())
+                                                                      .list();
         List<Execution> processExecutionsWithActivityIds = processExecutions.stream()
-            .filter(e -> e.getActivityId() != null)
-            .collect(Collectors.toList());
+                                                                            .filter(e -> e.getActivityId() != null)
+                                                                            .collect(Collectors.toList());
         if (processExecutionsWithActivityIds.isEmpty()) {
             // if this happen then there is a really big problem with Flowable :)
             throw new SLException("There are no executions for process with id: " + context.getProcessInstanceId());
         }
         return processExecutionsWithActivityIds.get(0)
-            .getActivityId();
+                                               .getActivityId();
     }
 
     private void logDebug(String message) {
@@ -130,7 +136,8 @@ public class ProcessStepHelper {
 
     public void failStepIfProcessIsAborted(DelegateExecution context) {
         Boolean processAborted = (Boolean) processEngineConfiguration.getRuntimeService()
-            .getVariable(StepsUtil.getCorrelationId(context), Constants.PROCESS_ABORTED);
+                                                                     .getVariable(StepsUtil.getCorrelationId(context),
+                                                                                  Constants.PROCESS_ABORTED);
         if (processAborted != null && processAborted) {
             throw new SLException(Messages.PROCESS_WAS_ABORTED);
         }

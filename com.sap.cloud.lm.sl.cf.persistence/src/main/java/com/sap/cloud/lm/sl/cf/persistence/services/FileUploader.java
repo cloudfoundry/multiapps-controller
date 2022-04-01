@@ -24,10 +24,9 @@ import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
 
 public class FileUploader {
 
+    public static final String DIGEST_METHOD = "MD5";
     private static final String EXTENSION = "tmp";
     private static final String PREFIX = "fileUpload";
-    public static final String DIGEST_METHOD = "MD5";
-
     private static final Logger logger = LoggerFactory.getLogger(FileUploader.class);
 
     private FileUploader() {

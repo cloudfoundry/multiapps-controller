@@ -14,12 +14,7 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
-import com.sap.cloud.lm.sl.cf.process.util.StagingState;
-import com.sap.cloud.lm.sl.cf.process.util.StagingState.StagingLogs;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class XS2ApplicationStagerTest {
 
@@ -36,18 +31,18 @@ public class XS2ApplicationStagerTest {
         execution = Mockito.mock(ExecutionWrapper.class);
         DelegateExecution context = Mockito.mock(DelegateExecution.class);
         Mockito.when(context.getVariable(Constants.VAR_STARTING_INFO_CLASSNAME))
-            .thenReturn("org.cloudfoundry.client.lib.StartingInfo");
+               .thenReturn("org.cloudfoundry.client.lib.StartingInfo");
         Mockito.when(context.getVariable(Constants.VAR_OFFSET))
-            .thenReturn(0);
+               .thenReturn(0);
         StartingInfo startingInfo = new StartingInfo("");
         Mockito.when(context.getVariable(Constants.VAR_STARTING_INFO))
-            .thenReturn(JsonUtil.toJson(startingInfo)
-                .getBytes());
+               .thenReturn(JsonUtil.toJson(startingInfo)
+                                   .getBytes());
         Mockito.when(execution.getContext())
-            .thenReturn(context);
+               .thenReturn(context);
 
         Mockito.when(execution.getControllerClient())
-            .thenReturn(client);
+               .thenReturn(client);
     }
 
     @Test
@@ -60,21 +55,21 @@ public class XS2ApplicationStagerTest {
     @Test
     public void testStagingLogsAreNullPackageStatePendingExpected() {
         Mockito.when(client.getStagingLogs(Mockito.any(StartingInfo.class), Mockito.any(Integer.class)))
-            .thenReturn("Test");
+               .thenReturn("Test");
 
         StagingState stagingState = applicationStager.getStagingState(execution, client);
 
         assertEquals(PackageState.PENDING, stagingState.getState());
         assertEquals("Test", stagingState.getStagingLogs()
-            .getLogs());
+                                         .getLogs());
         assertEquals(0, stagingState.getStagingLogs()
-            .getOffset());
+                                    .getOffset());
     }
 
     @Test
     public void testStagingLogsAreNullPackageStateFailedExpected() {
         Mockito.when(client.getStagingLogs(Mockito.any(StartingInfo.class), Mockito.any(Integer.class)))
-            .thenThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR));
+               .thenThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         StagingState stagingState = applicationStager.getStagingState(execution, client);
 
@@ -84,7 +79,7 @@ public class XS2ApplicationStagerTest {
     @Test
     public void testStagingLogsAreNullPackageStateStagedExpectedWithException() {
         Mockito.when(client.getStagingLogs(Mockito.any(StartingInfo.class), Mockito.any(Integer.class)))
-            .thenThrow(new CloudOperationException(HttpStatus.BAD_REQUEST));
+               .thenThrow(new CloudOperationException(HttpStatus.BAD_REQUEST));
 
         StagingState stagingState = applicationStager.getStagingState(execution, client);
 

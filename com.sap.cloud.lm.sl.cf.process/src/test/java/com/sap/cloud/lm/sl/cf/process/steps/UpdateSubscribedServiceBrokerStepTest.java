@@ -31,12 +31,19 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 @RunWith(Parameterized.class)
 public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<UpdateServiceBrokerSubscriberStep> {
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     private StepInput input;
     private String expectedExceptionMessage;
     private String warningMessage;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public UpdateSubscribedServiceBrokerStepTest(String inputLocation, String expectedExceptionMessage, String warningMessage)
+        throws ParsingException, IOException {
+        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, UpdateSubscribedServiceBrokerStepTest.class),
+                                       StepInput.class);
+        this.expectedExceptionMessage = expectedExceptionMessage;
+        this.warningMessage = warningMessage;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -66,14 +73,6 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
         });
     }
 
-    public UpdateSubscribedServiceBrokerStepTest(String inputLocation, String expectedExceptionMessage, String warningMessage)
-        throws ParsingException, IOException {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, UpdateSubscribedServiceBrokerStepTest.class),
-            StepInput.class);
-        this.expectedExceptionMessage = expectedExceptionMessage;
-        this.warningMessage = warningMessage;
-    }
-
     @Before
     public void setUp() {
         prepareClient();
@@ -86,10 +85,10 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
 
     private void prepareClient() {
         Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false)))
-            .thenReturn(null);
+               .thenReturn(null);
         if (input.brokerApplication.brokerName.equals(input.brokerFromClient.name)) {
             Mockito.when(client.getServiceBroker(input.brokerFromClient.name, false))
-                .thenReturn(input.brokerFromClient.toServiceBroker());
+                   .thenReturn(input.brokerFromClient.toServiceBroker());
         }
     }
 
@@ -110,12 +109,15 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
     private void validateExecution() {
         if (warningMessage != null) {
             Mockito.verify(stepLogger)
-                .warn(warningMessage);
+                   .warn(warningMessage);
         } else {
-            CloudServiceBroker expectedBroker = new CloudServiceBroker(null, input.brokerApplication.brokerName,
-                input.brokerApplication.brokerUrl, input.brokerApplication.brokerUsername, input.brokerApplication.brokerPassword);
+            CloudServiceBroker expectedBroker = new CloudServiceBroker(null,
+                                                                       input.brokerApplication.brokerName,
+                                                                       input.brokerApplication.brokerUrl,
+                                                                       input.brokerApplication.brokerUsername,
+                                                                       input.brokerApplication.brokerPassword);
             Mockito.verify(client)
-                .updateServiceBroker(Mockito.argThat(GenericArgumentMatcher.forObject(expectedBroker)));
+                   .updateServiceBroker(Mockito.argThat(GenericArgumentMatcher.forObject(expectedBroker)));
         }
     }
 

@@ -75,13 +75,13 @@ public class ProgressMessage {
         this.timestamp = timestamp;
     }
 
-    public enum ProgressMessageType {
-        ERROR, WARNING, INFO, EXT, TASK_STARTUP,
-    }
-
     @Override
     public String toString() {
         return "ProgressMessage [id=" + id + ", processId=" + processId + ", taskId=" + taskId + ", type=" + type + ", text=" + text
             + ", timestamp=" + timestamp + "]";
+    }
+
+    public enum ProgressMessageType {
+        ERROR, WARNING, INFO, EXT, TASK_STARTUP,
     }
 }

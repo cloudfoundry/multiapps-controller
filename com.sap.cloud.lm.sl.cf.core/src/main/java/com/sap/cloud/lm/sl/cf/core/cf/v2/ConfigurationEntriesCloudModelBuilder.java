@@ -50,26 +50,26 @@ public class ConfigurationEntriesCloudModelBuilder {
 
     private List<ProvidedDependency> getPublicProvidedDependencies(Module module) {
         return module.getProvidedDependencies2()
-            .stream()
-            .filter(CloudModelBuilderUtil::isPublic)
-            .collect(Collectors.toList());
+                     .stream()
+                     .filter(CloudModelBuilderUtil::isPublic)
+                     .collect(Collectors.toList());
     }
 
     private Map<String, List<ConfigurationEntry>> createConfigurationEntries(DeploymentDescriptor deploymentDescriptor,
-        Map<String, List<ProvidedDependency>> providedDependencies) {
+                                                                             Map<String, List<ProvidedDependency>> providedDependencies) {
         Map<String, List<ConfigurationEntry>> result = new TreeMap<>();
         for (Entry<String, List<ProvidedDependency>> providedDependency : providedDependencies.entrySet()) {
             result.put(providedDependency.getKey(),
-                createConfigurationEntriesForModule(deploymentDescriptor, providedDependency.getValue()));
+                       createConfigurationEntriesForModule(deploymentDescriptor, providedDependency.getValue()));
         }
         return result;
     }
 
     private List<ConfigurationEntry> createConfigurationEntriesForModule(DeploymentDescriptor deploymentDescriptor,
-        List<ProvidedDependency> providedDependencies) {
+                                                                         List<ProvidedDependency> providedDependencies) {
         return providedDependencies.stream()
-            .map(providedDependency -> createConfigurationEntry(deploymentDescriptor, providedDependency))
-            .collect(Collectors.toList());
+                                   .map(providedDependency -> createConfigurationEntry(deploymentDescriptor, providedDependency))
+                                   .collect(Collectors.toList());
     }
 
     private ConfigurationEntry createConfigurationEntry(DeploymentDescriptor deploymentDescriptor, ProvidedDependency providedDependency) {
@@ -91,8 +91,8 @@ public class ConfigurationEntriesCloudModelBuilder {
         visibility.add(new CloudTarget(orgName, spaceName));
 
         for (Map<String, Object> visibleTarget : visibleTargets) {
-            visibility.add(
-                new CloudTarget(getElement(visibleTarget, SupportedParameters.ORG), getElement(visibleTarget, SupportedParameters.SPACE)));
+            visibility.add(new CloudTarget(getElement(visibleTarget, SupportedParameters.ORG),
+                                           getElement(visibleTarget, SupportedParameters.SPACE)));
         }
         return new ArrayList<>(visibility);
     }
@@ -103,7 +103,7 @@ public class ConfigurationEntriesCloudModelBuilder {
         }
         ParametersContainer dependency = (ParametersContainer) providedDependency;
         return CommonUtil.cast(dependency.getParameters()
-            .get(SupportedParameters.VISIBILITY));
+                                         .get(SupportedParameters.VISIBILITY));
     }
 
     private String getElement(Map<String, Object> map, String elementName) {

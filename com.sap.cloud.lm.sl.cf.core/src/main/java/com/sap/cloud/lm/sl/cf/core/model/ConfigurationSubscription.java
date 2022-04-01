@@ -56,7 +56,7 @@ public class ConfigurationSubscription implements AuditableConfiguration {
     }
 
     public ConfigurationSubscription(long id, String mtaId, String spaceId, String appName, ConfigurationFilter filter, ModuleDto moduleDto,
-        ResourceDto resourceDto) {
+                                     ResourceDto resourceDto) {
         this.filter = filter;
         this.spaceId = spaceId;
         this.appName = appName;
@@ -64,6 +64,18 @@ public class ConfigurationSubscription implements AuditableConfiguration {
         this.moduleDto = moduleDto;
         this.mtaId = mtaId;
         this.resourceDto = resourceDto;
+    }
+
+    public static ConfigurationSubscription from(String mtaId, String spaceId, String appName, ConfigurationFilter filter, Module module,
+                                                 Resource resource, int majorSchemaVersion) {
+        switch (majorSchemaVersion) {
+            case 2:
+                ResourceDto resourceDto = ResourceDto.from2((com.sap.cloud.lm.sl.mta.model.v2.Resource) resource);
+                ModuleDto moduleDto = ModuleDto.from2((com.sap.cloud.lm.sl.mta.model.v2.Module) module);
+                return new ConfigurationSubscription(00, mtaId, spaceId, appName, filter, moduleDto, resourceDto);
+            default:
+                throw new UnsupportedOperationException(format(Messages.UNSUPPORTED_VERSION, majorSchemaVersion));
+        }
     }
 
     public long getId() {
@@ -94,16 +106,32 @@ public class ConfigurationSubscription implements AuditableConfiguration {
         return resourceDto;
     }
 
-    public static ConfigurationSubscription from(String mtaId, String spaceId, String appName, ConfigurationFilter filter, Module module,
-        Resource resource, int majorSchemaVersion) {
-        switch (majorSchemaVersion) {
-            case 2:
-                ResourceDto resourceDto = ResourceDto.from2((com.sap.cloud.lm.sl.mta.model.v2.Resource) resource);
-                ModuleDto moduleDto = ModuleDto.from2((com.sap.cloud.lm.sl.mta.model.v2.Module) module);
-                return new ConfigurationSubscription(00, mtaId, spaceId, appName, filter, moduleDto, resourceDto);
-            default:
-                throw new UnsupportedOperationException(format(Messages.UNSUPPORTED_VERSION, majorSchemaVersion));
-        }
+    public boolean matches(List<ConfigurationEntry> entries) {
+        return entries.stream()
+                      .anyMatch(entry -> filter.matches(entry));
+    }
+
+    public boolean matches(ConfigurationEntry entry) {
+        return filter.matches(entry);
+    }
+
+    @Override
+    public String getConfigurationType() {
+        return "configuration subscription";
+    }
+
+    @Override
+    public String getConfigurationName() {
+        return String.valueOf(id);
+    }
+
+    @Override
+    public List<ConfigurationIdentifier> getConfigurationIdentifiers() {
+        List<ConfigurationIdentifier> configurationIdentifiers = new ArrayList<>();
+        configurationIdentifiers.add(new ConfigurationIdentifier("mta id", mtaId));
+        configurationIdentifiers.add(new ConfigurationIdentifier("application name", appName));
+        configurationIdentifiers.add(new ConfigurationIdentifier("space id", spaceId));
+        return configurationIdentifiers;
     }
 
     @XmlRootElement(name = "module")
@@ -131,11 +159,30 @@ public class ConfigurationSubscription implements AuditableConfiguration {
         }
 
         public ModuleDto(String name, Map<String, Object> properties, List<ProvidedDependencyDto> providedDependencies,
-            List<RequiredDependencyDto> requiredDependencies) {
+                         List<RequiredDependencyDto> requiredDependencies) {
             this.name = name;
             this.properties = properties;
             this.providedDependencies = providedDependencies;
             this.requiredDependencies = requiredDependencies;
+        }
+
+        public static ModuleDto from2(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
+            return new ModuleDto(module.getName(),
+                                 module.getProperties(),
+                                 fromProvidedDependencies2(module.getProvidedDependencies2()),
+                                 fromRequiredDependencies2(module.getRequiredDependencies2()));
+        }
+
+        private static List<ProvidedDependencyDto> fromProvidedDependencies2(List<ProvidedDependency> providedDependencies) {
+            return providedDependencies.stream()
+                                       .map(dependency -> ProvidedDependencyDto.from2(dependency))
+                                       .collect(Collectors.toList());
+        }
+
+        private static List<RequiredDependencyDto> fromRequiredDependencies2(List<RequiredDependency> requiredDependencies) {
+            return requiredDependencies.stream()
+                                       .map(dependency -> RequiredDependencyDto.from2(dependency))
+                                       .collect(Collectors.toList());
         }
 
         public String getName() {
@@ -152,23 +199,6 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
         public List<RequiredDependencyDto> getRequiredDependencies() {
             return requiredDependencies;
-        }
-
-        public static ModuleDto from2(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
-            return new ModuleDto(module.getName(), module.getProperties(), fromProvidedDependencies2(module.getProvidedDependencies2()),
-                fromRequiredDependencies2(module.getRequiredDependencies2()));
-        }
-
-        private static List<ProvidedDependencyDto> fromProvidedDependencies2(List<ProvidedDependency> providedDependencies) {
-            return providedDependencies.stream()
-                .map(dependency -> ProvidedDependencyDto.from2(dependency))
-                .collect(Collectors.toList());
-        }
-
-        private static List<RequiredDependencyDto> fromRequiredDependencies2(List<RequiredDependency> requiredDependencies) {
-            return requiredDependencies.stream()
-                .map(dependency -> RequiredDependencyDto.from2(dependency))
-                .collect(Collectors.toList());
         }
 
     }
@@ -194,16 +224,16 @@ public class ConfigurationSubscription implements AuditableConfiguration {
             this.properties = properties;
         }
 
+        public static ResourceDto from2(com.sap.cloud.lm.sl.mta.model.v2.Resource resource) {
+            return new ResourceDto(resource.getName(), resource.getProperties());
+        }
+
         public String getName() {
             return name;
         }
 
         public Map<String, Object> getProperties() {
             return properties;
-        }
-
-        public static ResourceDto from2(com.sap.cloud.lm.sl.mta.model.v2.Resource resource) {
-            return new ResourceDto(resource.getName(), resource.getProperties());
         }
 
     }
@@ -233,6 +263,12 @@ public class ConfigurationSubscription implements AuditableConfiguration {
             this.properties = properties;
         }
 
+        public static RequiredDependencyDto from2(com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency requiredDependency) {
+            return new RequiredDependencyDto(requiredDependency.getName(),
+                                             requiredDependency.getList(),
+                                             requiredDependency.getProperties());
+        }
+
         public String getName() {
             return name;
         }
@@ -243,11 +279,6 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
         public Map<String, Object> getProperties() {
             return properties;
-        }
-
-        public static RequiredDependencyDto from2(com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency requiredDependency) {
-            return new RequiredDependencyDto(requiredDependency.getName(), requiredDependency.getList(),
-                requiredDependency.getProperties());
         }
 
     }
@@ -273,6 +304,10 @@ public class ConfigurationSubscription implements AuditableConfiguration {
             this.properties = properties;
         }
 
+        public static ProvidedDependencyDto from2(com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency providedDependency) {
+            return new ProvidedDependencyDto(providedDependency.getName(), providedDependency.getProperties());
+        }
+
         public String getName() {
             return name;
         }
@@ -281,38 +316,6 @@ public class ConfigurationSubscription implements AuditableConfiguration {
             return properties;
         }
 
-        public static ProvidedDependencyDto from2(com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency providedDependency) {
-            return new ProvidedDependencyDto(providedDependency.getName(), providedDependency.getProperties());
-        }
-
-    }
-
-    public boolean matches(List<ConfigurationEntry> entries) {
-        return entries.stream()
-            .anyMatch(entry -> filter.matches(entry));
-    }
-
-    public boolean matches(ConfigurationEntry entry) {
-        return filter.matches(entry);
-    }
-
-    @Override
-    public String getConfigurationType() {
-        return "configuration subscription";
-    }
-
-    @Override
-    public String getConfigurationName() {
-        return String.valueOf(id);
-    }
-
-    @Override
-    public List<ConfigurationIdentifier> getConfigurationIdentifiers() {
-        List<ConfigurationIdentifier> configurationIdentifiers = new ArrayList<>();
-        configurationIdentifiers.add(new ConfigurationIdentifier("mta id", mtaId));
-        configurationIdentifiers.add(new ConfigurationIdentifier("application name", appName));
-        configurationIdentifiers.add(new ConfigurationIdentifier("space id", spaceId));
-        return configurationIdentifiers;
     }
 
 }

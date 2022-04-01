@@ -4,11 +4,12 @@ import java.util.List;
 
 import javax.inject.Named;
 
+import org.springframework.context.annotation.Profile;
+
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
-import org.springframework.context.annotation.Profile;
 
 @Named
 @Profile("cf")

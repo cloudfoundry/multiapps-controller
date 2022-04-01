@@ -42,17 +42,18 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
     private static final String TEST_SPACE_ID = "test-space-id";
     private final StepInput stepInput;
     private final String expectedExceptionMessage;
-
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     private Map<CloudServiceExtended, CloudServiceInstance> existingServiceInstances;
-
     @Mock
     private ServiceCreator serviceCreator;
-
     @Mock
     private ServiceUpdater serviceUpdater;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public CreateOrUpdateServicesStepTest(String stepInput, String expectedExceptionMessage) throws Exception {
+        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CreateOrUpdateServicesStepTest.class), StepInput.class);
+        this.expectedExceptionMessage = expectedExceptionMessage;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -120,11 +121,6 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
             },
 // @formatter:on
         });
-    }
-
-    public CreateOrUpdateServicesStepTest(String stepInput, String expectedExceptionMessage) throws Exception {
-        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CreateOrUpdateServicesStepTest.class), StepInput.class);
-        this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
     @Before
@@ -396,6 +392,11 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
         return findService(service.getName(), stepInput.existingServices) != null;
     }
 
+    @Override
+    protected CreateOrUpdateServicesStep createStep() {
+        return new CreateOrUpdateServicesStep();
+    }
+
     private static class StepInput {
 
         List<CloudServiceExtended> services = Collections.emptyList();
@@ -434,11 +435,6 @@ public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateO
         CloudApplicationExtended toCloudApplication() {
             return new CloudApplicationExtended(new Meta(NameUtil.getUUID(name), null, null), name);
         }
-    }
-
-    @Override
-    protected CreateOrUpdateServicesStep createStep() {
-        return new CreateOrUpdateServicesStep();
     }
 
 }

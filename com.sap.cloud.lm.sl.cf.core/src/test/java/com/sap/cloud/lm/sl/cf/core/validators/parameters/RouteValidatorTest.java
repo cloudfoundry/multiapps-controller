@@ -18,6 +18,19 @@ import com.sap.cloud.lm.sl.mta.model.v2.Module;
 @RunWith(Parameterized.class)
 public class RouteValidatorTest {
 
+    private static RouteValidator validator = new RouteValidator();
+    private String inputRoute;
+    private boolean isValid;
+    private String correctedRoute;
+    private String expectedException;
+    public RouteValidatorTest(String inputRoute, boolean isValid, String correctedRoute, String expectedException) {
+        super();
+        this.inputRoute = inputRoute;
+        this.isValid = isValid;
+        this.correctedRoute = correctedRoute;
+        this.expectedException = expectedException;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -40,21 +53,6 @@ public class RouteValidatorTest {
             {"domain.with.port:-1234", false, "cannot really correct this", "Could not create a valid route"},
 // @formatter:on
         });
-    }
-
-    private static RouteValidator validator = new RouteValidator();
-
-    private String inputRoute;
-    private boolean isValid;
-    private String correctedRoute;
-    private String expectedException;
-
-    public RouteValidatorTest(String inputRoute, boolean isValid, String correctedRoute, String expectedException) {
-        super();
-        this.inputRoute = inputRoute;
-        this.isValid = isValid;
-        this.correctedRoute = correctedRoute;
-        this.expectedException = expectedException;
     }
 
     @Test
@@ -89,7 +87,7 @@ public class RouteValidatorTest {
     @Test
     public void testGetContainerType() {
         assertTrue(validator.getContainerType()
-            .isAssignableFrom(Module.class));
+                            .isAssignableFrom(Module.class));
     }
 
 }

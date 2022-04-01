@@ -27,7 +27,7 @@ public class BinaryJson {
 
     public byte[] marshal(Object object) {
         return gson.toJson(object)
-            .getBytes(StandardCharsets.UTF_8);
+                   .getBytes(StandardCharsets.UTF_8);
     }
 
 }

@@ -42,23 +42,18 @@ import com.sap.cloud.lm.sl.common.util.TestDataSourceProvider;
 
 public class DatabaseFileServiceTest {
 
-    private static final String SELECT_FILE_WITH_CONTENT = "SELECT FILE_ID FROM {0} WHERE FILE_ID=? AND CONTENT IS NOT NULL";
-
-    private static final String UPDATE_MODIFICATION_TIME = "UPDATE {0} SET MODIFIED=? WHERE FILE_ID=?";
-
-    private static final String LIQUIBASE_CHANGELOG_LOCATION = "com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog.xml";
-
-    private static final String DIGEST_METHOD = "MD5";
-    private static final String PIC_MD5_DIGEST = "b39a167875c3771c384c9aa5601fc2d6";
-    private static final int PIC_SIZE = 2095730;
-
     protected static final String SPACE_1 = "myspace";
     protected static final String SPACE_2 = "myspace2";
     protected static final String NAMESPACE_1 = "system/deployables";
     protected static final String NAMESPACE_2 = "dido";
     protected static final String PIC_RESOURCE_NAME = "pexels-photo-401794.jpeg";
     protected static final String PIC_STORAGE_NAME = "pic1.jpeg";
-
+    private static final String SELECT_FILE_WITH_CONTENT = "SELECT FILE_ID FROM {0} WHERE FILE_ID=? AND CONTENT IS NOT NULL";
+    private static final String UPDATE_MODIFICATION_TIME = "UPDATE {0} SET MODIFIED=? WHERE FILE_ID=?";
+    private static final String LIQUIBASE_CHANGELOG_LOCATION = "com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog.xml";
+    private static final String DIGEST_METHOD = "MD5";
+    private static final String PIC_MD5_DIGEST = "b39a167875c3771c384c9aa5601fc2d6";
+    private static final int PIC_SIZE = 2095730;
     protected FileService fileService;
 
     protected DataSourceWithDialect testDataSource;
@@ -98,7 +93,7 @@ public class DatabaseFileServiceTest {
         Path expectedFile = Paths.get("src/test/resources/", PIC_RESOURCE_NAME);
         FileEntry fileEntry = addTestFile(SPACE_1, NAMESPACE_1);
         String expectedFileDigest = DigestHelper.computeFileChecksum(expectedFile, DIGEST_METHOD)
-            .toLowerCase();
+                                                .toLowerCase();
         validateFileContent(fileEntry, expectedFileDigest);
     }
 
@@ -186,7 +181,7 @@ public class DatabaseFileServiceTest {
         fileService.setVirusScanner(mockedScanner);
         fileService.addFile(space, namespace, PIC_STORAGE_NAME, new DefaultFileUploadProcessor(true), resourceStream);
         Mockito.verify(mockedScanner, Mockito.times(1))
-            .scanFile((File) Mockito.any());
+               .scanFile((File) Mockito.any());
     }
 
     @Test
@@ -220,8 +215,8 @@ public class DatabaseFileServiceTest {
 
     protected InputStream getResource(String name) {
         return Thread.currentThread()
-            .getContextClassLoader()
-            .getResourceAsStream(name);
+                     .getContextClassLoader()
+                     .getResourceAsStream(name);
     }
 
     private void verifyFileEntry(FileEntry entry, String space, String namespace) {
@@ -234,7 +229,7 @@ public class DatabaseFileServiceTest {
 
         // verify the MD5 digest, compare with one taken with md5sum
         assertEquals(PIC_MD5_DIGEST.toLowerCase(), entry.getDigest()
-            .toLowerCase());
+                                                        .toLowerCase());
         assertEquals(DIGEST_METHOD, entry.getDigestAlgorithm());
     }
 
@@ -250,8 +245,8 @@ public class DatabaseFileServiceTest {
     private void tearDownConnection() throws Exception {
         // actually close the connection
         testDataSource.getDataSource()
-            .getConnection()
-            .close();
+                      .getConnection()
+                      .close();
     }
 
     private FileEntry addFileEntry(String spaceId) throws FileStorageException {
@@ -260,17 +255,21 @@ public class DatabaseFileServiceTest {
     }
 
     private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {
-        fileService
-            .processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(), storedFile.getId(), new FileContentProcessor() {
-                @Override
-                public void processFileContent(InputStream contentStream) throws NoSuchAlgorithmException, IOException {
-                    // make a digest out of the content and compare it to the original
-                    final byte[] digest = calculateFileDigest(contentStream);
-                    assertEquals(expectedFileChecksum, DatatypeConverter.printHexBinary(digest)
-                        .toLowerCase());
-                }
+        fileService.processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(),
+                                                                        storedFile.getId(),
+                                                                        new FileContentProcessor() {
+                                                                            @Override
+                                                                            public void processFileContent(InputStream contentStream)
+                                                                                throws NoSuchAlgorithmException, IOException {
+                                                                                // make a digest out of the content and compare it to the
+                                                                                // original
+                                                                                final byte[] digest = calculateFileDigest(contentStream);
+                                                                                assertEquals(expectedFileChecksum,
+                                                                                             DatatypeConverter.printHexBinary(digest)
+                                                                                                              .toLowerCase());
+                                                                            }
 
-            }));
+                                                                        }));
     }
 
     private byte[] calculateFileDigest(InputStream contentStream) throws NoSuchAlgorithmException, IOException {
@@ -287,8 +286,8 @@ public class DatabaseFileServiceTest {
         PreparedStatement statement = null;
         try {
             statement = testDataSource.getDataSource()
-                .getConnection()
-                .prepareStatement(MessageFormat.format(UPDATE_MODIFICATION_TIME, FileService.DEFAULT_TABLE_NAME));
+                                      .getConnection()
+                                      .prepareStatement(MessageFormat.format(UPDATE_MODIFICATION_TIME, FileService.DEFAULT_TABLE_NAME));
             statement.setTimestamp(1, new java.sql.Timestamp(modificationDate.getTime()));
             statement.setString(2, fileEntry.getId());
             statement.executeUpdate();
@@ -301,8 +300,8 @@ public class DatabaseFileServiceTest {
         PreparedStatement statement = null;
         try {
             statement = testDataSource.getDataSource()
-                .getConnection()
-                .prepareStatement(MessageFormat.format(SELECT_FILE_WITH_CONTENT, FileService.DEFAULT_TABLE_NAME));
+                                      .getConnection()
+                                      .prepareStatement(MessageFormat.format(SELECT_FILE_WITH_CONTENT, FileService.DEFAULT_TABLE_NAME));
             statement.setString(1, fileEntry.getId());
             ResultSet executeQuery = statement.executeQuery();
             assertTrue(executeQuery.next());

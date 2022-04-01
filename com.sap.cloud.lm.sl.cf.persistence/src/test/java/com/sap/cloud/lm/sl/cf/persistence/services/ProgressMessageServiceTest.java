@@ -37,6 +37,14 @@ public class ProgressMessageServiceTest {
     private ProgressMessage progressMessage3;
     private ProgressMessage progressMessage4;
 
+    private static void assertSameProgressMessage(ProgressMessage expected, ProgressMessage actual) {
+        assertNotNull(actual.getId());
+        assertEquals(expected.getProcessId(), actual.getProcessId());
+        assertEquals(expected.getTaskId(), actual.getTaskId());
+        assertEquals(expected.getType(), actual.getType());
+        assertEquals(expected.getText(), actual.getText());
+    }
+
     @Before
     public void setUp() throws Exception {
         setUpConnection();
@@ -49,14 +57,26 @@ public class ProgressMessageServiceTest {
     }
 
     private void initializeData() {
-        progressMessage1 = new ProgressMessage(PROCESS_INSTANCE_ID_1, TASK_ID_1, ProgressMessageType.ERROR, MESSAGE_TEXT_1,
-            new Timestamp(System.currentTimeMillis()));
-        progressMessage2 = new ProgressMessage(PROCESS_INSTANCE_ID_1, TASK_ID_2, ProgressMessageType.INFO, MESSAGE_TEXT_2,
-            new Timestamp(System.currentTimeMillis()));
-        progressMessage3 = new ProgressMessage(PROCESS_INSTANCE_ID_2, TASK_ID_1, ProgressMessageType.INFO, MESSAGE_TEXT_1,
-            new Timestamp(System.currentTimeMillis()));
-        progressMessage4 = new ProgressMessage(PROCESS_INSTANCE_ID_2, TASK_ID_2, ProgressMessageType.INFO, MESSAGE_TEXT_2,
-            new Timestamp(System.currentTimeMillis()));
+        progressMessage1 = new ProgressMessage(PROCESS_INSTANCE_ID_1,
+                                               TASK_ID_1,
+                                               ProgressMessageType.ERROR,
+                                               MESSAGE_TEXT_1,
+                                               new Timestamp(System.currentTimeMillis()));
+        progressMessage2 = new ProgressMessage(PROCESS_INSTANCE_ID_1,
+                                               TASK_ID_2,
+                                               ProgressMessageType.INFO,
+                                               MESSAGE_TEXT_2,
+                                               new Timestamp(System.currentTimeMillis()));
+        progressMessage3 = new ProgressMessage(PROCESS_INSTANCE_ID_2,
+                                               TASK_ID_1,
+                                               ProgressMessageType.INFO,
+                                               MESSAGE_TEXT_1,
+                                               new Timestamp(System.currentTimeMillis()));
+        progressMessage4 = new ProgressMessage(PROCESS_INSTANCE_ID_2,
+                                               TASK_ID_2,
+                                               ProgressMessageType.INFO,
+                                               MESSAGE_TEXT_2,
+                                               new Timestamp(System.currentTimeMillis()));
 
         List<ProgressMessage> messages = Arrays.asList(progressMessage1, progressMessage2, progressMessage3, progressMessage4);
         for (ProgressMessage message : messages) {
@@ -70,7 +90,7 @@ public class ProgressMessageServiceTest {
         service.removeByProcessId(PROCESS_INSTANCE_ID_2);
         service.removeByProcessId("test-processId");
         JdbcUtil.closeQuietly(testDataSource.getDataSource()
-            .getConnection());
+                                            .getConnection());
     }
 
     @Test
@@ -78,8 +98,11 @@ public class ProgressMessageServiceTest {
         final String PROCESS_ID = "test-update-processId";
         final String TASK_ID = "test-update-taskId";
 
-        ProgressMessage progressMessage = new ProgressMessage(PROCESS_ID, TASK_ID, ProgressMessageType.INFO, "test-update-info-message",
-            new Timestamp(System.currentTimeMillis()));
+        ProgressMessage progressMessage = new ProgressMessage(PROCESS_ID,
+                                                              TASK_ID,
+                                                              ProgressMessageType.INFO,
+                                                              "test-update-info-message",
+                                                              new Timestamp(System.currentTimeMillis()));
         boolean insertSuccess = service.add(progressMessage);
         assertTrue(insertSuccess);
 
@@ -93,8 +116,11 @@ public class ProgressMessageServiceTest {
         assertEquals(1, messagesByProcessId.size());
         ProgressMessage messageToUpdate = messagesByProcessId.get(0);
 
-        ProgressMessage updatedProgressMessage = new ProgressMessage(PROCESS_ID, TASK_ID, ProgressMessageType.INFO,
-            "test-update-new-info-message", new Timestamp(System.currentTimeMillis()));
+        ProgressMessage updatedProgressMessage = new ProgressMessage(PROCESS_ID,
+                                                                     TASK_ID,
+                                                                     ProgressMessageType.INFO,
+                                                                     "test-update-new-info-message",
+                                                                     new Timestamp(System.currentTimeMillis()));
         boolean updateSuccess = service.update(messageToUpdate.getId(), updatedProgressMessage);
         assertTrue(updateSuccess);
 
@@ -125,13 +151,5 @@ public class ProgressMessageServiceTest {
     public void testRemoveOlderThan() {
         int removedProgressMessages = service.removeOlderThan(new Date(System.currentTimeMillis() + 1));
         assertEquals(4, removedProgressMessages);
-    }
-
-    private static void assertSameProgressMessage(ProgressMessage expected, ProgressMessage actual) {
-        assertNotNull(actual.getId());
-        assertEquals(expected.getProcessId(), actual.getProcessId());
-        assertEquals(expected.getTaskId(), actual.getTaskId());
-        assertEquals(expected.getType(), actual.getType());
-        assertEquals(expected.getText(), actual.getText());
     }
 }

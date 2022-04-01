@@ -53,7 +53,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
         getStepLogger().debug(Messages.DESIRED_STATE, app.getName(), desiredState);
 
         Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(execution.getContext()).determineActionsToExecute(currentState,
-            desiredState);
+                                                                                                                              desiredState);
         getStepLogger().debug(Messages.ACTIONS_TO_EXECUTE, app.getName(), actionsToExecute);
 
         StepsUtil.setAppStateActionsToExecute(execution.getContext(), actionsToExecute);
@@ -63,13 +63,13 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
     private ApplicationStartupState computeCurrentState(ExecutionWrapper execution, CloudApplication app) {
         CloudControllerClient client = execution.getControllerClient();
         return appStateCalculatorSupplier.get()
-            .computeCurrentState(client.getApplication(app.getName()));
+                                         .computeCurrentState(client.getApplication(app.getName()));
     }
 
     private ApplicationStartupState computeDesiredState(DelegateExecution context, CloudApplication app) {
         boolean shouldNotStartAnyApp = (boolean) context.getVariable(Constants.PARAM_NO_START);
         return appStateCalculatorSupplier.get()
-            .computeDesiredState(app, shouldNotStartAnyApp);
+                                         .computeDesiredState(app, shouldNotStartAnyApp);
     }
 
     private ActionCalculator getActionsCalculator(DelegateExecution context) {
@@ -79,7 +79,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
 
     private boolean determineAppRestart(DelegateExecution context) {
         String appContentChangedString = StepsUtil.getVariableOrDefault(context, Constants.VAR_APP_CONTENT_CHANGED,
-            Boolean.toString(false));
+                                                                        Boolean.toString(false));
         if (Boolean.valueOf(appContentChangedString)) {
             return true;
         }

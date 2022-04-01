@@ -31,9 +31,9 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
         assertStepFinishedSuccessfully();
 
         Mockito.verify(client, Mockito.never())
-            .stopApplication(APP_NAME);
+               .stopApplication(APP_NAME);
         Mockito.verify(client, Mockito.times(1))
-            .startApplication(APP_NAME, false);
+               .startApplication(APP_NAME, false);
 
         assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(StepsUtil.getStartingInfo(context)));
     }
@@ -53,9 +53,9 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
         assertStepFinishedSuccessfully();
 
         Mockito.verify(client)
-            .stopApplication(APP_NAME);
+               .stopApplication(APP_NAME);
         Mockito.verify(client)
-            .startApplication(APP_NAME, false);
+               .startApplication(APP_NAME, false);
 
         assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(StepsUtil.getStartingInfo(context)));
     }
@@ -68,9 +68,9 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     private void prepareContextAndClient(CloudApplicationExtended app, StartingInfo startingInfo) {
         Mockito.when(client.getApplication(APP_NAME))
-            .thenReturn(app);
+               .thenReturn(app);
         Mockito.when(client.startApplication(APP_NAME, false))
-            .thenReturn(startingInfo);
+               .thenReturn(startingInfo);
         StepsUtil.setApp(context, app);
     }
 

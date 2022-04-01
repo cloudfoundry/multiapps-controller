@@ -28,7 +28,7 @@ public class NameUtilTest {
         String longName = StringUtils.repeat("f", NameRequirements.XS_APP_NAME_MAX_LENGTH + 1);
 
         testIsValidName(Arrays.asList("sap_system", "sap_system_1", "foo&&bar", "foo bar", longName), NameRequirements.XS_APP_NAME_PATTERN,
-            false);
+                        false);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class NameUtilTest {
         String longName = StringUtils.repeat("F", NameRequirements.CONTAINER_NAME_MAX_LENGTH + 1);
 
         testIsValidName(Arrays.asList("foo", "FOO BAR", "1-FOO", "FOO_&_BAR", "_FOO", " ", longName),
-            NameRequirements.CONTAINER_NAME_PATTERN, false);
+                        NameRequirements.CONTAINER_NAME_PATTERN, false);
     }
 
     private void testIsValidName(List<String> names, String namePattern, boolean expectedResult) {
@@ -61,7 +61,7 @@ public class NameUtilTest {
     @Test
     public void testCreateValidContainerName() throws Exception {
         String containerName = NameUtil.createValidContainerName("initial", "initial",
-            "com.sap.cloud.lm.sl.xs2.a.very.very.long.service.name.with.illegal.container.name.characters");
+                                                                 "com.sap.cloud.lm.sl.xs2.a.very.very.long.service.name.with.illegal.container.name.characters");
         assertEquals("INITIAL_INITIAL_COM_SAP_CLOUD_LM_SL_XS2_A_VERY_VERY_LONG3AC0B612", containerName);
         assertTrue(NameUtil.isValidName(containerName, NameRequirements.CONTAINER_NAME_PATTERN));
     }

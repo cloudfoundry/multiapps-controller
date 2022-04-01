@@ -22,6 +22,16 @@ import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 public class CFOptimizedSpaceGetterParameterizedTest extends CFOptimizedSpaceGetterBaseTest {
 
     private static final String FIND_SPACE_ENDPOINT = "https://api.cf.sap.com/v2/spaces?inline-relations-depth=1&q=organization_guid:{organization_guid}&q=name:{space_name}";
+    private String responseLocation;
+    private String additionalResponseLocation;
+    private Expectation expectation;
+    private String response;
+    private String additionalResponse;
+    public CFOptimizedSpaceGetterParameterizedTest(String responseLocation, String additionalResponseLocation, Expectation expectation) {
+        this.responseLocation = responseLocation;
+        this.additionalResponseLocation = additionalResponseLocation;
+        this.expectation = expectation;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -54,19 +64,6 @@ public class CFOptimizedSpaceGetterParameterizedTest extends CFOptimizedSpaceGet
             },
 // @formatter:on
         });
-    }
-
-    private String responseLocation;
-    private String additionalResponseLocation;
-    private Expectation expectation;
-
-    private String response;
-    private String additionalResponse;
-
-    public CFOptimizedSpaceGetterParameterizedTest(String responseLocation, String additionalResponseLocation, Expectation expectation) {
-        this.responseLocation = responseLocation;
-        this.additionalResponseLocation = additionalResponseLocation;
-        this.expectation = expectation;
     }
 
     @Before

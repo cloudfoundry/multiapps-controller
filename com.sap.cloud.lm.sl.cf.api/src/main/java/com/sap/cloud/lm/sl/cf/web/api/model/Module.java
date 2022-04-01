@@ -164,26 +164,26 @@ public class Module {
         sb.append("class Module {\n");
 
         sb.append("    moduleName: ")
-            .append(toIndentedString(moduleName))
-            .append("\n");
+          .append(toIndentedString(moduleName))
+          .append("\n");
         sb.append("    appName: ")
-            .append(toIndentedString(appName))
-            .append("\n");
+          .append(toIndentedString(appName))
+          .append("\n");
         sb.append("    createdOn: ")
-            .append(toIndentedString(createdOn))
-            .append("\n");
+          .append(toIndentedString(createdOn))
+          .append("\n");
         sb.append("    updatedOn: ")
-            .append(toIndentedString(updatedOn))
-            .append("\n");
+          .append(toIndentedString(updatedOn))
+          .append("\n");
         sb.append("    providedDendencyNames: ")
-            .append(toIndentedString(providedDendencyNames))
-            .append("\n");
+          .append(toIndentedString(providedDendencyNames))
+          .append("\n");
         sb.append("    services: ")
-            .append(toIndentedString(services))
-            .append("\n");
+          .append(toIndentedString(services))
+          .append("\n");
         sb.append("    uris: ")
-            .append(toIndentedString(uris))
-            .append("\n");
+          .append(toIndentedString(uris))
+          .append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -196,6 +196,6 @@ public class Module {
             return "null";
         }
         return o.toString()
-            .replace("\n", "\n    ");
+                .replace("\n", "\n    ");
     }
 }

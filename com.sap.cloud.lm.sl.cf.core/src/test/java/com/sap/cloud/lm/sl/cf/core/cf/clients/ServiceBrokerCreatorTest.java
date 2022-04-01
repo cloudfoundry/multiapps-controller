@@ -39,6 +39,11 @@ public class ServiceBrokerCreatorTest {
     private CloudServiceBrokerExtended serviceBrokerToCreate;
     private Expectation expectation;
 
+    public ServiceBrokerCreatorTest(String serviceBrokerToCreateJsonLocation, Expectation expectation) {
+        this.serviceBrokerToCreateJsonLocation = serviceBrokerToCreateJsonLocation;
+        this.expectation = expectation;
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -71,11 +76,6 @@ public class ServiceBrokerCreatorTest {
         });
     }
 
-    public ServiceBrokerCreatorTest(String serviceBrokerToCreateJsonLocation, Expectation expectation) {
-        this.serviceBrokerToCreateJsonLocation = serviceBrokerToCreateJsonLocation;
-        this.expectation = expectation;
-    }
-
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -84,9 +84,9 @@ public class ServiceBrokerCreatorTest {
         this.serviceBrokerToCreate = JsonUtil.fromJson(serviceBrokerToCreateJson, CloudServiceBrokerExtended.class);
 
         Mockito.when(client.getCloudControllerUrl())
-            .thenReturn(new URL(CONTROLLER_URL));
+               .thenReturn(new URL(CONTROLLER_URL));
         Mockito.when(restTemplateFactory.getRestTemplate(client))
-            .thenReturn(restTemplate);
+               .thenReturn(restTemplate);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class ServiceBrokerCreatorTest {
 
             ArgumentCaptor<Object> requestCaptor = ArgumentCaptor.forClass(Object.class);
             Mockito.verify(restTemplate)
-                .postForObject(Mockito.eq(CONTROLLER_URL + SERVICE_BROKERS_ENDPOINT), requestCaptor.capture(), Mockito.eq(String.class));
+                   .postForObject(Mockito.eq(CONTROLLER_URL + SERVICE_BROKERS_ENDPOINT), requestCaptor.capture(), Mockito.eq(String.class));
 
             return requestCaptor.getValue();
         }, expectation, getClass());

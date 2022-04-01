@@ -25,11 +25,11 @@ public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
     public List<CloudTask> parse(List<Map<String, Object>> parametersList) {
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> tasks = (List<Map<String, Object>>) PropertiesUtil.getPropertyValue(parametersList, parameterName,
-            Collections.emptyList());
+                                                                                                      Collections.emptyList());
 
         return tasks.stream()
-            .map(this::toCloudTask)
-            .collect(Collectors.toList());
+                    .map(this::toCloudTask)
+                    .collect(Collectors.toList());
     }
 
     private CloudTask toCloudTask(Map<String, Object> rawTask) {

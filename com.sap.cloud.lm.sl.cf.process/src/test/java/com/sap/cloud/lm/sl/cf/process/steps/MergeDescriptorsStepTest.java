@@ -30,19 +30,9 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("node-hello-mtad.yaml",
-        MergeDescriptorsStepTest.class);
+                                                                                               MergeDescriptorsStepTest.class);
 
     private static final Platform PLATFORM = loadPlatform(CONFIGURATION_PARSER, "platform-01.json", MergeDescriptorsStepTest.class);
-
-    private class MergeDescriptorsStepMock extends MergeDescriptorsStep {
-
-        @Override
-        protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform) {
-            return merger;
-        }
-
-    }
-
     @Mock
     private MtaDescriptorMerger merger;
 
@@ -85,6 +75,15 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     @Override
     protected MergeDescriptorsStep createStep() {
         return new MergeDescriptorsStepMock();
+    }
+
+    private class MergeDescriptorsStepMock extends MergeDescriptorsStep {
+
+        @Override
+        protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform) {
+            return merger;
+        }
+
     }
 
 }
