@@ -146,14 +146,6 @@
             <artifactId>spring-cloud-cloudfoundry-connector</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz-jobs</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.flowable</groupId>
             <artifactId>flowable-spring</artifactId>
         </dependency>

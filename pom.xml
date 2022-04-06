@@ -52,7 +52,6 @@
         <spring.cloud.version>2.0.7.RELEASE</spring.cloud.version>
         <spring.cloud.core.version>1.2.9.RELEASE</spring.cloud.core.version>
         <hana.cloud.version>1.0.4.RELEASE</hana.cloud.version>
-        <quartz.version>2.3.2</quartz.version>
         <jackson.version>2.13.2</jackson.version>
         <jackson-databind.version>2.13.2.2</jackson-databind.version>
         <jackson-asl.version>1.9.13</jackson-asl.version>
@@ -717,24 +716,6 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context-support</artifactId>
                 <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.quartz-scheduler</groupId>
-                <artifactId>quartz</artifactId>
-                <version>${quartz.version}</version>
-                <exclusions>
-                    <!-- C3P0 is only used if Quartz needs to create its own DataSource. Since we use Spring for that purpose, 
-                        it is not required. -->
-                    <exclusion>
-                        <groupId>c3p0</groupId>
-                        <artifactId>c3p0</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.quartz-scheduler</groupId>
-                <artifactId>quartz-jobs</artifactId>
-                <version>${quartz.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sap.hana.cloud</groupId>

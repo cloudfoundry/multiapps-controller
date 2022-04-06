@@ -5,15 +5,14 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.quartz.JobExecutionException;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.SLException;
 
-public class CleanUpJobTest {
+class CleanUpJobTest {
 
     @Test
-    public void testExecutionResilience() throws JobExecutionException {
+    void testExecutionResilience() {
         Cleaner cleaner1 = Mockito.mock(Cleaner.class);
         Cleaner cleaner2 = Mockito.mock(Cleaner.class);
         Mockito.doThrow(new SLException("Will it work?"))
@@ -22,8 +21,8 @@ public class CleanUpJobTest {
         Cleaner cleaner3 = Mockito.mock(Cleaner.class);
         List<Cleaner> cleaners = Arrays.asList(cleaner1, cleaner2, cleaner3);
 
-        CleanUpJob cleanUpJob = createCleanUpJob(new ApplicationConfiguration(), cleaners);
-        cleanUpJob.execute(null);
+        CleanUpJob cleanUpJob = createCleanUpJob(getMockedApplicationConfiguration(), cleaners);
+        cleanUpJob.execute();
 
         Mockito.verify(cleaner1)
                .execute(Mockito.any());
@@ -39,6 +38,15 @@ public class CleanUpJobTest {
         cleanUpJob.configuration = applicationConfiguration;
         cleanUpJob.cleaners = cleaners;
         return cleanUpJob;
+    }
+
+    private ApplicationConfiguration getMockedApplicationConfiguration() {
+        ApplicationConfiguration configuration = Mockito.mock(ApplicationConfiguration.class);
+        Mockito.when(configuration.getApplicationInstanceIndex())
+               .thenReturn(0);
+        Mockito.when(configuration.getMaxTtlForOldData())
+               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA);
+        return configuration;
     }
 
 }

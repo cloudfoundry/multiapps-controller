@@ -32,7 +32,6 @@
         file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_operation_table_add_ended_at_column.xml" />
     <include
         file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_operation_table_timestamp_storing_columns.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_quartz_tables.xml" />
     <include
         file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_space_id_column.xml" />
     <include
@@ -46,4 +45,5 @@
         file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_extend_provider_id_column.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop_deploy_target_tables.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-prepare_for_flowable_6.3.2-sap-10.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop-quartz-tables.xml" />
 </databaseChangeLog>
