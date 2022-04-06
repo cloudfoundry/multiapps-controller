@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.logging.log4j.core.util.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -172,9 +173,11 @@ public class ApplicationConfiguration {
     private Integer auditLogClientQueueCapacity;
     private Integer auditLogClientKeepAlive;
     private Integer fssCacheUpdateTimeoutMinutes;
+
     public ApplicationConfiguration() {
         this(new Environment());
     }
+
     @Inject
     public ApplicationConfiguration(Environment environment) {
         this.environment = environment;
@@ -896,10 +899,14 @@ public class ApplicationConfiguration {
 
     private String getCronExpression(String name, String defaultValue) {
         String value = environment.getString(name);
-        if (value != null && org.quartz.CronExpression.isValidExpression(value)) {
+        if (value != null && CronExpression.isValidExpression(value)) {
             return value;
         }
-        LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
+        if (value != null) {
+            LOGGER.info(format(Messages.INVALID_CRON_EXPRESSION_FOR_OLD_DATA, value));
+        } else {
+            LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
+        }
         return defaultValue;
     }
 

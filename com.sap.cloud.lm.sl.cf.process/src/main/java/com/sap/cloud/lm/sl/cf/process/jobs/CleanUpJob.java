@@ -7,20 +7,19 @@ import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-@DisallowConcurrentExecution
-public class CleanUpJob implements Job {
+@Named
+public class CleanUpJob {
 
     public static final Marker LOG_MARKER = MarkerFactory.getMarker("clean-up-job");
     private static final Logger LOGGER = LoggerFactory.getLogger(CleanUpJob.class);
@@ -30,8 +29,8 @@ public class CleanUpJob implements Job {
     @Inject
     List<Cleaner> cleaners;
 
-    @Override
-    public void execute(JobExecutionContext context) {
+    @Scheduled(cron = "#{@applicationConfiguration.getCronExpressionForOldData()}")
+    public void execute() {
         LOGGER.info(LOG_MARKER, format(Messages.CLEAN_UP_JOB_STARTED_BY_APPLICATION_INSTANCE_0_AT_1,
                                        configuration.getApplicationInstanceIndex(), Instant.now()));
 

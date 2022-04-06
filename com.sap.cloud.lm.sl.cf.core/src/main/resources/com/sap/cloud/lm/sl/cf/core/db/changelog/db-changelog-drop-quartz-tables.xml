@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet author="quartz.generated" id="drop_quartz_tables">
+
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="QRTZ_CALENDARS"/>
+            <tableExists tableName="QRTZ_CRON_TRIGGERS"/>
+            <tableExists tableName="QRTZ_FIRED_TRIGGERS"/>
+            <tableExists tableName="QRTZ_PAUSED_TRIGGER_GRPS"/>
+            <tableExists tableName="QRTZ_SCHEDULER_STATE"/>
+            <tableExists tableName="QRTZ_LOCKS"/>
+            <tableExists tableName="QRTZ_JOB_DETAILS"/>
+            <tableExists tableName="QRTZ_SIMPLE_TRIGGERS"/>
+            <tableExists tableName="QRTZ_SIMPROP_TRIGGERS"/>
+            <tableExists tableName="QRTZ_BLOB_TRIGGERS"/>
+            <tableExists tableName="QRTZ_TRIGGERS"/>
+        </preConditions>
+
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_TRIGGERS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_BLOB_TRIGGERS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_SIMPROP_TRIGGERS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_SIMPLE_TRIGGERS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_JOB_DETAILS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_LOCKS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_SCHEDULER_STATE"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_PAUSED_TRIGGER_GRPS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_FIRED_TRIGGERS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_CRON_TRIGGERS"/>
+        <dropTable cascadeConstraints="true"
+                   tableName="QRTZ_CALENDARS"/>
+    </changeSet>
+
+</databaseChangeLog>
