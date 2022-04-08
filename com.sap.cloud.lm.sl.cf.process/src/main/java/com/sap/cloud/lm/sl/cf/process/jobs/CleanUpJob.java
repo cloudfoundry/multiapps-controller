@@ -18,6 +18,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 @Named
 public class CleanUpJob {
 
@@ -30,17 +32,16 @@ public class CleanUpJob {
     List<Cleaner> cleaners;
 
     @Scheduled(cron = "#{@applicationConfiguration.getCronExpressionForOldData()}")
+    @SchedulerLock(name = "clean_up_job", lockAtMostFor = "5h", lockAtLeastFor = "5m")
     public void execute() {
         LOGGER.info(LOG_MARKER, format(Messages.CLEAN_UP_JOB_STARTED_BY_APPLICATION_INSTANCE_0_AT_1,
                                        configuration.getApplicationInstanceIndex(), Instant.now()));
-
         Date expirationTime = computeExpirationTime();
         LOGGER.info(LOG_MARKER, format(Messages.WILL_CLEAN_UP_DATA_STORED_BEFORE_0, expirationTime));
         LOGGER.info(LOG_MARKER, format(Messages.REGISTERED_CLEANERS_IN_CLEAN_UP_JOB_0, cleaners));
         for (Cleaner cleaner : cleaners) {
             executeSafely(() -> cleaner.execute(expirationTime));
         }
-
         LOGGER.info(LOG_MARKER, format(Messages.CLEAN_UP_JOB_FINISHED_AT_0, Instant.now()));
     }
 

@@ -45,5 +45,6 @@
         file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_extend_provider_id_column.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop_deploy_target_tables.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-prepare_for_flowable_6.3.2-sap-10.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-create_shed_spring_table.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop-quartz-tables.xml" />
 </databaseChangeLog>
