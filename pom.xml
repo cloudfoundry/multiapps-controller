@@ -63,6 +63,7 @@
         <jgit.version>4.11.9.201909030838-r</jgit.version>
         <swagger.version>1.5.16</swagger.version>
         <jclouds.version>2.2.1</jclouds.version>
+        <shedlock-version>4.33.0</shedlock-version>
         <guava.version>30.1.1-jre</guava.version>
         <com.sap.cloud.lm.sl.open.version>1.67.10</com.sap.cloud.lm.sl.open.version>
     </properties>
@@ -301,6 +302,16 @@
                 <artifactId>hsqldb</artifactId>
                 <version>${hsqldb.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${shedlock-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-provider-jdbc-template</artifactId>
+                <version>${shedlock-version}</version>
             </dependency>
             <dependency>
                 <groupId>com.h2database</groupId>
