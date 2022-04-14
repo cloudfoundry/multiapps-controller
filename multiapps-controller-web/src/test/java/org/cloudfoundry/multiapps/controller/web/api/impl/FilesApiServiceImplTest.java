@@ -228,8 +228,9 @@ class FilesApiServiceImplTest {
         Mockito.when(httpClient.send(Mockito.any(), Mockito.eq(BodyHandlers.ofInputStream())))
                .thenReturn(fileUrlResponse);
 
-        String fileUrlWithInvalidFileName = "http://host.domain/path/file?query=true";
-        Assertions.assertThrows(IllegalArgumentException.class,
+        String fileUrlWithInvalidFileName = Base64.getUrlEncoder()
+                                                  .encodeToString("http://host.domain/path/file?query=true".getBytes(StandardCharsets.UTF_8));
+        Assertions.assertThrows(SLException.class,
                                 () -> testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID, fileUrlWithInvalidFileName));
     }
 

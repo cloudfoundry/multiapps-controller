@@ -30,7 +30,7 @@ public class ResilientOperationExecutor {
     }
 
     public void execute(Runnable operation) {
-        execute(() -> {
+        execute((Supplier<Void>) () -> {
             operation.run();
             return null;
         });
@@ -42,6 +42,18 @@ public class ResilientOperationExecutor {
                 return operation.get();
             } catch (RuntimeException e) {
                 handle(e);
+                MiscUtil.sleep(waitTimeBetweenRetriesInMillis);
+            }
+        }
+        return operation.get();
+    }
+
+    public <T> T execute(CheckedSupplier<T> operation) throws Exception {
+        for (int i = 1; i < retryCount; i++) {
+            try {
+                return operation.get();
+            } catch (Exception e) {
+                LOGGER.warn(MessageFormat.format("Retrying operation that failed with message: {0}", e.getMessage()), e);
                 MiscUtil.sleep(waitTimeBetweenRetriesInMillis);
             }
         }
