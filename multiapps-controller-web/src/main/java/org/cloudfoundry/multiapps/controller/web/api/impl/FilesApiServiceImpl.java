@@ -35,6 +35,8 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.FilesApiService;
 import org.cloudfoundry.multiapps.controller.api.model.FileMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableFileMetadata;
+import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
+import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
@@ -58,6 +60,8 @@ public class FilesApiServiceImpl implements FilesApiService {
     @Inject
     @Named("fileService")
     private FileService fileService;
+
+    private final ResilientOperationExecutor resilientOperationExecutor = new ResilientOperationExecutor();
 
     @Override
     public ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid, String namespace) {
@@ -92,7 +96,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                          file.getSize(), file.getDigest(), file.getDigestAlgorithm(), stopWatch.getTime());
             return ResponseEntity.status(HttpStatus.CREATED)
                                  .body(file);
-        } catch (FileUploadException | IOException | FileStorageException | InterruptedException e) {
+        } catch (Exception e) {
             throw new SLException(e, Messages.COULD_NOT_UPLOAD_FILE_0, e.getMessage());
         }
     }
@@ -160,21 +164,13 @@ public class FilesApiServiceImpl implements FilesApiService {
                                     .build();
     }
 
-    private FileEntry uploadFileFromUrl(String spaceGuid, String namespace, String fileUrl)
-        throws FileStorageException, IOException, InterruptedException {
+    private FileEntry uploadFileFromUrl(String spaceGuid, String namespace, String fileUrl) throws Exception {
         String decodedUrl = new String(Base64.getUrlDecoder()
                                              .decode(fileUrl));
         UriUtil.validateUrl(decodedUrl);
         HttpClient client = buildHttpClient(decodedUrl);
 
-        HttpResponse<InputStream> response = client.send(buildFetchFileRequest(decodedUrl), BodyHandlers.ofInputStream());
-
-        if (response.statusCode() / 100 != 2) {
-            try (InputStream is = response.body()) {
-                String error = IOUtils.toString(is, StandardCharsets.UTF_8);
-                throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, error));
-            }
-        }
+        HttpResponse<InputStream> response = callRemoteEndpointWithRetry(client, decodedUrl);
 
         long fileSize = response.headers()
                                 .firstValueAsLong(Constants.CONTENT_LENGTH)
@@ -190,6 +186,19 @@ public class FilesApiServiceImpl implements FilesApiService {
         try (InputStream content = createLimitedInputStream(response.body(), maxUploadSize)) {
             return fileService.addFile(spaceGuid, namespace, fileName, content, fileSize);
         }
+    }
+
+    private HttpResponse<InputStream> callRemoteEndpointWithRetry(HttpClient client, String decodedUrl) throws Exception {
+        return resilientOperationExecutor.execute((CheckedSupplier<HttpResponse<InputStream>>) () -> {
+            var response = client.send(buildFetchFileRequest(decodedUrl), BodyHandlers.ofInputStream());
+            if (response.statusCode() / 100 != 2) {
+                try (InputStream is = response.body()) {
+                    String error = IOUtils.toString(is, StandardCharsets.UTF_8);
+                    throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, error));
+                }
+            }
+            return response;
+        });
     }
 
     protected HttpClient buildHttpClient(String decodedUrl) {

@@ -32,7 +32,7 @@ public class CustomControllerClientErrorHandler {
     }
 
     public <T> T handleErrorsOrReturnResult(Supplier<T> supplier, HttpStatus... statusesToIgnore) {
-        return createExecutor(statusesToIgnore).execute(() -> {
+        return createExecutor(statusesToIgnore).execute((Supplier<T>) () -> {
             try {
                 return supplier.get();
             } catch (HttpStatusCodeException e) {
