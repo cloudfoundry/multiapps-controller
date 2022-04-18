@@ -2,7 +2,7 @@
 
 # MultiApps Controller [![Build Status](https://travis-ci.org/cloudfoundry-incubator/multiapps-controller.svg?branch=master)](https://travis-ci.org/cloudfoundry-incubator/multiapps-controller)
 
-The MultiApps Controller (formerly known as *deploy service*) for [Cloud Foundry](https://www.cloudfoundry.org/) is based on the [Multitarget Application (MTA)](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) model, in which CF applications are modeled as modules and CF services as resources. The MTA model enables the delivery of packaged applications, where any target specific configuration could be specified on deployment time without changing application code.
+The MultiApps Controller (formerly known as *deploy service*) for [Cloud Foundry](https://www.cloudfoundry.org/) is based on the [Multitarget Application (MTA)](https://www.sap.com/documents/2021/09/66d96898-fa7d-0010-bca6-c68f7e60039b.html) model, in which CF applications are modeled as modules and CF services as resources. The MTA model enables the delivery of packaged applications, where any target specific configuration could be specified on deployment time without changing application code.
 The CF MultiApps Controller provides the possibility to operate (deploy, update, undeploy) CF entities (applications, services, routes, etc.) with a single command, while ensuring the consistency and completeness of the entire [MTA](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html).
 
 # Getting started with MultiApps
