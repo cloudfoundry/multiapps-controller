@@ -2,8 +2,9 @@
 
 # MultiApps Controller [![Build Status](https://travis-ci.org/cloudfoundry-incubator/multiapps-controller.svg?branch=master)](https://travis-ci.org/cloudfoundry-incubator/multiapps-controller)
 
-The MultiApps Controller (formerly known as *deploy service*) for [Cloud Foundry](https://www.cloudfoundry.org/) is based on the [Multitarget Application (MTA)](https://www.sap.com/documents/2021/09/66d96898-fa7d-0010-bca6-c68f7e60039b.html) model, in which CF applications are modeled as modules and CF services as resources. The MTA model enables the delivery of packaged applications, where any target specific configuration could be specified on deployment time without changing application code.
-The CF MultiApps Controller provides the possibility to operate (deploy, update, undeploy) CF entities (applications, services, routes, etc.) with a single command, while ensuring the consistency and completeness of the entire [MTA](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html).
+The MultiApps Controller (formerly known as *deploy service*) for [Cloud Foundry](https://www.cloudfoundry.org/) is based on the Multitarget Application (MTA) model, in which CF applications are modeled as modules and CF services as resources. The MTA model enables the delivery of packaged applications, where any target specific configuration could be specified on deployment time without changing application code. For more information about the Multitarget Application model, see the official [Multitarget Application Model v.2](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) and the [Multitarget Application Model v.3](https://www.sap.com/documents/2021/09/66d96898-fa7d-0010-bca6-c68f7e60039b.html) specification documents.
+
+The CF MultiApps Controller provides the possibility to operate (deploy, update, undeploy) CF entities (applications, services, routes, etc.) with a single command, while ensuring the consistency and completeness of the entire MTA.
 
 # Getting started with MultiApps
 
@@ -25,7 +26,7 @@ Contains the domain model, persistence and other core services and utilities.
 Can be used to migrate the data from an existing MultiApps Controller database to a new one.
 
 ## multiapps-controller-persistence
-Contains utilities for upload and processing of file artifacts. These are used for initial upload of the [MTA](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) archive and descriptors and their processing as part of the deployment.
+Contains utilities for upload and processing of file artifacts. These are used for initial upload of the MTA archive and descriptors and their processing as part of the deployment.
 
 ## multiapps-controller-process
 Contains the concrete workflow definitions for MTA operations like deploy, undeploy, blue-green deploy, etc. These are modeled via [Flowable](https://flowable.com) BPMN process definitions. The process definitions have steps, where each step logic uses the Cloud Foundry Java client to call the Cloud Foundry API.
