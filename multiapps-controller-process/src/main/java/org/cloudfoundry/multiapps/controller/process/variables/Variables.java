@@ -623,4 +623,10 @@ public interface Variables {
                                                                                  .name("existingAppToPoll")
                                                                                  .type(Variable.typeReference(CloudApplication.class))
                                                                                  .build();
+
+    Variable<Duration> DELAY_AFTER_APP_STOP = ImmutableSimpleVariable.<Duration> builder()
+                                                                     .name("delayAfterAppStop")
+                                                                     .defaultValue(Duration.ZERO)
+                                                                     .build();
+
 }

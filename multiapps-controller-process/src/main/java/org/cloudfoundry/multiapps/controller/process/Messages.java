@@ -199,6 +199,9 @@ public class Messages {
     public static final String WILL_NOT_REGISTER_EVENT_IN_DYNATRACE = "Will not register process event in dynatrace";
     public static final String SERVICES_WILL_BE_BOUND_UNBOUND_SEQUENTIALLY_TO_APPLICATION_0 = "Services will be bound/unbound sequentially to application: \"{0}\"";
     public static final String USING_DEPRECATED_HEALTH_CHECK_TYPE_0_SETTING_TO_1 = "You have specified deprecated health check type: \"{0}\". Setting to its actual alias: \"{1}\"";
+    public static final String DELAY_AFTER_APP_STOP_0_ABOVE_MAX_VALUE = "Variable for delay after app stop \"{0}\", is above max allowed value. Setting it to default max value.";
+    public static final String COULD_NOT_PARSE_APP_STOP_DELAY_VAR = "Could not parse variable for delay after app stop: \"{0}\"";
+    public static final String DELAY_AFTER_APP_STOP_CANNOT_BE_NEGATIVE = "Delay after app stop cannot be negative: \"{0}\"";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
@@ -234,6 +237,7 @@ public class Messages {
     public static final String APPLICATION_NOT_STAGED_CORRECTLY = "Application \"{0}\" was not staged correctly during the previous deployment";
     public static final String JOB_WITH_ID_AND_TASK_NAME_EXPIRED = "Job with id \"{0}\" and Task name \"{1}\" expired";
     public static final String SKIPPING_START_OF_IDLE_APPLICATIONS = "Idle applications will not be started because \"{0}\" is set to \"{1}\"";
+    public static final String DELAYING_APP_0_FOR_1_SECONDS = "Delaying operations for application \"{0}\" for \"{1}\" seconds...";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
@@ -587,6 +591,7 @@ public class Messages {
     public static final String CHECK_SHOULD_REBIND_APPLICATION_SERVICE_INSTANCE = "Check should rebind application \"{0}\" and service instance \"{1}\"";
     public static final String POLLING_ASYNC_OPERATION_SERVICE_BROKER = "Polling async operation of service broker \"{0}\"";
     public static final String ASYNC_OPERATION_SERVICE_BROKER_IN_STATE_WITH_WARNINGS = "Async operation of service broker \"{0}\" is in state \"{1}\" warnings \"{2}\"";
+    public static final String SETTING_WAIT_AFTER_STOP_FOR_APP_0_TO_1_SECONDS = "Setting wait after stop for \"{0}\" to \"{1}\" seconds";
 
     protected Messages() {
     }

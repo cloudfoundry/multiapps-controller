@@ -141,6 +141,7 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS = 50;
     public static final int DEFAULT_SERVICE_HANDLING_MAX_PARALLEL_THREADS = 20;
     public static final int DEFAULT_ABORTED_OPERATIONS_TTL_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(30);
+    public static final int DEFAULT_MAX_STOP_DELAY_IN_SECONDS = 300;
     protected final Environment environment;
 
     // Cached configuration settings:

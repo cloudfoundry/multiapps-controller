@@ -4,10 +4,12 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ApplicationWaitAfterStopHandler;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -19,12 +21,16 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StopApplicationUndeploymentStep extends UndeployAppStep implements BeforeStepHookPhaseProvider, AfterStepHookPhaseProvider {
 
+    @Inject
+    private ApplicationWaitAfterStopHandler waitAfterStopHandler;
+
     @Override
     public StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy,
                                          ProcessContext context) {
         getStepLogger().info(Messages.STOPPING_APP, cloudApplicationToUndeploy.getName());
         client.stopApplication(cloudApplicationToUndeploy.getName());
         getStepLogger().debug(Messages.APP_STOPPED, cloudApplicationToUndeploy.getName());
+        waitAfterStopHandler.configureDelayAfterAppStop(context, cloudApplicationToUndeploy.getName());
         return StepPhase.DONE;
     }
 
