@@ -11,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApp
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.steps.ScaleAppStepTest.SimpleApplication;
+import org.cloudfoundry.multiapps.controller.process.util.ApplicationWaitAfterStopHandler;
 import org.cloudfoundry.multiapps.controller.process.util.HooksExecutor;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseGetter;
@@ -40,6 +41,8 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     private HooksPhaseBuilder hooksPhaseBuilder;
     @Mock
     private ProcessTypeParser processTypeParser;
+    @Mock
+    private ApplicationWaitAfterStopHandler waitAfterStopHandler;
 
     private boolean shouldBeStopped;
 

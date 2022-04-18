@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
+import org.cloudfoundry.multiapps.controller.process.util.ApplicationWaitAfterStopHandler;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseGetter;
 import org.junit.jupiter.api.Test;
@@ -23,14 +24,14 @@ class StopApplicationUndeploymentStepTest extends UndeployAppStepTest {
     private HooksPhaseGetter hooksPhaseGetter;
     @Mock
     private HooksPhaseBuilder hooksPhaseBuilder;
+    @Mock
+    private ApplicationWaitAfterStopHandler waitAfterStopHandler;
 
     @Test
     void testGetHookPhaseBefore() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_STOP, HookPhase.APPLICATION_BEFORE_STOP_LIVE),
-                                                       context))
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_STOP, HookPhase.APPLICATION_BEFORE_STOP_LIVE), context))
                .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_LIVE));
-        List<HookPhase> expectedHooks = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE,
-                                                      HookPhase.APPLICATION_BEFORE_STOP_LIVE);
+        List<HookPhase> expectedHooks = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_LIVE);
         List<HookPhase> hookPhasesBeforeStep = ((StopApplicationUndeploymentStep) step).getHookPhasesBeforeStep(context);
         assertEquals(expectedHooks, hookPhasesBeforeStep);
     }
@@ -39,8 +40,7 @@ class StopApplicationUndeploymentStepTest extends UndeployAppStepTest {
     void testGetHookPhaseAfter() {
         Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.AFTER_STOP, HookPhase.APPLICATION_AFTER_STOP_LIVE), context))
                .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_LIVE));
-        List<HookPhase> expectedHooks = List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE,
-                                                      HookPhase.APPLICATION_AFTER_STOP_LIVE);
+        List<HookPhase> expectedHooks = List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_LIVE);
         List<HookPhase> hookPhasesBeforeStep = ((StopApplicationUndeploymentStep) step).getHookPhasesAfterStep(context);
         assertEquals(expectedHooks, hookPhasesBeforeStep);
     }

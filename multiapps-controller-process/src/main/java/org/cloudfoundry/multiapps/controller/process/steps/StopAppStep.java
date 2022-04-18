@@ -10,6 +10,7 @@ import javax.inject.Named;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ApplicationWaitAfterStopHandler;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -26,25 +27,25 @@ public class StopAppStep extends SyncFlowableStepWithHooks implements BeforeStep
     @Inject
     private ProcessTypeParser processTypeParser;
 
+    @Inject
+    private ApplicationWaitAfterStopHandler waitAfterStopHandler;
+
     @Override
     public StepPhase executeStepInternal(ProcessContext context) {
-        // Get the next cloud application from the context
+
         CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
 
-        // Get the existing application from the context
         CloudApplication existingApp = context.getVariable(Variables.EXISTING_APP);
-
         if (existingApp != null && !existingApp.getState()
                                                .equals(State.STOPPED)) {
             getStepLogger().info(Messages.STOPPING_APP, app.getName());
 
-            // Get a cloud foundry client
             CloudControllerClient client = context.getControllerClient();
 
-            // Stop the application
             client.stopApplication(app.getName());
 
             getStepLogger().debug(Messages.APP_STOPPED, app.getName());
+            waitAfterStopHandler.configureDelayAfterAppStop(context, app.getName());
         } else {
             getStepLogger().debug("Application \"{0}\" already stopped", app.getName());
         }
