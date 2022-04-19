@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class AbortProcessAction extends ProcessAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbortProcessAction.class);
-    private static final SafeExecutor SAFE_EXECUTOR = new SafeExecutor(AbortProcessAction::logDynatraceException);
+    protected static final SafeExecutor SAFE_EXECUTOR = new SafeExecutor(AbortProcessAction::logDynatraceException);
 
     private final HistoricOperationEventService historicEventService;
     private final ProgressMessageService progressMessageService;
@@ -97,5 +97,5 @@ public class AbortProcessAction extends ProcessAction {
     private static void logDynatraceException(Exception e) {
         LOGGER.warn(format(Messages.WILL_NOT_REGISTER_EVENT_IN_DYNATRACE, e.getMessage()), e);
     }
-    
+
 }

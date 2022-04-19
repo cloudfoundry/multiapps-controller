@@ -5,6 +5,7 @@
       <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessListener}"></flowable:eventListener>
       <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
       <flowable:eventListener events="ENTITY_DELETED" delegateExpression="${expiredJobListener}"></flowable:eventListener>
+      <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessStatisticsListener}"></flowable:eventListener>
     </extensionElements>
     <startEvent id="startEvent" name="Start" flowable:initiator="initiator" flowable:formFieldValidation="true">
       <extensionElements>
@@ -14,6 +15,7 @@
     <endEvent id="endEvent" name="End">
       <extensionElements>
         <flowable:executionListener event="end" delegateExpression="${endProcessListener}"></flowable:executionListener>
+        <flowable:executionListener event="end" delegateExpression="${endProcessStatisticsListener}"></flowable:executionListener>
       </extensionElements>
     </endEvent>
     <serviceTask id="prepareToUndeployTask" name="Prepare Undeploy" flowable:async="true" flowable:delegateExpression="${prepareToUndeployStep}"></serviceTask>
