@@ -5,6 +5,7 @@
       <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessListener}"></flowable:eventListener>
       <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
       <flowable:eventListener events="ENTITY_DELETED" delegateExpression="${expiredJobListener}"></flowable:eventListener>
+      <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessStatisticsListener}"></flowable:eventListener>
     </extensionElements>
     <startEvent id="startEvent" name="Start" flowable:initiator="initiator" flowable:formFieldValidation="true">
       <extensionElements>
@@ -63,6 +64,7 @@
     <endEvent id="endEvent" name="End">
       <extensionElements>
         <flowable:executionListener event="end" delegateExpression="${endProcessListener}"></flowable:executionListener>
+        <flowable:executionListener event="end" delegateExpression="${endProcessStatisticsListener}"></flowable:executionListener>
       </extensionElements>
     </endEvent>
     <serviceTask id="prepareAppsRestartTask" name="Prepare Apps To Restart" flowable:async="true" flowable:delegateExpression="${prepareAppsRestartStep}"></serviceTask>
@@ -648,9 +650,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-7E794918-D88A-4C75-BBD7-BBAFA727FBF5" id="BPMNEdge_sid-7E794918-D88A-4C75-BBD7-BBAFA727FBF5">
         <omgdi:waypoint x="466.5" y="266.0"></omgdi:waypoint>
-        <omgdi:waypoint x="381.75" y="266.0"></omgdi:waypoint>
-        <omgdi:waypoint x="381.75" y="265.0"></omgdi:waypoint>
-        <omgdi:waypoint x="296.949999999902" y="265.0"></omgdi:waypoint>
+        <omgdi:waypoint x="381.0" y="266.0"></omgdi:waypoint>
+        <omgdi:waypoint x="381.0" y="265.0"></omgdi:waypoint>
+        <omgdi:waypoint x="296.95000000000005" y="265.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="deleteDiscontinuedServicesFlow" id="BPMNEdge_deleteDiscontinuedServicesFlow">
         <omgdi:waypoint x="647.0" y="614.0"></omgdi:waypoint>

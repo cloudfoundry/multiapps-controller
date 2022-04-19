@@ -17,6 +17,7 @@ public class Constants {
     public static final String VAR_STEP_START_TIME = "stepStartTime_";
     public static final String VAR_EXECUTED_HOOKS_FOR_PREFIX = "executedHooksFor_";
     public static final String VAR_IS_APPLICATION_SERVICE_BINDING_UPDATED_VAR_PREFIX = "IS_APPLICATION_SERVICE_BINDING_UPDATED_";
+    public static final String VAR_SERVICE_ACTIONS_TO_EXECUTE = "SERVICE_ACTIONS_TO_EXECUTE_";
     public static final String VAR_WAIT_AFTER_APP_STOP = "MTA_WAIT_AFTER_APP_STOP";
 
     public static final String TOOL_TYPE = "tool_type";

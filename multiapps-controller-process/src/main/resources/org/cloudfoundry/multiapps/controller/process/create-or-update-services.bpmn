@@ -8,6 +8,9 @@
     <startEvent id="startevent3" name="Start" flowable:formFieldValidation="true"></startEvent>
     <serviceTask id="DetermineServiceCreateUpdateActionsTask" name="Determine update actions" flowable:async="true" flowable:delegateExpression="${determineServiceCreateUpdateActionsStep}">
       <documentation>Creates List&lt;ServiceAction&gt; in DB (writes to the same variable because it will not be shared across processes)</documentation>
+      <extensionElements>
+        <flowable:executionListener event="end" delegateExpression="${determineServiceCreateUpdateActionsListener}"></flowable:executionListener>
+      </extensionElements>
     </serviceTask>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway" default="SkipCoUFlow"></exclusiveGateway>
     <serviceTask id="CreateServiceTask" name="Create" flowable:async="true" flowable:delegateExpression="${createServiceStep}"></serviceTask>
@@ -261,14 +264,14 @@
         <omgdi:waypoint x="390.0" y="135.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="UpdateKeysFlow" id="BPMNEdge_UpdateKeysFlow">
-        <omgdi:waypoint x="1842.2322744159474" y="357.1862108737527"></omgdi:waypoint>
-        <omgdi:waypoint x="1842.2322744159474" y="409.4896089142119"></omgdi:waypoint>
-        <omgdi:waypoint x="1882.2322744159437" y="409.7058251304281"></omgdi:waypoint>
+        <omgdi:waypoint x="1842.1677378566812" y="357.13562478213214"></omgdi:waypoint>
+        <omgdi:waypoint x="1842.0" y="409.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1882.232274415944" y="409.4293458523669"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-EEE9820B-AD82-45D1-BA8F-B2E42193E405" id="BPMNEdge_sid-EEE9820B-AD82-45D1-BA8F-B2E42193E405">
-        <omgdi:waypoint x="1704.9800077492807" y="467.7396089142119"></omgdi:waypoint>
-        <omgdi:waypoint x="1741.2322744159474" y="400.4896089142119"></omgdi:waypoint>
-        <omgdi:waypoint x="1772.7985714265549" y="400.642990556724"></omgdi:waypoint>
+        <omgdi:waypoint x="1704.8407937213335" y="467.7396089142119"></omgdi:waypoint>
+        <omgdi:waypoint x="1741.0" y="400.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1772.9841684735748" y="400.45770216062425"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow68" id="BPMNEdge_flow68">
         <omgdi:waypoint x="565.2940074906367" y="309.25"></omgdi:waypoint>
@@ -295,9 +298,9 @@
         <omgdi:waypoint x="1690.7322744159474" y="467.7396089142119"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-B795DF6B-878C-4F5E-A0F1-CEAB9DF266DC" id="BPMNEdge_sid-B795DF6B-878C-4F5E-A0F1-CEAB9DF266DC">
-        <omgdi:waypoint x="1792.8881591004963" y="380.89588428719327"></omgdi:waypoint>
-        <omgdi:waypoint x="1793.2322744159474" y="337.25"></omgdi:waypoint>
-        <omgdi:waypoint x="1822.2322744159474" y="337.25"></omgdi:waypoint>
+        <omgdi:waypoint x="1792.8157199373663" y="380.82326357227606"></omgdi:waypoint>
+        <omgdi:waypoint x="1793.0" y="337.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1822.3038904585962" y="337.1489537150623"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="WaitForUpdateServiceParameters" id="BPMNEdge_WaitForUpdateServiceParameters">
         <omgdi:waypoint x="1121.6907216494847" y="422.89149484536085"></omgdi:waypoint>
@@ -323,9 +326,9 @@
         <omgdi:waypoint x="140.0" y="95.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-D35BF04B-BA9A-4591-AFD0-11CA96F6E98A" id="BPMNEdge_sid-D35BF04B-BA9A-4591-AFD0-11CA96F6E98A">
-        <omgdi:waypoint x="1552.7802711679537" y="383.75"></omgdi:waypoint>
-        <omgdi:waypoint x="1552.7802711679537" y="337.25"></omgdi:waypoint>
-        <omgdi:waypoint x="1671.2322744159474" y="337.25"></omgdi:waypoint>
+        <omgdi:waypoint x="1552.1960174401293" y="383.31932717988514"></omgdi:waypoint>
+        <omgdi:waypoint x="1552.0" y="337.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1670.7682502266662" y="336.7858858712088"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow66" id="BPMNEdge_flow66">
         <omgdi:waypoint x="1862.0613653250382" y="337.1287878787879"></omgdi:waypoint>
@@ -336,8 +339,8 @@
         <omgdi:waypoint x="1184.0544285007352" y="337.1509900990099"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-FFEE07B1-5DC3-4E25-8ADD-1E8E15C0B680" id="BPMNEdge_sid-FFEE07B1-5DC3-4E25-8ADD-1E8E15C0B680">
-        <omgdi:waypoint x="1444.898168658695" y="336.6582907314393"></omgdi:waypoint>
-        <omgdi:waypoint x="1671.1841174287576" y="337.20184301281034"></omgdi:waypoint>
+        <omgdi:waypoint x="1445.2657884021387" y="336.2875175977036"></omgdi:waypoint>
+        <omgdi:waypoint x="1670.7322744159474" y="336.7123883732295"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow82" id="BPMNEdge_flow82">
         <omgdi:waypoint x="458.95000000000005" y="336.75"></omgdi:waypoint>
@@ -364,17 +367,17 @@
         <omgdi:waypoint x="1315.0551438535308" y="403.16266375545854"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="WaitForUpdateSyslogURL" id="BPMNEdge_WaitForUpdateSyslogURL">
-        <omgdi:waypoint x="1552.7802711679537" y="422.69008891213394"></omgdi:waypoint>
-        <omgdi:waypoint x="1552.7802711679537" y="483.25"></omgdi:waypoint>
+        <omgdi:waypoint x="1552.2802711679537" y="423.18956589958157"></omgdi:waypoint>
+        <omgdi:waypoint x="1552.2802711679537" y="483.25"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
         <omgdi:waypoint x="44.9499984899576" y="135.0"></omgdi:waypoint>
         <omgdi:waypoint x="90.0" y="135.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow57" id="BPMNEdge_flow57">
-        <omgdi:waypoint x="1987.1822744159474" y="409.6372599209233"></omgdi:waypoint>
-        <omgdi:waypoint x="2009.2322744159474" y="409.4896089142119"></omgdi:waypoint>
-        <omgdi:waypoint x="2006.8032164601698" y="350.1869141589082"></omgdi:waypoint>
+        <omgdi:waypoint x="1987.1822744159474" y="409.2900524435169"></omgdi:waypoint>
+        <omgdi:waypoint x="2009.0" y="409.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2006.7626162751558" y="350.1885991787771"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow79" id="BPMNEdge_flow79">
         <omgdi:waypoint x="655.002752522767" y="335.0442336163986"></omgdi:waypoint>
@@ -427,23 +430,23 @@
         <omgdi:waypoint x="827.9499999999998" y="500.9296875"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="ContinueFlowCreate" id="BPMNEdge_ContinueFlowCreate">
-        <omgdi:waypoint x="736.9491135951374" y="270.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1842.2322744159474" y="270.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1842.2322744159474" y="317.25"></omgdi:waypoint>
+        <omgdi:waypoint x="736.9491134111996" y="270.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1842.0" y="270.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1842.1634342892748" y="317.2839527199932"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-06720743-2F2A-4A62-BB9F-F92F98CD60DF" id="BPMNEdge_sid-06720743-2F2A-4A62-BB9F-F92F98CD60DF">
-        <omgdi:waypoint x="1536.780284966158" y="499.17879615692385"></omgdi:waypoint>
-        <omgdi:waypoint x="1477.807042243369" y="498.75679796863403"></omgdi:waypoint>
+        <omgdi:waypoint x="1536.780268393805" y="498.75"></omgdi:waypoint>
+        <omgdi:waypoint x="1477.8070422432265" y="498.75"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-CE1E51EC-0945-4967-9019-96AE2D48AA0B" id="BPMNEdge_sid-CE1E51EC-0945-4967-9019-96AE2D48AA0B">
-        <omgdi:waypoint x="1477.80704224336" y="498.75"></omgdi:waypoint>
-        <omgdi:waypoint x="1506.3746266865978" y="498.75"></omgdi:waypoint>
-        <omgdi:waypoint x="1506.3746266865978" y="403.5963357674628"></omgdi:waypoint>
-        <omgdi:waypoint x="1532.6266069354165" y="403.5963357674628"></omgdi:waypoint>
+        <omgdi:waypoint x="1477.807042243367" y="498.26173665878144"></omgdi:waypoint>
+        <omgdi:waypoint x="1506.0" y="498.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1506.0" y="403.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1532.3595863070032" y="403.14254307197245"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="ContinueUK" id="BPMNEdge_ContinueUK">
-        <omgdi:waypoint x="1223.9451824863008" y="337.25"></omgdi:waypoint>
-        <omgdi:waypoint x="1406.357042243372" y="337.25"></omgdi:waypoint>
+        <omgdi:waypoint x="1223.8602794325739" y="337.16005456900206"></omgdi:waypoint>
+        <omgdi:waypoint x="1405.44698767437" y="336.33972056742044"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow76" id="BPMNEdge_flow76">
         <omgdi:waypoint x="1318.0018224600474" y="496.98950676449084"></omgdi:waypoint>
@@ -452,11 +455,11 @@
       <bpmndi:BPMNEdge bpmnElement="flow77" id="BPMNEdge_flow77">
         <omgdi:waypoint x="1335.0" y="383.25"></omgdi:waypoint>
         <omgdi:waypoint x="1335.0" y="338.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1407.107042243372" y="338.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1405.7370349035155" y="336.629042678493"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="UpdateSyslogFlow" id="BPMNEdge_UpdateSyslogFlow">
-        <omgdi:waypoint x="1425.5110642844882" y="356.04319626922376"></omgdi:waypoint>
-        <omgdi:waypoint x="1425.3583019581583" y="471.25"></omgdi:waypoint>
+        <omgdi:waypoint x="1425.357042243372" y="356.19386531365313"></omgdi:waypoint>
+        <omgdi:waypoint x="1425.357042243372" y="471.25"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="DetermineActionsFlow" id="BPMNEdge_DetermineActionsFlow">
         <omgdi:waypoint x="255.0" y="154.93854764638348"></omgdi:waypoint>

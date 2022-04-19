@@ -35,8 +35,11 @@
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="sid-AB31BFC0-E0CC-4FF5-BACF-73CA7B749162" sourceRef="prepareModulesDeploymentTask" targetRef="createOrUpdateServicesCallActivity"></sequenceFlow>
-    <endEvent id="sid-BFD377EF-D401-42F0-A66B-EADDE82B638A" name="End
-"></endEvent>
+    <endEvent id="sid-BFD377EF-D401-42F0-A66B-EADDE82B638A" name="End ">
+      <extensionElements>
+        <flowable:executionListener event="start" delegateExpression="${createUpdateServicesListener}"></flowable:executionListener>
+      </extensionElements>
+    </endEvent>
     <sequenceFlow id="sid-4260FD67-5FBB-4BAB-B37B-C2471D68F052" sourceRef="createOrUpdateServicesCallActivity" targetRef="sid-BFD377EF-D401-42F0-A66B-EADDE82B638A"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_processBatches">
@@ -62,8 +65,8 @@
         <omgdi:waypoint x="629.9999999999955" y="241.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow51" id="BPMNEdge_flow51">
-        <omgdi:waypoint x="404.94999896690354" y="241.0"></omgdi:waypoint>
-        <omgdi:waypoint x="480.0" y="241.0"></omgdi:waypoint>
+        <omgdi:waypoint x="404.9499991062926" y="241.0"></omgdi:waypoint>
+        <omgdi:waypoint x="479.9999999999978" y="241.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
