@@ -1,43 +1,40 @@
-[
-  {
-    "isOptional": false,
-    "isManaged": true,
-    "name": "pricing-db-service",
-    "v3Metadata": {
-      "annotations": {
-        "mta_id": "com.sap.mta.sample",
-        "mta_version": "1.2.1-beta+20150403144937853",
-        "mta_resource": "{\"name\":\"pricing-db-service\"}"
-      },
-      "labels": {
-        "mta_id": "57675a73021035bde9f4f77efa07dad8"
-      }
+[ {
+  "isOptional" : false,
+  "isManaged" : true,
+  "name" : "pricing-db-service",
+  "v3Metadata" : {
+    "annotations" : {
+      "mta_id" : "com.sap.mta.sample",
+      "mta_version" : "1.2.1-beta+20150403144937853",
+      "mta_resource" : "{\"name\":\"pricing-db-service\"}"
     },
-    "label": "hdi-hana",
-    "plan": "hdi-shared",
-    "credentials": {},
-    "tags": [],
-    "type" : "managed",
-    "resourceName": "pricing-db-service",
-    "shouldSkipParametersUpdate": false,
-    "shouldSkipTagsUpdate": false,
-    "shouldSkipPlanUpdate": false,
-    "shouldSkipSyslogUrlUpdate": false 
+    "labels" : {
+      "mta_id" : "57675a73021035bde9f4f77efa07dad8"
+    }
   },
-  {
-    "isOptional": false,
-    "isManaged": true,
-    "name": "internal-odata-service",
-    "credentials": {
-      "password": "shfzj86g",
-      "username": "technicalUser"
-    },
-    "tags" : [ ],
-    "type" : "user-provided",
-    "resourceName": "internal-odata-service",
-    "shouldSkipParametersUpdate": false,
-    "shouldSkipTagsUpdate": false,
-    "shouldSkipPlanUpdate": false,
-    "shouldSkipSyslogUrlUpdate": false 
-  }
-]
+  "credentials" : { },
+  "label" : "hdi-hana",
+  "plan" : "hdi-shared",
+  "tags" : [ ],
+  "type" : "managed",
+  "resourceName" : "pricing-db-service",
+  "shouldSkipParametersUpdate" : false,
+  "shouldSkipPlanUpdate" : false,
+  "shouldSkipTagsUpdate" : false,
+  "shouldSkipSyslogUrlUpdate" : false
+}, {
+  "isOptional" : false,
+  "isManaged" : true,
+  "name" : "internal-odata-service",
+  "credentials" : {
+    "password" : "shfzj86g",
+    "username" : "technicalUser"
+  },
+  "tags" : [ ],
+  "type" : "user-provided",
+  "resourceName" : "internal-odata-service",
+  "shouldSkipParametersUpdate" : false,
+  "shouldSkipPlanUpdate" : false,
+  "shouldSkipTagsUpdate" : false,
+  "shouldSkipSyslogUrlUpdate" : false
+} ]

@@ -20,7 +20,6 @@ import com.sap.cloudfoundry.client.facade.CloudControllerException;
 import com.sap.cloudfoundry.client.facade.CloudException;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
@@ -57,7 +56,7 @@ public class ServiceRemover {
         for (CloudServiceBinding binding : serviceBindings) {
             String applicationName = client.getApplicationName(binding.getApplicationGuid());
 
-            stepLogger.info(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP, serviceInstance, applicationName);
+            stepLogger.info(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP, serviceInstance.getName(), applicationName);
             client.unbindServiceInstance(binding.getApplicationGuid(), serviceInstance.getGuid());
         }
     }
