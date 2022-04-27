@@ -17,7 +17,7 @@
     "plan": "space",
     "credentials": {},
     "tags": [],
-    "type": "managed_service_instance",
+    "type": "managed",
     "resourceName": "random-resource-named-service",
     "shouldIgnoreUpdateErrors": false
   },

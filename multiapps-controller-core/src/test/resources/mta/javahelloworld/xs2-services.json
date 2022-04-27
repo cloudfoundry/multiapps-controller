@@ -17,7 +17,7 @@
     "plan": "hdi-shared",
     "credentials": {},
     "tags": [],
-    "type" : "managed_service_instance",
+    "type" : "managed",
     "resourceName": "java-hdi-container",
     "shouldSkipParametersUpdate": false,
     "shouldSkipTagsUpdate": false,
@@ -40,7 +40,7 @@
       "url": "http://uaa.sofd60245639a"
     },
     "tags" : [],
-    "type" : "user_provided_service_instance",
+    "type" : "user-provided",
     "resourceName": "uaa",
     "shouldSkipParametersUpdate": false,
     "shouldSkipTagsUpdate": false,

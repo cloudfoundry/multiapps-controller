@@ -17,7 +17,7 @@
     "plan": "hdi-shared",
     "credentials": {},
     "tags": [],
-    "type" : "managed_service_instance",
+    "type" : "managed",
     "resourceName": "pricing-db-service",
     "shouldSkipParametersUpdate": false,
     "shouldSkipTagsUpdate": false,
@@ -33,7 +33,7 @@
       "username": "technicalUser"
     },
     "tags" : [ ],
-    "type" : "user_provided_service_instance",
+    "type" : "user-provided",
     "resourceName": "internal-odata-service",
     "shouldSkipParametersUpdate": false,
     "shouldSkipTagsUpdate": false,
