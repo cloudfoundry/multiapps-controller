@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.ListUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudRouteExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ApplicationRoutesGetter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -115,7 +116,7 @@ abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep>
 
 	protected static class StepInput {
 		protected final List<CloudApplicationExtended> appsToDelete = Collections.emptyList();
-		protected final Map<String, List<CloudRoute>> appRoutesPerApplication = Collections.emptyMap();
+		protected final Map<String, List<CloudRouteExtended>> appRoutesPerApplication = Collections.emptyMap();
 		protected final Map<String, List<CloudTask>> tasksPerApplication = Collections.emptyMap();
 	}
 

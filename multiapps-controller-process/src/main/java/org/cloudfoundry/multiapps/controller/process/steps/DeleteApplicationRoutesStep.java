@@ -9,6 +9,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudRouteExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ApplicationRoutesGetter;
 import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
@@ -20,7 +21,6 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 
 @Named("deleteApplicationRoutesStep")
@@ -43,7 +43,7 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
     private void deleteApplicationRoutes(CloudControllerClient client, CloudApplication cloudApplication) {
         getStepLogger().info(Messages.DELETING_APP_ROUTES, cloudApplication.getName());
         ApplicationRoutesGetter applicationRoutesGetter = getApplicationRoutesGetter(client);
-        List<CloudRoute> cloudApplicationRoutes = applicationRoutesGetter.getRoutes(cloudApplication.getName());
+        List<CloudRouteExtended> cloudApplicationRoutes = applicationRoutesGetter.getRoutes(cloudApplication.getName());
 
         getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, cloudApplication.getName(), JsonUtil.toJson(cloudApplicationRoutes, true));
 
@@ -58,10 +58,10 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
         return new ApplicationRoutesGetter(client);
     }
 
-    private void deleteApplicationRoutes(CloudControllerClient client, List<CloudRoute> routes, CloudRouteSummary routeSummary) {
+    private void deleteApplicationRoutes(CloudControllerClient client, List<CloudRouteExtended> routes, CloudRouteSummary routeSummary) {
         try {
-            CloudRoute route = UriUtil.matchRoute(routes, routeSummary);
-            if (route.getAppsUsingRoute() > 1 || route.hasServiceUsingRoute()) {
+            CloudRouteExtended route = UriUtil.matchRoute(routes, routeSummary);
+            if (route.getAppsUsingRoute() > 1 || !route.getServiceRouteBindings().isEmpty()) {
                 getStepLogger().warn(Messages.ROUTE_NOT_DELETED, routeSummary.toUriString());
                 return;
             }

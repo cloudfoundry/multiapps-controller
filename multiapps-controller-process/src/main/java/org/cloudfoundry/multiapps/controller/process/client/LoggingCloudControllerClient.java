@@ -20,6 +20,7 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.UploadStatusCallback;
 import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
 import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
 import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
 import com.sap.cloudfoundry.client.facade.domain.CloudEvent;
@@ -93,9 +94,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createServiceBroker(CloudServiceBroker serviceBroker) {
+    public String createServiceBroker(CloudServiceBroker serviceBroker) {
         logger.debug(Messages.CREATING_SERVICE_BROKER_0, SecureSerialization.toJson(serviceBroker));
-        delegate.createServiceBroker(serviceBroker);
+        return delegate.createServiceBroker(serviceBroker);
     }
 
     @Override
@@ -143,9 +144,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<CloudRoute> deleteOrphanedRoutes() {
+    public void deleteOrphanedRoutes() {
         logger.debug(Messages.DELETING_ORPHANED_ROUTES);
-        return delegate.deleteOrphanedRoutes();
+        delegate.deleteOrphanedRoutes();
     }
 
     @Override
@@ -167,9 +168,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void deleteServiceBroker(String name) {
+    public String deleteServiceBroker(String name) {
         logger.debug(Messages.DELETING_SERVICE_BROKER_0, name);
-        delegate.deleteServiceBroker(name);
+        return delegate.deleteServiceBroker(name);
     }
 
     @Override
@@ -372,6 +373,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public Map<String, Object> getUserProvidedServiceInstanceParameters(UUID guid) {
+        logger.debug(Messages.GETTING_PARAMETERS_OF_USER_PROVIDED_SERVICE_INSTANCE_0, guid);
+        return delegate.getUserProvidedServiceInstanceParameters(guid);
+    }
+
+    @Override
     public Map<String, Object> getServiceBindingParameters(UUID guid) {
         logger.debug(Messages.GETTING_PARAMETERS_OF_SERVICE_BINDING_0, guid);
         return delegate.getServiceBindingParameters(guid);
@@ -553,9 +560,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void updateServiceBroker(CloudServiceBroker serviceBroker) {
+    public String updateServiceBroker(CloudServiceBroker serviceBroker) {
         logger.debug(Messages.UPDATING_SERVICE_BROKER_TO_0, SecureSerialization.toJson(serviceBroker));
-        delegate.updateServiceBroker(serviceBroker);
+        return delegate.updateServiceBroker(serviceBroker);
     }
 
     @Override
@@ -770,6 +777,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
         logger.debug(Messages.CREATING_DOCKER_PACKAGE_FOR_APPLICATION_0, applicationGuid);
         return delegate.createDockerPackage(applicationGuid, dockerInfo);
 
+    }
+
+    @Override
+    public CloudAsyncJob getAsyncJob(String jobId) {
+        logger.debug(Messages.GETTING_ASYNC_JOB_0, jobId);
+        return delegate.getAsyncJob(jobId);
     }
 
 }

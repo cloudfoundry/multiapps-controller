@@ -2,15 +2,15 @@
   "services": [
     {
       "name": "test-service-1",
-      "type": "user_provided_service_instance"
+      "type": "user-provided"
     },
     {
       "name": "test-service-2",
-      "type": "user_provided_service_instance"
+      "type": "user-provided"
     },
     {
       "name": "test-service-3",
-      "type": "user_provided_service_instance"
+      "type": "user-provided"
     }
   ],
   "triggeredServiceOperations": {
