@@ -1,9 +1,0 @@
-{
-  "existingServiceBrokers": [],
-  "application":
-    {
-      "name": "foo",
-      "attributes": {}
-    }
-}
-

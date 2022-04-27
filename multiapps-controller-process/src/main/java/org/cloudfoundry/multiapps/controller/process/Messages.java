@@ -69,6 +69,7 @@ public class Messages {
     // ERROR log messages
     public static final String COULD_NOT_COMPUTE_ORG_AND_SPACE = "Could not find org and space for space ID \"{0}\"";
     public static final String NO_BUILDS_FOUND_FOR_PACKAGE = "No builds found for package \"{0}\"";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FAILED_WITH = "Async operation for service broker \"{0}\" failed with \"{1}\"";
 
     // Process step errors
     public static final String ERROR_VALIDATING_PARAMS = "Error validating parameters";
@@ -151,6 +152,8 @@ public class Messages {
     public static final String ERROR_WHILE_BINDING_SERVICE_INSTANCE_TO_APPLICATION = "Error while binding service instance \"{0}\" to application \"{1}\"";
     public static final String ERROR_WHILE_DETERMINE_VCAP_SERVICES_PROPERTIES_CHANGED_FOR_APPLICATION = "Error while determine VCAP_SERVICES properties changed for application \"{0}\"";
     public static final String ERROR_UPDATING_MODULE_PARAMETERS = "Error updating modules parameters";
+    public static final String ERROR_POLLING_ASYNC_SERVICE_BROKER = "Polling of async service broker \"{0}\" failed";
+    public static final String ERROR_POLLING_ASYNC_SERVICE_BROKERS = "Polling of async service brokers failed";
 
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_PARAMETERS = "Cannot retrieve service instance parameters of service \"{0}\"";
@@ -292,6 +295,7 @@ public class Messages {
     public static final String SERVICE_BROKER_DOES_NOT_EXIST = "Service broker with name \"{0}\" does not exist";
     public static final String EXECUTING_HOOK_0 = "Executing hook \"{0}\"";
     public static final String WAITING_PREVIOUS_OPERATIONS_TO_FINISH = "Waiting for previous service operations to finish...";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FINISHED = "Async operation for service broker \"{0}\" has finished";
 
     // DEBUG log messages
     public static final String ENTERING_TESTING_PHASE = "Entering testing phase";
@@ -374,11 +378,10 @@ public class Messages {
     public static final String DETECTING_COMPONENTS_TO_UNDEPLOY = "Detecting components to undeploy...";
     public static final String COMPONENTS_TO_UNDEPLOY_DETECTED = "Components to undeploy detected";
     public static final String CREATING_SERVICE_BROKERS = "Creating service brokers...";
-    public static final String SERVICE_BROKERS_CREATED = "Service brokers created";
-    public static final String CREATED_SERVICE_BROKER = "Created service broker \"{0}\"";
-    public static final String UPDATED_SERVICE_BROKER = "Updated service broker \"{0}\"";
+    public static final String CREATE_SERVICE_BROKER_TRIGERRED = "Create of service broker \"{0}\" trigerred";
+    public static final String UPDATE_SERVICE_BROKER_TRIGERRED = "Update of service broker \"{0}\" trigerred";
     public static final String DELETING_SERVICE_BROKERS = "Deleting discontinued service brokers...";
-    public static final String DELETED_SERVICE_BROKER = "Deleted service broker \"{0}\" for application \"{1}\"";
+    public static final String DELETE_SERVICE_BROKER_TRIGERRED = "Deletion of service broker \"{0}\" for application \"{1}\" trigerred";
     public static final String SERVICE_BROKERS_DELETED = "Discontinued service brokers deleted";
     public static final String DETACHING_SERVICES_FROM_MTA = "Detaching services from MTA...";
     public static final String DETACHING_SERVICE_0_FROM_MTA = "Detaching service \"{0}\" from MTA...";
@@ -582,6 +585,8 @@ public class Messages {
     public static final String GETTING_ASYNC_JOB_0 = "Getting async job \"0\"";
     public static final String CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE = "Calculated binding operations between application \"{0}\" and service instance \"{1}\": unbind - {2} bind - {3}";
     public static final String CHECK_SHOULD_REBIND_APPLICATION_SERVICE_INSTANCE = "Check should rebind application \"{0}\" and service instance \"{1}\"";
+    public static final String POLLING_ASYNC_OPERATION_SERVICE_BROKER = "Polling async operation of service broker \"{0}\"";
+    public static final String ASYNC_OPERATION_SERVICE_BROKER_IN_STATE_WITH_WARNINGS = "Async operation of service broker \"{0}\" is in state \"{1}\" warnings \"{2}\"";
 
     protected Messages() {
     }
