@@ -18,9 +18,11 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLogging
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
+import org.cloudfoundry.multiapps.controller.persistence.services.LockOwnerService;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.impl.cmd.ClearProcessInstanceLockTimesCmd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,6 +47,9 @@ public class BootstrapServlet extends HttpServlet {
     @Inject
     @Named("fileService")
     protected FileService fileService;
+
+    @Inject
+    protected LockOwnerService lockOwnerService;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -82,11 +87,30 @@ public class BootstrapServlet extends HttpServlet {
 
     @Override
     public void destroy() {
+        clearLockOwner();
         destroyExtras();
     }
 
     protected void initExtras() throws NamingException {
         // Do nothing
+    }
+
+    private void clearLockOwner() {
+        var lockOwner = processEngine.getProcessEngineConfiguration()
+                                     .getAsyncExecutor()
+                                     .getLockOwner();
+        LOGGER.info(MessageFormat.format(Messages.CLEARING_LOCK_OWNER, lockOwner));
+        try {
+            processEngine.getProcessEngineConfiguration()
+                         .getCommandExecutor()
+                         .execute(new ClearProcessInstanceLockTimesCmd(lockOwner));
+            lockOwnerService.createQuery()
+                            .lockOwner(lockOwner)
+                            .delete();
+            LOGGER.info(MessageFormat.format(Messages.CLEARED_LOCK_OWNER, lockOwner));
+        } catch (Exception e) {
+            LOGGER.error(MessageFormat.format(Messages.CLEARING_FLOWABLE_LOCK_OWNER_THREW_AN_EXCEPTION_0, e.getMessage()), e);
+        }
     }
 
     protected void destroyExtras() {

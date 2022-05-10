@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="add_table_lock_owners">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists sequenceName="lock_owners_sequence"/>
+            </not>
+            <not>
+                <tableExists tableName="lock_owners" />
+            </not>
+        </preConditions>
+        <createSequence sequenceName="lock_owners_sequence" startValue="1" incrementBy="1"/>
+        <createTable tableName="lock_owners">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="lock_owners_pk" />
+            </column>
+            <column name="lock_owner" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="timestamp" type="TIMESTAMP">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
