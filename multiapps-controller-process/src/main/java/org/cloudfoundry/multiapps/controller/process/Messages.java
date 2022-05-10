@@ -70,6 +70,7 @@ public class Messages {
     public static final String COULD_NOT_COMPUTE_ORG_AND_SPACE = "Could not find org and space for space ID \"{0}\"";
     public static final String NO_BUILDS_FOUND_FOR_PACKAGE = "No builds found for package \"{0}\"";
     public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FAILED_WITH = "Async operation for service broker \"{0}\" failed with \"{1}\"";
+    public static final String CLEARING_STALE_FLOWABLE_LOCK_OWNER_0_THREW_AN_EXCEPTION_1 = "Clearing stale Flowable lock owner {0} threw an exception: {1}";
 
     // Process step errors
     public static final String ERROR_VALIDATING_PARAMS = "Error validating parameters";
@@ -238,6 +239,8 @@ public class Messages {
     public static final String JOB_WITH_ID_AND_TASK_NAME_EXPIRED = "Job with id \"{0}\" and Task name \"{1}\" expired";
     public static final String SKIPPING_START_OF_IDLE_APPLICATIONS = "Idle applications will not be started because \"{0}\" is set to \"{1}\"";
     public static final String DELAYING_APP_0_FOR_1_SECONDS = "Delaying operations for application \"{0}\" for \"{1}\" seconds...";
+    public static final String CLEARING_STALE_LOCK_OWNER = "Clearing stale lock owner {0}...";
+    public static final String CLEARED_STALE_LOCK_OWNER = "Cleared stale lock owner {0}";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";

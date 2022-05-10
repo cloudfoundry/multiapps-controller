@@ -17,6 +17,7 @@ public class PersistenceMetadata {
         public static final String PROGRESS_MESSAGE_TABLE = "progress_message";
         public static final String HISTORIC_OPERATION_EVENT_TABLE = "historic_operation_event";
         public static final String ACCESS_TOKEN_TABLE = "access_token";
+        public static final String LOCK_OWNERS_TABLE = "lock_owners";
 
     }
 
@@ -31,6 +32,7 @@ public class PersistenceMetadata {
         public static final String PROGRESS_MESSAGE_SEQUENCE = "ID_SEQ";
         public static final String HISTORIC_OPERATION_EVENT_SEQUENCE = "historic_operation_event_sequence";
         public static final String ACCESS_TOKEN_SEQUENCE = "access_token_sequence";
+        public static final String LOCK_OWNERS_SEQUENCE = "lock_owners_sequence";
 
     }
 
@@ -85,6 +87,10 @@ public class PersistenceMetadata {
         public static final String ACCESS_TOKEN_VALUE = "value";
         public static final String ACCESS_TOKEN_USERNAME = "username";
         public static final String ACCESS_TOKEN_EXPIRES_AT = "expires_at";
+
+        public static final String LOCK_OWNER_ID = "id";
+        public static final String LOCK_OWNER_LOCK_OWNER = "lock_owner";
+        public static final String LOCK_OWNER_TIMESTAMP = "timestamp";
     }
 
 }

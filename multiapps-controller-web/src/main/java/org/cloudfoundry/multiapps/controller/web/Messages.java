@@ -35,6 +35,7 @@ public final class Messages {
     public static final String INVALID_AUTHORIZATION_HEADER_WAS_PROVIDED = "Invalid Authorization header was provided!";
     public static final String THE_TOKEN_HAS_EXPIRED_ON_0 = "The token has expired on: \"{0}\"";
     public static final String UNSUPPORTED_TOKEN_TYPE = "Unsupported token type: \"{0}\".";
+    public static final String CLEARING_FLOWABLE_LOCK_OWNER_THREW_AN_EXCEPTION_0 = "Clearing Flowable lock owner on JVM shutdown threw an exception: {0}";
 
     // WARN log messages
 
@@ -48,6 +49,8 @@ public final class Messages {
     public static final String FILE_SERVICE_DELETED_FILES = "FileService: Deleted {0} files without content.";
     public static final String DATABASE_FOR_BINARIES_STORAGE = "Database will be used for binaries storage";
     public static final String OBJECTSTORE_FOR_BINARIES_STORAGE = "Objectstore will be used for binaries storage";
+    public static final String CLEARING_LOCK_OWNER = "Clearing lock owner {0}...";
+    public static final String CLEARED_LOCK_OWNER = "Cleared lock owner {0}";
 
     // DEBUG log messages
     public static final String ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION = "Cannot store access token due to data integrity violation. The exception is ignored as the token and authentication are persisted by another client";
