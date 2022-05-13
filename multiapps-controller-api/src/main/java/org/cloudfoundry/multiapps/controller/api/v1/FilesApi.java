@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
@@ -56,7 +57,7 @@ public class FilesApi {
            uploadFile(HttpServletRequest request,
                       @ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                       @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
-                      @ApiParam(value = "URL reference to a remote file") @RequestParam(name = RequestVariables.FILE_URL, required = false) String fileUrl) {
+                      @ApiParam(value = "URL reference to a remote file") @RequestHeader(name = RequestVariables.FILE_URL, required = false) String fileUrl) {
         return delegate.uploadFile(request, spaceGuid, namespace, fileUrl);
     }
 

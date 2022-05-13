@@ -58,4 +58,7 @@ public class UriUtil {
         }
     }
 
+    public static boolean isUrlSecure(String url) {
+        return url.startsWith(HTTPS_PROTOCOL);
+    }
 }
