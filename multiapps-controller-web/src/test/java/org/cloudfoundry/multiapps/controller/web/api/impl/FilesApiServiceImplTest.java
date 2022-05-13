@@ -63,7 +63,7 @@ class FilesApiServiceImplTest {
 
     private static final long MAX_PERMITTED_SIZE = new Configuration().getMaxUploadSize();
     private static final String FILE_URL = Base64.getUrlEncoder()
-                                                 .encodeToString("http://host.domain/test.mtar?query=true".getBytes(StandardCharsets.UTF_8));
+                                                 .encodeToString("https://host.domain/test.mtar?query=true".getBytes(StandardCharsets.UTF_8));
 
     @InjectMocks
     private final FilesApiServiceImpl testedClass = new FilesApiServiceImpl() {
@@ -229,7 +229,7 @@ class FilesApiServiceImplTest {
                .thenReturn(fileUrlResponse);
 
         String fileUrlWithInvalidFileName = Base64.getUrlEncoder()
-                                                  .encodeToString("http://host.domain/path/file?query=true".getBytes(StandardCharsets.UTF_8));
+                                                  .encodeToString("https://host.domain/path/file?query=true".getBytes(StandardCharsets.UTF_8));
         Assertions.assertThrows(SLException.class,
                                 () -> testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID, fileUrlWithInvalidFileName));
     }

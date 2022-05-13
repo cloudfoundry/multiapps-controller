@@ -10,10 +10,10 @@ import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,6 +56,7 @@ import org.springframework.http.ResponseEntity;
 public class FilesApiServiceImpl implements FilesApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilesApiServiceImpl.class);
+    private static final int ERROR_RESPONSE_BODY_MAX_LENGTH = 4000;
 
     @Inject
     @Named("fileService")
@@ -167,6 +168,9 @@ public class FilesApiServiceImpl implements FilesApiService {
     private FileEntry uploadFileFromUrl(String spaceGuid, String namespace, String fileUrl) throws Exception {
         String decodedUrl = new String(Base64.getUrlDecoder()
                                              .decode(fileUrl));
+        if (!UriUtil.isUrlSecure(decodedUrl)) {
+            throw new SLException(Messages.MTAR_ENDPOINT_NOT_SECURE);
+        }
         UriUtil.validateUrl(decodedUrl);
         HttpClient client = buildHttpClient(decodedUrl);
 
@@ -192,10 +196,8 @@ public class FilesApiServiceImpl implements FilesApiService {
         return resilientOperationExecutor.execute((CheckedSupplier<HttpResponse<InputStream>>) () -> {
             var response = client.send(buildFetchFileRequest(decodedUrl), BodyHandlers.ofInputStream());
             if (response.statusCode() / 100 != 2) {
-                try (InputStream is = response.body()) {
-                    String error = IOUtils.toString(is, StandardCharsets.UTF_8);
-                    throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, error));
-                }
+                String error = readErrorBodyFromResponse(response);
+                throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, response.statusCode(), error));
             }
             return response;
         });
@@ -203,7 +205,7 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     protected HttpClient buildHttpClient(String decodedUrl) {
         return HttpClient.newBuilder()
-                         .version(HttpClient.Version.HTTP_1_1)
+                         .version(HttpClient.Version.HTTP_2)
                          .connectTimeout(Duration.ofMinutes(10))
                          .followRedirects(Redirect.NORMAL)
                          .authenticator(buildPasswordAuthenticator(decodedUrl))
@@ -239,6 +241,14 @@ public class FilesApiServiceImpl implements FilesApiService {
             builder.uri(uri);
         }
         return builder.build();
+    }
+
+    private String readErrorBodyFromResponse(HttpResponse<InputStream> response) throws IOException {
+        try (InputStream is = response.body()) {
+            byte[] buffer = new byte[ERROR_RESPONSE_BODY_MAX_LENGTH];
+            int read = IOUtils.read(is, buffer);
+            return new String(Arrays.copyOf(buffer, read));
+        }
     }
 
     private String extractFileName(String url) {
