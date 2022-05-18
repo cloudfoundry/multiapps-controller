@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
+import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
@@ -30,7 +31,7 @@ public class ProcessConflictPreventer {
     public synchronized void acquireLock(String mtaId, String namespace, String spaceId, String processId) {
         LOGGER.info(format(Messages.ACQUIRING_LOCK, processId, mtaId));
 
-        validateNoConflictingOperationsExist(mtaId, namespace, spaceId);
+        validateNoConflictingOperationsExist(mtaId, namespace, spaceId, processId);
         Operation currentOperation = getOperationByProcessId(processId);
         ImmutableOperation.Builder currentOperationWithAcquiredLock = ImmutableOperation.builder()
                                                                                         .from(currentOperation)
@@ -45,15 +46,29 @@ public class ProcessConflictPreventer {
         LOGGER.info(format(Messages.ACQUIRED_LOCK, processId, StepsUtil.getQualifiedMtaId(mtaId, namespace)));
     }
 
-    private void validateNoConflictingOperationsExist(String mtaId, String namespace, String spaceId) {
+    private void validateNoConflictingOperationsExist(String mtaId, String namespace, String spaceId, String processId) {
         List<Operation> conflictingOperations = findConflictingOperations(mtaId, namespace, spaceId);
         String qualifiedMtaId = StepsUtil.getQualifiedMtaId(mtaId, namespace);
 
-        if (conflictingOperations.size() == 1) {
+        if (conflictingOperations.stream()
+                                 .anyMatch(Operation::hasAcquiredLock)) {
+            checkForMultipleConflictingOperations(conflictingOperations, spaceId, qualifiedMtaId);
             Operation conflictingOperation = conflictingOperations.get(0);
             throw new SLException(Messages.CONFLICTING_PROCESS_FOUND, conflictingOperation.getProcessId(), qualifiedMtaId);
         }
-        if (conflictingOperations.size() >= 2) {
+
+        if (!conflictingOperations.isEmpty()) {
+            var latestOperation = conflictingOperations.get(0);
+            if (!processId.equals(latestOperation.getProcessId())) {
+                throw new SLException(Messages.CONFLICTING_PROCESS_FOUND, latestOperation.getProcessId(), qualifiedMtaId);
+            }
+        }
+    }
+
+    private void checkForMultipleConflictingOperations(List<Operation> conflictingOperations, String spaceId, String qualifiedMtaId) {
+        if (conflictingOperations.stream()
+                                 .filter(Operation::hasAcquiredLock)
+                                 .count() >= 2) {
             List<String> operationIds = getOperationIds(conflictingOperations);
             throw new SLException(Messages.MULTIPLE_OPERATIONS_WITH_LOCK_FOUND, qualifiedMtaId, spaceId, operationIds);
         }
@@ -70,7 +85,8 @@ public class ProcessConflictPreventer {
                                .mtaId(mtaId)
                                .namespace(namespace)
                                .spaceId(spaceId)
-                               .acquiredLock(true)
+                               .inNonFinalState()
+                               .orderByStartTime(OrderDirection.DESCENDING)
                                .list();
     }
 
