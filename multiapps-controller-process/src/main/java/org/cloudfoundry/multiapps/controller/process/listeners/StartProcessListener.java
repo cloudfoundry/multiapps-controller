@@ -117,6 +117,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private void addOperation(DelegateExecution execution, String correlationId, ProcessType processType) {
         Operation operation = ImmutableOperation.builder()
+                                                .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
                                                 .processId(correlationId)
                                                 .processType(processType)
                                                 .startedAt(currentTimeSupplier.get())

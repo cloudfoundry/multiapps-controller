@@ -8,6 +8,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.common.SLException;
@@ -37,27 +40,40 @@ class ProcessConflictPreventerTest {
     }
 
     @Test
-    void testAcquireLock() {
-        SLException exception = assertThrows(SLException.class, this::tryToAcquireLock);
+    void testAcquireLockWithRunningOperation() {
+        var runningOperation = ImmutableOperation.copyOf(getOperation())
+                                                 .withSpaceId(testSpaceId)
+                                                 .withHasAcquiredLock(true);
+        SLException exception = assertThrows(SLException.class, () -> tryToAcquireLock(List.of(runningOperation)));
         assertEquals("Conflicting process \"test-process-id\" found for MTA \"test-mta-id\"", exception.getMessage());
     }
 
-    private void tryToAcquireLock() {
-        Operation operation = ImmutableOperation.builder()
-                                                .processId(testProcessId)
-                                                .processType(ProcessType.DEPLOY)
-                                                .spaceId(testSpaceId)
-                                                .mtaId(testMtaId)
-                                                .hasAcquiredLock(false)
-                                                .state(Operation.State.RUNNING)
-                                                .build();
+    @Test
+    void testAcquireLockWithMultipleRunningOperations() {
+        var runningOperation = ImmutableOperation.copyOf(getOperation())
+                                                 .withSpaceId(testSpaceId)
+                                                 .withHasAcquiredLock(true);
+        SLException exception = assertThrows(SLException.class, () -> tryToAcquireLock(List.of(runningOperation, runningOperation)));
+        assertEquals("Multiple operations found with lock for MTA \"test-mta-id\" in space \"test-space-id\": [test-process-id, test-process-id]", exception.getMessage());
+    }
+
+    @Test
+    void testAcquireLockWithConcurrentlyRunningOperation() {
+        var firstOperation = ImmutableOperation.copyOf(getOperation())
+                                                 .withSpaceId(testSpaceId)
+                                                 .withStartedAt(ZonedDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.of("UTC")));
+        var secondOperation = ImmutableOperation.copyOf(getOperation())
+                                               .withSpaceId(testSpaceId)
+                                               .withProcessId("test-process-id-1")
+                                               .withStartedAt(ZonedDateTime.ofInstant(Instant.ofEpochMilli(1), ZoneId.of("UTC")));
+        SLException exception = assertThrows(SLException.class, () -> tryToAcquireLock(List.of(secondOperation, firstOperation)));
+        assertEquals("Conflicting process \"test-process-id-1\" found for MTA \"test-mta-id\"", exception.getMessage());
+    }
+
+    private void tryToAcquireLock(List<Operation> operations) {
         when(operationServiceMock.createQuery()
-                                 .list()).thenReturn(List.of(operation));
+                                 .list()).thenReturn(operations);
         processConflictPreventerMock.acquireLock(testMtaId, null, testSpaceId, testProcessId);
-        Operation op = operationServiceMock.createQuery()
-                                           .processId(testProcessId)
-                                           .singleResult();
-        verify(operationServiceMock).update(op, op);
     }
 
     @Test
