@@ -70,12 +70,12 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         ProcessContext context = createProcessContext(execution);
         StepPhase stepPhase = getInitialStepPhase(context);
         try {
+            getStepHelper().failStepIfProcessIsAborted(context);
             getStepHelper().preExecuteStep(context, stepPhase);
             stepPhase = executeStep(context);
             if (stepPhase == StepPhase.RETRY) {
                 throw new SLException("A step of the process has failed. Retrying it may solve the issue.");
             }
-            getStepHelper().failStepIfProcessIsAborted(context);
         } catch (Exception e) {
             stepPhase = StepPhase.RETRY;
             handleException(context, e);
