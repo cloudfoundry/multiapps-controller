@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf;
 
 import java.net.MalformedURLException;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 
@@ -8,8 +9,8 @@ import org.apache.commons.collections4.map.AbstractReferenceMap.ReferenceStrengt
 import org.apache.commons.collections4.map.ReferenceMap;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
@@ -70,24 +71,19 @@ public class CloudControllerClientProvider {
         releaseClientFromCache(userName, spaceGuid);
     }
 
-    public OAuth2AccessToken getValidToken(String userName) {
+    public OAuth2AccessTokenWithAdditionalInfo getValidToken(String userName) {
         return getValidToken(userName, null, null);
     }
 
-    private OAuth2AccessToken getValidToken(String userName, String org, String space) {
-        OAuth2AccessToken token = tokenService.getToken(userName);
-        if (token == null) {
-            throw new SLException(Messages.NO_VALID_TOKEN_FOUND, userName);
-        }
-
-        if (token.isExpired() && token.getRefreshToken() == null) {
-            tokenService.removeToken(token);
+    private OAuth2AccessTokenWithAdditionalInfo getValidToken(String userName, String org, String space) {
+        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken(userName);
+        if (token.getExpiresAt()
+                 .isBefore(Instant.now())) {
             if (org != null && space != null) {
                 releaseClientFromCache(userName, org, space);
             }
             throw new SLException(Messages.TOKEN_EXPIRED, userName);
         }
-
         return token;
     }
 
