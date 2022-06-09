@@ -83,6 +83,13 @@ public final class Messages {
     public static final String CONTROLLER_URL_NOT_SPECIFIED = "Controller URL is not specified in the environment.";
     public static final String INVALID_CONTROLLER_URL = "Invalid controller URL \"{0}\".";
 
+    public static final String NO_TOKEN_PARSER_FOUND_FOR_THE_CURRENT_TOKEN = "No token parser found for the current token";
+
+    public static final String ACCESS_TOKEN_ALREADY_EXISTS = "Access token with ID \"{0}\" already exists";
+
+    public static final String ACCESS_TOKEN_NOT_FOUND = "Access token with ID \"{0}\" does not exist";
+
+
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
     public static final String UNKNOWN_XS_TYPE = "Unknown XS type \"{0}\". Using default: \"{1}\"";
@@ -102,6 +109,8 @@ public final class Messages {
     public static final String SPACE_ID_NOT_SPECIFIED_USING_DEFAULT_0 = "Space ID is not specified in the environment. Using default: \"{0}\"";
     public static final String ORG_NAME_NOT_SPECIFIED = "Org name is not specified in the environment.";
     public static final String DEPLOY_SERVICE_URL_NOT_SPECIFIED = "Deploy service URL is not specified in the environment.";
+
+
 
     // Info messages
     public static final String XS_TYPE_NOT_SPECIFIED = "XS type is not specified in the environment. Using default: \"{0}\"";
@@ -193,4 +202,7 @@ public final class Messages {
     public static final String DELETING_SUBSCRIPTION = "Deleting configuration subscription: {0}";
     public static final String DELETING_ENTRY = "Deleting configuration entry: {0}";
     public static final String ACCESS_TOKEN_RETRIEVED = "Access token for user \"{0}\" is retrieved from the token store, expiration date \"{1}\"";
+    public static final String PARSED_TOKEN_TYPE_0 = "Parsed token type: {0}";
+    public static final String PARSED_TOKEN_EXPIRES_IN_0 = "Parsed token expires in: {0}";
+
 }

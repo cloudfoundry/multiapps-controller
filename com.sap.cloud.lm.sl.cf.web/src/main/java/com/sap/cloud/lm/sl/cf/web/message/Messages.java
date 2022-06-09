@@ -18,6 +18,13 @@ public final class Messages {
     public static final String COULD_NOT_PARSE_CONTENT_PARAMETER = "Could not parse content query parameter as JSON or list";
     public static final String COULD_NOT_PARSE_NUMBER = "Could not parse \"{0}\" to number";
     public static final String MAX_UPLOAD_SIZE_EXCEEDED = "Cannot upload file, size is bigger than the configured maximum upload size \"{0}\" bytes";
+    public static final String THE_TOKEN_HAS_EXPIRED_ON_0 = "The token has expired on: \"{0}\"";
+    public static final String UNSUPPORTED_TOKEN_TYPE = "Unsupported token type: \"{0}\".";
+    public static final String NO_AUTHORIZATION_HEADER_WAS_PROVIDED = "No Authorization header was provided!";
+    public static final String INVALID_AUTHORIZATION_HEADER_WAS_PROVIDED = "Invalid Authorization header was provided!";
+    public static final String BASIC_AUTHENTICATION_IS_NOT_ENABLED_USE_OAUTH_2 = "Basic authentication is not enabled, use OAuth2";
+    public static final String INVALID_AUTHENTICATION_PROVIDED = "Invalid authentication provided";
+
 
     // Audit log messages
 
@@ -51,6 +58,7 @@ public final class Messages {
     public static final String TOKEN_LOADED_INTO_TOKEN_STORE = "Token with expiration time: {0} for user {1} has been loaded into token store";
     public static final String REGISTERED_0_AS_LIQUIBASE_LOCK_SERVICE = "Registered {0} as a Liquibase lock service.";
     public static final String FILE_SERVICE_DELETED_FILES = "FileService: Deleted {0} files without content.";
+    public static final String STORING_TOKEN_FOR_USER_0_WHICH_EXPIRES_AT_1 = "Storing token for user \"{0}\" which expires at: {1}";
 
     // WARN log messages
     public static final String FILE_SYSTEM_SERVICE_NAME_IS_NOT_SPECIFIED = "Failed to detect file service storage path, because the service name is not specified in the configuration files!";
