@@ -7,8 +7,7 @@ import java.util.UUID;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.v3.Metadata;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -42,20 +41,8 @@ public class DetachServicesFromMtaStep extends SyncFlowableStep {
             }
             getStepLogger().info(MessageFormat.format(Messages.DETACHING_SERVICE_0_FROM_MTA, serviceToDetachFromMta.getName()));
             UUID serviceGuid = serviceToDetachFromMta.getGuid();
-            client.updateServiceInstanceMetadata(serviceGuid, getMetadataWithoutMtaFields(serviceMetadata));
+            client.updateServiceInstanceMetadata(serviceGuid, MtaMetadataUtil.getMetadataWithoutMtaFields(serviceMetadata));
         }
-    }
-
-    private Metadata getMetadataWithoutMtaFields(Metadata metadata) {
-        return Metadata.builder()
-                       .from(metadata)
-                       .label(MtaMetadataLabels.MTA_ID, null)
-                       .label(MtaMetadataLabels.MTA_NAMESPACE, null)
-                       .annotation(MtaMetadataAnnotations.MTA_ID, null)
-                       .annotation(MtaMetadataAnnotations.MTA_VERSION, null)
-                       .annotation(MtaMetadataAnnotations.MTA_RESOURCE, null)
-                       .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, null)
-                       .build();
     }
 
     @Override
