@@ -63,22 +63,10 @@ public class CloudModelBuilderUtil {
                      .orElse(COLOR_OF_APPLICATIONS_WITHOUT_SUFFIX);
     }
 
-    public static boolean isExistingService(List<Resource> resources, String serviceName) {
-        return resources.stream()
-                        .filter(resource -> ResourceType.EXISTING_SERVICE.equals(getResourceType(resource)))
-                        .anyMatch(resource -> serviceName.equals(getServiceName(resource)));
-    }
-
     private static ResourceType getResourceType(Resource resource) {
         Map<String, Object> resourceParameters = resource.getParameters();
         String type = (String) resourceParameters.get(SupportedParameters.TYPE);
         return ResourceType.get(type);
-    }
-
-    private static String getServiceName(Resource resource) {
-        var serviceName = (String) resource.getParameters()
-                                           .get(SupportedParameters.SERVICE_NAME);
-        return serviceName == null ? resource.getName() : serviceName;
     }
 
 }

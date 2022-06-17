@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -10,8 +9,6 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil;
-import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper.CloudComponents;
@@ -62,14 +59,6 @@ public class DeleteServiceStep extends AsyncFlowableStep {
             getStepLogger().info(Messages.SERVICE_IS_ALREADY_DELETED, serviceToDelete);
             return StepPhase.DONE;
         }
-
-        var deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
-        if (serviceInstance.getV3Metadata() != null && CloudModelBuilderUtil.isExistingService(deploymentDescriptor.getResources(),
-                                                                                               serviceToDelete)) {
-            clearMtaMetadata(client, serviceInstance);
-            return StepPhase.DONE;
-        }
-
         context.setVariable(Variables.SERVICES_DATA, buildCloudServiceExtendedList(serviceInstance));
 
         List<CloudServiceKey> serviceKeys = client.getServiceKeys(serviceInstance);
@@ -85,12 +74,6 @@ public class DeleteServiceStep extends AsyncFlowableStep {
         getStepLogger().warn(Messages.SERVICE_NOT_BE_DELETED_DUE_TO_SERVICE_BINDINGS_AND_SERVICE_KEYS, serviceToDelete);
         return StepPhase.DONE;
 
-    }
-
-    private void clearMtaMetadata(CloudControllerClient client, CloudServiceInstance serviceInstance) {
-        getStepLogger().debug(MessageFormat.format(Messages.CLEARING_EXISTING_SERVICE_0_METADATA, serviceInstance.getName()));
-        var serviceGuid = serviceInstance.getGuid();
-        client.updateServiceInstanceMetadata(serviceGuid, MtaMetadataUtil.getMetadataWithoutMtaFields(serviceInstance.getV3Metadata()));
     }
 
     @Override

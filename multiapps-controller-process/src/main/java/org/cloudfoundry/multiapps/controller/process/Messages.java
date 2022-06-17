@@ -595,7 +595,6 @@ public class Messages {
     public static final String POLLING_ASYNC_OPERATION_SERVICE_BROKER = "Polling async operation of service broker \"{0}\"";
     public static final String ASYNC_OPERATION_SERVICE_BROKER_IN_STATE_WITH_WARNINGS = "Async operation of service broker \"{0}\" is in state \"{1}\" warnings \"{2}\"";
     public static final String SETTING_WAIT_AFTER_STOP_FOR_APP_0_TO_1_SECONDS = "Setting wait after stop for \"{0}\" to \"{1}\" seconds";
-    public static final String CLEARING_EXISTING_SERVICE_0_METADATA = "Clearing existing service \"{0}\" metadata";
 
     protected Messages() {
     }
