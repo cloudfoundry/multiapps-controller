@@ -19,7 +19,7 @@ import org.mockito.MockitoAnnotations;
 class BlueGreenVariablesSetterTest {
 
     @Mock
-    private ProcessTypeParser processTypeParser;
+    private DeploymentTypeDeterminer deploymentTypeDeterminer;
     @Mock
     private ProcessContext processContext;
 
@@ -29,7 +29,7 @@ class BlueGreenVariablesSetterTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        blueGreenVariablesSetter = new BlueGreenVariablesSetter(processTypeParser);
+        blueGreenVariablesSetter = new BlueGreenVariablesSetter(deploymentTypeDeterminer);
     }
 
     static Stream<Arguments> testSet() {
@@ -50,7 +50,7 @@ class BlueGreenVariablesSetterTest {
     }
 
     private void prepareProcessTypeParser(ProcessType processType) {
-        when(processTypeParser.getProcessType(any())).thenReturn(processType);
+        when(deploymentTypeDeterminer.determineDeploymentType(any())).thenReturn(processType);
     }
 
 }
