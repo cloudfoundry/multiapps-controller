@@ -12,10 +12,10 @@ import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetad
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.steps.ScaleAppStepTest.SimpleApplication;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationWaitAfterStopHandler;
+import org.cloudfoundry.multiapps.controller.process.util.DeploymentTypeDeterminer;
 import org.cloudfoundry.multiapps.controller.process.util.HooksExecutor;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseGetter;
-import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -40,7 +40,7 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     @Mock
     private HooksPhaseBuilder hooksPhaseBuilder;
     @Mock
-    private ProcessTypeParser processTypeParser;
+    private DeploymentTypeDeterminer deploymentTypeDeterminer;
     @Mock
     private ApplicationWaitAfterStopHandler waitAfterStopHandler;
 
@@ -65,7 +65,7 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
         prepareContext();
         determineActionForApplication();
 
-        Mockito.when(processTypeParser.getProcessType(Mockito.any()))
+        Mockito.when(deploymentTypeDeterminer.determineDeploymentType(Mockito.any()))
                .thenReturn(ProcessType.DEPLOY);
         step.execute(execution);
 
@@ -110,7 +110,7 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
 
     @Test
     void testGetHooksBeforeStepWithBlueGreenProcess() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(deploymentTypeDeterminer.determineDeploymentType(context))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.APPLICATION_BEFORE_STOP_IDLE, HookPhase.BEFORE_STOP), context))
                .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_IDLE));
@@ -130,7 +130,7 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
 
     @Test
     void testGetHooksAfterStepWithBlueGreenProcess() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(deploymentTypeDeterminer.determineDeploymentType(context))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.APPLICATION_AFTER_STOP_IDLE, HookPhase.AFTER_STOP), context))
                .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_IDLE));

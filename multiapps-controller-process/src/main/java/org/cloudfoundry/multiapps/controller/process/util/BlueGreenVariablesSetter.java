@@ -10,11 +10,11 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 @Named
 public class BlueGreenVariablesSetter {
 
-    private ProcessTypeParser processTypeParser;
+    private final DeploymentTypeDeterminer deploymentTypeDeterminer;
 
     @Inject
-    public BlueGreenVariablesSetter(ProcessTypeParser processTypeParser) {
-        this.processTypeParser = processTypeParser;
+    public BlueGreenVariablesSetter(DeploymentTypeDeterminer deploymentTypeDeterminer) {
+        this.deploymentTypeDeterminer = deploymentTypeDeterminer;
     }
 
     public void set(ProcessContext context) {
@@ -26,7 +26,7 @@ public class BlueGreenVariablesSetter {
     }
 
     protected ProcessType getProcessType(ProcessContext context) {
-        return processTypeParser.getProcessType(context.getExecution());
+        return deploymentTypeDeterminer.determineDeploymentType(context);
     }
 
 }
