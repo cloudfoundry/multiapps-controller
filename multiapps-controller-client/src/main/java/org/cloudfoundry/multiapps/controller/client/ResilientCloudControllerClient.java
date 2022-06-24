@@ -39,6 +39,7 @@ import com.sap.cloudfoundry.client.facade.domain.CloudTask;
 import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
 import com.sap.cloudfoundry.client.facade.domain.DropletInfo;
 import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
+import com.sap.cloudfoundry.client.facade.domain.ServicePlanVisibility;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 import com.sap.cloudfoundry.client.facade.domain.Upload;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
@@ -167,7 +168,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<CloudApplication> getApplications() {
-        return executeWithRetry(() -> delegate.getApplications(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(delegate::getApplications, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -386,7 +387,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void updateServicePlanVisibilityForBroker(String name, boolean visibility) {
+    public void updateServicePlanVisibilityForBroker(String name, ServicePlanVisibility visibility) {
         executeWithRetry(() -> delegate.updateServicePlanVisibilityForBroker(name, visibility));
     }
 

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.sap.cloudfoundry.client.facade.domain.ServicePlanVisibility;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
@@ -583,7 +584,7 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void updateServicePlanVisibilityForBroker(String name, boolean visibility) {
+    public void updateServicePlanVisibilityForBroker(String name, ServicePlanVisibility visibility) {
         logger.debug(Messages.UPDATING_PUBLIC_SERVICE_PLAN_VISIBILITY_OF_SERVICE_BROKER_0_TO_1, name, visibility);
         delegate.updateServicePlanVisibilityForBroker(name, visibility);
     }
