@@ -11,7 +11,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationWaitAfterStopHandler;
-import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
+import org.cloudfoundry.multiapps.controller.process.util.DeploymentTypeDeterminer;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -25,7 +25,7 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication.State;
 public class StopAppStep extends SyncFlowableStepWithHooks implements BeforeStepHookPhaseProvider, AfterStepHookPhaseProvider {
 
     @Inject
-    private ProcessTypeParser processTypeParser;
+    private DeploymentTypeDeterminer deploymentTypeDeterminer;
 
     @Inject
     private ApplicationWaitAfterStopHandler waitAfterStopHandler;
@@ -74,7 +74,7 @@ public class StopAppStep extends SyncFlowableStepWithHooks implements BeforeStep
 
     private List<HookPhase> getHookPhases(HookPhase beforeStepHookPhase, HookPhase afterStepHookPhase, ProcessContext context) {
         List<HookPhase> hookPhases = new ArrayList<>();
-        ProcessType processType = processTypeParser.getProcessType(context.getExecution());
+        ProcessType processType = deploymentTypeDeterminer.determineDeploymentType(context);
         if (ProcessType.BLUE_GREEN_DEPLOY.equals(processType)) {
             hookPhases.add(beforeStepHookPhase);
         } else {

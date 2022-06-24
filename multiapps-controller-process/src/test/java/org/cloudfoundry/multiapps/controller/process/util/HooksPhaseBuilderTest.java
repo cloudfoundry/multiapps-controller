@@ -20,7 +20,7 @@ class HooksPhaseBuilderTest {
 
     private final ProcessContext context = createContext();
     @Mock
-    private ProcessTypeParser processTypeParser;
+    private DeploymentTypeDeterminer deploymentTypeDeterminer;
 
     HooksPhaseBuilderTest() throws Exception {
         MockitoAnnotations.openMocks(this)
@@ -29,49 +29,49 @@ class HooksPhaseBuilderTest {
 
     @Test
     void testBuildHookPhaseForDeployProcess() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(deploymentTypeDeterminer.determineDeploymentType(context))
                .thenReturn(ProcessType.DEPLOY);
-        HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(processTypeParser);
+        HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(deploymentTypeDeterminer);
         List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_STOP), context);
         Assertions.assertEquals(List.of(HookPhase.DEPLOY_APPLICATION_BEFORE_STOP), hookPhases);
     }
 
     @Test
     void testBuildHookPhaseForBlueGreenDeployProcessWithSubprocessPhaseBeforeApplicationStop() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(deploymentTypeDeterminer.determineDeploymentType(context))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.SUBPROCESS_PHASE, SubprocessPhase.BEFORE_APPLICATION_STOP);
-        HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(processTypeParser);
+        HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(deploymentTypeDeterminer);
         List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_STOP), context);
         Assertions.assertEquals(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_IDLE), hookPhases);
     }
 
     @Test
     void testBuildHookPhaseForBlueGreenDeployProcessWithSubprocessPhaseBeforeApplicationStart() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(deploymentTypeDeterminer.determineDeploymentType(context))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.SUBPROCESS_PHASE, SubprocessPhase.BEFORE_APPLICATION_START);
-        HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(processTypeParser);
+        HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(deploymentTypeDeterminer);
         List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_START), context);
         Assertions.assertEquals(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_IDLE), hookPhases);
     }
 
     @Test
     void testBuildHookPhaseForBlueGreenProcessWithPhaseUndeploy() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(deploymentTypeDeterminer.determineDeploymentType(context))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.PHASE, Phase.UNDEPLOY);
-        HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(processTypeParser);
+        HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(deploymentTypeDeterminer);
         List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.AFTER_STOP), context);
         Assertions.assertEquals(List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE), hookPhases);
     }
 
     @Test
     void testBuildHookPhaseForBlueGreenProcessWithPhaseAfterResume() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+        Mockito.when(deploymentTypeDeterminer.determineDeploymentType(context))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.PHASE, Phase.AFTER_RESUME);
-        HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(processTypeParser);
+        HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(deploymentTypeDeterminer);
         List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_START), context);
         Assertions.assertEquals(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE), hookPhases);
     }

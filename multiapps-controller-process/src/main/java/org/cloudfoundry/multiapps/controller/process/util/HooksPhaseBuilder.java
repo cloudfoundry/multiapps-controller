@@ -19,11 +19,11 @@ public class HooksPhaseBuilder {
 
     private static final String HOOKS_DELIMITER = ".";
     private static final String DEFAULT_HOOK_ENTITY = "application";
-    private final ProcessTypeParser processTypeParser;
+    private final DeploymentTypeDeterminer deploymentTypeDeterminer;
 
     @Inject
-    public HooksPhaseBuilder(ProcessTypeParser processTypeParser) {
-        this.processTypeParser = processTypeParser;
+    public HooksPhaseBuilder(DeploymentTypeDeterminer deploymentTypeDeterminer) {
+        this.deploymentTypeDeterminer = deploymentTypeDeterminer;
     }
 
     public List<HookPhase> buildHookPhases(List<HookPhase> hookPhases, ProcessContext context) {
@@ -34,7 +34,8 @@ public class HooksPhaseBuilder {
     }
 
     private String buildPhase(HookPhase hookPhase, ProcessContext context) {
-        if (HookPhase.getOldPhases().contains(hookPhase)) {
+        if (HookPhase.getOldPhases()
+                     .contains(hookPhase)) {
             return hookPhase.getValue();
         }
         String deploymentType = getDeploymentType(context);
@@ -44,14 +45,14 @@ public class HooksPhaseBuilder {
     }
 
     private String getDeploymentType(ProcessContext context) {
-        if (ProcessType.DEPLOY.equals(processTypeParser.getProcessType(context.getExecution()))) {
+        if (ProcessType.DEPLOY.equals(deploymentTypeDeterminer.determineDeploymentType(context))) {
             return HookPhaseProcessType.DEPLOY.getType();
         }
         return HookPhaseProcessType.BLUE_GREEN_DEPLOY.getType();
     }
 
     private String getOptionalPhaseLocator(ProcessContext context) {
-        if (ProcessType.DEPLOY.equals(processTypeParser.getProcessType(context.getExecution()))) {
+        if (ProcessType.DEPLOY.equals(deploymentTypeDeterminer.determineDeploymentType(context))) {
             return HookPhaseProcessType.HookProcessPhase.NONE.getType();
         }
         if (context.getVariable(Variables.SUBPROCESS_PHASE) == SubprocessPhase.BEFORE_APPLICATION_STOP) {
