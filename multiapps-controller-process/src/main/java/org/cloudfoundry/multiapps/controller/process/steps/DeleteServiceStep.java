@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil;
@@ -19,6 +20,7 @@ import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceRemover;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -36,13 +38,15 @@ public class DeleteServiceStep extends AsyncFlowableStep {
     private ServiceOperationGetter serviceOperationGetter;
     private ServiceProgressReporter serviceProgressReporter;
     private ServiceRemover serviceRemover;
+    private ProcessTypeParser processTypeParser;
 
     @Inject
     public DeleteServiceStep(ServiceOperationGetter serviceOperationGetter, ServiceProgressReporter serviceProgressReporter,
-                             ServiceRemover serviceRemover) {
+                             ServiceRemover serviceRemover, ProcessTypeParser processTypeParser) {
         this.serviceOperationGetter = serviceOperationGetter;
         this.serviceProgressReporter = serviceProgressReporter;
         this.serviceRemover = serviceRemover;
+        this.processTypeParser = processTypeParser;
     }
 
     @Override
@@ -63,9 +67,7 @@ public class DeleteServiceStep extends AsyncFlowableStep {
             return StepPhase.DONE;
         }
 
-        var deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
-        if (serviceInstance.getV3Metadata() != null && CloudModelBuilderUtil.isExistingService(deploymentDescriptor.getResources(),
-                                                                                               serviceToDelete)) {
+        if (serviceInstance.getV3Metadata() != null && isExistingService(context, serviceToDelete)) {
             clearMtaMetadata(client, serviceInstance);
             return StepPhase.DONE;
         }
@@ -85,6 +87,13 @@ public class DeleteServiceStep extends AsyncFlowableStep {
         getStepLogger().warn(Messages.SERVICE_NOT_BE_DELETED_DUE_TO_SERVICE_BINDINGS_AND_SERVICE_KEYS, serviceToDelete);
         return StepPhase.DONE;
 
+    }
+
+    private boolean isExistingService(ProcessContext context, String serviceName) {
+        var deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+        // the process type is checked because the deployment descriptor is null during undeployment
+        return !ProcessType.UNDEPLOY.equals(processTypeParser.getProcessType(context.getExecution())) &&
+            CloudModelBuilderUtil.isExistingService(deploymentDescriptor.getResources(), serviceName);
     }
 
     private void clearMtaMetadata(CloudControllerClient client, CloudServiceInstance serviceInstance) {

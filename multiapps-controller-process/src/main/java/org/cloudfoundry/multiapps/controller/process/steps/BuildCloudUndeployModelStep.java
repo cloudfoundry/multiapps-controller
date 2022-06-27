@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -21,6 +22,7 @@ import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -39,6 +41,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     private ConfigurationSubscriptionService configurationSubscriptionService;
     @Inject
     private ModuleToDeployHelper moduleToDeployHelper;
+    @Inject
+    private ProcessTypeParser processTypeParser;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -163,8 +167,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
     private boolean shouldDeleteService(ProcessContext context, DeployedMtaService service, List<DeployedMtaApplication> appsToKeep,
                                         Set<String> servicesForApplications, List<String> servicesForCurrentDeployment) {
-        var deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
-        if (CloudModelBuilderUtil.isExistingService(deploymentDescriptor.getResources(), service.getName())) {
+        if (isExistingService(context, service.getName())) {
             //service, whose type was changed from "managed" to "existing"
             return true;
         }
@@ -173,6 +176,13 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                                   .stream())
                          .noneMatch(serviceName -> serviceName.equalsIgnoreCase(service.getName()))
             && !servicesForApplications.contains(service.getName()) && !servicesForCurrentDeployment.contains(service.getName());
+    }
+
+    private boolean isExistingService(ProcessContext context, String serviceName) {
+        var deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+        // the process type is checked because the deployment descriptor is null during undeployment
+        return !ProcessType.UNDEPLOY.equals(processTypeParser.getProcessType(context.getExecution())) &&
+            CloudModelBuilderUtil.isExistingService(deploymentDescriptor.getResources(), serviceName);
     }
 
     private List<DeployedMtaApplication> computeModulesToUndeploy(DeployedMta deployedMta, Set<String> mtaModules,

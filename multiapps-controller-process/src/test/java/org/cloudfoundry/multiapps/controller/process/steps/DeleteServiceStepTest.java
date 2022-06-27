@@ -15,12 +15,14 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceRemover;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,6 +50,8 @@ class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
     private ServiceRemover serviceRemover;
     @Mock
     private ServiceOperationGetter serviceOperationGetter;
+    @Mock
+    private ProcessTypeParser processTypeParser;
 
     static Stream<Arguments> testServiceDelete() {
         return Stream.of(Arguments.of(true, false, true, true, StepPhase.DONE), Arguments.of(false, false, true, true, StepPhase.DONE),
@@ -110,6 +114,7 @@ class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
     private void prepareContext() {
         context.setVariable(Variables.SERVICE_TO_DELETE, SERVICE_NAME);
         context.setVariable(Variables.DELETE_SERVICES, true);
+        when(processTypeParser.getProcessType(eq(context.getExecution()))).thenReturn(ProcessType.DEPLOY);
     }
 
     private CloudServiceInstance createCloudService(UUID serviceGuid) {
@@ -157,7 +162,7 @@ class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
 
     @Override
     protected DeleteServiceStep createStep() {
-        return new DeleteServiceStep(serviceOperationGetter, serviceProgressReporter, serviceRemover);
+        return new DeleteServiceStep(serviceOperationGetter, serviceProgressReporter, serviceRemover, processTypeParser);
     }
 
 }

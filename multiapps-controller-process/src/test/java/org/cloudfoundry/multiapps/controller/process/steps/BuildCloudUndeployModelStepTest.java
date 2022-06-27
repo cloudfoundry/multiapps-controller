@@ -17,6 +17,7 @@ import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
@@ -26,6 +27,7 @@ import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -106,6 +108,8 @@ class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildCloudUnd
     protected ApplicationCloudModelBuilder applicationCloudModelBuilder;
     @Mock
     private CloudControllerClient client;
+    @Mock
+    private ProcessTypeParser processTypeParser;
 
     protected List<Module> modulesToDeploy;
     private List<CloudApplicationExtended> deployedApps;
@@ -226,6 +230,7 @@ class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildCloudUnd
         prepareDeploymentDescriptor(input);
         prepareContext(input);
         prepareSubscriptionService();
+        when(processTypeParser.getProcessType(Mockito.eq(context.getExecution()))).thenReturn(ProcessType.DEPLOY);
     }
 
     private List<String> getNames(List<CloudApplication> appsToUndeploy) {
