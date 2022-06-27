@@ -17,6 +17,7 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -69,8 +70,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, SecureSerialization.toJson(subscriptionsToDelete));
 
         Set<String> servicesForApplications = getServicesForApplications(context);
-        List<String> servicesToDelete = computeServicesToDelete(appsWithoutChange, deployedMta.getServices(), servicesForApplications,
-                                                                serviceNames);
+        List<String> servicesToDelete = computeServicesToDelete(context, appsWithoutChange, deployedMta.getServices(),
+                                                                servicesForApplications, serviceNames);
         getStepLogger().debug(Messages.SERVICES_TO_DELETE, servicesToDelete);
 
         List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(deployedAppsToUndeploy, context.getControllerClient());
@@ -149,24 +150,29 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.APPS_TO_UNDEPLOY, apps);
     }
 
-    private List<String> computeServicesToDelete(List<DeployedMtaApplication> appsWithoutChange,
+    private List<String> computeServicesToDelete(ProcessContext context, List<DeployedMtaApplication> appsWithoutChange,
                                                  List<DeployedMtaService> deployedMtaServices, Set<String> servicesForApplications,
                                                  List<String> servicesForCurrentDeployment) {
         return deployedMtaServices.stream()
-                                  .map(DeployedMtaService::getName)
-                                  .filter(service -> shouldDeleteService(service, appsWithoutChange, servicesForApplications,
+                                  .filter(service -> shouldDeleteService(context, service, appsWithoutChange, servicesForApplications,
                                                                          servicesForCurrentDeployment))
+                                  .map(DeployedMtaService::getName)
                                   .sorted()
                                   .collect(Collectors.toList());
     }
 
-    private boolean shouldDeleteService(String service, List<DeployedMtaApplication> appsToKeep, Set<String> servicesForApplications,
-                                        List<String> servicesForCurrentDeployment) {
+    private boolean shouldDeleteService(ProcessContext context, DeployedMtaService service, List<DeployedMtaApplication> appsToKeep,
+                                        Set<String> servicesForApplications, List<String> servicesForCurrentDeployment) {
+        var deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+        if (CloudModelBuilderUtil.isExistingService(deploymentDescriptor.getResources(), service.getName())) {
+            //service, whose type was changed from "managed" to "existing"
+            return true;
+        }
         return appsToKeep.stream()
                          .flatMap(module -> module.getBoundMtaServices()
                                                   .stream())
-                         .noneMatch(service::equalsIgnoreCase)
-            && !servicesForApplications.contains(service) && !servicesForCurrentDeployment.contains(service);
+                         .noneMatch(serviceName -> serviceName.equalsIgnoreCase(service.getName()))
+            && !servicesForApplications.contains(service.getName()) && !servicesForCurrentDeployment.contains(service.getName());
     }
 
     private List<DeployedMtaApplication> computeModulesToUndeploy(DeployedMta deployedMta, Set<String> mtaModules,
