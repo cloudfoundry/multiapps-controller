@@ -101,7 +101,7 @@ class ServiceRemoverTest {
         CloudServiceInstance serviceInstance = buildServiceInstance();
 
         CloudApplication application = buildApplication(applicationBindingGuid);
-        CloudServiceBinding serviceBinding = buildServiceBinding(applicationBindingGuid);
+        CloudServiceBinding serviceBinding = buildServiceBinding(serviceInstance.getGuid(), applicationBindingGuid);
         prepareClient(application, serviceInstance, serviceBinding);
 
         doThrow(new CloudOperationException(httpStatusToThrow)).when(client)
@@ -136,7 +136,7 @@ class ServiceRemoverTest {
         CloudApplication application = buildApplication(applicationBindingGuid);
         CloudServiceBinding serviceBinding = null;
         if (hasServiceBinding) {
-            serviceBinding = buildServiceBinding(applicationBindingGuid);
+            serviceBinding = buildServiceBinding(serviceInstance.getGuid(), applicationBindingGuid);
         }
         prepareClient(application, serviceInstance, serviceBinding);
 
@@ -151,10 +151,8 @@ class ServiceRemoverTest {
 
     private void assertClientOperations(boolean hasServiceBinding, boolean hasServiceKey) {
         int callingUnbindServiceCount = hasServiceBinding ? 1 : 0;
-        verify(client, times(callingUnbindServiceCount)).unbindServiceInstance(any(UUID.class), any(UUID.class));
-
         int callingDeleteServiceKeyCount = hasServiceKey ? 1 : 0;
-        verify(client, times(callingDeleteServiceKeyCount)).deleteServiceKey(any(CloudServiceKey.class));
+        verify(client, times(callingUnbindServiceCount + callingDeleteServiceKeyCount)).deleteServiceBinding(any(UUID.class));
     }
 
     private CloudServiceInstance buildServiceInstance() {
@@ -171,6 +169,7 @@ class ServiceRemoverTest {
     private List<CloudServiceKey> buildServiceKeys(CloudServiceInstance service, boolean hasServiceKey) {
         if (hasServiceKey) {
             return List.of(ImmutableCloudServiceKey.builder()
+                                                   .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                                    .name(SERVICE_KEY_NAME)
                                                    .serviceInstance(service)
                                                    .build());
@@ -182,23 +181,22 @@ class ServiceRemoverTest {
         when(client.getApplicationName(application.getGuid())).thenReturn(application.getName());
         when(client.getServiceInstance(anyString())).thenReturn(serviceInstance);
         if (serviceBinding != null) {
-            when(client.getServiceBindings(serviceInstance.getMetadata()
-                                                          .getGuid())).thenReturn(List.of(serviceBinding));
+            when(client.getServiceAppBindings(serviceInstance.getGuid())).thenReturn(List.of(serviceBinding));
         }
     }
 
-    private CloudServiceBinding buildServiceBinding(UUID applicationBindingGuid) {
+    private CloudServiceBinding buildServiceBinding(UUID serviceGuid, UUID applicationBindingGuid) {
         return ImmutableCloudServiceBinding.builder()
+                                           .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                            .name(BINDING_NAME)
                                            .applicationGuid(applicationBindingGuid)
+                                           .serviceInstanceGuid(serviceGuid)
                                            .build();
     }
 
     private CloudApplication buildApplication(UUID applicationBindingGuid) {
         return ImmutableCloudApplication.builder()
-                                        .metadata(ImmutableCloudMetadata.builder()
-                                                                        .guid(applicationBindingGuid)
-                                                                        .build())
+                                        .metadata(ImmutableCloudMetadata.of(applicationBindingGuid))
                                         .build();
     }
 

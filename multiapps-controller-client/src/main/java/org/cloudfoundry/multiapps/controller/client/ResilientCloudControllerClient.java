@@ -131,6 +131,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public void deleteServiceBinding(String serviceInstanceName, String serviceKeyName) {
+        executeWithRetry(() -> delegate.deleteServiceBinding(serviceInstanceName, serviceKeyName));
+    }
+
+    @Override
     public CloudApplication getApplication(String applicationName) {
         return executeWithRetry(() -> delegate.getApplication(applicationName));
     }
@@ -241,8 +246,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<CloudServiceBinding> getServiceBindings(UUID serviceInstanceGuid) {
-        return executeWithRetry(() -> delegate.getServiceBindings(serviceInstanceGuid));
+    public List<CloudServiceBinding> getServiceAppBindings(UUID serviceInstanceGuid) {
+        return executeWithRetry(() -> delegate.getServiceAppBindings(serviceInstanceGuid));
     }
 
     @Override
@@ -263,6 +268,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public Map<String, Object> getServiceBindingParameters(UUID guid) {
         return executeWithRetry(() -> delegate.getServiceBindingParameters(guid));
+    }
+
+    @Override
+    public CloudServiceKey getServiceKey(String serviceInstanceName, String serviceKeyName) {
+        return executeWithRetry(() -> delegate.getServiceKey(serviceInstanceName, serviceKeyName));
     }
 
     @Override
@@ -432,8 +442,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudServiceKey createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
-        return executeWithRetry(() -> delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters));
+    public void createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
+        executeWithRetry(() -> delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters));
     }
 
     @Override
@@ -453,13 +463,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void deleteServiceKey(String serviceInstanceName, String serviceKeyName) {
-        executeWithRetry(() -> delegate.deleteServiceKey(serviceInstanceName, serviceKeyName));
-    }
-
-    @Override
-    public void deleteServiceKey(CloudServiceKey serviceKey) {
-        executeWithRetry(() -> delegate.deleteServiceKey(serviceKey));
+    public void deleteServiceBinding(UUID serviceBindingGuid) {
+        executeWithRetry(() -> delegate.deleteServiceBinding(serviceBindingGuid));
     }
 
     @Override
@@ -503,8 +508,18 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public List<CloudServiceKey> getServiceKeysWithCredentials(String serviceInstanceName) {
+        return executeWithRetry(() -> delegate.getServiceKeysWithCredentials(serviceInstanceName), HttpStatus.NOT_FOUND);
+    }
+
+    @Override
     public List<CloudServiceKey> getServiceKeys(CloudServiceInstance serviceInstance) {
         return executeWithRetry(() -> delegate.getServiceKeys(serviceInstance), HttpStatus.NOT_FOUND);
+    }
+
+    @Override
+    public List<CloudServiceKey> getServiceKeysWithCredentials(CloudServiceInstance serviceInstance) {
+        return executeWithRetry(() -> delegate.getServiceKeysWithCredentials(serviceInstance), HttpStatus.NOT_FOUND);
     }
 
     @Override

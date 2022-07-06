@@ -93,7 +93,7 @@ class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServiceKeysSt
     }
 
     private void prepareClient(List<CloudServiceKey> existingServiceKeys) {
-        when(client.getServiceKeys(anyString())).thenReturn(existingServiceKeys);
+        when(client.getServiceKeysWithCredentials(anyString())).thenReturn(existingServiceKeys);
     }
 
     private void verifyCreateCalls(List<String> serviceKeysNames, List<String> existingServiceKeysNames) {
@@ -110,7 +110,7 @@ class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServiceKeysSt
     private void verifyDeleteCalls(List<String> serviceKeysNames, List<String> existingServiceKeysNames, boolean canDeleteServiceKeys) {
         if (canDeleteServiceKeys) {
             verifyKeysOperations(existingServiceKeysNames, serviceKeysNames,
-                                 existingServiceKeyName -> verify(client).deleteServiceKey(eq(SERVICE_NAME), eq(existingServiceKeyName)));
+                                 existingServiceKeyName -> verify(client).deleteServiceBinding(eq(SERVICE_NAME), eq(existingServiceKeyName)));
             return;
         }
         verifyKeysOperations(existingServiceKeysNames, serviceKeysNames,
@@ -124,11 +124,10 @@ class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServiceKeysSt
             return;
         }
         updatedServiceKeys.forEach(this::verifyWarnCall);
-
     }
 
     private void verifyUpdateCall(String updatedServiceKeyName) {
-        verify(client).deleteServiceKey(eq(SERVICE_NAME), eq(updatedServiceKeyName));
+        verify(client).deleteServiceBinding(eq(SERVICE_NAME), eq(updatedServiceKeyName));
         verify(client).createServiceKey(eq(SERVICE_NAME), eq(updatedServiceKeyName), any());
     }
 

@@ -70,7 +70,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
 
     private List<CloudServiceKey> getExistingServiceKeys(CloudControllerClient client, CloudServiceInstanceExtended service) {
         try {
-            return client.getServiceKeys(service.getName());
+            return client.getServiceKeysWithCredentials(service.getName());
         } catch (CloudOperationException e) {
             if (!service.isOptional()) {
                 if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
@@ -152,8 +152,12 @@ public class UpdateServiceKeysStep extends ServiceStep {
     private void deleteServiceKey(CloudControllerClient client, CloudServiceKey key) {
         getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getServiceInstance()
                                                                                           .getName());
-        client.deleteServiceKey(key.getServiceInstance()
-                                   .getName(),
-                                key.getName());
+        if (key.getMetadata() != null) {
+            client.deleteServiceBinding(key.getGuid());
+            return;
+        }
+        client.deleteServiceBinding(key.getServiceInstance()
+                                       .getName(),
+                                    key.getName());
     }
 }

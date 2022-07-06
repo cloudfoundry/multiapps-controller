@@ -100,10 +100,10 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudServiceKey createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
+    public void createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
         logger.debug(Messages.CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2, serviceKeyName, serviceInstanceName,
                      SecureSerialization.toJson(parameters));
-        return delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters);
+        delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters);
     }
 
     @Override
@@ -174,16 +174,15 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void deleteServiceKey(String serviceInstanceName, String serviceKeyName) {
+    public void deleteServiceBinding(String serviceInstanceName, String serviceKeyName) {
         logger.debug(Messages.DELETING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1, serviceKeyName, serviceInstanceName);
-        delegate.deleteServiceKey(serviceInstanceName, serviceKeyName);
+        delegate.deleteServiceBinding(serviceInstanceName, serviceKeyName);
     }
 
     @Override
-    public void deleteServiceKey(CloudServiceKey serviceKey) {
-        logger.debug(Messages.DELETING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1, serviceKey, serviceKey.getServiceInstance()
-                                                                                                   .getName());
-        delegate.deleteServiceKey(serviceKey);
+    public void deleteServiceBinding(UUID serviceBindingGuid) {
+        logger.debug(Messages.DELETING_SERVICE_BINDING_0, serviceBindingGuid.toString());
+        delegate.deleteServiceBinding(serviceBindingGuid);
     }
 
     @Override
@@ -355,9 +354,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<CloudServiceBinding> getServiceBindings(UUID serviceInstanceGuid) {
+    public List<CloudServiceBinding> getServiceAppBindings(UUID serviceInstanceGuid) {
         logger.debug(Messages.GETTING_BINDINGS_OF_SERVICE_INSTANCE_0, serviceInstanceGuid);
-        return delegate.getServiceBindings(serviceInstanceGuid);
+        return delegate.getServiceAppBindings(serviceInstanceGuid);
     }
 
     @Override
@@ -385,15 +384,33 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public CloudServiceKey getServiceKey(String serviceInstanceName, String serviceKeyName) {
+        logger.debug(Messages.GETTING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1, serviceKeyName, serviceInstanceName);
+        return delegate.getServiceKey(serviceInstanceName, serviceKeyName);
+    }
+
+    @Override
     public List<CloudServiceKey> getServiceKeys(String serviceInstanceName) {
         logger.debug(Messages.GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0, serviceInstanceName);
         return delegate.getServiceKeys(serviceInstanceName);
     }
 
     @Override
+    public List<CloudServiceKey> getServiceKeysWithCredentials(String serviceInstanceName) {
+        logger.debug(Messages.GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0, serviceInstanceName);
+        return delegate.getServiceKeysWithCredentials(serviceInstanceName);
+    }
+
+    @Override
     public List<CloudServiceKey> getServiceKeys(CloudServiceInstance serviceInstance) {
         logger.debug(Messages.GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0, serviceInstance.getName());
         return delegate.getServiceKeys(serviceInstance);
+    }
+
+    @Override
+    public List<CloudServiceKey> getServiceKeysWithCredentials(CloudServiceInstance serviceInstance) {
+        logger.debug(Messages.GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0, serviceInstance.getName());
+        return delegate.getServiceKeysWithCredentials(serviceInstance);
     }
 
     @Override

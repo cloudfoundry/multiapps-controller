@@ -48,15 +48,14 @@ public abstract class CollectServicesInProgressStateStep extends AsyncFlowableSt
 
     protected abstract List<CloudServiceInstanceExtended> getExistingServicesInProgress(ProcessContext context);
 
-    protected CloudServiceInstanceExtended getExistingService(CloudControllerClient cloudControllerClient,
-        CloudServiceInstanceExtended service) {
-        CloudServiceInstance existingService = cloudControllerClient.getServiceInstance(service.getName(), false);
+    protected CloudServiceInstanceExtended getExistingService(CloudControllerClient client, CloudServiceInstanceExtended service) {
+        CloudServiceInstance existingService = client.getServiceInstance(service.getName(), false);
         if (existingService != null) {
             return ImmutableCloudServiceInstanceExtended.builder()
-                .from(service)
-                .from(existingService)
-                .metadata(existingService.getMetadata())
-                .build();
+                                                        .from(service)
+                                                        .from(existingService)
+                                                        .metadata(existingService.getMetadata())
+                                                        .build();
         }
         return null;
     }

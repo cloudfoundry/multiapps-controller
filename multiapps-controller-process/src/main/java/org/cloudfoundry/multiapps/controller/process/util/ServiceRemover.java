@@ -37,27 +37,26 @@ public class ServiceRemover {
     public void deleteService(ProcessContext context, CloudServiceInstance serviceInstance, List<CloudServiceBinding> serviceBindings,
                               List<CloudServiceKey> serviceKeys) {
         CloudControllerClient client = context.getControllerClient();
-
+        StepLogger stepLogger = context.getStepLogger();
         try {
-            unbindService(client, context.getStepLogger(), serviceInstance, serviceBindings);
-            deleteServiceKeys(client, context.getStepLogger(), serviceKeys);
-            deleteService(client, context.getStepLogger(), serviceInstance);
+            unbindService(client, stepLogger, serviceBindings, serviceInstance);
+            deleteServiceKeys(client, stepLogger, serviceKeys);
+            deleteService(client, stepLogger, serviceInstance);
         } catch (CloudException e) {
             processException(context, e, serviceInstance);
         }
     }
 
-    private void unbindService(CloudControllerClient client, StepLogger stepLogger, CloudServiceInstance serviceInstance,
-                               List<CloudServiceBinding> serviceBindings) {
+    private void unbindService(CloudControllerClient client, StepLogger stepLogger, List<CloudServiceBinding> serviceBindings,
+                               CloudServiceInstance serviceInstance) {
         if (serviceBindings.isEmpty()) {
             return;
         }
+        stepLogger.info(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APPS, serviceInstance.getName());
         stepLogger.debug(Messages.SERVICE_BINDINGS_EXISTS, SecureSerialization.toJson(serviceBindings));
         for (CloudServiceBinding binding : serviceBindings) {
-            String applicationName = client.getApplicationName(binding.getApplicationGuid());
-
-            stepLogger.info(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP, serviceInstance.getName(), applicationName);
-            client.unbindServiceInstance(binding.getApplicationGuid(), serviceInstance.getGuid());
+            stepLogger.debug(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP_GUID, serviceInstance.getName(), binding.getApplicationGuid());
+            client.deleteServiceBinding(binding.getGuid());
         }
     }
 
@@ -65,7 +64,7 @@ public class ServiceRemover {
         for (CloudServiceKey serviceKey : serviceKeys) {
             stepLogger.info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, serviceKey.getName(), serviceKey.getServiceInstance()
                                                                                                        .getName());
-            client.deleteServiceKey(serviceKey);
+            client.deleteServiceBinding(serviceKey.getGuid());
         }
     }
 

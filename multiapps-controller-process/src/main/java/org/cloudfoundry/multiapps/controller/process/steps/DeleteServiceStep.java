@@ -76,8 +76,8 @@ public class DeleteServiceStep extends AsyncFlowableStep {
 
         List<CloudServiceKey> serviceKeys = client.getServiceKeys(serviceInstance);
 
-        List<CloudServiceBinding> serviceBindings = client.getServiceBindings(serviceInstance.getMetadata()
-                                                                                             .getGuid());
+        List<CloudServiceBinding> serviceBindings = client.getServiceAppBindings(serviceInstance.getGuid());
+
         if (isDeletePossible(context, serviceBindings, serviceKeys)) {
             serviceRemover.deleteService(context, serviceInstance, serviceBindings, serviceKeys);
             context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, Map.of(serviceToDelete, ServiceOperation.Type.DELETE));
@@ -86,7 +86,6 @@ public class DeleteServiceStep extends AsyncFlowableStep {
 
         getStepLogger().warn(Messages.SERVICE_NOT_BE_DELETED_DUE_TO_SERVICE_BINDINGS_AND_SERVICE_KEYS, serviceToDelete);
         return StepPhase.DONE;
-
     }
 
     private boolean isExistingService(ProcessContext context, String serviceName) {

@@ -146,10 +146,10 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
                                                        .withEnv(applicationEnv)
                                                        .withServiceKeysToInject(serviceKey);
         Map<String, String> serviceKeyCredentials = Map.of("user", "service-key-user", "password", "service-key-password");
-        when(client.getServiceKeys(SERVICE_NAME)).thenReturn(List.of(ImmutableCloudServiceKey.builder()
-                                                                                             .name(SERVICE_KEY_NAME)
-                                                                                             .credentials(serviceKeyCredentials)
-                                                                                             .build()));
+        when(client.getServiceKey(SERVICE_NAME, serviceKey.getServiceKeyName())).thenReturn(ImmutableCloudServiceKey.builder()
+                                                                                                                    .name(SERVICE_KEY_NAME)
+                                                                                                                    .credentials(serviceKeyCredentials)
+                                                                                                                    .build());
         Map<String, Map<String, String>> serviceKeysToInjectCredentials = Map.of(APP_NAME, serviceKeyCredentials);
         prepareContext(application, serviceKeysToInjectCredentials);
 

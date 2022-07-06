@@ -209,6 +209,7 @@ public class Messages {
     public static final String ACQUIRED_LOCK = "Process \"{0}\" acquired lock for operation on MTA \"{1}\"";
     public static final String PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2 = "Process \"{0}\" releasing lock for MTA \"{1}\" in space \"{2}\"";
     public static final String PROCESS_0_RELEASED_LOCK = "Process \"{0}\" released lock successfully!";
+    public static final String UNBINDING_SERVICE_INSTANCE_FROM_APPS = "Unbinding service instance \"{0}\" from its bound applications...";
     public static final String UNBINDING_SERVICE_INSTANCE_FROM_APP = "Unbinding service instance \"{0}\" from application \"{1}\"...";
     public static final String UNBINDING_SERVICE_INSTANCE_FROM_APP_FINISHED = "Unbinding service instance \"{0}\" from application \"{1}\" finished";
     public static final String POLLING_SERVICE_OPERATIONS = "Polling service operations...";
@@ -347,6 +348,7 @@ public class Messages {
     public static final String SERVICES_TO_CREATE = "Services to create: {0}";
     public static final String CREATED_SERVICE_KEY = "Service key \"{0}\" created";
     public static final String SERVICE_BINDINGS_EXISTS = "Service bindings \"{0}\" exists";
+    public static final String UNBINDING_SERVICE_INSTANCE_FROM_APP_GUID = "Unbinding service instance \"{0}\" from app with GUID \"{1}\"";
     public static final String PREPARING_MODULES_DEPLOYMENT = "Preparing modules deployment...";
     public static final String CALCULATING_RESOURCE_BATCHES = "Calculating resource batches...";
     public static final String EXTRACT_SERVICES_FROM_BATCH = "Extracting services from batch";
@@ -497,6 +499,7 @@ public class Messages {
     public static final String DELETING_SERVICE_INSTANCE_0 = "Deleting service instance \"{0}\"...";
     public static final String DELETING_SERVICE_BROKER_0 = "Deleting service broker \"{0}\"...";
     public static final String DELETING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1 = "Deleting service key \"{0}\" for service instance \"{1}\"...";
+    public static final String DELETING_SERVICE_BINDING_0 = "Deleting service binding \"{0}\"...";
     public static final String GETTING_APPLICATION_0 = "Getting application \"{0}\"...";
     public static final String GETTING_APPLICATION_0_GUID = "Getting application guid \"{0}\"...";
     public static final String GETTING_NAME_OF_APPLICATION_WITH_GUID_0 = "Getting name of application with guid \"{0}\"...";
@@ -524,6 +527,7 @@ public class Messages {
     public static final String GETTING_PARAMETERS_OF_SERVICE_INSTANCE_0 = "Getting parameters of service instance \"{0}\"...";
     public static final String GETTING_PARAMETERS_OF_USER_PROVIDED_SERVICE_INSTANCE_0 = "Getting parameters of user-provided service instance \"{0}\"...";
     public static final String GETTING_PARAMETERS_OF_SERVICE_BINDING_0 = "Getting parameters of service binding \"{0}\"...";
+    public static final String GETTING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1 = "Getting service key \"{0}\" for service instance \"{1}\"...";
     public static final String GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0 = "Getting service keys for service instance \"{0}\"...";
     public static final String GETTING_SERVICE_OFFERINGS = "Getting service offerings...";
     public static final String GETTING_SERVICE_INSTANCES = "Getting service instances...";
