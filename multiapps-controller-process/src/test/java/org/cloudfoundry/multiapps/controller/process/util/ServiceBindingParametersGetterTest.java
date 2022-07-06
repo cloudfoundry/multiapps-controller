@@ -208,6 +208,7 @@ class ServiceBindingParametersGetterTest {
         if (serviceBindingExist) {
             CloudServiceBinding serviceBinding = ImmutableCloudServiceBinding.builder()
                                                                              .applicationGuid(RANDOM_GUID)
+                                                                             .serviceInstanceGuid(RANDOM_GUID)
                                                                              .metadata(ImmutableCloudMetadata.builder()
                                                                                                              .guid(RANDOM_GUID)
                                                                                                              .build())

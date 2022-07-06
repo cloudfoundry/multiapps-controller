@@ -27,7 +27,6 @@ import org.cloudfoundry.multiapps.controller.process.util.DiskQuotaApplicationAt
 import org.cloudfoundry.multiapps.controller.process.util.ElementUpdater.UpdateStrategy;
 import org.cloudfoundry.multiapps.controller.process.util.EnvironmentApplicationAttributeUpdater;
 import org.cloudfoundry.multiapps.controller.process.util.MemoryApplicationAttributeUpdater;
-import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationUtil;
 import org.cloudfoundry.multiapps.controller.process.util.StagingApplicationAttributeUpdater;
 import org.cloudfoundry.multiapps.controller.process.util.UrisApplicationAttributeUpdater;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -102,10 +101,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                 Map<String, String> appEnv) {
             Map<String, String> appServiceKeysCredentials = new HashMap<>();
             for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
-                String serviceKeyCredentials = JsonUtil.toJson(ServiceOperationUtil.getServiceKeyCredentials(client,
-                                                                                                             serviceKeyToInject.getServiceName(),
-                                                                                                             serviceKeyToInject.getServiceKeyName()),
-                                                               shouldPrettyPrint.getAsBoolean());
+                var serviceKey = client.getServiceKey(serviceKeyToInject.getServiceName(), serviceKeyToInject.getServiceKeyName());
+                String serviceKeyCredentials = JsonUtil.toJson(serviceKey.getCredentials(), shouldPrettyPrint.getAsBoolean());
                 appEnv.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
                 appServiceKeysCredentials.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
             }

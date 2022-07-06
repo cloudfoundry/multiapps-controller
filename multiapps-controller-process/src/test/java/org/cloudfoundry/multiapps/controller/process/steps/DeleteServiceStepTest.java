@@ -119,9 +119,7 @@ class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
 
     private CloudServiceInstance createCloudService(UUID serviceGuid) {
         return ImmutableCloudServiceInstanceExtended.builder()
-                                                    .metadata(ImmutableCloudMetadata.builder()
-                                                                                    .guid(serviceGuid)
-                                                                                    .build())
+                                                    .metadata(ImmutableCloudMetadata.of(serviceGuid))
                                                     .name(SERVICE_NAME)
                                                     .build();
     }
@@ -130,13 +128,13 @@ class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
         when(client.getServiceInstance(eq(SERVICE_NAME), anyBoolean())).thenReturn(serviceInstance);
         when(client.getServiceKeys(serviceInstance)).thenReturn(serviceKeys);
         if (hasServiceBindings) {
-            when(client.getServiceBindings(serviceInstance.getMetadata()
-                                                          .getGuid())).thenReturn(List.of(createServiceBinding()));
+            when(client.getServiceAppBindings(serviceInstance.getGuid())).thenReturn(List.of(createServiceBinding(serviceInstance.getGuid())));
         }
     }
 
-    private CloudServiceBinding createServiceBinding() {
+    private CloudServiceBinding createServiceBinding(UUID serviceGuid) {
         return ImmutableCloudServiceBinding.builder()
+                                           .serviceInstanceGuid(serviceGuid)
                                            .applicationGuid(UUID.randomUUID())
                                            .build();
     }

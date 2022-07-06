@@ -99,10 +99,11 @@ public class ServiceBindingParametersGetter {
 
     public Map<String, Object> getServiceBindingParametersFromExistingInstance(CloudApplication application, String serviceName) {
         CloudControllerClient client = context.getControllerClient();
-        CloudServiceBinding serviceBinding = ServiceBindingUtil.getServiceBinding(client, application.getGuid(), serviceName);
+        UUID serviceGuid = client.getRequiredServiceInstanceGuid(serviceName);
+        CloudServiceBinding serviceBinding = client.getServiceBindingForApplication(application.getGuid(), serviceGuid);
 
         try {
-            return client.getServiceBindingParameters(getGuid(serviceBinding));
+            return client.getServiceBindingParameters(serviceBinding.getGuid());
         } catch (CloudOperationException e) {
             if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {
                 // ignore 501 and 400 error codes from service brokers
@@ -119,11 +120,6 @@ public class ServiceBindingParametersGetter {
             }
             throw e;
         }
-    }
-
-    private UUID getGuid(CloudEntity entity) {
-        return entity.getMetadata()
-                     .getGuid();
     }
 
 }
