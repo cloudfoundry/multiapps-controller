@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.variables;
 
+import org.cloudfoundry.multiapps.common.util.JsonSerializationStrategy;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.immutables.value.Value;
 
@@ -16,12 +17,12 @@ public abstract class JsonBinaryVariable<T> implements Variable<T> {
 
             @Override
             public Object serialize(T object) {
-                return JsonUtil.toJsonBinary(object);
+                return JsonUtil.toJsonBinary(object, JsonSerializationStrategy.ALLOW_NULLS);
             }
 
             @Override
             public T deserialize(Object serializedObject) {
-                return JsonUtil.fromJsonBinary((byte[]) serializedObject, getType());
+                return JsonUtil.fromJsonBinary((byte[]) serializedObject, JsonSerializationStrategy.ALLOW_NULLS, getType());
             }
 
         };

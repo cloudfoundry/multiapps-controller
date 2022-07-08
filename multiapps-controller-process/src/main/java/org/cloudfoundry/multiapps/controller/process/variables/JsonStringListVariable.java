@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.variables;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.common.util.JsonSerializationStrategy;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.immutables.value.Value;
 
@@ -20,7 +21,7 @@ public abstract class JsonStringListVariable<T> implements ListVariable<T, List<
             @Override
             public Object serialize(List<T> values) {
                 return values.stream()
-                             .map(JsonUtil::toJson)
+                             .map(value -> JsonUtil.toJson(value, JsonSerializationStrategy.ALLOW_NULLS))
                              .collect(Collectors.toList());
             }
 
@@ -29,7 +30,7 @@ public abstract class JsonStringListVariable<T> implements ListVariable<T, List<
             public List<T> deserialize(Object serializedValue) {
                 List<String> serializedValues = (List<String>) serializedValue;
                 return serializedValues.stream()
-                                       .map(value -> JsonUtil.fromJson(value, getType()))
+                                       .map(value -> JsonUtil.fromJson(value, JsonSerializationStrategy.ALLOW_NULLS, getType()))
                                        .collect(Collectors.toList());
             }
 
