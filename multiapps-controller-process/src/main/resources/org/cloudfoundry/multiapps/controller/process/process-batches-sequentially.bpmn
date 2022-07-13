@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/test">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/test" exporter="Flowable Open Source Modeler" exporterVersion="6.7.2">
   <process id="processBatches" name="processBatches" isExecutable="true">
     <extensionElements>
       <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessListener}"></flowable:eventListener>
@@ -31,8 +31,11 @@
         <flowable:in source="orgId" target="orgId"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
         <flowable:in source="namespace" target="namespace"></flowable:in>
+        <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
       </extensionElements>
-      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess">
+        <extensionElements></extensionElements>
+      </multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="sid-AB31BFC0-E0CC-4FF5-BACF-73CA7B749162" sourceRef="prepareModulesDeploymentTask" targetRef="createOrUpdateServicesCallActivity"></sequenceFlow>
     <endEvent id="sid-BFD377EF-D401-42F0-A66B-EADDE82B638A" name="End ">
@@ -56,15 +59,15 @@
       <bpmndi:BPMNShape bpmnElement="sid-BFD377EF-D401-42F0-A66B-EADDE82B638A" id="BPMNShape_sid-BFD377EF-D401-42F0-A66B-EADDE82B638A">
         <omgdc:Bounds height="28.0" width="28.0" x="797.0" y="227.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge bpmnElement="sid-4260FD67-5FBB-4BAB-B37B-C2471D68F052" id="BPMNEdge_sid-4260FD67-5FBB-4BAB-B37B-C2471D68F052">
+      <bpmndi:BPMNEdge bpmnElement="sid-4260FD67-5FBB-4BAB-B37B-C2471D68F052" id="BPMNEdge_sid-4260FD67-5FBB-4BAB-B37B-C2471D68F052" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="14.0" flowable:targetDockerY="14.0">
         <omgdi:waypoint x="729.9499999999999" y="241.0"></omgdi:waypoint>
         <omgdi:waypoint x="797.0" y="241.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-AB31BFC0-E0CC-4FF5-BACF-73CA7B749162" id="BPMNEdge_sid-AB31BFC0-E0CC-4FF5-BACF-73CA7B749162">
+      <bpmndi:BPMNEdge bpmnElement="sid-AB31BFC0-E0CC-4FF5-BACF-73CA7B749162" id="BPMNEdge_sid-AB31BFC0-E0CC-4FF5-BACF-73CA7B749162" flowable:sourceDockerX="53.0" flowable:sourceDockerY="29.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
         <omgdi:waypoint x="585.95" y="241.0"></omgdi:waypoint>
         <omgdi:waypoint x="629.9999999999955" y="241.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow51" id="BPMNEdge_flow51">
+      <bpmndi:BPMNEdge bpmnElement="flow51" id="BPMNEdge_flow51" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="53.0" flowable:targetDockerY="29.0">
         <omgdi:waypoint x="404.9499991062926" y="241.0"></omgdi:waypoint>
         <omgdi:waypoint x="479.9999999999978" y="241.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
