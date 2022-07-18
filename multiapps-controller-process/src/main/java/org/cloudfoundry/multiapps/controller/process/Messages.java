@@ -585,11 +585,11 @@ public class Messages {
     public static final String DETERMINE_VCAP_SERVICES_PROPERTIES_CHANGED_FOR_APPLICATION = "Determine VCAP_SERVICES properties changed for application \"{0}\"";
     public static final String UPDATING_SERVICE_0_WITH_PLAN_1 = "Updating service plan for service \"{0}\" with new plan: \"{1}\"";
     public static final String SERVICE_PLAN_FOR_SERVICE_0_UPDATED = "Service plan for service \"{0}\" updated";
-    public static final String GETTING_ROLES_FOR_USER_0_FOR_SPACE_1 = "Getting roles for user: \"0\" for space: \"1\"";
-    public static final String REGISTERING_PROCESS_EVENT_IN_DYNATRACE = "Registering process event in dynatrace: \"0\"";
-    public static final String REGISTERING_PROCESS_DURATION_IN_DYNATRACE = "Registering process duration in dynatrace: \"0\"";
-    public static final String CREATING_DOCKER_PACKAGE_FOR_APPLICATION_0 = "Creating a docker package for application: \"0\"";
-    public static final String GETTING_ASYNC_JOB_0 = "Getting async job \"0\"";
+    public static final String GETTING_ROLES_FOR_USER_0_FOR_SPACE_1 = "Getting roles for user: \"{0}\" for space: \"{1}\"";
+    public static final String REGISTERING_PROCESS_EVENT_IN_DYNATRACE = "Registering process event in dynatrace: \"{0}\"";
+    public static final String REGISTERING_PROCESS_DURATION_IN_DYNATRACE = "Registering process duration in dynatrace: \"{0}\"";
+    public static final String CREATING_DOCKER_PACKAGE_FOR_APPLICATION_0 = "Creating a docker package for application: \"{0}\"";
+    public static final String GETTING_ASYNC_JOB_0 = "Getting async job \"{0}\"";
     public static final String CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE = "Calculated binding operations between application \"{0}\" and service instance \"{1}\": unbind - {2} bind - {3}";
     public static final String CHECK_SHOULD_REBIND_APPLICATION_SERVICE_INSTANCE = "Check should rebind application \"{0}\" and service instance \"{1}\"";
     public static final String POLLING_ASYNC_OPERATION_SERVICE_BROKER = "Polling async operation of service broker \"{0}\"";
