@@ -64,7 +64,8 @@ public abstract class CustomControllerClient {
 
         @SuppressWarnings("unchecked")
         Map<String, Object> pagination = (Map<String, Object>) responseMap.get("pagination");
-        String nextUrl = (String) pagination.get("next");
-        return nextUrl == null ? null : URLDecoder.decode(nextUrl, StandardCharsets.UTF_8);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> next = (Map<String, Object>) pagination.get("next");
+        return next == null ? null : URLDecoder.decode((String) next.get("href"), StandardCharsets.UTF_8);
     }
 }
