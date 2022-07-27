@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.web.util;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -71,7 +72,7 @@ public class TokenReuser {
     }
 
     private LocalDateTime getExpirationDate(OAuth2AccessTokenWithAdditionalInfo currentToken) {
-        return LocalDateTime.ofInstant(currentToken.getExpiresAt(), ZoneOffset.UTC);
+        return LocalDateTime.ofInstant(currentToken.getExpiresAt(), ZoneId.systemDefault());
     }
 
 }
