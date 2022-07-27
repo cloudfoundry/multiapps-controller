@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -151,7 +151,8 @@ class TokenReuserTest {
         OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo = Mockito.mock(OAuth2AccessTokenWithAdditionalInfo.class);
         OAuth2AccessToken oAuth2AccessToken = Mockito.mock(OAuth2AccessToken.class);
         Mockito.when(oAuth2AccessToken.getExpiresAt())
-               .thenReturn(expiresAt.toInstant(ZoneOffset.UTC));
+               .thenReturn(expiresAt.atZone(ZoneId.systemDefault())
+                                    .toInstant());
         Mockito.when(oAuth2AccessTokenWithAdditionalInfo.getOAuth2AccessToken())
                .thenReturn(oAuth2AccessToken);
         return oAuth2AccessTokenWithAdditionalInfo;

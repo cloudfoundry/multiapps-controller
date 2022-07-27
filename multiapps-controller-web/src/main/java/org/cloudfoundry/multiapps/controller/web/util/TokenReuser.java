@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.web.util;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +76,7 @@ public class TokenReuser {
     private LocalDateTime getExpirationDate(OAuth2AccessTokenWithAdditionalInfo currentToken) {
         return LocalDateTime.ofInstant(currentToken.getOAuth2AccessToken()
                                                    .getExpiresAt(),
-                                       ZoneOffset.UTC);
+                                       ZoneId.systemDefault());
     }
 
 }
