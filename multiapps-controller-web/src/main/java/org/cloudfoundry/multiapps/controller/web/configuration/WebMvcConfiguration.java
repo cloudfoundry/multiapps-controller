@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.multiapps.common.util.JsonSerializationStrategy;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.web.interceptors.CustomHandlerInterceptor;
 import org.cloudfoundry.multiapps.controller.web.util.XmlNamespaceIgnoringHttpMessageConverter;
@@ -60,7 +59,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     }
 
     private MappingJackson2HttpMessageConverter createJsonHttpMessageConverter() {
-        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(JsonUtil.getObjectMapper(JsonSerializationStrategy.DEFAULT));
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(JsonUtil.getObjectMapper());
         mappingJackson2HttpMessageConverter.setSupportedMediaTypes(buildSupportedMediaTypes(mappingJackson2HttpMessageConverter));
         return mappingJackson2HttpMessageConverter;
     }

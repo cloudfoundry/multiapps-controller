@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.security.serialization;
 
-import org.cloudfoundry.multiapps.common.util.JsonSerializationStrategy;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 
 public class SecureJsonSerializer extends SecureSerializer {
@@ -11,7 +10,7 @@ public class SecureJsonSerializer extends SecureSerializer {
 
     @Override
     protected Object toTree(Object object) {
-        return JsonUtil.getObjectMapper(JsonSerializationStrategy.DEFAULT)
+        return JsonUtil.getObjectMapper()
                        .convertValue(object, Object.class);
     }
 
