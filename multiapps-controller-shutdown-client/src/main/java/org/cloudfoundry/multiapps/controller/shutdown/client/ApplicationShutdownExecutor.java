@@ -11,7 +11,7 @@ import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.Shutd
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudControllerClientImpl;
 import com.sap.cloudfoundry.client.facade.CloudCredentials;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
 
 public class ApplicationShutdownExecutor {
 
@@ -38,8 +38,9 @@ public class ApplicationShutdownExecutor {
 
     private static int getApplicationInstancesCount(ShutdownConfiguration shutdownConfiguration) {
         CloudControllerClient client = createCloudControllerClient(shutdownConfiguration);
-        CloudApplication application = client.getApplication(shutdownConfiguration.getApplicationGuid());
-        return application.getInstances();
+        InstancesInfo instances = client.getApplicationInstances(shutdownConfiguration.getApplicationGuid());
+        return instances.getInstances()
+                        .size();
     }
 
     private static CloudControllerClient createCloudControllerClient(ShutdownConfiguration shutdownConfiguration) {

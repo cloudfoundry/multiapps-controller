@@ -1,13 +1,16 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceBindingParametersGetter;
@@ -40,7 +43,7 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
 
         ServiceBindingParametersGetter serviceBindingParametersGetter = getServiceBindingParametersGetter(context);
         Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromMta(app, service);
-        if (!doesServiceBindingExist(service, existingApp)) {
+        if (!doesServiceBindingExist(client, service, existingApp.getGuid())) {
             context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, false);
             context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, true);
             context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, bindingParameters);
@@ -78,9 +81,14 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         return new ServiceBindingParametersGetter(context, fileService, configuration.getMaxManifestSize());
     }
 
-    private boolean doesServiceBindingExist(String service, CloudApplication existingApp) {
-        return existingApp.getServices()
-                          .contains(service);
+    protected AppBoundServiceInstanceNamesGetter getAppServicesGetter(CloudControllerClient client) {
+        return new AppBoundServiceInstanceNamesGetter(client);
+    }
+
+    private boolean doesServiceBindingExist(CloudControllerClient client, String service, UUID appGuid) {
+        var serviceNamesGetter = getAppServicesGetter(client);
+        List<String> appServiceNames = serviceNamesGetter.getServiceInstanceNamesBoundToApp(appGuid);
+        return appServiceNames.contains(service);
     }
 
     private boolean shouldRebindService(ServiceBindingParametersGetter serviceBindingParametersGetter, CloudApplication app,

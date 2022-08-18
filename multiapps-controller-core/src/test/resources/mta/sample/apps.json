@@ -16,15 +16,18 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "bestprice.sap.com",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "bestprice.sap.com"
+        },
         "host": "www",
-        "path" : ""
+        "path" : "",
+        "url": "www.bestprice.sap.com"
       }
     ],
     "services": [
@@ -71,7 +74,6 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": [
         "nodejs-test"
@@ -79,9 +81,13 @@
     },
     "routes": [
       {
-        "domain": "bestprice.sap.com",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "bestprice.sap.com"
+        },
         "host": "api",
-        "path" : ""
+        "path" : "",
+        "url": "api.bestprice.sap.com"
       }
     ],
     "services": [
@@ -130,15 +136,18 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "cfapps.neo.ondemand.com",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "cfapps.neo.ondemand.com"
+        },
         "host": "pricing-db",
-        "path" : ""
+        "path" : "",
+        "url": "pricing-db.cfapps.neo.ondemand.com"
       }
     ],
     "services": [

@@ -42,14 +42,13 @@ public class ApplicationAttributes {
         return attribute == null || expectedType.isInstance(attribute);
     }
 
-    public static ApplicationAttributes fromApplication(CloudApplication app) {
-        Map<String, Object> attributes = parseAttributes(app);
+    public static ApplicationAttributes fromApplication(CloudApplication app, Map<String, String> appEnv) {
+        Map<String, Object> attributes = parseAttributes(app, appEnv);
         return new ApplicationAttributes(app.getName(), attributes);
     }
 
-    private static Map<String, Object> parseAttributes(CloudApplication app) {
-        Map<String, String> env = app.getEnv();
-        Map<String, Object> attributes = parseAttributes(app, env.get(Constants.ENV_DEPLOY_ATTRIBUTES));
+    private static Map<String, Object> parseAttributes(CloudApplication app, Map<String, String> appEnv) {
+        Map<String, Object> attributes = parseAttributes(app, appEnv.get(Constants.ENV_DEPLOY_ATTRIBUTES));
         return attributes == null ? Collections.emptyMap() : attributes;
     }
 

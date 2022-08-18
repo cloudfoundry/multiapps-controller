@@ -3,10 +3,10 @@ package org.cloudfoundry.multiapps.controller.web.api.impl;
 import static org.cloudfoundry.multiapps.controller.core.util.SecurityUtil.USER_INFO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -27,7 +27,6 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaService;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.mta.model.Version;
 import org.junit.jupiter.api.Assertions;
@@ -46,8 +45,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 
 class MtasApiServiceImplTest {
 
@@ -62,7 +60,6 @@ class MtasApiServiceImplTest {
     @InjectMocks
     private MtasApiServiceImpl testedClass;
 
-    private List<CloudApplication> apps;
     private List<Mta> mtas;
 
     private static final String USER_NAME = "someUser";
@@ -73,15 +70,8 @@ class MtasApiServiceImplTest {
     void initialize() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        apps = parseApps();
         mtas = parseMtas();
         mockClient();
-    }
-
-    private List<CloudApplication> parseApps() {
-        String appsJson = TestUtil.getResourceAsString("apps-01.json", getClass());
-        return JsonUtil.fromJson(appsJson, new TypeReference<>() {
-        });
     }
 
     private List<Mta> parseMtas() {
@@ -203,10 +193,10 @@ class MtasApiServiceImplTest {
         SecurityContextHolder.setContext(securityContextMock);
         Mockito.when(securityContextMock.getAuthentication())
                .thenReturn(auth);
+        Mockito.when(client.getApplicationRoutes(Mockito.any(UUID.class)))
+               .thenReturn(Collections.emptyList());
         Mockito.when(clientProvider.getControllerClientWithNoCorrelation(Mockito.anyString(), Mockito.anyString()))
                .thenReturn(client);
-        Mockito.when(client.getApplications())
-               .thenReturn(apps);
     }
 
     private List<DeployedMta> getDeployedMtas(List<Mta> mtas) {
@@ -235,18 +225,12 @@ class MtasApiServiceImplTest {
     private DeployedMtaApplication getDeployedMtaApplication(Module module) {
         List<String> services = module.getServices();
         return ImmutableDeployedMtaApplication.builder()
+                                              .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                               .name(module.getAppName())
                                               .moduleName(module.getModuleName())
                                               .providedDependencyNames(module.getProvidedDendencyNames())
-                                              .routes(parseUrisAsRoutes(module.getUris()))
                                               .boundMtaServices(services)
                                               .build();
-    }
-
-    private Set<CloudRouteSummary> parseUrisAsRoutes(List<String> uris) {
-        return uris.stream()
-                   .map(uri -> new ApplicationURI(uri, false).toCloudRouteSummary())
-                   .collect(Collectors.toSet());
     }
 
     private DeployedMtaService getDeployedMtaService(String service) {

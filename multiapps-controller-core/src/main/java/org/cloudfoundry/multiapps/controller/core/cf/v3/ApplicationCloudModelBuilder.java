@@ -5,7 +5,7 @@ import java.util.List;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.DeploymentMode;
-import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceAndResourceType;
+import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
@@ -39,8 +39,8 @@ public class ApplicationCloudModelBuilder extends org.cloudfoundry.multiapps.con
 
     @Override
     protected List<String> getApplicationServices(Module module) {
-        return getApplicationServices(module, resourceAndType -> filterExistingServicesRule(resourceAndType)
-            && onlyActiveServicesRule(resourceAndType));
+        return getApplicationServices(module, (resource, type) -> filterExistingServicesRule(resource, type)
+                                              && onlyActiveServicesRule(resource, type));
     }
 
     @Override
@@ -52,9 +52,8 @@ public class ApplicationCloudModelBuilder extends org.cloudfoundry.multiapps.con
         return null;
     }
 
-    private boolean onlyActiveServicesRule(ResourceAndResourceType resourceAndResourceType) {
-        return resourceAndResourceType.getResource()
-                                      .isActive();
+    private boolean onlyActiveServicesRule(Resource resource, ResourceType resourceType) {
+        return resource.isActive();
     }
 
     public static class Builder extends AbstractBuilder<Builder> {

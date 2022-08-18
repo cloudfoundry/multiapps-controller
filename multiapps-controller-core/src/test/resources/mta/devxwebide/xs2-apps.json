@@ -16,15 +16,18 @@
     "memory": 128,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "webide",
-        "path": ""
+        "path": "",
+        "url": "webide.sofd60245639a"
       }
     ],
     "services": [

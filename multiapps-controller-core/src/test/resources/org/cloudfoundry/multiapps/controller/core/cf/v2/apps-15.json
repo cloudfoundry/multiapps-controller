@@ -16,7 +16,6 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": [
         "java_buildpack",
@@ -25,9 +24,13 @@
     },
     "routes": [
       {
-        "domain": "cfapps.neo.ondemand.com",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "cfapps.neo.ondemand.com"
+        },
         "host": "foo",
-        "path" : ""
+        "path" : "",
+        "url": "foo.cfapps.neo.ondemand.com"
       }
     ],
     "services": [],

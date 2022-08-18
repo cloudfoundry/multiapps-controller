@@ -4,9 +4,13 @@
     {
       "routes": [
         {
-          "domain": "domain",
+          "appsUsingRoute": 0,
+          "domain": {
+            "name": "domain"
+          },
           "host": "foo",
-          "path": "/1111"
+          "path": "/1111",
+          "url": "foo.domain/1111"
         } 
       ],
       "name": "foo"

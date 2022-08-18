@@ -4,12 +4,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.cloudfoundry.multiapps.common.test.TestUtil;
-import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
@@ -33,7 +29,10 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableLifecycle;
 
 class MtaConfigurationPurgerTest {
 
@@ -44,7 +43,6 @@ class MtaConfigurationPurgerTest {
     private static final int SUBSCRIPTION_ID_TO_KEEP = 3;
     private static final String APPLICATION_NAME_TO_KEEP = "app-to-keep";
     private static final String APPLICATION_NAME_TO_REMOVE = "app-to-remove";
-    private static final String RESOURCE_LOCATION = "application-env-01.json";
     private final ConfigurationEntry ENTRY_TO_DELETE = createEntry(ENTRY_ID_TO_REMOVE, "remove:true");
     private final ConfigurationSubscription SUBSCRIPTION_TO_DELETE = createSubscription(SUBSCRIPTION_ID_TO_REMOVE,
                                                                                         APPLICATION_NAME_TO_REMOVE);
@@ -114,8 +112,8 @@ class MtaConfigurationPurgerTest {
 
     private void initApplicationsMock() {
         List<CloudApplication> applications = new ArrayList<>();
-        applications.add(createApplication(APPLICATION_NAME_TO_KEEP, getApplicationEnvFromFile(RESOURCE_LOCATION)));
-        applications.add(createApplication("app-2", new HashMap<>()));
+        applications.add(createApplication(APPLICATION_NAME_TO_KEEP));
+        applications.add(createApplication("app-2"));
         Mockito.when(client.getApplications())
                .thenReturn(applications);
     }
@@ -141,17 +139,15 @@ class MtaConfigurationPurgerTest {
         return List.of(SUBSCRIPTION_TO_DELETE, createSubscription(SUBSCRIPTION_ID_TO_KEEP, APPLICATION_NAME_TO_KEEP));
     }
 
-    private CloudApplication createApplication(String applicationName, Map<String, Object> env) {
-        MapToEnvironmentConverter envConverter = new MapToEnvironmentConverter(false);
+    private CloudApplication createApplication(String applicationName) {
         return ImmutableCloudApplication.builder()
                                         .name(applicationName)
-                                        .env(envConverter.asEnv(env))
+                                        .metadata(CloudMetadata.defaultMetadata())
+                                        .state(CloudApplication.State.STOPPED)
+                                        .lifecycle(ImmutableLifecycle.builder()
+                                                                     .type(LifecycleType.DOCKER)
+                                                                     .build())
                                         .build();
-    }
-
-    private Map<String, Object> getApplicationEnvFromFile(String path) {
-        String envJson = TestUtil.getResourceAsString(path, getClass());
-        return JsonUtil.convertJsonToMap(envJson);
     }
 
     private ConfigurationSubscription createSubscription(int id, String applicationName) {

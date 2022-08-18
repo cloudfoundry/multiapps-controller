@@ -16,15 +16,18 @@
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "di-core",
-        "path": ""
+        "path": "",
+        "url": "di-core.sofd60245639a"
       }
     ],
     "services": [
@@ -76,7 +79,6 @@
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": [
         "http://di-core.sofd60245639a/system/builderbp.git/"
@@ -84,9 +86,13 @@
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "di-builder",
-        "path": ""
+        "path": "",
+        "url": "di-builder.sofd60245639a"
       }
     ],
     "services": [
@@ -134,15 +140,18 @@
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "di-runner",
-        "path": ""
+        "path": "",
+        "url": "di-runner.sofd60245639a"
       }
     ],
     "services": [

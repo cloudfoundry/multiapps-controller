@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.ContentException;
@@ -31,6 +32,7 @@ import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBroker;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 
 class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<CreateOrUpdateServiceBrokerStep> {
 
@@ -238,16 +240,18 @@ class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<CreateOrU
     }
 
     private void initializeParameters(CloudOperationException createException, CloudOperationException updateException, StepInput input) {
-        prepareContext(input);
-        prepareClient(createException, updateException, input);
+        var cloudApp = input.application.toCloudApplication();
+        prepareContext(input, cloudApp);
+        prepareClient(createException, updateException, input, cloudApp);
     }
 
-    private void prepareContext(StepInput input) {
-        context.setVariable(Variables.APP_TO_PROCESS, input.application.toCloudApplication());
+    private void prepareContext(StepInput input, CloudApplicationExtended app) {
+        context.setVariable(Variables.APP_TO_PROCESS, app);
         context.setVariable(Variables.SPACE_GUID, input.spaceGuid);
     }
 
-    private void prepareClient(CloudOperationException createException, CloudOperationException updateException, StepInput input) {
+    private void prepareClient(CloudOperationException createException, CloudOperationException updateException, StepInput input,
+                               CloudApplicationExtended app) {
         Mockito.when(client.getServiceBrokers())
                .thenReturn(Optional.ofNullable(input.existingServiceBroker)
                                    .map(List::of)
@@ -269,7 +273,9 @@ class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<CreateOrU
                    .thenReturn(input.jobId);
         }
         Mockito.when(client.getApplication(input.application.name))
-               .thenReturn(input.application.toCloudApplication());
+               .thenReturn(app);
+        Mockito.when(client.getApplicationEnvironment(Mockito.eq(app.getGuid())))
+               .thenReturn(app.getEnv());
     }
 
     private void validateExceptionIsThrown(String expectedExceptionMessage, Class<? extends Exception> expectedExceptionClass) {
@@ -396,6 +402,7 @@ class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<CreateOrU
 
         CloudApplicationExtended toCloudApplication() {
             return ImmutableCloudApplicationExtended.builder()
+                                                    .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                                     .name(name)
                                                     .env(Map.of(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES,
                                                                 JsonUtil.toJson(attributes)))

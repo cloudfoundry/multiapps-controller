@@ -7,8 +7,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudDomain;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRoute;
 
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
@@ -28,20 +29,20 @@ public class IdleRouteParametersParser extends RouteParametersParser {
     }
 
     @Override
-    public Set<CloudRouteSummary> getApplicationRoutes(List<Map<String, Object>> parametersList) {
-        Set<CloudRouteSummary> idleRoutes = getIdleRoutes(parametersList);
+    public Set<CloudRoute> getApplicationRoutes(List<Map<String, Object>> parametersList) {
+        Set<CloudRoute> idleRoutes = getIdleRoutes(parametersList);
         if (!idleRoutes.isEmpty()) {
             return idleRoutes;
         }
 
-        Set<CloudRouteSummary> liveRoutes = super.getApplicationRoutes(parametersList);
+        Set<CloudRoute> liveRoutes = super.getApplicationRoutes(parametersList);
         if (!liveRoutes.isEmpty()) {
             return modifyLiveRoutes(liveRoutes);
         }
         return Collections.emptySet();
     }
 
-    private Set<CloudRouteSummary> getIdleRoutes(List<Map<String, Object>> parametersList) {
+    private Set<CloudRoute> getIdleRoutes(List<Map<String, Object>> parametersList) {
         List<Map<String, Object>> idleRoutesMaps = RoutesValidator.applyRoutesType(PropertiesUtil.getPropertyValue(parametersList,
                                                                                                                    SupportedParameters.IDLE_ROUTES,
                                                                                                                    null));
@@ -52,7 +53,7 @@ public class IdleRouteParametersParser extends RouteParametersParser {
 
     }
 
-    public CloudRouteSummary parseIdleRouteMap(Map<String, Object> routeMap) {
+    public CloudRoute parseIdleRouteMap(Map<String, Object> routeMap) {
         String routeString = (String) routeMap.get(SupportedParameters.IDLE_ROUTE);
         boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
 
@@ -60,29 +61,37 @@ public class IdleRouteParametersParser extends RouteParametersParser {
             return null;
         }
 
-        return new ApplicationURI(routeString, noHostname).toCloudRouteSummary();
+        return new ApplicationURI(routeString, noHostname).toCloudRoute();
     }
 
-    private Set<CloudRouteSummary> modifyLiveRoutes(Set<CloudRouteSummary> liveRoutes) {
+    private Set<CloudRoute> modifyLiveRoutes(Set<CloudRoute> liveRoutes) {
         return liveRoutes.stream()
                          .map(this::modifyRoute)
                          .collect(Collectors.toSet());
     }
 
-    private CloudRouteSummary modifyRoute(CloudRouteSummary inputRoute) {
-        ImmutableCloudRouteSummary.Builder modifiedRouteBuilder = ImmutableCloudRouteSummary.builder()
-                                                                                            .from(inputRoute);
+    private CloudRoute modifyRoute(CloudRoute inputRoute) {
+        ImmutableCloudRoute.Builder modifiedRouteBuilder = ImmutableCloudRoute.builder()
+                                                                              .from(inputRoute);
         String defaultDomain = getDefaultDomain();
         String defaultHost = getDefaultHost();
 
         if (defaultDomain != null) {
-            modifiedRouteBuilder.domain(defaultDomain);
+            modifiedRouteBuilder.domain(ImmutableCloudDomain.builder()
+                                                            .name(defaultDomain)
+                                                            .build());
         }
 
         if (defaultHost != null) {
             modifiedRouteBuilder.host(defaultHost);
         }
 
-        return modifiedRouteBuilder.build();
+        var appUri = new ApplicationURI(defaultHost == null ? inputRoute.getHost() : defaultHost,
+                                        defaultDomain == null ? inputRoute.getDomain()
+                                                                          .getName() : defaultDomain,
+                                        inputRoute.getPath());
+        return modifiedRouteBuilder.url(appUri.toCloudRoute()
+                                              .getUrl())
+                                   .build();
     }
 }

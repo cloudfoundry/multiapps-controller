@@ -4,7 +4,6 @@ import static java.text.MessageFormat.format;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
@@ -17,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
 import com.sap.cloudfoundry.client.facade.domain.InstanceState;
 
@@ -43,15 +42,13 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         context.getStepLogger()
                .debug(Messages.CHECKING_APP_STATUS, appToPoll);
 
-        // We're using the app object returned by the controller, because it includes the router port in its URIs, while the app model
-        // we've built doesn't.
         CloudApplication app = getApplication(context, appToPoll, client);
         List<InstanceInfo> appInstances = client.getApplicationInstances(app)
                                                 .getInstances();
-        StartupStatus status = getStartupStatus(context, app, appInstances);
+        StartupStatus status = getStartupStatus(context, app.getName(), appInstances);
         ProcessLoggerProvider processLoggerProvider = context.getStepLogger()
                                                              .getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
+        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app.getName(), LOGGER, processLoggerProvider);
         return checkStartupStatus(context, app, status);
     }
 
@@ -73,10 +70,10 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         return application;
     }
 
-    private StartupStatus getStartupStatus(ProcessContext context, CloudApplication app, List<InstanceInfo> appInstances) {
+    private StartupStatus getStartupStatus(ProcessContext context, String appName, List<InstanceInfo> appInstances) {
         boolean failOnCrashed = context.getVariable(Variables.FAIL_ON_CRASHED);
 
-        int expectedInstances = app.getInstances();
+        int expectedInstances = appInstances.size();
         long runningInstances = getInstanceCount(appInstances, InstanceState.RUNNING);
         long downInstances = getInstanceCount(appInstances, InstanceState.DOWN);
         long crashedInstances = getInstanceCount(appInstances, InstanceState.CRASHED);
@@ -85,7 +82,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         String states = composeStatesMessage(appInstances);
 
         context.getStepLogger()
-               .debug(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, app.getName(), runningInstances, expectedInstances, states);
+               .debug(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, appName, runningInstances, expectedInstances, states);
 
         if (runningInstances == expectedInstances) {
             return StartupStatus.STARTED;
@@ -112,7 +109,10 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             return AsyncExecutionState.ERROR;
         }
         if (status == StartupStatus.STARTED) {
-            Set<CloudRouteSummary> routes = app.getRoutes();
+            //TODO sync with team
+            // this call is only used for logging - do we really need it?
+            List<CloudRoute> routes = context.getControllerClient()
+                                             .getApplicationRoutes(app.getGuid());
             if (routes.isEmpty()) {
                 context.getStepLogger()
                        .info(Messages.APP_STARTED, app.getName());

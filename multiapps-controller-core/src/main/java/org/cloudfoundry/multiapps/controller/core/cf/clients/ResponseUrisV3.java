@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.core.cf.clients.v3;
+package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -8,7 +8,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 public class ResponseUrisV3 {
-    Map<String, Object> includedUris;
+    private final Map<String, Object> includedUris;
 
     public ResponseUrisV3(Map<String, Object> includedUris) {
         this.includedUris = includedUris;

@@ -8,8 +8,9 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudDomain;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRoute;
 
 public class ApplicationURI {
 
@@ -41,12 +42,12 @@ public class ApplicationURI {
         }
     }
 
-    public ApplicationURI(CloudRouteSummary routeSummary) {
-        if (routeSummary == null) {
+    public ApplicationURI(CloudRoute route) {
+        if (route == null) {
             return;
         }
-
-        setParts(routeSummary.getHost(), routeSummary.getDomain(), routeSummary.getPath());
+        setParts(route.getHost(), route.getDomain()
+                                       .getName(), route.getPath());
     }
 
     public ApplicationURI(String host, String domain, String path) {
@@ -59,7 +60,6 @@ public class ApplicationURI {
         if (noHostname) {
             return 0;
         }
-
         return uri.indexOf(UriUtil.DEFAULT_HOST_DOMAIN_SEPARATOR);
     }
 
@@ -114,30 +114,29 @@ public class ApplicationURI {
         }
     }
 
-    public CloudRouteSummary toCloudRouteSummary() {
-        return ImmutableCloudRouteSummary.builder()
-                                         .host(getHost())
-                                         .domain(getDomain())
-                                         .path(getPath())
-                                         .port(null)
-                                         .build();
+    public CloudRoute toCloudRoute() {
+        return ImmutableCloudRoute.builder()
+                                  .host(getHost())
+                                  .domain(ImmutableCloudDomain.builder()
+                                                              .name(getDomain())
+                                                              .build())
+                                  .path(getPath())
+                                  .url(toString())
+                                  .build();
     }
 
     @Override
     public String toString() {
         StringBuilder url = new StringBuilder();
-
         if (StringUtils.isNotEmpty(getHost())) {
             url.append(getHost())
                .append(UriUtil.DEFAULT_HOST_DOMAIN_SEPARATOR);
         }
-
         url.append(getDomain());
 
         if (StringUtils.isNotEmpty(getPath())) {
             url.append(getPath());
         }
-
         return url.toString();
     }
 

@@ -26,7 +26,7 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 
@@ -93,7 +93,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         }
     }
 
-    private Set<CloudRouteSummary> getApplicationRoutes(ProcessContext context, CloudApplicationExtended modifiedApp) {
+    private Set<CloudRoute> getApplicationRoutes(ProcessContext context, CloudApplicationExtended modifiedApp) {
         if (context.getVariable(Variables.USE_IDLE_URIS)) {
             return modifiedApp.getIdleRoutes();
         }

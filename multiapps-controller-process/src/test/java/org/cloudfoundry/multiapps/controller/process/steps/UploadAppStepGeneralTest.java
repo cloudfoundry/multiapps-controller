@@ -66,12 +66,13 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     private static final String NEW_MODULE_DIGEST = "539B99DFFD0583200D5D21F4CD1BF035";
     private static final UUID APP_GUID = UUID.randomUUID();
     private static final CloudOperationException CO_EXCEPTION = new CloudOperationException(HttpStatus.BAD_REQUEST);
+    private static final UUID PACKAGE_GUID = UUID.randomUUID();
     private static final CloudPackage CLOUD_PACKAGE = ImmutableCloudPackage.builder()
                                                                            .metadata(ImmutableCloudMetadata.builder()
-                                                                                                           .guid(UUID.randomUUID())
+                                                                                                           .createdAt(LocalDateTime.now())
+                                                                                                           .guid(PACKAGE_GUID)
                                                                                                            .build())
                                                                            .build();
-    private final UUID PACKAGE_GUID = UUID.randomUUID();
     private final MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
     private final CloudPackagesGetter cloudPackagesGetter = mock(CloudPackagesGetter.class);
     @TempDir
@@ -207,6 +208,9 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     @MethodSource
     @ParameterizedTest
     void testWithBuildStates(List<CloudBuild> builds, StepPhase stepPhase, CloudPackage cloudPackage) {
+        if (cloudPackage == null) {
+            when(client.getApplicationEnvironment(any(UUID.class))).thenReturn(Map.of("DEPLOY_ATTRIBUTES", "{\"app-content-digest\":\"" + CURRENT_MODULE_DIGEST + "\"}"));
+        }
         when(client.getBuildsForApplication(any())).thenReturn(builds);
         prepareClients(CURRENT_MODULE_DIGEST);
         step.execute(execution);

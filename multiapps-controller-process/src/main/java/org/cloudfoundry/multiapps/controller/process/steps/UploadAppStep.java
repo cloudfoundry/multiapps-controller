@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -78,10 +79,12 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         String newApplicationDigest = getNewApplicationDigest(context, moduleFileName);
         CloudApplication cloudApp = client.getApplication(applicationToProcess.getName());
 
-        boolean contentChanged = detectApplicationFileDigestChanges(cloudApp, newApplicationDigest);
+        var appEnv = client.getApplicationEnvironment(cloudApp.getGuid());
+
+        boolean contentChanged = detectApplicationFileDigestChanges(appEnv, newApplicationDigest);
         if (contentChanged) {
             proceedWithUpload(context, applicationToProcess, moduleFileName);
-            attemptToUpdateApplicationDigest(context.getControllerClient(), cloudApp, newApplicationDigest);
+            attemptToUpdateApplicationDigest(context.getControllerClient(), cloudApp, appEnv, newApplicationDigest);
             return StepPhase.POLL;
         }
 
@@ -122,8 +125,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         return new ApplicationArchiveContext(appArchiveStream, fileName, maxSize);
     }
 
-    private boolean detectApplicationFileDigestChanges(CloudApplication appWithUpdatedEnvironment, String newApplicationDigest) {
-        ApplicationFileDigestDetector digestDetector = new ApplicationFileDigestDetector(appWithUpdatedEnvironment.getEnv());
+    private boolean detectApplicationFileDigestChanges(Map<String, String> appEnv, String newApplicationDigest) {
+        ApplicationFileDigestDetector digestDetector = new ApplicationFileDigestDetector(appEnv);
         String currentApplicationDigest = digestDetector.detectCurrentAppFileDigest();
         return !newApplicationDigest.equals(currentApplicationDigest);
     }
@@ -193,10 +196,11 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                       .asyncUploadApplication(app.getName(), filePath, getMonitorUploadStatusCallback(context, app, filePath));
     }
 
-    private void attemptToUpdateApplicationDigest(CloudControllerClient client, CloudApplication app, String newApplicationDigest) {
-        new ApplicationEnvironmentUpdater(app, client).updateApplicationEnvironment(Constants.ENV_DEPLOY_ATTRIBUTES,
-                                                                                    Constants.ATTR_APP_CONTENT_DIGEST,
-                                                                                    newApplicationDigest);
+    private void attemptToUpdateApplicationDigest(CloudControllerClient client, CloudApplication app, Map<String, String> appEnv,
+                                                  String newApplicationDigest) {
+        new ApplicationEnvironmentUpdater(app, appEnv, client).updateApplicationEnvironment(Constants.ENV_DEPLOY_ATTRIBUTES,
+                                                                                            Constants.ATTR_APP_CONTENT_DIGEST,
+                                                                                            newApplicationDigest);
     }
 
     MonitorUploadStatusCallback getMonitorUploadStatusCallback(ProcessContext context, CloudApplication app, Path file) {
@@ -210,14 +214,14 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
+        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
         int uploadTimeout = extractUploadTimeoutFromAppAttributes(app, DEFAULT_APP_UPLOAD_TIMEOUT);
         getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadTimeout);
         return Duration.ofSeconds(uploadTimeout);
     }
 
-    private int extractUploadTimeoutFromAppAttributes(CloudApplication app, int defaultAppUploadTimeout) {
-        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
+    private int extractUploadTimeoutFromAppAttributes(CloudApplicationExtended app, int defaultAppUploadTimeout) {
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app, app.getEnv());
         Number uploadTimeout = appAttributes.get(SupportedParameters.UPLOAD_TIMEOUT, Number.class, defaultAppUploadTimeout);
         return uploadTimeout.intValue();
     }

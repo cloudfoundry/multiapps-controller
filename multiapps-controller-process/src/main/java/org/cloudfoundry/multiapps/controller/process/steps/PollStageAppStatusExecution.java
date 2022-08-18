@@ -40,12 +40,12 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         stepLogger.debug(Messages.APP_STAGING_STATUS, application.getName(), state.getState());
 
         ProcessLoggerProvider processLoggerProvider = stepLogger.getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, application, LOGGER, processLoggerProvider);
+        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, application.getName(), LOGGER, processLoggerProvider);
 
         if (state.getState() != PackageState.STAGED) {
-            return checkStagingState(context.getStepLogger(), application, state);
+            return checkStagingState(context.getStepLogger(), application.getName(), state);
         }
-        bindDropletToApplication(client, application);
+        bindDropletToApplication(client, application.getName());
         stepLogger.info(Messages.APP_STAGED, application.getName());
         return AsyncExecutionState.FINISHED;
     }
@@ -56,16 +56,16 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         return MessageFormat.format(Messages.ERROR_STAGING_APP_0, application.getName());
     }
 
-    private AsyncExecutionState checkStagingState(StepLogger stepLogger, CloudApplication application, StagingState state) {
+    private AsyncExecutionState checkStagingState(StepLogger stepLogger, String appName, StagingState state) {
         if (state.getState() == PackageState.FAILED) {
-            stepLogger.error(Messages.ERROR_STAGING_APP_0_DESCRIPTION_1, application.getName(), state.getError());
+            stepLogger.error(Messages.ERROR_STAGING_APP_0_DESCRIPTION_1, appName, state.getError());
             return AsyncExecutionState.ERROR;
         }
         return AsyncExecutionState.RUNNING;
     }
 
-    private void bindDropletToApplication(CloudControllerClient client, CloudApplication application) {
-        UUID applicationGuid = client.getApplicationGuid(application.getName());
+    private void bindDropletToApplication(CloudControllerClient client, String appName) {
+        UUID applicationGuid = client.getApplicationGuid(appName);
         applicationStager.bindDropletToApplication(applicationGuid);
     }
 

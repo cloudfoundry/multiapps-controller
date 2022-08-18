@@ -24,7 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerCredentials;
@@ -44,7 +44,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
 //@formatter:off
                          // (1) Everything is specified properly:
                          Arguments.of(ImmutableStaging.builder().command("command1").healthCheckType("none").addBuildpack("buildpackUrl").build(),
-                                      128, 256, TestData.routeSummarySet("example.com", "foo-bar.xyz")),
+                                      128, 256, TestData.routeSet("example.com", "foo-bar.xyz")),
                          // (2) Disk quota is 0:
                          Arguments.of(null, 0, 256, Collections.emptySet()),
                          // (3) Memory is 0:
@@ -55,7 +55,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
 
     @ParameterizedTest
     @MethodSource
-    void testHandleApplicationAttributes(Staging staging, int diskQuota, int memory, Set<CloudRouteSummary> routes) {
+    void testHandleApplicationAttributes(Staging staging, int diskQuota, int memory, Set<CloudRoute> routes) {
         CloudApplicationExtended application = buildApplication(staging, diskQuota, memory, routes);
         prepareContext(application, Collections.emptyMap());
 
@@ -68,7 +68,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
         assertTrue(context.getVariable(Variables.VCAP_APP_PROPERTIES_CHANGED));
     }
 
-    private CloudApplicationExtended buildApplication(Staging staging, int diskQuota, int memory, Set<CloudRouteSummary> routes) {
+    private CloudApplicationExtended buildApplication(Staging staging, int diskQuota, int memory, Set<CloudRoute> routes) {
         return ImmutableCloudApplicationExtended.builder()
                                                 .name(APP_NAME)
                                                 .staging(staging)

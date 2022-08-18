@@ -6,6 +6,7 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
@@ -67,13 +68,13 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             return AsyncExecutionState.FINISHED;
         }
 
-        CloudApplication app = getNextApp(context);
+        CloudApplicationExtended app = getNextApp(context);
         CloudControllerClient client = context.getControllerClient();
-        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app, app.getEnv());
         AppExecutionDetailedStatus status = getAppExecutionStatus(context, client, appAttributes, app);
         ProcessLoggerProvider processLoggerProvider = context.getStepLogger()
                                                              .getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
+        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app.getName(), LOGGER, processLoggerProvider);
         return checkAppExecutionStatus(context, client, app, appAttributes, status);
 
     }
@@ -83,7 +84,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         return MessageFormat.format(Messages.ERROR_EXECUTING_APP_1, app.getName());
     }
 
-    protected CloudApplication getNextApp(ProcessContext context) {
+    protected CloudApplicationExtended getNextApp(ProcessContext context) {
         return context.getVariable(Variables.APP_TO_PROCESS);
     }
 

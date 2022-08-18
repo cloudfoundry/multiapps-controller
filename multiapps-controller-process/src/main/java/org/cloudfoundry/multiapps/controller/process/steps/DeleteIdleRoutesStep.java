@@ -1,10 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.inject.Named;
 
 import org.apache.commons.collections4.SetUtils;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -15,7 +17,7 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 @Named("deleteIdleRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -31,9 +33,10 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
 
         getStepLogger().debug(Messages.DELETING_IDLE_URIS);
         CloudControllerClient client = context.getControllerClient();
-        CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
+        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
 
-        deleteIdleRoutes(existingApp, client, app);
+        var clientHelper = new ClientHelper(client);
+        deleteIdleRoutes(context, clientHelper, app);
 
         getStepLogger().debug(Messages.IDLE_URIS_DELETED);
         return StepPhase.DONE;
@@ -44,26 +47,27 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
         return Messages.ERROR_DELETING_IDLE_ROUTES;
     }
 
-    private void deleteIdleRoutes(CloudApplication idleApp, CloudControllerClient client, CloudApplication newLiveApp) {
-        Set<CloudRouteSummary> idleRoutes = SetUtils.difference(idleApp.getRoutes(), newLiveApp.getRoutes())
-                                                    .toSet();
+    private void deleteIdleRoutes(ProcessContext context, ClientHelper clientHelper, CloudApplicationExtended newLiveApp) {
+        var currentRoutes = context.getVariable(Variables.CURRENT_ROUTES);
+        Set<CloudRoute> idleRoutes = SetUtils.difference(new HashSet<>(currentRoutes), newLiveApp.getRoutes())
+                                             .toSet();
         getStepLogger().debug(Messages.IDLE_URIS_FOR_APPLICATION, idleRoutes);
 
-        for (CloudRouteSummary idleRoute : idleRoutes) {
-            deleteRoute(idleRoute, client);
-            getStepLogger().debug(Messages.ROUTE_DELETED, idleRoute.toUriString());
+        for (CloudRoute idleRoute : idleRoutes) {
+            deleteRoute(idleRoute, clientHelper);
+            getStepLogger().debug(Messages.ROUTE_DELETED, idleRoute.getUrl());
         }
     }
 
-    private void deleteRoute(CloudRouteSummary route, CloudControllerClient client) {
+    private void deleteRoute(CloudRoute route, ClientHelper clientHelper) {
         try {
-            new ClientHelper(client).deleteRoute(route);
+            clientHelper.deleteRoute(route);
         } catch (CloudOperationException e) {
             handleCloudOperationException(e, route);
         }
     }
 
-    private void handleCloudOperationException(CloudOperationException e, CloudRouteSummary route) {
+    private void handleCloudOperationException(CloudOperationException e, CloudRoute route) {
         if (e.getStatusCode() == HttpStatus.CONFLICT) {
             getStepLogger().info(Messages.ROUTE_NOT_DELETED, route);
             return;

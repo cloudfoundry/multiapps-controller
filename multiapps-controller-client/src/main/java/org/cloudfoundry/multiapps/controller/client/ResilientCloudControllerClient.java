@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.client;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
@@ -26,8 +24,8 @@ import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
 import com.sap.cloudfoundry.client.facade.domain.CloudEvent;
 import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.CloudProcess;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
@@ -82,7 +80,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Set<CloudRouteSummary> routes) {
+    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Set<CloudRoute> routes) {
         executeWithRetry(() -> delegate.createApplication(applicationName, staging, disk, memory, routes));
     }
 
@@ -147,11 +145,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudApplication getApplication(UUID appGuid) {
-        return executeWithRetry(() -> delegate.getApplication(appGuid));
-    }
-
-    @Override
     public UUID getApplicationGuid(String applicationName) {
         return executeWithRetry(() -> delegate.getApplicationGuid(applicationName));
     }
@@ -164,6 +157,26 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public InstancesInfo getApplicationInstances(CloudApplication application) {
         return executeWithRetry(() -> delegate.getApplicationInstances(application));
+    }
+
+    @Override
+    public InstancesInfo getApplicationInstances(UUID applicationGuid) {
+        return executeWithRetry(() -> delegate.getApplicationInstances(applicationGuid));
+    }
+
+    @Override
+    public CloudProcess getApplicationProcess(UUID applicationGuid) {
+        return executeWithRetry(() -> delegate.getApplicationProcess(applicationGuid));
+    }
+
+    @Override
+    public List<CloudRoute> getApplicationRoutes(UUID applicationGuid) {
+        return executeWithRetry(() -> delegate.getApplicationRoutes(applicationGuid));
+    }
+
+    @Override
+    public boolean getApplicationSshEnabled(UUID applicationGuid) {
+        return executeWithRetry(() -> delegate.getApplicationSshEnabled(applicationGuid));
     }
 
     @Override
@@ -342,11 +355,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void unbindServiceInstance(CloudApplication application, CloudServiceInstance serviceInstance) {
-        executeWithRetry(() -> delegate.unbindServiceInstance(application, serviceInstance));
-    }
-
-    @Override
     public void unbindServiceInstance(UUID appGuid, UUID serviceGuid) {
         executeWithRetry(() -> delegate.unbindServiceInstance(appGuid, serviceGuid));
     }
@@ -377,7 +385,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void updateApplicationRoutes(String applicationName, Set<CloudRouteSummary> routes) {
+    public void updateApplicationRoutes(String applicationName, Set<CloudRoute> routes) {
         executeWithRetry(() -> delegate.updateApplicationRoutes(applicationName, routes), HttpStatus.NOT_FOUND);
     }
 
@@ -409,22 +417,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public void updateServiceSyslogDrainUrl(String serviceName, String syslogDrainUrl) {
         executeWithRetry(() -> delegate.updateServiceSyslogDrainUrl(serviceName, syslogDrainUrl));
-    }
-
-    @Override
-    public void uploadApplication(String applicationName, Path file, UploadStatusCallback callback) {
-        executeWithRetry(() -> delegate.uploadApplication(applicationName, file, callback));
-    }
-
-    @Override
-    public void uploadApplication(String applicationName, InputStream inputStream, UploadStatusCallback callback) {
-        executeWithRetry(() -> {
-            try {
-                delegate.uploadApplication(applicationName, inputStream, callback);
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
-        });
     }
 
     @Override
@@ -561,27 +553,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public void logout() {
         executeWithRetry(delegate::logout);
-    }
-
-    @Override
-    public void uploadApplication(String applicationName, String file) {
-        executeWithRetry(() -> delegate.uploadApplication(applicationName, file));
-    }
-
-    @Override
-    public void uploadApplication(String applicationName, Path file) {
-        executeWithRetry(() -> delegate.uploadApplication(applicationName, file));
-    }
-
-    @Override
-    public void uploadApplication(String applicationName, InputStream inputStream) {
-        executeWithRetry(() -> {
-            try {
-                delegate.uploadApplication(applicationName, inputStream);
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
-        });
     }
 
     @Override

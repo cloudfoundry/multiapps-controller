@@ -19,7 +19,7 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
@@ -47,10 +47,11 @@ class ClientHelperTest {
     @ParameterizedTest
     @ValueSource(strings = { "https://some-route.next.domain", "host.domain/with/path", "host.domain" })
     void testDeleteRoute(String uriString) {
-        CloudRouteSummary route = TestData.routeSummary(uriString);
+        CloudRoute route = TestData.route(uriString);
         clientHelper.deleteRoute(route);
         Mockito.verify(client)
-               .deleteRoute(route.getHost(), route.getDomain(), route.getPath());
+               .deleteRoute(route.getHost(), route.getDomain()
+                                                  .getName(), route.getPath());
     }
 
     @Test

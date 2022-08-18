@@ -55,8 +55,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
 
         private CloudTask.State getCurrentState() {
             CloudControllerClient client = context.getControllerClient();
-            return client.getTask(taskToPoll.getMetadata()
-                                            .getGuid())
+            return client.getTask(taskToPoll.getGuid())
                          .getState();
         }
 
@@ -70,7 +69,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
             CloudControllerClient client = context.getControllerClient();
             ProcessLoggerProvider processLoggerProvider = context.getStepLogger()
                                                                  .getProcessLoggerProvider();
-            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
+            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app.getName(), LOGGER, processLoggerProvider);
         }
 
         private AsyncExecutionState handleCurrentState(CloudTask.State currentState) {

@@ -20,21 +20,25 @@ public class CFOptimizedEventGetter extends CustomControllerClient {
     }
 
     private List<String> findEventsInternal(String type, String timestamp) {
-        List<Map<String, Object>> response = getAllResources(String.format(FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT, type, timestamp));
-        return extractSpaceIds(response);
+        String url = String.format(FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT, type, timestamp);
+        return getListOfResources(new EventSpaceIdsResponseMapper(), url);
     }
 
-    private List<String> extractSpaceIds(List<Map<String, Object>> events) {
-        return events.stream()
-                     .map(this::extractSpaceId)
-                     .filter(Objects::nonNull)
-                     .collect(Collectors.toList());
-    }
+    protected static class EventSpaceIdsResponseMapper extends ResourcesResponseMapper<String> {
 
-    @SuppressWarnings("unchecked")
-    private String extractSpaceId(Map<String, Object> event) {
-        Map<String, Object> space = (Map<String, Object>) event.get("space");
-        return (String) space.get("guid");
+        @Override
+        public List<String> getMappedResources() {
+            return getQueriedResources().stream()
+                                        .map(this::extractSpaceId)
+                                        .filter(Objects::nonNull)
+                                        .collect(Collectors.toList());
+        }
+
+        @SuppressWarnings("unchecked")
+        private String extractSpaceId(Map<String, Object> event) {
+            Map<String, Object> space = (Map<String, Object>) event.get("space");
+            return (String) space.get("guid");
+        }
     }
 
 }

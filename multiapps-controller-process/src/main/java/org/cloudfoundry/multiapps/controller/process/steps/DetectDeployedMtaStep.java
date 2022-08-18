@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.v3.CustomServiceKeysClientV3;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -39,26 +39,26 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         String mtaNamespace = context.getVariable(Variables.MTA_NAMESPACE);
         CloudControllerClient client = context.getControllerClient();
 
-        DeployedMta deployedMta = detectDeployedMta(mtaId, mtaNamespace, client, context);
+        DeployedMta deployedMta = detectDeployedMta(mtaId, mtaNamespace, client);
+        context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
 
-        detectDeployedServiceKeys(mtaId, mtaNamespace, deployedMta, client, context);
+        var deployedServiceKeys = detectDeployedServiceKeys(mtaId, mtaNamespace, deployedMta, client, context);
+        context.setVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS, deployedServiceKeys);
+        getStepLogger().debug(Messages.DEPLOYED_MTA_SERVICE_KEYS, SecureSerialization.toJson(deployedServiceKeys));
 
         return StepPhase.DONE;
     }
 
-    private DeployedMta detectDeployedMta(String mtaId, String mtaNamespace, CloudControllerClient client, ProcessContext context) {
-
+    private DeployedMta detectDeployedMta(String mtaId, String mtaNamespace, CloudControllerClient client) {
         getStepLogger().debug(Messages.DETECTING_MTA_BY_ID_AND_NAMESPACE, mtaId, mtaNamespace);
         Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(mtaId, mtaNamespace, client);
 
         if (optionalDeployedMta.isEmpty()) {
             logNoMtaDeployedDetected(mtaId, mtaNamespace);
-            context.setVariable(Variables.DEPLOYED_MTA, null);
             return null;
         }
 
         DeployedMta deployedMta = optionalDeployedMta.get();
-        context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
         getStepLogger().debug(Messages.DEPLOYED_MTA, SecureSerialization.toJson(deployedMta));
         MtaMetadata metadata = deployedMta.getMetadata();
         logDetectedDeployedMta(mtaNamespace, metadata);
@@ -70,13 +70,8 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         List<DeployedMtaService> deployedMtaServices = deployedMta == null ? null : deployedMta.getServices();
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
 
-        CustomServiceKeysClientV3 customV3Client = getCustomServiceKeysClient(client);
-        List<DeployedMtaServiceKey> deployedServiceKeys = customV3Client.getServiceKeysByMetadataAndGuids(spaceGuid, mtaId, mtaNamespace,
-                                                                                                          deployedMtaServices);
-        context.setVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS, deployedServiceKeys);
-        getStepLogger().debug(Messages.DEPLOYED_MTA_SERVICE_KEYS, SecureSerialization.toJson(deployedServiceKeys));
-
-        return deployedServiceKeys;
+        CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(client);
+        return serviceKeysClient.getServiceKeysByMetadataAndGuids(spaceGuid, mtaId, mtaNamespace, deployedMtaServices);
     }
 
     private void logNoMtaDeployedDetected(String mtaId, String mtaNamespace) {
@@ -96,8 +91,8 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         getStepLogger().info(MessageFormat.format(Messages.DETECTED_DEPLOYED_MTA, metadata.getId(), metadata.getVersion()));
     }
 
-    protected CustomServiceKeysClientV3 getCustomServiceKeysClient(CloudControllerClient client) {
-        return new CustomServiceKeysClientV3(client);
+    protected CustomServiceKeysClient getCustomServiceKeysClient(CloudControllerClient client) {
+        return new CustomServiceKeysClient(client);
     }
 
     @Override

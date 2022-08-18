@@ -16,7 +16,6 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": [
         "git://github.example.com/xs2-java/java-buildpack.git"
@@ -24,9 +23,13 @@
     },
     "routes": [
       {
-        "domain": "test-domain",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "test-domain"
+        },
         "host": "foo-custom-route",
-        "path": ""
+        "path": "",
+        "url": "foo-custom-route.test-domain"
       }
     ],
     "services": [],
@@ -37,9 +40,13 @@
     "moduleName": "foo",
     "idleRoutes": [
       {
-        "domain": "test-domain",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "test-domain"
+        },
         "host": "foo-custom-route",
-        "path": ""
+        "path": "",
+        "url": "foo-custom-route.test-domain"
       }
     ],
     "bindingParameters": {},

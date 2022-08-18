@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
@@ -24,8 +25,11 @@ import org.mockito.Mockito;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBroker;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 
 class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<UpdateServiceBrokerSubscriberStep> {
+
+    private static final UUID APP_GUID = UUID.randomUUID();
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
@@ -82,6 +86,8 @@ class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<UpdateS
     }
 
     private void prepareClient(StepInput input) {
+        Mockito.when(client.getApplicationEnvironment(Mockito.eq(APP_GUID)))
+            .thenReturn(input.brokerApplication.getAppEnv());
         Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false)))
                .thenReturn(null);
         if (input.brokerApplication.brokerName.equals(input.brokerFromClient.name)) {
@@ -115,12 +121,17 @@ class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<UpdateS
         String brokerUrl;
 
         CloudApplicationExtended toCloudApplication() {
-            Map<String, Object> brokerDetails = getBrokerDetails();
             return ImmutableCloudApplicationExtended.builder()
+                                                    .metadata(ImmutableCloudMetadata.of(APP_GUID))
                                                     .name(name)
-                                                    .env(Map.of(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES,
-                                                                JsonUtil.toJson(brokerDetails)))
+                                                    .env(getAppEnv())
                                                     .build();
+        }
+
+        Map<String, String> getAppEnv() {
+            Map<String, Object> brokerDetails = getBrokerDetails();
+            return Map.of(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES,
+                          JsonUtil.toJson(brokerDetails));
         }
 
         private Map<String, Object> getBrokerDetails() {

@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.client;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
@@ -27,8 +25,8 @@ import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
 import com.sap.cloudfoundry.client.facade.domain.CloudEvent;
 import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.CloudProcess;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
@@ -82,7 +80,7 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Set<CloudRouteSummary> routes) {
+    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Set<CloudRoute> routes) {
         logger.debug(Messages.CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3, applicationName, memory,
                      UriUtil.prettyPrintRoutes(routes), SecureSerialization.toJson(staging));
         delegate.createApplication(applicationName, staging, disk, memory, routes);
@@ -213,12 +211,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudApplication getApplication(UUID guid) {
-        logger.debug(Messages.GETTING_APPLICATION_0, guid);
-        return delegate.getApplication(guid);
-    }
-
-    @Override
     public UUID getApplicationGuid(String applicationName) {
         logger.debug(Messages.GETTING_APPLICATION_0_GUID, applicationName);
         return delegate.getApplicationGuid(applicationName);
@@ -258,6 +250,30 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public InstancesInfo getApplicationInstances(CloudApplication app) {
         logger.debug(Messages.GETTING_INSTANCES_OF_APPLICATION_0, app.getName());
         return delegate.getApplicationInstances(app);
+    }
+
+    @Override
+    public InstancesInfo getApplicationInstances(UUID applicationGuid) {
+        logger.debug(Messages.GETTING_INSTANCES_OF_APPLICATION_0, applicationGuid);
+        return delegate.getApplicationInstances(applicationGuid);
+    }
+
+    @Override
+    public CloudProcess getApplicationProcess(UUID applicationGuid) {
+        logger.debug(Messages.GETTING_PROCESS_OF_APPLICATION_0, applicationGuid);
+        return delegate.getApplicationProcess(applicationGuid);
+    }
+
+    @Override
+    public List<CloudRoute> getApplicationRoutes(UUID applicationGuid) {
+        logger.debug(Messages.GETTING_ROUTES_OF_APPLICATION_0, applicationGuid);
+        return delegate.getApplicationRoutes(applicationGuid);
+    }
+
+    @Override
+    public boolean getApplicationSshEnabled(UUID applicationGuid) {
+        logger.debug(Messages.GETTING_SSH_ENABLED_OF_APPLICATION_0, applicationGuid);
+        return delegate.getApplicationSshEnabled(applicationGuid);
     }
 
     @Override
@@ -544,12 +560,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void unbindServiceInstance(CloudApplication application, CloudServiceInstance serviceInstance) {
-        logger.debug(Messages.UNBINDING_APPLICATION_0_FROM_SERVICE_INSTANCE_1, application.getName(), serviceInstance.getName());
-        delegate.unbindServiceInstance(application, serviceInstance);
-    }
-
-    @Override
     public void unbindServiceInstance(UUID appGuid, UUID serviceGuid) {
         logger.debug(Messages.UNBINDING_APPLICATION_0_FROM_SERVICE_INSTANCE_1, appGuid, serviceGuid);
         delegate.unbindServiceInstance(appGuid, serviceGuid);
@@ -586,7 +596,7 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void updateApplicationRoutes(String applicationName, Set<CloudRouteSummary> routes) {
+    public void updateApplicationRoutes(String applicationName, Set<CloudRoute> routes) {
         logger.debug(Messages.UPDATING_URIS_OF_APPLICATION_0_TO_1, applicationName, UriUtil.prettyPrintRoutes(routes));
         delegate.updateApplicationRoutes(applicationName, routes);
     }
@@ -625,36 +635,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public void updateServiceSyslogDrainUrl(String serviceName, String syslogDrainUrl) {
         logger.debug(Messages.UPDATING_SERVICE_SYSLOG_URL, serviceName);
         delegate.updateServiceSyslogDrainUrl(serviceName, syslogDrainUrl);
-    }
-
-    @Override
-    public void uploadApplication(String applicationName, String file) {
-        logger.debug(Messages.SYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
-        delegate.uploadApplication(applicationName, file);
-    }
-
-    @Override
-    public void uploadApplication(String applicationName, Path file) {
-        logger.debug(Messages.SYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
-        delegate.uploadApplication(applicationName, file);
-    }
-
-    @Override
-    public void uploadApplication(String applicationName, Path file, UploadStatusCallback callback) {
-        logger.debug(Messages.SYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
-        delegate.uploadApplication(applicationName, file, callback);
-    }
-
-    @Override
-    public void uploadApplication(String applicationName, InputStream inputStream) throws IOException {
-        logger.debug(Messages.SYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
-        delegate.uploadApplication(applicationName, inputStream);
-    }
-
-    @Override
-    public void uploadApplication(String applicationName, InputStream inputStream, UploadStatusCallback callback) throws IOException {
-        logger.debug(Messages.SYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
-        delegate.uploadApplication(applicationName, inputStream, callback);
     }
 
     @Override

@@ -59,9 +59,7 @@ public class UpdateApplicationMetadataStep extends SyncFlowableStep {
                                                .equals(app.getV3Metadata());
         }
         if (shouldUpdateMetadata) {
-            client.updateApplicationMetadata(existingApp.getMetadata()
-                                                        .getGuid(),
-                                             app.getV3Metadata());
+            client.updateApplicationMetadata(existingApp.getGuid(), app.getV3Metadata());
         }
     }
 

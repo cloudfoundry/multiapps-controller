@@ -25,11 +25,12 @@ public class UpdateServiceBrokerSubscriberStep extends CreateOrUpdateServiceBrok
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
         CloudApplication serviceBrokerApplication = StepsUtil.getUpdatedServiceBrokerSubscriber(context);
-        CloudServiceBroker serviceBroker = getServiceBrokerFromApp(context, serviceBrokerApplication);
+        CloudControllerClient client = context.getControllerClient();
+        var appEnv = client.getApplicationEnvironment(serviceBrokerApplication.getGuid());
+        CloudServiceBroker serviceBroker = getServiceBrokerFromApp(context, serviceBrokerApplication, appEnv);
 
         String jobId = null;
         try {
-            CloudControllerClient client = context.getControllerClient();
             CloudServiceBroker existingServiceBroker = client.getServiceBroker(serviceBroker.getName(), false);
             if (existingServiceBroker == null) {
                 getStepLogger().warn(MessageFormat.format(Messages.SERVICE_BROKER_DOES_NOT_EXIST, serviceBroker.getName()));

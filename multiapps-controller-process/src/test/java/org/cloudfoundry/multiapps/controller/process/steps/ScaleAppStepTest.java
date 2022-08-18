@@ -1,8 +1,16 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableInstanceInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableInstancesInfo;
+import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
+import com.sap.cloudfoundry.client.facade.domain.InstanceState;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -41,7 +49,11 @@ class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
         context.setVariable(Variables.MODULES_INDEX, 0);
         context.setVariable(Variables.APP_TO_PROCESS, application.toCloudApplication());
         context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
-        context.setVariable(Variables.EXISTING_APP, (existingApplication != null) ? existingApplication.toCloudApplication() : null);
+        if (existingApplication != null) {
+            context.setVariable(Variables.EXISTING_APP, existingApplication.toCloudApplication());
+            Mockito.when(client.getApplicationInstances(Mockito.any(CloudApplication.class)))
+                   .thenReturn(generateInstances(existingApplication.instances));
+        }
     }
 
     private void validateUpdatedApplications(SimpleApplication application, SimpleApplication existingApplication) {
@@ -62,11 +74,23 @@ class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
 
         CloudApplicationExtended toCloudApplication() {
             return ImmutableCloudApplicationExtended.builder()
+                                                    .metadata(ImmutableCloudMetadata.builder()
+                                                                                    .guid(UUID.randomUUID())
+                                                                                    .build())
                                                     .name(name)
                                                     .moduleName(name)
                                                     .instances(instances)
                                                     .build();
         }
+    }
+
+    private InstancesInfo generateInstances(int num) {
+        return ImmutableInstancesInfo.builder()
+                                     .instances(Collections.nCopies(num, ImmutableInstanceInfo.builder()
+                                                                                              .index(0)
+                                                                                              .state(InstanceState.RUNNING)
+                                                                                              .build()))
+                                     .build();
     }
 
     @Override

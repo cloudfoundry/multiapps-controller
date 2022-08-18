@@ -16,16 +16,19 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "isSshEnabled": false,
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "foo",
-        "path" : ""
+        "path" : "",
+        "url": "foo.sofd60245639a"
       }
     ],
     "services": [],

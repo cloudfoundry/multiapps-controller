@@ -16,15 +16,18 @@
     "memory": 128,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "java-hello-world",
-        "path" : ""
+        "path" : "",
+        "url": "java-hello-world.sofd60245639a"
       }
     ],
     "services": [
@@ -69,15 +72,18 @@
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "java-hello-world-backend",
-        "path" : ""
+        "path" : "",
+        "url": "java-hello-world-backend.sofd60245639a"
       }
     ],
     "services": [
@@ -123,7 +129,6 @@
     "memory": 256,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },

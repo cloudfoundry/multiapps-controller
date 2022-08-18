@@ -71,6 +71,7 @@ public class Messages {
     public static final String NO_BUILDS_FOUND_FOR_PACKAGE = "No builds found for package \"{0}\"";
     public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FAILED_WITH = "Async operation for service broker \"{0}\" failed with \"{1}\"";
     public static final String CLEARING_STALE_FLOWABLE_LOCK_OWNER_0_THREW_AN_EXCEPTION_1 = "Clearing stale Flowable lock owner {0} threw an exception: {1}";
+    public static final String SERVICE_INSTANCE_0_NOT_BOUND_TO_APP_1 = "Service instance \"{0}\" not bound to application \"{1}\"";
 
     // Process step errors
     public static final String ERROR_VALIDATING_PARAMS = "Error validating parameters";
@@ -515,6 +516,9 @@ public class Messages {
     public static final String GETTING_EVENTS_FOR_APPLICATION_0 = "Getting events for application \"{0}\"...";
     public static final String GETTING_EVENTS_BY_ACTEE_0 = "Getting events by actee \"{0}\"...";
     public static final String GETTING_INSTANCES_OF_APPLICATION_0 = "Getting instances for application \"{0}\"...";
+    public static final String GETTING_PROCESS_OF_APPLICATION_0 = "Getting process for application \"{0}\"...";
+    public static final String GETTING_ROUTES_OF_APPLICATION_0 = "Getting routes for application \"{0}\"...";
+    public static final String GETTING_SSH_ENABLED_OF_APPLICATION_0 = "Getting ssh enabled for application \"{0}\"...";
     public static final String GETTING_APPLICATIONS = "Getting applications...";
     public static final String GETTING_DEFAULT_DOMAIN = "Getting default domain...";
     public static final String GETTING_DOMAINS = "Getting domains...";

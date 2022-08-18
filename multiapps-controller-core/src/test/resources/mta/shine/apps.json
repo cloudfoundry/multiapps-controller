@@ -16,15 +16,18 @@
     "memory": 128,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "cfapps.neo.ondemand.com",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "cfapps.neo.ondemand.com"
+        },
         "host": "i027947-shine",
-        "path" : ""
+        "path" : "",
+        "url": "i027947-shine.cfapps.neo.ondemand.com"
       }
     ],
     "services": [
@@ -69,15 +72,18 @@
     "memory": 256,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "cfapps.neo.ondemand.com",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "cfapps.neo.ondemand.com"
+        },
         "host": "i027947-shine-xsjs",
-        "path" : ""
+        "path" : "",
+        "url": "i027947-shine-xsjs.cfapps.neo.ondemand.com"
       }
     ],
     "services": [
@@ -123,7 +129,6 @@
     "memory": 256,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": [
         "git://github.example.com/xs2-java/java-buildpack.git"
@@ -131,9 +136,13 @@
     },
     "routes": [
       {
-        "domain": "cfapps.neo.ondemand.com",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "cfapps.neo.ondemand.com"
+        },
         "host": "i027947-shine-odata",
-        "path" : ""
+        "path" : "",
+        "url": "i027947-shine-odata.cfapps.neo.ondemand.com"
       }
     ],
     "services": [

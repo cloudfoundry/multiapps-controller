@@ -25,13 +25,6 @@
             "mta_namespace": "namespacehashed"
           }
         },
-        "memory": 0,
-        "diskQuota": 0,
-        "instances": 1,
-        "runningInstances": 0,
-        "routes": [],
-        "services": [],
-        "env": {},
         "moduleName": "mta-module-3",
         "boundMtaServices": [],
         "providedDependencyNames": [],
@@ -66,13 +59,6 @@
             "mta_namespace" : "namespacehashed"
           }
         },
-        "memory": 0,
-        "diskQuota": 0,
-        "instances": 1,
-        "runningInstances": 0,
-        "routes": [],
-        "services": [],
-        "env": {},
         "moduleName": "mta-module-1",
         "boundMtaServices": [
           "namespace-mta-service-1"
@@ -101,13 +87,6 @@
             "mta_namespace" : "namespacehashed"
           }
         },
-        "memory" : 0,
-        "diskQuota" : 0,
-        "instances" : 1,
-        "runningInstances" : 0,
-        "routes" : [ ],
-        "services" : [ ],
-        "env" : { },
         "moduleName" : "mta-module-2",
         "boundMtaServices" : [ "namespace-mta-service-2" ],
         "providedDependencyNames" : [ ],

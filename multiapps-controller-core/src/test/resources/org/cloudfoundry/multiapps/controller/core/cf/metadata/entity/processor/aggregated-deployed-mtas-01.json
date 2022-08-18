@@ -17,27 +17,6 @@
         "mta_id" : "something-different-here"
       }
     },
-    "diskQuota" : 0,
-    "env" : {
-      "DEPLOY_ATTRIBUTES" : "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA" : "{\"id\":\"com.sap.sample.different.mta\",\"version\":\"1.0.1\"}",
-      "MTA_MODULE_METADATA" : "{\"name\":\"baz\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES" : "[\"baz\"]",
-      "MTA_SERVICES" : "[]",
-      "TARGET_RUNTIME" : "tomee"
-    },
-    "instances" : 0,
-    "memory" : 0,
-    "routes" : [ {
-      "domain" : "cfapps.neo.ondemand.com",
-      "host" : "baz",
-      "path" : ""
-    } ],
-    "runningInstances" : 0,
-    "services" : [ ],
-    "staging" : {
-      "buildpacks" : [ "java_buildpack", "staticfile_buildpack" ]
-    },
     "moduleName" : "baz",
     "boundMtaServices" : [ ],
     "providedDependencyNames" : [ "baz" ],
@@ -62,27 +41,6 @@
         "mta_id" : "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
-    "diskQuota" : 0,
-    "env" : {
-      "DEPLOY_ATTRIBUTES" : "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA" : "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA" : "{\"name\":\"foo\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES" : "[\"foo\"]",
-      "MTA_SERVICES" : "[\"existing-service\", \"user-provided-service\", \"random-resource-named-service\"]",
-      "TARGET_RUNTIME" : "tomee"
-    },
-    "instances" : 0,
-    "memory" : 0,
-    "routes" : [ {
-      "domain" : "cfapps.neo.ondemand.com",
-      "host" : "foo",
-      "path" : ""
-    } ],
-    "runningInstances" : 0,
-    "services" : [ ],
-    "staging" : {
-      "buildpacks" : [ "java_buildpack", "staticfile_buildpack" ]
-    },
     "moduleName" : "foo",
     "boundMtaServices" : [ "existing-service", "user-provided-service", "random-resource-named-service" ],
     "providedDependencyNames" : [ "foo" ],
@@ -100,27 +58,6 @@
       "labels" : {
         "mta_id" : "c3ec54a0d8eadd33b207c005ab4825ba"
       }
-    },
-    "diskQuota" : 0,
-    "env" : {
-      "DEPLOY_ATTRIBUTES" : "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA" : "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA" : "{\"name\":\"bar\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES" : "[\"bar\"]",
-      "MTA_SERVICES" : "[]",
-      "TARGET_RUNTIME" : "tomee"
-    },
-    "instances" : 0,
-    "memory" : 0,
-    "routes" : [ {
-      "domain" : "cfapps.neo.ondemand.com",
-      "host" : "bar",
-      "path" : ""
-    } ],
-    "runningInstances" : 0,
-    "services" : [ ],
-    "staging" : {
-      "buildpacks" : [ "java_buildpack", "staticfile_buildpack" ]
     },
     "moduleName" : "bar",
     "boundMtaServices" : [ ],

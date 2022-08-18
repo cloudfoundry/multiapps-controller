@@ -13,11 +13,13 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 public class ApplicationEnvironmentUpdater {
 
     private final CloudApplication app;
+    private final Map<String, String> appEnv;
     private final CloudControllerClient client;
     private boolean prettyPrinting = true;
 
-    public ApplicationEnvironmentUpdater(CloudApplication app, CloudControllerClient client) {
+    public ApplicationEnvironmentUpdater(CloudApplication app, Map<String, String> appEnv, CloudControllerClient client) {
         this.app = app;
+        this.appEnv = appEnv;
         this.client = client;
     }
 
@@ -28,7 +30,7 @@ public class ApplicationEnvironmentUpdater {
 
     public void updateApplicationEnvironment(String envPropertyKey, String key, Object value) {
         try {
-            Map<String, String> env = new TreeMap<>(app.getEnv());
+            Map<String, String> env = new TreeMap<>(appEnv);
             if (envPropertyKey == null) {
                 Map<String, Object> updatedEnv = addToEnvironmentProperty(MapUtil.cast(env), key, value);
                 updateEnvironment(updatedEnv);

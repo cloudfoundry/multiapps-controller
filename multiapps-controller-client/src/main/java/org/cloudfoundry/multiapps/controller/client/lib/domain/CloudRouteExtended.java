@@ -12,6 +12,6 @@ import java.util.List;
 @Value.Immutable
 public abstract class CloudRouteExtended extends CloudRoute {
 
-    public abstract List<String> getServiceRouteBindings();
+    public abstract List<String> getBoundServiceInstanceGuids();
 
 }

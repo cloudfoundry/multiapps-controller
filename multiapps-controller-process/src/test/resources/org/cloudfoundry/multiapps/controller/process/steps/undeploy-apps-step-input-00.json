@@ -4,9 +4,13 @@
       "name": "test-app-db",
       "routes": [
         {
-          "domain": "example.com",
+          "appsUsingRoute": 0,
+          "domain": {
+            "name": "example.com"
+          },
           "host": "test-app-db",
-          "path": ""
+          "path": "",
+          "url": "test-app-db.example.com"
         }
       ]
     },
@@ -14,9 +18,13 @@
       "name": "test-app-ui",
       "routes": [
         {
-          "domain": "example.com",
+          "appsUsingRoute": 0,
+          "domain": {
+            "name": "example.com"
+          },
           "host": "test-app-ui",
-          "path": ""
+          "path": "",
+          "url": "test-app-ui.example.com"
         }
       ]
     }
@@ -28,7 +36,8 @@
         "domain": {
           "name": "example.com"
         },
-        "appsUsingRoute": 1
+        "appsUsingRoute": 1,
+        "url": "test-app-db.example.com"
       }
     ],
     "test-app-ui": [
@@ -37,7 +46,8 @@
         "domain": {
           "name": "example.com"
         },
-        "appsUsingRoute": 1
+        "appsUsingRoute": 1,
+        "url": "test-app-ui.example.com"
       }
     ]
   }

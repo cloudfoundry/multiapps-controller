@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
-import static org.cloudfoundry.multiapps.controller.core.util.TestData.routeSummary;
+import static org.cloudfoundry.multiapps.controller.core.util.TestData.route;
 
 import java.util.Map;
 import java.util.stream.Stream;
@@ -12,7 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 class ApplicationURITest {
 
@@ -61,23 +61,23 @@ class ApplicationURITest {
     @ParameterizedTest
     @MethodSource
     void testGetURIParts(String host, String domain, String path, Map<String, Object> expectedParts) {
-        ApplicationURI applicationURIFromSummary = new ApplicationURI(routeSummary(host, domain, path));
+        ApplicationURI applicationURIFromRoute = new ApplicationURI(route(host, domain, path));
 
-        Assertions.assertEquals(expectedParts, applicationURIFromSummary.getURIParts());
+        Assertions.assertEquals(expectedParts, applicationURIFromRoute.getURIParts());
     }
 
     @Test
     void testGetHostDomainWithoutPathFromRoute() {
-        CloudRouteSummary route = routeSummary(CUSTOM + "host", CUSTOM + "domain", "");
+        CloudRoute route = route(CUSTOM + "host", CUSTOM + "domain", "");
         ApplicationURI applicationURI = new ApplicationURI(route);
         Assertions.assertEquals(CUSTOM + "host", applicationURI.getHost());
-        Assertions.assertEquals(CUSTOM + "domain", route.getDomain());
+        Assertions.assertEquals(CUSTOM + "domain", applicationURI.getDomain());
         Assertions.assertEquals("", applicationURI.getPath());
     }
 
     @Test
     void testGetHostDomainWithPathFromRoute() {
-        CloudRouteSummary route = routeSummary(CUSTOM + "host", CUSTOM + "domain", "/" + CUSTOM + "path");
+        CloudRoute route = route(CUSTOM + "host", CUSTOM + "domain", "/" + CUSTOM + "path");
         ApplicationURI applicationURI = new ApplicationURI(route);
         Assertions.assertEquals(CUSTOM + "host", applicationURI.getHost());
         Assertions.assertEquals(CUSTOM + "domain", applicationURI.getDomain());
@@ -86,7 +86,7 @@ class ApplicationURITest {
 
     @Test
     void testGetURIPart() {
-        CloudRouteSummary route = routeSummary(CUSTOM + "host", CUSTOM + "domain", "/" + CUSTOM + "path");
+        CloudRoute route = route(CUSTOM + "host", CUSTOM + "domain", "/" + CUSTOM + "path");
         ApplicationURI applicationURI = new ApplicationURI(route);
         Assertions.assertEquals(CUSTOM + "host", applicationURI.getURIPart(SupportedParameters.HOST));
         Assertions.assertEquals(CUSTOM + "domain", applicationURI.getURIPart(SupportedParameters.DOMAIN));
@@ -96,7 +96,7 @@ class ApplicationURITest {
 
     @Test
     void testURIPart() {
-        ApplicationURI applicationURI = new ApplicationURI(routeSummary(CUSTOM + "host", CUSTOM + "domain", CUSTOM + "path"));
+        ApplicationURI applicationURI = new ApplicationURI(route(CUSTOM + "host", CUSTOM + "domain", CUSTOM + "path"));
         applicationURI.setURIPart(SupportedParameters.HOST, CUSTOM + "host-1");
         applicationURI.setURIPart(SupportedParameters.DOMAIN, CUSTOM + "domain-1");
         applicationURI.setURIPart(SupportedParameters.ROUTE_PATH, "/" + CUSTOM + "path-1");
@@ -108,20 +108,20 @@ class ApplicationURITest {
 
     @Test
     void testToStringWithValidHostAndPath() {
-        ApplicationURI applicationURI = new ApplicationURI(routeSummary(CUSTOM + "host", CUSTOM + "domain", "/" + CUSTOM + "path"));
+        ApplicationURI applicationURI = new ApplicationURI(route(CUSTOM + "host", CUSTOM + "domain", "/" + CUSTOM + "path"));
         String expectedApplicationURI = CUSTOM + "host." + CUSTOM + "domain/" + CUSTOM + "path";
         Assertions.assertEquals(expectedApplicationURI, applicationURI.toString());
     }
 
     @Test
     void testToStringWithValidHostAndWithoutPath() {
-        ApplicationURI applicationURI = new ApplicationURI(routeSummary(CUSTOM + "host", CUSTOM + "domain", null));
+        ApplicationURI applicationURI = new ApplicationURI(route(CUSTOM + "host", CUSTOM + "domain", null));
         Assertions.assertEquals(CUSTOM + "host." + CUSTOM + "domain", applicationURI.toString());
     }
 
     @Test
     void testToStringWithoutHostAndWithoutPath() {
-        ApplicationURI applicationURI = new ApplicationURI(routeSummary("", CUSTOM + "domain", null));
+        ApplicationURI applicationURI = new ApplicationURI(route("", CUSTOM + "domain", null));
         Assertions.assertEquals(CUSTOM + "domain", applicationURI.toString());
     }
 

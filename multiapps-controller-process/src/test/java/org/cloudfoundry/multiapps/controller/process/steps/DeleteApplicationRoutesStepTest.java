@@ -8,8 +8,10 @@ import static org.mockito.Mockito.verify;
 import java.util.Collections;
 import java.util.List;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.ApplicationRoutesGetter;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceInstanceRoutesGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.util.HooksExecutor;
@@ -20,9 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
 
@@ -45,8 +44,8 @@ class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
 
     @Override
     protected void performValidation(CloudApplication cloudApplication) {
-        if (!cloudApplication.getRoutes()
-                             .isEmpty()) {
+        if (!stepInput.appRoutesPerApplication.get(cloudApplication.getName())
+                                              .isEmpty()) {
             verify(client).updateApplicationRoutes(cloudApplication.getName(), Collections.emptySet());
         }
     }
@@ -60,7 +59,7 @@ class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
         int routesToDeleteCount = stepOutput.expectedRoutesToDelete.size();
         verify(client, times(routesToDeleteCount)).deleteRoute(any(), any(), any());
         for (Route route : stepOutput.expectedRoutesToDelete) {
-            verify(client).deleteRoute(route.host, route.domain, route.path);
+            verify(client).deleteRoute(route.host, route.domain, route.path.isEmpty() ? null : route.path);
             routesToDeleteCount--;
         }
 
@@ -81,12 +80,10 @@ class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
     @Override
     protected UndeployAppStep createStep() {
         return new DeleteApplicationRoutesStep() {
-
             @Override
-            protected ApplicationRoutesGetter getApplicationRoutesGetter(CloudControllerClient client) {
-                return applicationRoutesGetter;
+            protected ServiceInstanceRoutesGetter getServiceRoutesGetter(CloudControllerClient client) {
+                return serviceInstanceRoutesGetter;
             }
-
         };
     }
 

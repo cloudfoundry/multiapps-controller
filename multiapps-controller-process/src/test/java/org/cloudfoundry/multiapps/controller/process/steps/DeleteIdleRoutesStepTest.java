@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -26,7 +27,7 @@ import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRoutesStep> {
 
@@ -34,33 +35,33 @@ class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRoutesStep
         return Stream.of(
                          // (1) One old route is replaced with a new one in redeploy:
                          Arguments.of("existing-app-1.json", "app-to-deploy-1.json",
-                                      TestData.routeSummarySet("module-1.domain.com", "module-1.domain.com/with/path"), null, StepPhase.DONE),
+                                      TestData.routeSet("module-1.domain.com", "module-1.domain.com/with/path"), null, StepPhase.DONE),
                          // (2) There are no differences between old and new route:
                          Arguments.of("existing-app-2.json", "app-to-deploy-2.json", Collections.emptySet(), null, StepPhase.DONE),
                          // (3) The new URIs are a subset of the old:
                          Arguments.of("existing-app-3.json", "app-to-deploy-3.json",
-                                      TestData.routeSummarySet("test.domain.com/51052", "test.domain.com/51054"), null, StepPhase.DONE),
+                                      TestData.routeSet("test.domain.com/51052", "test.domain.com/51054"), null, StepPhase.DONE),
                          // (4) There is no previous version of app:
                          Arguments.of(null, "app-to-deploy-3.json", Collections.emptySet(), null, StepPhase.DONE),
                          // (5) Not Found Exception is thrown
                          Arguments.of("existing-app-1.json", "app-to-deploy-1.json",
-                                      TestData.routeSummarySet("module-1.domain.com", "module-1.domain.com/with/path"),
+                                      TestData.routeSet("module-1.domain.com", "module-1.domain.com/with/path"),
                                       new CloudOperationException(HttpStatus.NOT_FOUND), StepPhase.DONE),
                          // (6) Conflict Exception is thrown
                          Arguments.of("existing-app-1.json", "app-to-deploy-1.json",
-                                      TestData.routeSummarySet("module-1.domain.com", "module-1.domain.com/with/path"),
+                                      TestData.routeSet("module-1.domain.com", "module-1.domain.com/with/path"),
                                       new CloudOperationException(HttpStatus.CONFLICT), StepPhase.DONE),
                          // (7) No-Hostname: There are no differences between old and new routes:
                          Arguments.of("existing-app-4.json", "app-to-deploy-4.json", Collections.emptySet(), null, StepPhase.DONE),
                          // (8) No-Hostname: The new routes are a subset of the old:
                          Arguments.of("existing-app-5.json", "app-to-deploy-4.json",
-                                      TestData.routeSummarySet(TestData.NOHOSTNAME_URI_FLAG + "testdomain.com", "bar.testdomain.com/another/path"), null,
+                                      TestData.routeSet(TestData.NOHOSTNAME_URI_FLAG + "testdomain.com", "bar.testdomain.com/another/path"), null,
                                       StepPhase.DONE));
     }
 
     @ParameterizedTest
     @MethodSource
-    void testExecute(String existingAppFile, String appToDeployFile, Set<CloudRouteSummary> routesToDelete,
+    void testExecute(String existingAppFile, String appToDeployFile, Set<CloudRoute> routesToDelete,
                      CloudOperationException exceptionThrownByClient, StepPhase expectedStepPhase) {
         prepareContext(existingAppFile, appToDeployFile, exceptionThrownByClient);
         step.execute(execution);
@@ -94,20 +95,22 @@ class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRoutesStep
                                                                  new TypeReference<>() {
                                                                  });
         context.setVariable(Variables.EXISTING_APP, existingApp);
+        context.setVariable(Variables.CURRENT_ROUTES, List.copyOf(existingApp.getRoutes()));
     }
 
     private void assertStepPhaseMatch(StepPhase stepPhase) {
         Assertions.assertEquals(stepPhase.toString(), getExecutionStatus());
     }
 
-    private void verifyClient(Set<CloudRouteSummary> routesToDelete) {
+    private void verifyClient(Set<CloudRoute> routesToDelete) {
         if (CollectionUtils.isEmpty(routesToDelete)) {
             verify(client, never()).deleteRoute(anyString(), anyString(), anyString());
             return;
         }
 
-        for (CloudRouteSummary route : routesToDelete) {
-            verify(client, times(1)).deleteRoute(route.getHost(), route.getDomain(), route.getPath());
+        for (CloudRoute route : routesToDelete) {
+            verify(client, times(1)).deleteRoute(route.getHost(), route.getDomain()
+                                                                       .getName(), route.getPath());
         }
     }
 

@@ -47,9 +47,6 @@
           "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
         },
         "name": "foo",
-        "env": {
-          "test":"this-property-should-remain-in-the-env-after-the-update"
-        },
         "space": {
           "organization": {
             "metadata": {},
@@ -58,6 +55,9 @@
           "metadata": {},
           "name": "xsa"
         }
+      },
+      "appEnv": {
+        "test":"this-property-should-remain-in-the-env-after-the-update"
       },
       "relevantPublishedEntries": [
         {
@@ -112,9 +112,6 @@
           "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
         },
         "name": "foo",
-        "env": {
-          "test":"this-property-should-remain-in-the-env-after-the-update"
-        },
         "space": {
           "organization": {
             "metadata": {},
@@ -123,6 +120,9 @@
           "metadata": {},
           "name": "xsa"
         }
+      },
+      "appEnv": {
+        "test":"this-property-should-remain-in-the-env-after-the-update"
       },
       "relevantPublishedEntries": [
         {

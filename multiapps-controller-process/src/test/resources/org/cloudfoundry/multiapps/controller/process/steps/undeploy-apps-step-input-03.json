@@ -5,9 +5,13 @@
       "name": "foo",
       "routes": [
         {
-          "domain": "domain",
+          "appsUsingRoute": 0,
+          "domain": {
+            "name": "domain"
+          },
           "host": "foo",
-          "path": ""
+          "path": "",
+          "url": "foo.domain"
         }
       ]
     },
@@ -15,9 +19,13 @@
       "name": "bar",
       "routes": [
         {
-          "domain": "domain",
+          "appsUsingRoute": 0,
+          "domain": {
+            "name": "domain"
+          },
           "host": "bar",
-          "path": ""
+          "path": "",
+          "url": "bar.domain"
         }
       ]
     }
@@ -29,7 +37,8 @@
         "domain": {
           "name": "domain"
         },
-        "appsUsingRoute": 1
+        "appsUsingRoute": 1,
+        "url": "foo.domain"
       }
     ],
     "bar": [
@@ -38,7 +47,8 @@
         "domain": {
           "name": "domain"
         },
-        "appsUsingRoute": 2
+        "appsUsingRoute": 2,
+        "url": "bar.domain"
       }
     ]
   }

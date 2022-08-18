@@ -6,13 +6,17 @@
   "applications": [
     {
       "moduleName": "bar",
-      "appName": "bar",
-      "routes": []
+      "name": "bar",
+      "metadata": {
+        "guid": "3725650a-8725-4401-a949-c68f83d54a86"
+      }
     },
     {
       "moduleName": "foo",
-      "appName": "foo",
-      "routes": []
+      "name": "foo",
+      "metadata": {
+        "guid": "3725650a-8725-4401-a949-c68f83d54a86"
+      }
     }
   ]
 }

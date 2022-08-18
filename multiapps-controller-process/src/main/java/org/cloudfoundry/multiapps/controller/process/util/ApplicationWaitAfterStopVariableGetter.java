@@ -5,12 +5,12 @@ import java.util.Optional;
 
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.springframework.util.ObjectUtils;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
@@ -23,21 +23,24 @@ public class ApplicationWaitAfterStopVariableGetter {
     }
 
     private Optional<String> extractDelayVariableFromEnv(ProcessContext context) {
-        CloudApplication appToProcess = context.getVariable(Variables.APP_TO_PROCESS);
-        Optional<String> waitAfterStopFromAppToProcess = getWaitAfterStopFromApp(appToProcess);
+        CloudApplicationExtended appToProcess = context.getVariable(Variables.APP_TO_PROCESS);
+        if (appToProcess == null) {
+            return Optional.empty();
+        }
+        Optional<String> waitAfterStopFromAppToProcess = Optional.ofNullable(appToProcess.getEnv()
+                                                                                         .get(Constants.VAR_WAIT_AFTER_APP_STOP));
         if (waitAfterStopFromAppToProcess.isPresent()) {
             return waitAfterStopFromAppToProcess;
         }
         CloudApplication existingApp = context.getVariable(Variables.EXISTING_APP);
-        return getWaitAfterStopFromApp(existingApp);
-    }
-
-    private Optional<String> getWaitAfterStopFromApp(CloudApplication app) {
-        if (ObjectUtils.isEmpty(app)) {
-            return Optional.empty();
+        if (existingApp == null) {
+            var env = context.getControllerClient()
+                             .getApplicationEnvironment(appToProcess.getName());
+            return Optional.ofNullable(env.get(Constants.VAR_WAIT_AFTER_APP_STOP));
         }
-        return Optional.ofNullable(app.getEnv()
-                                      .get(Constants.VAR_WAIT_AFTER_APP_STOP));
+        var appEnv = context.getControllerClient()
+                            .getApplicationEnvironment(existingApp.getGuid());
+        return Optional.ofNullable(appEnv.get(Constants.VAR_WAIT_AFTER_APP_STOP));
     }
 
     public Duration getDelayDurationFromAppEnv(ProcessContext context) {

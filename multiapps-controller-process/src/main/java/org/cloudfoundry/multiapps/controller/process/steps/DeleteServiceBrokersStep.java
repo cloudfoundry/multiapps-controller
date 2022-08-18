@@ -93,7 +93,8 @@ public class DeleteServiceBrokersStep extends TimeoutAsyncFlowableStep {
 
     private Optional<CloudServiceBroker> getServiceBrokerToDelete(CloudApplication app, List<String> createdOrUpdatedServiceBrokers,
                                                                   CloudControllerClient client) {
-        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
+        var appEnv = client.getApplicationEnvironment(app.getGuid());
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app, appEnv);
         if (!appAttributes.get(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             return Optional.empty();
         }

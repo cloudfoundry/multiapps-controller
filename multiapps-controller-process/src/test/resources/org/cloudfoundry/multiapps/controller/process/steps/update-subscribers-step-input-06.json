@@ -51,9 +51,6 @@
           "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
         },
         "name": "framework",
-        "env": {
-          "plugin_name":"plugin_01"
-        },
         "space": {
           "organization": {
             "metadata": {},
@@ -62,6 +59,9 @@
           "metadata": {},
           "name": "xsa"
         }
+      },
+      "appEnv": {
+        "plugin_name":"plugin_01"
       },
       "relevantPublishedEntries": [
         {
