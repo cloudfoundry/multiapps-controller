@@ -16,14 +16,17 @@
     "memory": 128,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes" : [ {
-      "domain" : "cfapps.neo.ondemand.com",
+      "appsUsingRoute": 0,
+      "domain" : {
+        "name": "cfapps.neo.ondemand.com"
+      },
       "host" : "i027947-java-hello-world",
-      "path" : ""
+      "path" : "",
+      "url": "i027947-java-hello-world.cfapps.neo.ondemand.com"
     } ],
     "services": [
       "uaa"
@@ -65,16 +68,19 @@
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": [
         "git://github.example.com/xs2-java/java-buildpack.git"
       ]
     },
     "routes" : [ {
-      "domain" : "cfapps.neo.ondemand.com",
+      "appsUsingRoute": 0,
+      "domain" : {
+        "name": "cfapps.neo.ondemand.com"
+      },
       "host" : "i027947-java-hello-world-backend",
-      "path" : ""
+      "path" : "",
+      "url": "i027947-java-hello-world-backend.cfapps.neo.ondemand.com"
     } ],
     "services": [
       "uaa",
@@ -117,7 +123,6 @@
     "memory": 256,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": [
         "git://github.example.com/xs2/hdi-deploy-buildpack.git"

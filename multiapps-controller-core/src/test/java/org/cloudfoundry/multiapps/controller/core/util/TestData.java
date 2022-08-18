@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,10 +8,8 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
-//TODO: this class repeats code from test class org.cloudfoundry.multiapps.controller.process.steps.TestData; consolidate if we refactor core module and stplit ApplicationUri out of it
 public class TestData {
 
     public static Map<String, Object> routeParameterWithAdditionalValues(String route, boolean noHostname,
@@ -47,38 +44,30 @@ public class TestData {
 
         resultMap.put(isIdle ? SupportedParameters.IDLE_ROUTE : SupportedParameters.ROUTE, route);
         if (noHostname != null) {
-            resultMap.put(SupportedParameters.NO_HOSTNAME, noHostname.booleanValue());
+            resultMap.put(SupportedParameters.NO_HOSTNAME, noHostname);
         }
 
         return resultMap;
     }
 
-    // prefix any uri String with NOHOSTNAME_TEST_PREFIX to parse as hostless CloudRouteSummary; makes test input more readable
+    // prefix any uri String with NOHOSTNAME_TEST_PREFIX to parse as hostless CloudRoute; makes test input more readable
     public static final String NOHOSTNAME_URI_FLAG = "NOHOSTNAME-";
 
-    public static CloudRouteSummary routeSummary(String uri) {
-        return routeSummary(removePrefix(uri), uriIsHostless(uri));
+    public static CloudRoute route(String uri) {
+        return route(removePrefix(uri), uriIsHostless(uri));
     }
 
-    public static CloudRouteSummary routeSummary(String uri, boolean noHostname) {
-        return new ApplicationURI(uri, noHostname).toCloudRouteSummary();
+    public static CloudRoute route(String uri, boolean noHostname) {
+        return new ApplicationURI(uri, noHostname).toCloudRoute();
     }
 
-    public static CloudRouteSummary routeSummary(String host, String domain, String path) {
-        return ImmutableCloudRouteSummary.builder()
-                                         .host(host)
-                                         .domain(domain)
-                                         .path(path)
-                                         .build();
+    public static CloudRoute route(String host, String domain, String path) {
+        return new ApplicationURI(host, domain, path).toCloudRoute();
     }
 
-    public static Set<CloudRouteSummary> routeSummarySet(List<String> uriStrings) {
-        return routeSummarySet((String[]) uriStrings.toArray());
-    }
-
-    public static Set<CloudRouteSummary> routeSummarySet(String... uriStrings) {
+    public static Set<CloudRoute> routeSet(String... uriStrings) {
         return Stream.of(uriStrings)
-                     .map(TestData::routeSummary)
+                     .map(TestData::route)
                      .collect(Collectors.toSet());
     }
 
@@ -86,7 +75,6 @@ public class TestData {
         if (!uriIsHostless(uri)) {
             return uri;
         }
-
         return uri.substring(NOHOSTNAME_URI_FLAG.length());
     }
 

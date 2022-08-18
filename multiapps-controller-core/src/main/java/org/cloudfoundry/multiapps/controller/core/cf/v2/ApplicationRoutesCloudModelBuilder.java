@@ -15,22 +15,25 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 public class ApplicationRoutesCloudModelBuilder {
 
     private final DeploymentDescriptor descriptor;
+    private final CloudControllerClient client;
     private final CloudApplicationExtended.AttributeUpdateStrategy applicationAttributeUpdateStrategy;
 
-    public ApplicationRoutesCloudModelBuilder(DeploymentDescriptor descriptor,
+    public ApplicationRoutesCloudModelBuilder(DeploymentDescriptor descriptor, CloudControllerClient client,
                                               CloudApplicationExtended.AttributeUpdateStrategy applicationAttributeUpdateStrategy) {
         this.descriptor = descriptor;
+        this.client = client;
         this.applicationAttributeUpdateStrategy = applicationAttributeUpdateStrategy;
     }
 
-    public Set<CloudRouteSummary> getApplicationRoutes(Module module, List<Map<String, Object>> propertiesList,
-                                                       DeployedMtaApplication deployedApplication) {
-        Set<CloudRouteSummary> routes = getRouteParametersParser(module).parse(propertiesList);
+    public Set<CloudRoute> getApplicationRoutes(Module module, List<Map<String, Object>> propertiesList,
+                                                DeployedMtaApplication deployedApplication) {
+        Set<CloudRoute> routes = getRouteParametersParser(module).parse(propertiesList);
         if (shouldKeepExistingRoutes(propertiesList)) {
             return addExistingRoutes(routes, deployedApplication);
         }
@@ -46,12 +49,13 @@ public class ApplicationRoutesCloudModelBuilder {
         return PropertiesUtil.getPropertyValue(propertiesList, propertyName, defaultValue);
     }
 
-    private Set<CloudRouteSummary> addExistingRoutes(Set<CloudRouteSummary> routes, DeployedMtaApplication deployedMtaApplication) {
+    private Set<CloudRoute> addExistingRoutes(Set<CloudRoute> routes, DeployedMtaApplication deployedMtaApplication) {
         if (deployedMtaApplication == null) {
             return routes;
         }
 
-        Set<CloudRouteSummary> combinedRoutes = new HashSet<>(deployedMtaApplication.getRoutes());
+        var existingRoutes = client.getApplicationRoutes(deployedMtaApplication.getGuid());
+        Set<CloudRoute> combinedRoutes = new HashSet<>(existingRoutes);
         combinedRoutes.addAll(routes);
 
         return combinedRoutes;
@@ -61,7 +65,7 @@ public class ApplicationRoutesCloudModelBuilder {
         return getRouteParametersParser(module).getApplicationDomains(propertiesList);
     }
 
-    public Set<CloudRouteSummary> getIdleApplicationRoutes(Module module, List<Map<String, Object>> propertiesList) {
+    public Set<CloudRoute> getIdleApplicationRoutes(Module module, List<Map<String, Object>> propertiesList) {
         RoutingParameterSet parametersType = RoutingParameterSet.DEFAULT_IDLE;
         Map<String, Object> moduleParameters = module.getParameters();
         String defaultHost = (String) moduleParameters.getOrDefault(parametersType.host, null);

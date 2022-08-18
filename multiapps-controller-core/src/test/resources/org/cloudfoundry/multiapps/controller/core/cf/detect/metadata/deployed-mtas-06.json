@@ -21,13 +21,6 @@
             "mta_id": "9fb045bba26522b2a50bb3e7a06ae30d"
           }
         },
-        "memory": 0,
-        "diskQuota": 0,
-        "instances": 1,
-        "runningInstances": 0,
-        "routes": [],
-        "services": [],
-        "env": {},
         "moduleName": "mta-module",
         "boundMtaServices": [],
         "providedDependencyNames": [
@@ -53,13 +46,6 @@
             "mta_id": "9fb045bba26522b2a50bb3e7a06ae30d"
           }
         },
-        "memory": 0,
-        "diskQuota": 0,
-        "instances": 1,
-        "runningInstances": 0,
-        "routes": [],
-        "services": [],
-        "env": {},
         "moduleName": "mta-module",
         "boundMtaServices": [],
         "providedDependencyNames": [],

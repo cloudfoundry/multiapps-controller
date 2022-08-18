@@ -57,8 +57,8 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     }
 
     private void prepareAppStepCalculator(ApplicationStartupState currentAppState, ApplicationStartupState desiredAppState) {
-        when(appStateCalculator.computeCurrentState(any())).thenReturn(currentAppState);
-        when(appStateCalculator.computeDesiredState(any(), eq(false))).thenReturn(desiredAppState);
+        when(appStateCalculator.computeCurrentState(any(), any(), any())).thenReturn(currentAppState);
+        when(appStateCalculator.computeDesiredState(any(), any(), eq(false))).thenReturn(desiredAppState);
     }
 
     private void prepareClient(boolean hasCloudPacakge) {

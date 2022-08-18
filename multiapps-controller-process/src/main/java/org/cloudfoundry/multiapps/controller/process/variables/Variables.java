@@ -34,6 +34,7 @@ import org.cloudfoundry.multiapps.mta.model.VersionRule;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 import com.sap.cloudfoundry.client.facade.domain.CloudTask;
@@ -318,6 +319,7 @@ public interface Variables {
                                                                                                .name("completeMtaDeploymentDescriptor")
                                                                                                .type(Variable.typeReference(DeploymentDescriptor.class))
                                                                                                .build();
+    //TODO make serialization adapter
     Variable<CloudApplicationExtended> APP_TO_PROCESS = ImmutableJsonStringVariable.<CloudApplicationExtended> builder()
                                                                                    .name("appToProcess")
                                                                                    .type(Variable.typeReference(CloudApplicationExtended.class))
@@ -331,6 +333,7 @@ public interface Variables {
                                                                                            .name("serviceToProcess")
                                                                                            .type(Variable.typeReference(CloudServiceInstanceExtended.class))
                                                                                            .build();
+    //TODO make serialization adapter
     Variable<CloudPackage> CLOUD_PACKAGE = ImmutableJsonStringVariable.<CloudPackage> builder()
                                                                       .name("uploadedCloudPackage")
                                                                       .type(Variable.typeReference(CloudPackage.class))
@@ -457,16 +460,23 @@ public interface Variables {
                                                                                                            .type(new TypeReference<>() {
                                                                                                            })
                                                                                                            .build();
+    //TODO make serialization adapter
     Variable<List<CloudApplication>> UPDATED_SERVICE_BROKER_SUBSCRIBERS = ImmutableJsonBinaryVariable.<List<CloudApplication>> builder()
                                                                                                      .name("updatedServiceBrokerSubscribers")
                                                                                                      .type(new TypeReference<>() {
                                                                                                      })
                                                                                                      .build();
+    //TODO make serialization adapter
     Variable<List<CloudApplication>> UPDATED_SUBSCRIBERS = ImmutableJsonBinaryVariable.<List<CloudApplication>> builder()
                                                                                       .name("updatedSubscribers")
                                                                                       .type(new TypeReference<>() {
                                                                                       })
                                                                                       .build();
+    Variable<List<CloudRoute>> CURRENT_ROUTES = ImmutableJsonBinaryListVariable.<CloudRoute> builder()
+                                                                               .name("currentRoutes")
+                                                                               .type(Variable.typeReference(CloudRoute.class))
+                                                                               .defaultValue(Collections.emptyList())
+                                                                               .build();
     Variable<List<CloudServiceInstanceExtended>> SERVICES_DATA = ImmutableJsonBinaryVariable.<List<CloudServiceInstanceExtended>> builder()
                                                                                             .name("servicesData")
                                                                                             .type(new TypeReference<>() {
@@ -527,6 +537,7 @@ public interface Variables {
                                                                                          .type(ServiceAction.class)
                                                                                          .defaultValue(Collections.emptyList())
                                                                                          .build();
+    //TODO make serialization adapter
     Variable<List<CloudApplication>> APPS_TO_UNDEPLOY = ImmutableJsonStringListVariable.<CloudApplication> builder()
                                                                                        .name("appsToUndeploy")
                                                                                        .type(Variable.typeReference(CloudApplication.class))
@@ -635,7 +646,7 @@ public interface Variables {
                                                                            })
                                                                            .defaultValue(Collections.emptyList())
                                                                            .build();
-
+    //TODO make serialization adapter
     Variable<CloudApplication> EXISTING_APP_TO_POLL = ImmutableJsonBinaryVariable.<CloudApplication> builder()
                                                                                  .name("existingAppToPoll")
                                                                                  .type(Variable.typeReference(CloudApplication.class))

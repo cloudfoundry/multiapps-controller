@@ -16,15 +16,18 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "framework",
-        "path": "/v2"
+        "path": "/v2",
+        "url": "framework.sofd60245639a/v2"
       }
     ],
     "services": [],

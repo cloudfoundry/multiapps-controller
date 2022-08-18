@@ -41,10 +41,8 @@ class DetermineVcapServicesPropertiesChangedStepTest extends SyncFlowableStepTes
         CloudApplicationExtended application = buildApplication();
         context.setVariable(Variables.APP_TO_PROCESS, application);
         context.setVariable(Variables.SERVICES_TO_UNBIND_BIND, List.copyOf(services.keySet()));
-        services.entrySet()
-                .forEach(serviceEntry -> execution.setVariable(ManageAppServiceBindingEndListener.buildExportedVariableName(APP_NAME,
-                                                                                                                      serviceEntry.getKey()),
-                                                               serviceEntry.getValue()));
+        services.forEach((key, value) -> execution.setVariable(ManageAppServiceBindingEndListener.buildExportedVariableName(APP_NAME, key),
+                                                               value));
     }
 
     private CloudApplicationExtended buildApplication() {

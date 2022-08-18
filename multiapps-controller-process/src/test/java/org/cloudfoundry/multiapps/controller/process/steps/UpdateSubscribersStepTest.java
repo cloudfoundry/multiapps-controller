@@ -80,7 +80,7 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
             // (2) A subscriber should be updated, but the user does not have the necessary permissions for the org and space of the subscriber:
             Arguments.of("update-subscribers-step-input-02.json", "update-subscribers-step-output-02.json", 2, null),
             // (3) A subscriber should be updated, but the user does not have the necessary permissions for the org and space of the subscriber:
-            Arguments.of("update-subscribers-step-input-03.json", "update-subscribers-step-output-02.json", 2, null),
+            Arguments.of("update-subscribers-step-input-03.json", "update-subscribers-step-output-02.json", 2, "403 Forbidden"),
             // (4) A subscriber should be updated, because there are deleted entries (there are no existing entries):
             Arguments.of("update-subscribers-step-input-04.json", "update-subscribers-step-output-04.json", 2, null),
             // (5) A subscriber should be updated, and there are additional environment variables that should be updated, other than the list variable:
@@ -196,9 +196,9 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
     }
 
     private CloudControllerClient getOrCreateClientForSpace(Map<CloudSpace, CloudControllerClient> clients, CloudSpace space) {
-        for (CloudSpace existingSpace : clients.keySet()) {
-            if (isSameSpace(space, existingSpace)) {
-                return clients.get(existingSpace);
+        for (var spaceToClient : clients.entrySet()) {
+            if (isSameSpace(space, spaceToClient.getKey())) {
+                return spaceToClient.getValue();
             }
         }
         clients.put(space, client);
@@ -216,6 +216,7 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
 
     @SuppressWarnings("unchecked")
     private void mockClientInvocations(SubscriberToUpdate subscriber, CloudControllerClient client) {
+        when(client.getApplicationEnvironment(eq(subscriber.app.getGuid()))).thenReturn(subscriber.appEnv);
         if (userHasPermissions(subscriber.app.getSpace(), UserPermission.READ)) {
             when(client.getApplication(subscriber.subscription.getAppName())).thenReturn(subscriber.app);
         } else {
@@ -223,7 +224,7 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
         }
         if (!userHasPermissions(subscriber.app.getSpace(), UserPermission.WRITE)) {
             doThrow(new CloudOperationException(HttpStatus.FORBIDDEN)).when(client)
-                                                                      .updateApplicationEnv(eq(subscriber.subscription.getAppName()),
+                                                                      .updateApplicationEnv(anyString(),
                                                                                             any(Map.class));
         }
     }
@@ -268,10 +269,10 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
         StepOutput result = new StepOutput();
         result.callArgumentsOfUpdateApplicationEnvMethod = new ArrayList<>();
 
-        for (CloudSpace space : clients.keySet()) {
-            if (userHasPermissions(space, UserPermission.READ, UserPermission.WRITE)) {
-                List<CloudApplication> callArgumentsOfUpdateApplicationEnvMethod = getCallArgumentsOfUpdateApplicationEnvMethod(space,
-                                                                                                                                clients.get(space));
+        for (var spaceToClient : clients.entrySet()) {
+            if (userHasPermissions(spaceToClient.getKey(), UserPermission.READ, UserPermission.WRITE)) {
+                var callArgumentsOfUpdateApplicationEnvMethod = getCallArgumentsOfUpdateApplicationEnvMethod(spaceToClient.getKey(),
+                                                                                                             spaceToClient.getValue());
                 result.callArgumentsOfUpdateApplicationEnvMethod.addAll(callArgumentsOfUpdateApplicationEnvMethod);
             }
         }
@@ -285,13 +286,10 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
         ArgumentCaptor<String> appNameCaptor = ArgumentCaptor.forClass(String.class);
         verify(client, Mockito.atLeast(0)).updateApplicationEnv(appNameCaptor.capture(), appEnvCaptor.capture());
 
-        List<Map> appEnvs = appEnvCaptor.getAllValues();
         List<String> appNames = appNameCaptor.getAllValues();
-        List<CloudApplication> result = new ArrayList<>();
-        for (int i = 0; i < appNames.size(); i++) {
-            result.add(createApp(appNames.get(i), space, appEnvs.get(i)));
-        }
-        return result;
+        return appNames.stream()
+                       .map(appName -> createApp(appName, space))
+                       .collect(Collectors.toList());
     }
 
     private boolean userHasPermissions(CloudSpace space, UserPermission... permissions) {
@@ -306,26 +304,26 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
 
     private UserRole getUserRole(CloudSpace space) {
         return input.userRoles.stream()
-                              .filter((role) -> isSameSpace(role.space, space))
+                              .filter(role -> isSameSpace(role.space, space))
                               .findFirst()
                               .orElse(null);
     }
 
-    private CloudApplication createApp(String name, CloudSpace space, Map<String, String> env) {
+    private CloudApplication createApp(String name, CloudSpace space) {
         return ImmutableCloudApplication.builder()
                                         .name(name)
                                         .space(space)
-                                        .env(env)
                                         .build();
     }
 
     private static class SubscriberToUpdate {
 
-        public List<ConfigurationEntry> relevantPublishedEntries;
-        public ConfigurationSubscription subscription;
-        public List<ConfigurationEntry> relevantExistingEntries;
-        public CloudApplication app;
-        public List<ConfigurationEntry> relevantDeletedEntries;
+        List<ConfigurationEntry> relevantPublishedEntries;
+        ConfigurationSubscription subscription;
+        List<ConfigurationEntry> relevantExistingEntries;
+        CloudApplication app;
+        Map<String, String> appEnv;
+        List<ConfigurationEntry> relevantDeletedEntries;
 
     }
 

@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Named;
@@ -91,7 +92,7 @@ public class CreateOrUpdateServiceBrokerStep extends TimeoutAsyncFlowableStep {
 
     private CloudServiceBroker getServiceBrokerToCreate(ProcessContext context) {
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
-        CloudServiceBroker serviceBroker = getServiceBrokerFromApp(context, app);
+        CloudServiceBroker serviceBroker = getServiceBrokerFromApp(context, app, app.getEnv());
         if (serviceBroker == null) {
             return null;
         }
@@ -100,8 +101,8 @@ public class CreateOrUpdateServiceBrokerStep extends TimeoutAsyncFlowableStep {
         return serviceBroker;
     }
 
-    protected CloudServiceBroker getServiceBrokerFromApp(ProcessContext context, CloudApplication app) {
-        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
+    protected CloudServiceBroker getServiceBrokerFromApp(ProcessContext context, CloudApplication app, Map<String, String> appEnv) {
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app, appEnv);
         if (!appAttributes.get(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             return null;
         }

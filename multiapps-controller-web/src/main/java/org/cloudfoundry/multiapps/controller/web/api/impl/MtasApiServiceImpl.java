@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.web.api.impl;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -32,7 +31,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 @Named
 public class MtasApiServiceImpl implements MtasApiService {
@@ -46,15 +45,17 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     @Override
     public ResponseEntity<List<Mta>> getMtas(String spaceGuid) {
-        List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtasWithoutNamespace(getCloudFoundryClient(spaceGuid));
-        List<Mta> mtas = getMtas(deployedMtas);
+        CloudControllerClient client = getCloudFoundryClient(spaceGuid);
+        List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtasWithoutNamespace(client);
+        List<Mta> mtas = getMtas(deployedMtas, client);
         return ResponseEntity.ok()
                              .body(mtas);
     }
 
     @Override
     public ResponseEntity<Mta> getMta(String spaceGuid, String mtaId) {
-        List<DeployedMta> mtas = deployedMtaDetector.detectDeployedMtasByName(mtaId, getCloudFoundryClient(spaceGuid));
+        CloudControllerClient client = getCloudFoundryClient(spaceGuid);
+        List<DeployedMta> mtas = deployedMtaDetector.detectDeployedMtasByName(mtaId, client);
 
         if (mtas.isEmpty()) {
             throw new NotFoundException(Messages.MTA_NOT_FOUND, mtaId);
@@ -65,7 +66,7 @@ public class MtasApiServiceImpl implements MtasApiService {
         }
 
         return ResponseEntity.ok()
-                             .body(getMta(mtas.get(0)));
+                             .body(getMta(mtas.get(0), client));
     }
 
     @Override
@@ -83,43 +84,47 @@ public class MtasApiServiceImpl implements MtasApiService {
             return getMtasByNamespace(spaceGuid, namespace);
         }
 
+        CloudControllerClient client = getCloudFoundryClient(spaceGuid);
         Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(name, namespace,
-                                                                                                            getCloudFoundryClient(spaceGuid));
+                                                                                                            client);
         DeployedMta deployedMta = optionalDeployedMta.orElseThrow(() -> new NotFoundException(Messages.SPECIFIC_MTA_NOT_FOUND,
                                                                                               name,
                                                                                               namespace));
 
         return ResponseEntity.ok()
-                             .body(Arrays.asList(getMta(deployedMta)));
+                             .body(Arrays.asList(getMta(deployedMta, client)));
     }
 
     protected ResponseEntity<List<Mta>> getAllMtas(String spaceGuid) {
-        List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtas(getCloudFoundryClient(spaceGuid));
+        CloudControllerClient client = getCloudFoundryClient(spaceGuid);
+        List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtas(client);
 
         return ResponseEntity.ok()
-                             .body(getMtas(deployedMtas));
+                             .body(getMtas(deployedMtas, client));
     }
 
     protected ResponseEntity<List<Mta>> getMtasByNamespace(String spaceGuid, String namespace) {
-        List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtasByNamespace(namespace, getCloudFoundryClient(spaceGuid));
+        CloudControllerClient client = getCloudFoundryClient(spaceGuid);
+        List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtasByNamespace(namespace, client);
 
         if (deployedMtas.isEmpty()) {
             throw new NotFoundException(Messages.MTAS_NOT_FOUND_BY_NAMESPACE, namespace);
         }
 
         return ResponseEntity.ok()
-                             .body(getMtas(deployedMtas));
+                             .body(getMtas(deployedMtas, client));
     }
 
     protected ResponseEntity<List<Mta>> getMtasByName(String spaceGuid, String name) {
-        List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtasByName(name, getCloudFoundryClient(spaceGuid));
+        CloudControllerClient client = getCloudFoundryClient(spaceGuid);
+        List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtasByName(name, client);
 
         if (deployedMtas.isEmpty()) {
             throw new NotFoundException(Messages.MTAS_NOT_FOUND_BY_NAME, name);
         }
 
         return ResponseEntity.ok()
-                             .body(getMtas(deployedMtas));
+                             .body(getMtas(deployedMtas, client));
     }
 
     private CloudControllerClient getCloudFoundryClient(String spaceGuid) {
@@ -127,16 +132,16 @@ public class MtasApiServiceImpl implements MtasApiService {
         return clientProvider.getControllerClientWithNoCorrelation(userInfo.getName(), spaceGuid);
     }
 
-    private List<Mta> getMtas(List<DeployedMta> deployedMtas) {
+    private List<Mta> getMtas(List<DeployedMta> deployedMtas, CloudControllerClient client) {
         return deployedMtas.stream()
-                           .map(this::getMta)
+                           .map(mta -> getMta(mta, client))
                            .collect(Collectors.toList());
     }
 
-    private Mta getMta(DeployedMta mta) {
+    private Mta getMta(DeployedMta mta, CloudControllerClient client) {
         return ImmutableMta.builder()
                            .metadata(getMetadata(mta.getMetadata()))
-                           .modules(getModules(mta.getApplications()))
+                           .modules(getModules(mta.getApplications(), client))
                            .services(mta.getServices()
                                         .stream()
                                         .map(DeployedMtaService::getName)
@@ -144,18 +149,19 @@ public class MtasApiServiceImpl implements MtasApiService {
                            .build();
     }
 
-    private List<Module> getModules(List<DeployedMtaApplication> deployedApplications) {
+    private List<Module> getModules(List<DeployedMtaApplication> deployedApplications, CloudControllerClient client) {
         return deployedApplications.stream()
-                                   .map(this::getModule)
+                                   .map(app -> getModule(app, client))
                                    .collect(Collectors.toList());
     }
 
-    private Module getModule(DeployedMtaApplication deployedMtaApplication) {
+    private Module getModule(DeployedMtaApplication deployedMtaApplication, CloudControllerClient client) {
+        var appRoutes = client.getApplicationRoutes(deployedMtaApplication.getGuid());
         return ImmutableModule.builder()
                               .appName(deployedMtaApplication.getName())
                               .moduleName(deployedMtaApplication.getModuleName())
                               .providedDendencyNames(deployedMtaApplication.getProvidedDependencyNames())
-                              .uris(parseRoutesToUris(deployedMtaApplication.getRoutes()))
+                              .uris(parseRoutesToUris(appRoutes))
                               .services(deployedMtaApplication.getBoundMtaServices())
                               .build();
     }
@@ -168,9 +174,9 @@ public class MtasApiServiceImpl implements MtasApiService {
                                 .build();
     }
 
-    private List<String> parseRoutesToUris(Set<CloudRouteSummary> routes) {
+    private List<String> parseRoutesToUris(List<CloudRoute> routes) {
         return routes.stream()
-                     .map(CloudRouteSummary::toUriString)
+                     .map(CloudRoute::getUrl)
                      .collect(Collectors.toList());
     }
 

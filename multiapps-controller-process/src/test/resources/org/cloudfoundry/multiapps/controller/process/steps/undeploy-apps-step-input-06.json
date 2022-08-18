@@ -4,9 +4,13 @@
     {
       "routes": [
         {
-          "domain": "domain",
+          "appsUsingRoute": 0,
+          "domain": {
+            "name": "domain"
+          },
           "host": "foo",
-          "path": ""
+          "path": "",
+          "url": "foo.domain"
         }
       ],
       "name": "foo"
@@ -20,8 +24,9 @@
           "name": "domain"
         },
         "appsUsingRoute": 1,
-        "serviceRouteBindings": [
-          "serviceRoute.io"
+        "url": "foo.domain",
+        "boundServiceInstanceGuids": [
+          "service-guid"
         ]
       }
     ]

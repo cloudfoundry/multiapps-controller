@@ -148,9 +148,8 @@ public class StepsUtil {
     }
 
     static void saveAppLogs(ProcessContext context, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
-                            CloudApplication app, Logger logger, ProcessLoggerProvider processLoggerProvider) {
+                            String appName, Logger logger, ProcessLoggerProvider processLoggerProvider) {
         LogsOffset offset = getLogOffset(context.getExecution());
-        String appName = app.getName();
         List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogsSafely(client, appName, offset);
         if (recentLogs.isEmpty()) {
             return;
@@ -202,7 +201,8 @@ public class StepsUtil {
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
 
         return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, namespace,
-                                                              context.getStepLogger(), getAppSuffixDeterminer(context));
+                                                              context.getStepLogger(), getAppSuffixDeterminer(context),
+                                                              context.getControllerClient());
     }
 
     static AppSuffixDeterminer getAppSuffixDeterminer(ProcessContext context) {

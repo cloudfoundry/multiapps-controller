@@ -29,29 +29,29 @@ class IdleRouteParametersParserTest {
 // @formatter:off
             Arguments.of(List.of(routeParameter("foo.bar.com")),
                          List.of(idleRouteParameter("foo-idle.bar.com")), 
-                         new Expectation(Expectation.Type.SET, Set.of(routeSummary("foo-idle", "bar.com", "")))),            
+                         new Expectation(Expectation.Type.SET, Set.of(route("foo-idle", "bar.com", "")))),
             Arguments.of(List.of(routeParameter("foo-quux.test.com/abc"), routeParameter("bar-quux.test.com/def")),
                          List.of(idleRouteParameter("idle-route.test.com/test")), 
-                         new Expectation(Expectation.Type.SET, Set.of(routeSummary("idle-route", "test.com", "/test")))),
+                         new Expectation(Expectation.Type.SET, Set.of(route("idle-route", "test.com", "/test")))),
             Arguments.of(List.of(routeParameter("foo-quux.test.com/abc"), routeParameter("bar-quux.test.com/def")),
                          Collections.emptyList(), 
-                         new Expectation(Expectation.Type.SET, Set.of(routeSummary(DEFAULT_HOST, DEFAULT_DOMAIN, "/abc"),
-                                                                      routeSummary(DEFAULT_HOST, DEFAULT_DOMAIN, "/def")))),
+                         new Expectation(Expectation.Type.SET, Set.of(route(DEFAULT_HOST, DEFAULT_DOMAIN, "/abc"),
+                                                                      route(DEFAULT_HOST, DEFAULT_DOMAIN, "/def")))),
             Arguments.of(List.of(routeParameter("foo.bar.com")),
                          null,
-                         new Expectation(Expectation.Type.SET, Set.of(routeSummary(DEFAULT_HOST, DEFAULT_DOMAIN, "")))),
+                         new Expectation(Expectation.Type.SET, Set.of(route(DEFAULT_HOST, DEFAULT_DOMAIN, "")))),
             Arguments.of(null,
                          List.of(idleRouteParameter("https://bar-quux.test.com/def")), 
-                         new Expectation(Expectation.Type.SET, Set.of(routeSummary("bar-quux", "test.com", "/def")))),
+                         new Expectation(Expectation.Type.SET, Set.of(route("bar-quux", "test.com", "/def")))),
             // even if normal routes are without host - idle route will have default-host
             Arguments.of(List.of(routeParameter("https://foo-quux.test.com/abc", true), routeParameter("https://bar-quux.test.com/def")),
                          Collections.emptyList(), 
-                         new Expectation(Expectation.Type.SET, Set.of(routeSummary(DEFAULT_HOST, DEFAULT_DOMAIN, "/abc"),
-                                                                      routeSummary(DEFAULT_HOST, DEFAULT_DOMAIN, "/def")))),
+                         new Expectation(Expectation.Type.SET, Set.of(route(DEFAULT_HOST, DEFAULT_DOMAIN, "/abc"),
+                                                                      route(DEFAULT_HOST, DEFAULT_DOMAIN, "/def")))),
             // if idle routes are without host - processed idle route will remain without host
             Arguments.of(List.of(routeParameter("foo.bar.com", false)),
                          List.of(idleRouteParameter("foo-idle.bar.com/abc", true)),
-                         new Expectation(Expectation.Type.SET, Set.of(routeSummary("", "foo-idle.bar.com", "/abc"))))
+                         new Expectation(Expectation.Type.SET, Set.of(route("", "foo-idle.bar.com", "/abc"))))
 // @formatter:on
         );
     }
@@ -62,7 +62,7 @@ class IdleRouteParametersParserTest {
         Map<String, Object> parametersMap = new HashMap<>();
         parametersMap.put(SupportedParameters.ROUTES, routes);
         parametersMap.put(SupportedParameters.IDLE_ROUTES, idleRoutes);
-        
+
         tester.test(() -> new IdleRouteParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null).parse(List.of(parametersMap)), expectation);
     }
 
@@ -100,7 +100,7 @@ class IdleRouteParametersParserTest {
 
         tester.test(() -> new IdleRouteParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null).parse(List.of(parametersMap)),
                     new Expectation(Expectation.Type.SET,
-                                    Set.of(routeSummary(DEFAULT_HOST, DEFAULT_DOMAIN, "/abc"),
-                                           routeSummary(DEFAULT_HOST, DEFAULT_DOMAIN, "/def"))));
+                                    Set.of(route(DEFAULT_HOST, DEFAULT_DOMAIN, "/abc"),
+                                           route(DEFAULT_HOST, DEFAULT_DOMAIN, "/def"))));
     }
 }

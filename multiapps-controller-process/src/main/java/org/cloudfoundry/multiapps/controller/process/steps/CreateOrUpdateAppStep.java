@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,6 +16,7 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -67,6 +67,10 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
     protected String getStepErrorMessage(ProcessContext context) {
         return MessageFormat.format(Messages.ERROR_CREATING_OR_UPDATING_APP, context.getVariable(Variables.APP_TO_PROCESS)
                                                                                     .getName());
+    }
+
+    protected AppBoundServiceInstanceNamesGetter getAppBoundServiceInstanceNamesGetter(CloudControllerClient client) {
+        return new AppBoundServiceInstanceNamesGetter(client);
     }
 
     private StepFlowHandler createStepFlowHandler(ProcessContext context, CloudControllerClient client, CloudApplicationExtended app,
@@ -198,19 +202,21 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             if (context.getVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING)) {
                 return;
             }
-            List<String> services = getMtaAndExistingSevices();
+            List<String> services = getMtaAndExistingServices();
             context.setVariable(Variables.SERVICES_TO_UNBIND_BIND, services);
         }
 
         @Override
         public void handleApplicationEnv() {
             Map<String, String> envAsMap = new LinkedHashMap<>(app.getEnv());
-            addCurrentAppDigestToNewEnv(envAsMap, existingApp.getEnv());
+            var appEnv = client.getApplicationEnvironment(existingApp.getGuid());
+            addCurrentAppDigestToNewEnv(envAsMap, appEnv);
             app = ImmutableCloudApplicationExtended.copyOf(app)
                                                    .withEnv(envAsMap);
 
-            UpdateState updateApplicationEnvironmentState = updateApplicationEnvironment(app, existingApp, client,
-                                                                                         app.getAttributesUpdateStrategy());
+            ControllerClientFacade.Context clientContext = new ControllerClientFacade.Context(client, getStepLogger());
+            UpdateState updateApplicationEnvironmentState = new EnvironmentApplicationAttributeUpdater(clientContext, getEnvUpdateStrategy(),
+                                                                                                       appEnv).update(existingApp, app);
 
             context.setVariable(Variables.USER_PROPERTIES_CHANGED, updateApplicationEnvironmentState == UpdateState.UPDATED);
         }
@@ -225,20 +231,12 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.APP_UPDATED, app.getName());
         }
 
-        private List<String> getMtaAndExistingSevices() {
-            return Stream.of(app.getServices(), existingApp.getServices())
+        private List<String> getMtaAndExistingServices() {
+            var serviceNamesGetter = getAppBoundServiceInstanceNamesGetter(client);
+            return Stream.of(app.getServices(), serviceNamesGetter.getServiceInstanceNamesBoundToApp(existingApp.getGuid()))
                          .flatMap(List::stream)
                          .distinct()
                          .collect(Collectors.toList());
-        }
-
-        private UpdateState
-                updateApplicationEnvironment(CloudApplicationExtended app, CloudApplication existingApp, CloudControllerClient client,
-                                             CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
-            ControllerClientFacade.Context context = new ControllerClientFacade.Context(client, getStepLogger());
-            return new EnvironmentApplicationAttributeUpdater(context,
-                                                              getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingEnv())).update(existingApp,
-                                                                                                                                                     app);
         }
 
         private void reportApplicationUpdateStatus(CloudApplicationExtended app, boolean appPropertiesChanged) {
@@ -250,14 +248,19 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         protected List<ApplicationAttributeUpdater> getApplicationAttributeUpdaters() {
-            ControllerClientFacade.Context context = new ControllerClientFacade.Context(client, getStepLogger());
-            return Arrays.asList(new StagingApplicationAttributeUpdater(context), new MemoryApplicationAttributeUpdater(context),
-                                 new DiskQuotaApplicationAttributeUpdater(context),
-                                 new UrisApplicationAttributeUpdater(context, UpdateStrategy.REPLACE));
+            ControllerClientFacade.Context clientContext = new ControllerClientFacade.Context(client, getStepLogger());
+            var process = client.getApplicationProcess(existingApp.getGuid());
+            var currentRoutes = client.getApplicationRoutes(existingApp.getGuid());
+            context.setVariable(Variables.CURRENT_ROUTES, currentRoutes);
+            return List.of(new StagingApplicationAttributeUpdater(clientContext, process),
+                           new MemoryApplicationAttributeUpdater(clientContext, process),
+                           new DiskQuotaApplicationAttributeUpdater(clientContext, process),
+                           new UrisApplicationAttributeUpdater(clientContext, UpdateStrategy.REPLACE, currentRoutes));
         }
 
-        private UpdateStrategy getUpdateStrategy(boolean shouldKeepAttributes) {
-            return shouldKeepAttributes ? UpdateStrategy.MERGE : UpdateStrategy.REPLACE;
+        private UpdateStrategy getEnvUpdateStrategy() {
+            return app.getAttributesUpdateStrategy()
+                      .shouldKeepExistingEnv() ? UpdateStrategy.MERGE : UpdateStrategy.REPLACE;
         }
 
         private void addCurrentAppDigestToNewEnv(Map<String, String> newAppEnv, Map<String, String> existingAppEnv) {

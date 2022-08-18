@@ -5,9 +5,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneOffset;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,6 +31,7 @@ import org.mockito.MockitoAnnotations;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableInstanceInfo;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableInstancesInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
 import com.sap.cloudfoundry.client.facade.domain.InstanceState;
 import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
@@ -37,8 +40,8 @@ class PollStartAppStatusExecutionTest {
 
     private static final String USER_NAME = "testUsername";
     private static final String APP_NAME = "testApplication";
-    private static final long PROCESS_START_TIME = new GregorianCalendar(2019, Calendar.JANUARY, 1).toInstant()
-                                                                                                   .toEpochMilli();
+    private static final long PROCESS_START_TIME = LocalDateTime.of(2019, Month.JANUARY, 1, 0, 0)
+                                                                .toEpochSecond(ZoneOffset.UTC);
 
     @Mock
     private RecentLogsRetriever recentLogsRetriever;
@@ -86,6 +89,9 @@ class PollStartAppStatusExecutionTest {
 
     private CloudApplicationExtended buildApplication(int instancesCount) {
         return ImmutableCloudApplicationExtended.builder()
+                                                .metadata(ImmutableCloudMetadata.builder()
+                                                                                .guid(UUID.randomUUID())
+                                                                                .build())
                                                 .name(APP_NAME)
                                                 .instances(instancesCount)
                                                 .build();

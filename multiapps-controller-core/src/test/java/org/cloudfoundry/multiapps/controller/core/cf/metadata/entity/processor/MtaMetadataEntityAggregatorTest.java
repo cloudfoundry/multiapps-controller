@@ -60,7 +60,7 @@ class MtaMetadataEntityAggregatorTest {
     }
 
     private void parseInput(String inputAppsLocation, String inputServicesLocation) {
-        this.inputEntities = new ArrayList<CloudEntity>();
+        this.inputEntities = new ArrayList<>();
         String inputJson;
 
         if (inputAppsLocation != null) {

@@ -8,14 +8,15 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesValidator;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 
-public class RouteParametersParser implements ParametersParser<Set<CloudRouteSummary>> {
+public class RouteParametersParser implements ParametersParser<Set<CloudRoute>> {
 
     private final String defaultHost;
     private final String defaultDomain;
@@ -37,7 +38,7 @@ public class RouteParametersParser implements ParametersParser<Set<CloudRouteSum
     }
 
     @Override
-    public Set<CloudRouteSummary> parse(List<Map<String, Object>> parametersList) {
+    public Set<CloudRoute> parse(List<Map<String, Object>> parametersList) {
         boolean noRoute = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.NO_ROUTE, false);
         if (noRoute) {
             return Collections.emptySet();
@@ -45,8 +46,8 @@ public class RouteParametersParser implements ParametersParser<Set<CloudRouteSum
         return getRoutes(parametersList);
     }
 
-    private Set<CloudRouteSummary> getRoutes(List<Map<String, Object>> parametersList) {
-        Set<CloudRouteSummary> routes = getApplicationRoutes(parametersList);
+    private Set<CloudRoute> getRoutes(List<Map<String, Object>> parametersList) {
+        Set<CloudRoute> routes = getApplicationRoutes(parametersList);
         if (!routes.isEmpty()) {
             return routes;
         }
@@ -64,7 +65,7 @@ public class RouteParametersParser implements ParametersParser<Set<CloudRouteSum
     }
 
     public List<String> getApplicationDomains(List<Map<String, Object>> parametersList) {
-        Set<CloudRouteSummary> routes = getApplicationRoutes(parametersList);
+        Set<CloudRoute> routes = getApplicationRoutes(parametersList);
         if (!routes.isEmpty()) {
             return getDomainsFromRoutes(routes);
         }
@@ -101,26 +102,26 @@ public class RouteParametersParser implements ParametersParser<Set<CloudRouteSum
      * @param domains
      * @return set of all routes created
      */
-    private Set<CloudRouteSummary> assembleRoutes(List<String> hosts, List<String> domains) {
-        Set<CloudRouteSummary> routes = new LinkedHashSet<>();
+    private Set<CloudRoute> assembleRoutes(List<String> hosts, List<String> domains) {
+        Set<CloudRoute> routes = new LinkedHashSet<>();
         for (String domain : domains) {
             if (!hosts.isEmpty()) {
                 addHostBasedRoutes(routes, domain, hosts);
             } else {
-                routes.add(buildCloudPathSummary("", domain));
+                routes.add(buildCloudRoute("", domain));
             }
         }
 
         return routes;
     }
 
-    private void addHostBasedRoutes(Set<CloudRouteSummary> routes, String domain, List<String> hosts) {
+    private void addHostBasedRoutes(Set<CloudRoute> routes, String domain, List<String> hosts) {
         for (String host : hosts) {
-            routes.add(buildCloudPathSummary(host, domain));
+            routes.add(buildCloudRoute(host, domain));
         }
     }
 
-    public Set<CloudRouteSummary> getApplicationRoutes(List<Map<String, Object>> parametersList) {
+    public Set<CloudRoute> getApplicationRoutes(List<Map<String, Object>> parametersList) {
         List<Map<String, Object>> routesMaps = RoutesValidator.applyRoutesType(PropertiesUtil.getPropertyValue(parametersList,
                                                                                                                SupportedParameters.ROUTES,
                                                                                                                null));
@@ -131,7 +132,7 @@ public class RouteParametersParser implements ParametersParser<Set<CloudRouteSum
                          .collect(Collectors.toSet());
     }
 
-    public CloudRouteSummary parseRouteMap(Map<String, Object> routeMap) {
+    public CloudRoute parseRouteMap(Map<String, Object> routeMap) {
         String routeString = (String) routeMap.get(SupportedParameters.ROUTE);
         boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
 
@@ -139,12 +140,13 @@ public class RouteParametersParser implements ParametersParser<Set<CloudRouteSum
             return null;
         }
 
-        return new ApplicationURI(routeString, noHostname).toCloudRouteSummary();
+        return new ApplicationURI(routeString, noHostname).toCloudRoute();
     }
 
-    private List<String> getDomainsFromRoutes(Set<CloudRouteSummary> routes) {
+    private List<String> getDomainsFromRoutes(Set<CloudRoute> routes) {
         return routes.stream()
-                     .map(CloudRouteSummary::getDomain)
+                     .map(route -> route.getDomain()
+                                        .getName())
                      .filter(Objects::nonNull)
                      .distinct()
                      .collect(Collectors.toList());
@@ -155,8 +157,8 @@ public class RouteParametersParser implements ParametersParser<Set<CloudRouteSum
         return PropertiesUtil.getPluralOrSingular(parametersList, pluralParameterName, singularParameterName);
     }
 
-    private CloudRouteSummary buildCloudPathSummary(String host, String domain) {
-        return new ApplicationURI(host, domain, routePath).toCloudRouteSummary();
+    private CloudRoute buildCloudRoute(String host, String domain) {
+        return new ApplicationURI(host, domain, routePath).toCloudRoute();
     }
 
     protected String getDefaultHost() {

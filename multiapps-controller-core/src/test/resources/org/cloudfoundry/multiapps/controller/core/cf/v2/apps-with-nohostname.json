@@ -16,26 +16,39 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": [
         "git://github.example.com/xs2-java/java-buildpack.git"
       ]
     },
-    "routes" : [ 
+    "routes" : [
       {
-        "domain" : "domain.to.test",
+        "appsUsingRoute": 0,
+        "domain" : {
+          "name": "domain.to.test"
+        },
         "host" : "normal-host",
-        "path" : ""
-      }, {
-        "domain" : "sub.sub.domain.to.test",
+        "path" : "",
+        "url": "normal-host.domain.to.test"
+      },
+      {
+        "appsUsingRoute": 0,
+        "domain" : {
+          "name": "sub.sub.domain.to.test"
+        },
         "host" : "",
-        "path" : "/with/path"
-      }, {
-        "domain" : "sub.domain.to.test",
+        "path" : "/with/path",
+        "url": "sub.sub.domain.to.test/with/path"
+      },
+      {
+        "appsUsingRoute": 0,
+        "domain" : {
+          "name": "sub.domain.to.test"
+        },
         "host" : "",
-        "path" : ""
-      } 
+        "path" : "",
+        "url": "sub.domain.to.test"
+      }
     ],
     "services": [],
     "env": {
@@ -43,20 +56,34 @@
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "foo",
-    "idleRoutes" : [ 
+    "idleRoutes" : [
       {
-        "domain" : "domain.to.test",
+        "appsUsingRoute": 0,
+        "domain" : {
+          "name": "domain.to.test"
+        },
         "host" : "normal-host",
-        "path" : ""
-      }, {
-        "domain" : "sub.sub.domain.to.test",
+        "path" : "",
+        "url": "normal-host.domain.to.test"
+      },
+      {
+        "appsUsingRoute": 0,
+        "domain" : {
+          "name": "sub.sub.domain.to.test"
+        },
         "host" : "",
-        "path" : "/with/path"
-      }, {
-        "domain" : "sub.domain.to.test",
+        "path" : "/with/path",
+        "url": "sub.sub.domain.to.test/with/path"
+      },
+      {
+        "appsUsingRoute": 0,
+        "domain" : {
+          "name": "sub.domain.to.test"
+        },
         "host" : "",
-        "path" : ""
-      } 
+        "path" : "",
+        "url": "sub.domain.to.test"
+      }
     ],
     "bindingParameters": {},
     "tasks": [],

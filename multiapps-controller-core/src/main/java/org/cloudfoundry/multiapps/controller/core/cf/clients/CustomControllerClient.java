@@ -1,13 +1,11 @@
 package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,48 +22,49 @@ public abstract class CustomControllerClient {
         this.webClient = new WebClientFactory().getWebClient(client);
     }
 
-    protected List<Map<String, Object>> getAllResources(String uri) {
-        List<Map<String, Object>> allResources = new ArrayList<>();
-        String nextUrl = uri;
-        while (!StringUtils.isEmpty(nextUrl)) {
-            nextUrl = addPageOfResources(nextUrl, allResources, null);
+    protected <T> List<T> getListOfResources(ResourcesResponseMapper<T> responseMapper, String uri, Object... urlVariables) {
+        PaginationV3 pagination = addPageOfResources(uri, responseMapper, urlVariables);
+        while (!StringUtils.isEmpty(pagination.getNextUri())) {
+            pagination = addPageOfResources(pagination.getNextUri(), responseMapper);
         }
-        return allResources;
+        return responseMapper.getMappedResources();
     }
 
-    protected CloudResourcesWithIncluded getAllResourcesWithIncluded(String path) {
-        List<Map<String, Object>> allResources = new ArrayList<>();
-        Map<String, Object> includedResources = new HashMap<>();
-        String nextUrl = path;
-        while (!StringUtils.isEmpty(nextUrl)) {
-            nextUrl = addPageOfResources(nextUrl, allResources, includedResources);
-        }
-        return CloudResourcesWithIncluded.of(allResources, includedResources);
+    private PaginationV3 addPageOfResources(String uri, ResourcesResponseMapper<?> responseMapper, Object... urlVariables) {
+        String responseString = webClient.get()
+                                         .uri(uri, urlVariables)
+                                         .retrieve()
+                                         .bodyToMono(String.class)
+                                         .block();
+        Map<String, Object> responseMap = JsonUtil.convertJsonToMap(responseString);
+        responseMapper.addResources(responseMap);
+        return PaginationV3.fromResponse(responseMap);
     }
 
-    private String addPageOfResources(String uri, List<Map<String, Object>> allResources, Map<String, Object> includedResources) {
-        String response = webClient.get()
-                                   .uri(uri)
-                                   .retrieve()
-                                   .bodyToMono(String.class)
-                                   .block();
-        Map<String, Object> responseMap = JsonUtil.convertJsonToMap(response);
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> newResources = (List<Map<String, Object>>) responseMap.get("resources");
-
-        if (!CollectionUtils.isEmpty(newResources)) {
-            allResources.addAll(newResources);
-        }
-        if (responseMap.containsKey("included") && includedResources != null) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> included = (Map<String, Object>) responseMap.get("included");
-            includedResources.putAll(included);
-        }
+    public static abstract class ResourcesResponseMapper<T> {
+        List<Map<String, Object>> queriedResources = new ArrayList<>();
+        Map<String, List<Object>> includedResources = new HashMap<>();
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> pagination = (Map<String, Object>) responseMap.get("pagination");
-        @SuppressWarnings("unchecked")
-        Map<String, Object> next = (Map<String, Object>) pagination.get("next");
-        return next == null ? null : URLDecoder.decode((String) next.get("href"), StandardCharsets.UTF_8);
+        public void addResources(Map<String, Object> responseMap) {
+            List<Map<String, Object>> newResources = (List<Map<String, Object>>) responseMap.get("resources");
+            if (newResources != null) {
+                queriedResources.addAll(newResources);
+            }
+            Map<String, List<Object>> included = (Map<String, List<Object>>) responseMap.get("included");
+            if (included != null) {
+                included.forEach((key, resources) -> includedResources.merge(key, resources, ListUtils::union));
+            }
+        }
+
+        public List<Map<String, Object>> getQueriedResources() {
+            return queriedResources;
+        }
+
+        public Map<String, List<Object>> getIncludedResources() {
+            return includedResources;
+        }
+
+        public abstract List<T> getMappedResources();
     }
 }

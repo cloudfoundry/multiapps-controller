@@ -6,14 +6,15 @@ import static org.mockito.ArgumentMatchers.anyString;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.ListUtil;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudRouteExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.ApplicationRoutesGetter;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.*;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceInstanceRoutesGetter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -22,13 +23,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.CloudTask;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 
 abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
 
 	@Mock
-	protected ApplicationRoutesGetter applicationRoutesGetter;
+	protected ServiceInstanceRoutesGetter serviceInstanceRoutesGetter;
 
 	protected StepInput stepInput;
 	protected StepOutput stepOutput;
@@ -73,6 +75,9 @@ abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep>
 		stepInput = JsonUtil.fromJson(resourceAsString, StepInput.class);
 		stepOutput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepOutputLocation, UndeployAppStepTest.class),
 				StepOutput.class);
+		stepInput.appsToDelete = stepInput.appsToDelete.stream()
+													   .map(this::addGuid)
+													   .collect(Collectors.toList());
 		prepareContext();
 		prepareClient();
 		Mockito.when(client.getTasks(Mockito.anyString())).thenReturn(Collections.emptyList());
@@ -94,29 +99,64 @@ abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep>
 		context.setVariable(Variables.APPS_TO_UNDEPLOY, ListUtil.cast(stepInput.appsToDelete));
 	}
 
+	private CloudApplicationExtended addGuid(CloudApplicationExtended app) {
+		return ImmutableCloudApplicationExtended.copyOf(app)
+												.withMetadata(ImmutableCloudMetadata.of(UUID.randomUUID()));
+	}
+
+	private CloudRouteExtended addGuid(CloudRouteExtended route) {
+		return ImmutableCloudRouteExtended.copyOf(route)
+										  .withMetadata(ImmutableCloudMetadata.of(UUID.randomUUID()));
+	}
+
 	private void prepareClient() {
-		Mockito.when(applicationRoutesGetter.getRoutes(anyString())).thenAnswer((invocation) -> {
-
-			String appName = (String) invocation.getArguments()[0];
-			return stepInput.appRoutesPerApplication.get(appName);
-
-		});
+		for (var app : stepInput.appsToDelete) {
+			var routes = stepInput.appRoutesPerApplication.getOrDefault(app.getName(), Collections.emptyList());
+			routes = routes.stream()
+						   .map(this::addGuid)
+						   .collect(Collectors.toList());
+			Mockito.when(client.getApplicationRoutes(Mockito.eq(app.getGuid())))
+				   .thenReturn(ListUtil.cast(routes));
+			var routeGuids = routes.stream()
+								   .map(CloudRoute::getGuid)
+								   .map(UUID::toString)
+								   .collect(Collectors.toList());
+			for (var route : routes) {
+				if (!route.getBoundServiceInstanceGuids()
+						  .isEmpty()) {
+					Mockito.when(serviceInstanceRoutesGetter.getServiceRouteBindings(Mockito.eq(routeGuids)))
+						   .thenReturn(route.getBoundServiceInstanceGuids()
+											.stream()
+											.map(serviceGuid -> createRouteBinding(serviceGuid, route.getGuid()))
+											.collect(Collectors.toList()));
+				}
+			}
+		}
 		Mockito.when(client.getTasks(anyString())).thenAnswer((invocation) -> {
-
 			String appName = (String) invocation.getArguments()[0];
 			return stepInput.tasksPerApplication.get(appName);
 
 		});
 		Mockito.when(client.getApplication(anyString(), any(Boolean.class))).thenAnswer((invocation) -> {
 			String appName = (String) invocation.getArguments()[0];
-			return stepInput.appsToDelete.stream().filter(app -> app.getName().equals(appName)).findFirst()
-					.orElse(null);
+			return stepInput.appsToDelete.stream()
+										 .filter(app -> app.getName()
+														   .equals(appName))
+										 .findFirst()
+										 .orElse(null);
 		});
 	}
 
+	private ServiceRouteBinding createRouteBinding(String serviceGuid, UUID routeGuid) {
+		return ImmutableServiceRouteBinding.builder()
+										   .routeId(routeGuid.toString())
+										   .serviceInstanceId(serviceGuid)
+										   .build();
+	}
+
 	protected static class StepInput {
-		protected final List<CloudApplicationExtended> appsToDelete = Collections.emptyList();
-		protected final Map<String, List<CloudRouteExtended>> appRoutesPerApplication = Collections.emptyMap();
+		protected List<CloudApplicationExtended> appsToDelete = Collections.emptyList();
+		protected Map<String, List<CloudRouteExtended>> appRoutesPerApplication = Collections.emptyMap();
 		protected final Map<String, List<CloudTask>> tasksPerApplication = Collections.emptyMap();
 	}
 

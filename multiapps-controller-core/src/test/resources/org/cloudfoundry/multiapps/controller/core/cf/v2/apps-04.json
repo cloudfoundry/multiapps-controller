@@ -12,14 +12,18 @@
     "diskQuota": 0,
     "routes": [
       {
-        "domain": "sofd60245639a",
-        "host": "module-1"
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
+        "host": "module-1",
+        "path": "",
+        "url": "module-1.sofd60245639a"
       }
     ],
     "services": [
       "techical-user-provider"
     ],
-    "runningInstances": 0,
     "env": [
       "TARGET_RUNTIME=tomee"
     ],
@@ -39,13 +43,16 @@
     "diskQuota": 0,
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "module-2",
-        "path" : ""
+        "path" : "",
+        "url": "module-2.sofd60245639a"
       }
     ],
     "services": [],
-    "runningInstances": 0,
     "env": [
       "TARGET_RUNTIME=tomee"
     ],

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.cloudfoundry.multiapps.common.AllowNulls;
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 
@@ -11,9 +12,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 import com.sap.cloudfoundry.client.facade.domain.CloudTask;
 import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
+import com.sap.cloudfoundry.client.facade.domain.Staging;
 
 @Value.Enclosing
 @Value.Immutable
@@ -24,7 +25,32 @@ public abstract class CloudApplicationExtended extends CloudApplication {
     @Nullable
     public abstract String getModuleName();
 
-    public abstract Set<CloudRouteSummary> getIdleRoutes();
+    @Value.Default
+    public int getMemory() {
+        return 0;
+    }
+
+    @Value.Default
+    public int getDiskQuota() {
+        return 0;
+    }
+
+    @Value.Default
+    public int getInstances() {
+        return 1;
+    }
+
+    @Nullable
+    public abstract Staging getStaging();
+
+    public abstract Set<CloudRoute> getRoutes();
+
+    public abstract List<String> getServices();
+
+    @AllowNulls
+    public abstract Map<String, String> getEnv();
+
+    public abstract Set<CloudRoute> getIdleRoutes();
 
     public abstract Map<String, Map<String, Object>> getBindingParameters();
 

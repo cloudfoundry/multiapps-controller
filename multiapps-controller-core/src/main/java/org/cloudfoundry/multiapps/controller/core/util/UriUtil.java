@@ -4,15 +4,14 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 
 public class UriUtil {
 
@@ -37,16 +36,9 @@ public class UriUtil {
         return uri.substring(protocolIndex + DEFAULT_SCHEME_SEPARATOR.length());
     }
 
-    public static <T extends CloudRoute> T matchRoute(List<T> routes, CloudRouteSummary routeSummary) {
+    public static String prettyPrintRoutes(Collection<CloudRoute> routes) {
         return routes.stream()
-                     .filter(routeSummary::describesTheSameUri)
-                     .findAny()
-                     .orElseThrow(() -> new NotFoundException(Messages.ROUTE_NOT_FOUND, routeSummary));
-    }
-
-    public static String prettyPrintRoutes(Set<CloudRouteSummary> routes) {
-        return routes.stream()
-                     .map(CloudRouteSummary::toUriString)
+                     .map(CloudRoute::getUrl)
                      .collect(Collectors.joining(", "));
     }
 

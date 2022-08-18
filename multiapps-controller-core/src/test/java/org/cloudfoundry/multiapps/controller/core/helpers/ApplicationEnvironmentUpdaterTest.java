@@ -16,7 +16,9 @@ import org.mockito.Mockito;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableLifecycle;
 
 class ApplicationEnvironmentUpdaterTest {
 
@@ -38,7 +40,15 @@ class ApplicationEnvironmentUpdaterTest {
     @MethodSource
     void testUpdateEnv(String filename, Expectation expectation) {
         Input input = JsonUtil.fromJson(TestUtil.getResourceAsString(filename, getClass()), Input.class);
-        ApplicationEnvironmentUpdater applicationEnvironmentUpdater = new ApplicationEnvironmentUpdater(input.app.toCloudApplication(),
+        CloudApplication app = ImmutableCloudApplication.builder()
+                                                        .metadata(CloudMetadata.defaultMetadata())
+                                                        .name(input.app.name)
+                                                        .state(CloudApplication.State.STOPPED)
+                                                        .lifecycle(ImmutableLifecycle.builder()
+                                                                                     .type(LifecycleType.DOCKER)
+                                                                                     .build())
+                                                        .build();
+        ApplicationEnvironmentUpdater applicationEnvironmentUpdater = new ApplicationEnvironmentUpdater(app, ENV_CONVERTER.asEnv(input.app.env),
                                                                                                         client).withPrettyPrinting(false);
         applicationEnvironmentUpdater.updateApplicationEnvironment(input.envPropertyKey, input.newKey, input.newValue);
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
@@ -59,13 +69,5 @@ class ApplicationEnvironmentUpdaterTest {
     private static class SimpleApp {
         String name;
         Map<String, Object> env;
-
-        CloudApplication toCloudApplication() {
-            return ImmutableCloudApplication.builder()
-                                            .metadata(CloudMetadata.defaultMetadata())
-                                            .name(name)
-                                            .env(ENV_CONVERTER.asEnv(env))
-                                            .build();
-        }
     }
 }

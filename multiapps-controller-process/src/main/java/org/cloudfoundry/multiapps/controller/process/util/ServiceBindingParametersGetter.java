@@ -100,6 +100,9 @@ public class ServiceBindingParametersGetter {
         CloudControllerClient client = context.getControllerClient();
         UUID serviceGuid = client.getRequiredServiceInstanceGuid(serviceName);
         CloudServiceBinding serviceBinding = client.getServiceBindingForApplication(application.getGuid(), serviceGuid);
+        if (serviceBinding == null) {
+            throw new SLException(Messages.SERVICE_INSTANCE_0_NOT_BOUND_TO_APP_1, serviceName, application.getName());
+        }
 
         try {
             return client.getServiceBindingParameters(serviceBinding.getGuid());

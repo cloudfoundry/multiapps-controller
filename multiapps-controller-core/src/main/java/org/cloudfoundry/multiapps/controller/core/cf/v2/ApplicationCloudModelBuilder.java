@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -16,7 +16,6 @@ import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
@@ -26,6 +25,7 @@ import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
+import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication.ProductizationState;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.parser.ApplicationAttributeUpdateStrategyParser;
 import org.cloudfoundry.multiapps.controller.core.parser.DockerInfoParser;
@@ -45,6 +45,8 @@ import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.CloudTask;
 
 public class ApplicationCloudModelBuilder {
@@ -59,6 +61,7 @@ public class ApplicationCloudModelBuilder {
     protected final DeployedMta deployedMta;
     protected final UserMessageLogger stepLogger;
     protected final AppSuffixDeterminer appSuffixDeterminer;
+    protected final CloudControllerClient client;
 
     protected final ParametersChainBuilder parametersChainBuilder;
 
@@ -76,6 +79,7 @@ public class ApplicationCloudModelBuilder {
         this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
         this.stepLogger = builder.userMessageLogger;
         this.appSuffixDeterminer = builder.appSuffixDeterminer;
+        this.client = builder.client;
     }
 
     protected CloudHandlerFactory createCloudHandlerFactory() {
@@ -92,8 +96,8 @@ public class ApplicationCloudModelBuilder {
     protected CloudApplicationExtended getApplication(Module module) {
         List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
         ApplicationRoutesCloudModelBuilder routesCloudModelBuilder = getApplicationRoutesCloudModelBuilder(parametersList);
-        Set<CloudRouteSummary> routes = getApplicationRoutes(module);
-        Set<CloudRouteSummary> idleRoutes = routesCloudModelBuilder.getIdleApplicationRoutes(module, parametersList);
+        Set<CloudRoute> routes = getApplicationRoutes(module);
+        Set<CloudRoute> idleRoutes = routesCloudModelBuilder.getIdleApplicationRoutes(module, parametersList);
         return ImmutableCloudApplicationExtended.builder()
                                                 .name(getApplicationName(module))
                                                 .moduleName(module.getName())
@@ -123,29 +127,26 @@ public class ApplicationCloudModelBuilder {
         return parseParameters(parametersList, new ApplicationAttributeUpdateStrategyParser());
     }
 
-    public Set<CloudRouteSummary> getApplicationRoutes(Module module) {
+    public Set<CloudRoute> getApplicationRoutes(Module module) {
         List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
         DeployedMtaApplication deployedApplication = findDeployedApplication(module);
         return getApplicationRoutesCloudModelBuilder(parametersList).getApplicationRoutes(module, parametersList, deployedApplication);
     }
 
     private ApplicationRoutesCloudModelBuilder getApplicationRoutesCloudModelBuilder(List<Map<String, Object>> parametersList) {
-        return new ApplicationRoutesCloudModelBuilder(deploymentDescriptor, getApplicationAttributesUpdateStrategy(parametersList));
+        return new ApplicationRoutesCloudModelBuilder(deploymentDescriptor, client, getApplicationAttributesUpdateStrategy(parametersList));
     }
 
     private DeployedMtaApplication findDeployedApplication(Module module) {
-        return deployedMta == null ? null
-            : findDeployedApplication(module.getName(), deployedMta, DeployedMtaApplication.ProductizationState.LIVE);
+        return deployedMta == null ? null : findDeployedApplication(module.getName(), deployedMta);
     }
 
-    private DeployedMtaApplication findDeployedApplication(String moduleName, DeployedMta deployedMta,
-                                                           DeployedMtaApplication.ProductizationState productizationState) {
+    private DeployedMtaApplication findDeployedApplication(String moduleName, DeployedMta deployedMta) {
         return deployedMta.getApplications()
                           .stream()
                           .filter(application -> application.getModuleName()
                                                             .equalsIgnoreCase(moduleName))
-                          .filter(application -> application.getProductizationState()
-                                                            .equals(productizationState))
+                          .filter(application -> ProductizationState.LIVE.equals(application.getProductizationState()))
                           .findFirst()
                           .orElse(null);
     }
@@ -170,12 +171,12 @@ public class ApplicationCloudModelBuilder {
         return getApplicationServices(module, this::filterExistingServicesRule);
     }
 
-    protected boolean allServicesRule(ResourceAndResourceType resourceAndResourceType) {
+    protected boolean allServicesRule(Resource resource, ResourceType resourceType) {
         return true;
     }
 
-    protected boolean filterExistingServicesRule(ResourceAndResourceType resourceAndResourceType) {
-        return !isExistingService(resourceAndResourceType.getResourceType());
+    protected boolean filterExistingServicesRule(Resource resource, ResourceType resourceType) {
+        return !isExistingService(resourceType);
     }
 
     private boolean isExistingService(ResourceType resourceType) {
@@ -227,24 +228,19 @@ public class ApplicationCloudModelBuilder {
                                                                                 .getSimpleName());
     }
 
-    protected List<String> getApplicationServices(Module module, Predicate<ResourceAndResourceType> filterRule) {
+    protected List<String> getApplicationServices(Module module, BiPredicate<Resource, ResourceType> filterRule) {
         Set<String> services = new LinkedHashSet<>();
         for (RequiredDependency dependency : module.getRequiredDependencies()) {
-            ResourceAndResourceType resourceWithType = getResourceWithType(dependency.getName());
-            if (resourceWithType != null && filterRule.test(resourceWithType)) {
-                CollectionUtils.addIgnoreNull(services, NameUtil.getServiceName(resourceWithType.getResource()));
+            Resource resource = getResource(dependency.getName());
+            if (resource == null || !CloudModelBuilderUtil.isService(resource)) {
+                continue;
+            }
+            ResourceType serviceType = CloudModelBuilderUtil.getResourceType(resource.getParameters());
+            if (filterRule.test(resource, serviceType)) {
+                CollectionUtils.addIgnoreNull(services, NameUtil.getServiceName(resource));
             }
         }
         return new ArrayList<>(services);
-    }
-
-    protected ResourceAndResourceType getResourceWithType(String dependencyName) {
-        Resource resource = getResource(dependencyName);
-        if (resource != null && CloudModelBuilderUtil.isService(resource)) {
-            ResourceType serviceType = CloudModelBuilderUtil.getResourceType(resource.getParameters());
-            return new ResourceAndResourceType(resource, serviceType);
-        }
-        return null;
     }
 
     protected List<ServiceKeyToInject> getServicesKeysToInject(Module module) {
@@ -293,6 +289,7 @@ public class ApplicationCloudModelBuilder {
         private String namespace;
         private UserMessageLogger userMessageLogger;
         private AppSuffixDeterminer appSuffixDeterminer;
+        private CloudControllerClient client;
 
         public T deploymentDescriptor(DeploymentDescriptor deploymentDescriptor) {
             this.deploymentDescriptor = deploymentDescriptor;
@@ -326,6 +323,11 @@ public class ApplicationCloudModelBuilder {
 
         public T appSuffixDeterminer(AppSuffixDeterminer appSuffixDeterminer) {
             this.appSuffixDeterminer = appSuffixDeterminer;
+            return self();
+        }
+
+        public T client(CloudControllerClient client) {
+            this.client = client;
             return self();
         }
 

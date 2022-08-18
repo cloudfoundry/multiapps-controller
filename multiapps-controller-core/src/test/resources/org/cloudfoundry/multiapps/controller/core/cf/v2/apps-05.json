@@ -16,15 +16,18 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "module-1",
-        "path" : ""
+        "path" : "",
+        "url": "module-1.sofd60245639a"
       }
     ],
     "services": [],
@@ -35,14 +38,22 @@
     "moduleName": "module-1",
     "idleRoutes": [
       {
-        "domain": "localhost",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "localhost"
+        },
         "host": "foo",
-        "path" : ""
+        "path" : "",
+        "url": "foo.localhost"
       },
       {
-        "domain": "localhost",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "localhost"
+        },
         "host": "bar",
-        "path" : ""
+        "path" : "",
+        "url": "bar.localhost"
       }
     ],
     "bindingParameters": {},
@@ -76,15 +87,18 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "module-2",
-        "path" : ""
+        "path" : "",
+        "url": "module-2.sofd60245639a"
       }
     ],
     "services": [],
@@ -95,14 +109,22 @@
     "moduleName": "module-2",
     "idleRoutes": [
       {
-        "domain": "localhost",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "localhost"
+        },
         "host": "baz",
-        "path" : ""
+        "path" : "",
+        "url": "baz.localhost"
       },
       {
-        "domain": "localhost",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "localhost"
+        },
         "host": "qux",
-        "path" : ""
+        "path" : "",
+        "url": "qux.localhost"
       }
     ],
     "bindingParameters": {},

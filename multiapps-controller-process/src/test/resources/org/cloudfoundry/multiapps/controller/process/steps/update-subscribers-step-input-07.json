@@ -47,9 +47,6 @@
           "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
         },
         "name": "foo",
-        "env": {
-          "plugins":"[]"
-        },
         "space": {
           "organization": {
             "metadata": {},
@@ -58,6 +55,9 @@
           "metadata": {},
           "name": "xsa"
         }
+      },
+      "appEnv": {
+        "plugins":"[]"
       },
       "relevantPublishedEntries": [
         {
@@ -112,9 +112,6 @@
           "guid": "4d14bc48-cf01-4e61-94e7-e78fee293f29"
         },
         "name": "bar",
-        "env": {
-          "plugins":"[]"
-        },
         "space": {
           "organization": {
             "metadata": {},
@@ -123,6 +120,9 @@
           "metadata": {},
           "name": "xsa"
         }
+      },
+      "appEnv": {
+        "plugins":"[]"
       },
       "relevantPublishedEntries": [
         {

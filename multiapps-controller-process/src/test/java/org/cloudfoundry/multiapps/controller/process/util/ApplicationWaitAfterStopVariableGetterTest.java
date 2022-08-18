@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
@@ -21,20 +23,38 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import org.mockito.MockitoAnnotations;
 
 class ApplicationWaitAfterStopVariableGetterTest {
 
     private static final String APP_NAME = "app-name";
 
-    private final ProcessContext context = createProcessContext();
+    @Mock
+    private StepLogger stepLogger;
+    @Mock
+    private CloudControllerClientProvider clientProvider;
+    @Mock
+    private CloudControllerClient client;
 
+    private ProcessContext context;
     private ApplicationWaitAfterStopVariableGetter delayVariableGetter;
 
     @BeforeEach
-    public void setup() {
+    void setup() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
+        Mockito.when(client.getApplicationEnvironment(Mockito.any(UUID.class)))
+               .thenReturn(Collections.emptyMap());
+        Mockito.when(clientProvider.getControllerClient(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+               .thenReturn(client);
+        context = new ProcessContext(MockDelegateExecution.createSpyInstance(), stepLogger, clientProvider);
+        context.setVariable(Variables.USER, "user");
+        context.setVariable(Variables.SPACE_GUID, "guid");
+        context.setVariable(Variables.CORRELATION_ID, "id");
         delayVariableGetter = new ApplicationWaitAfterStopVariableGetter();
     }
 
@@ -55,7 +75,11 @@ class ApplicationWaitAfterStopVariableGetterTest {
     @ParameterizedTest
     @MethodSource("testGetDelayFromAppEnv")
     void testGetDelayFromExistingAppEnv(String delayFromEnv, Duration expectedDelay) {
-        context.setVariable(Variables.EXISTING_APP, createApplicationWithDelayAfterStop(delayFromEnv));
+        context.setVariable(Variables.APP_TO_PROCESS, createApplication());
+        var app = createApplicationWithDelayAfterStop(delayFromEnv);
+        Mockito.when(client.getApplicationEnvironment(Mockito.eq(app.getGuid())))
+               .thenReturn(app.getEnv());
+        context.setVariable(Variables.EXISTING_APP, app);
         assertEquals(expectedDelay, delayVariableGetter.getDelayDurationFromAppEnv(context));
     }
 
@@ -67,7 +91,11 @@ class ApplicationWaitAfterStopVariableGetterTest {
 
     @Test
     void testStopDelayVariableIsSetFromExistingApp() {
-        context.setVariable(Variables.EXISTING_APP, createApplicationWithDelayAfterStop("1"));
+        context.setVariable(Variables.APP_TO_PROCESS, createApplication());
+        var app = createApplicationWithDelayAfterStop("1");
+        Mockito.when(client.getApplicationEnvironment(Mockito.eq(app.getGuid())))
+               .thenReturn(app.getEnv());
+        context.setVariable(Variables.EXISTING_APP, app);
         assertTrue(delayVariableGetter.isAppStopDelayEnvVariableSet(context));
     }
 
@@ -90,6 +118,15 @@ class ApplicationWaitAfterStopVariableGetterTest {
         assertEquals(Duration.ZERO, delayVariableGetter.getDelayDurationFromAppEnv(context));
     }
 
+    private CloudApplicationExtended createApplication() {
+        return ImmutableCloudApplicationExtended.builder()
+                                                .metadata(ImmutableCloudMetadata.builder()
+                                                                                .guid(UUID.randomUUID())
+                                                                                .build())
+                                                .name(APP_NAME)
+                                                .build();
+    }
+
     private CloudApplicationExtended createApplicationWithDelayAfterStop(String waitAfterAppStop) {
         return ImmutableCloudApplicationExtended.builder()
                                                 .metadata(ImmutableCloudMetadata.builder()
@@ -98,12 +135,6 @@ class ApplicationWaitAfterStopVariableGetterTest {
                                                 .name(APP_NAME)
                                                 .env(Map.of(Constants.VAR_WAIT_AFTER_APP_STOP, waitAfterAppStop))
                                                 .build();
-    }
-
-    private ProcessContext createProcessContext() {
-        return new ProcessContext(MockDelegateExecution.createSpyInstance(),
-                                  Mockito.mock(StepLogger.class),
-                                  Mockito.mock(CloudControllerClientProvider.class));
     }
 
 }

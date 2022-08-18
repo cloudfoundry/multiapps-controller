@@ -16,7 +16,6 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": [
         "git://github.example.com/xs2-java/java-buildpack.git"
@@ -24,24 +23,40 @@
     },
     "routes": [
       {
-        "domain": "cfapps.domain.com",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "cfapps.domain.com"
+        },
         "host": "abc",
-        "path" : ""
+        "path" : "",
+        "url": "abc.cfapps.domain.com"
       },
       {
-        "domain": "cfapps.domain.com",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "cfapps.domain.com"
+        },
         "host": "cba",
-        "path" : ""
+        "path" : "",
+        "url": "cba.cfapps.domain.com"
       },
       {
-        "domain": "cfapps.domain.moc",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "cfapps.domain.moc"
+        },
         "host": "abc",
-        "path" : ""
+        "path" : "",
+        "url": "abc.cfapps.domain.moc"
       },
       {
-        "domain": "cfapps.domain.moc",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "cfapps.domain.moc"
+        },
         "host": "cba",
-        "path" : ""
+        "path" : "",
+        "url": "cba.cfapps.domain.moc"
       }
     ],
     "services": [],

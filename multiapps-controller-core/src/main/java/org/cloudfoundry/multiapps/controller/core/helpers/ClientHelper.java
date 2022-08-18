@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 public class ClientHelper {
 
@@ -23,8 +23,9 @@ public class ClientHelper {
         this.client = client;
     }
 
-    public void deleteRoute(CloudRouteSummary route) {
-        client.deleteRoute(route.getHost(), route.getDomain(), route.getPath());
+    public void deleteRoute(CloudRoute route) {
+        client.deleteRoute(route.getHost(), route.getDomain()
+                                                 .getName(), route.getPath());
     }
 
     public String computeSpaceId(String orgName, String spaceName) {

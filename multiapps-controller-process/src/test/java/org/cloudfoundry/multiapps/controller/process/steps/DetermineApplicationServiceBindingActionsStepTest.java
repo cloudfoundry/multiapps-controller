@@ -6,11 +6,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceBindingParametersGetter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -20,7 +23,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 
 class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStepTest<DetermineApplicationServiceBindingActionsStep> {
 
@@ -29,6 +33,8 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
 
     @Mock
     private ServiceBindingParametersGetter serviceBindingParametersGetter;
+    @Mock
+    private AppBoundServiceInstanceNamesGetter appServicesGetter;
 
     static Stream<Arguments> testDetermineServiceBindUnbind() {
         return Stream.of(
@@ -79,6 +85,7 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
                                                                                                                                             .shouldKeepExistingServiceBindings(keepExistingBinding)
                                                                                                                                             .build();
         ImmutableCloudApplicationExtended.Builder applicationBuilder = ImmutableCloudApplicationExtended.builder()
+                                                                                                        .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                                                                                         .name(APP_NAME)
                                                                                                         .attributesUpdateStrategy(attributeUpdateStrategy);
         return servicePartFromMta ? applicationBuilder.addService(SERVICE_NAME)
@@ -92,13 +99,10 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
     }
 
     private void prepareClient(CloudApplicationExtended application, boolean serviceBindingExist) {
+        when(client.getApplication(APP_NAME)).thenReturn(application);
         if (serviceBindingExist) {
-            when(client.getApplication(APP_NAME)).thenReturn(ImmutableCloudApplication.copyOf(application)
-                                                                                      .withServices(SERVICE_NAME));
-            return;
+            when(appServicesGetter.getServiceInstanceNamesBoundToApp(application.getGuid())).thenReturn(List.of(SERVICE_NAME));
         }
-        when(client.getApplication(APP_NAME)).thenReturn(ImmutableCloudApplication.copyOf(application)
-                                                                                  .withServices(Collections.emptyList()));
     }
 
     private void prepareServiceBindingParametersGetter(Map<String, Object> mtaBindingParameters,
@@ -117,6 +121,10 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
                 return serviceBindingParametersGetter;
             }
 
+            @Override
+            protected AppBoundServiceInstanceNamesGetter getAppServicesGetter(CloudControllerClient client) {
+                return appServicesGetter;
+            }
         };
     }
 

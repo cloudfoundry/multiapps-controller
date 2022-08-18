@@ -16,15 +16,18 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "module-1",
-        "path" : ""
+        "path" : "",
+        "url": "module-1.sofd60245639a"
       }
     ],
     "services": [],
@@ -78,15 +81,18 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "module-2",
-        "path" : ""
+        "path" : "",
+        "url": "module-2.sofd60245639a"
       }
     ],
     "services": [],
@@ -126,15 +132,18 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "module-3",
-        "path" : ""
+        "path" : "",
+        "url": "module-3.sofd60245639a"
       }
     ],
     "services": [],
@@ -174,15 +183,18 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "sofd60245639a",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "sofd60245639a"
+        },
         "host": "module-4",
-        "path" : ""
+        "path" : "",
+        "url": "module-4.sofd60245639a"
       }
     ],
     "services": [],

@@ -23,13 +23,16 @@ import org.cloudfoundry.multiapps.mta.mergers.PlatformMerger;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Platform;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+
 public class CloudHandlerFactoryV3 extends HandlerFactoryV3 implements CloudHandlerFactory {
 
     @Override
     public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting,
                                                                         DeployedMta deployedMta, String deployId, String namespace,
                                                                         UserMessageLogger stepLogger,
-                                                                        AppSuffixDeterminer appSuffixDeterminer) {
+                                                                        AppSuffixDeterminer appSuffixDeterminer,
+                                                                        CloudControllerClient client) {
         return new ApplicationCloudModelBuilder.Builder().deploymentDescriptor(deploymentDescriptor)
                                                          .prettyPrinting(prettyPrinting)
                                                          .deployedMta(deployedMta)
@@ -37,6 +40,7 @@ public class CloudHandlerFactoryV3 extends HandlerFactoryV3 implements CloudHand
                                                          .namespace(namespace)
                                                          .userMessageLogger(stepLogger)
                                                          .appSuffixDeterminer(appSuffixDeterminer)
+                                                         .client(client)
                                                          .build();
     }
 

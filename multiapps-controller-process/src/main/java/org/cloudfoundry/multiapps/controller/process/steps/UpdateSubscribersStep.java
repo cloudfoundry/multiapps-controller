@@ -53,11 +53,6 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
-import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
 
 @Named("updateSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -107,17 +102,19 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         List<ConfigurationSubscription> subscriptions = configurationSubscriptionService.createQuery()
                                                                                         .onSelectMatching(updatedEntries)
                                                                                         .list();
+        ClientHelper clientHelper = new ClientHelper(clientForCurrentSpace);
         for (ConfigurationSubscription subscription : subscriptions) {
-            ClientHelper clientHelper = new ClientHelper(clientForCurrentSpace);
             CloudTarget target = targetCalculator.apply(clientHelper, subscription.getSpaceId());
             if (target == null) {
                 getStepLogger().warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
                 continue;
             }
-            CloudApplication updatedApplication = updateSubscriber(context, target, subscription);
+            CloudControllerClient client = getClient(context, target);
+            CloudApplication subscriberApp = client.getApplication(subscription.getAppName());
+            Map<String, String> appEnv = client.getApplicationEnvironment(subscriberApp.getGuid());
+            CloudApplication updatedApplication = updateSubscriber(context, subscription, client, subscriberApp, appEnv);
             if (updatedApplication != null) {
-                updatedApplication = addOrgAndSpaceIfNecessary(updatedApplication, target);
-                addApplicationToProperList(updatedSubscribers, updatedServiceBrokerSubscribers, updatedApplication);
+                addApplicationToProperList(updatedSubscribers, updatedServiceBrokerSubscribers, updatedApplication, appEnv);
             }
         }
         context.setVariable(Variables.UPDATED_SUBSCRIBERS, removeDuplicates(updatedSubscribers));
@@ -132,8 +129,9 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     private void addApplicationToProperList(List<CloudApplication> updatedSubscribers,
-                                            List<CloudApplication> updatedServiceBrokerSubscribers, CloudApplication updatedApplication) {
-        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(updatedApplication);
+                                            List<CloudApplication> updatedServiceBrokerSubscribers, CloudApplication updatedApplication,
+                                            Map<String, String> appEnv) {
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(updatedApplication, appEnv);
 
         if (appAttributes.get(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             updatedServiceBrokerSubscribers.add(updatedApplication);
@@ -142,48 +140,18 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         }
     }
 
-    private CloudApplication addOrgAndSpaceIfNecessary(CloudApplication application, CloudTarget cloudTarget) {
-        // The entity returned by the getApplication(String appName) method of
-        // the CF Java client does not contain a CloudOrganization,
-        // because the value of the 'inline-relations-depth' is hardcoded to 1
-        // (see the findApplicationResource method of
-        // org.cloudfoundry.client.lib.rest.CloudControllerClientImpl).
-        if (application.getSpace() == null || application.getSpace()
-                                                         .getOrganization() == null) {
-            CloudSpace space = createDummySpace(cloudTarget);
-            return ImmutableCloudApplication.copyOf(application)
-                                            .withSpace(space);
-        }
-        return application;
-    }
-
-    private CloudSpace createDummySpace(CloudTarget cloudTarget) {
-        CloudOrganization org = createDummyOrg(cloudTarget.getOrganizationName());
-        return ImmutableCloudSpace.builder()
-                                  .name(cloudTarget.getSpaceName())
-                                  .organization(org)
-                                  .build();
-    }
-
-    private CloudOrganization createDummyOrg(String orgName) {
-        return ImmutableCloudOrganization.builder()
-                                         .name(orgName)
-                                         .build();
-    }
-
     private List<CloudApplication> removeDuplicates(List<CloudApplication> applications) {
         Map<UUID, CloudApplication> applicationsMap = new LinkedHashMap<>();
         for (CloudApplication application : applications) {
-            applicationsMap.put(application.getMetadata()
-                                           .getGuid(),
-                                application);
+            applicationsMap.put(application.getGuid(), application);
         }
         return new ArrayList<>(applicationsMap.values());
     }
 
-    private CloudApplication updateSubscriber(ProcessContext context, CloudTarget cloudTarget, ConfigurationSubscription subscription) {
+    private CloudApplication updateSubscriber(ProcessContext context, ConfigurationSubscription subscription, CloudControllerClient client,
+                                              CloudApplication subscriberApp, Map<String, String> appEnv) {
         try {
-            return attemptToUpdateSubscriber(context, getClient(context, cloudTarget), subscription);
+            return attemptToUpdateSubscriber(context, client, subscription, subscriberApp, appEnv);
         } catch (CloudOperationException | SLException e) {
             String appName = subscription.getAppName();
             String mtaId = subscription.getMtaId();
@@ -194,7 +162,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     private CloudApplication attemptToUpdateSubscriber(ProcessContext context, CloudControllerClient client,
-                                                       ConfigurationSubscription subscription) {
+                                                       ConfigurationSubscription subscription, CloudApplication subscriberApp,
+                                                       Map<String, String> appEnv) {
         CloudHandlerFactory handlerFactory = CloudHandlerFactory.forSchemaVersion(MAJOR_SCHEMA_VERSION);
 
         DeploymentDescriptor dummyDescriptor = buildDummyDescriptor(subscription, handlerFactory);
@@ -218,16 +187,16 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
                                                                                                                    null, "",
                                                                                                                    context.getVariable(Variables.MTA_NAMESPACE),
                                                                                                                    getStepLogger(),
-                                                                                                                   StepsUtil.getAppSuffixDeterminer(context));
+                                                                                                                   StepsUtil.getAppSuffixDeterminer(context),
+                                                                                                                   client);
 
         Module module = dummyDescriptor.getModules()
                                        .get(0);
 
         CloudApplicationExtended application = applicationCloudModelBuilder.build(module, moduleToDeployHelper);
-        CloudApplication existingApplication = client.getApplication(subscription.getAppName());
 
         Map<String, String> updatedEnvironment = application.getEnv();
-        Map<String, String> currentEnvironment = new LinkedHashMap<>(existingApplication.getEnv());
+        Map<String, String> currentEnvironment = new LinkedHashMap<>(appEnv);
 
         boolean neededToBeUpdated = updateCurrentEnvironment(currentEnvironment, updatedEnvironment,
                                                              getPropertiesToTransfer(subscription, resolver));
@@ -238,8 +207,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
         getStepLogger().info(Messages.UPDATING_SUBSCRIBER, subscription.getAppName(), subscription.getMtaId(),
                              getRequiredDependency(subscription).getName());
-        client.updateApplicationEnv(existingApplication.getName(), currentEnvironment);
-        return existingApplication;
+        client.updateApplicationEnv(subscriberApp.getName(), currentEnvironment);
+        return subscriberApp;
     }
 
     private boolean updateCurrentEnvironment(Map<String, String> currentEnvironment, Map<String, String> updatedEnvironment,

@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.cf.v3;
 
+import java.util.Collections;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
@@ -18,6 +19,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.cf.v2.CloudModelBuilderTest {
 
@@ -63,6 +66,9 @@ class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.c
         deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor,
                                                                new ResolverBuilder(),
                                                                new ResolverBuilder()).resolve();
+        var client = Mockito.mock(CloudControllerClient.class);
+        Mockito.when(client.getApplicationRoutes(Mockito.any()))
+               .thenReturn(Collections.emptyList());
         return new org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder.Builder().deploymentDescriptor(deploymentDescriptor)
                                                                                                           .prettyPrinting(prettyPrinting)
                                                                                                           .deployedMta(deployedMta)
@@ -70,6 +76,7 @@ class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.c
                                                                                                           .namespace(namespace)
                                                                                                           .userMessageLogger(Mockito.mock(UserMessageLogger.class))
                                                                                                           .appSuffixDeterminer(appSuffixDeterminer)
+                                                                                                          .client(client)
                                                                                                           .build();
     }
 

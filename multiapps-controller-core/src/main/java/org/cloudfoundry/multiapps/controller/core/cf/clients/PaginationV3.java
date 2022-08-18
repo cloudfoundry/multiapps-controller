@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.core.cf.clients.v3;
+package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
 import java.util.Map;
 

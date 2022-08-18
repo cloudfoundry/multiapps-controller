@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationWaitAfterStopHandler;
@@ -26,14 +27,12 @@ public class StopAppStep extends SyncFlowableStepWithHooks implements BeforeStep
 
     @Inject
     private DeploymentTypeDeterminer deploymentTypeDeterminer;
-
     @Inject
     private ApplicationWaitAfterStopHandler waitAfterStopHandler;
 
     @Override
     public StepPhase executeStepInternal(ProcessContext context) {
-
-        CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
+        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
 
         CloudApplication existingApp = context.getVariable(Variables.EXISTING_APP);
         if (existingApp != null && !existingApp.getState()

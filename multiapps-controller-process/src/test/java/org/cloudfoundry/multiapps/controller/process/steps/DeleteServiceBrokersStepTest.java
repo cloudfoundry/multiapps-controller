@@ -13,6 +13,8 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.ListUtil;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.steps.CreateOrUpdateServiceBrokerStepTest.SimpleApplication;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -144,21 +146,22 @@ class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteServiceBro
     }
 
     private void initializeParameters(CloudOperationException deleteException) {
-        prepareContext();
-        prepareClient(deleteException);
+        var appsToUndeploy = toCloudApplications(input.applicationsToUndeploy);
+        prepareContext(ListUtil.cast(appsToUndeploy));
+        prepareClient(deleteException, appsToUndeploy);
     }
 
-    private void prepareContext() {
-        context.setVariable(Variables.APPS_TO_UNDEPLOY, toCloudApplications(input.applicationsToUndeploy));
+    private void prepareContext(List<CloudApplication> apps) {
+        context.setVariable(Variables.APPS_TO_UNDEPLOY, apps);
     }
 
-    private List<CloudApplication> toCloudApplications(List<SimpleApplication> applications) {
+    private List<CloudApplicationExtended> toCloudApplications(List<SimpleApplication> applications) {
         return applications.stream()
                            .map(SimpleApplication::toCloudApplication)
                            .collect(Collectors.toList());
     }
 
-    private void prepareClient(CloudOperationException deleteException) {
+    private void prepareClient(CloudOperationException deleteException, List<CloudApplicationExtended> apps) {
         Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false)))
                .then((Answer<CloudServiceBroker>) invocation -> {
                    String serviceBrokerName = (String) invocation.getArguments()[0];
@@ -174,10 +177,11 @@ class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteServiceBro
                    .when(client)
                    .deleteServiceBroker(Mockito.any());
         }
-
-        input.serviceBrokerNamesJobIds.entrySet()
-                                      .forEach(serviceBrokerNameJobId -> Mockito.when(client.deleteServiceBroker(serviceBrokerNameJobId.getKey()))
-                                                                                .thenReturn(serviceBrokerNameJobId.getValue()));
+        input.serviceBrokerNamesJobIds.forEach((name, jobId) -> Mockito.when(client.deleteServiceBroker(name)).thenReturn(jobId));
+        for (var app : apps) {
+            Mockito.when(client.getApplicationEnvironment(Mockito.eq(app.getGuid())))
+                   .thenReturn(app.getEnv());
+        }
     }
 
     private void assertStepPhaseStatus() {

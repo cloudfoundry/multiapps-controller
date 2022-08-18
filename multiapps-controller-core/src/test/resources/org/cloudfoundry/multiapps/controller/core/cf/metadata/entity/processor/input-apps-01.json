@@ -16,7 +16,6 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": [
         "java_buildpack",
@@ -25,9 +24,13 @@
     },
     "routes": [
       {
+        "appsUsingRoute": 0,
    		"host": "foo",
-   		"domain": "cfapps.neo.ondemand.com",
-   		"path": ""
+   		"domain": {
+          "name": "cfapps.neo.ondemand.com"
+        },
+   		"path": "",
+        "url": "foo.cfapps.neo.ondemand.com"
       }
     ],
     "services": [],
@@ -77,7 +80,6 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": [
         "java_buildpack",
@@ -86,9 +88,13 @@
     },
     "routes": [
       {
+        "appsUsingRoute": 0,
    		"host": "bar",
-   		"domain": "cfapps.neo.ondemand.com",
-   		"path": ""     
+   		"domain": {
+          "name": "cfapps.neo.ondemand.com"
+        },
+   		"path": "",
+        "url": "bar.cfapps.neo.ondemand.com"
       }
     ],
     "services": [],
@@ -138,7 +144,6 @@
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": [
         "java_buildpack",
@@ -147,9 +152,13 @@
     },
     "routes": [
       {
+        "appsUsingRoute": 0,
    		"host": "baz",
-   		"domain": "cfapps.neo.ondemand.com",
-   		"path": ""     
+   		"domain": {
+          "name": "cfapps.neo.ondemand.com"
+        },
+   		"path": "",
+        "url": "baz.cfapps.neo.ondemand.com"
       }
     ],
     "services": [],

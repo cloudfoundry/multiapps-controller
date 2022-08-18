@@ -4,16 +4,19 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
-import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudRouteExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.ApplicationRoutesGetter;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudRouteExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceRouteBinding;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceInstanceRoutesGetter;
 import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
-import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -21,7 +24,7 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 @Named("deleteApplicationRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -40,38 +43,59 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
                                                                                .getName());
     }
 
+    protected ServiceInstanceRoutesGetter getServiceRoutesGetter(CloudControllerClient client) {
+        return new ServiceInstanceRoutesGetter(client);
+    }
+
     private void deleteApplicationRoutes(CloudControllerClient client, CloudApplication cloudApplication) {
         getStepLogger().info(Messages.DELETING_APP_ROUTES, cloudApplication.getName());
-        ApplicationRoutesGetter applicationRoutesGetter = getApplicationRoutesGetter(client);
-        List<CloudRouteExtended> cloudApplicationRoutes = applicationRoutesGetter.getRoutes(cloudApplication.getName());
+        List<CloudRouteExtended> appRoutes = getApplicationRoutes(client, cloudApplication);
 
-        getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, cloudApplication.getName(), JsonUtil.toJson(cloudApplicationRoutes, true));
+        getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, cloudApplication.getName(), JsonUtil.toJson(appRoutes, true));
 
         client.updateApplicationRoutes(cloudApplication.getName(), Collections.emptySet());
-        for (CloudRouteSummary route : cloudApplication.getRoutes()) {
-            deleteApplicationRoutes(client, cloudApplicationRoutes, route);
+        var clientHelper = new ClientHelper(client);
+        for (CloudRouteExtended route : appRoutes) {
+            deleteApplicationRoute(clientHelper, route);
         }
         getStepLogger().debug(Messages.DELETED_APP_ROUTES, cloudApplication.getName());
     }
 
-    protected ApplicationRoutesGetter getApplicationRoutesGetter(CloudControllerClient client) {
-        return new ApplicationRoutesGetter(client);
+    private List<CloudRouteExtended> getApplicationRoutes(CloudControllerClient client, CloudApplication app) {
+        var routes = client.getApplicationRoutes(app.getGuid());
+        var routeGuids = routes.stream()
+                               .map(CloudRoute::getGuid)
+                               .map(UUID::toString)
+                               .collect(Collectors.toList());
+        var serviceInstanceRoutesGetter = getServiceRoutesGetter(client);
+        var serviceRouteBindings = serviceInstanceRoutesGetter.getServiceRouteBindings(routeGuids);
+        var routeIdsToServiceInstanceIds = serviceRouteBindings.stream()
+                                                                .collect(Collectors.groupingBy(ServiceRouteBinding::getRouteId,
+                                                                                               Collectors.mapping(ServiceRouteBinding::getServiceInstanceId,
+                                                                                                                  Collectors.toList())));
+        return routes.stream()
+                     .map(route -> addServicesToRoute(route, routeIdsToServiceInstanceIds))
+                     .collect(Collectors.toList());
     }
 
-    private void deleteApplicationRoutes(CloudControllerClient client, List<CloudRouteExtended> routes, CloudRouteSummary routeSummary) {
-        try {
-            CloudRouteExtended route = UriUtil.matchRoute(routes, routeSummary);
-            if (route.getAppsUsingRoute() > 1 || !route.getServiceRouteBindings().isEmpty()) {
-                getStepLogger().warn(Messages.ROUTE_NOT_DELETED, routeSummary.toUriString());
-                return;
-            }
-        } catch (NotFoundException e) {
-            getStepLogger().debug(org.cloudfoundry.multiapps.controller.core.Messages.ROUTE_NOT_FOUND, routeSummary.toUriString());
+    private CloudRouteExtended addServicesToRoute(CloudRoute route, Map<String, List<String>> routesToServices) {
+        var boundServiceGuids = routesToServices.getOrDefault(route.getGuid()
+                                                                   .toString(), Collections.emptyList());
+        return ImmutableCloudRouteExtended.builder()
+                                          .from(route)
+                                          .boundServiceInstanceGuids(boundServiceGuids)
+                                          .build();
+    }
+
+    private void deleteApplicationRoute(ClientHelper clientHelper, CloudRouteExtended route) {
+        if (route.getAppsUsingRoute() > 1 || !route.getBoundServiceInstanceGuids()
+                                                   .isEmpty()) {
+            getStepLogger().warn(Messages.ROUTE_NOT_DELETED, route.getUrl());
             return;
         }
-        getStepLogger().info(Messages.DELETING_ROUTE, routeSummary.toUriString());
-        new ClientHelper(client).deleteRoute(routeSummary);
-        getStepLogger().debug(Messages.ROUTE_DELETED, routeSummary.toUriString());
+        getStepLogger().info(Messages.DELETING_ROUTE, route.getUrl());
+        clientHelper.deleteRoute(route);
+        getStepLogger().debug(Messages.ROUTE_DELETED, route.getUrl());
     }
 
     @Override

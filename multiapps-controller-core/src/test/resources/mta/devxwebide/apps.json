@@ -16,15 +16,18 @@
     "memory": 128,
     "diskQuota": 0,
     "instances": 0,
-    "runningInstances": 0,
     "staging": {
       "buildpacks": []
     },
     "routes": [
       {
-        "domain": "cfapps.neo.ondemand.com",
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "cfapps.neo.ondemand.com"
+        },
         "host": "i027947-webide",
-        "path": ""
+        "path": "",
+        "url": "i027947-webide.cfapps.neo.ondemand.com"
       }
     ],
     "services": [

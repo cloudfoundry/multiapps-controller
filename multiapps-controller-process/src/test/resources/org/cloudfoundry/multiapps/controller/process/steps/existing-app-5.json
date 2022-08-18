@@ -2,24 +2,40 @@
   "name": "module-1",
   "routes": [
     {
-      "domain": "testdomain.com",
+      "appsUsingRoute": 0,
+      "domain": {
+        "name": "testdomain.com"
+      },
       "host": "foo",
-      "path": ""
+      "path": "",
+      "url": "foo.testdomain.com"
     },
     {
-      "domain": "testdomain.com",
+      "appsUsingRoute": 0,
+      "domain": {
+        "name": "testdomain.com"
+      },
       "host": "",
-      "path": "/path"
+      "path": "/path",
+      "url": "testdomain.com/path"
     },
     {
-      "domain": "testdomain.com",
+      "appsUsingRoute": 0,
+      "domain": {
+        "name": "testdomain.com"
+      },
       "host": "bar",
-      "path": "/another/path"
+      "path": "/another/path",
+      "url": "bar.testdomain.com/another/path"
     },
     {
-      "domain": "testdomain.com",
+      "appsUsingRoute": 0,
+      "domain": {
+        "name": "testdomain.com"
+      },
       "host": "",
-      "path": ""
+      "path": "",
+      "url": "testdomain.com"
     }
   ],
   "idleRoutes": []

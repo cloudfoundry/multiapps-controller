@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -37,10 +38,14 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
                                 .getName();
         CloudControllerClient client = context.getControllerClient();
         CloudApplication app = client.getApplication(appName);
-        ApplicationStartupState currentState = startupStateCalculator.computeCurrentState(app);
+        var appInstances = client.getApplicationInstances(app);
+        var appEnv = client.getApplicationEnvironment(app.getGuid());
+
+        ApplicationStartupState currentState = startupStateCalculator.computeCurrentState(app, appInstances, appEnv);
         getStepLogger().debug(Messages.CURRENT_STATE, appName, currentState);
-        ApplicationStartupState desiredState = computeDesiredState(context, app);
+        ApplicationStartupState desiredState = computeDesiredState(context, app, appEnv);
         getStepLogger().debug(Messages.DESIRED_STATE, appName, desiredState);
+
         CloudPackage cloudPackage = context.getVariable(Variables.CLOUD_PACKAGE);
         boolean appHasUnstagedContent = cloudPackage != null;
         Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(context).determineActionsToExecute(currentState, desiredState,
@@ -57,9 +62,9 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
                                                                                                  .getName());
     }
 
-    private ApplicationStartupState computeDesiredState(ProcessContext context, CloudApplication app) {
+    private ApplicationStartupState computeDesiredState(ProcessContext context, CloudApplication app, Map<String, String> appEnv) {
         boolean shouldNotStartAnyApp = context.getVariable(Variables.NO_START);
-        return startupStateCalculator.computeDesiredState(app, shouldNotStartAnyApp);
+        return startupStateCalculator.computeDesiredState(app, appEnv, shouldNotStartAnyApp);
     }
 
     private ActionCalculator getActionsCalculator(ProcessContext context) {

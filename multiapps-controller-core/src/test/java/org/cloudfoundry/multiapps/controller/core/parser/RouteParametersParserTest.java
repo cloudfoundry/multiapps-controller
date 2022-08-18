@@ -42,15 +42,15 @@ class RouteParametersParserTest {
                          // with plural hosts and domains parameters
                          Arguments.of(null, null, List.of("host1", "host2"), List.of("domain1.com", "domain2.com"), null,
                                       new Expectation(Expectation.Type.SET,
-                                                      Set.of(TestData.routeSummary("host1.domain1.com"),
-                                                             TestData.routeSummary("host2.domain1.com"),
-                                                             TestData.routeSummary("host1.domain2.com"),
-                                                             TestData.routeSummary("host2.domain2.com")))),
+                                                      Set.of(TestData.route("host1.domain1.com"),
+                                                             TestData.route("host2.domain1.com"),
+                                                             TestData.route("host1.domain2.com"),
+                                                             TestData.route("host2.domain2.com")))),
                          // with both singular and plural parameters, testing that only the plural parameters are taken
                          Arguments.of("host1", "domain1.com", List.of("host2"), List.of("domain2.com", "domain3.com"), null,
                                       new Expectation(Expectation.Type.SET,
-                                                      Set.of(TestData.routeSummary("host2.domain2.com"),
-                                                             TestData.routeSummary("host2.domain3.com")))),
+                                                      Set.of(TestData.route("host2.domain2.com"),
+                                                             TestData.route("host2.domain3.com")))),
                          // with only routes parameters
                          Arguments.of(null, null, null, null, List.of("my.custom.route"),
                                       new Expectation(Expectation.Type.STRING,
@@ -69,8 +69,8 @@ class RouteParametersParserTest {
                          // with routes parameters containing starting with http schema - it is removed
                          Arguments.of(null, null, null, null, List.of("https://my.custom.route", "http://*.my.custom.route"),
                                       new Expectation(Expectation.Type.SET,
-                                                      Set.of(TestData.routeSummary("my.custom.route"),
-                                                             TestData.routeSummary("*.my.custom.route")))));
+                                                      Set.of(TestData.route("my.custom.route"),
+                                                             TestData.route("*.my.custom.route")))));
     }
 
     @ParameterizedTest

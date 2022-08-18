@@ -2,14 +2,22 @@
   "name": "module-1",
   "routes": [
     {
-      "domain": "domain.com",
+      "appsUsingRoute": 0,
+      "domain": {
+        "name": "domain.com"
+      },
       "host": "test",
-      "path": "/51051"
+      "path": "/51051",
+      "url": "test.domain.com/51051"
     },
     {
-      "domain": "domain.com",
+      "appsUsingRoute": 0,
+      "domain": {
+        "name": "domain.com"
+      },
       "host": "test",
-      "path": "/51053"
+      "path": "/51053",
+      "url": "test.domain.com/51053"
     }
   ],
   "idleRoutes": []
