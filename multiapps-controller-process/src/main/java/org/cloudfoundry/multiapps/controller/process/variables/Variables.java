@@ -135,42 +135,10 @@ public interface Variables {
     Variable<Integer> MTA_MAJOR_SCHEMA_VERSION = ImmutableSimpleVariable.<Integer> builder()
                                                                         .name("mtaMajorSchemaVersion")
                                                                         .build();
-    // TODO: change to ImmutableSimpleVariable.<Duration> builder()
-    // .name("startTimeout")
-    // .defaultValue(Duration.ofHours(1))
-    // .build();
-    // in next tact
-    Variable<Duration> START_TIMEOUT = new Variable<>() {
-        @Override
-        public String getName() {
-            return "startTimeout";
-        }
-
-        @Override
-        public Duration getDefaultValue() {
-            return Duration.ofHours(1);
-        }
-
-        @Override
-        public Serializer<Duration> getSerializer() {
-            return new Serializer<>() {
-
-                @Override
-                public Object serialize(Duration object) {
-                    return object;
-                }
-
-                @Override
-                public Duration deserialize(Object serializedObject) {
-                    if (serializedObject instanceof Integer) {
-                        return Duration.ofSeconds((Integer) serializedObject);
-                    }
-                    return (Duration) serializedObject;
-                }
-            };
-        }
-    };
-
+    Variable<Duration> START_TIMEOUT = ImmutableSimpleVariable.<Duration> builder()
+                                                              .name("startTimeout")
+                                                              .defaultValue(Duration.ofHours(1))
+                                                              .build();
     Variable<Integer> UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = ImmutableSimpleVariable.<Integer> builder()
                                                                                         .name("updatedServiceBrokerSubscribersCount")
                                                                                         .build();
