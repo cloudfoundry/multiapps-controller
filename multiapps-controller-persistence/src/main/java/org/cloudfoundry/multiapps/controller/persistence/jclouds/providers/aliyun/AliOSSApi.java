@@ -1,14 +1,17 @@
 package org.cloudfoundry.multiapps.controller.persistence.jclouds.providers.aliyun;
 
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.google.common.base.Supplier;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.jclouds.domain.Credentials;
 import org.jclouds.location.Provider;
 import org.jclouds.location.suppliers.ProviderURISupplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.aliyun.oss.ClientBuilderConfiguration;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.common.comm.Protocol;
+import com.google.common.base.Supplier;
 
 @Singleton
 public class AliOSSApi {
@@ -29,6 +32,12 @@ public class AliOSSApi {
     }
 
     public OSS getOSSClient() {
-        return new OSSClientBuilder().build(endpoint, identity, credential);
+        return new OSSClientBuilder().build(endpoint, identity, credential, getClientBuilderConfiguration());
+    }
+
+    private ClientBuilderConfiguration getClientBuilderConfiguration() {
+        ClientBuilderConfiguration config = new ClientBuilderConfiguration();
+        config.setProtocol(Protocol.HTTPS);
+        return config;
     }
 }
