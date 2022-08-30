@@ -47,7 +47,8 @@
         <immutables.version>2.8.8</immutables.version>
         <micrometer.version>1.5.5</micrometer.version>
         <aliyun-sdk-oss.version>3.13.0</aliyun-sdk-oss.version>
-        <auto-service.version>1.0</auto-service.version>
+        <auto-service.version>1.0.1</auto-service.version>
+        <commons-codec.version>1.15</commons-codec.version>
         <java-cfenv.version>2.4.0</java-cfenv.version>
         <multiapps.version>2.10.0</multiapps.version>
         <jaxb-api.version>2.3.3</jaxb-api.version>
@@ -113,11 +114,18 @@
                         <source>11</source>
                         <target>11</target>
                         <annotationProcessorPaths>
-                            <dependency>
+                            <!-- Necessary to generate immutable classes and xml configuration to recognize alicloud implementation in jclouds
+                            generated file should be inside multiapps-controller-persistence/target/classes/META-INF/services -->
+                            <path>
                                 <groupId>org.immutables</groupId>
                                 <artifactId>value</artifactId>
                                 <version>${immutables.version}</version>
-                            </dependency>
+                            </path>
+                            <path>
+                                <groupId>com.google.auto.service</groupId>
+                                <artifactId>auto-service</artifactId>
+                                <version>${auto-service.version}</version>
+                            </path>
                         </annotationProcessorPaths>
                     </configuration>
                 </plugin>
@@ -767,8 +775,16 @@
             <!-- https://mvnrepository.com/artifact/com.google.auto.service/auto-service -->
             <dependency>
                 <groupId>com.google.auto.service</groupId>
-                <artifactId>auto-service</artifactId>
+                <artifactId>auto-service-annotations</artifactId>
                 <version>${auto-service.version}</version>
+            </dependency>
+            <!-- Transitive dependency from aliyun-sdk-oss. It is not included by default and fails during runtime with ClassNotFoundException. 
+             In order to enable alicloud objectstore implementation, we need to maintain it manually. -->
+            <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-ratelimiter -->
             <dependency>
