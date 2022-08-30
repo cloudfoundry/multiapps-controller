@@ -17,7 +17,6 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.UserInfoProvider;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.LockOwnerService;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
@@ -77,12 +76,15 @@ public class BootstrapServlet extends HttpServlet {
     }
 
     protected void initializeFileService() {
-        try {
-            int deletedFiles = fileService.deleteFilesEntriesWithoutContent();
-            LOGGER.info(MessageFormat.format(Messages.FILE_SERVICE_DELETED_FILES, deletedFiles));
-        } catch (FileStorageException e) {
-            LOGGER.error(MessageFormat.format(Messages.FILE_SERVICE_CLEANUP_FAILED, e.getMessage()), e);
-        }
+        new Thread(() -> {
+            try {
+                LOGGER.info(Messages.FILE_SERVICE_DELETING_FILES);
+                int deletedFiles = fileService.deleteFilesEntriesWithoutContent();
+                LOGGER.info(MessageFormat.format(Messages.FILE_SERVICE_DELETED_FILES, deletedFiles));
+            } catch (Exception e) {
+                LOGGER.error(MessageFormat.format(Messages.FILE_SERVICE_CLEANUP_FAILED, e.getMessage()), e);
+            }
+        }).start();
     }
 
     @Override
