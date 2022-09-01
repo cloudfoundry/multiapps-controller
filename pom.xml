@@ -23,7 +23,7 @@
         <commons-fileupload.version>1.4</commons-fileupload.version>
         <commons-lang3.version>3.11</commons-lang3.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <snakeyaml.version>1.27</snakeyaml.version>
+        <snakeyaml.version>1.31</snakeyaml.version>
         <httpclient.version>4.5.13</httpclient.version>
         <httpcore.version>4.4.13</httpcore.version>
         <eclipselink.version>2.7.9</eclipselink.version>
