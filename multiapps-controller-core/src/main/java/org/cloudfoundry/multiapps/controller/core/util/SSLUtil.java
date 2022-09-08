@@ -47,26 +47,4 @@ public class SSLUtil {
         }
     }
 
-    public static void useCaCertificateValidation(String certificatePath) {
-        try (InputStream is = new FileInputStream(certificatePath)) {
-
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-
-            X509Certificate caCertificate = (X509Certificate) CertificateFactory.getInstance("X.509")
-                                                                                .generateCertificate(is);
-
-            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyStore.load(null);
-            keyStore.setCertificateEntry("caCert", caCertificate);
-
-            trustManagerFactory.init(keyStore);
-
-            SSLContext context = SSLContext.getInstance("TLS");
-            context.init(null, trustManagerFactory.getTrustManagers(), null);
-            SSLContext.setDefault(context);
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
 }
