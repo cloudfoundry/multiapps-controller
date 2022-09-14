@@ -555,7 +555,7 @@ public interface Variables {
                                                                             .type(Variable.typeReference(FileEntry.class))
                                                                             .defaultValue(Collections.emptyList())
                                                                             .build();
-    Variable<List<ExtensionDescriptor>> MTA_EXTENSION_DESCRIPTOR_CHAIN = ImmutableJsonBinaryListVariableAllowingNulls.<ExtensionDescriptor> builder()
+    Variable<List<ExtensionDescriptor>> MTA_EXTENSION_DESCRIPTOR_CHAIN = ImmutableJsonBinaryListVariable.<ExtensionDescriptor> builder()
                                                                                                         .name("mtaExtensionDescriptorChain")
                                                                                                         .type(Variable.typeReference(ExtensionDescriptor.class))
                                                                                                         .build();
