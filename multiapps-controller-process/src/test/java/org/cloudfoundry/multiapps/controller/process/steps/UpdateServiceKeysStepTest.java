@@ -110,7 +110,8 @@ class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServiceKeysSt
     private void verifyDeleteCalls(List<String> serviceKeysNames, List<String> existingServiceKeysNames, boolean canDeleteServiceKeys) {
         if (canDeleteServiceKeys) {
             verifyKeysOperations(existingServiceKeysNames, serviceKeysNames,
-                                 existingServiceKeyName -> verify(client).deleteServiceBinding(eq(SERVICE_NAME), eq(existingServiceKeyName)));
+                                 existingServiceKeyName -> verify(client).deleteServiceBinding(eq(SERVICE_NAME),
+                                                                                               eq(existingServiceKeyName)));
             return;
         }
         verifyKeysOperations(existingServiceKeysNames, serviceKeysNames,
@@ -127,7 +128,7 @@ class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServiceKeysSt
     }
 
     private void verifyUpdateCall(String updatedServiceKeyName) {
-        verify(client).deleteServiceBinding(eq(SERVICE_NAME), eq(updatedServiceKeyName));
+        verify(client).deleteServiceBinding(SERVICE_NAME, updatedServiceKeyName);
         verify(client).createServiceKey(eq(SERVICE_NAME), eq(updatedServiceKeyName), any());
     }
 
