@@ -28,7 +28,6 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 
 public class ServiceBindingParametersGetter {
@@ -114,8 +113,8 @@ public class ServiceBindingParametersGetter {
             } else if (HttpStatus.BAD_GATEWAY == e.getStatusCode()) {
                 // TODO: this is a temporary fix for external error code mapping leading to incorrect 502 errors
                 context.getStepLogger()
-                .warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1_FIX,
-                                            application.getName(), serviceName);
+                       .warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1_FIX,
+                                                   application.getName(), serviceName);
                 return null;
             }
             throw e;
