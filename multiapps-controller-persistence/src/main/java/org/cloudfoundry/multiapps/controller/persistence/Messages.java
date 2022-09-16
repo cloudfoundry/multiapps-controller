@@ -40,6 +40,8 @@ public final class Messages {
     public static final String ACCESS_TOKEN_ALREADY_EXISTS = "Access token with ID \"{0}\" already exist";
     public static final String LOCK_OWNER_NOT_FOUND = "Lock owner entry with ID \"{0}\" not found";
     public static final String LOCK_OWNER_ALREADY_EXISTS = "Lock owner entry with ID \"{0}\" already exists";
+    public static final String INVALID_KEY_FORMAT = "Invalid key format: {0}";
+    public static final String GENERATING_KEY_FILE_FAILED = "Generating key failed: {0}";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";
