@@ -1,7 +1,11 @@
 package org.cloudfoundry.multiapps.controller.persistence.util;
 
+import java.nio.file.Path;
+
 import javax.inject.Named;
 import javax.sql.DataSource;
+
+import org.cloudfoundry.multiapps.controller.persistence.Constants;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -28,11 +32,29 @@ public class DataSourceFactory {
         hikariConfig.setIdleTimeout(60000);
         hikariConfig.setMinimumIdle(10);
         hikariConfig.addDataSourceProperty("tcpKeepAlive", true);
+
+        configureSSLClientKeyIfExists(service, hikariConfig);
+
         if (maximumPoolSize != null) {
             hikariConfig.setMaximumPoolSize(maximumPoolSize);
         }
         hikariConfig.setRegisterMbeans(true);
         return hikariConfig;
+    }
+
+    private void configureSSLClientKeyIfExists(CfJdbcService service, HikariConfig hikariConfig) {
+        String clientKey = (String) service.getCredentials()
+                                           .getMap()
+                                           .get("sslkey");
+        if (clientKey != null) {
+            configureClientCertificate(clientKey, hikariConfig);
+        }
+    }
+
+    private void configureClientCertificate(String clientKey, HikariConfig hikariConfig) {
+        ClientKeyConfigurationHandler sslKeyHandler = new ClientKeyConfigurationHandler();
+        Path encodedKeyPath = sslKeyHandler.createEncodedKeyFile(clientKey, Constants.SSL_CLIENT_KEY_FILE_NAME);
+        hikariConfig.addDataSourceProperty("sslkey", encodedKeyPath.toAbsolutePath());
     }
 
 }
