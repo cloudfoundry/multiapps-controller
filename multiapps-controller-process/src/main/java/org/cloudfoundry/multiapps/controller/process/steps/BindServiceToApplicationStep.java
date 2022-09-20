@@ -6,7 +6,6 @@ import java.util.Map;
 
 import javax.inject.Named;
 
-import org.cloudfoundry.client.v2.ClientV2Exception;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
@@ -14,6 +13,7 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
 
 import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
@@ -22,9 +22,6 @@ import com.sap.cloudfoundry.client.facade.CloudOperationException;
 @Named("bindServiceToApplicationStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BindServiceToApplicationStep extends SyncFlowableStep {
-
-    // Standard error code for already existing binding, more information: cloud_controller_ng/errors/v2.yml
-    private static final int CF_SERVICE_ALREADY_BOUND = 90003;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -63,8 +60,7 @@ public class BindServiceToApplicationStep extends SyncFlowableStep {
 
         @Override
         public void onError(CloudOperationException e, String applicationName, String serviceName) {
-            if ((e.getCause() instanceof ClientV2Exception) && ((ClientV2Exception) e.getCause()).getCode()
-                                                                                                 .equals(CF_SERVICE_ALREADY_BOUND)) {
+            if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
                 context.getStepLogger()
                        .warnWithoutProgressMessage(e, Messages.SERVICE_BINDING_BETWEEN_SERVICE_0_AND_APP_1_ALREADY_CREATED, serviceName,
                                                    applicationName);
