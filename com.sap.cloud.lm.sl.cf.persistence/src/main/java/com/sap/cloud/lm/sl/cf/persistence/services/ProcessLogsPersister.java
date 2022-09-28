@@ -6,6 +6,7 @@ import javax.inject.Named;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
+import com.sap.cloud.lm.sl.common.SLException;
 
 @Named("processLogsPersister")
 public class ProcessLogsPersister {
@@ -17,7 +18,16 @@ public class ProcessLogsPersister {
 
     public void persistLogs(DelegateExecution context) {
         for (ProcessLogger processLogger : processLoggerProvider.getExistingLoggers(getCorrelationId(context), getTaskId(context))) {
+            persistLogsInDatabase(processLogger);
+        }
+    }
+
+    private void persistLogsInDatabase(ProcessLogger processLogger) {
+        try {
             processLogger.persistLogFile(processLogsPersistenceService);
+        } catch (Exception e) {
+            throw new SLException(e, e.getMessage());
+        } finally {
             processLogger.deleteLogFile();
             processLogger.close();
             processLoggerProvider.remove(processLogger);
