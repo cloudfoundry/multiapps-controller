@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core;
 
-import java.util.concurrent.TimeUnit;
-
 public class Constants {
 
     public static final String DEPENDENCY_TYPE_SOFT = "soft";
@@ -32,14 +30,9 @@ public class Constants {
 
     // Variables
     public static final String ATTR_CORRELATION_ID = "correlation-id";
-    public static final String CLIENT_ID = "client_id";
+    public static final String EXCHANGED_TOKEN = "exchangedToken";
     public static final String RESTRICTED_UAA_CLIENTS = "restricted-uaa-clients";
 
     // Numeric constants
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l;
-
-    public static final long OAUTH_TOKEN_RETENTION_TIME_IN_SECONDS = TimeUnit.MINUTES.toSeconds(2);
-
-    public static final long BASIC_TOKEN_RETENTION_TIME_IN_SECONDS = TimeUnit.MINUTES.toSeconds(6);
-
 }

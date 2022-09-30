@@ -1,8 +1,9 @@
 package com.sap.cloud.lm.sl.cf.client;
 
-import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 public interface TokenProvider {
 
-    OAuth2AccessTokenWithAdditionalInfo getToken();
+    OAuth2AccessToken getToken();
+
 }

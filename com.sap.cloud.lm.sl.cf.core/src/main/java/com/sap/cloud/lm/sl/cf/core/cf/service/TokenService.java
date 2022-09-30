@@ -1,91 +1,64 @@
 package com.sap.cloud.lm.sl.cf.core.cf.service;
 
-import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executors;
+import java.util.Collection;
 
-import javax.inject.Inject;
-
-import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ConcurrentReferenceHashMap;
 
-import com.sap.cloud.lm.sl.cf.core.dao.AccessTokenDao;
-import com.sap.cloud.lm.sl.cf.core.dao.filters.OrderDirection;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.cf.core.model.AccessToken;
-import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
 
+/**
+ * Provides functionality for persisting, updating and removing tokens from a token store
+ */
 @Component
+@Profile("cf")
 public class TokenService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenService.class);
 
-    private final AccessTokenDao accessTokenDao;
-    private final TokenParserChain tokenParserChain;
-    private final Map<String, OAuth2AccessTokenWithAdditionalInfo> cachedOauth2AccessTokens = new ConcurrentReferenceHashMap<>();
+    @Autowired
+    protected JdbcTokenStore tokenStore;
 
-    @Inject
-    public TokenService(AccessTokenDao accessTokenDao, TokenParserChain tokenParserChain) {
-        this.accessTokenDao = accessTokenDao;
-        this.tokenParserChain = tokenParserChain;
+    /**
+     * Chooses a token among all tokens for this user in the token store.
+     * 
+     * @param userName the username
+     * @return the chosen token, or null if no token was found
+     */
+    public OAuth2AccessToken getToken(String userName) {
+        OAuth2AccessToken token = null;
+        Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByUserName(userName);
+        for (OAuth2AccessToken tokenx : tokens) {
+            // If a token is already found, overwrite it if the new token:
+            // 1) has a refresh token, and the current token hasn't, or
+            // 2) expires later than the current token
+            if (token == null || ((tokenx.getRefreshToken() != null) && (token.getRefreshToken() == null))
+                || (tokenx.getExpiresIn() > token.getExpiresIn())) {
+                token = tokenx;
+            }
+        }
+        logTokenInformation(userName, token);
+        return token;
+    }
+
+    private void logTokenInformation(String userName, OAuth2AccessToken token) {
+        if (token != null) {
+            LOGGER.debug(MessageFormat.format(Messages.ACCESS_TOKEN_RETRIEVED, userName, token.getExpiration()));
+        }
     }
 
     /**
-     * Chooses a token among all tokens for this user in the access token table.
-     *
-     * @param username the username
-     * @return the latest token, or throw an exception if token is not found
+     * Removes specific token from the tokenStore
+     * 
+     * @param token the token to be removed from the database
      */
-    public OAuth2AccessTokenWithAdditionalInfo getToken(String username) {
-        OAuth2AccessTokenWithAdditionalInfo cachedAccessToken = cachedOauth2AccessTokens.get(username);
-        if (shouldUseCachedToken(cachedAccessToken)) {
-            return cachedAccessToken;
-        }
-        List<AccessToken> accessTokens = getTokensByUsernameSortedByExpirationDateDescending(username);
-        if (accessTokens.isEmpty()) {
-            throw new IllegalStateException(MessageFormat.format(Messages.NO_VALID_TOKEN_FOUND, username));
-        }
-        OAuth2AccessTokenWithAdditionalInfo tokenByUser = getLatestToken(accessTokens);
-        cachedOauth2AccessTokens.put(username, tokenByUser);
-        deleteTokens(accessTokens.subList(1, accessTokens.size()));
-        return tokenByUser;
-    }
-
-    private boolean shouldUseCachedToken(OAuth2AccessTokenWithAdditionalInfo cachedAccessToken) {
-        return cachedAccessToken != null && !cachedAccessToken.getExpiresAt()
-                                                              .isBefore(Instant.now()
-                                                                               .plus(120, ChronoUnit.SECONDS));
-    }
-
-    private List<AccessToken> getTokensByUsernameSortedByExpirationDateDescending(String userName) {
-        return accessTokenDao.getTokensByUsernameSortedByExpirationDate(userName, OrderDirection.DESCENDING);
-    }
-
-    private OAuth2AccessTokenWithAdditionalInfo getLatestToken(List<AccessToken> accessTokens) {
-        AccessToken latestAccessToken = accessTokens.get(0);
-        return tokenParserChain.parse(new String(latestAccessToken.getValue(), StandardCharsets.UTF_8));
-    }
-
-    private void deleteTokens(List<AccessToken> accessTokens) {
-        if (accessTokens.isEmpty()) {
-            return;
-        }
-        Executors.newSingleThreadExecutor()
-                 .submit(() -> accessTokens.forEach(this::deleteToken));
-    }
-
-    private void deleteToken(AccessToken token) {
-        try {
-            accessTokenDao.remove(token);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-        }
+    public void removeToken(OAuth2AccessToken token) {
+        tokenStore.removeAccessToken(token);
     }
 }

@@ -2,40 +2,46 @@ package com.sap.cloud.lm.sl.cf.process.jobs;
 
 import static java.text.MessageFormat.format;
 
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.Date;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.dao.AccessTokenDao;
+import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component
 @Order(10)
+@Profile("cf")
 public class TokensCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokensCleaner.class);
 
-    protected final AccessTokenDao accessTokenDao;
+    protected TokenStore tokenStore;
 
     @Inject
-    public TokensCleaner(AccessTokenDao accessTokenDao) {
-        this.accessTokenDao = accessTokenDao;
+    public TokensCleaner(@Named("tokenStore") TokenStore tokenStore) {
+        this.tokenStore = tokenStore;
     }
 
     @Override
     public void execute(Date expirationTime) {
-        LocalDateTime date = ZonedDateTime.now()
-                                          .toLocalDateTime();
+        Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientId(SecurityUtil.CLIENT_ID);
         LOGGER.debug(CleanUpJob.LOG_MARKER, Messages.REMOVING_EXPIRED_TOKENS_FROM_TOKEN_STORE);
-        int deletedTokensCount = accessTokenDao.deleteTokensWithExpirationBefore(date);
-        LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.REMOVED_TOKENS_0, deletedTokensCount));
+        long removedTokens = tokens.stream()
+                                   .filter(OAuth2AccessToken::isExpired)
+                                   .peek(tokenStore::removeAccessToken)
+                                   .count();
+        LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.REMOVED_TOKENS_0, removedTokens));
     }
 
 }

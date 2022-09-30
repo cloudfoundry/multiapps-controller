@@ -26,8 +26,6 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_ENTRY_TABLE = "configuration_registry";
         public static final String CONFIGURATION_SUBSCRIPTION_TABLE = "configuration_subscription";
 
-        public static final String ACCESS_TOKEN_TABLE = "access_token";
-
     }
 
     public static class SequenceNames {
@@ -35,8 +33,6 @@ public class PersistenceMetadata {
         public static final String DEPLOY_TARGET_SEQUENCE = "deploy_target_sequence";
         public static final String CONFIGURATION_ENTRY_SEQUENCE = "configuration_entry_sequence";
         public static final String CONFIGURATION_SUBSCRIPTION_SEQUENCE = "configuration_subscription_sequence";
-
-        public static final String ACCESS_TOKEN_SEQUENCE = "access_token_sequence";
 
     }
 
@@ -60,13 +56,6 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_SUBSCRIPTION_RESOURCE_NAME = "resource_name";
         public static final String CONFIGURATION_SUBSCRIPTION_MODULE = "module";
         public static final String CONFIGURATION_SUBSCRIPTION_FILTER = "filter";
-
-        public static final String ACCESS_TOKEN_ID = "id";
-        public static final String ACCESS_TOKEN_VALUE = "value";
-        public static final String EXCHANGED_ACCESS_TOKEN_VALUE = "exchanged_access_token_value";
-        public static final String CLIENT_ID = "client_id";
-        public static final String ACCESS_TOKEN_USERNAME = "username";
-        public static final String ACCESS_TOKEN_EXPIRES_AT = "expires_at";
 
         public static final String ONGOING_OPERATION_SPACE_ID = "spaceId";
         public static final String ONGOING_OPERATION_STARTED_AT = "startedAt";

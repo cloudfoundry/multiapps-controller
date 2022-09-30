@@ -47,5 +47,4 @@
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-prepare_for_flowable_6.3.2-sap-10.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-create_shed_spring_table.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop-quartz-tables.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add-access-tokens-table.xml" />
 </databaseChangeLog>

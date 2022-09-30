@@ -1,18 +1,13 @@
 package com.sap.cloud.lm.sl.cf.core.security.token;
 
-import java.text.MessageFormat;
 import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Component;
-
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
 
 @Component
 public class TokenParserChain {
@@ -27,24 +22,17 @@ public class TokenParserChain {
         this.tokenParsers = tokenParsers;
     }
 
-    public OAuth2AccessTokenWithAdditionalInfo parse(String tokenString) {
-        OAuth2AccessTokenWithAdditionalInfo parsedToken = parseTokenString(tokenString);
-        logTokenInfo(parsedToken);
-        return parsedToken;
-    }
-
-    private OAuth2AccessTokenWithAdditionalInfo parseTokenString(String tokenString) {
-        return tokenParsers.stream()
-                           .map(tokenParser -> tokenParser.parse(tokenString))
-                           .filter(Optional::isPresent)
-                           .map(Optional::get)
-                           .findFirst()
-                           .orElseThrow(() -> new InternalAuthenticationServiceException(Messages.NO_TOKEN_PARSER_FOUND_FOR_THE_CURRENT_TOKEN));
-    }
-
-    private void logTokenInfo(OAuth2AccessTokenWithAdditionalInfo accessToken) {
-        LOGGER.debug(MessageFormat.format(Messages.PARSED_TOKEN_TYPE_0, accessToken.getType()));
-        LOGGER.debug(MessageFormat.format(Messages.PARSED_TOKEN_EXPIRES_IN_0, accessToken.getExpiresAt()));
+    public OAuth2AccessToken parse(String tokenString) {
+        for (TokenParser tokenParser : tokenParsers) {
+            OAuth2AccessToken parsedToken = tokenParser.parse(tokenString);
+            if (parsedToken != null) {
+                LOGGER.debug("Parsed token value: " + parsedToken.getValue());
+                LOGGER.debug("Parsed token type: " + parsedToken.getTokenType());
+                LOGGER.debug("Parsed token expires in: " + parsedToken.getExpiresIn());
+                return parsedToken;
+            }
+        }
+        return null;
     }
 
 }
