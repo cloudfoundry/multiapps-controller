@@ -101,6 +101,20 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public CloudServiceKey createAndFetchServiceKey(CloudServiceKey keyModel, String serviceInstanceName) {
+        logger.debug(Messages.CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2, keyModel.getName(), serviceInstanceName,
+                     SecureSerialization.toJson(keyModel.getCredentials()));
+        return delegate.createAndFetchServiceKey(keyModel, serviceInstanceName);
+    }
+
+    @Override
+    public void createServiceKey(CloudServiceKey keyModel, String serviceInstanceName) {
+        logger.debug(Messages.CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2, keyModel.getName(), serviceInstanceName,
+                     SecureSerialization.toJson(keyModel.getCredentials()));
+        delegate.createServiceKey(keyModel, serviceInstanceName);
+    }
+
+    @Override
     public void createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
         logger.debug(Messages.CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2, serviceKeyName, serviceInstanceName,
                      SecureSerialization.toJson(parameters));

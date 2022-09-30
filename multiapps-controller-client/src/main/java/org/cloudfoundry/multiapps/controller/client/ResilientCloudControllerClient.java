@@ -443,6 +443,16 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public CloudServiceKey createAndFetchServiceKey(CloudServiceKey keyModel, String serviceInstanceName) {
+        return executeWithRetry(() -> delegate.createAndFetchServiceKey(keyModel, serviceInstanceName));
+    }
+
+    @Override
+    public void createServiceKey(CloudServiceKey keyModel, String serviceInstanceName) {
+        executeWithRetry(() -> delegate.createServiceKey(keyModel, serviceInstanceName));
+    }
+
+    @Override
     public void createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
         executeWithRetry(() -> delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters));
     }
