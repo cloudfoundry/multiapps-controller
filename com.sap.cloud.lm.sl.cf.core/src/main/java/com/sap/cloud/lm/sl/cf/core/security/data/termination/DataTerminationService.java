@@ -110,7 +110,7 @@ public class DataTerminationService {
     protected CloudControllerClientImpl getCFClient() {
         CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
                                                                  configuration.getGlobalAuditorPassword(),
-                                                                 SecurityUtil.CF_CLIENT_ID,
+                                                                 SecurityUtil.CLIENT_ID,
                                                                  SecurityUtil.CLIENT_SECRET);
 
         CloudControllerClientImpl cfClient = new CloudControllerClientImpl(cloudCredentials,

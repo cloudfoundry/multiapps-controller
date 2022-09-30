@@ -73,7 +73,6 @@ public class Messages {
 
     // ERROR log messages
     public static final String COULD_NOT_COMPUTE_ORG_AND_SPACE = "Could not find org and space for space ID \"{0}\"";
-    public static final String ERROR_DURING_TOKENS_DELETION = "Error occurred while deleting access tokens on start!";
 
     // Process step errors
     public static final String ERROR_PREPARING_DEPLOY_PARAMETERS = "Error preparing deploy parameters";
@@ -474,7 +473,5 @@ public class Messages {
     public static final String REGISTERED_CLEANERS_IN_CLEAN_UP_JOB_0 = "Registered cleaners in clean-up job: {0}";
     public static final String MISSING_SERVICES_TO_DELETE = "Missing services to delete.";
     public static final String NO_CONTENT_TO_UPLOAD = "No content to upload";
-    public static final String REMOVING_ALL_ACCESS_TOKENS = "Removing all tokens from the token store...";
-
 
 }
