@@ -1,5 +1,16 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.inject.Named;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Logger;
@@ -8,23 +19,16 @@ import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.flowable.engine.delegate.DelegateExecution;
 
-import javax.inject.Named;
-import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
 @Named("processLoggerProvider")
 public class ProcessLoggerProvider {
 
-    private static final String LOG_LAYOUT = "#2.0#%d{yyyy MM dd HH:mm:ss.SSS}#%d{XXX}#%p#%c#%n%X{MsgCode}#%X{CSNComponent}#%X{DCComponent}##%X{DSRCorrelationId}#%X{Application}#%C#%X{User}#%X{Session}#%X{Transaction}#%X{DSRRootContextId}#%X{DSRTransaction}#%X{DSRConnection}#%X{DSRCounter}#%t##%X{ResourceBundle}#%n%m#%n%n";
+    static final String LOG_LAYOUT = "#2.0#%d{yyyy MM dd HH:mm:ss.SSS}#%d{XXX}#%p#%c#%n%X{MsgCode}#%X{CSNComponent}#%X{DCComponent}##%X{DSRCorrelationId}#%X{Application}#%C#%X{User}#%X{Session}#%X{Transaction}#%X{DSRRootContextId}#%X{DSRTransaction}#%X{DSRConnection}#%X{DSRCounter}#%t##%X{ResourceBundle}#%n%m#%n%n";
+
     private static final String PARENT_LOGGER = "com.sap.cloud.lm.sl.xs2";
     private static final String DEFAULT_LOG_NAME = "OPERATION";
     private static final String DEFAULT_LOG_DIR = "logs";
@@ -36,11 +40,15 @@ public class ProcessLoggerProvider {
         return getLogger(execution, DEFAULT_LOG_NAME);
     }
 
-    public ProcessLogger getLogger(DelegateExecution execution, String logName) {
-        return getLogger(execution, logName, null);
+    public ProcessLogger getLogger(DelegateExecution context, String logName) {
+        return getLogger(context, logName, loggerContext -> PatternLayout.newBuilder()
+                                                                         .withPattern(LOG_LAYOUT)
+                                                                         .withConfiguration(loggerContext.getConfiguration())
+                                                                         .build());
     }
 
-    public ProcessLogger getLogger(DelegateExecution execution, String logName, AbstractStringLayout layout) {
+    public ProcessLogger getLogger(DelegateExecution execution, String logName,
+                                   Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction) {
         String name = getLoggerName(execution, logName);
         String correlationId = getCorrelationId(execution);
         String spaceId = getSpaceId(execution);
@@ -50,7 +58,7 @@ public class ProcessLoggerProvider {
             return new NullProcessLogger(spaceId, execution.getProcessInstanceId(), activityId);
         }
         return loggersCache.computeIfAbsent(name, (String loggerName) -> createProcessLogger(spaceId, correlationId, activityId, loggerName,
-                                                                                             logNameWithExtension, layout));
+                                                                                             logNameWithExtension, layoutCreatorFunction));
     }
 
     private String getLoggerName(DelegateExecution execution, String logName) {
@@ -67,9 +75,9 @@ public class ProcessLoggerProvider {
     }
 
     private ProcessLogger createProcessLogger(String spaceId, String correlationId, String activityId, String loggerName, String logName,
-                                              AbstractStringLayout abstractStringLayout) {
+                                              Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction) {
         File logFile = getLocalFileByLoggerName(loggerName);
-        LoggerContext loggerContext = initializeLoggerContext(loggerName, logFile, abstractStringLayout);
+        LoggerContext loggerContext = initializeLoggerContext(loggerName, logFile, layoutCreatorFunction);
         Logger logger = loggerContext.getLogger(loggerName);
         return new ProcessLogger(loggerContext, logger, logFile, logName, spaceId, correlationId, activityId);
     }
@@ -79,10 +87,21 @@ public class ProcessLoggerProvider {
         return new File(DEFAULT_LOG_DIR, fileName);
     }
 
-    private LoggerContext initializeLoggerContext(String loggerName, File logFile, AbstractStringLayout abstractStringLayout) {
-
+    private LoggerContext initializeLoggerContext(String loggerName, File logFile,
+                                                  Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction) {
         LoggerContext loggerContext = new LoggerContext(loggerName);
-        FileAppender fileAppender = initializeStartedAppender(loggerContext, logFile, abstractStringLayout, loggerName);
+        try {
+            attachFileAppender(loggerName, logFile, layoutCreatorFunction, loggerContext);
+        } catch (Exception e) {
+            loggerContext.close();
+            throw new SLException(e, e.getMessage());
+        }
+        return loggerContext;
+    }
+
+    private void attachFileAppender(String loggerName, File logFile, Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction,
+                                    LoggerContext loggerContext) {
+        FileAppender fileAppender = createFileAppender(loggerName, logFile, layoutCreatorFunction, loggerContext);
         fileAppender.start();
         loggerContext.getConfiguration()
                      .addAppender(fileAppender);
@@ -92,24 +111,15 @@ public class ProcessLoggerProvider {
         addFileAppenderToRootLogger(loggerContext, fileAppender);
         disableConsoleLogging(loggerContext);
         loggerContext.updateLoggers();
-
-        return loggerContext;
     }
 
-    private FileAppender initializeStartedAppender(LoggerContext loggerContext, File logFile, AbstractStringLayout layout,
-                                                   String loggerName) {
-        if (layout == null) {
-            layout = PatternLayout.newBuilder()
-                                  .withPattern(LOG_LAYOUT)
-                                  .build();
-        }
+    private FileAppender createFileAppender(String loggerName, File logFile,
+                                            Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction, LoggerContext context) {
         return FileAppender.newBuilder()
                            .setName(loggerName)
-                           .withAppend(true)
                            .withFileName(logFile.toString())
-                           .setLayout(layout)
-                           .setConfiguration(loggerContext.getConfiguration())
-                           .withLocking(true)
+                           .setLayout(layoutCreatorFunction.apply(context))
+                           .setConfiguration(context.getConfiguration())
                            .build();
     }
 

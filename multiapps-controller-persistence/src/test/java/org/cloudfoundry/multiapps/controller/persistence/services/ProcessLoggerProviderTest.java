@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import static org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider.LOG_LAYOUT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -9,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 
-import org.apache.logging.log4j.core.layout.AbstractStringLayout;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.AfterEach;
@@ -93,8 +94,7 @@ class ProcessLoggerProviderTest {
     @Test
     void testNullProcessLoggerName() {
         processLogger = processLoggerProvider.getLogger(execution);
-        assertTrue(processLogger.getLoggerName()
-                                .equals("NULL_LOGGER"));
+        assertEquals("NULL_LOGGER", processLogger.getLoggerName());
     }
 
     @Test
@@ -103,7 +103,10 @@ class ProcessLoggerProviderTest {
 
         processLogger = processLoggerProvider.getLogger(execution, temporaryLogFile.getFileName()
                                                                                    .toString(),
-                                                        null);
+                                                        loggerContext -> PatternLayout.newBuilder()
+                                                                                      .withPattern(LOG_LAYOUT)
+                                                                                      .withConfiguration(loggerContext.getConfiguration())
+                                                                                      .build());
 
         assertEquals(CORRELATION_ID, processLogger.getProcessId());
         assertEquals(TASK_ID, processLogger.getActivityId());
