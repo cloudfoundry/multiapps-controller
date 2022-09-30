@@ -37,7 +37,7 @@
         <jackson.databind.version>2.13.2.2</jackson.databind.version>
         <liquibase.version>4.9.0</liquibase.version>
         <liquibase-slf4j.version>4.0.0</liquibase-slf4j.version>
-        <cloudfoundry-client.version>2.19.0</cloudfoundry-client.version>
+        <cloudfoundry-client.version>2.20.0</cloudfoundry-client.version>
         <jgit.version>4.11.9.201909030838-r</jgit.version>
         <swagger.version>1.6.2</swagger.version>
         <jclouds.version>2.4.0</jclouds.version>
