@@ -4,13 +4,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
+import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,7 +25,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.web.client.HttpClientErrorException;
 
 import com.sap.cloud.lm.sl.cf.client.CloudControllerClientSupportingCustomUserIds;
@@ -120,19 +123,25 @@ public class AuthorizationCheckerTest {
     }
 
     private void setUpMocks(boolean hasPermissions, boolean hasAccess, Exception e) {
-        DefaultOAuth2AccessToken accessToken = new DefaultOAuth2AccessToken("testTokenValue");
-        accessToken.setScope(new HashSet<>());
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+                                                              "testTokenValue",
+                                                              Instant.now(),
+                                                              Instant.now()
+                                                                     .plusSeconds(1000),
+                                                              new HashSet<>());
+        OAuth2AccessTokenWithAdditionalInfo accessTokenWithAdditionalInfo = new OAuth2AccessTokenWithAdditionalInfo(accessToken,
+                                                                                                                    new HashMap<>());
         CloudSpace space = new CloudSpace(null, SPACE, new CloudOrganization(null, ORG));
         ClientHelper clientHelper = Mockito.mock(ClientHelper.class);
 
         if (hasAccess) {
             when(spaceGetter.findSpace(client, ORG, SPACE)).thenReturn(space);
-            when(clientHelper.computeOrgAndSpace(SPACE_ID)).thenReturn(new Pair<String, String>(ORG, SPACE));
+            when(clientHelper.computeOrgAndSpace(SPACE_ID)).thenReturn(new Pair<>(ORG, SPACE));
         } else {
             when(clientHelper.computeOrgAndSpace(SPACE_ID)).thenReturn(null);
         }
         when(authorizationChecker.getClientHelper(client)).thenReturn(clientHelper);
-        userInfo = new UserInfo(USER_ID, USERNAME, accessToken);
+        userInfo = new UserInfo(USER_ID, USERNAME, accessTokenWithAdditionalInfo);
         List<String> spaceDevelopersList = new ArrayList<>();
         if (hasPermissions) {
             spaceDevelopersList.add(USER_ID);

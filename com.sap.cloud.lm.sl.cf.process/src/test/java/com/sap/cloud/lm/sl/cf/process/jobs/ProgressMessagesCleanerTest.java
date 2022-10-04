@@ -12,7 +12,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 
-public class ProgressMessagesCleanerTest {
+class ProgressMessagesCleanerTest {
 
     private static final Date EXPIRATION_TIME = new Date(5000);
 
@@ -27,7 +27,7 @@ public class ProgressMessagesCleanerTest {
     }
 
     @Test
-    public void testExecute() {
+    void testExecute() {
         cleaner.execute(EXPIRATION_TIME);
         verify(progressMessageService).removeOlderThan(EXPIRATION_TIME);
     }

@@ -1,14 +1,14 @@
 package com.sap.cloud.lm.sl.cf.client.util;
 
-import java.util.Map;
+import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import java.util.Map;
 
 public class TokenProperties {
 
-    private static final String CLIENT_ID_KEY = "client_id";
-    private static final String USER_NAME_KEY = "user_name";
-    private static final String USER_ID_KEY = "user_id";
+    public static final String CLIENT_ID_KEY = "client_id";
+    public static final String USER_NAME_KEY = "user_name";
+    public static final String USER_ID_KEY = "user_id";
 
     private String clientId;
     private String userName;
@@ -20,7 +20,7 @@ public class TokenProperties {
         this.userId = userId;
     }
 
-    public static TokenProperties fromToken(OAuth2AccessToken token) {
+    public static TokenProperties fromToken(OAuth2AccessTokenWithAdditionalInfo token) {
         String clientId = getTokenProperty(token, CLIENT_ID_KEY);
         String userName = getTokenProperty(token, USER_NAME_KEY);
         String userId = getTokenProperty(token, USER_ID_KEY);
@@ -28,8 +28,8 @@ public class TokenProperties {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T getTokenProperty(OAuth2AccessToken token, String key) {
-        Map<String, Object> additionalInformation = token.getAdditionalInformation();
+    private static <T> T getTokenProperty(OAuth2AccessTokenWithAdditionalInfo token, String key) {
+        Map<String, Object> additionalInformation = token.getAdditionalInfo();
         return (T) additionalInformation.get(key);
     }
 
