@@ -46,9 +46,9 @@ import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.cloudfoundry.client.lib.domain.Upload;
 import org.cloudfoundry.client.lib.domain.UploadToken;
+import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.client.lib.rest.CloudControllerRestClient;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.client.ResponseErrorHandler;
 
 import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
@@ -795,7 +795,7 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public OAuth2AccessToken login() {
+    public OAuth2AccessTokenWithAdditionalInfo login() {
         return executeWithRetry(() -> cc.login());
     }
 

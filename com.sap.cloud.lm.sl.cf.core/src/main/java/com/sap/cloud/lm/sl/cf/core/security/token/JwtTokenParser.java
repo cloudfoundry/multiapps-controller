@@ -1,9 +1,11 @@
 package com.sap.cloud.lm.sl.cf.core.security.token;
 
 import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -14,8 +16,6 @@ import org.springframework.security.jwt.crypto.sign.InvalidSignatureException;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
 import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.security.jwt.crypto.sign.SignatureVerifier;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.uaa.UAAClient;
@@ -54,21 +54,20 @@ public class JwtTokenParser implements TokenParser {
     }
 
     @Override
-    public OAuth2AccessToken parse(String tokenString) {
+    public Optional<OAuth2AccessTokenWithAdditionalInfo> parse(String tokenString) {
         try {
             verifyToken(tokenString);
-
-            return tokenFactory.createToken(tokenString);
+            return Optional.of(tokenFactory.createToken(tokenString));
         } catch (IllegalStateException e) {
-            LOGGER.debug("Error parsing jwt token", e);
-            return null;
+            LOGGER.error(e.getMessage(), e);
+            return Optional.empty();
         }
     }
 
     protected void verifyToken(String tokenString) {
         try {
             decodeAndVerify(tokenString);
-        } catch (InvalidTokenException e) {
+        } catch (Exception e) {
             refreshTokenKey();
             decodeAndVerify(tokenString);
         }
@@ -79,7 +78,7 @@ public class JwtTokenParser implements TokenParser {
         try {
             JwtHelper.decodeAndVerify(tokenString, getSignatureVerifier(getCachedTokenKey()));
         } catch (InvalidSignatureException e) {
-            throw new InvalidTokenException(e.getMessage(), e);
+            throw new InternalAuthenticationServiceException(e.getMessage(), e);
         }
     }
 

@@ -1,71 +1,67 @@
 package com.sap.cloud.lm.sl.cf.client.util;
 
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Base64.Decoder;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-import org.cloudfoundry.client.lib.util.JsonUtil;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component
 public class TokenFactory {
-    public static final String DUMMY_TOKEN = "DUMMY";
-    public static final UUID DUMMY_UUID = new UUID(0, 0);
 
     // Scopes:
     public static final String SCOPE_CC_READ = "cloud_controller.read";
     public static final String SCOPE_CC_WRITE = "cloud_controller.write";
     public static final String SCOPE_CC_ADMIN = "cloud_controller.admin";
-    public static final String SCOPE_SCIM_USERIDS = "scim.userids";
-    public static final String SCOPE_PASSWORD_WRITE = "password.write";
     public static final String SCOPE_OPENID = "openid";
 
     // Token Body elements:
     public static final String SCOPE = "scope";
-    public static final String EXP = "exp";
-    public static final String USER_NAME = "user_name";
-    public static final String USER_ID = "user_id";
     public static final String CLIENT_ID = "client_id";
+    public static final String EXPIRES_AT_KEY = "exp";
+    public static final String USER_NAME = "username";
+    public static final String ISSUED_AT_KEY = "iat";
 
-    public OAuth2AccessToken createToken(String tokenString) {
+    public OAuth2AccessTokenWithAdditionalInfo createToken(String tokenString) {
         Map<String, Object> tokenInfo = parseToken(tokenString);
         return createToken(tokenString, tokenInfo);
     }
 
-    public OAuth2AccessToken createDummyToken(String userName, String clientId) {
-        List<String> scope = Arrays.asList(SCOPE_CC_READ, SCOPE_CC_WRITE, SCOPE_CC_ADMIN, SCOPE_SCIM_USERIDS, SCOPE_PASSWORD_WRITE,
-                                           SCOPE_OPENID);
-        Map<String, Object> dummyTokenInfo = new HashMap<>();
-        dummyTokenInfo.put(SCOPE, scope);
-        dummyTokenInfo.put(EXP, Long.MAX_VALUE / 1000);
-        dummyTokenInfo.put(USER_NAME, userName);
-        dummyTokenInfo.put(USER_ID, DUMMY_UUID.toString());
-        dummyTokenInfo.put(CLIENT_ID, clientId);
-        return createToken(DUMMY_TOKEN, dummyTokenInfo);
+    @SuppressWarnings("unchecked")
+    public OAuth2AccessTokenWithAdditionalInfo createToken(String tokenString, Map<String, Object> tokenInfo) {
+        List<String> scope = (List<String>) tokenInfo.get(SCOPE);
+        Number expiresAt = (Number) tokenInfo.get(EXPIRES_AT_KEY);
+        Number instantiatedAt = (Number) tokenInfo.get(ISSUED_AT_KEY);
+        List<String> requiredElements = Arrays.asList(SCOPE, EXPIRES_AT_KEY, ISSUED_AT_KEY);
+        if (scope == null || expiresAt == null || instantiatedAt == null) {
+            throw new IllegalStateException(MessageFormat.format("One or more of the following elements are missing from the token: \"{0}\"",
+                                                                 requiredElements));
+        }
+        return new OAuth2AccessTokenWithAdditionalInfo(createOAuth2AccessToken(tokenString, scope, expiresAt, instantiatedAt), tokenInfo);
     }
 
-    @SuppressWarnings("unchecked")
-    public OAuth2AccessToken createToken(String tokenString, Map<String, Object> tokenInfo) {
-        List<String> scope = (List<String>) tokenInfo.get(SCOPE);
-        Number exp = (Number) tokenInfo.get(EXP);
-        if (scope == null || exp == null) {
-            return null;
+    private OAuth2AccessToken createOAuth2AccessToken(String tokenString, List<String> scope, Number expiresAt, Number instantiatedAt) {
+        try {
+            return new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+                                         tokenString,
+                                         Instant.ofEpochSecond(instantiatedAt.longValue()),
+                                         Instant.ofEpochSecond(expiresAt.longValue()),
+                                         new HashSet<>(scope));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
         }
-        DefaultOAuth2AccessToken token = new DefaultOAuth2AccessToken(tokenString);
-        token.setExpiration(new Date(exp.longValue() * 1000));
-        token.setScope(new HashSet<String>(scope));
-        token.setAdditionalInformation(tokenInfo);
-        return token;
     }
 
     private Map<String, Object> parseToken(String tokenString) {
@@ -79,7 +75,7 @@ public class TokenFactory {
     }
 
     private String decode(String string) {
-        Decoder decoder = Base64.getUrlDecoder();
+        Base64.Decoder decoder = Base64.getUrlDecoder();
         return new String(decoder.decode(string), StandardCharsets.UTF_8);
     }
 

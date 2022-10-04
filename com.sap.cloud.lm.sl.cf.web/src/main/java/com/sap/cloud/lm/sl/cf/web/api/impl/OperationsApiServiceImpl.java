@@ -301,8 +301,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     protected String getAuthenticatedUser(SecurityContext securityContext) {
         String user = null;
         if (securityContext.getUserPrincipal() != null) {
-            user = securityContext.getUserPrincipal()
-                                  .getName();
+            user = SecurityContextUtil.getUsername(securityContext.getUserPrincipal());
         } else {
             throw new WebApplicationException(Status.UNAUTHORIZED);
         }

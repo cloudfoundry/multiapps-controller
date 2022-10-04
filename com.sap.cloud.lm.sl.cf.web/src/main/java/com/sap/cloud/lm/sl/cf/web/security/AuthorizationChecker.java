@@ -82,9 +82,6 @@ public class AuthorizationChecker {
     }
 
     boolean checkPermissions(UserInfo userInfo, String orgName, String spaceName, boolean readOnly) {
-        if (applicationConfiguration.areDummyTokensEnabled() && isDummyToken(userInfo)) {
-            return true;
-        }
         if (hasAdminScope(userInfo)) {
             return true;
         }
@@ -95,19 +92,14 @@ public class AuthorizationChecker {
     }
 
     boolean checkPermissions(UserInfo userInfo, String spaceGuid, boolean readOnly) {
-        if (applicationConfiguration.areDummyTokensEnabled() && isDummyToken(userInfo)) {
-            return true;
-        }
         if (hasAdminScope(userInfo)) {
             return true;
         }
-
         UUID spaceUUID = UUID.fromString(spaceGuid);
         CloudControllerClientSupportingCustomUserIds client = (CloudControllerClientSupportingCustomUserIds) clientProvider.getControllerClient(userInfo.getName());
         if (PlatformType.CF.equals(applicationConfiguration.getPlatformType())) {
             return hasPermissions(client, userInfo.getId(), spaceUUID, readOnly);
         }
-
         Pair<String, String> location = getClientHelper(client).computeOrgAndSpace(spaceGuid);
         if (location == null) {
             throw new NotFoundException(Messages.ORG_AND_SPACE_NOT_FOUND, spaceGuid);
@@ -157,15 +149,9 @@ public class AuthorizationChecker {
         return retrier.executeWithRetry(() -> spaceGetter.findSpace(client, orgName, spaceName)) != null;
     }
 
-    private boolean isDummyToken(UserInfo userInfo) {
-        return userInfo.getToken()
-                       .getValue()
-                       .equals(TokenFactory.DUMMY_TOKEN);
-    }
-
     private boolean hasAdminScope(UserInfo userInfo) {
         return userInfo.getToken()
-                       .getScope()
+                       .getScopes()
                        .contains(TokenFactory.SCOPE_CC_ADMIN);
     }
 

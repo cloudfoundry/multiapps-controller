@@ -1,9 +1,11 @@
 package com.sap.cloud.lm.sl.cf.core.security.token;
 
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import java.util.Optional;
+
+import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 public interface TokenParser {
 
-    OAuth2AccessToken parse(String tokenString);
+    Optional<OAuth2AccessTokenWithAdditionalInfo> parse(String tokenString);
 
 }
