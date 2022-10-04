@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 
 import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
@@ -57,7 +57,7 @@ public abstract class TokenGenerator {
         long expirationInSeconds = ((Number) oAuth2AccessTokenWithAdditionalInfo.getAdditionalInfo()
                                                                                 .get(EXPIRES_AT_KEY)).longValue();
         return Instant.ofEpochSecond(expirationInSeconds)
-                      .atZone(ZoneOffset.UTC)
+                      .atZone(ZoneId.systemDefault())
                       .toLocalDateTime();
     }
 }
