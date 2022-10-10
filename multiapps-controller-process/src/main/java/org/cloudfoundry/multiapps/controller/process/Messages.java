@@ -248,8 +248,10 @@ public class Messages {
     public static final String OPERATION_ID = "Operation ID: {0}";
     public static final String MTA_SCHEMA_VERSION_DETECTED_AS = "Detected MTA schema version: \"{0}\"";
     public static final String DEPLOYING_IN_ORG_0_AND_SPACE_1 = "Deploying in org \"{0}\" and space \"{1}\"";
-    public static final String NO_DEPLOYED_MTA_DETECTED = "No deployed MTA detected - this is initial deployment";
-    public static final String DEPLOYED_MTA_DETECTED_WITH_VERSION = "Detected deployed MTA with namespace \"{0}\", ID \"{1}\" and version \"{2}\"";
+    public static final String NO_DEPLOYED_MTA_DETECTED = "No deployed MTA detected - this is initial deployment of MTA with ID \"{0}\"";
+    public static final String NO_DEPLOYED_MTA_DETECTED_WITH_NAMESPACE = "No deployed MTA detected - this is initial deployment of MTA with ID \"{0}\" and namespace \"{1}\"";
+    public static final String DETECTED_DEPLOYED_MTA = "Detected deployed MTA with ID \"{0}\" and version \"{1}\"";
+    public static final String DETECTED_DEPLOYED_MTA_WITH_NAMESPACE = "Detected deployed MTA with ID \"{0}\", version \"{1}\" and namespace \"{2}\"";
     public static final String ASSUMED_LIVE_AND_IDLE_COLORS = "Assuming {0} is the live and {1} is the idle MTA color";
     public static final String DEPLOYED_MTA_COLOR = "Deployed MTA color: {0}";
     public static final String NEW_MTA_COLOR = "New MTA color: {0}";
