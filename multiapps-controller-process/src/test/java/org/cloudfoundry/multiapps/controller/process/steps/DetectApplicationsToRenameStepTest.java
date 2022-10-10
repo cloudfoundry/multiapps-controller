@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,7 +24,9 @@ import org.mockito.Mockito;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableLifecycle;
 
 class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectApplicationsToRenameStep> {
 
@@ -169,6 +172,11 @@ class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectAppl
     private CloudApplication createApplication(String name) {
         return ImmutableCloudApplication.builder()
                                         .name(name)
+                                        .state(CloudApplication.State.STOPPED)
+                                        .lifecycle(ImmutableLifecycle.builder()
+                                                                     .type(LifecycleType.BUILDPACK)
+                                                                     .data(Map.of("stack", "", "buildpacks", List.of()))
+                                                                     .build())
                                         .build();
     }
 

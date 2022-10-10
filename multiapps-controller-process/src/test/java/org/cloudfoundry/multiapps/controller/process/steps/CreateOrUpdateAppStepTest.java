@@ -38,6 +38,8 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
     private static final String SERVICE_NAME = "test-service";
     private static final String SERVICE_KEY_NAME = "test-service-key";
     private static final String SERVICE_KEY_ENV_NAME = "test-service-key-env";
+    private static final Staging DEFAULT_STAGING = ImmutableStaging.builder()
+                                                                   .build();
 
     static Stream<Arguments> testHandleApplicationAttributes() {
         return Stream.of(
@@ -46,9 +48,9 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
                          Arguments.of(ImmutableStaging.builder().command("command1").healthCheckType("none").addBuildpack("buildpackUrl").build(),
                                       128, 256, TestData.routeSet("example.com", "foo-bar.xyz")),
                          // (2) Disk quota is 0:
-                         Arguments.of(null, 0, 256, Collections.emptySet()),
+                         Arguments.of(DEFAULT_STAGING, 0, 256, Collections.emptySet()),
                          // (3) Memory is 0:
-                         Arguments.of(null, 1024, 0, Collections.emptySet())
+                         Arguments.of(DEFAULT_STAGING, 1024, 0, Collections.emptySet())
 //@formatter:on             
         );
     }
@@ -64,7 +66,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
         assertStepFinishedSuccessfully();
         Integer expectedDiskQuota = diskQuota == 0 ? null : diskQuota;
         Integer expectedMemory = memory == 0 ? null : memory;
-        verify(client).createApplication(APP_NAME, staging, expectedDiskQuota, expectedMemory, routes);
+        verify(client).createApplication(APP_NAME, staging, expectedDiskQuota, expectedMemory, null, routes);
         assertTrue(context.getVariable(Variables.VCAP_APP_PROPERTIES_CHANGED));
     }
 
@@ -104,7 +106,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
-        verify(client).createApplication(APP_NAME, dockerStaging, 128, 256, Collections.emptySet());
+        verify(client).createApplication(APP_NAME, dockerStaging, 128, 256, null, Collections.emptySet());
         verify(stepLogger).info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, APP_NAME, dockerInfo.getImage());
     }
 

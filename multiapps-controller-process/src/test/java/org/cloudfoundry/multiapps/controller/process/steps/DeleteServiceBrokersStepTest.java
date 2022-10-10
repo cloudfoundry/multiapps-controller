@@ -177,7 +177,8 @@ class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteServiceBro
                    .when(client)
                    .deleteServiceBroker(Mockito.any());
         }
-        input.serviceBrokerNamesJobIds.forEach((name, jobId) -> Mockito.when(client.deleteServiceBroker(name)).thenReturn(jobId));
+        input.serviceBrokerNamesJobIds.forEach((name, jobId) -> Mockito.when(client.deleteServiceBroker(name))
+                                                                       .thenReturn(jobId));
         for (var app : apps) {
             Mockito.when(client.getApplicationEnvironment(Mockito.eq(app.getGuid())))
                    .thenReturn(app.getEnv());

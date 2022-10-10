@@ -16,9 +16,11 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.mockito.Mock;
 
+import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
 
 public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     extends SyncFlowableStepTest<DetermineDesiredStateAchievingActionsStep> {
@@ -76,9 +78,11 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
         when(client.getApplication(anyString())).thenReturn(app);
         if (hasCloudPacakge) {
             context.setVariable(Variables.CLOUD_PACKAGE, ImmutableCloudPackage.builder()
-                                                                              .metadata(ImmutableCloudMetadata.builder()
-                                                                                                              .guid(UUID.randomUUID())
-                                                                                                              .build())
+                                                                              .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
+                                                                              .type(CloudPackage.Type.DOCKER)
+                                                                              .data(ImmutableDockerData.builder()
+                                                                                                       .image("cloudfoundry/test")
+                                                                                                       .build())
                                                                               .build());
         }
     }

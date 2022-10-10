@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
@@ -26,6 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import org.mockito.MockitoAnnotations;
 
@@ -102,9 +102,7 @@ class ApplicationWaitAfterStopVariableGetterTest {
     @Test
     void testStopDelayVariableIsNotSet() {
         CloudApplicationExtended appWithNoWaitVar = ImmutableCloudApplicationExtended.builder()
-                                                                                     .metadata(ImmutableCloudMetadata.builder()
-                                                                                                                     .guid(UUID.randomUUID())
-                                                                                                                     .build())
+                                                                                     .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                                                                      .name(APP_NAME)
                                                                                      .build();
         context.setVariable(Variables.APP_TO_PROCESS, appWithNoWaitVar);
@@ -120,18 +118,14 @@ class ApplicationWaitAfterStopVariableGetterTest {
 
     private CloudApplicationExtended createApplication() {
         return ImmutableCloudApplicationExtended.builder()
-                                                .metadata(ImmutableCloudMetadata.builder()
-                                                                                .guid(UUID.randomUUID())
-                                                                                .build())
+                                                .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                                 .name(APP_NAME)
                                                 .build();
     }
 
     private CloudApplicationExtended createApplicationWithDelayAfterStop(String waitAfterAppStop) {
         return ImmutableCloudApplicationExtended.builder()
-                                                .metadata(ImmutableCloudMetadata.builder()
-                                                                                .guid(UUID.randomUUID())
-                                                                                .build())
+                                                .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                                 .name(APP_NAME)
                                                 .env(Map.of(Constants.VAR_WAIT_AFTER_APP_STOP, waitAfterAppStop))
                                                 .build();

@@ -54,6 +54,7 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudBuild;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableDropletInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
 import com.sap.cloudfoundry.client.facade.domain.Status;
 
 class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
@@ -72,6 +73,11 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
                                                                                                            .createdAt(LocalDateTime.now())
                                                                                                            .guid(PACKAGE_GUID)
                                                                                                            .build())
+                                                                           .type(CloudPackage.Type.DOCKER)
+                                                                           .data(ImmutableDockerData.builder()
+                                                                                                    .image("cloudfoundry/test")
+                                                                                                    .build())
+                                                                           .status(Status.AWAITING_UPLOAD)
                                                                            .build();
     private final MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
     private final CloudPackagesGetter cloudPackagesGetter = mock(CloudPackagesGetter.class);

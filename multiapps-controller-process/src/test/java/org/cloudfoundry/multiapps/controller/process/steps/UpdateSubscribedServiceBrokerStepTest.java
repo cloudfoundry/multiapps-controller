@@ -87,7 +87,7 @@ class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<UpdateS
 
     private void prepareClient(StepInput input) {
         Mockito.when(client.getApplicationEnvironment(Mockito.eq(APP_GUID)))
-            .thenReturn(input.brokerApplication.getAppEnv());
+               .thenReturn(input.brokerApplication.getAppEnv());
         Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false)))
                .thenReturn(null);
         if (input.brokerApplication.brokerName.equals(input.brokerFromClient.name)) {

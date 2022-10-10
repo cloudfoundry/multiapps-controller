@@ -89,9 +89,7 @@ class PollStartAppStatusExecutionTest {
 
     private CloudApplicationExtended buildApplication(int instancesCount) {
         return ImmutableCloudApplicationExtended.builder()
-                                                .metadata(ImmutableCloudMetadata.builder()
-                                                                                .guid(UUID.randomUUID())
-                                                                                .build())
+                                                .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                                 .name(APP_NAME)
                                                 .instances(instancesCount)
                                                 .build();

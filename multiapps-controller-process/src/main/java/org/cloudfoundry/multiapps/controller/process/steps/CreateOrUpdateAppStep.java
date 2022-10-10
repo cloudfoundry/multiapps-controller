@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
@@ -148,7 +149,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                        .info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, app.getName(), app.getDockerInfo()
                                                                                         .getImage());
             }
-            client.createApplication(app.getName(), app.getStaging(), diskQuota, memory, app.getRoutes());
+            client.createApplication(app.getName(), app.getStaging(), diskQuota, memory, app.getV3Metadata(), app.getRoutes());
             context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, true);
         }
 
@@ -187,6 +188,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationAttributes() {
+            updateMetadata();
+
             List<UpdateState> updateStates = getApplicationAttributeUpdaters().stream()
                                                                               .map(updater -> updater.update(existingApp, app))
                                                                               .collect(Collectors.toList());
@@ -195,6 +198,15 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
             reportApplicationUpdateStatus(app, arePropertiesChanged);
             context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, arePropertiesChanged);
+        }
+
+        private void updateMetadata() {
+            if (app.getV3Metadata() == null) {
+                return;
+            }
+            if (!Objects.equals(existingApp.getV3Metadata(), app.getV3Metadata())) {
+                client.updateApplicationMetadata(existingApp.getGuid(), app.getV3Metadata());
+            }
         }
 
         @Override

@@ -276,8 +276,19 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
                 result.callArgumentsOfUpdateApplicationEnvMethod.addAll(callArgumentsOfUpdateApplicationEnvMethod);
             }
         }
-        result.updatedSubscribers = context.getVariable(Variables.UPDATED_SUBSCRIBERS);
+        result.updatedSubscribers = context.getVariable(Variables.UPDATED_SUBSCRIBERS)
+                                           .stream()
+                                           .map(this::removeStateAndLifecycle)
+                                           .collect(Collectors.toList());
         return result;
+    }
+
+    private CloudApplication removeStateAndLifecycle(CloudApplication app) {
+        return ImmutableCloudApplication.builder()
+                                        .name(app.getName())
+                                        .metadata(app.getMetadata())
+                                        .space(app.getSpace())
+                                        .build();
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -351,7 +362,6 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
     private static class StepOutput {
 
         public List<CloudApplication> callArgumentsOfUpdateApplicationEnvMethod;
-        @SuppressWarnings("unused")
         public List<CloudApplication> updatedSubscribers;
 
     }

@@ -74,9 +74,7 @@ class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
 
         CloudApplicationExtended toCloudApplication() {
             return ImmutableCloudApplicationExtended.builder()
-                                                    .metadata(ImmutableCloudMetadata.builder()
-                                                                                    .guid(UUID.randomUUID())
-                                                                                    .build())
+                                                    .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                                     .name(name)
                                                     .moduleName(name)
                                                     .instances(instances)
