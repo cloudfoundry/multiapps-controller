@@ -15,7 +15,7 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.OperationMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ParameterMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.util.LoggingUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
@@ -65,13 +65,13 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         }
         getHistoricOperationEventService().add(ImmutableHistoricOperationEvent.of(correlationId, HistoricOperationEvent.EventType.STARTED));
         logProcessEnvironment();
-        logProcessVariables(execution, processType);
-        publishDynatraceEvent(execution, processType);
+        logProcessVariables(execution, processType, correlationId);
+        publishDynatraceEvent(execution, processType, correlationId);
     }
 
-    private void publishDynatraceEvent(DelegateExecution execution, ProcessType processType) {
+    private void publishDynatraceEvent(DelegateExecution execution, ProcessType processType, String correlationId) {
         DynatraceProcessEvent startEvent = ImmutableDynatraceProcessEvent.builder()
-                                                                         .processId(VariableHandling.get(execution, Variables.CORRELATION_ID))
+                                                                         .processId(correlationId)
                                                                          .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
                                                                          .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
                                                                          .eventType(DynatraceProcessEvent.EventType.STARTED)
@@ -95,12 +95,14 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         getStepLogger().debug(Messages.PROCESS_ENVIRONMENT, JsonUtil.toJson(environment, true));
     }
 
-    private void logProcessVariables(DelegateExecution execution, ProcessType processType) {
+    private void logProcessVariables(DelegateExecution execution, ProcessType processType, String correlationId) {
         getStepLogger().debug(Messages.CURRENT_USER, StepsUtil.determineCurrentUser(execution));
         getStepLogger().debug(Messages.CLIENT_SPACE, VariableHandling.get(execution, Variables.SPACE_NAME));
         getStepLogger().debug(Messages.CLIENT_ORGANIZATION, VariableHandling.get(execution, Variables.ORGANIZATION_NAME));
         Map<String, Object> processVariables = findProcessVariables(execution, processType);
-        getStepLogger().infoWithoutProgressMessage(Messages.PROCESS_VARIABLES, SecureSerialization.toJson(processVariables));
+        LoggingUtil.logWithCorrelationId(correlationId,
+                                         () -> getStepLogger().infoWithoutProgressMessage(Messages.PROCESS_VARIABLES,
+                                                                                          JsonUtil.toJson(processVariables)));
     }
 
     protected Map<String, Object> findProcessVariables(DelegateExecution execution, ProcessType processType) {
