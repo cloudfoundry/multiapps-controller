@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.v3.CustomServiceKeysClientV3;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
@@ -51,8 +52,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(mtaId, mtaNamespace, client);
 
         if (optionalDeployedMta.isEmpty()) {
-            getStepLogger().info(Messages.NO_DEPLOYED_MTA_DETECTED);
-
+            logNoMtaDeployedDetected(mtaId, mtaNamespace);
             context.setVariable(Variables.DEPLOYED_MTA, null);
             return null;
         }
@@ -60,10 +60,8 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         DeployedMta deployedMta = optionalDeployedMta.get();
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
         getStepLogger().debug(Messages.DEPLOYED_MTA, SecureSerialization.toJson(deployedMta));
-
         MtaMetadata metadata = deployedMta.getMetadata();
-        getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, metadata.getNamespace(), metadata.getId(),
-                                                  metadata.getVersion()));
+        logDetectedDeployedMta(mtaNamespace, metadata);
         return deployedMta;
     }
 
@@ -80,7 +78,24 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
 
         return deployedServiceKeys;
     }
-    
+
+    private void logNoMtaDeployedDetected(String mtaId, String mtaNamespace) {
+        if (StringUtils.isNotEmpty(mtaNamespace)) {
+            getStepLogger().info(MessageFormat.format(Messages.NO_DEPLOYED_MTA_DETECTED_WITH_NAMESPACE, mtaId, mtaNamespace));
+            return;
+        }
+        getStepLogger().info(MessageFormat.format(Messages.NO_DEPLOYED_MTA_DETECTED, mtaId));
+    }
+
+    private void logDetectedDeployedMta(String mtaNamespace, MtaMetadata metadata) {
+        if (StringUtils.isNotEmpty(mtaNamespace)) {
+            getStepLogger().info(MessageFormat.format(Messages.DETECTED_DEPLOYED_MTA_WITH_NAMESPACE, metadata.getId(),
+                                                      metadata.getVersion(), metadata.getNamespace()));
+            return;
+        }
+        getStepLogger().info(MessageFormat.format(Messages.DETECTED_DEPLOYED_MTA, metadata.getId(), metadata.getVersion()));
+    }
+
     protected CustomServiceKeysClientV3 getCustomServiceKeysClient(CloudControllerClient client) {
         return new CustomServiceKeysClientV3(client);
     }
