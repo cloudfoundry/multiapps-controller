@@ -17,7 +17,6 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -41,7 +40,6 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
     }
 
     @Test
-    @Disabled
     void testExecuteWithDeployedMta() {
         DeployedMta deployedMta = JsonUtil.fromJson(TestUtil.getResourceAsString(DEPLOYED_MTA_LOCATION, getClass()), DeployedMta.class);
         List<DeployedMtaServiceKey> deployedKeys = JsonUtil.fromJson(TestUtil.getResourceAsString(DEPLOYED_MTA_SERVICE_KEYS_LOCATION,

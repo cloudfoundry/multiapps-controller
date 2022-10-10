@@ -140,7 +140,6 @@ public class Messages {
     public static final String ERROR_DETECTING_APPLICATIONS_TO_RENAME = "Error detecting applications to rename";
     public static final String ERROR_RENAMING_NEW_APPLICATIONS = "Error renaming new applications";
     public static final String ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES = "Error monitoring creation or update of services";
-    public static final String ERROR_UPDATING_METADATA_OF_APPLICATION_0 = "Error updating metadata of application \"{0}\"";
     public static final String ERROR_UPDATING_METADATA_OF_SERVICE_INSTANCE_0 = "Error updating metadata of service instance \"{0}\"";
     public static final String ERROR_MONITORING_DELETION_OF_SERVICES = "Error monitoring deletion of services";
     public static final String SERVICE_IS_ALREADY_DELETED = "Service \"{0}\" is already deleted";
@@ -515,10 +514,10 @@ public class Messages {
     public static final String GETTING_ENVIRONMENT_OF_APPLICATION_0 = "Getting environment of application \"{0}\"...";
     public static final String GETTING_EVENTS_FOR_APPLICATION_0 = "Getting events for application \"{0}\"...";
     public static final String GETTING_EVENTS_BY_ACTEE_0 = "Getting events by actee \"{0}\"...";
-    public static final String GETTING_INSTANCES_OF_APPLICATION_0 = "Getting instances for application \"{0}\"...";
-    public static final String GETTING_PROCESS_OF_APPLICATION_0 = "Getting process for application \"{0}\"...";
-    public static final String GETTING_ROUTES_OF_APPLICATION_0 = "Getting routes for application \"{0}\"...";
-    public static final String GETTING_SSH_ENABLED_OF_APPLICATION_0 = "Getting ssh enabled for application \"{0}\"...";
+    public static final String GETTING_INSTANCES_FOR_APPLICATION_0 = "Getting instances for application \"{0}\"...";
+    public static final String GETTING_PROCESS_FOR_APPLICATION_0 = "Getting process for application \"{0}\"...";
+    public static final String GETTING_ROUTES_FOR_APPLICATION_0 = "Getting routes for application \"{0}\"...";
+    public static final String GETTING_SSH_ENABLED_FOR_APPLICATION_0 = "Getting ssh enabled for application \"{0}\"...";
     public static final String GETTING_APPLICATIONS = "Getting applications...";
     public static final String GETTING_DEFAULT_DOMAIN = "Getting default domain...";
     public static final String GETTING_DOMAINS = "Getting domains...";
@@ -565,7 +564,6 @@ public class Messages {
     public static final String UPDATING_PUBLIC_SERVICE_PLAN_VISIBILITY_OF_SERVICE_BROKER_0_TO_1 = "Updating public service plan visibility of service broker \"{0}\" to: {1}";
     public static final String UPDATING_SERVICE_PLAN = "Updating service plan for service \"{0}\"...";
     public static final String UPDATING_SERVICE_PARAMETERS = "Updating service parameters for service \"{0}\"...";
-    public static final String SYNCHRONOUSLY_UPLOADING_APPLICATION_0 = "Synchronously uploading binaries for application \"{0}\"...";
     public static final String ASYNCHRONOUSLY_UPLOADING_APPLICATION_0 = "Asynchronously uploading binaries for application \"{0}\"...";
     public static final String GETTING_PACKAGE_0 = "Getting package \"{0}\"...";
     public static final String GETTING_TASK_0 = "Getting task \"{0}\"...";
@@ -597,7 +595,6 @@ public class Messages {
     public static final String TIME_STATISTICS_FOR_OPERATION_0_DURATION_1_DELAY_2 = "Time statistics for operation \"{0}\": duration \"{1}\" ms; delay between steps \"{2}\" ms";
     public static final String DETERMINE_BIND_UNBIND_OPERATIONS_APPLICATION_0_SERVICE_INSTANCE_1 = "Determine bind/unbind operations of application \"{0}\" to service instance \"{1}\"";
     public static final String VCAP_SERVICES_PROPERTIES_FOR_APPLICATION_CHANGED = "VCAP_SERVICES properties for application \"{0}\" changed: {1}";
-    public static final String UPDATED_METADATA_APPLICATION = "Updated metadata of application \"{0}\"";
     public static final String DETERMINE_VCAP_SERVICES_PROPERTIES_CHANGED_FOR_APPLICATION = "Determine VCAP_SERVICES properties changed for application \"{0}\"";
     public static final String UPDATING_SERVICE_0_WITH_PLAN_1 = "Updating service plan for service \"{0}\" with new plan: \"{1}\"";
     public static final String SERVICE_PLAN_FOR_SERVICE_0_UPDATED = "Service plan for service \"{0}\" updated";

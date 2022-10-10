@@ -64,9 +64,14 @@ public class CustomServiceKeysClient extends CustomControllerClient {
             return null;
         }
         List<DeployedMtaService> managedServices = services.stream()
-                                                           .filter(service -> service.getType() == ServiceInstanceType.MANAGED)
+                                                           .filter(this::serviceIsNotUserProvided)
                                                            .collect(Collectors.toList());
         return managedServices.isEmpty() ? null : managedServices;
+    }
+
+    private boolean serviceIsNotUserProvided(DeployedMtaService service) {
+        return service.getMetadata() != null && service.getMetadata()
+                                                       .getGuid() != null && service.getType() == ServiceInstanceType.MANAGED;
     }
 
     protected class ServiceKeysResponseMapper extends ResourcesResponseMapper<DeployedMtaServiceKey> {

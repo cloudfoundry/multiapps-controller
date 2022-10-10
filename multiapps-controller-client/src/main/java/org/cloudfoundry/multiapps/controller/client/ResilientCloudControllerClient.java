@@ -80,8 +80,9 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Set<CloudRoute> routes) {
-        executeWithRetry(() -> delegate.createApplication(applicationName, staging, disk, memory, routes));
+    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Metadata metadata,
+                                  Set<CloudRoute> routes) {
+        executeWithRetry(() -> delegate.createApplication(applicationName, staging, disk, memory, metadata, routes));
     }
 
     @Override

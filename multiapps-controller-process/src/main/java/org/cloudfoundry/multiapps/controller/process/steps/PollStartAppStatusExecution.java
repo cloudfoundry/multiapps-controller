@@ -109,8 +109,6 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             return AsyncExecutionState.ERROR;
         }
         if (status == StartupStatus.STARTED) {
-            //TODO sync with team
-            // this call is only used for logging - do we really need it?
             List<CloudRoute> routes = context.getControllerClient()
                                              .getApplicationRoutes(app.getGuid());
             if (routes.isEmpty()) {

@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.cf.apps;
 
 import java.text.MessageFormat;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Set;
 
 import org.cloudfoundry.multiapps.controller.core.Messages;
@@ -11,7 +11,7 @@ public class UnchangedApplicationActionCalculator implements ActionCalculator {
     @Override
     public Set<ApplicationStateAction> determineActionsToExecute(ApplicationStartupState currentState, ApplicationStartupState desiredState,
                                                                  boolean isApplicationStagedCorrectly) {
-        Set<ApplicationStateAction> actionsToExecute = new HashSet<>();
+        Set<ApplicationStateAction> actionsToExecute = EnumSet.noneOf(ApplicationStateAction.class);
         if (currentState.equals(desiredState) && isApplicationStagedCorrectly) {
             return actionsToExecute;
         }

@@ -19,6 +19,7 @@ import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
 
 class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
 
@@ -28,7 +29,7 @@ class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
     @Test
     void testExecuteStep() {
         mockApplication("demo-app");
-        mockCloudPackage(PACKAGE_GUID);
+        mockCloudPackage();
         mockClient();
         step.execute(execution);
         Assertions.assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
@@ -41,11 +42,13 @@ class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
         context.setVariable(Variables.APP_TO_PROCESS, cloudApplicationExtended);
     }
 
-    private void mockCloudPackage(UUID packageGuid) {
+    private void mockCloudPackage() {
         CloudPackage cloudPackage = ImmutableCloudPackage.builder()
-                                                         .metadata(ImmutableCloudMetadata.builder()
-                                                                                         .guid(packageGuid)
-                                                                                         .build())
+                                                         .metadata(ImmutableCloudMetadata.of(PACKAGE_GUID))
+                                                         .type(CloudPackage.Type.DOCKER)
+                                                         .data(ImmutableDockerData.builder()
+                                                                                  .image("cloudfoundry/test")
+                                                                                  .build())
                                                          .build();
         context.setVariable(Variables.CLOUD_PACKAGE, cloudPackage);
     }

@@ -20,6 +20,7 @@ import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableErrorDetails;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableUpload;
 import com.sap.cloudfoundry.client.facade.domain.Status;
@@ -94,9 +95,11 @@ class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<UploadAppS
         StepsTestUtil.mockApplicationsToDeploy(List.of(application.toCloudApplication()), execution);
         context.setVariable(Variables.MODULES_INDEX, 0);
         CloudPackage cloudPackage = ImmutableCloudPackage.builder()
-                                                         .metadata(ImmutableCloudMetadata.builder()
-                                                                                         .guid(PACKAGE_GUID)
-                                                                                         .build())
+                                                         .metadata(ImmutableCloudMetadata.of(PACKAGE_GUID))
+                                                         .type(CloudPackage.Type.DOCKER)
+                                                         .data(ImmutableDockerData.builder()
+                                                                                  .image("cloudfoundry/test")
+                                                                                  .build())
                                                          .build();
         context.setVariable(Variables.CLOUD_PACKAGE, cloudPackage);
     }

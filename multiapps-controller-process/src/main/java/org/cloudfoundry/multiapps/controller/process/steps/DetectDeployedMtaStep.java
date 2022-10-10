@@ -39,8 +39,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         String mtaNamespace = context.getVariable(Variables.MTA_NAMESPACE);
         CloudControllerClient client = context.getControllerClient();
 
-        DeployedMta deployedMta = detectDeployedMta(mtaId, mtaNamespace, client);
-        context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
+        DeployedMta deployedMta = detectDeployedMta(mtaId, mtaNamespace, client, context);
 
         var deployedServiceKeys = detectDeployedServiceKeys(mtaId, mtaNamespace, deployedMta, client, context);
         context.setVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS, deployedServiceKeys);
@@ -49,16 +48,18 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         return StepPhase.DONE;
     }
 
-    private DeployedMta detectDeployedMta(String mtaId, String mtaNamespace, CloudControllerClient client) {
+    private DeployedMta detectDeployedMta(String mtaId, String mtaNamespace, CloudControllerClient client, ProcessContext context) {
         getStepLogger().debug(Messages.DETECTING_MTA_BY_ID_AND_NAMESPACE, mtaId, mtaNamespace);
         Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(mtaId, mtaNamespace, client);
 
         if (optionalDeployedMta.isEmpty()) {
             logNoMtaDeployedDetected(mtaId, mtaNamespace);
+            context.setVariable(Variables.DEPLOYED_MTA, null);
             return null;
         }
 
         DeployedMta deployedMta = optionalDeployedMta.get();
+        context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
         getStepLogger().debug(Messages.DEPLOYED_MTA, SecureSerialization.toJson(deployedMta));
         MtaMetadata metadata = deployedMta.getMetadata();
         logDetectedDeployedMta(mtaNamespace, metadata);

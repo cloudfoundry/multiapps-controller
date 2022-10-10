@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
 
 class StepsUtilTest {
 
@@ -113,9 +114,11 @@ class StepsUtilTest {
     @Test
     void testSetAndGetCloudPackage() {
         CloudPackage expectedCloudPackage = ImmutableCloudPackage.builder()
-                                                                 .metadata(ImmutableCloudMetadata.builder()
-                                                                                                 .guid(UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93"))
-                                                                                                 .build())
+                                                                 .metadata(ImmutableCloudMetadata.of(UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93")))
+                                                                 .type(CloudPackage.Type.DOCKER)
+                                                                 .data(ImmutableDockerData.builder()
+                                                                                          .image("cloudfoundry/test")
+                                                                                          .build())
                                                                  .build();
         VariableHandling.set(execution, Variables.CLOUD_PACKAGE, expectedCloudPackage);
         CloudPackage actualCloudPackage = VariableHandling.get(execution, Variables.CLOUD_PACKAGE);

@@ -16,6 +16,7 @@ public enum TypedServiceOperationState {
                 return FAILED;
             case SUCCEEDED:
                 return DONE;
+            case INITIAL:
             case IN_PROGRESS:
                 return fromOngoingServiceOperation(serviceOperation);
             default:

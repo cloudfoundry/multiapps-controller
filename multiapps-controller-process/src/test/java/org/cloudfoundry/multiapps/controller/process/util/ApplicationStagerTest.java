@@ -29,11 +29,13 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
+import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.DropletInfo;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudBuild;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableDropletInfo;
 import com.sap.cloudfoundry.client.facade.domain.PackageState;
 
@@ -279,9 +281,11 @@ class ApplicationStagerTest {
 
     private void setCloudPackage() {
         context.setVariable(Variables.CLOUD_PACKAGE, ImmutableCloudPackage.builder()
-                                                                          .metadata(ImmutableCloudMetadata.builder()
-                                                                                                          .guid(PACKAGE_GUID)
-                                                                                                          .build())
+                                                                          .metadata(ImmutableCloudMetadata.of(PACKAGE_GUID))
+                                                                          .type(CloudPackage.Type.DOCKER)
+                                                                          .data(ImmutableDockerData.builder()
+                                                                                                   .image("cloudfoundry/test")
+                                                                                                   .build())
                                                                           .build());
     }
 

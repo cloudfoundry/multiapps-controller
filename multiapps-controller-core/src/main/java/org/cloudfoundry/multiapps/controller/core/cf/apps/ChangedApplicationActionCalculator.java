@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.cf.apps;
 
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Set;
 
 public class ChangedApplicationActionCalculator implements ActionCalculator {
@@ -8,7 +8,7 @@ public class ChangedApplicationActionCalculator implements ActionCalculator {
     @Override
     public Set<ApplicationStateAction> determineActionsToExecute(ApplicationStartupState currentState, ApplicationStartupState desiredState,
                                                                  boolean isApplicationStagedCorrectly) {
-        Set<ApplicationStateAction> result = new HashSet<>();
+        Set<ApplicationStateAction> result = EnumSet.noneOf(ApplicationStateAction.class);
         if (desiredState.equals(ApplicationStartupState.STARTED)) {
             result.add(ApplicationStateAction.START);
         }

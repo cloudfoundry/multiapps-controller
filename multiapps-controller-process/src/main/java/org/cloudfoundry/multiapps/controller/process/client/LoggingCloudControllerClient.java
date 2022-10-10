@@ -80,10 +80,11 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Set<CloudRoute> routes) {
+    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Metadata metadata,
+                                  Set<CloudRoute> routes) {
         logger.debug(Messages.CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3, applicationName, memory,
                      UriUtil.prettyPrintRoutes(routes), SecureSerialization.toJson(staging));
-        delegate.createApplication(applicationName, staging, disk, memory, routes);
+        delegate.createApplication(applicationName, staging, disk, memory, metadata, routes);
     }
 
     @Override
@@ -248,31 +249,31 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     @Override
     public InstancesInfo getApplicationInstances(CloudApplication app) {
-        logger.debug(Messages.GETTING_INSTANCES_OF_APPLICATION_0, app.getName());
+        logger.debug(Messages.GETTING_INSTANCES_FOR_APPLICATION_0, app.getName());
         return delegate.getApplicationInstances(app);
     }
 
     @Override
     public InstancesInfo getApplicationInstances(UUID applicationGuid) {
-        logger.debug(Messages.GETTING_INSTANCES_OF_APPLICATION_0, applicationGuid);
+        logger.debug(Messages.GETTING_INSTANCES_FOR_APPLICATION_0, applicationGuid);
         return delegate.getApplicationInstances(applicationGuid);
     }
 
     @Override
     public CloudProcess getApplicationProcess(UUID applicationGuid) {
-        logger.debug(Messages.GETTING_PROCESS_OF_APPLICATION_0, applicationGuid);
+        logger.debug(Messages.GETTING_PROCESS_FOR_APPLICATION_0, applicationGuid);
         return delegate.getApplicationProcess(applicationGuid);
     }
 
     @Override
     public List<CloudRoute> getApplicationRoutes(UUID applicationGuid) {
-        logger.debug(Messages.GETTING_ROUTES_OF_APPLICATION_0, applicationGuid);
+        logger.debug(Messages.GETTING_ROUTES_FOR_APPLICATION_0, applicationGuid);
         return delegate.getApplicationRoutes(applicationGuid);
     }
 
     @Override
     public boolean getApplicationSshEnabled(UUID applicationGuid) {
-        logger.debug(Messages.GETTING_SSH_ENABLED_OF_APPLICATION_0, applicationGuid);
+        logger.debug(Messages.GETTING_SSH_ENABLED_FOR_APPLICATION_0, applicationGuid);
         return delegate.getApplicationSshEnabled(applicationGuid);
     }
 

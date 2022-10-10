@@ -137,9 +137,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
 
     private ImmutableCloudApplicationExtended.Builder getApplicationBuilder(boolean shouldKeepExistingEnv) {
         return ImmutableCloudApplicationExtended.builder()
-                                                .metadata(ImmutableCloudMetadata.builder()
-                                                                                .guid(UUID.randomUUID())
-                                                                                .build())
+                                                .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                                 .state(CloudApplication.State.STARTED)
                                                 .lifecycle(ImmutableLifecycle.builder()
                                                                              .type(LifecycleType.BUILDPACK)
