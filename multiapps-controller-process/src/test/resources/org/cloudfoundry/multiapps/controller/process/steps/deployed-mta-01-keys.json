@@ -1,0 +1,32 @@
+{
+	"keys": [
+		{
+			"name": "node-hdi-container-key",
+			"metadata": {
+				"guid": "1911b7d9-061f-4bd8-babe-0e0ed09e3195"
+			},
+			"serviceInstance": {
+				"name": "node-hdi-container",
+				"credentials": {
+					
+				},
+				"tags": [],
+				"resourceName": "node-hdi-container"
+			}
+		},
+		{
+			"name": "uaa-key",
+			"metadata": {
+				"guid": "1911b7d9-061f-4bd8-babe-0e0ed09e3196"
+			},
+			"serviceInstance": {
+				"name": "uaa",
+				"credentials": {
+					
+				},
+				"tags": [],
+				"resourceName": "uaa"
+			}
+		}
+	]
+}
