@@ -102,7 +102,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         Map<String, Object> processVariables = findProcessVariables(execution, processType);
         LoggingUtil.logWithCorrelationId(correlationId,
                                          () -> getStepLogger().infoWithoutProgressMessage(Messages.PROCESS_VARIABLES,
-                                                                                          JsonUtil.toJson(processVariables)));
+                                                                                          JsonUtil.toJson(processVariables, true)));
     }
 
     protected Map<String, Object> findProcessVariables(DelegateExecution execution, ProcessType processType) {
