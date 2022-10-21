@@ -1,44 +1,57 @@
 package com.sap.cloud.lm.sl.cf.web.util;
 
+import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 
 import com.sap.cloud.lm.sl.cf.core.dao.AccessTokenDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OrderDirection;
 import com.sap.cloud.lm.sl.cf.core.model.AccessToken;
+import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
+import com.sap.cloud.lm.sl.cf.core.util.SingleThreadExecutor;
+import com.sap.cloud.lm.sl.cf.web.message.Messages;
 
 @Named
 public class TokenReuser {
 
-    private final AccessTokenDao accessTokenDao;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenReuser.class);
 
-    public TokenReuser(AccessTokenDao accessTokenDao) {
+    private final AccessTokenDao accessTokenDao;
+    private final TokenParserChain tokenParserChain;
+    private final SingleThreadExecutor singleThreadExecutor;
+
+    @Inject
+    public TokenReuser(AccessTokenDao accessTokenDao, TokenParserChain tokenParserChain, SingleThreadExecutor singleThreadExecutor) {
         this.accessTokenDao = accessTokenDao;
+        this.tokenParserChain = tokenParserChain;
+        this.singleThreadExecutor = singleThreadExecutor;
     }
 
-    public Optional<AccessToken> getTokenWithExpirationAfter(String username, long expiresAfterInSeconds) {
-        List<AccessToken> accessTokens = getTokensOrderedByExpiresAt(username);
+    public Optional<OAuth2AccessTokenWithAdditionalInfo> getValidTokenWithExpirationAfterIfPresent(String username,
+                                                                                                   long expiresAfterInSeconds) {
+        List<AccessToken> accessTokens = accessTokenDao.getTokensByUsernameSortedByExpirationDate(username, OrderDirection.DESCENDING);
         if (accessTokens.isEmpty()) {
             return Optional.empty();
         }
         LocalDateTime dateAfter = calculateDateAfter(expiresAfterInSeconds);
-        if (shouldUseLatestToken(accessTokens, dateAfter)) {
-            return Optional.of(accessTokens.get(0));
-        }
-        return Optional.empty();
-    }
-
-    private List<AccessToken> getTokensOrderedByExpiresAt(String username) {
-        return accessTokenDao.getTokensByUsernameSortedByExpirationDate(username, OrderDirection.DESCENDING);
+        return accessTokens.stream()
+                           .filter(accessToken -> doesTokenExpireAfter(accessToken, dateAfter))
+                           .map(this::parseAccessToken)
+                           .filter(Optional::isPresent)
+                           .map(Optional::get)
+                           .findFirst();
     }
 
     private LocalDateTime calculateDateAfter(long expiresAfterInSeconds) {
@@ -47,32 +60,21 @@ public class TokenReuser {
                             .toLocalDateTime();
     }
 
-    private boolean shouldUseLatestToken(List<AccessToken> accessTokens, LocalDateTime dateAfter) {
-        return accessTokens.get(0)
-                           .getExpiresAt()
-                           .isAfter(dateAfter);
+    private boolean doesTokenExpireAfter(AccessToken accessToken, LocalDateTime dateAfter) {
+        return accessToken.getExpiresAt()
+                          .isAfter(dateAfter);
     }
 
-    public Optional<AccessToken> getTokenWithExpirationAfterOrReuseCurrent(String username, long expiresAfterInSeconds,
-                                                                           OAuth2AccessTokenWithAdditionalInfo currentToken) {
-        List<AccessToken> accessTokens = getTokensOrderedByExpiresAt(username);
-        if (accessTokens.isEmpty()) {
-            return Optional.empty();
-        }
-        LocalDateTime dateAfter = calculateDateAfter(expiresAfterInSeconds);
-        if (shouldUseLatestToken(accessTokens, dateAfter)) {
-            return Optional.of(accessTokens.get(0));
-        }
-        LocalDateTime currentTokenExpirationDate = getExpirationDate(currentToken);
-        if (currentTokenExpirationDate.equals(accessTokens.get(0)
-                                                          .getExpiresAt())) {
-            return Optional.of(accessTokens.get(0));
+    private Optional<OAuth2AccessTokenWithAdditionalInfo> parseAccessToken(AccessToken accessToken) {
+        try {
+            return Optional.of(tokenParserChain.parse(new String(accessToken.getValue(), StandardCharsets.UTF_8)));
+        } catch (InternalAuthenticationServiceException e) {
+            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(MessageFormat.format(Messages.DELETING_TOKEN_WITH_ID_0_AND_EXPIRATION_1, accessToken.getId(),
+                                              accessToken.getExpiresAt()));
+            singleThreadExecutor.submitTask(() -> accessTokenDao.remove(accessToken));
         }
         return Optional.empty();
-    }
-
-    private LocalDateTime getExpirationDate(OAuth2AccessTokenWithAdditionalInfo currentToken) {
-        return LocalDateTime.ofInstant(currentToken.getExpiresAt(), ZoneId.systemDefault());
     }
 
 }

@@ -1,13 +1,9 @@
 package com.sap.cloud.lm.sl.cf.web.util;
 
-import static com.sap.cloud.lm.sl.cf.client.util.TokenFactory.EXPIRES_AT_KEY;
 import static org.cloudfoundry.client.constants.Constants.EXCHANGED_TOKEN;
 
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
@@ -45,7 +41,7 @@ public abstract class TokenGenerator {
                                exchangedTokenValue != null ? exchangedTokenValue.getBytes(StandardCharsets.UTF_8) : null,
                                clientId,
                                extractUsername(oAuth2AccessTokenWithAdditionalInfo),
-                               calculateAccessTokenExpirationDate(oAuth2AccessTokenWithAdditionalInfo));
+                               oAuth2AccessTokenWithAdditionalInfo.calculateExpirationDate());
     }
 
     protected String extractUsername(OAuth2AccessTokenWithAdditionalInfo token) {
@@ -53,11 +49,4 @@ public abstract class TokenGenerator {
                              .get(TokenProperties.USER_NAME_KEY);
     }
 
-    private LocalDateTime calculateAccessTokenExpirationDate(OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo) {
-        long expirationInSeconds = ((Number) oAuth2AccessTokenWithAdditionalInfo.getAdditionalInfo()
-                                                                                .get(EXPIRES_AT_KEY)).longValue();
-        return Instant.ofEpochSecond(expirationInSeconds)
-                      .atZone(ZoneId.systemDefault())
-                      .toLocalDateTime();
-    }
 }

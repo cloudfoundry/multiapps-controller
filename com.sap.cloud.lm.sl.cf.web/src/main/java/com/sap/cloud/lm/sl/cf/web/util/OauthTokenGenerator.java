@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.web.util;
 
-import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Optional;
@@ -11,7 +10,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.dao.AccessTokenDao;
-import com.sap.cloud.lm.sl.cf.core.model.AccessToken;
 import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 
@@ -30,22 +28,17 @@ public class OauthTokenGenerator extends TokenGenerator {
     public OAuth2AccessTokenWithAdditionalInfo generate(String tokenString) {
         OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo = tokenParserChain.parse(tokenString);
         validateTokenExpiration(oAuth2AccessTokenWithAdditionalInfo);
-        String username = extractUsername(oAuth2AccessTokenWithAdditionalInfo);
-        Optional<AccessToken> accessToken = tokenReuser.getTokenWithExpirationAfterOrReuseCurrent(username,
-                                                                                                  Constants.OAUTH_TOKEN_RETENTION_TIME_IN_SECONDS,
-                                                                                                  oAuth2AccessTokenWithAdditionalInfo);
-        if (accessToken.isPresent()) {
-            return tokenParserChain.parse(new String(accessToken.get()
-                                                                .getValue(),
-                                                     StandardCharsets.UTF_8));
+        Optional<OAuth2AccessTokenWithAdditionalInfo> existingAccessToken = tokenReuser.getValidTokenWithExpirationAfterIfPresent(oAuth2AccessTokenWithAdditionalInfo.getUserName(),
+                                                                                                                                  Constants.OAUTH_TOKEN_RETENTION_TIME_IN_SECONDS);
+        if (existingAccessToken.isPresent()) {
+            return existingAccessToken.get();
         }
         storeAccessToken(buildAccessToken(oAuth2AccessTokenWithAdditionalInfo));
         return oAuth2AccessTokenWithAdditionalInfo;
     }
 
     private void validateTokenExpiration(OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo) {
-        if (oAuth2AccessTokenWithAdditionalInfo.getExpiresAt()
-                                               .isBefore(Instant.now())) {
+        if (oAuth2AccessTokenWithAdditionalInfo.expiresBefore(Instant.now())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                                               MessageFormat.format(Messages.THE_TOKEN_HAS_EXPIRED_ON_0,
                                                                    oAuth2AccessTokenWithAdditionalInfo.getExpiresAt()));
