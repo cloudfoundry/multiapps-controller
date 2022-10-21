@@ -82,12 +82,12 @@ public final class Messages {
     public static final String SERVICE_MISSING_REQUIRED_PARAMETER = "Service \"{0}\" has missing required parameter: {1}";
     public static final String CONTROLLER_URL_NOT_SPECIFIED = "Controller URL is not specified in the environment.";
     public static final String INVALID_CONTROLLER_URL = "Invalid controller URL \"{0}\".";
-
     public static final String NO_TOKEN_PARSER_FOUND_FOR_THE_CURRENT_TOKEN = "No token parser found for the current token";
-
     public static final String ACCESS_TOKEN_ALREADY_EXISTS = "Access token with ID \"{0}\" already exists";
-
     public static final String ACCESS_TOKEN_NOT_FOUND = "Access token with ID \"{0}\" does not exist";
+    public static final String ERROR_DURING_TOKEN_DELETION_FOR_USER = "Error occurred during token deletion for user \"{0}\"";
+    public static final String NO_VALID_TOKEN_FOUND_FOR_USER = "No valid access token was found for user: \"{0}\"";
+    public static final String NO_TOKENS_FOUND_FOR_USER = "No access tokens were found for user: \"{0}\"";
 
 
     // Warning messages
@@ -109,8 +109,7 @@ public final class Messages {
     public static final String SPACE_ID_NOT_SPECIFIED_USING_DEFAULT_0 = "Space ID is not specified in the environment. Using default: \"{0}\"";
     public static final String ORG_NAME_NOT_SPECIFIED = "Org name is not specified in the environment.";
     public static final String DEPLOY_SERVICE_URL_NOT_SPECIFIED = "Deploy service URL is not specified in the environment.";
-
-
+    public static final String ERROR_OCCURRED_WHILE_FETCHING_A_TOKEN_WILL_RETRY_AFTER_0 = "Error occurred while fetching a token. Will retry after: \"{0}\" seconds";
 
     // Info messages
     public static final String XS_TYPE_NOT_SPECIFIED = "XS type is not specified in the environment. Using default: \"{0}\"";
@@ -204,5 +203,6 @@ public final class Messages {
     public static final String ACCESS_TOKEN_RETRIEVED = "Access token for user \"{0}\" is retrieved from the token store, expiration date \"{1}\"";
     public static final String PARSED_TOKEN_TYPE_0 = "Parsed token type: {0}";
     public static final String PARSED_TOKEN_EXPIRES_IN_0 = "Parsed token expires in: {0}";
+    public static final String DELETED_TOKENS = "Executed deletion of {0} expired tokens";
 
 }

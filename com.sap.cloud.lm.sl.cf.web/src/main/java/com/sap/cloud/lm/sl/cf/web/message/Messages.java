@@ -24,7 +24,7 @@ public final class Messages {
     public static final String INVALID_AUTHORIZATION_HEADER_WAS_PROVIDED = "Invalid Authorization header was provided!";
     public static final String BASIC_AUTHENTICATION_IS_NOT_ENABLED_USE_OAUTH_2 = "Basic authentication is not enabled, use OAuth2";
     public static final String INVALID_AUTHENTICATION_PROVIDED = "Invalid authentication provided";
-
+    public static final String DELETING_TOKEN_WITH_ID_0_AND_EXPIRATION_1 = "Deleting token with id: \"{0}\" and expiration: \"{1}\"";
 
     // Audit log messages
 
