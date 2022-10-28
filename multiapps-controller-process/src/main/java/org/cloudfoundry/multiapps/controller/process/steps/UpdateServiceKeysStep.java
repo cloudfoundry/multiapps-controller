@@ -36,12 +36,12 @@ public class UpdateServiceKeysStep extends ServiceStep {
         List<CloudServiceKey> serviceKeys = serviceKeysMap.get(service.getResourceName());
         List<CloudServiceKey> existingServiceKeys = getExistingServiceKeys(client, service);
         String namespace = context.getVariable(Variables.MTA_NAMESPACE);
-        List<CloudServiceKey> existingKeysForNamespace = getFilteredServiceKeys(existingServiceKeys,
-                                                                                key -> hasSameNamespace(key, namespace));
 
         if (existingServiceKeys == null) {
             return OperationExecutionState.FINISHED;
         }
+        List<CloudServiceKey> existingKeysForNamespace = getFilteredServiceKeys(existingServiceKeys,
+                                                                                key -> hasSameNamespace(key, namespace));
 
         List<CloudServiceKey> serviceKeysToCreate = getFilteredServiceKeys(serviceKeys, key -> shouldCreate(key, existingServiceKeys));
         List<CloudServiceKey> serviceKeysToUpdate = getFilteredServiceKeys(serviceKeys, key -> shouldUpdate(key, existingServiceKeys));
