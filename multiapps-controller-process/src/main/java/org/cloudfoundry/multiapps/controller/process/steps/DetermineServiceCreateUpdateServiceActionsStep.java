@@ -271,9 +271,6 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     }
 
     private boolean shouldUpdateTags(CloudServiceInstanceExtended service, List<String> existingServiceTags) {
-        if (service.isUserProvided()) {
-            return false;
-        }
         existingServiceTags = ObjectUtils.defaultIfNull(existingServiceTags, Collections.emptyList());
         return !existingServiceTags.equals(service.getTags());
     }

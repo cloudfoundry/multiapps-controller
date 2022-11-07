@@ -91,8 +91,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createUserProvidedServiceInstance(CloudServiceInstance serviceInstance, Map<String, Object> credentials) {
-        executeWithRetry(() -> delegate.createUserProvidedServiceInstance(serviceInstance, credentials));
+    public void createUserProvidedServiceInstance(CloudServiceInstance serviceInstance) {
+        executeWithRetry(() -> delegate.createUserProvidedServiceInstance(serviceInstance));
     }
 
     @Override
@@ -448,12 +448,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public void createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
         executeWithRetry(() -> delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters));
-    }
-
-    @Override
-    public void createUserProvidedServiceInstance(CloudServiceInstance serviceInstance, Map<String, Object> credentials,
-                                                  String syslogDrainUrl) {
-        executeWithRetry(() -> delegate.createUserProvidedServiceInstance(serviceInstance, credentials, syslogDrainUrl));
     }
 
     @Override

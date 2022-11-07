@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -20,6 +21,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudSer
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -28,6 +30,7 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
@@ -53,6 +56,8 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
          // @formatter:on
         );
     }
+
+    private static final String SERVICE_NAME = "service";
 
     @ParameterizedTest
     @MethodSource
@@ -84,7 +89,7 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
 
         Mockito.when(client.getServiceInstanceParameters(Mockito.any(UUID.class)))
                .thenThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR));
-        Mockito.when(client.getServiceInstance("service", false))
+        Mockito.when(client.getServiceInstance(SERVICE_NAME, false))
                .thenReturn(service);
 
         if (isOptionalService) {
@@ -108,7 +113,7 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Map.of());
         context.setVariable(Variables.DELETE_SERVICE_KEYS, true);
         if (serviceExists) {
-            Mockito.when(client.getServiceInstance("service", false))
+            Mockito.when(client.getServiceInstance(SERVICE_NAME, false))
                    .thenReturn(service);
         }
 
@@ -121,6 +126,24 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
             return;
         }
         assertFalse(serviceActionsToExecute.contains(ServiceAction.UPDATE_KEYS), "Actions should not contain " + ServiceAction.UPDATE_KEYS);
+    }
+
+    @Test
+    void testUpdateServiceTagsForUserProvidedService() {
+        CloudMetadata serviceMetadata = ImmutableCloudMetadata.of(UUID.randomUUID());
+        var existingService = createMockUserProvidedServiceInstance(serviceMetadata, List.of("custom-tag-A", "custom-tag-B"));
+        var serviceWithUpdatedTags = createMockUserProvidedServiceInstance(serviceMetadata,
+                                                                           List.of("updated-custom-tag-A", "updated-custom-tag-B"));
+
+        context.setVariable(Variables.SERVICE_TO_PROCESS, serviceWithUpdatedTags);
+        Mockito.when(client.getServiceInstance(SERVICE_NAME, false))
+               .thenReturn(existingService);
+
+        step.execute(execution);
+        assertStepFinishedSuccessfully();
+
+        List<ServiceAction> serviceActionsToExecute = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
+        assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_TAGS), "Actions should contain " + ServiceAction.UPDATE_TAGS);
     }
 
     private void initializeParameters(StepInput input) {
@@ -183,12 +206,22 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
 
     private CloudServiceInstanceExtended createMockServiceInstance(boolean optional) {
         return ImmutableCloudServiceInstanceExtended.builder()
-                                                    .name("service")
-                                                    .resourceName("service")
+                                                    .name(SERVICE_NAME)
+                                                    .resourceName(SERVICE_NAME)
                                                     .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                                     .isOptional(optional)
                                                     .tags(List.of())
                                                     .putAllCredentials(Map.of("key", "val"))
+                                                    .build();
+    }
+
+    private CloudServiceInstanceExtended createMockUserProvidedServiceInstance(CloudMetadata metadata, List<String> tags) {
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .name(SERVICE_NAME)
+                                                    .resourceName(SERVICE_NAME)
+                                                    .type(ServiceInstanceType.USER_PROVIDED)
+                                                    .metadata(metadata)
+                                                    .tags(tags)
                                                     .build();
     }
 
