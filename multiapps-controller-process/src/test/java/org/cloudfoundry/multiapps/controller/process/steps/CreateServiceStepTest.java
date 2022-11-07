@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -35,6 +36,8 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
     private static final String SERVICE_LOG_DRAIN = "syslogDrain";
 
     private static final Map<String, Object> CREDENTIALS = Map.of("testCredentialsKey", "testCredentialsValue");
+    private static final List<String> SERVICE_TAGS = List.of("custom-tag-A", "custom-tag-B");
+
     private static final Map<String, StepPhase> MANAGED_SERVICE_STEPS = Map.of(STEP_EXECUTION, StepPhase.POLL, POLLING, StepPhase.POLL,
                                                                                METADATA_UPDATE, StepPhase.DONE);
 
@@ -87,10 +90,11 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
     @Test
     void testUserProvidedParametersParsing() {
-        initializeInput(createUserProvidedCloudService(), Map.of(STEP_EXECUTION, StepPhase.DONE), false);
+        CloudServiceInstance userProvidedService = createUserProvidedCloudService();
+        initializeInput(userProvidedService, Map.of(STEP_EXECUTION, StepPhase.DONE), false);
         step.execute(execution);
         Mockito.verify(client, times(1))
-               .createUserProvidedServiceInstance(Mockito.any(), Mockito.eq(CREDENTIALS), Mockito.eq(SERVICE_LOG_DRAIN));
+               .createUserProvidedServiceInstance(userProvidedService);
     }
 
     private void throwExceptionOnServiceCreation(HttpStatus httpStatus) {
@@ -160,6 +164,7 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
                                                     .type(ServiceInstanceType.USER_PROVIDED)
                                                     .syslogDrainUrl(SERVICE_LOG_DRAIN)
                                                     .credentials(CREDENTIALS)
+                                                    .tags(SERVICE_TAGS)
                                                     .build();
     }
 

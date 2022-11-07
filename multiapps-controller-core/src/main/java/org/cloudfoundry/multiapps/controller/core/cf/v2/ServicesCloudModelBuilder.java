@@ -89,6 +89,7 @@ public class ServicesCloudModelBuilder {
                                                     .build();
     }
 
+    @SuppressWarnings("unchecked")
     protected CloudServiceInstanceExtended createUserProvidedService(Resource resource, CommonServiceParameters commonServiceParameters) {
         String serviceName = commonServiceParameters.getServiceName();
         Map<String, Object> parameters = resource.getParameters();
@@ -104,6 +105,8 @@ public class ServicesCloudModelBuilder {
                                                     .type(ServiceInstanceType.USER_PROVIDED)
                                                     .credentials(credentials)
                                                     .syslogDrainUrl((String) parameters.get(SupportedParameters.SYSLOG_DRAIN_URL))
+                                                    .tags((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_TAGS,
+                                                                                                 Collections.emptyList()))
                                                     .isOptional(commonServiceParameters.isOptional())
                                                     .isManaged(true)
                                                     .shouldSkipParametersUpdate(commonServiceParameters.shouldSkipParametersUpdate())

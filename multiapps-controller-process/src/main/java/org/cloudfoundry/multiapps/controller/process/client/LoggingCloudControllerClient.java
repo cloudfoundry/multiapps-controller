@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import com.sap.cloudfoundry.client.facade.domain.ServicePlanVisibility;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
@@ -38,6 +37,7 @@ import com.sap.cloudfoundry.client.facade.domain.CloudTask;
 import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
 import com.sap.cloudfoundry.client.facade.domain.DropletInfo;
 import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
+import com.sap.cloudfoundry.client.facade.domain.ServicePlanVisibility;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 import com.sap.cloudfoundry.client.facade.domain.Upload;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
@@ -121,16 +121,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createUserProvidedServiceInstance(CloudServiceInstance serviceInstance, Map<String, Object> credentials) {
+    public void createUserProvidedServiceInstance(CloudServiceInstance serviceInstance) {
         logger.debug(Messages.CREATING_USER_PROVIDED_SERVICE_INSTANCE_0, SecureSerialization.toJson(serviceInstance));
-        delegate.createUserProvidedServiceInstance(serviceInstance, credentials);
-    }
-
-    @Override
-    public void createUserProvidedServiceInstance(CloudServiceInstance serviceInstance, Map<String, Object> credentials,
-                                                  String syslogDrainUrl) {
-        logger.debug(Messages.CREATING_USER_PROVIDED_SERVICE_INSTANCE_0, SecureSerialization.toJson(serviceInstance));
-        delegate.createUserProvidedServiceInstance(serviceInstance, credentials, syslogDrainUrl);
+        delegate.createUserProvidedServiceInstance(serviceInstance);
     }
 
     @Override

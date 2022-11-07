@@ -34,7 +34,6 @@ public class CreateServiceStep extends ServiceStep {
 
         try {
             OperationExecutionState executionState = createCloudService(controllerClient, service);
-
             getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());
             return executionState;
         } catch (CloudOperationException e) {
@@ -56,7 +55,7 @@ public class CreateServiceStep extends ServiceStep {
     }
 
     private OperationExecutionState createUserProvidedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {
-        client.createUserProvidedServiceInstance(service, service.getCredentials(), service.getSyslogDrainUrl());
+        client.createUserProvidedServiceInstance(service);
         return OperationExecutionState.FINISHED;
     }
 
