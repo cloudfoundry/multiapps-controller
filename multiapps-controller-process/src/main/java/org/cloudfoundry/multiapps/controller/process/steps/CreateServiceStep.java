@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Named;
 
@@ -21,6 +22,7 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudControllerException;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
 @Named("createServiceStep")
@@ -29,25 +31,24 @@ public class CreateServiceStep extends ServiceStep {
 
     @Override
     protected OperationExecutionState executeOperation(ProcessContext context, CloudControllerClient controllerClient,
-                                                       CloudServiceInstanceExtended service) {
-        getStepLogger().info(Messages.CREATING_SERVICE_FROM_MTA_RESOURCE, service.getName(), service.getResourceName());
-
+                                                       CloudServiceInstanceExtended serviceInstance) {
+        getStepLogger().info(Messages.CREATING_SERVICE_FROM_MTA_RESOURCE, serviceInstance.getName(), serviceInstance.getResourceName());
         try {
-            OperationExecutionState executionState = createCloudService(controllerClient, service);
-            getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());
+            OperationExecutionState executionState = createCloudService(controllerClient, serviceInstance);
+            getStepLogger().debug(Messages.SERVICE_CREATED, serviceInstance.getName());
             return executionState;
         } catch (CloudOperationException e) {
-            processServiceCreationFailure(context, service, e);
+            Optional<OperationExecutionState> operationExecutionState = getServiceInstanceStateIfCreated(controllerClient, serviceInstance,
+                                                                                                         e);
+            if (operationExecutionState.isPresent()) {
+                return operationExecutionState.get();
+            }
+            processServiceCreationFailure(context, serviceInstance, e);
         }
-
         return OperationExecutionState.FINISHED;
     }
 
     private OperationExecutionState createCloudService(CloudControllerClient client, CloudServiceInstanceExtended service) {
-        if (serviceExists(service, client)) {
-            getStepLogger().info(org.cloudfoundry.multiapps.controller.core.Messages.SERVICE_ALREADY_EXISTS, service.getName());
-            return OperationExecutionState.FINISHED;
-        }
         if (service.isUserProvided()) {
             return createUserProvidedServiceInstance(client, service);
         }
@@ -59,15 +60,6 @@ public class CreateServiceStep extends ServiceStep {
         return OperationExecutionState.FINISHED;
     }
 
-    private boolean serviceExists(CloudServiceInstanceExtended cloudServiceExtended, CloudControllerClient client) {
-        try {
-            client.getRequiredServiceInstanceGuid(cloudServiceExtended.getName());
-            return true;
-        } catch (CloudOperationException e) {
-            return false;
-        }
-    }
-
     private OperationExecutionState createManagedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {
         Assert.notNull(service, "Service must not be null");
         Assert.notNull(service.getName(), "Service name must not be null");
@@ -77,18 +69,46 @@ public class CreateServiceStep extends ServiceStep {
         return OperationExecutionState.EXECUTING;
     }
 
-    private void processServiceCreationFailure(ProcessContext context, CloudServiceInstanceExtended service, CloudOperationException e) {
-        if (!service.isOptional()) {
-            String detailedDescription = MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), service.getLabel(),
-                                                              service.getPlan(), e.getDescription());
+    private void processServiceCreationFailure(ProcessContext context, CloudServiceInstanceExtended serviceInstance,
+                                               CloudOperationException e) {
+        if (!serviceInstance.isOptional()) {
+            String detailedDescription = MessageFormat.format(Messages.ERROR_CREATING_SERVICE, serviceInstance.getName(),
+                                                              serviceInstance.getLabel(), serviceInstance.getPlan(), e.getDescription());
             if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
-                context.setVariable(Variables.SERVICE_OFFERING, service.getLabel());
+                context.setVariable(Variables.SERVICE_OFFERING, serviceInstance.getLabel());
                 throw new CloudServiceBrokerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
             }
             throw new CloudControllerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
         }
-        getStepLogger().warn(MessageFormat.format(Messages.COULD_NOT_CREATE_OPTIONAL_SERVICE, service.getName()), e,
-                             ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, service.getLabel()));
+        getStepLogger().warn(MessageFormat.format(Messages.COULD_NOT_CREATE_OPTIONAL_SERVICE, serviceInstance.getName()), e,
+                             ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, serviceInstance.getLabel()));
+    }
+
+    private Optional<OperationExecutionState> getServiceInstanceStateIfCreated(CloudControllerClient controllerClient,
+                                                                               CloudServiceInstanceExtended serviceInstance,
+                                                                               CloudOperationException e) {
+        if (e.getStatusCode() != HttpStatus.UNPROCESSABLE_ENTITY) {
+            return Optional.empty();
+        }
+        CloudServiceInstance existingServiceInstance = controllerClient.getServiceInstanceWithoutAuxiliaryContent(serviceInstance.getName(),
+                                                                                                                  false);
+        if (existingServiceInstance == null) {
+            return Optional.empty();
+        }
+        getStepLogger().warn(Messages.SERVICE_INSTANCE_ALREADY_EXISTS, serviceInstance.getName());
+        return mapServiceInstanceState(existingServiceInstance);
+    }
+
+    private Optional<OperationExecutionState> mapServiceInstanceState(CloudServiceInstance existingServiceInstance) {
+        ServiceOperation.State state = existingServiceInstance.getLastOperation()
+                                                              .getState();
+        if (state == ServiceOperation.State.IN_PROGRESS || state == ServiceOperation.State.INITIAL) {
+            return Optional.of(OperationExecutionState.EXECUTING);
+        }
+        if (state == ServiceOperation.State.SUCCEEDED) {
+            return Optional.of(OperationExecutionState.FINISHED);
+        }
+        return Optional.empty();
     }
 
     @Override

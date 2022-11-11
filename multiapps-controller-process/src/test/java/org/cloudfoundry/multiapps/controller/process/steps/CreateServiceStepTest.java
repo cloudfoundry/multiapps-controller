@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 
@@ -25,13 +26,14 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceInstance;
+import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
 class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
     private static final String POLLING = "polling";
     private static final String STEP_EXECUTION = "stepExecution";
     private static final String METADATA_UPDATE = "metadataUpdate";
-    private static final String DONE_EXECUTION_STATUS = "DONE";
     private static final String SERVICE_NAME = "service-1";
     private static final String SERVICE_LOG_DRAIN = "syslogDrain";
 
@@ -55,7 +57,7 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
         step.execute(execution);
         assertStepPhase(STEP_EXECUTION);
 
-        if (getExecutionStatus().equals(DONE_EXECUTION_STATUS)) {
+        if (getExecutionStatus().equals(StepPhase.DONE.toString())) {
             return;
         }
         prepareClient(true);
@@ -79,13 +81,29 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
         Assertions.assertThrows(SLException.class, () -> step.execute(execution));
     }
 
-    @Test
-    void testWhenServiceAlreadyExists() {
+    private static Stream<Arguments> testCreateServiceInstanceWhenAlreadyExists() {
+        return Stream.of(Arguments.of(ServiceOperation.State.SUCCEEDED, StepPhase.DONE.toString()),
+                         Arguments.of(ServiceOperation.State.INITIAL, StepPhase.POLL.toString()),
+                         Arguments.of(ServiceOperation.State.IN_PROGRESS, StepPhase.POLL.toString()));
+    }
+
+    @MethodSource
+    @ParameterizedTest
+    void testCreateServiceInstanceWhenAlreadyExists(ServiceOperation.State serviceInstanceState, String executionStatus) {
         initializeInput(createCloudService(), MANAGED_SERVICE_STEPS, true);
-        Mockito.when(client.getRequiredServiceInstanceGuid(anyString()))
-               .thenReturn(UUID.randomUUID());
+        ImmutableCloudServiceInstance existingCloudServiceInstance = ImmutableCloudServiceInstance.copyOf(createCloudService())
+                                                                                                  .withLastOperation(createLastOperation(serviceInstanceState));
+        Mockito.when(client.getServiceInstanceWithoutAuxiliaryContent(anyString(), anyBoolean()))
+               .thenReturn(existingCloudServiceInstance);
+        Mockito.doThrow(new CloudOperationException(HttpStatus.UNPROCESSABLE_ENTITY))
+               .when(client)
+               .createServiceInstance(any());
         step.execute(execution);
-        assertEquals(DONE_EXECUTION_STATUS, getExecutionStatus());
+        assertEquals(executionStatus, getExecutionStatus());
+    }
+
+    private ServiceOperation createLastOperation(ServiceOperation.State state) {
+        return new ServiceOperation(ServiceOperation.Type.CREATE, null, state);
     }
 
     @Test

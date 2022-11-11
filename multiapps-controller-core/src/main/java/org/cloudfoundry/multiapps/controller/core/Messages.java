@@ -49,7 +49,6 @@ public final class Messages {
     public static final String ILLEGAL_DESIRED_STATE = "Illegal desired application state: {0}";
     public static final String ILLEGAL_SERVICE_OPERATION_STATE = "Illegal service operation state: {0}";
     public static final String ILLEGAL_SERVICE_OPERATION_TYPE = "Illegal service operation type: {0}";
-    public static final String SERVICE_ALREADY_EXISTS = "Service \"{0}\" already exists.";
     public static final String NO_SERVICE_PLAN_FOUND = "Could not create service instance \"{0}\". Service plan \"{1}\" from service offering \"{2}\" was not found.";
     public static final String EMPTY_SERVICE_PLANS_LIST_FOUND = "An empty service plans list was found for service with label \"{0}\" from broker \"{1}\" with plan \"{2}\"";
     public static final String UNABLE_TO_PARSE_MEMORY_STRING_0 = "Unable to parse memory string \"{0}\"";
