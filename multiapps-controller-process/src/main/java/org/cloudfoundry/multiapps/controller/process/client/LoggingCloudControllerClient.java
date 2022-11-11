@@ -379,6 +379,18 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public CloudServiceInstance getServiceInstanceWithoutAuxiliaryContent(String serviceInstanceName) {
+        // TODO: log
+        return delegate.getServiceInstanceWithoutAuxiliaryContent(serviceInstanceName);
+    }
+
+    @Override
+    public CloudServiceInstance getServiceInstanceWithoutAuxiliaryContent(String serviceInstanceName, boolean required) {
+        // TODO: log
+        return delegate.getServiceInstanceWithoutAuxiliaryContent(serviceInstanceName, required);
+    }
+
+    @Override
     public List<CloudServiceBinding> getServiceAppBindings(UUID serviceInstanceGuid) {
         logger.debug(Messages.GETTING_BINDINGS_OF_SERVICE_INSTANCE_0, serviceInstanceGuid);
         return delegate.getServiceAppBindings(serviceInstanceGuid);
