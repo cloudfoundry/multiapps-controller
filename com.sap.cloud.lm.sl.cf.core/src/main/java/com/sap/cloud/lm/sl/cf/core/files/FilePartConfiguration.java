@@ -34,6 +34,10 @@ public class FilePartConfiguration {
     }
 
     public long getMaxFileSize() {
+        String envVal = System.getenv("MTA_CHUNK_SIZE_MB");
+        if (envVal != null && !envVal.isEmpty()) {
+            return Long.parseLong(envVal) * 1024 * 1024;
+        }
         return maxFileSize;
     }
 
