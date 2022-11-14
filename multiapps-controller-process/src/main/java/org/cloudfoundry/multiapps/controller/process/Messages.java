@@ -205,6 +205,7 @@ public class Messages {
     public static final String DELAY_AFTER_APP_STOP_0_ABOVE_MAX_VALUE = "Variable for delay after app stop \"{0}\", is above max allowed value. Setting it to default max value.";
     public static final String COULD_NOT_PARSE_APP_STOP_DELAY_VAR = "Could not parse variable for delay after app stop: \"{0}\"";
     public static final String DELAY_AFTER_APP_STOP_CANNOT_BE_NEGATIVE = "Delay after app stop cannot be negative: \"{0}\"";
+    public static final String METADATA_UPDATE_OF_OPTIONAL_SERVICE_INSTANCE_0_FAILED = "Metadata update of optional service instance: \"{0}\" failed!";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
@@ -531,6 +532,7 @@ public class Messages {
     public static final String GETTING_RECENT_LOGS_OF_APPLICATION_0 = "Getting recent logs of application \"{0}\"...";
     public static final String GETTING_ROUTES_WITH_DOMAIN_0 = "Getting routes with domain \"{0}\"...";
     public static final String GETTING_SERVICE_INSTANCE_0 = "Getting service instance \"{0}\"...";
+    public static final String GETTING_SERVICE_INSTANCE_WITHOUT_AUXILIARY_CONTENT_0 = "Getting service instance without auxiliary content \"{0}\"...";
     public static final String GETTING_BINDINGS_OF_SERVICE_INSTANCE_0 = "Getting bindings of service instance \"{0}\"...";
     public static final String GETTING_BINDING_OF_SERVICE_INSTANCE_0_WITH_APPLICATION_1 = "Getting binding of service instance \"{0}\" with application \"{1}\"...";
     public static final String GETTING_SERVICE_BROKER_0 = "Getting service broker \"{0}\"...";

@@ -380,13 +380,13 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     @Override
     public CloudServiceInstance getServiceInstanceWithoutAuxiliaryContent(String serviceInstanceName) {
-        // TODO: log
+        logger.debug(Messages.GETTING_SERVICE_INSTANCE_WITHOUT_AUXILIARY_CONTENT_0, serviceInstanceName);
         return delegate.getServiceInstanceWithoutAuxiliaryContent(serviceInstanceName);
     }
 
     @Override
     public CloudServiceInstance getServiceInstanceWithoutAuxiliaryContent(String serviceInstanceName, boolean required) {
-        // TODO: log
+        logger.debug(Messages.GETTING_SERVICE_INSTANCE_WITHOUT_AUXILIARY_CONTENT_0, serviceInstanceName);
         return delegate.getServiceInstanceWithoutAuxiliaryContent(serviceInstanceName, required);
     }
 
