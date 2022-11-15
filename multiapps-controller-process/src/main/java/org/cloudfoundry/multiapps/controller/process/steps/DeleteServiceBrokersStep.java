@@ -113,7 +113,7 @@ public class DeleteServiceBrokersStep extends TimeoutAsyncFlowableStep {
             try {
                 getStepLogger().info(MessageFormat.format(Messages.DELETING_SERVICE_BROKER, serviceBroker.getName(), appName));
                 String jobId = client.deleteServiceBroker(serviceBroker.getName());
-                getStepLogger().debug(MessageFormat.format(Messages.DELETE_SERVICE_BROKER_TRIGERRED, serviceBroker.getName(), appName));
+                getStepLogger().debug(MessageFormat.format(Messages.DELETE_SERVICE_BROKER_TRIGGERED, serviceBroker.getName(), appName));
                 if (jobId != null) {
                     serviceBrokerNamesJobIds.put(serviceBroker.getName(), jobId);
                 }

@@ -49,7 +49,7 @@ public class ProcessTypeParser {
         String serviceId = VariableHandling.get(execution, Variables.SERVICE_ID);
         if (serviceId == null) {
             String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
-            throw new SLException(MessageFormat.format(Messages.UNKNWON_SERVICE_ID_FOR_PROCESS_0, correlationId));
+            throw new SLException(MessageFormat.format(Messages.UNKNOWN_SERVICE_ID_FOR_PROCESS_0, correlationId));
         }
         return serviceId;
     }

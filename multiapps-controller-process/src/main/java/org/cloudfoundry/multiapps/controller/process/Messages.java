@@ -14,13 +14,12 @@ public class Messages {
     public static final String ERROR_RETRIEVING_MTA_RESOURCE_CONTENT = "Error retrieving content of MTA resource \"{0}\"";
     public static final String ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET = "Service described by MTA resource \"{0}\" of type [{1}] does not match already existing service \"{2}\" of type [{3}] and needs to be recreated. Use command line option \"--delete-services\" to enable the deletion of the existing one.";
     public static final String SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT = "The size of the application exceeds max size limit \"{0}\"";
-    public static final String CF_ERROR = "Controller operation failed: {0}";
     public static final String ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT = "Unable to retrieve required service key element \"{0}\" for service \"{1}\"";
     public static final String ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE = "Value \"{0}\" of parameter \"{1}\" must not be negative";
     public static final String INVALID_VALUE_0_FOR_PARAMETER_1_VALID_VALUES_ARE_2 = "Invalid value \"{0}\" for parameter \"{1}\". Valid values are: {2}";
     public static final String ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1 = "There is no file associated with the specified file id \"{0}\" in space \"{1}\"";
     public static final String UNKNOWN_SERVICE_ID = "Unknown service id \"{0}\"";
-    public static final String UNKNWON_SERVICE_ID_FOR_PROCESS_0 = "Unknown service id for process \"{0}\"";
+    public static final String UNKNOWN_SERVICE_ID_FOR_PROCESS_0 = "Unknown service id for process \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_NAME = "Missing service broker name for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_USERNAME = "Missing service broker username for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_PASSWORD = "Missing service broker password for application \"{0}\"";
@@ -99,7 +98,6 @@ public class Messages {
     public static final String ERROR_SCALING_APP = "Error scaling application \"{0}\"";
     public static final String ERROR_DELETING_APP_ROUTES = "Error deleting routes for application \"{0}\"";
     public static final String ERROR_DELETING_APP = "Error deleting application \"{0}\"";
-    public static final String ERROR_DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP = "Error deleting discontinued configuration entries for application \"{0}\"";
     public static final String ERROR_DELETING_PUBLISHED_DEPENDENCIES = "Error deleting discontinued published dependencies";
     public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP = "Error determining actions to execute on application \"{0}\"";
     public static final String ERROR_EXECUTING_HOOK = "Error executing hook \"{0}\"";
@@ -150,7 +148,7 @@ public class Messages {
     public static final String ERROR_DELETING_OPERATION_WITH_ID = "Error deleting operation with ID \"{0}\"";
     public static final String ERROR_DELETING_FLOWABLE_PROCESS_WITH_ID = "Error deleting Flowable process with ID \"{0}\"";
     public static final String ERROR_MISSING_DEFAULT_DOMAIN = "Missing default domain in current org";
-    public static final String ERROR_WHILE_DETERMINE_BIND_UNBIND_OEPRATIONS_OF_APPLICATION_TO_SERVICE = "Error while determine bind/unbind operations of application \"{0}\" to service \"{1}\"";
+    public static final String ERROR_WHILE_DETERMINE_BIND_UNBIND_OPERATIONS_OF_APPLICATION_TO_SERVICE = "Error while determine bind/unbind operations of application \"{0}\" to service \"{1}\"";
     public static final String ERROR_WHILE_UNBINDING_SERVICE_INSTANCE_FROM_APPLICATION = "Error while unbinding service instance \"{0}\" from application \"{1}\"";
     public static final String ERROR_WHILE_BINDING_SERVICE_INSTANCE_TO_APPLICATION = "Error while binding service instance \"{0}\" to application \"{1}\"";
     public static final String ERROR_WHILE_DETERMINE_VCAP_SERVICES_PROPERTIES_CHANGED_FOR_APPLICATION = "Error while determine VCAP_SERVICES properties changed for application \"{0}\"";
@@ -284,7 +282,6 @@ public class Messages {
     public static final String UPDATING_SUBSCRIBER = "Updating application \"{0}\" from MTA \"{1}\" for subscription \"{2}\"";
     public static final String DELETING_DISCONTINUED_SUBSCRIPTION_FROM_0_MODULE_TO_1_RESOURCE = "Deleting discontinued configuration change subscription from MTA module \"{0}\" to MTA resource \"{1}\"...";
     public static final String DELETING_DISCONTINUED_DEPENDENCY_0 = "Deleting discontinued publicly provided dependency \"{0}\"...";
-    public static final String DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP = "Deleting discontinued configuration entries for application \"{0}\"...";
     public static final String STOPPING_APP = "Stopping application \"{0}\"...";
     public static final String STAGING_APP = "Staging application \"{0}\"...";
     public static final String STARTING_APP = "Starting application \"{0}\"...";
@@ -346,14 +343,9 @@ public class Messages {
     public static final String ADDING_DOMAINS = "Adding domains...";
     public static final String DOMAINS_ADDED = "Domains added";
     public static final String DELETING_DISCONTINUED_SERVICE_0 = "Deleting discontinued service \"{0}\"...";
-    public static final String DELETING_SERVICES = "Deleting discontinued services...";
     public static final String DELETING_OLD_SERVICE_KEYS = "Deleting old service keys for content deploy...";
     public static final String DELETING_OLD_SERVICE_KEYS_FOR_SERVICE = "Deleting old service keys for content deploy \"{0}\"...";
     public static final String MISSING_SERVICE_KEYS_TO_DELETE = "Preexisting Service Key marked for deletion was not found after content deploy!";
-    public static final String MISSING_SERVICES_TO_DELETE = "Missing services to delete.";
-    public static final String SERVICES_ARE_ALREADY_DELETED = "Services \"{0}\" are already deleted";
-    public static final String SERVICES_DELETED = "Discontinued services deleted";
-    public static final String ERROR_DELETING_SERVICE_SHORT = "Error deleting service \"{0}\": {1}";
     public static final String SERVICES_TO_CREATE = "Services to create: {0}";
     public static final String CREATED_SERVICE_KEY = "Service key \"{0}\" created";
     public static final String SERVICE_BINDINGS_EXISTS = "Service bindings \"{0}\" exists";
@@ -384,7 +376,6 @@ public class Messages {
     public static final String DELETED_SUBSCRIPTIONS = "Deleted discontinued subscriptions";
     public static final String DELETING_PUBLISHED_DEPENDENCIES = "Deleting discontinued published dependencies...";
     public static final String PUBLISHED_DEPENDENCIES_DELETED = "Discontinued published dependencies deleted";
-    public static final String DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP_DELETED = "Discontinued configuration entries for application \"{0}\" deleted";
     public static final String APP_STOPPED = "Application \"{0}\" stopped";
     public static final String CANCELED_TASK_ON_APP = "Canceled task \"{0}\" on application \"{1}\"";
     public static final String APP_DELETED = "Application \"{0}\" deleted";
@@ -396,10 +387,10 @@ public class Messages {
     public static final String DETECTING_COMPONENTS_TO_UNDEPLOY = "Detecting components to undeploy...";
     public static final String COMPONENTS_TO_UNDEPLOY_DETECTED = "Components to undeploy detected";
     public static final String CREATING_SERVICE_BROKERS = "Creating service brokers...";
-    public static final String CREATE_SERVICE_BROKER_TRIGERRED = "Create of service broker \"{0}\" trigerred";
-    public static final String UPDATE_SERVICE_BROKER_TRIGERRED = "Update of service broker \"{0}\" trigerred";
+    public static final String CREATE_SERVICE_BROKER_TRIGGERED = "Create of service broker \"{0}\" triggered";
+    public static final String UPDATE_SERVICE_BROKER_TRIGGERED = "Update of service broker \"{0}\" triggered";
     public static final String DELETING_SERVICE_BROKERS = "Deleting discontinued service brokers...";
-    public static final String DELETE_SERVICE_BROKER_TRIGERRED = "Deletion of service broker \"{0}\" for application \"{1}\" trigerred";
+    public static final String DELETE_SERVICE_BROKER_TRIGGERED = "Deletion of service broker \"{0}\" for application \"{1}\" triggered";
     public static final String SERVICE_BROKERS_DELETED = "Discontinued service brokers deleted";
     public static final String DETACHING_SERVICES_FROM_MTA = "Detaching services from MTA...";
     public static final String DETACHING_SERVICE_0_FROM_MTA = "Detaching service \"{0}\" from MTA...";
@@ -452,7 +443,6 @@ public class Messages {
     public static final String UNEXPECTED_ERROR = "Unexpected error: {0}";
     public static final String SAVING_ERROR_MESSAGE_FAILED = "Saving error message failed";
     public static final String STEP_FINISHED = "Step \"{0}\" finished";
-    public static final String COMPUTING_STATE_OF_OPERATION = "Computing state of operation {0} with ID: {1}";
     public static final String ROUTES_FOR_APPLICATION = "Routes for application {0}: {1}";
     public static final String UPLOADING_FILE_0_FOR_APP_1 = "Uploading file \"{0}\" for application \"{1}\"";
     public static final String STARTED_ASYNC_UPLOAD_OF_APP_0 = "Started async upload of application \"{0}\"";
@@ -526,7 +516,6 @@ public class Messages {
     public static final String GETTING_DOMAINS_FOR_ORGANIZATION = "Getting domains for organization...";
     public static final String GETTING_EVENTS = "Getting events...";
     public static final String GETTING_ORGANIZATION_0 = "Getting organization \"{0}\"...";
-    public static final String GETTING_USERS_OF_ORGANIZATION_0 = "Getting users of organization \"{0}\"...";
     public static final String GETTING_ORGANIZATIONS = "Getting organizations...";
     public static final String GETTING_PRIVATE_DOMAINS = "Getting private domains...";
     public static final String GETTING_RECENT_LOGS_OF_APPLICATION_0 = "Getting recent logs of application \"{0}\"...";
@@ -598,7 +587,6 @@ public class Messages {
     public static final String TIME_STATISTICS_FOR_OPERATION_0_DURATION_1_DELAY_2 = "Time statistics for operation \"{0}\": duration \"{1}\" ms; delay between steps \"{2}\" ms";
     public static final String DETERMINE_BIND_UNBIND_OPERATIONS_APPLICATION_0_SERVICE_INSTANCE_1 = "Determine bind/unbind operations of application \"{0}\" to service instance \"{1}\"";
     public static final String VCAP_SERVICES_PROPERTIES_FOR_APPLICATION_CHANGED = "VCAP_SERVICES properties for application \"{0}\" changed: {1}";
-    public static final String DETERMINE_VCAP_SERVICES_PROPERTIES_CHANGED_FOR_APPLICATION = "Determine VCAP_SERVICES properties changed for application \"{0}\"";
     public static final String UPDATING_SERVICE_0_WITH_PLAN_1 = "Updating service plan for service \"{0}\" with new plan: \"{1}\"";
     public static final String SERVICE_PLAN_FOR_SERVICE_0_UPDATED = "Service plan for service \"{0}\" updated";
     public static final String GETTING_ROLES_FOR_USER_0_FOR_SPACE_1 = "Getting roles for user: \"{0}\" for space: \"{1}\"";

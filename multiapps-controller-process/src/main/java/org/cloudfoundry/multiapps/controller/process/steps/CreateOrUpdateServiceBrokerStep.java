@@ -53,10 +53,10 @@ public class CreateOrUpdateServiceBrokerStep extends TimeoutAsyncFlowableStep {
             CloudServiceBroker existingBroker = findServiceBroker(existingServiceBrokers, serviceBroker.getName());
             serviceBroker = mergeServiceBrokerMetadata(serviceBroker, existingBroker);
             jobId = updateServiceBroker(context, serviceBroker, client);
-            getStepLogger().debug(MessageFormat.format(Messages.UPDATE_SERVICE_BROKER_TRIGERRED, serviceBroker.getName()));
+            getStepLogger().debug(MessageFormat.format(Messages.UPDATE_SERVICE_BROKER_TRIGGERED, serviceBroker.getName()));
         } else {
             jobId = createServiceBroker(context, serviceBroker, client);
-            getStepLogger().debug(MessageFormat.format(Messages.CREATE_SERVICE_BROKER_TRIGERRED, serviceBroker.getName()));
+            getStepLogger().debug(MessageFormat.format(Messages.CREATE_SERVICE_BROKER_TRIGGERED, serviceBroker.getName()));
         }
 
         if (jobId != null) {
