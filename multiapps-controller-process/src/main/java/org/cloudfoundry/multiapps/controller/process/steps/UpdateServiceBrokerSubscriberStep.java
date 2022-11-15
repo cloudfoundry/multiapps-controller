@@ -38,7 +38,7 @@ public class UpdateServiceBrokerSubscriberStep extends CreateOrUpdateServiceBrok
                 serviceBroker = ImmutableCloudServiceBroker.copyOf(serviceBroker)
                                                            .withMetadata(existingServiceBroker.getMetadata());
                 jobId = updateServiceBroker(context, serviceBroker, client);
-                getStepLogger().debug(MessageFormat.format(Messages.UPDATE_SERVICE_BROKER_TRIGERRED, serviceBroker.getName()));
+                getStepLogger().debug(MessageFormat.format(Messages.UPDATE_SERVICE_BROKER_TRIGGERED, serviceBroker.getName()));
             }
 
             if (jobId != null) {

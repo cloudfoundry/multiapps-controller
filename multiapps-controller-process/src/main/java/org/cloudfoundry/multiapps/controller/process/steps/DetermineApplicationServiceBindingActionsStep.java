@@ -100,7 +100,7 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
-        return MessageFormat.format(Messages.ERROR_WHILE_DETERMINE_BIND_UNBIND_OEPRATIONS_OF_APPLICATION_TO_SERVICE,
+        return MessageFormat.format(Messages.ERROR_WHILE_DETERMINE_BIND_UNBIND_OPERATIONS_OF_APPLICATION_TO_SERVICE,
                                     context.getVariable(Variables.APP_TO_PROCESS)
                                            .getName(),
                                     context.getVariable(Variables.SERVICE_TO_UNBIND_BIND));
