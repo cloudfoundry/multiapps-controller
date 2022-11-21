@@ -18,11 +18,11 @@ import java.util.stream.Stream;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceRemover;
-import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -36,6 +36,8 @@ import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBinding;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceBindingOperation;
+import com.sap.cloudfoundry.client.facade.domain.ServiceBindingOperation;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
 class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
@@ -136,6 +138,10 @@ class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
         return ImmutableCloudServiceBinding.builder()
                                            .serviceInstanceGuid(serviceGuid)
                                            .applicationGuid(UUID.randomUUID())
+                                           .serviceBindingOperation(ImmutableServiceBindingOperation.builder()
+                                                                                                    .type(ServiceBindingOperation.Type.CREATE)
+                                                                                                    .state(ServiceBindingOperation.State.SUCCEEDED)
+                                                                                                    .build())
                                            .build();
     }
 

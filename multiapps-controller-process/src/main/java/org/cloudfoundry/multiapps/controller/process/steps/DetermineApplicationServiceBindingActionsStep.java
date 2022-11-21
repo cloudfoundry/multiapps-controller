@@ -52,7 +52,8 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         }
 
         getStepLogger().debug(Messages.CHECK_SHOULD_REBIND_APPLICATION_SERVICE_INSTANCE, app.getName(), service);
-        if (shouldRebindService(serviceBindingParametersGetter, existingApp, service, bindingParameters)) {
+        if (isServiceBindingInFailedState(context)
+            || areBindingParametersDifferent(serviceBindingParametersGetter, existingApp, service, bindingParameters)) {
             context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, true);
             context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, true);
             context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, bindingParameters);
@@ -91,11 +92,15 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         return appServiceNames.contains(service);
     }
 
-    private boolean shouldRebindService(ServiceBindingParametersGetter serviceBindingParametersGetter, CloudApplication app,
-                                        String serviceName, Map<String, Object> newBindingParameters) {
+    private boolean areBindingParametersDifferent(ServiceBindingParametersGetter serviceBindingParametersGetter, CloudApplication app,
+                                                  String serviceName, Map<String, Object> newBindingParameters) {
         Map<String, Object> currentBindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(app,
                                                                                                                                       serviceName);
         return !Objects.equals(currentBindingParameters, newBindingParameters);
+    }
+
+    private boolean isServiceBindingInFailedState(ProcessContext context) {
+        return context.getVariable(Variables.IS_SERVICE_BINDING_IN_FAILED_STATE);
     }
 
     @Override

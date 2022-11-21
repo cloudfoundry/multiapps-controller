@@ -742,13 +742,17 @@ public interface Variables {
                                                                                        .type(new TypeReference<>() {
                                                                                        })
                                                                                        .defaultValue(Collections.emptyList())
-                                                                                       .build();
+                                                                                           .build();
     Variable<List<Resource>> BATCH_TO_PROCESS = ImmutableJsonStringVariable.<List<Resource>> builder()
                                                                            .name("batchToProcess")
                                                                            .type(new TypeReference<>() {
                                                                            })
                                                                            .defaultValue(Collections.emptyList())
                                                                            .build();
+    Variable<Boolean> IS_SERVICE_BINDING_IN_FAILED_STATE = ImmutableSimpleVariable.<Boolean> builder()
+                                                                               .name("isServiceBindingInFailedState")
+                                                                               .defaultValue(false)
+                                                                               .build();
     //TODO revert back to:
     // ImmutableJsonBinaryVariable.<CloudApplication> builder()
     //                            .name("existingAppToPoll")

@@ -44,6 +44,8 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBinding;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceInstance;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceBindingOperation;
+import com.sap.cloudfoundry.client.facade.domain.ServiceBindingOperation;
 
 class ServiceRemoverTest {
 
@@ -191,6 +193,10 @@ class ServiceRemoverTest {
                                            .name(BINDING_NAME)
                                            .applicationGuid(applicationBindingGuid)
                                            .serviceInstanceGuid(serviceGuid)
+                                           .serviceBindingOperation(ImmutableServiceBindingOperation.builder()
+                                                                                                    .type(ServiceBindingOperation.Type.CREATE)
+                                                                                                    .state(ServiceBindingOperation.State.SUCCEEDED)
+                                                                                                    .build())
                                            .build();
     }
 
