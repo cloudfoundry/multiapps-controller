@@ -403,6 +403,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public CloudServiceBinding getServiceBindingForApplication(String applicationName, String serviceInstanceName) {
+        logger.debug(Messages.GETTING_BINDING_OF_SERVICE_INSTANCE_0_WITH_APPLICATION_1, applicationName, serviceInstanceName);
+        return delegate.getServiceBindingForApplication(applicationName, serviceInstanceName);
+    }
+
+    @Override
     public Map<String, Object> getServiceInstanceParameters(UUID guid) {
         logger.debug(Messages.GETTING_PARAMETERS_OF_SERVICE_INSTANCE_0, guid);
         return delegate.getServiceInstanceParameters(guid);

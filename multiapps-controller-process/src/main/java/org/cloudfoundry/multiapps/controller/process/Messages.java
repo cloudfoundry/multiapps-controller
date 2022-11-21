@@ -72,6 +72,8 @@ public class Messages {
     public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FAILED_WITH = "Async operation for service broker \"{0}\" failed with \"{1}\"";
     public static final String CLEARING_STALE_FLOWABLE_LOCK_OWNER_0_THREW_AN_EXCEPTION_1 = "Clearing stale Flowable lock owner {0} threw an exception: {1}";
     public static final String SERVICE_INSTANCE_0_NOT_BOUND_TO_APP_1 = "Service instance \"{0}\" not bound to application \"{1}\"";
+    public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while polling service binding operations between app: \"{0}\" and service instance \"{1}\"";
+    public static final String ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while checking service binding operations between app: \"{0}\" and service instance \"{1}\"";
 
     // Process step errors
     public static final String ERROR_VALIDATING_PARAMS = "Error validating parameters";
@@ -204,6 +206,7 @@ public class Messages {
     public static final String COULD_NOT_PARSE_APP_STOP_DELAY_VAR = "Could not parse variable for delay after app stop: \"{0}\"";
     public static final String DELAY_AFTER_APP_STOP_CANNOT_BE_NEGATIVE = "Delay after app stop cannot be negative: \"{0}\"";
     public static final String METADATA_UPDATE_OF_OPTIONAL_SERVICE_INSTANCE_0_FAILED = "Metadata update of optional service instance: \"{0}\" failed!";
+    public static final String SERVICE_BINDING_0_EXISTS_IN_BROKEN_STATE_WILL_BE_RECREATED = "Service binding \"{0}\" exists in broken state, will be recreated";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
@@ -606,6 +609,8 @@ public class Messages {
     public static final String NEW_SERVICE_KEYS = "New service keys by service \"{0}\"";
     public static final String EXISTING_SERVICE_KEYS = "Existing service keys by service \"{0}\"";
     public static final String SERVICE_KEYS_FOR_DELETION = "Detected service keys to delete \"{0}\"";
+    public static final String CHECKING_FOR_SERVICE_BINDING_OPERATION_IN_PROGRESS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Checking for service binding operation in progress between app \"{0}\" and service instance \"{1}\"";
+    public static final String SERVICE_BINDING_OPERATION_0_IS_IN_STATE_1 = "Service binding operation: \"{0}\" is in state: \"{1}\"";
 
     protected Messages() {
     }
