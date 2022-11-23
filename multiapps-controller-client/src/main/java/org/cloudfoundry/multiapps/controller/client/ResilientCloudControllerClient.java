@@ -4,6 +4,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudControllerClientImpl;
+import com.sap.cloudfoundry.client.facade.ServiceBindingOperationCallback;
 import com.sap.cloudfoundry.client.facade.UploadStatusCallback;
 import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
@@ -68,15 +70,15 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void bindServiceInstance(String applicationName, String serviceInstanceName) {
-        executeWithRetry(() -> delegate.bindServiceInstance(applicationName, serviceInstanceName));
+    public Optional<String> bindServiceInstance(String applicationName, String serviceInstanceName) {
+        return executeWithRetry(() -> delegate.bindServiceInstance(applicationName, serviceInstanceName));
     }
 
     @Override
-    public void bindServiceInstance(String applicationName, String serviceInstanceName, Map<String, Object> parameters,
-                                    ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
-        executeWithRetry(() -> delegate.bindServiceInstance(applicationName, serviceInstanceName, parameters,
-                                                            applicationServicesUpdateCallback));
+    public Optional<String> bindServiceInstance(String applicationName, String serviceInstanceName, Map<String, Object> parameters,
+                                                ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+        return executeWithRetry(() -> delegate.bindServiceInstance(applicationName, serviceInstanceName, parameters,
+                                                                   applicationServicesUpdateCallback));
     }
 
     @Override
@@ -131,8 +133,13 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void deleteServiceBinding(String serviceInstanceName, String serviceKeyName) {
-        executeWithRetry(() -> delegate.deleteServiceBinding(serviceInstanceName, serviceKeyName));
+    public CloudServiceBinding getServiceBinding(UUID serviceBindingId) {
+        return executeWithRetry(() -> delegate.getServiceBinding(serviceBindingId));
+    }
+
+    @Override
+    public Optional<String> deleteServiceBinding(String serviceInstanceName, String serviceKeyName) {
+        return executeWithRetry(() -> delegate.deleteServiceBinding(serviceInstanceName, serviceKeyName));
     }
 
     @Override
@@ -276,13 +283,13 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudServiceBinding getServiceBindingForApplication(UUID applicationGuid, UUID serviceInstanceGuid) {
-        return executeWithRetry(() -> delegate.getServiceBindingForApplication(applicationGuid, serviceInstanceGuid));
+    public List<CloudServiceBinding> getAppBindings(UUID applicationGuid) {
+        return executeWithRetry(() -> delegate.getAppBindings(applicationGuid));
     }
 
     @Override
-    public CloudServiceBinding getServiceBindingForApplication(String applicationName, String serviceInstanceName) {
-        return executeWithRetry(() -> delegate.getServiceBindingForApplication(applicationName, serviceInstanceName));
+    public CloudServiceBinding getServiceBindingForApplication(UUID applicationGuid, UUID serviceInstanceGuid) {
+        return executeWithRetry(() -> delegate.getServiceBindingForApplication(applicationGuid, serviceInstanceGuid));
     }
 
     @Override
@@ -366,13 +373,13 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void unbindServiceInstance(String applicationName, String serviceInstanceName) {
-        executeWithRetry(() -> delegate.unbindServiceInstance(applicationName, serviceInstanceName));
+    public Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName) {
+        return executeWithRetry(() -> delegate.unbindServiceInstance(applicationName, serviceInstanceName));
     }
 
     @Override
-    public void unbindServiceInstance(UUID appGuid, UUID serviceGuid) {
-        executeWithRetry(() -> delegate.unbindServiceInstance(appGuid, serviceGuid));
+    public Optional<String> unbindServiceInstance(UUID appGuid, UUID serviceGuid) {
+        return executeWithRetry(() -> delegate.unbindServiceInstance(appGuid, serviceGuid));
     }
 
     @Override
@@ -456,13 +463,13 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createServiceKey(CloudServiceKey keyModel, String serviceInstanceName) {
-        executeWithRetry(() -> delegate.createServiceKey(keyModel, serviceInstanceName));
+    public Optional<String> createServiceKey(CloudServiceKey keyModel, String serviceInstanceName) {
+        return executeWithRetry(() -> delegate.createServiceKey(keyModel, serviceInstanceName));
     }
 
     @Override
-    public void createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
-        executeWithRetry(() -> delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters));
+    public Optional<String> createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
+        return executeWithRetry(() -> delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters));
     }
 
     @Override
@@ -476,8 +483,13 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void deleteServiceBinding(UUID serviceBindingGuid) {
-        executeWithRetry(() -> delegate.deleteServiceBinding(serviceBindingGuid));
+    public Optional<String> deleteServiceBinding(UUID serviceBindingGuid, ServiceBindingOperationCallback serviceBindingOperationCallback) {
+        return executeWithRetry(() -> delegate.deleteServiceBinding(serviceBindingGuid, serviceBindingOperationCallback));
+    }
+
+    @Override
+    public Optional<String> deleteServiceBinding(UUID bindingGuid) {
+        return executeWithRetry(() -> delegate.deleteServiceBinding(bindingGuid));
     }
 
     @Override
@@ -616,9 +628,10 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void unbindServiceInstance(String applicationName, String serviceInstanceName,
-                                      ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
-        executeWithRetry(() -> delegate.unbindServiceInstance(applicationName, serviceInstanceName, applicationServicesUpdateCallback));
+    public Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName,
+                                                  ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+        return executeWithRetry(() -> delegate.unbindServiceInstance(applicationName, serviceInstanceName,
+                                                                     applicationServicesUpdateCallback));
     }
 
     @Override

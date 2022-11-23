@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 
 @Named("determineApplicationServiceBindingActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -30,14 +31,13 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
         String service = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
         getStepLogger().debug(Messages.DETERMINE_BIND_UNBIND_OPERATIONS_APPLICATION_0_SERVICE_INSTANCE_1, app.getName(), service);
-
-        if (!isServicePartFromMta(app, service) && !shouldKeepExistingServiceBindings(app)) {
-            context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, true);
-            context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, false);
-            getStepLogger().debug(Messages.CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE, app.getName(), service, true, false);
-            return StepPhase.DONE;
+        CloudServiceBinding serviceBindingToDelete = context.getVariable(Variables.SERVICE_BINDING_TO_DELETE);
+        if (serviceBindingToDelete != null) {
+            return setBindingForDeletion(context, app, service);
         }
-
+        if (!isServicePartFromMta(app, service) && !shouldKeepExistingServiceBindings(app)) {
+            return setBindingForDeletion(context, app, service);
+        }
         CloudControllerClient client = context.getControllerClient();
         CloudApplication existingApp = client.getApplication(app.getName());
 
@@ -52,7 +52,7 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         }
 
         getStepLogger().debug(Messages.CHECK_SHOULD_REBIND_APPLICATION_SERVICE_INSTANCE, app.getName(), service);
-        if (isServiceBindingInFailedState(context)
+        if (shouldRecreateServiceBinding(context)
             || areBindingParametersDifferent(serviceBindingParametersGetter, existingApp, service, bindingParameters)) {
             context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, true);
             context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, true);
@@ -65,6 +65,13 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, false);
         context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, false);
         getStepLogger().debug(Messages.CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE, app.getName(), service, false, false);
+        return StepPhase.DONE;
+    }
+
+    private StepPhase setBindingForDeletion(ProcessContext context, CloudApplicationExtended app, String service) {
+        context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, true);
+        context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, false);
+        getStepLogger().debug(Messages.CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE, app.getName(), service, true, false);
         return StepPhase.DONE;
     }
 
@@ -99,8 +106,8 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         return !Objects.equals(currentBindingParameters, newBindingParameters);
     }
 
-    private boolean isServiceBindingInFailedState(ProcessContext context) {
-        return context.getVariable(Variables.IS_SERVICE_BINDING_IN_FAILED_STATE);
+    private boolean shouldRecreateServiceBinding(ProcessContext context) {
+        return context.getVariable(Variables.SHOULD_RECREATE_SERVICE_BINDING);
     }
 
     @Override

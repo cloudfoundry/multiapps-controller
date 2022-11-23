@@ -1,12 +1,14 @@
 package org.cloudfoundry.multiapps.controller.process.variables;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.DeploymentMode;
@@ -24,6 +26,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.process.DeployStrategy;
 import org.cloudfoundry.multiapps.controller.process.steps.StepPhase;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
+import org.cloudfoundry.multiapps.controller.process.util.ServiceDeletionActions;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Hook;
@@ -454,6 +457,7 @@ public interface Variables {
                                                                                               .name("serviceKeysToDelete")
                                                                                               .type(new TypeReference<>() {
                                                                                               })
+                                                                                              .defaultValue(Collections.emptyList())
                                                                                               .build();
     Variable<Map<String, List<CloudServiceKey>>> SERVICE_KEYS_FOR_CONTENT_DEPLOY = ImmutableJsonBinaryVariable.<Map<String, List<CloudServiceKey>>> builder()
                                                                                                               .name("serviceKeysForContentDeploy")
@@ -742,17 +746,83 @@ public interface Variables {
                                                                                        .type(new TypeReference<>() {
                                                                                        })
                                                                                        .defaultValue(Collections.emptyList())
-                                                                                           .build();
+                                                                                       .build();
     Variable<List<Resource>> BATCH_TO_PROCESS = ImmutableJsonStringVariable.<List<Resource>> builder()
                                                                            .name("batchToProcess")
                                                                            .type(new TypeReference<>() {
                                                                            })
                                                                            .defaultValue(Collections.emptyList())
                                                                            .build();
-    Variable<Boolean> IS_SERVICE_BINDING_IN_FAILED_STATE = ImmutableSimpleVariable.<Boolean> builder()
-                                                                               .name("isServiceBindingInFailedState")
+    Variable<Boolean> SHOULD_RECREATE_SERVICE_BINDING = ImmutableSimpleVariable.<Boolean> builder()
+                                                                               .name("shouldRecreateServiceBinding")
                                                                                .defaultValue(false)
                                                                                .build();
+    Variable<String> SERVICE_BINDING_JOB_ID = ImmutableSimpleVariable.<String> builder()
+                                                                     .name("serviceBindingJobId")
+                                                                     .build();
+    Variable<String> SERVICE_UNBINDING_JOB_ID = ImmutableSimpleVariable.<String> builder()
+                                                                       .name("serviceUnbindingJobId")
+                                                                       .build();
+    Variable<String> SERVICE_KEY_CREATION_JOB_ID = ImmutableSimpleVariable.<String> builder()
+                                                                          .name("serviceKeyCreationJobId")
+                                                                          .build();
+    Variable<String> SERVICE_KEY_DELETION_JOB_ID = ImmutableSimpleVariable.<String> builder()
+                                                                          .name("serviceKeyDeletionJobId")
+                                                                          .build();
+    Variable<Boolean> USE_LAST_OPERATION_FOR_SERVICE_BINDING_CREATION = ImmutableSimpleVariable.<Boolean> builder()
+                                                                                               .name("useLastOperationForServiceBindingCreation")
+                                                                                               .defaultValue(false)
+                                                                                               .build();
+    Variable<Boolean> USE_LAST_OPERATION_FOR_SERVICE_BINDING_DELETION = ImmutableSimpleVariable.<Boolean> builder()
+                                                                                               .name("useLastOperationForServiceBindingDeletion")
+                                                                                               .defaultValue(false)
+                                                                                               .build();
+    Variable<Boolean> USE_LAST_OPERATION_FOR_SERVICE_KEY_CREATION = ImmutableSimpleVariable.<Boolean> builder()
+                                                                                           .name("useLastOperationForServiceKeyCreation")
+                                                                                           .defaultValue(false)
+                                                                                           .build();
+    Variable<Boolean> USE_LAST_OPERATION_FOR_SERVICE_KEY_DELETION = ImmutableSimpleVariable.<Boolean> builder()
+                                                                                           .name("useLastOperationForServiceKeyDeletion")
+                                                                                           .defaultValue(false)
+                                                                                           .build();
+    Variable<CloudServiceBinding> SERVICE_BINDING_TO_DELETE = ImmutableJsonStringVariable.<CloudServiceBinding> builder()
+                                                                                         .name("serviceBindingToDelete")
+                                                                                         .type(Variable.typeReference(CloudServiceBinding.class))
+                                                                                         .build();
+    Variable<List<CloudServiceBinding>> CLOUD_SERVICE_BINDINGS_TO_DELETE = ImmutableJsonStringListVariable.<CloudServiceBinding> builder()
+                                                                                                    .name("cloudServiceBindingsToDelete")
+                                                                                                    .type(new TypeReference<>() {
+                                                                                                    })
+                                                                                                    .defaultValue(Collections.emptyList())
+                                                                                                    .build();
+    Variable<List<CloudServiceKey>> CLOUD_SERVICE_KEYS_TO_CREATE = ImmutableJsonStringListVariable.<CloudServiceKey> builder()
+                                                                                                  .name("cloudServiceKeysToCreate")
+                                                                                                  .type(new TypeReference<>() {
+                                                                                                  })
+                                                                                                  .defaultValue(Collections.emptyList())
+                                                                                                  .build();
+    Variable<List<CloudServiceKey>> CLOUD_SERVICE_KEYS_TO_DELETE = ImmutableJsonStringListVariable.<CloudServiceKey> builder()
+                                                                                                  .name("cloudServiceKeysToDelete")
+                                                                                                  .type(new TypeReference<>() {
+                                                                                                  })
+                                                                                                  .defaultValue(Collections.emptyList())
+                                                                                                  .build();
+    Variable<List<ServiceDeletionActions>> SERVICE_DELETION_ACTIONS = ImmutableEnumListVariable.<ServiceDeletionActions> builder()
+                                                                                               .name("serviceDeletionActions")
+                                                                                               .type(ServiceDeletionActions.class)
+                                                                                               .defaultValue(Collections.emptyList())
+                                                                                               .build();
+    Variable<CloudServiceKey> SERVICE_KEY_TO_PROCESS = ImmutableJsonStringVariable.<CloudServiceKey> builder()
+                                                                                  .name("serviceKeyToProcess")
+                                                                                  .type(Variable.typeReference(CloudServiceKey.class))
+                                                                                  .build();
+    Variable<List<CloudServiceKey>> CLOUD_SERVICE_KEYS_FOR_WAITING = ImmutableJsonStringListVariable.<CloudServiceKey> builder()
+                                                                                                    .name("cloudServiceKeysForWaiting")
+                                                                                                    .type(new TypeReference<>() {
+                                                                                                    })
+                                                                                                    .defaultValue(Collections.emptyList())
+                                                                                                    .build();
+
     //TODO revert back to:
     // ImmutableJsonBinaryVariable.<CloudApplication> builder()
     //                            .name("existingAppToPoll")

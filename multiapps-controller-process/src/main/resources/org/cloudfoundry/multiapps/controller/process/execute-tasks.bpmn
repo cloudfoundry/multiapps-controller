@@ -6,7 +6,8 @@
   <message id="APPLICATION_AFTER_STOP_IDLE" name="APPLICATION_AFTER_STOP_IDLE"></message>
   <process id="executeTasksSubProcess" name="ExecuteTasks" isExecutable="true">
     <extensionElements>
-  	  <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
       <flowable:eventListener events="ENTITY_DELETED" delegateExpression="${expiredJobListener}"></flowable:eventListener>
     </extensionElements>
     <serviceTask id="executeTaskTask" name="Execute Task" flowable:async="true" flowable:delegateExpression="${executeTaskStep}"></serviceTask>

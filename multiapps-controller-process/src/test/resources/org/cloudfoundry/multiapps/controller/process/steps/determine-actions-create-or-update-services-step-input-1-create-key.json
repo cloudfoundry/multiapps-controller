@@ -10,21 +10,29 @@
 			{
 				"name": "key-1",
 				"parameters": {
-					
+
 				},
 				"guid": "key-1",
 				"service": {
 					"name": "service-1"
+				},
+				"serviceKeyOperation": {
+					"type": "CREATE",
+					"state": "SUCCEEDED"
 				}
 			},
 			{
 				"name": "key-2",
 				"parameters": {
-					
+
 				},
 				"guid": "key-2",
 				"service": {
 					"name": "service-1"
+				},
+				"serviceKeyOperation": {
+					"type": "CREATE",
+					"state": "SUCCEEDED"
 				}
 			}
 	],

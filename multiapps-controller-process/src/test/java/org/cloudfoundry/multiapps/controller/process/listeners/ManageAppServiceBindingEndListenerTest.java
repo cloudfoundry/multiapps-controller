@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RuntimeService;
@@ -39,7 +40,8 @@ class ManageAppServiceBindingEndListenerTest {
     private RuntimeService runtimeService;
     @Mock
     private Execution parentExecution;
-
+    @Mock
+    private ProcessTypeParser processTypeParser;
     @InjectMocks
     private ManageAppServiceBindingEndListener manageAppServiceBindingEndListener;
 
@@ -49,10 +51,14 @@ class ManageAppServiceBindingEndListenerTest {
                           .close();
     }
 
+    // @formatter:off
     static Stream<Arguments> testBindUnbindServiceEndListener() {
-        return Stream.of(Arguments.of(false, false, false), Arguments.of(false, true, true), Arguments.of(true, false, true),
+        return Stream.of(Arguments.of(false, false, false),
+                         Arguments.of(false, true, true),
+                         Arguments.of(true, false, true),
                          Arguments.of(true, true, true));
     }
+    // @formatter:on
 
     @ParameterizedTest
     @MethodSource

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/processdef" exporter="Flowable Open Source Modeler" exporterVersion="6.7.2">
+  <process id="waitForServiceKeyInProgressSubProcess" name="Wait For service key in progress sub process" isExecutable="true">
+    <extensionElements>
+      <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="ENTITY_DELETED" delegateExpression="${expiredJobListener}"></flowable:eventListener>
+    </extensionElements>
+    <startEvent id="startEvent1" name="Start" flowable:formFieldValidation="true"></startEvent>
+    <serviceTask id="checkForServiceKeyOperationsInProgress" name="Check For Service Key Operations In Progress" flowable:async="true" flowable:delegateExpression="${checkServiceKeyOperationStep}"></serviceTask>
+    <exclusiveGateway id="sid-FBA43AEE-A382-4C41-99A4-B4854C534ED7" default="sid-CC4F8D6C-48CB-4F88-B40C-651021CB216E"></exclusiveGateway>
+    <intermediateCatchEvent id="sid-F4EBBC99-8981-4446-AC1B-C0784AE40B43">
+      <timerEventDefinition>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="sid-B3A86402-0BC1-465A-BAD2-93829333DC41" sourceRef="sid-F4EBBC99-8981-4446-AC1B-C0784AE40B43" targetRef="checkForServiceKeyOperationsInProgress"></sequenceFlow>
+    <endEvent id="sid-9EDD5B98-B265-45B1-A803-875D219B57A4" name="End"></endEvent>
+    <sequenceFlow id="sid-4151B58B-C74D-4F61-A0CD-EDCCAD1BE96E" sourceRef="checkForServiceKeyOperationsInProgress" targetRef="sid-FBA43AEE-A382-4C41-99A4-B4854C534ED7"></sequenceFlow>
+    <sequenceFlow id="sid-EBFA1065-D643-4F4C-BFDD-A22FF3CF1AF8" sourceRef="startEvent1" targetRef="checkForServiceKeyOperationsInProgress"></sequenceFlow>
+    <sequenceFlow id="sid-256DDD9C-964B-4E2E-B377-00E5AA651CB6" sourceRef="sid-FBA43AEE-A382-4C41-99A4-B4854C534ED7" targetRef="sid-F4EBBC99-8981-4446-AC1B-C0784AE40B43">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "POLL")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-CC4F8D6C-48CB-4F88-B40C-651021CB216E" sourceRef="sid-FBA43AEE-A382-4C41-99A4-B4854C534ED7" targetRef="sid-9EDD5B98-B265-45B1-A803-875D219B57A4"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_waitForServiceKeyInProgressSubProcess">
+    <bpmndi:BPMNPlane bpmnElement="waitForServiceKeyInProgressSubProcess" id="BPMNPlane_waitForServiceKeyInProgressSubProcess">
+      <bpmndi:BPMNShape bpmnElement="startEvent1" id="BPMNShape_startEvent1">
+        <omgdc:Bounds height="30.0" width="30.0" x="30.0" y="155.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="checkForServiceKeyOperationsInProgress" id="BPMNShape_checkForServiceKeyOperationsInProgress">
+        <omgdc:Bounds height="80.0" width="100.0" x="240.0" y="130.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-FBA43AEE-A382-4C41-99A4-B4854C534ED7" id="BPMNShape_sid-FBA43AEE-A382-4C41-99A4-B4854C534ED7">
+        <omgdc:Bounds height="40.0" width="40.0" x="435.0" y="150.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-F4EBBC99-8981-4446-AC1B-C0784AE40B43" id="BPMNShape_sid-F4EBBC99-8981-4446-AC1B-C0784AE40B43">
+        <omgdc:Bounds height="31.0" width="31.0" x="315.0" y="275.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-9EDD5B98-B265-45B1-A803-875D219B57A4" id="BPMNShape_sid-9EDD5B98-B265-45B1-A803-875D219B57A4">
+        <omgdc:Bounds height="28.0" width="28.0" x="645.0" y="156.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-EBFA1065-D643-4F4C-BFDD-A22FF3CF1AF8" id="BPMNEdge_sid-EBFA1065-D643-4F4C-BFDD-A22FF3CF1AF8" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="59.949999695446046" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="240.0" y="170.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-CC4F8D6C-48CB-4F88-B40C-651021CB216E" id="BPMNEdge_sid-CC4F8D6C-48CB-4F88-B40C-651021CB216E" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="14.0" flowable:targetDockerY="14.0">
+        <omgdi:waypoint x="474.94511268977" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="645.0" y="170.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-B3A86402-0BC1-465A-BAD2-93829333DC41" id="BPMNEdge_sid-B3A86402-0BC1-465A-BAD2-93829333DC41" flowable:sourceDockerX="15.5" flowable:sourceDockerY="15.5" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="315.00115360813606" y="290.69072662742155"></omgdi:waypoint>
+        <omgdi:waypoint x="290.0" y="291.0"></omgdi:waypoint>
+        <omgdi:waypoint x="290.0" y="209.95000000000002"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-4151B58B-C74D-4F61-A0CD-EDCCAD1BE96E" id="BPMNEdge_sid-4151B58B-C74D-4F61-A0CD-EDCCAD1BE96E" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
+        <omgdi:waypoint x="339.9499999998897" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="435.0" y="170.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-256DDD9C-964B-4E2E-B377-00E5AA651CB6" id="BPMNEdge_sid-256DDD9C-964B-4E2E-B377-00E5AA651CB6" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="15.5" flowable:targetDockerY="15.5">
+        <omgdi:waypoint x="455.0" y="189.94176300578036"></omgdi:waypoint>
+        <omgdi:waypoint x="455.0" y="291.0"></omgdi:waypoint>
+        <omgdi:waypoint x="345.9496461107692" y="290.562047792531"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
