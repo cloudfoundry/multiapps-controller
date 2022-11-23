@@ -48,9 +48,9 @@ The result from the build of this component is a WAR file which is the deployabl
 *WARNING*: With [Issue 117](https://github.com/cloudfoundry-incubator/multiapps-cli-plugin/issues/117) the master branch of this repository as well as other artifacts will be renamed. Adaptation to any CI/CD infrastructure & scripts will be required.
 
 ## Build tools
-All components are built with Java 8 and [Apache Maven](http://maven.apache.org/), version `3.3.9` or newer. 
+All components are built with Java 11 and [Apache Maven](http://maven.apache.org/), version `3.3.9` or newer. 
 
-Make sure that your Maven is configured to use Java 8 by configuring the `JAVA_HOME` env to point to the correct Java JDK.
+Make sure that your Maven is configured to use Java 11 by configuring the `JAVA_HOME` env to point to the correct Java JDK.
 ## Compiling and Packaging
 To build all components, run the following command from the root directory of the project:
 ```
