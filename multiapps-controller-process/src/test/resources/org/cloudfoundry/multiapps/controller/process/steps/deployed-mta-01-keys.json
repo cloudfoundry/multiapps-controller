@@ -12,6 +12,10 @@
 				},
 				"tags": [],
 				"resourceName": "node-hdi-container"
+			},
+			"serviceKeyOperation": {
+				"type": "CREATE",
+				"state": "SUCCEEDED"
 			}
 		},
 		{
@@ -26,6 +30,10 @@
 				},
 				"tags": [],
 				"resourceName": "uaa"
+			},
+			"serviceKeyOperation": {
+				"type": "CREATE",
+				"state": "SUCCEEDED"
 			}
 		}
 	]

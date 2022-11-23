@@ -63,6 +63,14 @@ public class Messages {
     public static final String NO_PROCESS_ACTION_FOUND = "No process action found for: \"{0}\"";
     public static final String TIMEOUT_0_EXCEEDED_WHILE_WAITING_CLOUD_CONTROLLER = "Timeout of \"{0}\" seconds exceeded while waiting response from Cloud Controller";
     public static final String SERVICE_INSTANCE_ALREADY_EXISTS = "Service instance \"{0}\" already exists";
+    public static final String INVALID_JOB_STATE_PROVIDED_0 = "Invalid job state provided: \"{0}\"";
+    public static final String ERROR_OCCURRED_WHILE_DELETING_SERVICE_BINDING_0 = "Error occurred while deleting service binding \"{0}\"";
+    public static final String ERROR_WHILE_DELETING_SERVICE_BINDING_0 = "Error while deleting service binding \"{0}\"";
+    public static final String ERROR_WHILE_CHECKING_SERVICE_KEY_OPERATION_0 = "Error while checking service key operation \"{0}\"";
+    public static final String ERROR_OCCURRED_WHILE_CREATING_SERVICE_KEY_0 = "Error occurred while creating service key \"{0}\"";
+    public static final String ERROR_OCCURRED_WHILE_DELETING_SERVICE_KEY_0 = "Error occurred while deleting service key \"{0}\"";
+    public static final String OPERATION_FOR_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1 = "Operation for service key \"{0}\", failed with description \"{1}\"";
+    public static final String OPERATION_FOR_OPTIONAL_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1 = "Operation for service key \"{0}\". for optional service, failed with description \"{1}\"";
 
     // Audit log messages
 
@@ -72,8 +80,9 @@ public class Messages {
     public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FAILED_WITH = "Async operation for service broker \"{0}\" failed with \"{1}\"";
     public static final String CLEARING_STALE_FLOWABLE_LOCK_OWNER_0_THREW_AN_EXCEPTION_1 = "Clearing stale Flowable lock owner {0} threw an exception: {1}";
     public static final String SERVICE_INSTANCE_0_NOT_BOUND_TO_APP_1 = "Service instance \"{0}\" not bound to application \"{1}\"";
-    public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while polling service binding operations between app: \"{0}\" and service instance \"{1}\"";
-    public static final String ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while checking service binding operations between app: \"{0}\" and service instance \"{1}\"";
+    public static final String ERROR_WHILE_DELETING_SERVICE_INSTANCE_METADATA_0 = "Error while deleting service instance metadata \"{0}\"";
+    public static final String ERROR_WHILE_DELETING_SERVICE_KEY_0 = "Error while deleting service key \"{0}\"";
+    public static final String ERROR_WHILE_CALCULATING_SERVICE_KEYS_FOR_WAITING = "Error while calculating service keys for waiting";
 
     // Process step errors
     public static final String ERROR_VALIDATING_PARAMS = "Error validating parameters";
@@ -125,7 +134,6 @@ public class Messages {
     public static final String ERROR_DELETING_IDLE_ROUTES = "Error deleting idle routes";
     public static final String ERROR_CREATING_SERVICE_BROKERS = "Error creating service brokers";
     public static final String ERROR_DELETING_SERVICE_BROKERS = "Error deleting service brokers";
-    public static final String ERROR_DELETING_SERVICE_KEYS = "Error deleting old content deploy service keys";
     public static final String ERROR_DETACHING_SERVICES_FROM_MTA = "Error detaching services from MTA";
     public static final String ERROR_UPDATING_SUBSCRIBERS = "Error updating subscribers";
     public static final String ERROR_RESTARTING_SUBSCRIBERS = "Error restarting subscribers";
@@ -157,6 +165,20 @@ public class Messages {
     public static final String ERROR_UPDATING_MODULE_PARAMETERS = "Error updating modules parameters";
     public static final String ERROR_POLLING_ASYNC_SERVICE_BROKER = "Polling of async service broker \"{0}\" failed";
     public static final String ERROR_POLLING_ASYNC_SERVICE_BROKERS = "Polling of async service brokers failed";
+    public static final String ERROR_POLLING_ASYNC_SERVICE_BINDING = "Polling of async service binding failed";
+    public static final String ERROR_POLLING_ASYNC_SERVICE_KEY = "Polling of async service key failed";
+    public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while polling service binding operations between app: \"{0}\" and service instance \"{1}\"";
+    public static final String ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while checking service binding operations between app: \"{0}\" and service instance \"{1}\"";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_WITH = "Async operation for service binding between app \"{0}\" and service instance \"{1}\" failed with \"{2}\"";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_KEY_FAILED_WITH = "Async operation for service key of service instance \"{0}\" failed with \"{1}\"";
+    public static final String ASYNC_OPERATION_FOR_OPTIONAL_SERVICE_KEY_FAILED_WITH = "Async operation for service key of optional service instance \"{0}\" failed with \"{1}\"";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FOR_OPTIONAL_SERVICE_FAILED_WITH = "Async operation for service binding for optional service between app \"{0}\" and service instance \"{1}\" failed with \"{2}\"";
+    public static final String ERROR_WHILE_CALCULATING_SERVICE_BINDINGS_TO_DELETE_0 = "Error while calculating service bindings to delete \"{0}\"";
+    public static final String ERROR_WHILE_CREATING_SERVICE_KEY_0 = "Error while creating service key \"{0}\"";
+    public static final String ERROR_WHILE_DETERMINING_SERVICE_BINDINGS_TO_DELETE = "Error while determining service bindings to delete";
+    public static final String ERROR_WHILE_DETERMINING_SERVICE_KEYS_TO_DELETE = "Error while determining service keys to delete";
+    public static final String ERROR_WHILE_DETERMINING_SERVICE_KEYS_TO_RECREATE = "Error while determining service keys to recreate";
+    public static final String ERROR_WHILE_POLLING_SERVICE_KEY_OPERATION_0 = "Error while polling service key operation \"{0}\"";
 
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_PARAMETERS = "Cannot retrieve service instance parameters of service \"{0}\"";
@@ -207,13 +229,17 @@ public class Messages {
     public static final String DELAY_AFTER_APP_STOP_CANNOT_BE_NEGATIVE = "Delay after app stop cannot be negative: \"{0}\"";
     public static final String METADATA_UPDATE_OF_OPTIONAL_SERVICE_INSTANCE_0_FAILED = "Metadata update of optional service instance: \"{0}\" failed!";
     public static final String SERVICE_BINDING_0_EXISTS_IN_BROKEN_STATE_WILL_BE_RECREATED = "Service binding \"{0}\" exists in broken state, will be recreated";
+    public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATION_BETWEEN_APP_AND_OPTIONAL_SERVICE = "Error while polling service binding operation between app \"{0}\" and optional service instance \"{1}\"";
+    public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATION_BETWEEN_APP_AND_SERVICE = "Error while polling service binding operation between app \"{0}\" and service instance \"{1}\", error \"{2}\"";
+    public static final String ERROR_WHILE_CREATING_SERVICE_KEY_0_FOR_OPTIONAL_SERVICE_1 = "Error while creating service key \"{0}\" for optional service \"{1}\"";
+    public static final String ERROR_WHILE_DELETING_SERVICE_KEY_0_FOR_OPTIONAL_SERVICE_1 = "Error while deleting service key \"{0}\" for optional service \"{1}\"";
+    public static final String SERVICE_KEY_0_IS_ALREADY_DELETED = "Service key \"{0}\" is already deleted";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
     public static final String ACQUIRED_LOCK = "Process \"{0}\" acquired lock for operation on MTA \"{1}\"";
     public static final String PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2 = "Process \"{0}\" releasing lock for MTA \"{1}\" in space \"{2}\"";
     public static final String PROCESS_0_RELEASED_LOCK = "Process \"{0}\" released lock successfully!";
-    public static final String UNBINDING_SERVICE_INSTANCE_FROM_APPS = "Unbinding service instance \"{0}\" from its bound applications...";
     public static final String UNBINDING_SERVICE_INSTANCE_FROM_APP = "Unbinding service instance \"{0}\" from application \"{1}\"...";
     public static final String UNBINDING_SERVICE_INSTANCE_FROM_APP_FINISHED = "Unbinding service instance \"{0}\" from application \"{1}\" finished";
     public static final String POLLING_SERVICE_OPERATIONS = "Polling service operations...";
@@ -246,6 +272,7 @@ public class Messages {
     public static final String DELAYING_APP_0_FOR_1_SECONDS = "Delaying operations for application \"{0}\" for \"{1}\" seconds...";
     public static final String CLEARING_STALE_LOCK_OWNER = "Clearing stale lock owner {0}...";
     public static final String CLEARED_STALE_LOCK_OWNER = "Cleared stale lock owner {0}";
+    public static final String SERVICE_BINDING_0_IS_ALREADY_DELETED = "Service binding \"{0}\" is already deleted";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
@@ -275,8 +302,8 @@ public class Messages {
     public static final String SERVICE_TAGS_UPDATED = "Service tags for service \"{0}\" updated";
     public static final String UPDATING_SERVICE_SYSLOG_URL = "Updating syslog drain url for service \"{0}\"...";
     public static final String SERVICE_SYSLOG_URL_UPDATED = "Syslog drain url for service \"{0}\" updated";
-    public static final String CREATING_SERVICE_KEY_FOR_SERVICE = "Creating service key \"{0}\" for service \"{1}\"...";
-    public static final String DELETING_SERVICE_KEY_FOR_SERVICE = "Deleting service key \"{0}\" for service \"{1}\"...";
+    public static final String CREATING_SERVICE_KEY_FOR_SERVICE_INSTANCE = "Creating service key \"{0}\" for service instance \"{1}\"...";
+    public static final String DELETING_SERVICE_KEY_FOR_SERVICE_INSTANCE = "Deleting service key \"{0}\" for service instance \"{1}\"...";
     public static final String CREATING_APP_FROM_MODULE = "Creating application \"{0}\" from MTA module \"{1}\"...";
     public static final String UPDATING_APP = "Updating application \"{0}\"...";
     public static final String UPLOADING_APP = "Uploading application \"{0}\"...";
@@ -348,11 +375,11 @@ public class Messages {
     public static final String DELETING_DISCONTINUED_SERVICE_0 = "Deleting discontinued service \"{0}\"...";
     public static final String DELETING_OLD_SERVICE_KEYS = "Deleting old service keys for content deploy...";
     public static final String DELETING_OLD_SERVICE_KEYS_FOR_SERVICE = "Deleting old service keys for content deploy \"{0}\"...";
-    public static final String MISSING_SERVICE_KEYS_TO_DELETE = "Preexisting Service Key marked for deletion was not found after content deploy!";
     public static final String SERVICES_TO_CREATE = "Services to create: {0}";
     public static final String CREATED_SERVICE_KEY = "Service key \"{0}\" created";
-    public static final String SERVICE_BINDINGS_EXISTS = "Service bindings \"{0}\" exists";
-    public static final String UNBINDING_SERVICE_INSTANCE_FROM_APP_GUID = "Unbinding service instance \"{0}\" from app with GUID \"{1}\"";
+    public static final String DELETED_SERVICE_KEY = "Service key \"{0}\" deleted";
+    public static final String EXISTING_SERVICE_BINDINGS = "Existing service bindings \"{0}\"";
+    public static final String EXISTING_SERVICE_KEYS = "Existing service keys \"{0}\"";
     public static final String PREPARING_MODULES_DEPLOYMENT = "Preparing modules deployment...";
     public static final String CALCULATING_RESOURCE_BATCHES = "Calculating resource batches...";
     public static final String EXTRACT_SERVICES_FROM_BATCH = "Extracting services from batch";
@@ -526,6 +553,7 @@ public class Messages {
     public static final String GETTING_SERVICE_INSTANCE_0 = "Getting service instance \"{0}\"...";
     public static final String GETTING_SERVICE_INSTANCE_WITHOUT_AUXILIARY_CONTENT_0 = "Getting service instance without auxiliary content \"{0}\"...";
     public static final String GETTING_BINDINGS_OF_SERVICE_INSTANCE_0 = "Getting bindings of service instance \"{0}\"...";
+    public static final String GETTING_BINDINGS_OF_APPLICATION_0 = "Getting bindings of application \"{0}\"...";
     public static final String GETTING_BINDING_OF_SERVICE_INSTANCE_0_WITH_APPLICATION_1 = "Getting binding of service instance \"{0}\" with application \"{1}\"...";
     public static final String GETTING_SERVICE_BROKER_0 = "Getting service broker \"{0}\"...";
     public static final String GETTING_SERVICE_BROKERS = "Getting service brokers...";
@@ -601,16 +629,34 @@ public class Messages {
     public static final String CHECK_SHOULD_REBIND_APPLICATION_SERVICE_INSTANCE = "Check should rebind application \"{0}\" and service instance \"{1}\"";
     public static final String POLLING_ASYNC_OPERATION_SERVICE_BROKER = "Polling async operation of service broker \"{0}\"";
     public static final String ASYNC_OPERATION_SERVICE_BROKER_IN_STATE_WITH_WARNINGS = "Async operation of service broker \"{0}\" is in state \"{1}\" warnings \"{2}\"";
+    public static final String ASYNC_OPERATION_SERVICE_BINDING_IN_STATE_WITH_WARNINGS = "Async operation of service binding is in state \"{0}\" warnings \"{1}\"";
+    public static final String ASYNC_OPERATION_SERVICE_KEY_IN_STATE_WITH_WARNINGS = "Async operation of service key is in state \"{0}\" warnings \"{1}\"";
     public static final String SETTING_WAIT_AFTER_STOP_FOR_APP_0_TO_1_SECONDS = "Setting wait after stop for \"{0}\" to \"{1}\" seconds";
-    public static final String CLEARING_EXISTING_SERVICE_0_METADATA = "Clearing existing service \"{0}\" metadata";
     public static final String DETECTING_SERVICE_KEYS_FOR_DELETION = "Detecting service keys to delete.";
     public static final String NO_SERVICE_KEYS_FOR_DELETION = "No deployed service keys detected!";
     public static final String DEPLOYED_SERVICE_KEYS = "Detected deployed service keys by service \"{0}\"";
     public static final String NEW_SERVICE_KEYS = "New service keys by service \"{0}\"";
-    public static final String EXISTING_SERVICE_KEYS = "Existing service keys by service \"{0}\"";
+    public static final String EXISTING_SERVICE_KEYS_BY_SERVICE = "Existing service keys by service \"{0}\"";
     public static final String SERVICE_KEYS_FOR_DELETION = "Detected service keys to delete \"{0}\"";
     public static final String CHECKING_FOR_SERVICE_BINDING_OPERATION_IN_PROGRESS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Checking for service binding operation in progress between app \"{0}\" and service instance \"{1}\"";
-    public static final String SERVICE_BINDING_OPERATION_0_IS_IN_STATE_1 = "Service binding operation: \"{0}\" is in state: \"{1}\"";
+    public static final String SERVICE_BINDING_OPERATION_WITH_TYPE_IS_IN_STATE = "Service binding operation \"{0}\" with type \"{1}\" is in state \"{2}\"";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FINISHED = "Async service binding operation with id \"{0}\" finished";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_KEY_FINISHED = "Async service key operation with id \"{0}\" finished";
+    public static final String GETTING_SERVICE_BINDING_BY_GUID_0 = "Getting service binding by GUID \"{0}\"";
+    public static final String DELETION_OF_SERVICE_BINDING_0_FINISHED = "Deletion of service binding \"{0}\" finished";
+    public static final String SERVICE_BINDING_0_SCHEDULED_FOR_DELETION = "Service binding \"{0}\" scheduled for deletion";
+    public static final String SERVICE_KEY_DOES_NOT_EXIST_0 = "Service key does not exist \"{0}\"";
+    public static final String SERVICE_KEY_0_EXISTS_IN_STATE_1 = "Service key \"{0}\" exists in state \"{1}\"";
+    public static final String WILL_DELETE_SERVICE_BINDINGS_SERVICE_KEYS_AND_SERVICE_INSTANCE_0 = "Will delete service bindings, service keys and service instance \"{0}\"";
+    public static final String WILL_ONLY_REMOVE_SERVICE_INSTANCE_METADATA_BECAUSE_THE_SERVICE_TYPE_IS_EXISTING = "Will only remove service instance metadata, because the service type is \"existing\"";
+    public static final String DETERMINING_DELETE_ACTIONS_FOR_SERVICE_INSTANCE_0 = "Determining delete actions for service instance \"{0}\"";
+    public static final String CANNOT_RETRIEVE_OPTIONAL_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0 = "Cannot retrieve optional service binding for service instance \"{0}\"";
+    public static final String SERVICE_KEYS_SCHEDULED_FOR_DELETION_0 = "Service keys scheduled for deletion: \"{0}\"";
+    public static final String SERVICE_KEYS_SCHEDULED_FOR_CREATION_0 = "Service keys scheduled for creation: \"{0}\"";
+    public static final String POLLING_SERVICE_KEY_0_WITH_STATE_1 = "Polling service key \"{0}\" with state \"{1}\"";
+    public static final String SERVICE_BINDING_HAS_ALREADY_BEEN_DELETED = "Service binding has already been deleted";
+    public static final String SERVICE_BINDING_0_SCHEDULED_FOR_DELETION_IS_IN_STATE_0 = "Service binding \"{0}\" scheduled for deletion is in state \"{0}\"";
+    public static final String SERVICE_KEYS_SCHEDULED_FOR_WAITING_0 = "Service keys scheduled for waiting: \"{0}\"";
 
     protected Messages() {
     }

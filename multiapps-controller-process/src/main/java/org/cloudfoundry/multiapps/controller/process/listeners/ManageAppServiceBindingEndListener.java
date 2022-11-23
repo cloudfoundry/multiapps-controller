@@ -1,9 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.Constants;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -13,8 +16,15 @@ public class ManageAppServiceBindingEndListener extends AbstractProcessExecution
 
     private static final long serialVersionUID = 1L;
 
+    @Inject
+    private ProcessTypeParser processTypeParser;
+
     @Override
     public void notifyInternal(DelegateExecution execution) {
+        ProcessType processType = processTypeParser.getProcessType(execution);
+        if (processType == ProcessType.UNDEPLOY) {
+            return;
+        }
         CloudApplicationExtended app = VariableHandling.get(execution, Variables.APP_TO_PROCESS);
         String service = VariableHandling.get(execution, Variables.SERVICE_TO_UNBIND_BIND);
         boolean shouldUnbindService = VariableHandling.get(execution, Variables.SHOULD_UNBIND_SERVICE_FROM_APP);

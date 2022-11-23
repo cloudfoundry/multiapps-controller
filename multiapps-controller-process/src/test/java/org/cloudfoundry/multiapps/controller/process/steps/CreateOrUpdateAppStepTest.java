@@ -25,11 +25,14 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerCredentials;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceCredentialBindingOperation;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
+import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 
 class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
@@ -148,10 +151,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
                                                        .withEnv(applicationEnv)
                                                        .withServiceKeysToInject(serviceKey);
         Map<String, String> serviceKeyCredentials = Map.of("user", "service-key-user", "password", "service-key-password");
-        when(client.getServiceKey(SERVICE_NAME, serviceKey.getServiceKeyName())).thenReturn(ImmutableCloudServiceKey.builder()
-                                                                                                                    .name(SERVICE_KEY_NAME)
-                                                                                                                    .credentials(serviceKeyCredentials)
-                                                                                                                    .build());
+        when(client.getServiceKey(SERVICE_NAME, serviceKey.getServiceKeyName())).thenReturn(buildCloudServiceKey(serviceKeyCredentials));
         Map<String, Map<String, String>> serviceKeysToInjectCredentials = Map.of(APP_NAME, serviceKeyCredentials);
         prepareContext(application, serviceKeysToInjectCredentials);
 
@@ -165,6 +165,17 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
         assertEquals(Map.of(SERVICE_KEY_ENV_NAME, JsonUtil.toJson(serviceKeyCredentials)),
                      context.getVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT)
                             .get(APP_NAME));
+    }
+
+    private CloudServiceKey buildCloudServiceKey(Map<String, String> serviceKeyCredentials) {
+        return ImmutableCloudServiceKey.builder()
+                                       .name(SERVICE_KEY_NAME)
+                                       .credentials(serviceKeyCredentials)
+                                       .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
+                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                      .state(ServiceCredentialBindingOperation.State.SUCCEEDED)
+                                                                                                      .build())
+                                       .build();
     }
 
     @Test

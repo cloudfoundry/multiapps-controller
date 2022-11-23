@@ -45,6 +45,16 @@ public class PollServiceBrokerOperationsExecution implements AsyncExecution {
     }
 
     @Override
+    protected Consumer<CloudAsyncJob> getOnErrorHandlerForOptionalResource(ProcessContext context) {
+        return getOnErrorHandler(context);
+    }
+
+    @Override
+    protected boolean isOptional(ProcessContext context) {
+        return false;
+    }
+
+    @Override
     public String getPollingErrorMessage(ProcessContext context) {
         CloudServiceBroker broker = context.getVariable(Variables.CREATED_OR_UPDATED_SERVICE_BROKER);
         return MessageFormat.format(Messages.ERROR_POLLING_ASYNC_SERVICE_BROKER, broker.getName());

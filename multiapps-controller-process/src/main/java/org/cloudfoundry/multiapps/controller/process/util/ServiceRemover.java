@@ -1,13 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.text.MessageFormat;
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
@@ -20,9 +18,7 @@ import com.sap.cloudfoundry.client.facade.CloudControllerException;
 import com.sap.cloudfoundry.client.facade.CloudException;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 
 @Named
 public class ServiceRemover {
@@ -34,37 +30,13 @@ public class ServiceRemover {
         this.configuration = configuration;
     }
 
-    public void deleteService(ProcessContext context, CloudServiceInstance serviceInstance, List<CloudServiceBinding> serviceBindings,
-                              List<CloudServiceKey> serviceKeys) {
+    public void deleteService(ProcessContext context, CloudServiceInstance serviceInstance) {
         CloudControllerClient client = context.getControllerClient();
         StepLogger stepLogger = context.getStepLogger();
         try {
-            unbindService(client, stepLogger, serviceBindings, serviceInstance);
-            deleteServiceKeys(client, stepLogger, serviceKeys);
             deleteService(client, stepLogger, serviceInstance);
         } catch (CloudException e) {
             processException(context, e, serviceInstance);
-        }
-    }
-
-    private void unbindService(CloudControllerClient client, StepLogger stepLogger, List<CloudServiceBinding> serviceBindings,
-                               CloudServiceInstance serviceInstance) {
-        if (serviceBindings.isEmpty()) {
-            return;
-        }
-        stepLogger.info(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APPS, serviceInstance.getName());
-        stepLogger.debug(Messages.SERVICE_BINDINGS_EXISTS, SecureSerialization.toJson(serviceBindings));
-        for (CloudServiceBinding binding : serviceBindings) {
-            stepLogger.debug(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP_GUID, serviceInstance.getName(), binding.getApplicationGuid());
-            client.deleteServiceBinding(binding.getGuid());
-        }
-    }
-
-    private void deleteServiceKeys(CloudControllerClient client, StepLogger stepLogger, List<CloudServiceKey> serviceKeys) {
-        for (CloudServiceKey serviceKey : serviceKeys) {
-            stepLogger.info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, serviceKey.getName(), serviceKey.getServiceInstance()
-                                                                                                       .getName());
-            client.deleteServiceBinding(serviceKey.getGuid());
         }
     }
 

@@ -4,6 +4,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 
 import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.ServiceBindingOperationCallback;
 import com.sap.cloudfoundry.client.facade.UploadStatusCallback;
 import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
@@ -66,17 +68,17 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void bindServiceInstance(String applicationName, String serviceInstanceName) {
+    public Optional<String> bindServiceInstance(String applicationName, String serviceInstanceName) {
         logger.debug(Messages.BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1, serviceInstanceName, applicationName);
-        delegate.bindServiceInstance(applicationName, serviceInstanceName);
+        return delegate.bindServiceInstance(applicationName, serviceInstanceName);
     }
 
     @Override
-    public void bindServiceInstance(String applicationName, String serviceInstanceName, Map<String, Object> parameters,
-                                    ApplicationServicesUpdateCallback updateServicesCallback) {
+    public Optional<String> bindServiceInstance(String applicationName, String serviceInstanceName, Map<String, Object> parameters,
+                                                ApplicationServicesUpdateCallback updateServicesCallback) {
         logger.debug(Messages.BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_WITH_PARAMETERS_2, serviceInstanceName, applicationName,
                      SecureSerialization.toJson(parameters));
-        delegate.bindServiceInstance(applicationName, serviceInstanceName, parameters, updateServicesCallback);
+        return delegate.bindServiceInstance(applicationName, serviceInstanceName, parameters, updateServicesCallback);
     }
 
     @Override
@@ -107,17 +109,17 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createServiceKey(CloudServiceKey keyModel, String serviceInstanceName) {
+    public Optional<String> createServiceKey(CloudServiceKey keyModel, String serviceInstanceName) {
         logger.debug(Messages.CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2, keyModel.getName(), serviceInstanceName,
                      SecureSerialization.toJson(keyModel.getCredentials()));
-        delegate.createServiceKey(keyModel, serviceInstanceName);
+        return delegate.createServiceKey(keyModel, serviceInstanceName);
     }
 
     @Override
-    public void createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
+    public Optional<String> createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
         logger.debug(Messages.CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2, serviceKeyName, serviceInstanceName,
                      SecureSerialization.toJson(parameters));
-        delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters);
+        return delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters);
     }
 
     @Override
@@ -181,15 +183,27 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void deleteServiceBinding(String serviceInstanceName, String serviceKeyName) {
-        logger.debug(Messages.DELETING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1, serviceKeyName, serviceInstanceName);
-        delegate.deleteServiceBinding(serviceInstanceName, serviceKeyName);
+    public CloudServiceBinding getServiceBinding(UUID serviceBindingId) {
+        logger.debug(Messages.GETTING_SERVICE_BINDING_BY_GUID_0, serviceBindingId);
+        return delegate.getServiceBinding(serviceBindingId);
     }
 
     @Override
-    public void deleteServiceBinding(UUID serviceBindingGuid) {
-        logger.debug(Messages.DELETING_SERVICE_BINDING_0, serviceBindingGuid.toString());
-        delegate.deleteServiceBinding(serviceBindingGuid);
+    public Optional<String> deleteServiceBinding(String serviceInstanceName, String serviceKeyName) {
+        logger.debug(Messages.DELETING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1, serviceKeyName, serviceInstanceName);
+        return delegate.deleteServiceBinding(serviceInstanceName, serviceKeyName);
+    }
+
+    @Override
+    public Optional<String> deleteServiceBinding(UUID bindingGuid, ServiceBindingOperationCallback serviceBindingOperationCallback) {
+        logger.debug(Messages.DELETING_SERVICE_BINDING_0, bindingGuid.toString());
+        return delegate.deleteServiceBinding(bindingGuid, serviceBindingOperationCallback);
+    }
+
+    @Override
+    public Optional<String> deleteServiceBinding(UUID bindingGuid) {
+        logger.debug(Messages.DELETING_SERVICE_BINDING_0, bindingGuid.toString());
+        return delegate.deleteServiceBinding(bindingGuid);
     }
 
     @Override
@@ -397,15 +411,15 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudServiceBinding getServiceBindingForApplication(UUID applicationGuid, UUID serviceInstanceGuid) {
-        logger.debug(Messages.GETTING_BINDING_OF_SERVICE_INSTANCE_0_WITH_APPLICATION_1, serviceInstanceGuid, applicationGuid);
-        return delegate.getServiceBindingForApplication(applicationGuid, serviceInstanceGuid);
+    public List<CloudServiceBinding> getAppBindings(UUID applicationGuid) {
+        logger.debug(Messages.GETTING_BINDINGS_OF_APPLICATION_0, applicationGuid);
+        return delegate.getAppBindings(applicationGuid);
     }
 
     @Override
-    public CloudServiceBinding getServiceBindingForApplication(String applicationName, String serviceInstanceName) {
-        logger.debug(Messages.GETTING_BINDING_OF_SERVICE_INSTANCE_0_WITH_APPLICATION_1, applicationName, serviceInstanceName);
-        return delegate.getServiceBindingForApplication(applicationName, serviceInstanceName);
+    public CloudServiceBinding getServiceBindingForApplication(UUID applicationGuid, UUID serviceInstanceGuid) {
+        logger.debug(Messages.GETTING_BINDING_OF_SERVICE_INSTANCE_0_WITH_APPLICATION_1, serviceInstanceGuid, applicationGuid);
+        return delegate.getServiceBindingForApplication(applicationGuid, serviceInstanceGuid);
     }
 
     @Override
@@ -559,22 +573,22 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void unbindServiceInstance(String applicationName, String serviceInstanceName,
-                                      ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+    public Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName,
+                                                  ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         logger.debug(Messages.UNBINDING_APPLICATION_0_FROM_SERVICE_INSTANCE_1, applicationName, serviceInstanceName);
-        delegate.unbindServiceInstance(applicationName, serviceInstanceName, applicationServicesUpdateCallback);
+        return delegate.unbindServiceInstance(applicationName, serviceInstanceName, applicationServicesUpdateCallback);
     }
 
     @Override
-    public void unbindServiceInstance(String applicationName, String serviceInstanceName) {
+    public Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName) {
         logger.debug(Messages.UNBINDING_APPLICATION_0_FROM_SERVICE_INSTANCE_1, applicationName, serviceInstanceName);
-        delegate.unbindServiceInstance(applicationName, serviceInstanceName);
+        return delegate.unbindServiceInstance(applicationName, serviceInstanceName);
     }
 
     @Override
-    public void unbindServiceInstance(UUID appGuid, UUID serviceGuid) {
+    public Optional<String> unbindServiceInstance(UUID appGuid, UUID serviceGuid) {
         logger.debug(Messages.UNBINDING_APPLICATION_0_FROM_SERVICE_INSTANCE_1, appGuid, serviceGuid);
-        delegate.unbindServiceInstance(appGuid, serviceGuid);
+        return delegate.unbindServiceInstance(appGuid, serviceGuid);
     }
 
     @Override

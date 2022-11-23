@@ -179,7 +179,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.NEW_SERVICE_KEYS, newKeyNamesByService);
 
         Map<String, List<String>> existingKeysByService = getExistingServiceKeysByServiceName(resources);
-        getStepLogger().debug(Messages.EXISTING_SERVICE_KEYS, existingKeysByService);
+        getStepLogger().debug(Messages.EXISTING_SERVICE_KEYS_BY_SERVICE, existingKeysByService);
 
         List<DeployedMtaServiceKey> keysToDelete = new ArrayList<>();
 
