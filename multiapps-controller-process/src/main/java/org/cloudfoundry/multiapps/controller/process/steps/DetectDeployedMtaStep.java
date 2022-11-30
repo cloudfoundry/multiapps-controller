@@ -71,7 +71,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         List<DeployedMtaService> deployedMtaServices = deployedMta == null ? null : deployedMta.getServices();
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
 
-        CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(client);
+        CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(client, context.getVariable(Variables.CORRELATION_ID));
         return serviceKeysClient.getServiceKeysByMetadataAndGuids(spaceGuid, mtaId, mtaNamespace, deployedMtaServices);
     }
 
@@ -92,8 +92,8 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         getStepLogger().info(MessageFormat.format(Messages.DETECTED_DEPLOYED_MTA, metadata.getId(), metadata.getVersion()));
     }
 
-    protected CustomServiceKeysClient getCustomServiceKeysClient(CloudControllerClient client) {
-        return new CustomServiceKeysClient(client);
+    protected CustomServiceKeysClient getCustomServiceKeysClient(CloudControllerClient client, String correlationId) {
+        return new CustomServiceKeysClient(client, correlationId);
     }
 
     @Override

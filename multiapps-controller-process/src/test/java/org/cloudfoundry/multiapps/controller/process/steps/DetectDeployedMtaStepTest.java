@@ -100,7 +100,7 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
 
     private class DetectDeployedMtaStepMock extends DetectDeployedMtaStep {
         @Override
-        protected CustomServiceKeysClient getCustomServiceKeysClient(CloudControllerClient client) {
+        protected CustomServiceKeysClient getCustomServiceKeysClient(CloudControllerClient client, String correlationId) {
             return customClientMock;
         }
     }

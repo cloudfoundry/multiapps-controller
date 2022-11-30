@@ -24,8 +24,8 @@ public class CustomServiceKeysClient extends CustomControllerClient {
 
     private final CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
 
-    public CustomServiceKeysClient(CloudControllerClient client) {
-        super(client);
+    public CustomServiceKeysClient(CloudControllerClient client, String correlationId) {
+        super(client, correlationId);
     }
 
     public List<DeployedMtaServiceKey> getServiceKeysByMetadataAndGuids(String spaceGuid, String mtaId, String mtaNamespace,
@@ -71,7 +71,8 @@ public class CustomServiceKeysClient extends CustomControllerClient {
 
     private boolean serviceIsNotUserProvided(DeployedMtaService service) {
         return service.getMetadata() != null && service.getMetadata()
-                                                       .getGuid() != null && service.getType() == ServiceInstanceType.MANAGED;
+                                                       .getGuid() != null
+            && service.getType() == ServiceInstanceType.MANAGED;
     }
 
     protected class ServiceKeysResponseMapper extends ResourcesResponseMapper<DeployedMtaServiceKey> {

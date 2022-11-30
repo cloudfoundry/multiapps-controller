@@ -1,17 +1,17 @@
 package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+
 public class AppBoundServiceInstanceNamesGetter extends CustomControllerClient {
 
-    public AppBoundServiceInstanceNamesGetter(CloudControllerClient client) {
-        super(client);
+    public AppBoundServiceInstanceNamesGetter(CloudControllerClient client, String correlationId) {
+        super(client, correlationId);
     }
 
     public List<String> getServiceInstanceNamesBoundToApp(UUID appGuid) {
