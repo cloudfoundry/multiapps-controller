@@ -43,7 +43,7 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
 
         ServiceBindingParametersGetter serviceBindingParametersGetter = getServiceBindingParametersGetter(context);
         Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromMta(app, service);
-        if (!doesServiceBindingExist(client, service, existingApp.getGuid())) {
+        if (!doesServiceBindingExist(client, service, existingApp.getGuid(), context.getVariable(Variables.CORRELATION_ID))) {
             context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, false);
             context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, true);
             context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, bindingParameters);
@@ -81,12 +81,12 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         return new ServiceBindingParametersGetter(context, fileService, configuration.getMaxManifestSize());
     }
 
-    protected AppBoundServiceInstanceNamesGetter getAppServicesGetter(CloudControllerClient client) {
-        return new AppBoundServiceInstanceNamesGetter(client);
+    protected AppBoundServiceInstanceNamesGetter getAppServicesGetter(CloudControllerClient client, String correlationId) {
+        return new AppBoundServiceInstanceNamesGetter(client, correlationId);
     }
 
-    private boolean doesServiceBindingExist(CloudControllerClient client, String service, UUID appGuid) {
-        var serviceNamesGetter = getAppServicesGetter(client);
+    private boolean doesServiceBindingExist(CloudControllerClient client, String service, UUID appGuid, String correlationId) {
+        var serviceNamesGetter = getAppServicesGetter(client, correlationId);
         List<String> appServiceNames = serviceNamesGetter.getServiceInstanceNamesBoundToApp(appGuid);
         return appServiceNames.contains(service);
     }

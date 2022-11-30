@@ -122,7 +122,7 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
             }
 
             @Override
-            protected AppBoundServiceInstanceNamesGetter getAppServicesGetter(CloudControllerClient client) {
+            protected AppBoundServiceInstanceNamesGetter getAppServicesGetter(CloudControllerClient client, String correlationId) {
                 return appServicesGetter;
             }
         };

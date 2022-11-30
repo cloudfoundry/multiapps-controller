@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -37,8 +36,6 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.HealthCheckType;
-import com.sap.cloudfoundry.client.facade.domain.Staging;
-import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
@@ -46,8 +43,10 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudProcess;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerInfo;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableDropletInfo;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableLifecycle;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
+import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
+import com.sap.cloudfoundry.client.facade.domain.Staging;
 import com.sap.cloudfoundry.client.facade.util.JsonUtil;
 
 class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
@@ -202,8 +201,11 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
         when(client.getApplicationProcess(application.getGuid())).thenReturn(ImmutableCloudProcess.builder()
                                                                                                   .command(command)
                                                                                                   .diskInMb(disk == null ? 1024 : disk)
-                                                                                                  .memoryInMb(memory == null ? 1024 : memory)
-                                                                                                  .healthCheckType(hcType == null ? HealthCheckType.PORT : HealthCheckType.valueOf(hcType.toUpperCase()))
+                                                                                                  .memoryInMb(memory == null ? 1024
+                                                                                                      : memory)
+                                                                                                  .healthCheckType(hcType == null
+                                                                                                      ? HealthCheckType.PORT
+                                                                                                      : HealthCheckType.valueOf(hcType.toUpperCase()))
                                                                                                   .healthCheckTimeout(hcTimeout)
                                                                                                   .healthCheckHttpEndpoint(hcEndpoint)
                                                                                                   .instances(1)
@@ -315,8 +317,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
 
     @ParameterizedTest
     @MethodSource
-    void testHandleRoutesApplicationAttributes(Set<CloudRoute> existingRoutes, Set<CloudRoute> routes,
-                                               boolean expectedPropertiesChanged) {
+    void testHandleRoutesApplicationAttributes(Set<CloudRoute> existingRoutes, Set<CloudRoute> routes, boolean expectedPropertiesChanged) {
         CloudApplication existingApplication = getApplicationBuilder(false).routes(existingRoutes)
                                                                            .build();
         CloudApplicationExtended application = getApplicationBuilder(false).routes(routes)
@@ -447,7 +448,8 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
     protected CreateOrUpdateAppStep createStep() {
         return new CreateOrUpdateAppStep() {
             @Override
-            protected AppBoundServiceInstanceNamesGetter getAppBoundServiceInstanceNamesGetter(CloudControllerClient client) {
+            protected AppBoundServiceInstanceNamesGetter getAppBoundServiceInstanceNamesGetter(CloudControllerClient client,
+                                                                                               String correlationId) {
                 return appServicesGetter;
             }
         };

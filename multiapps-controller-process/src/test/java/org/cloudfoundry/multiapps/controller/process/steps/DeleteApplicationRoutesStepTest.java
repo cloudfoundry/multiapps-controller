@@ -82,7 +82,7 @@ class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
     protected UndeployAppStep createStep() {
         return new DeleteApplicationRoutesStep() {
             @Override
-            protected ServiceInstanceRoutesGetter getServiceRoutesGetter(CloudControllerClient client) {
+            protected ServiceInstanceRoutesGetter getServiceRoutesGetter(CloudControllerClient client, String correlationId) {
                 return serviceInstanceRoutesGetter;
             }
         };

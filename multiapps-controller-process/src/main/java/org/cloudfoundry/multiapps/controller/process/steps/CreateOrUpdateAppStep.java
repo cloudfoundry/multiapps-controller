@@ -46,7 +46,6 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ProcessContext context) throws FileStorageException {
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
-
         CloudControllerClient client = context.getControllerClient();
         CloudApplication existingApp = client.getApplication(app.getName(), false);
         context.setVariable(Variables.EXISTING_APP, existingApp);
@@ -70,8 +69,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                                     .getName());
     }
 
-    protected AppBoundServiceInstanceNamesGetter getAppBoundServiceInstanceNamesGetter(CloudControllerClient client) {
-        return new AppBoundServiceInstanceNamesGetter(client);
+    protected AppBoundServiceInstanceNamesGetter getAppBoundServiceInstanceNamesGetter(CloudControllerClient client, String correlationId) {
+        return new AppBoundServiceInstanceNamesGetter(client, correlationId);
     }
 
     private StepFlowHandler createStepFlowHandler(ProcessContext context, CloudControllerClient client, CloudApplicationExtended app,
@@ -214,7 +213,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             if (context.getVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING)) {
                 return;
             }
-            List<String> services = getMtaAndExistingServices();
+            List<String> services = getMtaAndExistingServices(context.getVariable(Variables.CORRELATION_ID));
             context.setVariable(Variables.SERVICES_TO_UNBIND_BIND, services);
         }
 
@@ -227,7 +226,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                    .withEnv(envAsMap);
 
             ControllerClientFacade.Context clientContext = new ControllerClientFacade.Context(client, getStepLogger());
-            UpdateState updateApplicationEnvironmentState = new EnvironmentApplicationAttributeUpdater(clientContext, getEnvUpdateStrategy(),
+            UpdateState updateApplicationEnvironmentState = new EnvironmentApplicationAttributeUpdater(clientContext,
+                                                                                                       getEnvUpdateStrategy(),
                                                                                                        appEnv).update(existingApp, app);
 
             context.setVariable(Variables.USER_PROPERTIES_CHANGED, updateApplicationEnvironmentState == UpdateState.UPDATED);
@@ -243,8 +243,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.APP_UPDATED, app.getName());
         }
 
-        private List<String> getMtaAndExistingServices() {
-            var serviceNamesGetter = getAppBoundServiceInstanceNamesGetter(client);
+        private List<String> getMtaAndExistingServices(String correlationId) {
+            var serviceNamesGetter = getAppBoundServiceInstanceNamesGetter(client, correlationId);
             return Stream.of(app.getServices(), serviceNamesGetter.getServiceInstanceNamesBoundToApp(existingApp.getGuid()))
                          .flatMap(List::stream)
                          .distinct()

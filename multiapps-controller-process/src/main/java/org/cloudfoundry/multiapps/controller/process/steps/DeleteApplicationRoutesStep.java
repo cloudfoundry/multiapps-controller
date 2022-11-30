@@ -33,7 +33,7 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
     @Override
     protected StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy,
                                             ProcessContext context) {
-        deleteApplicationRoutes(client, cloudApplicationToUndeploy);
+        deleteApplicationRoutes(client, cloudApplicationToUndeploy, context.getVariable(Variables.CORRELATION_ID));
         return StepPhase.DONE;
     }
 
@@ -43,13 +43,13 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
                                                                                .getName());
     }
 
-    protected ServiceInstanceRoutesGetter getServiceRoutesGetter(CloudControllerClient client) {
-        return new ServiceInstanceRoutesGetter(client);
+    protected ServiceInstanceRoutesGetter getServiceRoutesGetter(CloudControllerClient client, String correlationId) {
+        return new ServiceInstanceRoutesGetter(client, correlationId);
     }
 
-    private void deleteApplicationRoutes(CloudControllerClient client, CloudApplication cloudApplication) {
+    private void deleteApplicationRoutes(CloudControllerClient client, CloudApplication cloudApplication, String correlationId) {
         getStepLogger().info(Messages.DELETING_APP_ROUTES, cloudApplication.getName());
-        List<CloudRouteExtended> appRoutes = getApplicationRoutes(client, cloudApplication);
+        List<CloudRouteExtended> appRoutes = getApplicationRoutes(client, cloudApplication, correlationId);
 
         getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, cloudApplication.getName(), JsonUtil.toJson(appRoutes, true));
 
@@ -61,18 +61,18 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
         getStepLogger().debug(Messages.DELETED_APP_ROUTES, cloudApplication.getName());
     }
 
-    private List<CloudRouteExtended> getApplicationRoutes(CloudControllerClient client, CloudApplication app) {
+    private List<CloudRouteExtended> getApplicationRoutes(CloudControllerClient client, CloudApplication app, String correlationId) {
         var routes = client.getApplicationRoutes(app.getGuid());
         var routeGuids = routes.stream()
                                .map(CloudRoute::getGuid)
                                .map(UUID::toString)
                                .collect(Collectors.toList());
-        var serviceInstanceRoutesGetter = getServiceRoutesGetter(client);
+        var serviceInstanceRoutesGetter = getServiceRoutesGetter(client, correlationId);
         var serviceRouteBindings = serviceInstanceRoutesGetter.getServiceRouteBindings(routeGuids);
         var routeIdsToServiceInstanceIds = serviceRouteBindings.stream()
-                                                                .collect(Collectors.groupingBy(ServiceRouteBinding::getRouteId,
-                                                                                               Collectors.mapping(ServiceRouteBinding::getServiceInstanceId,
-                                                                                                                  Collectors.toList())));
+                                                               .collect(Collectors.groupingBy(ServiceRouteBinding::getRouteId,
+                                                                                              Collectors.mapping(ServiceRouteBinding::getServiceInstanceId,
+                                                                                                                 Collectors.toList())));
         return routes.stream()
                      .map(route -> addServicesToRoute(route, routeIdsToServiceInstanceIds))
                      .collect(Collectors.toList());
@@ -80,7 +80,8 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
 
     private CloudRouteExtended addServicesToRoute(CloudRoute route, Map<String, List<String>> routesToServices) {
         var boundServiceGuids = routesToServices.getOrDefault(route.getGuid()
-                                                                   .toString(), Collections.emptyList());
+                                                                   .toString(),
+                                                              Collections.emptyList());
         return ImmutableCloudRouteExtended.builder()
                                           .from(route)
                                           .boundServiceInstanceGuids(boundServiceGuids)
