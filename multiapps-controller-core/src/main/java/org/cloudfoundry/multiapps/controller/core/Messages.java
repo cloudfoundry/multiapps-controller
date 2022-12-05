@@ -132,6 +132,7 @@ public final class Messages {
     public static final String FLOWABLE_JOB_EXECUTOR_CORE_THREADS = "Flowable job executor core threads: {0}";
     public static final String FLOWABLE_JOB_EXECUTOR_MAX_THREADS = "Flowable job executor max threads: {0}";
     public static final String FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = "Flowable job executor queue capacity: {0}";
+    public static final String GLOBAL_AUDITOR_ORIGIN = "Global auditor user origin: {0}";
 
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION = "About to perform action \"{0}\"";
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION_WITH_PARAMS = "About to perform action \"{0}\" with parameters \"{1}\"";
@@ -147,6 +148,7 @@ public final class Messages {
     public static final String PURGING_SUBSCRIPTIONS = "Purging configuration subscriptions for target: {0}";
     public static final String PURGING_ENTRIES = "Purging entries for target: {0}";
     public static final String PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES = "All delete request spaces after date: {0} will be deleted from configuration tables.";
+    public static final String RECENT_DELETE_SPACE_REQUEST_EVENTS = "Recent delete space request events: {0}";
     public static final String RETRIEVED_TOKEN_FOR_USER_0_WITH_EXPIRATION_TIME_1 = "Retrieved token for user \"{0}\" with expiration time: {1} seconds";
     public static final String FSS_CACHE_UPDATE_TIMEOUT = "Fss cache update timeout: {0} minutes";
     public static final String THREAD_MONITOR_CACHE_TIMEOUT = "Flowable thread monitor cache timeout: {0} seconds";

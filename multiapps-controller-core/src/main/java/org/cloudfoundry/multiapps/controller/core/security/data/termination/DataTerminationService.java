@@ -36,11 +36,13 @@ import com.sap.cloudfoundry.client.facade.CloudCredentials;
 @Named
 public class DataTerminationService {
 
-    private static final String AUTH_ORIGIN = "uaa";
     private static final String SPACE_DELETE_EVENT_TYPE = "audit.space.delete-request";
     private static final int NUMBER_OF_DAYS_OF_EVENTS = 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(DataTerminationService.class);
     private static final SafeExecutor SAFE_EXECUTOR = new SafeExecutor(DataTerminationService::log);
+    // Required by CF API:
+    // https://v3-apidocs.cloudfoundry.org/version/3.128.0/index.html#timestamps
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     @Inject
     private ConfigurationEntryService configurationEntryService;
@@ -74,7 +76,10 @@ public class DataTerminationService {
 
     private List<String> getSpaceDeleteEvents() {
         CFOptimizedEventGetter cfOptimizedEventGetter = getCfOptimizedEventGetter();
-        return cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeDays(NUMBER_OF_DAYS_OF_EVENTS));
+        List<String> spaceDeleteEvents = cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE,
+                                                                           getDateBeforeDays(NUMBER_OF_DAYS_OF_EVENTS));
+        LOGGER.info(MessageFormat.format(Messages.RECENT_DELETE_SPACE_REQUEST_EVENTS, spaceDeleteEvents.size()));
+        return spaceDeleteEvents;
     }
 
     protected CFOptimizedEventGetter getCfOptimizedEventGetter() {
@@ -87,7 +92,7 @@ public class DataTerminationService {
                                                                  configuration.getGlobalAuditorPassword(),
                                                                  SecurityUtil.CLIENT_ID,
                                                                  SecurityUtil.CLIENT_SECRET,
-                                                                 AUTH_ORIGIN);
+                                                                 configuration.getGlobalAuditorOrigin());
 
         CloudControllerClientImpl cfClient = new CloudControllerClientImpl(configuration.getControllerUrl(),
                                                                            cloudCredentials,
@@ -99,8 +104,7 @@ public class DataTerminationService {
     private String getDateBeforeDays(int numberOfDays) {
         ZonedDateTime dateBeforeTwoDays = ZonedDateTime.now()
                                                        .minus(Duration.ofDays(numberOfDays));
-        String result = DateTimeFormatter.ISO_DATE_TIME
-                                         .format(dateBeforeTwoDays);
+        String result = DATE_TIME_FORMATTER.format(dateBeforeTwoDays);
         LOGGER.info(MessageFormat.format(Messages.PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES, result));
         return result;
     }
