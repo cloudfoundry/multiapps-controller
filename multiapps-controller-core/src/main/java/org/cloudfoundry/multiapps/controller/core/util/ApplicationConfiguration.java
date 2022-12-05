@@ -57,6 +57,7 @@ public class ApplicationConfiguration {
     static final String CFG_BASIC_AUTH_ENABLED = "BASIC_AUTH_ENABLED";
     static final String CFG_GLOBAL_AUDITOR_USER = "GLOBAL_AUDITOR_USER";
     static final String CFG_GLOBAL_AUDITOR_PASSWORD = "GLOBAL_AUDITOR_PASSWORD";
+    static final String CFG_GLOBAL_AUDITOR_ORIGIN = "GLOBAL_AUDITOR_ORIGIN";
     static final String CFG_DB_CONNECTION_THREADS = "DB_CONNECTION_THREADS";
     static final String CFG_STEP_POLLING_INTERVAL_IN_SECONDS = "STEP_POLLING_INTERVAL_IN_SECONDS";
     static final String CFG_SKIP_SSL_VALIDATION = "SKIP_SSL_VALIDATION";
@@ -129,19 +130,23 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS = 1;
     public static final Integer DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = 20;
     public static final int DEFAULT_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS = 30;
-    // We've experimented with much smaller values (5, 15 seconds), but these lead to connection timeouts.
+    // We've experimented with much smaller values (5, 15 seconds), but these lead
+    // to connection timeouts.
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(2);
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 192;
     public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 64;
-    // By default GOROUTER aborts all HTTP calls exceeding 15min, so it does not make sense with a higher values
+    // By default GOROUTER aborts all HTTP calls exceeding 15min, so it does not
+    // make sense with a higher values
     public static final int DEFAULT_CONTROLLER_CLIENT_RESPONSE_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(15);
     public static final Boolean DEFAULT_SAP_INTERNAL_DELIVERY = false;
-    // Transaction timeout must be greater than Flowable process step timeout because lower value limit execution of the whole process step.
+    // Transaction timeout must be greater than Flowable process step timeout
+    // because lower value limit execution of the whole process step.
     public static final int DEFAULT_DB_TRANSACTION_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(60);
     public static final int DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS = 50;
     public static final int DEFAULT_SERVICE_HANDLING_MAX_PARALLEL_THREADS = 20;
     public static final int DEFAULT_ABORTED_OPERATIONS_TTL_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(30);
     public static final int DEFAULT_MAX_STOP_DELAY_IN_SECONDS = 300;
+    public static final String DEFAULT_GLOBAL_AUDITOR_ORIGIN = "uaa";
     protected final Environment environment;
 
     // Cached configuration settings:
@@ -159,6 +164,7 @@ public class ApplicationConfiguration {
     private Boolean basicAuthEnabled;
     private String globalAuditorUser;
     private String globalAuditorPassword;
+    private String globalAuditorOrigin;
     private Integer dbConnectionThreads;
     private Integer stepPollingIntervalInSeconds;
     private Boolean skipSslValidation;
@@ -368,6 +374,13 @@ public class ApplicationConfiguration {
             globalAuditorPassword = getGlobalAuditorPasswordFromEnvironment();
         }
         return globalAuditorPassword;
+    }
+
+    public String getGlobalAuditorOrigin() {
+        if (globalAuditorOrigin == null) {
+            globalAuditorOrigin = getGlobalAuditorOriginFromEnvironment();
+        }
+        return globalAuditorOrigin;
     }
 
     public int getDbConnectionThreads() {
@@ -742,6 +755,12 @@ public class ApplicationConfiguration {
 
     private String getGlobalAuditorPasswordFromEnvironment() {
         return environment.getString(CFG_GLOBAL_AUDITOR_PASSWORD);
+    }
+
+    private String getGlobalAuditorOriginFromEnvironment() {
+        String value = environment.getString(CFG_GLOBAL_AUDITOR_ORIGIN, DEFAULT_GLOBAL_AUDITOR_ORIGIN);
+        LOGGER.info(format(Messages.GLOBAL_AUDITOR_ORIGIN, value));
+        return value;
     }
 
     private Integer getDbConnectionThreadsFromEnvironment() {
