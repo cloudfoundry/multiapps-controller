@@ -146,6 +146,7 @@ public final class Messages {
     public static final String ROUTER_PORT = "Router port: {0}";
     public static final String DUMMY_TOKENS_ENABLED = "Dummy tokens enabled: {0}";
     public static final String BASIC_AUTH_ENABLED = "Basic authentication enabled: {0}";
+    public static final String GIT_DEPLOYMENT_ENABLED = "Git deployment enabled: {0}";
     public static final String ADMIN_USERNAME = "Admin username: {0}";
     public static final String USE_XS_AUDIT_LOGGING = "Use XSA audit logging: {0}";
     public static final String DB_CONNECTION_THREADS = "Database connection thread pool size: {0}";

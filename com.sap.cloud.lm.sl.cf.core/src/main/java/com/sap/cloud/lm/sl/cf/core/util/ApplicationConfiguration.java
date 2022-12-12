@@ -61,6 +61,7 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_HTTPS_ROUTER_PORT = 443;
     public static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
     public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
+    public static final Boolean DEFAULT_GIT_DEPLOYMENT_ENABLED = false;
     public static final String DEFAULT_GLOBAL_AUDITOR_USER = "";
     public static final String DEFAULT_GLOBAL_AUDITOR_PASSWORD = "";
     public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
@@ -106,6 +107,7 @@ public class ApplicationConfiguration {
     static final String CFG_VCAP_APPLICATION = "VCAP_APPLICATION"; // Mandatory
     static final String CFG_DUMMY_TOKENS_ENABLED = "DUMMY_TOKENS_ENABLED";
     static final String CFG_BASIC_AUTH_ENABLED = "BASIC_AUTH_ENABLED";
+    static final String CFG_GIT_DEPLOYMENT_ENABLED = "GIT_DEPLOYMENT_ENABLED";
     static final String CFG_GLOBAL_AUDITOR_USER = "GLOBAL_AUDITOR_USER";
     static final String CFG_GLOBAL_AUDITOR_PASSWORD = "GLOBAL_AUDITOR_PASSWORD";
     static final String CFG_DB_CONNECTION_THREADS = "DB_CONNECTION_THREADS";
@@ -151,6 +153,7 @@ public class ApplicationConfiguration {
     private Integer routerPort;
     private Boolean dummyTokensEnabled;
     private Boolean basicAuthEnabled;
+    private Boolean gitDeploymentEnabled;
     private String globalAuditorUser;
     private String globalAuditorPassword;
     private Integer dbConnectionThreads;
@@ -205,6 +208,7 @@ public class ApplicationConfiguration {
         getDeployServiceUrl();
         areDummyTokensEnabled();
         isBasicAuthEnabled();
+        isGitDeploymentEnabled();
         getGlobalAuditorUser();
         getGlobalAuditorPassword();
         getDbConnectionThreads();
@@ -391,6 +395,13 @@ public class ApplicationConfiguration {
             basicAuthEnabled = isBasicAuthEnabledThroughEnvironment();
         }
         return basicAuthEnabled;
+    }
+    
+    public Boolean isGitDeploymentEnabled() {
+        if (gitDeploymentEnabled == null) {
+        	gitDeploymentEnabled = isGitDeploymentEnabledThroughEnvironment();
+        }
+        return gitDeploymentEnabled;
     }
 
     public String getGlobalAuditorUser() {
@@ -754,6 +765,12 @@ public class ApplicationConfiguration {
     private Boolean isBasicAuthEnabledThroughEnvironment() {
         Boolean value = environment.getBoolean(CFG_BASIC_AUTH_ENABLED, DEFAULT_BASIC_AUTH_ENABLED);
         LOGGER.info(format(Messages.BASIC_AUTH_ENABLED, value));
+        return value;
+    }
+    
+    private Boolean isGitDeploymentEnabledThroughEnvironment() {
+        Boolean value = environment.getBoolean(CFG_GIT_DEPLOYMENT_ENABLED, DEFAULT_GIT_DEPLOYMENT_ENABLED);
+        LOGGER.info(format(Messages.GIT_DEPLOYMENT_ENABLED, value));
         return value;
     }
 
