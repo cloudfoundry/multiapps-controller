@@ -128,6 +128,7 @@ public class Messages {
     public static final String ERROR_PROCESSING_GIT_URI = "Error processing Git URI";
     public static final String ERROR_PROCESSING_GIT_MTA_SOURCE = "Failed to process Git MTA source";
     public static final String ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT = "Error downloading deployable from Git";
+    public static final String DEPLOYMENT_FROM_GIT_IS_NOT_ENABLED = "Deployment from git is not enabled, contact SAP support";
     public static final String ERROR_RECONFIGURING_APPS_ENVIRONMENTS = "Error reconfiguring apps environments";
     public static final String ERROR_NOT_FOUND_APPLICATION = "Application \"{0}\" not found.";
     public static final String ERROR_MONITORING_SUBPROCESS = "Error monitoring subprocess with id {0}";

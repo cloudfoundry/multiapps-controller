@@ -60,6 +60,9 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
+            if (!configuration.isGitDeploymentEnabled()) {
+                throw new SLException(Messages.DEPLOYMENT_FROM_GIT_IS_NOT_ENABLED);
+            }
             getStepLogger().info(Messages.DOWNLOADING_DEPLOYABLE);
 
             final String gitUri = getGitUri(execution);
