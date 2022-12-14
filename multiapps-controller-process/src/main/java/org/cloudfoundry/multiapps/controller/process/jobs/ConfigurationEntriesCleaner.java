@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -32,8 +33,8 @@ public class ConfigurationEntriesCleaner extends OrphanedDataCleaner<Configurati
     }
 
     @Override
-    protected String getEndCleanupLogMessage() {
-        return "Orphaned configuration entries deleted";
+    protected String getEndCleanupLogMessage(int deletedEntriesCount) {
+        return MessageFormat.format("Orphaned configuration entries deleted: {0}", deletedEntriesCount);
     }
 
     @Override
@@ -48,9 +49,9 @@ public class ConfigurationEntriesCleaner extends OrphanedDataCleaner<Configurati
     }
 
     @Override
-    protected void deleteConfigurationDataBySpaceId(String spaceId) {
-        configurationEntryService.createQuery()
-                                 .deleteAll(spaceId);
+    protected int deleteConfigurationDataBySpaceId(String spaceId) {
+        return configurationEntryService.createQuery()
+                                        .deleteAll(spaceId);
     }
 
 }

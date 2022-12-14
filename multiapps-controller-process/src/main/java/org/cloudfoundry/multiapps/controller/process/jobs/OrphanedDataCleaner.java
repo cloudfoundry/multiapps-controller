@@ -20,13 +20,12 @@ import com.sap.cloudfoundry.client.facade.CloudOperationException;
 public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrphanedDataCleaner.class);
-    private static final String AUTH_ORIGIN = "uaa";
 
     private ApplicationConfiguration configuration;
     protected CloudControllerClient client;
     private boolean executed;
 
-    public OrphanedDataCleaner(ApplicationConfiguration applicationConfiguration) {
+    protected OrphanedDataCleaner(ApplicationConfiguration applicationConfiguration) {
         this.configuration = applicationConfiguration;
         this.executed = false;
     }
@@ -34,25 +33,26 @@ public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> impl
     @Override
     public void execute(Date expirationTime) {
         if (!executed) {
-            LOGGER.debug(CleanUpJob.LOG_MARKER, getStartCleanupLogMessage());
-            deleteOrphanedData();
-            LOGGER.debug(CleanUpJob.LOG_MARKER, getEndCleanupLogMessage());
+            LOGGER.info(CleanUpJob.LOG_MARKER, getStartCleanupLogMessage());
+            int deletedOrphanedDataCount = deleteOrphanedData();
+            LOGGER.info(CleanUpJob.LOG_MARKER, getEndCleanupLogMessage(deletedOrphanedDataCount));
             executed = true;
         }
     }
 
     protected abstract String getStartCleanupLogMessage();
 
-    protected abstract String getEndCleanupLogMessage();
+    protected abstract String getEndCleanupLogMessage(int deletedDataCount);
 
-    private void deleteOrphanedData() {
+    private int deleteOrphanedData() {
         List<T> configurationData = getConfigurationData();
-        configurationData.stream()
-                         .filter(this::hasNoAssociatedSpace)
-                         .peek(this::auditLogDeletion)
-                         .map(this::getSpaceId)
-                         .distinct()
-                         .forEach(this::deleteConfigurationDataBySpaceId);
+        return configurationData.stream()
+                                .filter(this::hasNoAssociatedSpace)
+                                .peek(this::auditLogDeletion)
+                                .map(this::getSpaceId)
+                                .distinct()
+                                .mapToInt(this::deleteConfigurationDataBySpaceId)
+                                .sum();
     }
 
     protected abstract List<T> getConfigurationData();
@@ -82,14 +82,14 @@ public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> impl
         }
     }
 
-    protected abstract void deleteConfigurationDataBySpaceId(String spaceId);
+    protected abstract int deleteConfigurationDataBySpaceId(String spaceId);
 
     protected void initCloudControllerClient() {
         CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
                                                                  configuration.getGlobalAuditorPassword(),
                                                                  SecurityUtil.CLIENT_ID,
                                                                  SecurityUtil.CLIENT_SECRET,
-                                                                 AUTH_ORIGIN);
+                                                                 configuration.getGlobalAuditorOrigin());
 
         client = new CloudControllerClientImpl(configuration.getControllerUrl(), cloudCredentials, configuration.shouldSkipSslValidation());
         client.login();
