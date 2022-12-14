@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -32,8 +33,8 @@ public class ConfigurationSubscriptionCleaner extends OrphanedDataCleaner<Config
     }
 
     @Override
-    protected String getEndCleanupLogMessage() {
-        return "Orphaned configuration subscriptions deleted";
+    protected String getEndCleanupLogMessage(int deletedSubscriptionsCount) {
+        return MessageFormat.format("Orphaned configuration subscriptions deleted {0}", deletedSubscriptionsCount);
     }
 
     @Override
@@ -48,9 +49,9 @@ public class ConfigurationSubscriptionCleaner extends OrphanedDataCleaner<Config
     }
 
     @Override
-    protected void deleteConfigurationDataBySpaceId(String spaceId) {
-        configurationSubscriptionService.createQuery()
-                                        .deleteAll(spaceId);
+    protected int deleteConfigurationDataBySpaceId(String spaceId) {
+        return configurationSubscriptionService.createQuery()
+                                               .deleteAll(spaceId);
     }
 
 }
