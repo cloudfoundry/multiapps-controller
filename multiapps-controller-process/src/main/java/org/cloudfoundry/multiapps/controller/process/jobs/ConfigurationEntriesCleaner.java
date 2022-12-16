@@ -4,18 +4,20 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
+import org.springframework.core.annotation.Order;
 
 /*
  * This cleaner is heavy because it scans for deleted space events for every configuration entry.
  * Annotations are commented because this cleaner is not necessary to be executed.
  * Uncomment these annotations in case it exists garbage and cleaner should be executed.
  */
-//@Named()
-//@Order(40)
+@Named()
+@Order(40)
 public class ConfigurationEntriesCleaner extends OrphanedDataCleaner<ConfigurationEntry> {
 
     private final ConfigurationEntryService configurationEntryService;
