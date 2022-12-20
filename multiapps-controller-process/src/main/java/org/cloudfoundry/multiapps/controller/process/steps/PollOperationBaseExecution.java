@@ -31,7 +31,9 @@ public abstract class PollOperationBaseExecution implements AsyncExecution {
 
     protected abstract String getAsyncJobId(ProcessContext context);
 
-    protected abstract boolean isOptional(ProcessContext context);
+    protected boolean isOptional(ProcessContext context) {
+        return false;
+    }
 
     protected abstract Consumer<CloudAsyncJob> getInProgressHandler(ProcessContext context);
 
@@ -39,6 +41,8 @@ public abstract class PollOperationBaseExecution implements AsyncExecution {
 
     protected abstract Consumer<CloudAsyncJob> getOnErrorHandler(ProcessContext context);
 
-    protected abstract Consumer<CloudAsyncJob> getOnErrorHandlerForOptionalResource(ProcessContext context);
+    protected Consumer<CloudAsyncJob> getOnErrorHandlerForOptionalResource(ProcessContext context) {
+        return getOnErrorHandler(context);
+    }
 
 }
