@@ -134,10 +134,15 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
               getRemainingServicesToPoll(Map<CloudServiceInstanceExtended, ServiceOperation> servicesWithLastOperation) {
         return servicesWithLastOperation.entrySet()
                                         .stream()
-                                        .filter(serviceWithLastOperation -> serviceWithLastOperation.getValue()
-                                                                                                    .getState() == ServiceOperation.State.IN_PROGRESS)
+                                        .filter(this::isOperationInProgress)
                                         .map(Map.Entry::getKey)
                                         .collect(Collectors.toList());
+    }
+
+    private boolean isOperationInProgress(Entry<CloudServiceInstanceExtended, ServiceOperation> serviceWithLastOperation) {
+        ServiceOperation.State operationState = serviceWithLastOperation.getValue()
+                                                                        .getState();
+        return operationState == ServiceOperation.State.INITIAL || operationState == ServiceOperation.State.IN_PROGRESS;
     }
 
     protected abstract List<CloudServiceInstanceExtended> getServicesData(ProcessContext context);
