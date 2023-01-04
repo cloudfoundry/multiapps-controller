@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -85,8 +86,10 @@ public class FilesApiServiceImpl implements FilesApiService {
             StopWatch stopWatch = StopWatch.createStarted();
             LOGGER.trace("Received upload request on URI: {}", ServletUtil.decodeUri(request));
             if (StringUtils.isEmpty(fileUrl)) {
+                LOGGER.debug("Uploading local files...");
                 fileEntry = uploadFiles(request, spaceGuid, namespace).get(0);
             } else {
+                LOGGER.debug("Uploading files from URL...");
                 fileEntry = uploadFileFromUrl(spaceGuid, namespace, fileUrl);
             }
             FileMetadata file = parseFileEntry(fileEntry);
@@ -171,20 +174,25 @@ public class FilesApiServiceImpl implements FilesApiService {
         if (!UriUtil.isUrlSecure(decodedUrl)) {
             throw new SLException(Messages.MTAR_ENDPOINT_NOT_SECURE);
         }
+        LOGGER.trace("Validating URL...");
         UriUtil.validateUrl(decodedUrl);
         HttpClient client = buildHttpClient(decodedUrl);
 
         HttpResponse<InputStream> response = callRemoteEndpointWithRetry(client, decodedUrl);
 
+        LOGGER.trace("Extracting file size...");
         long fileSize = response.headers()
                                 .firstValueAsLong(Constants.CONTENT_LENGTH)
                                 .orElseThrow(() -> new SLException(Messages.FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH));
+        LOGGER.trace(MessageFormat.format("File size: {0}", Optional.ofNullable(fileSize)));
 
         long maxUploadSize = new Configuration().getMaxUploadSize();
+        LOGGER.trace(MessageFormat.format("Max upload size: {0}", maxUploadSize));
         if (fileSize > maxUploadSize) {
             throw new SLException(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED, maxUploadSize));
         }
 
+        LOGGER.trace("Extracting filename...");
         String fileName = extractFileName(decodedUrl);
         FileUtils.validateFileHasExtension(fileName);
         try (InputStream content = createLimitedInputStream(response.body(), maxUploadSize)) {
@@ -193,17 +201,20 @@ public class FilesApiServiceImpl implements FilesApiService {
     }
 
     private HttpResponse<InputStream> callRemoteEndpointWithRetry(HttpClient client, String decodedUrl) throws Exception {
+        LOGGER.trace("Calling remote endpoint ...");
         return resilientOperationExecutor.execute((CheckedSupplier<HttpResponse<InputStream>>) () -> {
             var response = client.send(buildFetchFileRequest(decodedUrl), BodyHandlers.ofInputStream());
             if (response.statusCode() / 100 != 2) {
                 String error = readErrorBodyFromResponse(response);
                 throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, response.statusCode(), error));
             }
+            LOGGER.trace(MessageFormat.format("Successful retrieval of response with status code {0}", response.statusCode()));
             return response;
         });
     }
 
     protected HttpClient buildHttpClient(String decodedUrl) {
+        LOGGER.trace("Building HTTP Client...");
         return HttpClient.newBuilder()
                          .version(HttpClient.Version.HTTP_2)
                          .connectTimeout(Duration.ofMinutes(10))
@@ -213,6 +224,7 @@ public class FilesApiServiceImpl implements FilesApiService {
     }
 
     private Authenticator buildPasswordAuthenticator(String decodedUrl) {
+        LOGGER.trace("Building password authenticator...");
         return new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
@@ -230,6 +242,7 @@ public class FilesApiServiceImpl implements FilesApiService {
     }
 
     private HttpRequest buildFetchFileRequest(String decodedUrl) {
+        LOGGER.trace("Build Fetch-File HTTP Request...");
         var builder = HttpRequest.newBuilder()
                                  .GET()
                                  .timeout(Duration.ofMinutes(5));
@@ -252,7 +265,8 @@ public class FilesApiServiceImpl implements FilesApiService {
     }
 
     private String extractFileName(String url) {
-        String path = URI.create(url).getPath();
+        String path = URI.create(url)
+                         .getPath();
         if (path.indexOf('/') == -1) {
             return path;
         }

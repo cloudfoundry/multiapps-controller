@@ -34,6 +34,7 @@
         <nimbus-jose-jwt.version>9.10.1</nimbus-jose-jwt.version>
         <hikari.version>3.4.3</hikari.version>
         <jackson.version>2.13.4</jackson.version>
+        <guava.version>31.1-jre</guava.version>
         <jackson.databind.version>2.13.4.2</jackson.databind.version>
         <liquibase.version>4.9.0</liquibase.version>
         <liquibase-slf4j.version>4.0.0</liquibase-slf4j.version>
@@ -753,6 +754,12 @@
                 <groupId>org.apache.jclouds.provider</groupId>
                 <artifactId>azureblob</artifactId>
                 <version>${jclouds.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
             <!-- Transitive dependency from jclouds. They're using an old version with security vulnerabilities.
              In order to avoid the vulnerabilities explicit versioning is required.-->

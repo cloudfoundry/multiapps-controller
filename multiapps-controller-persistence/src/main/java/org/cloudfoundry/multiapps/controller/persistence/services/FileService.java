@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import javax.xml.bind.DatatypeConverter;
 
 public class FileService {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileService.class);
     protected static final String DEFAULT_TABLE_NAME = "LM_SL_PERSISTENCE_FILE";
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -94,6 +94,7 @@ public class FileService {
                                                          .size(BigInteger.valueOf(fileSize))
                                                          .modified(new Timestamp(System.currentTimeMillis()))
                                                          .build();
+        LOGGER.trace("Storing file without digest... ");
         FileEntry fileEntry = storeFile(entryWithoutDigest, content);
         logger.debug(MessageFormat.format(Messages.STORED_FILE_0, fileEntry));
         return fileEntry;
@@ -168,10 +169,14 @@ public class FileService {
     }
 
     protected FileEntry storeFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
-        if (fileEntry.getDigest() != null) {
-            fileStorage.addFile(fileEntry, content);
-            storeFileAttributes(fileEntry);
-            return fileEntry;
+        try {
+            if (fileEntry.getDigest() != null) {
+                fileStorage.addFile(fileEntry, content);
+                storeFileAttributes(fileEntry);
+                return fileEntry;
+            }
+        } catch (IOException e) {
+            throw new FileStorageException(e);
         }
         try (DigestInputStream dis = new DigestInputStream(content, MessageDigest.getInstance(Constants.DIGEST_ALGORITHM))) {
             fileStorage.addFile(fileEntry, dis);
@@ -242,6 +247,7 @@ public class FileService {
     private FileEntry addFile(String space, String namespace, String name, FileInfo fileInfo) throws FileStorageException {
         FileEntry fileEntry = createFileEntry(space, namespace, name, fileInfo);
         try (InputStream content = fileInfo.getInputStream()) {
+            LOGGER.trace("Storing file with digest...");
             storeFile(fileEntry, content);
         } catch (IOException e) {
             throw new FileStorageException(e);
@@ -257,6 +263,7 @@ public class FileService {
 
     private boolean storeFileAttributes(FileEntry fileEntry) throws FileStorageException {
         try {
+            LOGGER.trace("Storing file attributes...");
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileAttributesQuery(fileEntry));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);

@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Date;
@@ -11,6 +12,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.google.common.io.ByteSource;
+import com.google.common.io.ByteStreams;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
@@ -44,17 +47,19 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     @Override
-    public void addFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
+    public void addFile(FileEntry fileEntry, InputStream content) throws FileStorageException, IOException {
         String entryName = fileEntry.getId();
         long fileSize = fileEntry.getSize()
                                  .longValue();
+        LOGGER.trace("Building blob ...");
         Blob blob = blobStore.blobBuilder(entryName)
-                             .payload(content)
+                             .payload(ByteSource.wrap(ByteStreams.toByteArray(content)))
                              .contentDisposition(fileEntry.getName())
                              .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
                              .contentLength(fileSize)
                              .userMetadata(createFileEntryMetadata(fileEntry))
                              .build();
+        LOGGER.trace("Successful building of blob.");
         try {
             putBlobWithRetries(blob, 3);
             LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1, fileEntry.getId(), fileSize));
@@ -128,6 +133,7 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     private void putBlobWithRetries(Blob blob, int retries) {
+        LOGGER.trace("Uploading blob ...");
         for (int i = 1; i <= retries; i++) {
             try {
                 blobStore.putBlob(container, blob, PutOptions.Builder.multipart());
