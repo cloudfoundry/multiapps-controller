@@ -207,6 +207,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public void deleteServiceBindingSync(UUID bindingGuid) {
+        // TODO: delete after 1 tact
+        delegate.deleteServiceBindingSync(bindingGuid);
+    }
+
+    @Override
     public CloudApplication getApplication(String applicationName) {
         logger.debug(Messages.GETTING_APPLICATION_0, applicationName);
         return delegate.getApplication(applicationName);
