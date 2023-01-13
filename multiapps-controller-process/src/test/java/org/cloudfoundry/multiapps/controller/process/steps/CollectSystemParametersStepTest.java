@@ -59,6 +59,7 @@ class CollectSystemParametersStepTest extends CollectSystemParametersStepBaseTes
         assertEquals(CONTROLLER_URL, generalParameters.get(SupportedParameters.XS_TARGET_API_URL));
         assertEquals(CONTROLLER_URL, generalParameters.get(SupportedParameters.CONTROLLER_URL));
         assertEquals(MULTIAPPS_CONTROLLER_URL, generalParameters.get(SupportedParameters.DEPLOY_SERVICE_URL));
+        assertEquals(DEFAULT_TIMESTAMP, generalParameters.get(SupportedParameters.TIMESTAMP));
     }
 
     private DeployedMta createDeployedMta(String version, List<DeployedMtaApplication> deployedApplications) {
@@ -159,7 +160,6 @@ class CollectSystemParametersStepTest extends CollectSystemParametersStepBaseTes
 
     private void validateGeneralModuleParameters(Module module, String expectedGeneratedUsername, String expectedGeneratedPassword) {
         Map<String, Object> parameters = module.getParameters();
-        assertEquals(DEFAULT_TIMESTAMP, parameters.get(SupportedParameters.TIMESTAMP));
         assertEquals(expectedGeneratedUsername, parameters.get(SupportedParameters.GENERATED_USER));
         assertEquals(expectedGeneratedPassword, parameters.get(SupportedParameters.GENERATED_PASSWORD));
         assertEquals(module.getName(), parameters.get(SupportedParameters.DEFAULT_APP_NAME));

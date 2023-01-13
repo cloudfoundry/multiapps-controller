@@ -88,6 +88,7 @@ public class SystemParameters {
         systemParameters.put(SupportedParameters.XS_AUTHORIZATION_ENDPOINT, authorizationEndpoint);
         systemParameters.put(SupportedParameters.AUTHORIZATION_URL, authorizationEndpoint);
         systemParameters.put(SupportedParameters.DEPLOY_SERVICE_URL, deployServiceUrl);
+        systemParameters.put(SupportedParameters.TIMESTAMP, getDefaultTimestamp());
 
         return systemParameters;
     }
@@ -104,8 +105,6 @@ public class SystemParameters {
         moduleSystemParameters.put(SupportedParameters.APP_NAME, referenceToParameter(SupportedParameters.DEFAULT_APP_NAME));
         moduleSystemParameters.put(SupportedParameters.DEFAULT_INSTANCES, 1);
         moduleSystemParameters.put(SupportedParameters.INSTANCES, referenceToParameter(SupportedParameters.DEFAULT_INSTANCES));
-        moduleSystemParameters.put(SupportedParameters.TIMESTAMP, getDefaultTimestamp());
-
         putRoutingParameters(module, moduleParameters, moduleSystemParameters);
 
         moduleSystemParameters.put(SupportedParameters.GENERATED_USER, credentialsGenerator.next(GENERATED_CREDENTIALS_LENGTH));
