@@ -203,8 +203,6 @@ class SystemParametersTest {
         assertEquals("${default-app-name}", moduleParameters.get(SupportedParameters.APP_NAME));
         assertEquals(1, moduleParameters.get(SupportedParameters.DEFAULT_INSTANCES));
         assertEquals("${default-instances}", moduleParameters.get(SupportedParameters.INSTANCES));
-        assertEquals(TIMESTAMP, moduleParameters.get(SupportedParameters.TIMESTAMP));
-
         assertEquals(PROTOCOL, moduleParameters.get(SupportedParameters.PROTOCOL));
     }
 
@@ -226,6 +224,7 @@ class SystemParametersTest {
         assertEquals(XS_TYPE, descriptorParameters.get(SupportedParameters.XS_TYPE));
         assertEquals(AUTHORIZATION_ENDPOINT, descriptorParameters.get(SupportedParameters.AUTHORIZATION_URL));
         assertEquals(DEPLOY_SERVICE_URL, descriptorParameters.get(SupportedParameters.DEPLOY_SERVICE_URL));
+        assertEquals(TIMESTAMP, descriptorParameters.get(SupportedParameters.TIMESTAMP));
     }
 
     private SystemParameters createSystemParameters(boolean reserveTemporaryRoutes, boolean applyNamespace) throws MalformedURLException {

@@ -166,12 +166,12 @@ public class SupportedParameters {
 
     public static final Set<String> READ_ONLY_SYSTEM_PARAMETERS = Set.of(AUTHORIZATION_URL, CONTROLLER_URL, DEFAULT_DOMAIN,
                                                                          DEFAULT_IDLE_DOMAIN, ORGANIZATION_NAME, ORGANIZATION_GUID,
-                                                                         SPACE_NAME, SPACE_GUID, USER, XS_TYPE);
+                                                                         SPACE_NAME, SPACE_GUID, USER, XS_TYPE, TIMESTAMP);
 
     public static final Set<String> READ_ONLY_MODULE_PARAMETERS = Set.of(DEFAULT_DOMAIN, DEFAULT_IDLE_DOMAIN, DEFAULT_HOST, PROTOCOL,
                                                                          GENERATED_USER, GENERATED_PASSWORD, DEFAULT_URI, DEFAULT_URL,
                                                                          DEFAULT_IDLE_HOST, DEFAULT_IDLE_URI, DEFAULT_IDLE_URL,
-                                                                         DEFAULT_APP_NAME, DEFAULT_INSTANCES, TIMESTAMP);
+                                                                         DEFAULT_APP_NAME, DEFAULT_INSTANCES);
 
     public static final Set<String> READ_ONLY_RESOURCE_PARAMETERS = Set.of(DEFAULT_CONTAINER_NAME, DEFAULT_XS_APP_NAME, GENERATED_USER,
                                                                            GENERATED_PASSWORD, DEFAULT_SERVICE_NAME);
