@@ -87,7 +87,7 @@ public class FilesApiServiceImpl implements FilesApiService {
             if (StringUtils.isEmpty(fileUrl)) {
                 fileEntry = uploadFiles(request, spaceGuid, namespace).get(0);
             } else {
-                fileEntry = uploadFileFromUrl(spaceGuid, namespace, fileUrl);
+                fileEntry = resilientOperationExecutor.execute((CheckedSupplier<FileEntry>) () -> uploadFileFromUrl(spaceGuid, namespace, fileUrl));
             }
             FileMetadata file = parseFileEntry(fileEntry);
             AuditLoggingProvider.getFacade()
