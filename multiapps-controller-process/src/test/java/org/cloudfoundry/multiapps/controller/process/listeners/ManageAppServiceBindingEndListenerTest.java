@@ -1,11 +1,15 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -14,6 +18,7 @@ import org.flowable.engine.RuntimeService;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.runtime.Execution;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -80,10 +85,22 @@ class ManageAppServiceBindingEndListenerTest {
         when(execution.getVariable(Variables.SERVICE_TO_UNBIND_BIND.getName())).thenReturn(SERVICE_NAME);
         when(execution.getVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP.getName())).thenReturn(shouldUnbind);
         when(execution.getVariable(Variables.SHOULD_BIND_SERVICE_TO_APP.getName())).thenReturn(shouldBind);
+        mockFlowableFacade();
+    }
+
+    private void mockFlowableFacade() {
         when(execution.getParentId()).thenReturn(PARENT_EXECUTION_ID);
         when(parentExecution.getSuperExecutionId()).thenReturn(PARENT_EXECUTION_ID);
         when(flowableFacade.getParentExecution(PARENT_EXECUTION_ID)).thenReturn(parentExecution);
         when(flowableFacade.getProcessEngine()).thenReturn(processEngine);
         when(processEngine.getRuntimeService()).thenReturn(runtimeService);
+    }
+
+    @Test
+    void testBindUnbindServiceEndListenerWhenAppOrServiceIsNotSet() {
+        when(processTypeParser.getProcessType(any())).thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
+        mockFlowableFacade();
+        manageAppServiceBindingEndListener.notifyInternal(execution);
+        verify(runtimeService, never()).setVariable(anyString(), anyString(), any());
     }
 }

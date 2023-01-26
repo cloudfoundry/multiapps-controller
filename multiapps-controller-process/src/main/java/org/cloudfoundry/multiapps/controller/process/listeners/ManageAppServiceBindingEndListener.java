@@ -27,6 +27,9 @@ public class ManageAppServiceBindingEndListener extends AbstractProcessExecution
         }
         CloudApplicationExtended app = VariableHandling.get(execution, Variables.APP_TO_PROCESS);
         String service = VariableHandling.get(execution, Variables.SERVICE_TO_UNBIND_BIND);
+        if (app == null || service == null) {
+            return;
+        }
         boolean shouldUnbindService = VariableHandling.get(execution, Variables.SHOULD_UNBIND_SERVICE_FROM_APP);
         boolean shouldBindService = VariableHandling.get(execution, Variables.SHOULD_BIND_SERVICE_TO_APP);
 
