@@ -5,11 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,47 +30,24 @@ class CloudPackagesGetterTest {
     private static final UUID APPLICATION_GUID = UUID.randomUUID();
     private static final UUID PACKAGE_GUID = UUID.randomUUID();
     private static final UUID DROPLET_GUID = UUID.randomUUID();
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private final CloudPackagesGetter cloudPackagesGetter = new CloudPackagesGetter();
     private final CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
 
     @Test
-    void getLatestUnusedPackageWithNoPackagesNoDroplet() {
+    void getAppPackageWithNoPackagesNoDroplet() {
         Mockito.when(client.getCurrentDropletForApplication(APPLICATION_GUID))
                .thenThrow(getNotFoundCloudOperationException());
-        Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getLatestUnusedPackage(client, APPLICATION_GUID);
+        Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getAppPackage(client, APPLICATION_GUID);
         assertFalse(latestUnusedPackage.isPresent());
     }
 
     @Test
-    void getLatestUnusedPackageExceptionIsThrown() {
+    void getAppPackageExceptionIsThrown() {
         Mockito.when(client.getCurrentDropletForApplication(APPLICATION_GUID))
                .thenThrow(getInternalServerErrorCloudOperationException());
         Exception exception = assertThrows(CloudOperationException.class,
-                                           () -> cloudPackagesGetter.getLatestUnusedPackage(client, APPLICATION_GUID));
+                                           () -> cloudPackagesGetter.getAppPackage(client, APPLICATION_GUID));
         assertEquals("500 Internal Server Error", exception.getMessage());
-    }
-
-    @Test
-    void getLatestUnusedPackageWithOneValidPackageNoDroplet() {
-        Mockito.when(client.getCurrentDropletForApplication(APPLICATION_GUID))
-               .thenThrow(getNotFoundCloudOperationException());
-        Mockito.when(client.getPackagesForApplication(APPLICATION_GUID))
-               .thenReturn(List.of(createCloudPackage(PACKAGE_GUID, Status.PROCESSING_UPLOAD, LocalDateTime.now())));
-        Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getLatestUnusedPackage(client, APPLICATION_GUID);
-        assertTrue(latestUnusedPackage.isPresent());
-        assertEquals(PACKAGE_GUID, latestUnusedPackage.get()
-                                                      .getGuid());
-    }
-
-    @Test
-    void getLatestUnusedPackageWithDropletAndWithoutPackages() {
-        Mockito.when(client.getCurrentDropletForApplication(APPLICATION_GUID))
-               .thenReturn(createDropletInfo(DROPLET_GUID, PACKAGE_GUID));
-        Mockito.when(client.getPackage(PACKAGE_GUID))
-               .thenThrow(getNotFoundCloudOperationException());
-        Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getLatestUnusedPackage(client, APPLICATION_GUID);
-        assertFalse(latestUnusedPackage.isPresent());
     }
 
     @Test
@@ -86,37 +59,13 @@ class CloudPackagesGetterTest {
                .thenReturn(cloudPackage);
         Mockito.when(client.getPackagesForApplication(APPLICATION_GUID))
                .thenReturn(List.of(cloudPackage));
-        Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getLatestUnusedPackage(client, APPLICATION_GUID);
-        assertFalse(latestUnusedPackage.isPresent());
-    }
-
-    @Test
-    void getLatestUnusedPackageWhenNoPackagesAreFound() {
-        Mockito.when(client.getCurrentDropletForApplication(APPLICATION_GUID))
-               .thenReturn(createDropletInfo(DROPLET_GUID, PACKAGE_GUID));
-        CloudPackage cloudPackage = createCloudPackage(PACKAGE_GUID, Status.READY, LocalDateTime.now());
-        Mockito.when(client.getPackage(PACKAGE_GUID))
-               .thenReturn(cloudPackage);
-        Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getLatestUnusedPackage(client, APPLICATION_GUID);
-        assertFalse(latestUnusedPackage.isPresent());
-    }
-
-    @Test
-    void getLatestUnusedPackageWhenThereIsNewerPackage() throws DateTimeParseException {
-        Mockito.when(client.getCurrentDropletForApplication(APPLICATION_GUID))
-               .thenReturn(createDropletInfo(DROPLET_GUID, PACKAGE_GUID));
-        LocalDate date = LocalDate.parse("01-01-2020", DATE_TIME_FORMATTER);
-        Mockito.when(client.getPackage(PACKAGE_GUID))
-               .thenReturn(createCloudPackage(PACKAGE_GUID, Status.READY, LocalDateTime.of(date, LocalTime.NOON)));
-        date = LocalDate.parse("02-01-2020", DATE_TIME_FORMATTER);
-        CloudPackage olderCloudPackage = createCloudPackage(UUID.randomUUID(), Status.READY, LocalDateTime.of(date, LocalTime.NOON));
-        date = LocalDate.parse("03-01-2020", DATE_TIME_FORMATTER);
-        CloudPackage newestCloudPackage = createCloudPackage(UUID.randomUUID(), Status.READY, LocalDateTime.of(date, LocalTime.NOON));
-        Mockito.when(client.getPackagesForApplication(APPLICATION_GUID))
-               .thenReturn(List.of(olderCloudPackage, newestCloudPackage));
-        Optional<CloudPackage> latestUnusedCloudPackage = cloudPackagesGetter.getLatestUnusedPackage(client, APPLICATION_GUID);
-        assertTrue(latestUnusedCloudPackage.isPresent());
-        assertEquals(newestCloudPackage, latestUnusedCloudPackage.get());
+        Optional<CloudPackage> currentPackage = cloudPackagesGetter.getAppPackage(client, APPLICATION_GUID);
+        Optional<CloudPackage> latestPackage = cloudPackagesGetter.getMostRecentAppPackage(client, APPLICATION_GUID);
+        assertTrue(currentPackage.isPresent());
+        assertTrue(latestPackage.isPresent());
+        assertEquals(currentPackage.get()
+                                   .getGuid(), latestPackage.get()
+                                                            .getGuid());
     }
 
     private CloudOperationException getNotFoundCloudOperationException() {
