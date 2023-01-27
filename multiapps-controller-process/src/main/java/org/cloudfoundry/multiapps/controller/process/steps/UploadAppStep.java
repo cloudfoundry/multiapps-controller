@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Map;
@@ -88,18 +89,34 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             return StepPhase.POLL;
         }
 
-        Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getLatestUnusedPackage(client, cloudApp.getGuid());
-        if (latestUnusedPackage.isPresent() && isCloudPackageInValidState(latestUnusedPackage.get())) {
-            return useLatestPackage(context, latestUnusedPackage.get());
-        }
-
-        if (latestUnusedPackage.isPresent() && !isCloudPackageInValidState(latestUnusedPackage.get())
-            || !isAppStagedCorrectly(context, cloudApp)) {
+        Optional<CloudPackage> mostRecentPackage = cloudPackagesGetter.getMostRecentAppPackage(client, cloudApp.getGuid());
+        if (mostRecentPackage.isEmpty()) {
             proceedWithUpload(context, applicationToProcess, moduleFileName);
             return StepPhase.POLL;
         }
+
+        CloudPackage latestPackage = mostRecentPackage.get();
+        Optional<CloudPackage> currentPackage = cloudPackagesGetter.getAppPackage(client, cloudApp.getGuid());
+        if (currentPackage.isEmpty() && isPackageInValidState(latestPackage)) {
+            return useLatestPackage(context, latestPackage);
+        }
+
+        if (currentPackage.isEmpty() || !isAppStagedCorrectly(context, cloudApp)) {
+            proceedWithUpload(context, applicationToProcess, moduleFileName);
+            return StepPhase.POLL;
+        }
+
+        if (isPackageInValidState(latestPackage) && (context.getVariable(Variables.APP_NEEDS_RESTAGE) ||
+                                                     !packagesMatch(currentPackage.get(), latestPackage))) {
+            return useLatestPackage(context, latestPackage);
+        }
+
         getStepLogger().info(Messages.CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED, applicationToProcess.getName());
         return StepPhase.DONE;
+    }
+
+    private boolean packagesMatch(CloudPackage currentPackage, CloudPackage latestPackage) {
+        return Objects.equals(currentPackage.getGuid(), latestPackage.getGuid());
     }
 
     private CloudPackage createDockerPackage(CloudControllerClient client, CloudApplicationExtended application) {
@@ -151,10 +168,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         return StepPhase.POLL;
     }
 
-    private boolean isCloudPackageInValidState(CloudPackage cloudPackage) {
-        LOGGER.info(format(Messages.PACKAGE_STATUS_0_IS_IN_STATE_1, cloudPackage.getMetadata()
-                                                                                .getGuid(),
-                           cloudPackage.getStatus()));
+    private boolean isPackageInValidState(CloudPackage cloudPackage) {
+        LOGGER.info(format(Messages.PACKAGE_STATUS_0_IS_IN_STATE_1, cloudPackage.getGuid(), cloudPackage.getStatus()));
         return cloudPackage.getStatus() != Status.EXPIRED && cloudPackage.getStatus() != Status.FAILED
             && cloudPackage.getStatus() != Status.AWAITING_UPLOAD;
     }

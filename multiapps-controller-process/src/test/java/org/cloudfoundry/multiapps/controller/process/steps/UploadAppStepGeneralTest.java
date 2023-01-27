@@ -216,6 +216,9 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     void testWithBuildStates(List<CloudBuild> builds, StepPhase stepPhase, CloudPackage cloudPackage) {
         if (cloudPackage == null) {
             when(client.getApplicationEnvironment(any(UUID.class))).thenReturn(Map.of("DEPLOY_ATTRIBUTES", "{\"app-content-digest\":\"" + CURRENT_MODULE_DIGEST + "\"}"));
+            var dropletPackage = createCloudPackage(Status.READY);
+            mockCloudPackagesGetter(dropletPackage);
+            when(cloudPackagesGetter.getMostRecentAppPackage(any(), any())).thenReturn(Optional.of(dropletPackage));
         }
         when(client.getBuildsForApplication(any())).thenReturn(builds);
         prepareClients(CURRENT_MODULE_DIGEST);
@@ -235,7 +238,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     }
 
     private void mockCloudPackagesGetter(CloudPackage cloudPackage) {
-        when(cloudPackagesGetter.getLatestUnusedPackage(any(), any())).thenReturn(Optional.of(cloudPackage));
+        when(cloudPackagesGetter.getAppPackage(any(), any())).thenReturn(Optional.of(cloudPackage));
     }
 
     private void prepareClients(String applicationDigest) {

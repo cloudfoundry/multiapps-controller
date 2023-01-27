@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.variables;
 
 import java.time.Duration;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -207,6 +206,10 @@ public interface Variables {
                                                                        .name("vcapUserPropertiesChanged")
                                                                        .defaultValue(false)
                                                                        .build();
+    Variable<Boolean> APP_NEEDS_RESTAGE = ImmutableSimpleVariable.<Boolean> builder()
+                                                                 .name("appNeedsRestage")
+                                                                 .defaultValue(false)
+                                                                 .build();
     Variable<Boolean> VCAP_APP_PROPERTIES_CHANGED = ImmutableSimpleVariable.<Boolean> builder()
                                                                            .name("vcapAppPropertiesChanged")
                                                                            .defaultValue(false)

@@ -65,9 +65,7 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
 
     private void prepareClient(boolean hasCloudPacakge) {
         RestartParameters restartParameters = getRestartParameters();
-        CloudMetadata metadata = ImmutableCloudMetadata.builder()
-                                                       .guid(FAKE_UUID)
-                                                       .build();
+        CloudMetadata metadata = ImmutableCloudMetadata.of(FAKE_UUID);
 
         CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
                                                                         .metadata(metadata)

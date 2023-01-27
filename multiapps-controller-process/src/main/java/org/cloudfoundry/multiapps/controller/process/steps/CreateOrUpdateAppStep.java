@@ -225,7 +225,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             app = ImmutableCloudApplicationExtended.copyOf(app)
                                                    .withEnv(envAsMap);
 
-            ControllerClientFacade.Context clientContext = new ControllerClientFacade.Context(client, getStepLogger());
+            ControllerClientFacade.Context clientContext = new ControllerClientFacade.Context(client, context, getStepLogger());
             UpdateState updateApplicationEnvironmentState = new EnvironmentApplicationAttributeUpdater(clientContext,
                                                                                                        getEnvUpdateStrategy(),
                                                                                                        appEnv).update(existingApp, app);
@@ -260,7 +260,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         protected List<ApplicationAttributeUpdater> getApplicationAttributeUpdaters() {
-            ControllerClientFacade.Context clientContext = new ControllerClientFacade.Context(client, getStepLogger());
+            ControllerClientFacade.Context clientContext = new ControllerClientFacade.Context(client, context, getStepLogger());
             var process = client.getApplicationProcess(existingApp.getGuid());
             var currentRoutes = client.getApplicationRoutes(existingApp.getGuid());
             context.setVariable(Variables.CURRENT_ROUTES, currentRoutes);

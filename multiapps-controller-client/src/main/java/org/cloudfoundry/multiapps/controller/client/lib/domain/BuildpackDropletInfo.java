@@ -1,5 +1,8 @@
 package org.cloudfoundry.multiapps.controller.client.lib.domain;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -30,7 +33,21 @@ public class BuildpackDropletInfo implements DropletInfo {
             return false;
         }
         var otherDroplet = (BuildpackDropletInfo) other;
-        return Objects.equals(getBuildpacks(), otherDroplet.getBuildpacks())
-            && Objects.equals(getStack(), otherDroplet.getStack());
+
+        var shouldCompareStack = isStackSet(getStack()) && isStackSet(otherDroplet.getStack());
+        var shouldCompareBuildpacks = areBuildpacksSet(getBuildpacks()) && areBuildpacksSet(otherDroplet.getBuildpacks());
+
+        if (shouldCompareStack && !Objects.equals(getStack(), otherDroplet.getStack())) {
+            return false;
+        }
+        return !shouldCompareBuildpacks || Objects.equals(getBuildpacks(), otherDroplet.getBuildpacks());
+    }
+
+    private static boolean isStackSet(String stack) {
+        return StringUtils.hasLength(stack);
+    }
+
+    private static boolean areBuildpacksSet(List<String> buildpacks) {
+        return !CollectionUtils.isEmpty(buildpacks);
     }
 }

@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.text.MessageFormat;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -26,27 +25,18 @@ public class CloudPackagesGetter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudPackagesGetter.class);
 
-    public Optional<CloudPackage> getLatestUnusedPackage(CloudControllerClient client, UUID applicationGuid) {
+    public Optional<CloudPackage> getAppPackage(CloudControllerClient client, UUID applicationGuid) {
         Optional<DropletInfo> currentDropletForApplication = findOrReturnEmpty(() -> client.getCurrentDropletForApplication(applicationGuid));
         if (currentDropletForApplication.isEmpty()) {
-            return getMostRecentCloudPackage(client, applicationGuid);
+            return getMostRecentAppPackage(client, applicationGuid);
         }
-
         Optional<CloudPackage> currentCloudPackage = findOrReturnEmpty(() -> client.getPackage(currentDropletForApplication.get()
                                                                                                                            .getPackageGuid()));
         if (currentCloudPackage.isEmpty()) {
             return Optional.empty();
         }
         LOGGER.info(MessageFormat.format(Messages.CURRENTLY_USED_PACKAGE_0, SecureSerialization.toJson(currentCloudPackage.get())));
-        Optional<CloudPackage> mostRecentApplicationPackage = getMostRecentCloudPackage(client, applicationGuid);
-        if (mostRecentApplicationPackage.isEmpty()) {
-            return Optional.empty();
-        }
-
-        if (!isCurrentCloudPackageUpToDate(currentCloudPackage.get(), mostRecentApplicationPackage.get())) {
-            return mostRecentApplicationPackage;
-        }
-        return Optional.empty();
+        return currentCloudPackage;
     }
 
     private <T> Optional<T> findOrReturnEmpty(Supplier<T> supplier) {
@@ -61,7 +51,7 @@ public class CloudPackagesGetter {
         }
     }
 
-    private Optional<CloudPackage> getMostRecentCloudPackage(CloudControllerClient client, UUID applicationGuid) {
+    public Optional<CloudPackage> getMostRecentAppPackage(CloudControllerClient client, UUID applicationGuid) {
         List<CloudPackage> cloudPackages = client.getPackagesForApplication(applicationGuid);
         LOGGER.info(MessageFormat.format(Messages.PACKAGES_FOR_APPLICATION_0_ARE_1, applicationGuid,
                                          SecureSerialization.toJson(cloudPackages)));
@@ -70,7 +60,4 @@ public class CloudPackagesGetter {
                                                                                   .getCreatedAt()));
     }
 
-    private boolean isCurrentCloudPackageUpToDate(CloudPackage currentCloudPackage, CloudPackage mostRecentCloudPackage) {
-        return Objects.equals(currentCloudPackage.getGuid(), mostRecentCloudPackage.getGuid());
-    }
 }
