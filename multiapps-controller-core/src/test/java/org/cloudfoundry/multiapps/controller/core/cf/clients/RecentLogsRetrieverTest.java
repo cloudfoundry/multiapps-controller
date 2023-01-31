@@ -111,7 +111,6 @@ class RecentLogsRetrieverTest {
         Calendar cal = (Calendar) TIMESTAMP.clone();
         cal.add(Calendar.MILLISECOND, milis);
         return ImmutableApplicationLog.builder()
-                                      .sourceId("")
                                       .sourceName("")
                                       .messageType(ApplicationLog.MessageType.STDOUT)
                                       .message(message)

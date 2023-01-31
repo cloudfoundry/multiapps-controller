@@ -49,7 +49,6 @@ class PollExecuteAppStatusExecutionTest {
     private static final String USER_NAME = "testUsername";
     private static final String APP_SOURCE = "APP";
     private static final String APPLICATION_GUID = "1";
-    private static final String SOURCE_ID = "0";
     private static final Date LOG_TIMESTAMP = Date.from(new GregorianCalendar(2019, Calendar.AUGUST, 1).toInstant());
     private static final long PROCESS_START_TIME = new GregorianCalendar(2019, Calendar.JANUARY, 1).toInstant()
                                                                                                    .toEpochMilli();
@@ -111,7 +110,6 @@ class PollExecuteAppStatusExecutionTest {
                                       .message(message)
                                       .timestamp(PollExecuteAppStatusExecutionTest.LOG_TIMESTAMP)
                                       .messageType(messageType)
-                                      .sourceId(PollExecuteAppStatusExecutionTest.SOURCE_ID)
                                       .sourceName(sourceName)
                                       .build();
     }
