@@ -4,13 +4,15 @@ import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+import org.cloudfoundry.multiapps.controller.core.util.ImmutableLogsOffset;
+import org.cloudfoundry.multiapps.controller.core.util.LogsOffset;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -67,7 +69,6 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         if (!actions.contains(ApplicationStateAction.EXECUTE)) {
             return AsyncExecutionState.FINISHED;
         }
-
         CloudApplicationExtended app = getNextApp(context);
         CloudControllerClient client = context.getControllerClient();
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app, app.getEnv());
@@ -76,7 +77,6 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
                                                              .getProcessLoggerProvider();
         StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app.getName(), LOGGER, processLoggerProvider);
         return checkAppExecutionStatus(context, client, app, appAttributes, status);
-
     }
 
     public String getPollingErrorMessage(ProcessContext context) {
@@ -91,45 +91,58 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
     private AppExecutionDetailedStatus getAppExecutionStatus(ProcessContext context, CloudControllerClient client,
                                                              ApplicationAttributes appAttributes, CloudApplication app) {
         long startTime = context.getVariable(Variables.START_TIME);
-        Marker sm = getMarker(appAttributes, SupportedParameters.SUCCESS_MARKER, DEFAULT_SUCCESS_MARKER);
-        Marker fm = getMarker(appAttributes, SupportedParameters.FAILURE_MARKER, DEFAULT_FAILURE_MARKER);
+        Marker successMarker = getMarker(appAttributes, SupportedParameters.SUCCESS_MARKER, DEFAULT_SUCCESS_MARKER);
+        Marker failureMarker = getMarker(appAttributes, SupportedParameters.FAILURE_MARKER, DEFAULT_FAILURE_MARKER);
         boolean checkDeployId = appAttributes.get(SupportedParameters.CHECK_DEPLOY_ID, Boolean.class, Boolean.FALSE);
         String deployId = checkDeployId ? (StepsUtil.DEPLOY_ID_PREFIX + context.getVariable(Variables.CORRELATION_ID)) : null;
-
-        List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName(), null);
+        LogsOffset logsOffset = context.getVariable(Variables.LOGS_OFFSET_FOR_APP_EXECUTION);
+        List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName(), logsOffset);
+        setLogsOffset(context, recentLogs);
         return recentLogs.stream()
-                         .map(log -> getAppExecutionStatus(log, startTime, sm, fm, deployId))
-                         .filter(Objects::nonNull)
-                         .reduce(new AppExecutionDetailedStatus(AppExecutionStatus.EXECUTING), (a, b) -> b);
+                         .map(log -> getAppExecutionStatus(log, startTime, successMarker, failureMarker, deployId))
+                         .filter(Optional::isPresent)
+                         .map(Optional::get)
+                         .reduce(new AppExecutionDetailedStatus(AppExecutionStatus.EXECUTING), (currentLog, nextLog) -> nextLog);
     }
 
-    private AppExecutionDetailedStatus getAppExecutionStatus(ApplicationLog log, long startTime, Marker sm, Marker fm, String id) {
+    private void setLogsOffset(ProcessContext context, List<ApplicationLog> recentLogs) {
+        if (recentLogs.isEmpty()) {
+            return;
+        }
+        ApplicationLog lastLog = recentLogs.get(recentLogs.size() - 1);
+        context.setVariable(Variables.LOGS_OFFSET_FOR_APP_EXECUTION, ImmutableLogsOffset.builder()
+                                                                                        .message(lastLog.getMessage())
+                                                                                        .timestamp(lastLog.getTimestamp())
+                                                                                        .build());
+    }
+
+    private Optional<AppExecutionDetailedStatus> getAppExecutionStatus(ApplicationLog log, long startTime, Marker successMarker,
+                                                                       Marker failureMarker, String deployId) {
         long time = log.getTimestamp()
                        .getTime();
         String sourceName = log.getSourceName()
                                .substring(0, 3);
-        if (time < startTime || !sourceName.equalsIgnoreCase("APP"))
-            return null;
-
-        MessageType mt = log.getMessageType();
-        String msg = log.getMessage()
-                        .trim();
-        if (!(id == null || msg.contains(id)))
-            return null;
-
-        if (mt.equals(sm.messageType) && msg.matches(sm.text)) {
-            return new AppExecutionDetailedStatus(AppExecutionStatus.SUCCEEDED);
-        } else if (mt.equals(fm.messageType) && msg.matches(fm.text)) {
-            return new AppExecutionDetailedStatus(AppExecutionStatus.FAILED, msg);
+        if (time < startTime || !sourceName.equalsIgnoreCase("APP")) {
+            return Optional.empty();
         }
-        return null;
+        MessageType messageType = log.getMessageType();
+        String message = log.getMessage()
+                            .trim();
+        if (!(deployId == null || message.contains(deployId))) {
+            return Optional.empty();
+        }
+        if (messageType.equals(successMarker.messageType) && message.matches(successMarker.text)) {
+            return Optional.of(new AppExecutionDetailedStatus(AppExecutionStatus.SUCCEEDED));
+        } else if (messageType.equals(failureMarker.messageType) && message.matches(failureMarker.text)) {
+            return Optional.of(new AppExecutionDetailedStatus(AppExecutionStatus.FAILED, message));
+        }
+        return Optional.empty();
     }
 
     private AsyncExecutionState checkAppExecutionStatus(ProcessContext context, CloudControllerClient client, CloudApplication app,
                                                         ApplicationAttributes appAttributes, AppExecutionDetailedStatus status) {
         if (status.getStatus()
                   .equals(AppExecutionStatus.FAILED)) {
-            // Application execution failed
             String message = format(Messages.ERROR_EXECUTING_APP_2, app.getName(), status.getMessage());
             context.getStepLogger()
                    .error(message);
@@ -137,15 +150,12 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             return AsyncExecutionState.ERROR;
         } else if (status.getStatus()
                          .equals(AppExecutionStatus.SUCCEEDED)) {
-            // Application executed successfully
             context.getStepLogger()
                    .info(Messages.APP_EXECUTED, app.getName());
             stopApplicationIfSpecified(context, client, app, appAttributes);
             return AsyncExecutionState.FINISHED;
-        } else {
-            // Application not executed yet, wait and try again unless it's a timeout.
-            return AsyncExecutionState.RUNNING;
         }
+        return AsyncExecutionState.RUNNING;
     }
 
     private void stopApplicationIfSpecified(ProcessContext context, CloudControllerClient client, CloudApplication app,
@@ -161,23 +171,23 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
                .debug(Messages.APP_STOPPED, app.getName());
     }
 
-    private static Marker getMarker(ApplicationAttributes appAttributes, String attribute, String defaultValue) {
+    private Marker getMarker(ApplicationAttributes appAttributes, String attributeName, String defaultValue) {
         MessageType messageType;
         String text;
-        String attr = appAttributes.get(attribute, String.class, defaultValue);
-        if (attr.startsWith(MessageType.STDERR.toString() + ":")) {
+        String attributeValue = appAttributes.get(attributeName, String.class, defaultValue);
+        if (attributeValue.startsWith(MessageType.STDERR + ":")) {
             messageType = MessageType.STDERR;
-            text = attr.substring(MessageType.STDERR.toString()
-                                                    .length()
+            text = attributeValue.substring(MessageType.STDERR.toString()
+                                                              .length()
                 + 1);
-        } else if (attr.startsWith(MessageType.STDOUT.toString() + ":")) {
+        } else if (attributeValue.startsWith(MessageType.STDOUT + ":")) {
             messageType = MessageType.STDOUT;
-            text = attr.substring(MessageType.STDOUT.toString()
-                                                    .length()
+            text = attributeValue.substring(MessageType.STDOUT.toString()
+                                                              .length()
                 + 1);
         } else {
             messageType = MessageType.STDOUT;
-            text = attr;
+            text = attributeValue;
         }
         return new Marker(messageType, text);
     }
