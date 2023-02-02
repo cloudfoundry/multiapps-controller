@@ -81,6 +81,13 @@ class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
         assertStepPhase(StepPhase.DONE);
     }
 
+    @Test
+    void testServiceDeletionWhenServiceIsAlreadyDeleted() {
+        prepareContext();
+        step.execute(context.getExecution());
+        assertStepFinishedSuccessfully();
+    }
+
     private void prepareContext() {
         context.setVariable(Variables.SERVICE_TO_DELETE, SERVICE_NAME);
         context.setVariable(Variables.DELETE_SERVICES, true);
@@ -94,7 +101,7 @@ class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
     }
 
     private void prepareClient(CloudServiceInstance serviceInstance) {
-        when(client.getServiceInstanceWithoutAuxiliaryContent(eq(SERVICE_NAME))).thenReturn(serviceInstance);
+        when(client.getServiceInstanceWithoutAuxiliaryContent(SERVICE_NAME, false)).thenReturn(serviceInstance);
     }
 
     private void assertStepPhase(StepPhase expectedStepPhase) {
