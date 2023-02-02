@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,13 +24,19 @@ public class RecentLogsRetriever {
     }
 
     public List<ApplicationLog> getRecentLogs(CloudControllerClient client, String appName, LogsOffset offset) {
-        List<ApplicationLog> appLogs = client.getRecentLogs(appName);
+        List<ApplicationLog> logsInDescendingOrder = getLogsInDescendingOrder(client, appName, offset);
+        Collections.reverse(logsInDescendingOrder);
+        return logsInDescendingOrder;
+    }
+
+    private List<ApplicationLog> getLogsInDescendingOrder(CloudControllerClient client, String appName, LogsOffset offset) {
+        List<ApplicationLog> appLogsInDescendingOrder = client.getRecentLogs(appName);
         if (offset == null) {
-            return appLogs;
+            return appLogsInDescendingOrder;
         }
-        return appLogs.stream()
-                      .filter(appLog -> isLogNew(appLog, offset))
-                      .collect(Collectors.toList());
+        return appLogsInDescendingOrder.stream()
+                                       .filter(appLog -> isLogNew(appLog, offset))
+                                       .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private boolean isLogNew(ApplicationLog log, LogsOffset offset) {

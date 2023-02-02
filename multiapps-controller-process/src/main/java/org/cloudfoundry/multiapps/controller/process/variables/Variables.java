@@ -20,6 +20,7 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.model.SubprocessPhase;
+import org.cloudfoundry.multiapps.controller.core.util.LogsOffset;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -822,6 +823,9 @@ public interface Variables {
                                                                                                     })
                                                                                                     .defaultValue(Collections.emptyList())
                                                                                                     .build();
+    Variable<LogsOffset> LOGS_OFFSET_FOR_APP_EXECUTION = ImmutableSimpleVariable.<LogsOffset> builder()
+                                                                                .name("logsOffsetForAppExecution")
+                                                                                .build();
 
     //TODO revert back to:
     // ImmutableJsonBinaryVariable.<CloudApplication> builder()
