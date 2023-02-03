@@ -487,12 +487,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
         return executeWithRetry(() -> delegate.deleteServiceBinding(serviceBindingGuid, serviceBindingOperationCallback));
     }
 
-    // TODO: delete after 1 tact
-    @Override
-    public void deleteServiceBindingSync(UUID bindingGuid) {
-        executeWithRetry(() -> delegate.deleteServiceBindingSync(bindingGuid));
-    }
-
     @Override
     public Optional<String> deleteServiceBinding(UUID bindingGuid) {
         return executeWithRetry(() -> delegate.deleteServiceBinding(bindingGuid));
