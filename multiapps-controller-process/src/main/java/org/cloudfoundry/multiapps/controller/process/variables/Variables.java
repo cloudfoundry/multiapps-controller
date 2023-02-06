@@ -291,33 +291,10 @@ public interface Variables {
                                                                                                .name("completeMtaDeploymentDescriptor")
                                                                                                .type(Variable.typeReference(DeploymentDescriptor.class))
                                                                                                .build();
-    //TODO revert back to
-    // ImmutableJsonStringVariable.<CloudApplicationExtended> builder()
-    //                            .name("appToProcess")
-    //                            .type(Variable.typeReference(CloudApplicationExtended.class))
-    //                            .build();
-    // after takt 10b
-    Variable<CloudApplicationExtended> APP_TO_PROCESS = new JsonStringVariable<>() {
-        @Override
-        public TypeReference<CloudApplicationExtended> getType() {
-            return Variable.typeReference(CloudApplicationExtended.class);
-        }
-
-        @Override
-        public String getName() {
-            return "appToProcess";
-        }
-
-        @Override
-        public Serializer<CloudApplicationExtended> getSerializer() {
-            return new CloudApplicationExtendedSerializationAdapter();
-        }
-
-        @Override
-        public CloudApplicationExtended getDefaultValue() {
-            return null;
-        }
-    };
+    Variable<CloudApplicationExtended> APP_TO_PROCESS = ImmutableJsonStringVariable.<CloudApplicationExtended> builder()
+                                                                                   .name("appToProcess")
+                                                                                   .type(Variable.typeReference(CloudApplicationExtended.class))
+                                                                                   .build();
     Variable<MtaArchiveElements> MTA_ARCHIVE_ELEMENTS = ImmutableJsonStringVariable.<MtaArchiveElements> builder()
                                                                                    .name("mtaArchiveElements")
                                                                                    .type(Variable.typeReference(MtaArchiveElements.class))
@@ -327,33 +304,10 @@ public interface Variables {
                                                                                            .name("serviceToProcess")
                                                                                            .type(Variable.typeReference(CloudServiceInstanceExtended.class))
                                                                                            .build();
-    //TODO revert back to
-    // ImmutableJsonStringVariable.<CloudPackage> builder()
-    //                            .name("uploadedCloudPackage")
-    //                            .type(Variable.typeReference(CloudPackage.class))
-    //                            .build();
-    // after takt 10b
-    Variable<CloudPackage> CLOUD_PACKAGE = new JsonStringVariable<>() {
-        @Override
-        public TypeReference<CloudPackage> getType() {
-            return Variable.typeReference(CloudPackage.class);
-        }
-
-        @Override
-        public String getName() {
-            return "uploadedCloudPackage";
-        }
-
-        @Override
-        public Serializer<CloudPackage> getSerializer() {
-            return new CloudPackageSerializerAdapter();
-        }
-
-        @Override
-        public CloudPackage getDefaultValue() {
-            return null;
-        }
-    };
+    Variable<CloudPackage> CLOUD_PACKAGE = ImmutableJsonStringVariable.<CloudPackage> builder()
+                                                                      .name("uploadedCloudPackage")
+                                                                      .type(Variable.typeReference(CloudPackage.class))
+                                                                      .build();
     Variable<Hook> HOOK_FOR_EXECUTION = ImmutableJsonStringVariable.<Hook> builder()
                                                                    .name("hookForExecution")
                                                                    .type(Variable.typeReference(Hook.class))
@@ -403,33 +357,10 @@ public interface Variables {
                                                                                                  })
                                                                                                  .defaultValue(Collections.emptyList())
                                                                                                  .build();
-    //TODO revert back to
-    // ImmutableJsonBinaryVariable.<CloudApplication> builder()
-    //                            .name("existingApp")
-    //                            .type(Variable.typeReference(CloudApplication.class))
-    //                            .build()
-    // after takt 10b
-    Variable<CloudApplication> EXISTING_APP = new JsonBinaryVariable<>() {
-        @Override
-        public TypeReference<CloudApplication> getType() {
-            return Variable.typeReference(CloudApplication.class);
-        }
-
-        @Override
-        public String getName() {
-            return "existingApp";
-        }
-
-        @Override
-        public Serializer<CloudApplication> getSerializer() {
-            return new CloudApplicationBinarySerializerAdapter();
-        }
-
-        @Override
-        public CloudApplication getDefaultValue() {
-            return null;
-        }
-    };
+    Variable<CloudApplication> EXISTING_APP = ImmutableJsonBinaryVariable.<CloudApplication> builder()
+                                                                         .name("existingApp")
+                                                                         .type(Variable.typeReference(CloudApplication.class))
+                                                                         .build();
     Variable<Module> MODULE_TO_DEPLOY = ImmutableJsonBinaryVariable.<Module> builder()
                                                                    .name("moduleToDeploy")
                                                                    .type(Variable.typeReference(Module.class))
@@ -500,64 +431,16 @@ public interface Variables {
                                                                                                            .type(new TypeReference<>() {
                                                                                                            })
                                                                                                            .build();
-    //TODO revert back to:
-    // ImmutableJsonBinaryVariable.<List<CloudApplication>> builder()
-    //                            .name("updatedServiceBrokerSubscribers")
-    //                            .type(new TypeReference<>() {
-    //                            })
-    //                            .build()
-    // after takt 10b
-    Variable<List<CloudApplication>> UPDATED_SERVICE_BROKER_SUBSCRIBERS = new JsonBinaryVariable<>() {
-        @Override
-        public TypeReference<List<CloudApplication>> getType() {
-            return new TypeReference<>() {
-            };
-        }
-
-        @Override
-        public String getName() {
-            return "updatedServiceBrokerSubscribers";
-        }
-
-        @Override
-        public Serializer<List<CloudApplication>> getSerializer() {
-            return new CloudApplicationBinaryListSerializerAdapter();
-        }
-
-        @Override
-        public List<CloudApplication> getDefaultValue() {
-            return null;
-        }
-    };
-    //TODO revert back to:
-    // ImmutableJsonBinaryVariable.<List<CloudApplication>> builder()
-    //                            .name("updatedSubscribers")
-    //                            .type(new TypeReference<>() {
-    //                            })
-    //                            .build();
-    // after takt 10b
-    Variable<List<CloudApplication>> UPDATED_SUBSCRIBERS = new JsonBinaryVariable<>() {
-        @Override
-        public TypeReference<List<CloudApplication>> getType() {
-            return new TypeReference<>() {
-            };
-        }
-
-        @Override
-        public String getName() {
-            return "updatedSubscribers";
-        }
-
-        @Override
-        public Serializer<List<CloudApplication>> getSerializer() {
-            return new CloudApplicationBinaryListSerializerAdapter();
-        }
-
-        @Override
-        public List<CloudApplication> getDefaultValue() {
-            return null;
-        }
-    };
+    Variable<List<CloudApplication>> UPDATED_SERVICE_BROKER_SUBSCRIBERS = ImmutableJsonBinaryVariable.<List<CloudApplication>> builder()
+                                                                                                     .name("updatedServiceBrokerSubscribers")
+                                                                                                     .type(new TypeReference<>() {
+                                                                                                     })
+                                                                                                     .build();
+    Variable<List<CloudApplication>> UPDATED_SUBSCRIBERS = ImmutableJsonBinaryVariable.<List<CloudApplication>> builder()
+                                                                                      .name("updatedSubscribers")
+                                                                                      .type(new TypeReference<>() {
+                                                                                      })
+                                                                                      .build();
     Variable<List<CloudRoute>> CURRENT_ROUTES = ImmutableJsonBinaryListVariable.<CloudRoute> builder()
                                                                                .name("currentRoutes")
                                                                                .type(Variable.typeReference(CloudRoute.class))
@@ -623,34 +506,11 @@ public interface Variables {
                                                                                          .type(ServiceAction.class)
                                                                                          .defaultValue(Collections.emptyList())
                                                                                          .build();
-    //TODO revert back to:
-    // ImmutableJsonStringListVariable.<CloudApplication> builder()
-    //                                .name("appsToUndeploy")
-    //                                .type(Variable.typeReference(CloudApplication.class))
-    //                                .defaultValue(Collections.emptyList())
-    //                                .build();
-    // after takt 10b
-    Variable<List<CloudApplication>> APPS_TO_UNDEPLOY = new JsonStringListVariable<>() {
-        @Override
-        public TypeReference<CloudApplication> getType() {
-            return Variable.typeReference(CloudApplication.class);
-        }
-
-        @Override
-        public Serializer<List<CloudApplication>> getSerializer() {
-            return new CloudApplicationListSerializerAdapter();
-        }
-
-        @Override
-        public String getName() {
-            return "appsToUndeploy";
-        }
-
-        @Override
-        public List<CloudApplication> getDefaultValue() {
-            return Collections.emptyList();
-        }
-    };
+    Variable<List<CloudApplication>> APPS_TO_UNDEPLOY = ImmutableJsonStringListVariable.<CloudApplication> builder()
+                                                                                       .name("appsToUndeploy")
+                                                                                       .type(Variable.typeReference(CloudApplication.class))
+                                                                                       .defaultValue(Collections.emptyList())
+                                                                                       .build();
     Variable<List<CloudServiceInstanceExtended>> SERVICES_TO_BIND = ImmutableJsonStringListVariable.<CloudServiceInstanceExtended> builder()
                                                                                                    .name("servicesToBind")
                                                                                                    .type(Variable.typeReference(CloudServiceInstanceExtended.class))
@@ -827,33 +687,10 @@ public interface Variables {
                                                                                 .name("logsOffsetForAppExecution")
                                                                                 .build();
 
-    //TODO revert back to:
-    // ImmutableJsonBinaryVariable.<CloudApplication> builder()
-    //                            .name("existingAppToPoll")
-    //                            .type(Variable.typeReference(CloudApplication.class))
-    //                            .build();
-    // after takt 10b
-    Variable<CloudApplication> EXISTING_APP_TO_POLL = new JsonBinaryVariable<>() {
-        @Override
-        public TypeReference<CloudApplication> getType() {
-            return Variable.typeReference(CloudApplication.class);
-        }
-
-        @Override
-        public Serializer<CloudApplication> getSerializer() {
-            return new CloudApplicationBinarySerializerAdapter();
-        }
-
-        @Override
-        public String getName() {
-            return "existingAppToPoll";
-        }
-
-        @Override
-        public CloudApplication getDefaultValue() {
-            return null;
-        }
-    };
+    Variable<CloudApplication> EXISTING_APP_TO_POLL = ImmutableJsonBinaryVariable.<CloudApplication> builder()
+                                                                                 .name("existingAppToPoll")
+                                                                                 .type(Variable.typeReference(CloudApplication.class))
+                                                                                 .build();
 
     Variable<Duration> DELAY_AFTER_APP_STOP = ImmutableSimpleVariable.<Duration> builder()
                                                                      .name("delayAfterAppStop")
