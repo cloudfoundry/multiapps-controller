@@ -38,6 +38,7 @@ public class FlowableHistoricDataCleaner implements Cleaner {
 
     @Override
     public void execute(Date expirationTime) {
+        LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.WILL_DELETE_HISTORIC_PROCESSES_BEFORE_0, expirationTime));
         long deletedProcessesCount = 0;
         long expiredProcessesPages = getExpiredProcessesPageCount(expirationTime);
         for (int i = 0; i < expiredProcessesPages; i++) {

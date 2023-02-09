@@ -36,8 +36,9 @@ public class CleanUpJob {
         if (configuration.getApplicationInstanceIndex() != SELECTED_INSTANCE_FOR_CLEAN_UP) {
             return;
         }
+        Instant cleanUpJobStartTime = Instant.now();
         LOGGER.info(LOG_MARKER, format(Messages.CLEAN_UP_JOB_STARTED_BY_APPLICATION_INSTANCE_0_AT_1,
-                                       configuration.getApplicationInstanceIndex(), Instant.now()));
+                                       configuration.getApplicationInstanceIndex(), cleanUpJobStartTime));
 
         Date expirationTime = computeExpirationTime();
         LOGGER.info(LOG_MARKER, format(Messages.WILL_CLEAN_UP_DATA_STORED_BEFORE_0, expirationTime));
@@ -46,7 +47,7 @@ public class CleanUpJob {
             safeExecutor.execute(() -> cleaner.execute(expirationTime));
         }
 
-        LOGGER.info(LOG_MARKER, format(Messages.CLEAN_UP_JOB_FINISHED_AT_0, Instant.now()));
+        LOGGER.info(LOG_MARKER, format(Messages.CLEAN_UP_JOB_WHICH_STARTED_AT_0_HAS_FINISHED_AT_1, cleanUpJobStartTime, Instant.now()));
     }
 
     private Date computeExpirationTime() {

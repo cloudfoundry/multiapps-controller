@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
+import static java.text.MessageFormat.format;
+
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +32,7 @@ public class FlowableDataCleaner implements Cleaner {
 
     @Override
     public void execute(Date expirationTime) {
+        LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.WILL_DELETE_FLOWABLE_PROCESSES_BEFORE_0, expirationTime));
         List<ProcessInstance> processInstances = flowableFacade.findAllRunningProcessInstanceStartedBefore(expirationTime);
         LOGGER.info(CleanUpJob.LOG_MARKER, MessageFormat.format(Messages.FLOWABLE_PROCESSES_TO_DELETE, processInstances.size()));
         processInstances.stream()
@@ -42,8 +45,8 @@ public class FlowableDataCleaner implements Cleaner {
             LOGGER.info(CleanUpJob.LOG_MARKER, MessageFormat.format(Messages.DELETING_FLOWABLE_PROCESS_WITH_ID, processInstanceId));
             flowableFacade.deleteProcessInstance(processInstanceId, Operation.State.ABORTED.name());
         } catch (Exception e) {
-            LOGGER.error(CleanUpJob.LOG_MARKER,
-                         MessageFormat.format(Messages.ERROR_DELETING_FLOWABLE_PROCESS_WITH_ID, processInstanceId), e);
+            LOGGER.error(CleanUpJob.LOG_MARKER, MessageFormat.format(Messages.ERROR_DELETING_FLOWABLE_PROCESS_WITH_ID, processInstanceId),
+                         e);
         }
     }
 
