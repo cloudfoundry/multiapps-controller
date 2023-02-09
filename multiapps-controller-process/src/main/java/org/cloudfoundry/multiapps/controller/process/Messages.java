@@ -247,8 +247,9 @@ public class Messages {
     public static final String SOME_INSTANCES_ARE_DOWN = "Some instances are down. Check the logs of your application for more information.";
     public static final String SOME_INSTANCES_HAVE_CRASHED = "Some instances have crashed. Check the logs of your application for more information.";
     public static final String CLEAN_UP_JOB_STARTED_BY_APPLICATION_INSTANCE_0_AT_1 = "Clean-up job started by application instance {0} at: {1}";
-    public static final String CLEAN_UP_JOB_FINISHED_AT_0 = "Clean-up job finished at: {0}";
+    public static final String CLEAN_UP_JOB_WHICH_STARTED_AT_0_HAS_FINISHED_AT_1 = "Clean-up job, which started at: {0}, has finished at: {1}";
     public static final String WILL_CLEAN_UP_DATA_STORED_BEFORE_0 = "Will clean-up data stored before: {0}";
+    public static final String WILL_DELETE_HISTORIC_PROCESSES_BEFORE_0 = "Will delete Flowable historic processes before: {0}";
     public static final String DELETED_HISTORIC_PROCESSES_0 = "Deleted historic processes: {0}";
     public static final String DELETED_FILES_0 = "Deleted files: {0}";
     public static final String ABORTED_OPERATIONS_0 = "Aborted operations: {0}";
@@ -265,6 +266,7 @@ public class Messages {
     public static final String CREATE_SUPPORT_TICKET_TO_CC_COMPONENT = "If you think the problem is in the controller, please create a support ticket to {0} component \"{1}\".";
     public static final String DELETING_OPERATION_WITH_ID = "Deleting operation with ID \"{0}\"";
     public static final String DELETING_FLOWABLE_PROCESS_WITH_ID = "Deleting Flowable process with ID \"{0}\"";
+    public static final String WILL_DELETE_FLOWABLE_PROCESSES_BEFORE_0 = "Will delete Flowable processes before: {0}";
     public static final String FLOWABLE_PROCESSES_TO_DELETE = "Flowable processes to delete: {0}";
     public static final String APPLICATION_NOT_STAGED_CORRECTLY = "Application \"{0}\" was not staged correctly during the previous deployment";
     public static final String JOB_WITH_ID_AND_TASK_NAME_EXPIRED = "Job with id \"{0}\" and Task name \"{1}\" expired";
