@@ -53,7 +53,7 @@ public class ApplicationConfiguration {
     public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4 GB(s)
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB(s)
     public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024l; // 1MB
-    public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024l; // 1GB
+    public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 2 * 1024 * 1024 * 1024l; // 2GB
     public static final Boolean DEFAULT_SCAN_UPLOADS = false;
     public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
     public static final String DEFAULT_SPACE_ID = "";
