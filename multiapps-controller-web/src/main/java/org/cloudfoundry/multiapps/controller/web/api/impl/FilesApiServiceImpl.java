@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
@@ -57,6 +58,8 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilesApiServiceImpl.class);
     private static final int ERROR_RESPONSE_BODY_MAX_LENGTH = 4000;
+    private static final int INPUT_STREAM_BUFFER_SIZE = 16 * 1024;
+    private static final Duration HTTP_CONNECT_TIMEOUT = Duration.ofMinutes(30);
 
     @Inject
     @Named("fileService")
@@ -187,8 +190,11 @@ public class FilesApiServiceImpl implements FilesApiService {
 
         String fileName = extractFileName(decodedUrl);
         FileUtils.validateFileHasExtension(fileName);
-        try (InputStream content = createLimitedInputStream(response.body(), maxUploadSize)) {
-            return fileService.addFile(spaceGuid, namespace, fileName, content, fileSize);
+        try (InputStream content = createLimitedInputStream(response.body(), maxUploadSize);
+            // Normal stream returned from the http response always returns 0 when InputStream::available() is executed which seems to break
+            // JClods library: https://issues.apache.org/jira/browse/JCLOUDS-1623
+            BufferedInputStream bufferedContent = new BufferedInputStream(content, INPUT_STREAM_BUFFER_SIZE)) {
+            return fileService.addFile(spaceGuid, namespace, fileName, bufferedContent, fileSize);
         }
     }
 
@@ -206,7 +212,7 @@ public class FilesApiServiceImpl implements FilesApiService {
     protected HttpClient buildHttpClient(String decodedUrl) {
         return HttpClient.newBuilder()
                          .version(HttpClient.Version.HTTP_2)
-                         .connectTimeout(Duration.ofMinutes(10))
+                         .connectTimeout(HTTP_CONNECT_TIMEOUT)
                          .followRedirects(Redirect.NORMAL)
                          .authenticator(buildPasswordAuthenticator(decodedUrl))
                          .build();
@@ -252,7 +258,8 @@ public class FilesApiServiceImpl implements FilesApiService {
     }
 
     private String extractFileName(String url) {
-        String path = URI.create(url).getPath();
+        String path = URI.create(url)
+                         .getPath();
         if (path.indexOf('/') == -1) {
             return path;
         }
