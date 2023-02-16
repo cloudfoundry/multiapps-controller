@@ -13,11 +13,7 @@ public class DropletInfoFactory {
     public DropletInfo createDropletInfo(Staging staging) {
         if (staging.getDockerInfo() != null) {
             var dockerInfo = staging.getDockerInfo();
-            var credentials = dockerInfo.getCredentials();
-            if (credentials == null) {
-                return new DockerDropletInfo(dockerInfo.getImage());
-            }
-            return new DockerDropletInfo(dockerInfo.getImage(), credentials.getUsername(), credentials.getPassword());
+            return new DockerDropletInfo(dockerInfo.getImage());
         }
         return new BuildpackDropletInfo(staging.getBuildpacks(), staging.getStackName());
     }
@@ -35,7 +31,7 @@ public class DropletInfoFactory {
         var droplet = client.getCurrentDropletForApplication(app.getGuid());
         var cloudPackage = client.getPackage(droplet.getPackageGuid());
         var dockerData = (DockerData) cloudPackage.getData();
-        return new DockerDropletInfo(dockerData.getImage(), dockerData.getUsername(), dockerData.getPassword());
+        return new DockerDropletInfo(dockerData.getImage());
     }
 
 }

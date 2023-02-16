@@ -1,33 +1,19 @@
 package org.cloudfoundry.multiapps.controller.client.lib.domain;
 
+import org.springframework.util.StringUtils;
+
 import java.util.Objects;
 
 public class DockerDropletInfo implements DropletInfo {
 
     private final String image;
-    private final String username;
-    private final String password;
 
     DockerDropletInfo(String image) {
-        this(image, null, null);
-    }
-
-    DockerDropletInfo(String image, String username, String password) {
         this.image = image;
-        this.username = username;
-        this.password = password;
     }
 
     public String getImage() {
         return image;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     @Override
@@ -39,8 +25,7 @@ public class DockerDropletInfo implements DropletInfo {
             return false;
         }
         var otherDroplet = (DockerDropletInfo) other;
-        return Objects.equals(getImage(), otherDroplet.getImage())
-            && Objects.equals(getUsername(), otherDroplet.getUsername())
-            && Objects.equals(getPassword(), otherDroplet.getPassword());
+        var shouldCompareImage = StringUtils.hasLength(getImage()) && StringUtils.hasLength(otherDroplet.getImage());
+        return !shouldCompareImage || Objects.equals(getImage(), otherDroplet.getImage());
     }
 }
