@@ -45,7 +45,12 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
                          // (3) Service is part from MTA and binding doesn't exist
                          Arguments.of(true, false, false, false, true),
                          // (4) Service is part from MTA, it is already binded and existing parameters match to MTA parameters
-                         Arguments.of(true, false, true, false, false));
+                         Arguments.of(true, false, true, false, false),
+                         // (5) Service is part of MTA and keepExistingBindings strategy is set to true
+                         Arguments.of(true, true, true, false, false),
+                         // (6) Service is not part of MTA and keepExistingBindings strategy is set to true
+                         Arguments.of(false, true, true, false, false));
+
     }
 
     @ParameterizedTest
