@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.service;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 
 import io.pivotal.cfenv.core.CfService;
@@ -42,10 +44,17 @@ public class ObjectStoreServiceInfoCreator {
         String accountName = (String) credentials.get("account_name");
         String sasToken = (String) credentials.get("sas_token");
         String containerName = (String) credentials.get("container_name");
+        URL containerUri;
+        try {
+            containerUri = new URL((String) credentials.get("container_uri"));
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException("Cannot parse container_uri of objectstore", e);
+        }
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider("azureblob")
                                               .identity(accountName)
                                               .credential(sasToken)
+                                              .endpoint(containerUri.getProtocol() + "://" + containerUri.getHost())
                                               .container(containerName)
                                               .build();
     }
