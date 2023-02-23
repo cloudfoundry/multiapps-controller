@@ -35,11 +35,7 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         if (serviceBindingToDelete != null) {
             return setBindingForDeletion(context, app, service);
         }
-        if (shouldKeepExistingServiceBindings(app)) {
-            getStepLogger().info(Messages.WILL_NOT_REBIND_APP_TO_SERVICE_KEEP_EXISTING_STRATEGY, service, app.getName());
-            return keepExistingServiceBindings(context, app, service);
-        }
-        if (!isServicePartFromMta(app, service)) {
+        if (!isServicePartFromMta(app, service) && !shouldKeepExistingServiceBindings(app)) {
             return setBindingForDeletion(context, app, service);
         }
         CloudControllerClient client = context.getControllerClient();
@@ -56,6 +52,12 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         }
 
         getStepLogger().debug(Messages.CHECK_SHOULD_REBIND_APPLICATION_SERVICE_INSTANCE, app.getName(), service);
+
+        if (shouldKeepExistingServiceBindings(app)) {
+            getStepLogger().info(Messages.WILL_NOT_REBIND_APP_TO_SERVICE_KEEP_EXISTING_STRATEGY, service, app.getName());
+            return keepExistingServiceBindings(context, app, service);
+        }
+
         if (shouldRecreateServiceBinding(context)
             || areBindingParametersDifferent(serviceBindingParametersGetter, existingApp, service, bindingParameters)) {
             context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, true);
