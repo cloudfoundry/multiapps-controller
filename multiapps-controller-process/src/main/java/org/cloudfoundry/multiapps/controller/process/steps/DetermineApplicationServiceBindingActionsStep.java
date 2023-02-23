@@ -36,6 +36,7 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
             return setBindingForDeletion(context, app, service);
         }
         if (shouldKeepExistingServiceBindings(app)) {
+            getStepLogger().info(Messages.WILL_NOT_REBIND_APP_TO_SERVICE_KEEP_EXISTING_STRATEGY, service, app.getName());
             return keepExistingServiceBindings(context, app, service);
         }
         if (!isServicePartFromMta(app, service)) {
@@ -63,12 +64,11 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
             getStepLogger().debug(Messages.CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE, app.getName(), service, true, true);
             return StepPhase.DONE;
         }
-
+        getStepLogger().info(Messages.WILL_NOT_REBIND_APP_TO_SERVICE_SAME_PARAMETERS, service, app.getName());
         return keepExistingServiceBindings(context, app, service);
     }
 
     private StepPhase keepExistingServiceBindings(ProcessContext context, CloudApplicationExtended app, String service) {
-        getStepLogger().info(Messages.WILL_NOT_REBIND_APP_TO_SERVICE, service, app.getName());
         context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, false);
         context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, false);
         getStepLogger().debug(Messages.CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE, app.getName(), service, false, false);
