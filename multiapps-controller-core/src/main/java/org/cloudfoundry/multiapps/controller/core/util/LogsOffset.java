@@ -5,6 +5,8 @@ import java.util.Date;
 
 import org.immutables.value.Value;
 
+//TODO remove after next takt
+@Deprecated
 @Value.Immutable
 public abstract class LogsOffset implements Serializable {
 

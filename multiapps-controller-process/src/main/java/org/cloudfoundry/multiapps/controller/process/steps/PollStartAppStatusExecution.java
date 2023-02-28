@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -28,12 +27,6 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         STARTING, STARTED, CRASHED, DOWN
     }
 
-    private final RecentLogsRetriever recentLogsRetriever;
-
-    public PollStartAppStatusExecution(RecentLogsRetriever recentLogsRetriever) {
-        this.recentLogsRetriever = recentLogsRetriever;
-    }
-
     @Override
     public AsyncExecutionState execute(ProcessContext context) {
         String appToPoll = getAppToPoll(context).getName();
@@ -48,7 +41,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         StartupStatus status = getStartupStatus(context, app.getName(), appInstances);
         ProcessLoggerProvider processLoggerProvider = context.getStepLogger()
                                                              .getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app.getName(), LOGGER, processLoggerProvider);
+        StepsUtil.saveAppLogs(context, client, app.getName(), LOGGER, processLoggerProvider);
         return checkStartupStatus(context, app, status);
     }
 

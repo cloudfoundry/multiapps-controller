@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
@@ -21,11 +20,9 @@ public class PollStageAppStatusExecution implements AsyncExecution {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PollStageAppStatusExecution.class);
 
-    private final RecentLogsRetriever recentLogsRetriever;
     private final ApplicationStager applicationStager;
 
-    public PollStageAppStatusExecution(RecentLogsRetriever recentLogsRetriever, ApplicationStager applicationStager) {
-        this.recentLogsRetriever = recentLogsRetriever;
+    public PollStageAppStatusExecution(ApplicationStager applicationStager) {
         this.applicationStager = applicationStager;
     }
 
@@ -40,7 +37,7 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         stepLogger.debug(Messages.APP_STAGING_STATUS, application.getName(), state.getState());
 
         ProcessLoggerProvider processLoggerProvider = stepLogger.getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, application.getName(), LOGGER, processLoggerProvider);
+        StepsUtil.saveAppLogs(context, client, application.getName(), LOGGER, processLoggerProvider);
 
         if (state.getState() != PackageState.STAGED) {
             return checkStagingState(context.getStepLogger(), application.getName(), state);

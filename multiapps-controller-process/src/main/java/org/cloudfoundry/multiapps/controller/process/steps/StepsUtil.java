@@ -1,6 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,13 +17,11 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
-import org.cloudfoundry.multiapps.controller.core.util.ImmutableLogsOffset;
 import org.cloudfoundry.multiapps.controller.core.util.LogsOffset;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
@@ -33,7 +34,6 @@ import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.variable.api.delegate.VariableScope;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
@@ -147,10 +147,10 @@ public class StepsUtil {
         return tasks.get(index);
     }
 
-    static void saveAppLogs(ProcessContext context, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
-                            String appName, Logger logger, ProcessLoggerProvider processLoggerProvider) {
-        LogsOffset offset = getLogOffset(context.getExecution());
-        List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogsSafely(client, appName, offset);
+    static void saveAppLogs(ProcessContext context, CloudControllerClient client, String appName, Logger logger,
+                            ProcessLoggerProvider processLoggerProvider) {
+        LocalDateTime offset = getLogOffsetAdapter(context);
+        var recentLogs = getRecentLogsSafely(client, appName, offset, logger);
         if (recentLogs.isEmpty()) {
             return;
         }
@@ -158,26 +158,35 @@ public class StepsUtil {
             appName = BlueGreenApplicationNameSuffix.removeSuffix(appName);
         }
         ProcessLogger processLogger = processLoggerProvider.getLogger(context.getExecution(), appName);
+        var loggerPrefix = getLoggerPrefix(logger);
         for (ApplicationLog log : recentLogs) {
-            saveAppLog(processLogger, appName, log.toString(), logger);
+            processLogger.debug(loggerPrefix + "[" + appName + "] " + log.toString());
         }
-        setLogOffset(recentLogs.get(recentLogs.size() - 1), context.getExecution());
+
+        var lastLog = recentLogs.get(recentLogs.size() - 1);
+        context.setVariable(Variables.LOGS_OFFSET, lastLog.getTimestamp());
     }
 
-    static void saveAppLog(ProcessLogger processLogger, String appName, String message, Logger logger) {
-        processLogger.debug(getLoggerPrefix(logger) + "[" + appName + "] " + message);
+    //TODO remove this after next takt and use
+    // context.getVariable(Variables.LOGS_OFFSET) in its place
+    private static LocalDateTime getLogOffsetAdapter(ProcessContext context) {
+        Object value = context.getExecution()
+                              .getVariable(org.cloudfoundry.multiapps.controller.core.Constants.LOGS_OFFSET);
+        if (value instanceof LogsOffset) {
+            return LocalDateTime.ofInstant(((LogsOffset) value).getTimestamp()
+                                                               .toInstant(), ZoneId.of("UTC"));
+        }
+        return context.getVariable(Variables.LOGS_OFFSET);
     }
 
-    static LogsOffset getLogOffset(DelegateExecution execution) {
-        return (LogsOffset) execution.getVariable(org.cloudfoundry.multiapps.controller.core.Constants.LOGS_OFFSET);
-    }
-
-    static void setLogOffset(ApplicationLog lastLog, DelegateExecution execution) {
-        LogsOffset newOffset = ImmutableLogsOffset.builder()
-                                                  .timestamp(lastLog.getTimestamp())
-                                                  .message(lastLog.getMessage())
-                                                  .build();
-        execution.setVariable(org.cloudfoundry.multiapps.controller.core.Constants.LOGS_OFFSET, newOffset);
+    private static List<ApplicationLog> getRecentLogsSafely(CloudControllerClient client, String appName,
+                                                            LocalDateTime offset, Logger logger) {
+        try {
+            return client.getRecentLogs(appName, offset);
+        } catch (RuntimeException e) {
+            logger.error(MessageFormat.format(Messages.COULD_NOT_GET_APP_LOGS, e.getMessage()), e);
+            return Collections.emptyList();
+        }
     }
 
     public static String getLoggerPrefix(Logger logger) {

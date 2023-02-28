@@ -4,10 +4,8 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -23,9 +21,6 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication.State;
 @Named("restartAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements BeforeStepHookPhaseProvider {
-
-    @Inject
-    protected RecentLogsRetriever recentLogsRetriever;
 
     @Override
     public StepPhase executePollingStep(ProcessContext context) {
@@ -86,7 +81,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollStartAppStatusExecution(recentLogsRetriever), new PollExecuteAppStatusExecution(recentLogsRetriever));
+        return List.of(new PollStartAppStatusExecution(), new PollExecuteAppStatusExecution());
     }
 
     @Override

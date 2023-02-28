@@ -2,13 +2,10 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -20,9 +17,6 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 @Named("stageAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StageAppStep extends TimeoutAsyncFlowableStep {
-
-    @Inject
-    protected RecentLogsRetriever recentLogsRetriever;
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
@@ -39,7 +33,7 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return Collections.singletonList(new PollStageAppStatusExecution(recentLogsRetriever, new ApplicationStager(context)));
+        return List.of(new PollStageAppStatusExecution(new ApplicationStager(context)));
     }
 
     @Override

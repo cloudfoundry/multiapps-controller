@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.client;
 
 import java.net.URL;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -345,15 +346,15 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<ApplicationLog> getRecentLogs(String applicationName) {
+    public List<ApplicationLog> getRecentLogs(String applicationName, LocalDateTime offset) {
         logger.debug(Messages.GETTING_RECENT_LOGS_OF_APPLICATION_0, applicationName);
-        return delegate.getRecentLogs(applicationName);
+        return delegate.getRecentLogs(applicationName, offset);
     }
 
     @Override
-    public List<ApplicationLog> getRecentLogs(UUID applicationGuid) {
+    public List<ApplicationLog> getRecentLogs(UUID applicationGuid, LocalDateTime offset) {
         logger.debug(Messages.GETTING_RECENT_LOGS_OF_APPLICATION_0, applicationGuid);
-        return delegate.getRecentLogs(applicationGuid);
+        return delegate.getRecentLogs(applicationGuid, offset);
     }
 
     @Override

@@ -1,6 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.variables;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -685,6 +688,14 @@ public interface Variables {
                                                                                                     })
                                                                                                     .defaultValue(Collections.emptyList())
                                                                                                     .build();
+    Variable<LocalDateTime> LOGS_OFFSET_FOR_APP_EXECUTION = ImmutableSimpleVariable.<LocalDateTime> builder()
+                                                                                   .name("logsOffsetForAppExecution")
+                                                                                   .defaultValue(LocalDateTime.ofInstant(Instant.EPOCH, ZoneId.of("UTC")))
+                                                                                   .build();
+    Variable<LocalDateTime> LOGS_OFFSET = ImmutableSimpleVariable.<LocalDateTime> builder()
+                                                                 .name("logsOffset")
+                                                                 .defaultValue(LocalDateTime.ofInstant(Instant.EPOCH, ZoneId.of("UTC")))
+                                                                 .build();
 
     Variable<CloudApplication> EXISTING_APP_TO_POLL = ImmutableJsonBinaryVariable.<CloudApplication> builder()
                                                                                  .name("existingAppToPoll")
