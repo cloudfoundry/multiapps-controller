@@ -8,10 +8,14 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Calendar;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.Collections;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +27,6 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApp
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
@@ -49,13 +52,10 @@ class PollExecuteAppStatusExecutionTest {
     private static final String USER_NAME = "testUsername";
     private static final String APP_SOURCE = "APP";
     private static final String APPLICATION_GUID = "1";
-    private static final String SOURCE_ID = "0";
-    private static final Date LOG_TIMESTAMP = Date.from(new GregorianCalendar(2019, Calendar.AUGUST, 1).toInstant());
-    private static final long PROCESS_START_TIME = new GregorianCalendar(2019, Calendar.JANUARY, 1).toInstant()
-                                                                                                   .toEpochMilli();
+    private static final LocalDateTime LOG_TIMESTAMP = LocalDateTime.of(LocalDate.of(2019, Month.AUGUST, 1), LocalTime.MIN);
+    private static final long PROCESS_START_TIME = LocalDateTime.of(LocalDate.of(2019, Month.JANUARY, 1), LocalTime.MIN).toInstant(ZoneOffset.UTC)
+                                                                                                                        .toEpochMilli();
 
-    @Mock
-    private RecentLogsRetriever recentLogsRetriever;
     @Mock
     private StepLogger stepLogger;
     @Mock
@@ -75,7 +75,7 @@ class PollExecuteAppStatusExecutionTest {
                           .close();
         execution = MockDelegateExecution.createSpyInstance();
         context = new ProcessContext(execution, stepLogger, clientProvider);
-        step = new PollExecuteAppStatusExecution(recentLogsRetriever);
+        step = new PollExecuteAppStatusExecution();
     }
 
     static Stream<Arguments> testStep() {
@@ -111,7 +111,6 @@ class PollExecuteAppStatusExecutionTest {
                                       .message(message)
                                       .timestamp(PollExecuteAppStatusExecutionTest.LOG_TIMESTAMP)
                                       .messageType(messageType)
-                                      .sourceId(PollExecuteAppStatusExecutionTest.SOURCE_ID)
                                       .sourceName(sourceName)
                                       .build();
     }
@@ -122,9 +121,8 @@ class PollExecuteAppStatusExecutionTest {
                   AsyncExecutionState expectedExecutionState) {
         CloudApplicationExtended application = buildApplication(successMarker, failureMarker, shouldStopApp);
         prepareContext(application);
-        prepareRecentLogsRetriever(applicationLog);
         prepareStepLogger();
-        prepareClientProvider();
+        prepareClientProvider(applicationLog);
 
         AsyncExecutionState resultState = step.execute(context);
 
@@ -159,10 +157,8 @@ class PollExecuteAppStatusExecutionTest {
         context.setVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE, List.of(ApplicationStateAction.EXECUTE));
         context.setVariable(Variables.USER, USER_NAME);
         context.setVariable(Variables.START_TIME, PROCESS_START_TIME);
-    }
-
-    private void prepareRecentLogsRetriever(ApplicationLog applicationLog) {
-        when(recentLogsRetriever.getRecentLogs(any(), any(), any())).thenReturn(List.of(applicationLog));
+        context.setVariable(Variables.LOGS_OFFSET, LocalDateTime.ofInstant(Instant.EPOCH, ZoneId.of("UTC")));
+        context.setVariable(Variables.LOGS_OFFSET_FOR_APP_EXECUTION, LocalDateTime.ofInstant(Instant.EPOCH, ZoneId.of("UTC")));
     }
 
     private void prepareStepLogger() {
@@ -170,7 +166,8 @@ class PollExecuteAppStatusExecutionTest {
         when(processLoggerProvider.getLogger(any(), anyString())).thenReturn(mock(ProcessLogger.class));
     }
 
-    private void prepareClientProvider() {
+    private void prepareClientProvider(ApplicationLog applicationLog) {
+        when(client.getRecentLogs(any(String.class), any())).thenReturn(List.of(applicationLog));
         when(clientProvider.getControllerClient(any(), any(), any())).thenReturn(client);
     }
 

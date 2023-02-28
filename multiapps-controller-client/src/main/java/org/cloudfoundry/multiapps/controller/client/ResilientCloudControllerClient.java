@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.client;
 
 import java.net.URL;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -223,13 +224,13 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<ApplicationLog> getRecentLogs(String applicationName) {
-        return executeWithRetry(() -> delegate.getRecentLogs(applicationName), HttpStatus.NOT_FOUND);
+    public List<ApplicationLog> getRecentLogs(String applicationName, LocalDateTime offset) {
+        return executeWithRetry(() -> delegate.getRecentLogs(applicationName, offset), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public List<ApplicationLog> getRecentLogs(UUID applicationGuid) {
-        return executeWithRetry(() -> delegate.getRecentLogs(applicationGuid), HttpStatus.NOT_FOUND);
+    public List<ApplicationLog> getRecentLogs(UUID applicationGuid, LocalDateTime offset) {
+        return executeWithRetry(() -> delegate.getRecentLogs(applicationGuid, offset), HttpStatus.NOT_FOUND);
     }
 
     @Override

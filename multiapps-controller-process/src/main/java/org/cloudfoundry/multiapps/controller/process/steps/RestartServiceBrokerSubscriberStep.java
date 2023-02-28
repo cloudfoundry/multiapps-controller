@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Named;
@@ -28,7 +27,7 @@ public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return Collections.singletonList(new PollStartServiceBrokerSubscriberStatusExecution(recentLogsRetriever));
+        return List.of(new PollStartServiceBrokerSubscriberStatusExecution());
     }
 
 }

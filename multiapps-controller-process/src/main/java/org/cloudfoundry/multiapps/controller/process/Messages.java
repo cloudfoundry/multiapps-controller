@@ -83,6 +83,7 @@ public class Messages {
     public static final String ERROR_WHILE_DELETING_SERVICE_INSTANCE_METADATA_0 = "Error while deleting service instance metadata \"{0}\"";
     public static final String ERROR_WHILE_DELETING_SERVICE_KEY_0 = "Error while deleting service key \"{0}\"";
     public static final String ERROR_WHILE_CALCULATING_SERVICE_KEYS_FOR_WAITING = "Error while calculating service keys for waiting";
+    public static final String COULD_NOT_GET_APP_LOGS = "Could not get application recent logs: {0}";
 
     // Process step errors
     public static final String ERROR_VALIDATING_PARAMS = "Error validating parameters";

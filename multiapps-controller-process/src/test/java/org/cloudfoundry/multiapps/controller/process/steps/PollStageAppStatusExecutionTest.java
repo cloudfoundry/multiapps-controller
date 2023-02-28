@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
 import org.cloudfoundry.multiapps.controller.process.util.ImmutableStagingState;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
@@ -41,8 +40,6 @@ class PollStageAppStatusExecutionTest {
                                                                                                    .toEpochMilli();
 
     @Mock
-    private RecentLogsRetriever recentLogsRetriever;
-    @Mock
     private ApplicationStager applicationStager;
     @Mock
     private StepLogger stepLogger;
@@ -61,7 +58,7 @@ class PollStageAppStatusExecutionTest {
                           .close();
         execution = MockDelegateExecution.createSpyInstance();
         context = new ProcessContext(execution, stepLogger, clientProvider);
-        step = new PollStageAppStatusExecution(recentLogsRetriever, applicationStager);
+        step = new PollStageAppStatusExecution(applicationStager);
     }
 
     static Stream<Arguments> testStep() {

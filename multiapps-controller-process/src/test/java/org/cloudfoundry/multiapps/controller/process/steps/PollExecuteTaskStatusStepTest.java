@@ -12,21 +12,16 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudTask;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudTask;
 
 class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskStep> {
-
-    @Mock
-    private RecentLogsRetriever recentLogsRetriever;
 
     private static final Duration START_TIMEOUT = Duration.ofSeconds(900);
     private static final String TASK_NAME = "foo";
@@ -85,7 +80,6 @@ class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskSt
         step.currentTimeSupplier = () -> currentTime;
         prepareContext();
         prepareClientExtensions(currentTaskState);
-        when(recentLogsRetriever.getRecentLogsSafely(any(), any(), any())).thenReturn(Collections.emptyList());
     }
 
     private void prepareContext() {
@@ -102,6 +96,7 @@ class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskSt
                                                     .state(currentTaskState)
                                                     .build();
         when(client.getTask(TASK_UUID)).thenReturn(taskWithState);
+        when(client.getRecentLogs(any(String.class), any())).thenReturn(Collections.emptyList());
     }
 
     @Override
