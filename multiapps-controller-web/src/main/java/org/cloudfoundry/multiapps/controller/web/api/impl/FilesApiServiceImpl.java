@@ -65,7 +65,7 @@ public class FilesApiServiceImpl implements FilesApiService {
     @Named("fileService")
     private FileService fileService;
 
-    private final ResilientOperationExecutor resilientOperationExecutor = new ResilientOperationExecutor();
+    private final ResilientOperationExecutor resilientOperationExecutor = getResilientOperationExecutor();
 
     @Override
     public ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid, String namespace) {
@@ -143,6 +143,10 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     protected ServletFileUpload getFileUploadServlet() {
         return new ServletFileUpload();
+    }
+
+    protected ResilientOperationExecutor getResilientOperationExecutor() {
+        return new ResilientOperationExecutor();
     }
 
     private long getFileSizeHeaderValue(HttpServletRequest request) {

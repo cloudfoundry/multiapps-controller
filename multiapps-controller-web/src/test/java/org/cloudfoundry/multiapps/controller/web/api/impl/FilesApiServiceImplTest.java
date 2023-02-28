@@ -26,6 +26,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.FileMetadata;
+import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
@@ -75,6 +76,12 @@ class FilesApiServiceImplTest {
         @Override
         protected HttpClient buildHttpClient(String url) {
             return httpClient;
+        }
+
+        @Override
+        protected ResilientOperationExecutor getResilientOperationExecutor() {
+            return new ResilientOperationExecutor().withRetryCount(0)
+                                                   .withWaitTimeBetweenRetriesInMillis(0);
         }
     };
 
