@@ -1,6 +1,10 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.service;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
+
+import org.cloudfoundry.multiapps.controller.web.Messages;
 
 import io.pivotal.cfenv.core.CfService;
 
@@ -22,7 +26,7 @@ public class ObjectStoreServiceInfoCreator {
             case OBJECT_STORE_ALICLOUD_PLAN:
                 return createServiceInfoForAliCloud(credentials);
             default:
-                throw new IllegalStateException("Unsupported service plan for object store!");
+                throw new IllegalStateException(Messages.UNSUPPORTED_SERVICE_PLAN_FOR_OBJECT_STORE);
         }
     }
 
@@ -46,8 +50,18 @@ public class ObjectStoreServiceInfoCreator {
                                               .provider("azureblob")
                                               .identity(accountName)
                                               .credential(sasToken)
+                                              .endpoint(getContainerUriEndpoint(credentials).toString())
                                               .container(containerName)
                                               .build();
+    }
+
+    private URL getContainerUriEndpoint(Map<String, Object> credentials) {
+        try {
+            URL containerUri = new URL((String) credentials.get("container_uri"));
+            return new URL(containerUri.getProtocol(), containerUri.getHost(), containerUri.getPort(), "");
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(Messages.CANNOT_PARSE_CONTAINER_URI_OF_OBJECT_STORE, e);
+        }
     }
 
     private ObjectStoreServiceInfo createServiceInfoForAliCloud(Map<String, Object> credentials) {
