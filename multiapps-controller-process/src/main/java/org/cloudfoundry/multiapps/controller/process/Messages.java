@@ -159,7 +159,8 @@ public class Messages {
     public static final String ERROR_DELETING_OPERATION_WITH_ID = "Error deleting operation with ID \"{0}\"";
     public static final String ERROR_DELETING_FLOWABLE_PROCESS_WITH_ID = "Error deleting Flowable process with ID \"{0}\"";
     public static final String ERROR_MISSING_DEFAULT_DOMAIN = "Missing default domain in current org";
-    public static final String ERROR_WHILE_DETERMINE_BIND_UNBIND_OPERATIONS_OF_APPLICATION_TO_SERVICE = "Error while determine bind/unbind operations of application \"{0}\" to service \"{1}\"";
+    public static final String ERROR_WHILE_DETERMINING_BIND_UNBIND_OPERATIONS_OF_APPLICATION_TO_SERVICE = "Error while determining bind/unbind operations of application \"{0}\" to service instance \"{1}\"";
+    public static final String ERROR_WHILE_DETERMINING_BIND_UNBIND_OPERATIONS_OF_APPLICATION_GUID_TO_SERVICE_INSTANCE_GUID = "Error while determining bind/unbind operations of application with guid \"{0}\" to service instance with guid \"{1}\"";
     public static final String ERROR_WHILE_UNBINDING_SERVICE_INSTANCE_FROM_APPLICATION = "Error while unbinding service instance \"{0}\" from application \"{1}\"";
     public static final String ERROR_WHILE_BINDING_SERVICE_INSTANCE_TO_APPLICATION = "Error while binding service instance \"{0}\" to application \"{1}\"";
     public static final String ERROR_WHILE_DETERMINE_VCAP_SERVICES_PROPERTIES_CHANGED_FOR_APPLICATION = "Error while determine VCAP_SERVICES properties changed for application \"{0}\"";
@@ -170,6 +171,7 @@ public class Messages {
     public static final String ERROR_POLLING_ASYNC_SERVICE_KEY = "Polling of async service key failed";
     public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while polling service binding operations between app: \"{0}\" and service instance \"{1}\"";
     public static final String ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while checking service binding operations between app: \"{0}\" and service instance \"{1}\"";
+    public static final String ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_0 = "Error while checking service binding operations for service binding: \"{0}\"";
     public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_WITH = "Async operation for service binding between app \"{0}\" and service instance \"{1}\" failed with \"{2}\"";
     public static final String ASYNC_OPERATION_FOR_SERVICE_KEY_FAILED_WITH = "Async operation for service key of service instance \"{0}\" failed with \"{1}\"";
     public static final String ASYNC_OPERATION_FOR_OPTIONAL_SERVICE_KEY_FAILED_WITH = "Async operation for service key of optional service instance \"{0}\" failed with \"{1}\"";
@@ -555,6 +557,7 @@ public class Messages {
     public static final String GETTING_RECENT_LOGS_OF_APPLICATION_0 = "Getting recent logs of application \"{0}\"...";
     public static final String GETTING_ROUTES_WITH_DOMAIN_0 = "Getting routes with domain \"{0}\"...";
     public static final String GETTING_SERVICE_INSTANCE_0 = "Getting service instance \"{0}\"...";
+    public static final String GETTING_SERVICE_INSTANCE_NAME_0 = "Getting service instance name \"{0}\"...";
     public static final String GETTING_SERVICE_INSTANCE_WITHOUT_AUXILIARY_CONTENT_0 = "Getting service instance without auxiliary content \"{0}\"...";
     public static final String GETTING_BINDINGS_OF_SERVICE_INSTANCE_0 = "Getting bindings of service instance \"{0}\"...";
     public static final String GETTING_BINDINGS_OF_APPLICATION_0 = "Getting bindings of application \"{0}\"...";
@@ -661,6 +664,7 @@ public class Messages {
     public static final String SERVICE_BINDING_HAS_ALREADY_BEEN_DELETED = "Service binding has already been deleted";
     public static final String SERVICE_BINDING_0_SCHEDULED_FOR_DELETION_IS_IN_STATE_0 = "Service binding \"{0}\" scheduled for deletion is in state \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_WAITING_0 = "Service keys scheduled for waiting: \"{0}\"";
+    public static final String WILL_UNBIND_SERVICE_INSTANCE_0_FROM_APP_1 = "Will unbind service instance \"{0}\" from app \"{1}\"";
 
     protected Messages() {
     }

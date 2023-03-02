@@ -269,6 +269,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public String getServiceInstanceName(UUID serviceInstanceGuid) {
+        return executeWithRetry(() -> delegate.getServiceInstanceName(serviceInstanceGuid));
+    }
+
+    @Override
     public CloudServiceInstance getServiceInstanceWithoutAuxiliaryContent(String serviceInstanceName) {
         return executeWithRetry(() -> delegate.getServiceInstanceWithoutAuxiliaryContent(serviceInstanceName));
     }

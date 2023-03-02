@@ -394,6 +394,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public String getServiceInstanceName(UUID serviceInstanceGuid) {
+        logger.debug(Messages.GETTING_SERVICE_INSTANCE_NAME_0, serviceInstanceGuid);
+        return delegate.getServiceInstanceName(serviceInstanceGuid);
+    }
+
+    @Override
     public CloudServiceInstance getServiceInstanceWithoutAuxiliaryContent(String serviceInstanceName) {
         logger.debug(Messages.GETTING_SERVICE_INSTANCE_WITHOUT_AUXILIARY_CONTENT_0, serviceInstanceName);
         return delegate.getServiceInstanceWithoutAuxiliaryContent(serviceInstanceName);
