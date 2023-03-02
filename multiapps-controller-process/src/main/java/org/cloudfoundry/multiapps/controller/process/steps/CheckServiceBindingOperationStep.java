@@ -88,6 +88,10 @@ public class CheckServiceBindingOperationStep extends AsyncFlowableStep {
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
+        CloudServiceBinding serviceBindingToDelete = context.getVariable(Variables.SERVICE_BINDING_TO_DELETE);
+        if (serviceBindingToDelete != null) {
+            return MessageFormat.format(Messages.ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_0, serviceBindingToDelete.getGuid());
+        }
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
         String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
         return MessageFormat.format(Messages.ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1,

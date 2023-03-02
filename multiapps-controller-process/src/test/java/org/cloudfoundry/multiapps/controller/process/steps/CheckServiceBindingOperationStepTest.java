@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -13,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -96,6 +98,24 @@ class CheckServiceBindingOperationStepTest extends SyncFlowableStepTest<CheckSer
         when(client.getRequiredServiceInstanceGuid(SERVICE_INSTANCE_NAME)).thenReturn(SERVICE_INSTANCE_GUID);
         step.execute(execution);
         assertStepFinishedSuccessfully();
+    }
+
+    @Test
+    void testGetStepErrorMessageDuringServiceBindingDeletion() {
+        CloudServiceBinding serviceBindingToDelete = buildCloudServiceBinding(ServiceCredentialBindingOperation.State.SUCCEEDED);
+        context.setVariable(Variables.SERVICE_BINDING_TO_DELETE, serviceBindingToDelete);
+        assertEquals(MessageFormat.format(Messages.ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_0, SERVICE_BINDING_GUID),
+                     step.getStepErrorMessage(context));
+    }
+
+    @Test
+    void testGetStepErrorMessageDuringServiceBindingCreation() {
+        CloudApplicationExtended app = buildCloudApplicationExtended();
+        context.setVariable(Variables.APP_TO_PROCESS, app);
+        context.setVariable(Variables.SERVICE_TO_UNBIND_BIND, SERVICE_INSTANCE_NAME);
+        assertEquals(MessageFormat.format(Messages.ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1,
+                                          APP_NAME, SERVICE_INSTANCE_NAME),
+                     step.getStepErrorMessage(context));
     }
 
     private void prepareContextVariables() {
