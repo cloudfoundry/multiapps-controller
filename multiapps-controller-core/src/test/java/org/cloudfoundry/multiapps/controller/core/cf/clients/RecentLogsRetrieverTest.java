@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.core.cf.clients;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -62,7 +61,7 @@ class RecentLogsRetrieverTest {
     @Test
     void testGetRecentLogsWithNoPriorOffset() {
         Mockito.when(client.getRecentLogs(APP_NAME))
-               .thenReturn(new ArrayList<>(List.of(createAppLog(1, ""))));
+               .thenReturn(List.of(createAppLog(1, "")));
         assertEquals(List.of(createAppLog(1, "")), recentLogsRetriever.getRecentLogs(client, APP_NAME, null));
     }
 
@@ -70,7 +69,7 @@ class RecentLogsRetrieverTest {
     void testGetRecentLogsWithOffsetReturnsNoLogs() {
         LogsOffset offset = createLogsOffset(1, "");
         Mockito.when(client.getRecentLogs(APP_NAME))
-               .thenReturn(new ArrayList<>(List.of(createAppLog(0, ""))));
+               .thenReturn(List.of(createAppLog(0, "")));
         assertTrue(recentLogsRetriever.getRecentLogs(client, APP_NAME, offset)
                                       .isEmpty());
     }
@@ -79,7 +78,7 @@ class RecentLogsRetrieverTest {
     void testGetRecentLogsWithOffsetSameMessageReturnsNoLogs() {
         LogsOffset offset = createLogsOffset(1, "msg");
         Mockito.when(client.getRecentLogs(APP_NAME))
-               .thenReturn(new ArrayList<>(List.of(createAppLog(1, "msg"))));
+               .thenReturn(List.of(createAppLog(1, "msg")));
         assertTrue(recentLogsRetriever.getRecentLogs(client, APP_NAME, offset)
                                       .isEmpty());
     }
@@ -88,7 +87,7 @@ class RecentLogsRetrieverTest {
     void testGetRecentLogsWithOffsetReturnsFilteredLogs() {
         LogsOffset offset = createLogsOffset(1, "");
         Mockito.when(client.getRecentLogs(APP_NAME))
-               .thenReturn(new ArrayList<>(List.of(createAppLog(1, ""), createAppLog(2, ""))));
+               .thenReturn(List.of(createAppLog(1, ""), createAppLog(2, "")));
         assertEquals(List.of(createAppLog(2, "")), recentLogsRetriever.getRecentLogs(client, APP_NAME, offset));
     }
 
@@ -96,7 +95,7 @@ class RecentLogsRetrieverTest {
     void testGetRecentLogsWithOffsetSameTimestampReturnsFilteredLogs() {
         LogsOffset offset = createLogsOffset(1, "msg");
         Mockito.when(client.getRecentLogs(APP_NAME))
-               .thenReturn(new ArrayList<>(List.of(createAppLog(1, "msg"), createAppLog(1, "msg1"))));
+               .thenReturn(List.of(createAppLog(1, "msg"), createAppLog(1, "msg1")));
         assertEquals(List.of(createAppLog(1, "msg1")), recentLogsRetriever.getRecentLogs(client, APP_NAME, offset));
     }
 
@@ -104,7 +103,7 @@ class RecentLogsRetrieverTest {
     void testGetRecentLogsWithOffsetSameMessageReturnsFilteredLogs() {
         LogsOffset offset = createLogsOffset(1, "msg1");
         Mockito.when(client.getRecentLogs(APP_NAME))
-               .thenReturn(new ArrayList<>(List.of(createAppLog(1, "msg"), createAppLog(1, "msg1"))));
+               .thenReturn(List.of(createAppLog(1, "msg"), createAppLog(1, "msg1")));
         assertEquals(List.of(createAppLog(1, "msg")), recentLogsRetriever.getRecentLogs(client, APP_NAME, offset));
     }
 
