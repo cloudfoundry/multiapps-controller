@@ -7,12 +7,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -90,6 +92,16 @@ class DeleteServiceKeyStepTest extends SyncFlowableStepTest<DeleteServiceKeyStep
         step.execute(execution);
         assertStepFinishedSuccessfully();
         verify(client).deleteServiceBinding(any());
+    }
+
+    @Test
+    void testThrowInternalErrorExceptionWhenDeleting() {
+        CloudServiceInstanceExtended serviceInstance = buildCloudServiceInstanceExtended(false);
+        prepareServiceKey(serviceInstance);
+        when(client.deleteServiceBinding(any())).thenThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR));
+        Exception exception = assertThrows(SLException.class, () -> step.execute(execution));
+        assertTrue(exception.getMessage()
+                            .contains(MessageFormat.format(Messages.ERROR_OCCURRED_WHILE_DELETING_SERVICE_KEY_0, SERVICE_KEY_NAME)));
     }
 
     private void prepareServiceKey(CloudServiceInstanceExtended serviceInstance) {

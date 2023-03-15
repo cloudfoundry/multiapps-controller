@@ -58,6 +58,15 @@ class PollServiceKeyLastOperationExecutionTest extends AsyncStepOperationTest<Cr
         testExecuteOperations();
     }
 
+    @Test
+    void testPollingOfFailedServiceKeyDuringUndeployment() {
+        this.expectedAsyncExecutionState = AsyncExecutionState.ERROR;
+        CloudServiceKey serviceKey = buildCloudServiceKey(ServiceCredentialBindingOperation.State.FAILED, false);
+        context.setVariable(Variables.SERVICE_KEY_TO_PROCESS, serviceKey);
+        when(client.getServiceKey(SERVICE_INSTANCE_NAME, SERVICE_KEY_NAME)).thenReturn(serviceKey);
+        testExecuteOperations();
+    }
+
     private CloudServiceKey buildCloudServiceKey(ServiceCredentialBindingOperation.State serviceKeyState, boolean isServiceOptional) {
         return ImmutableCloudServiceKey.builder()
                                        .name(SERVICE_KEY_NAME)

@@ -39,7 +39,7 @@ public class PollServiceKeyLastOperationExecution implements AsyncExecution {
 
     protected AsyncExecutionState doOnError(CloudServiceKey serviceKey, ProcessContext context) {
         CloudServiceInstanceExtended serviceInstanceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
-        if (serviceInstanceToProcess.isOptional()) {
+        if (serviceInstanceToProcess != null && serviceInstanceToProcess.isOptional()) {
             context.getStepLogger()
                    .warn(Messages.OPERATION_FOR_OPTIONAL_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1, serviceKey.getName(),
                          serviceKey.getServiceKeyOperation()
