@@ -62,7 +62,7 @@ public class DeleteServiceKeyStep extends AsyncFlowableStep {
                 }
             }
             CloudServiceInstanceExtended serviceInstanceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
-            if (serviceInstanceToProcess.isOptional()) {
+            if (serviceInstanceToProcess != null && serviceInstanceToProcess.isOptional()) {
                 getStepLogger().warn(e, Messages.ERROR_WHILE_DELETING_SERVICE_KEY_0_FOR_OPTIONAL_SERVICE_1, serviceKeyToDelete.getName(),
                                      serviceInstanceToProcess.getName());
                 return Optional.empty();
