@@ -58,7 +58,6 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
 
     private static final String DEFAULT_SUCCESS_MARKER = "STDOUT:SUCCESS";
     private static final String DEFAULT_FAILURE_MARKER = "STDERR:FAILURE";
-    private static final String LOGS_OFFSET_FOR_APP = "logsOffsetForAppExecution";
 
     @Override
     public AsyncExecutionState execute(ProcessContext context) {
@@ -92,7 +91,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
     // context.getVariable(Variables.LOGS_OFFSET_FOR_APP_EXECUTION) in its place
     private static LocalDateTime getLogOffsetAdapter(ProcessContext context) {
         Object value = context.getExecution()
-                              .getVariable(LOGS_OFFSET_FOR_APP);
+                              .getVariable(Variables.LOGS_OFFSET_FOR_APP_EXECUTION.getName());
         if (value instanceof LogsOffset) {
             return LocalDateTime.ofInstant(((LogsOffset) value).getTimestamp()
                                                                .toInstant(), ZoneId.of("UTC"));

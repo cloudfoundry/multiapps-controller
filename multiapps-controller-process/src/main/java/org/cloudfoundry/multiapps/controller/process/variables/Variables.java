@@ -688,14 +688,18 @@ public interface Variables {
                                                                                                     })
                                                                                                     .defaultValue(Collections.emptyList())
                                                                                                     .build();
-    Variable<LocalDateTime> LOGS_OFFSET_FOR_APP_EXECUTION = ImmutableSimpleVariable.<LocalDateTime> builder()
-                                                                                   .name("logsOffsetForAppExecution")
-                                                                                   .defaultValue(LocalDateTime.ofInstant(Instant.EPOCH, ZoneId.of("UTC")))
-                                                                                   .build();
-    Variable<LocalDateTime> LOGS_OFFSET = ImmutableSimpleVariable.<LocalDateTime> builder()
-                                                                 .name("logsOffset")
-                                                                 .defaultValue(LocalDateTime.ofInstant(Instant.EPOCH, ZoneId.of("UTC")))
-                                                                 .build();
+    //we need to use a Json string serialization because the nanosecond precision is being lost when using SimpleVariable
+    Variable<LocalDateTime> LOGS_OFFSET_FOR_APP_EXECUTION = ImmutableJsonStringVariable.<LocalDateTime> builder()
+                                                                                       .name("logsOffsetForAppExecution")
+                                                                                       .type(Variable.typeReference(LocalDateTime.class))
+                                                                                       .defaultValue(LocalDateTime.ofInstant(Instant.EPOCH, ZoneId.of("UTC")))
+                                                                                       .build();
+    //we need to use a Json string serialization because the nanosecond precision is being lost when using SimpleVariable
+    Variable<LocalDateTime> LOGS_OFFSET = ImmutableJsonStringVariable.<LocalDateTime> builder()
+                                                                     .name("logsOffset")
+                                                                     .type(Variable.typeReference(LocalDateTime.class))
+                                                                     .defaultValue(LocalDateTime.ofInstant(Instant.EPOCH, ZoneId.of("UTC")))
+                                                                     .build();
 
     Variable<CloudApplication> EXISTING_APP_TO_POLL = ImmutableJsonBinaryVariable.<CloudApplication> builder()
                                                                                  .name("existingAppToPoll")

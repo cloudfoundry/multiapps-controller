@@ -26,7 +26,6 @@ public class Constants {
 
     // Variables
     public static final String ATTR_CORRELATION_ID = "correlation_id";
-    public static final String LOGS_OFFSET = "logsOffset";
 
     public static final String B3_TRACE_ID_HEADER = "X-B3-TraceId";
     public static final String B3_SPAN_ID_HEADER = "X-B3-SpanId";
