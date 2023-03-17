@@ -171,7 +171,7 @@ public class StepsUtil {
     // context.getVariable(Variables.LOGS_OFFSET) in its place
     private static LocalDateTime getLogOffsetAdapter(ProcessContext context) {
         Object value = context.getExecution()
-                              .getVariable(org.cloudfoundry.multiapps.controller.core.Constants.LOGS_OFFSET);
+                              .getVariable(Variables.LOGS_OFFSET.getName());
         if (value instanceof LogsOffset) {
             return LocalDateTime.ofInstant(((LogsOffset) value).getTimestamp()
                                                                .toInstant(), ZoneId.of("UTC"));
