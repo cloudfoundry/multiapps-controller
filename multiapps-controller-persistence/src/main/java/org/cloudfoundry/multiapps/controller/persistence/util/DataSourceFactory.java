@@ -32,6 +32,7 @@ public class DataSourceFactory {
         hikariConfig.setIdleTimeout(60000);
         hikariConfig.setMinimumIdle(10);
         hikariConfig.addDataSourceProperty("tcpKeepAlive", true);
+        hikariConfig.setDriverClassName(org.postgresql.Driver.class.getName());
 
         configureSSLClientKeyIfExists(service, hikariConfig);
 
