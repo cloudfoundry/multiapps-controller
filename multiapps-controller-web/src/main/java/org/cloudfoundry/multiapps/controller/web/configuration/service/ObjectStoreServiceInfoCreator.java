@@ -2,9 +2,15 @@ package org.cloudfoundry.multiapps.controller.web.configuration.service;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.web.Messages;
+import org.jclouds.domain.Credentials;
+import org.jclouds.googlecloud.GoogleCredentialsFromJson;
+
+import com.google.common.base.Supplier;
 
 import io.pivotal.cfenv.core.CfService;
 
@@ -13,6 +19,7 @@ public class ObjectStoreServiceInfoCreator {
     private static final String OBJECT_STORE_AWS_PLAN = "s3-standard";
     private static final String OBJECT_STORE_AZURE_PLAN = "azure-standard";
     private static final String OBJECT_STORE_ALICLOUD_PLAN = "oss-standard";
+    private static final String OBJECT_STORE_GCP_PLAN = "gcs-standard";
 
     public ObjectStoreServiceInfo createServiceInfo(CfService service) {
         String plan = service.getPlan();
@@ -25,6 +32,8 @@ public class ObjectStoreServiceInfoCreator {
                 return createServiceInfoForAzure(credentials);
             case OBJECT_STORE_ALICLOUD_PLAN:
                 return createServiceInfoForAliCloud(credentials);
+            case OBJECT_STORE_GCP_PLAN:
+                return createServiceInfoForGcpCloud(credentials);
             default:
                 throw new IllegalStateException(Messages.UNSUPPORTED_SERVICE_PLAN_FOR_OBJECT_STORE);
         }
@@ -76,6 +85,21 @@ public class ObjectStoreServiceInfoCreator {
                                               .credential(secretAccessKey)
                                               .container(bucket)
                                               .endpoint(endpoint)
+                                              .region(region)
+                                              .build();
+    }
+
+    private ObjectStoreServiceInfo createServiceInfoForGcpCloud(Map<String, Object> credentials) {
+        String bucket = (String) credentials.get("bucket");
+        String region = (String) credentials.get("region");
+        byte[] decodedKey = Base64.getDecoder()
+                                  .decode((String) credentials.get("base64EncodedPrivateKeyData"));
+        String decodedCredential = new String(decodedKey, StandardCharsets.UTF_8);
+        Supplier<Credentials> credentialsSupplier = new GoogleCredentialsFromJson(decodedCredential);
+        return ImmutableObjectStoreServiceInfo.builder()
+                                              .provider("google-cloud-storage")
+                                              .credentialsSupplier(credentialsSupplier)
+                                              .container(bucket)
                                               .region(region)
                                               .build();
     }
