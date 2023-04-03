@@ -38,8 +38,14 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         if (serviceInfo == null) {
             return null;
         }
-        ContextBuilder contextBuilder = ContextBuilder.newBuilder(serviceInfo.getProvider())
-                                                      .credentials(serviceInfo.getIdentity(), serviceInfo.getCredential());
+        ContextBuilder contextBuilder = ContextBuilder.newBuilder(serviceInfo.getProvider());
+        if (serviceInfo.getCredentialsSupplier() != null) {
+            contextBuilder.credentialsSupplier(serviceInfo.getCredentialsSupplier());
+        } else if (serviceInfo.getIdentity() != null && serviceInfo.getCredential() != null) {
+            contextBuilder.credentials(serviceInfo.getIdentity(), serviceInfo.getCredential());
+        } else {
+            return null;
+        }
         if (serviceInfo.getEndpoint() != null) {
             contextBuilder.endpoint(serviceInfo.getEndpoint());
         }
