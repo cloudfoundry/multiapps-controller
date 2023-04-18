@@ -165,6 +165,8 @@ class ApplicationStagerTest {
         CloudBuild build = createBuild(CloudBuild.State.STAGED, Mockito.mock(DropletInfo.class), null);
         Mockito.when(client.getBuildsForApplication(any(UUID.class)))
                .thenReturn(List.of(build));
+        Mockito.when(client.getCurrentDropletForApplication(APP_GUID))
+               .thenReturn(Mockito.mock(DropletInfo.class));
         Assertions.assertTrue(applicationStager.isApplicationStagedCorrectly(app));
     }
 
@@ -174,15 +176,33 @@ class ApplicationStagerTest {
         CloudBuild build = createBuild(CloudBuild.State.FAILED, null, null);
         Mockito.when(client.getBuildsForApplication(any(UUID.class)))
                .thenReturn(List.of(build));
+        Mockito.when(client.getCurrentDropletForApplication(APP_GUID))
+               .thenReturn(ImmutableDropletInfo.of(DROPLET_GUID, null));
         Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
     }
 
     @Test
-    void testIsApplicationStagedCorrectlyDropletInfoIsNull() {
+    void testIsApplicationStagedCorrectlyDropletInfoInBuildIsNull() {
         CloudApplication app = createApplication();
         CloudBuild build = createBuild(CloudBuild.State.STAGED, null, null);
         Mockito.when(client.getBuildsForApplication(any(UUID.class)))
                .thenReturn(List.of(build));
+        Mockito.when(client.getCurrentDropletForApplication(APP_GUID))
+               .thenReturn(ImmutableDropletInfo.of(DROPLET_GUID, null));
+        Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
+    }
+
+    @Test
+    void testIsApplicationStagedCorrectlyApplicationCurrentDropletInfoIsNull() {
+        CloudApplication app = createApplication();
+        CloudBuild build = createBuild(CloudBuild.State.STAGED, Mockito.mock(DropletInfo.class), null);
+        Mockito.when(client.getBuildsForApplication(any(UUID.class)))
+               .thenReturn(List.of(build));
+        CloudOperationException cloudOperationExceptionNotFound = Mockito.mock(CloudOperationException.class);
+        Mockito.when(cloudOperationExceptionNotFound.getStatusCode())
+               .thenReturn(HttpStatus.NOT_FOUND);
+        Mockito.when(client.getCurrentDropletForApplication(APP_GUID))
+               .thenThrow(cloudOperationExceptionNotFound);
         Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
     }
 
@@ -194,6 +214,8 @@ class ApplicationStagerTest {
         CloudBuild build2 = createBuild(CloudBuild.State.FAILED, dropletInfo, "error", LocalDateTime.MIN.plusHours(1));
         Mockito.when(client.getBuildsForApplication(any(UUID.class)))
                .thenReturn(List.of(build1, build2));
+        Mockito.when(client.getCurrentDropletForApplication(APP_GUID))
+               .thenReturn(dropletInfo);
         Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
     }
 

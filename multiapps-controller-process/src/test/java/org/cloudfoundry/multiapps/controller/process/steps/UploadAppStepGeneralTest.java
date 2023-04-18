@@ -50,11 +50,12 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.DropletInfo;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudBuild;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDropletInfo;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDropletInfo;
 import com.sap.cloudfoundry.client.facade.domain.Status;
 
 class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
@@ -68,6 +69,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     private static final UUID APP_GUID = UUID.randomUUID();
     private static final CloudOperationException CO_EXCEPTION = new CloudOperationException(HttpStatus.BAD_REQUEST);
     private static final UUID PACKAGE_GUID = UUID.randomUUID();
+    private static final UUID DROPLET_GUID = UUID.randomUUID();
     private static final CloudPackage CLOUD_PACKAGE = ImmutableCloudPackage.builder()
                                                                            .metadata(ImmutableCloudMetadata.builder()
                                                                                                            .createdAt(LocalDateTime.now())
@@ -215,11 +217,13 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     @ParameterizedTest
     void testWithBuildStates(List<CloudBuild> builds, StepPhase stepPhase, CloudPackage cloudPackage) {
         if (cloudPackage == null) {
-            when(client.getApplicationEnvironment(any(UUID.class))).thenReturn(Map.of("DEPLOY_ATTRIBUTES", "{\"app-content-digest\":\"" + CURRENT_MODULE_DIGEST + "\"}"));
+            when(client.getApplicationEnvironment(any(UUID.class))).thenReturn(Map.of("DEPLOY_ATTRIBUTES", "{\"app-content-digest\":\""
+                + CURRENT_MODULE_DIGEST + "\"}"));
             var dropletPackage = createCloudPackage(Status.READY);
             mockCloudPackagesGetter(dropletPackage);
             when(cloudPackagesGetter.getMostRecentAppPackage(any(), any())).thenReturn(Optional.of(dropletPackage));
         }
+        when(client.getCurrentDropletForApplication(APP_GUID)).thenReturn(createDropletInfo(DROPLET_GUID, PACKAGE_GUID));
         when(client.getBuildsForApplication(any())).thenReturn(builds);
         prepareClients(CURRENT_MODULE_DIGEST);
         step.execute(execution);
@@ -235,6 +239,13 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
                                     .metadata(cloudMetadata)
                                     .status(status)
                                     .build();
+    }
+
+    private DropletInfo createDropletInfo(UUID guid, UUID packageGuid) {
+        return ImmutableDropletInfo.builder()
+                                   .guid(guid)
+                                   .packageGuid(packageGuid)
+                                   .build();
     }
 
     private void mockCloudPackagesGetter(CloudPackage cloudPackage) {

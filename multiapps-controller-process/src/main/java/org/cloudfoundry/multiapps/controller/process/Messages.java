@@ -272,6 +272,7 @@ public class Messages {
     public static final String WILL_DELETE_FLOWABLE_PROCESSES_BEFORE_0 = "Will delete Flowable processes before: {0}";
     public static final String FLOWABLE_PROCESSES_TO_DELETE = "Flowable processes to delete: {0}";
     public static final String APPLICATION_NOT_STAGED_CORRECTLY = "Application \"{0}\" was not staged correctly during the previous deployment";
+    public static final String APPLICATION_NOT_STAGED_CORRECTLY_MISSING_DROPLET = "Application \"{0}\" was not staged correctly during the previous deployment. Current droplet was not set";
     public static final String JOB_WITH_ID_AND_TASK_NAME_EXPIRED = "Job with id \"{0}\" and Task name \"{1}\" expired";
     public static final String SKIPPING_START_OF_IDLE_APPLICATIONS = "Idle applications will not be started because \"{0}\" is set to \"{1}\"";
     public static final String DELAYING_APP_0_FOR_1_SECONDS = "Delaying operations for application \"{0}\" for \"{1}\" seconds...";
