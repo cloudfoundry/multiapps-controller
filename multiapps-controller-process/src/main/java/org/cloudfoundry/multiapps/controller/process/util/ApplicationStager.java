@@ -4,7 +4,9 @@ import static java.text.MessageFormat.format;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
@@ -19,6 +21,7 @@ import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.DropletInfo;
 import com.sap.cloudfoundry.client.facade.domain.PackageState;
 
 public class ApplicationStager {
@@ -90,6 +93,11 @@ public class ApplicationStager {
             logger.debug(Messages.NO_BUILD_FOUND_FOR_APPLICATION, app.getName());
             return false;
         }
+        Optional<DropletInfo> currentDropletForApplication = findOrReturnEmpty(() -> client.getCurrentDropletForApplication(app.getGuid()));
+        if (currentDropletForApplication.isEmpty()) {
+            logger.debug(Messages.APPLICATION_NOT_STAGED_CORRECTLY_MISSING_DROPLET, app.getName());
+            return false;
+        }
         CloudBuild build = getLastBuild(buildsForApplication);
         if (isBuildStagedCorrectly(build)) {
             return true;
@@ -157,5 +165,16 @@ public class ApplicationStager {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, format(Messages.NO_BUILDS_FOUND_FOR_PACKAGE, packageGuid));
         }
         context.setVariable(Variables.BUILD_GUID, lastBuild.getGuid());
+    }
+
+    private Optional<DropletInfo> findOrReturnEmpty(Supplier<DropletInfo> supplier) {
+        try {
+            return Optional.of(supplier.get());
+        } catch (CloudOperationException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                return Optional.empty();
+            }
+            throw e;
+        }
     }
 }
