@@ -5,7 +5,6 @@ import static java.text.MessageFormat.format;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
@@ -14,7 +13,6 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
-import org.cloudfoundry.multiapps.controller.core.util.LogsOffset;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -70,7 +68,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         CloudControllerClient client = context.getControllerClient();
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app, app.getEnv());
 
-        LocalDateTime logsOffset = getLogOffsetAdapter(context);
+        LocalDateTime logsOffset = context.getVariable(Variables.LOGS_OFFSET_FOR_APP_EXECUTION);
         List<ApplicationLog> recentLogs = client.getRecentLogs(app.getName(), logsOffset);
         setLogsOffset(context, recentLogs);
 
@@ -85,18 +83,6 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
     public String getPollingErrorMessage(ProcessContext context) {
         CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
         return MessageFormat.format(Messages.ERROR_EXECUTING_APP_1, app.getName());
-    }
-
-    //TODO remove this after next takt and use
-    // context.getVariable(Variables.LOGS_OFFSET_FOR_APP_EXECUTION) in its place
-    private static LocalDateTime getLogOffsetAdapter(ProcessContext context) {
-        Object value = context.getExecution()
-                              .getVariable(Variables.LOGS_OFFSET_FOR_APP_EXECUTION.getName());
-        if (value instanceof LogsOffset) {
-            return LocalDateTime.ofInstant(((LogsOffset) value).getTimestamp()
-                                                               .toInstant(), ZoneId.of("UTC"));
-        }
-        return context.getVariable(Variables.LOGS_OFFSET_FOR_APP_EXECUTION);
     }
 
     private AppExecutionDetailedStatus getAppExecutionStatus(ProcessContext context, ApplicationAttributes appAttributes,
