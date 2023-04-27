@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,7 +21,6 @@ import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBui
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
-import org.cloudfoundry.multiapps.controller.core.util.LogsOffset;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
@@ -149,7 +147,7 @@ public class StepsUtil {
 
     static void saveAppLogs(ProcessContext context, CloudControllerClient client, String appName, Logger logger,
                             ProcessLoggerProvider processLoggerProvider) {
-        LocalDateTime offset = getLogOffsetAdapter(context);
+        LocalDateTime offset = context.getVariable(Variables.LOGS_OFFSET);
         var recentLogs = getRecentLogsSafely(client, appName, offset, logger);
         if (recentLogs.isEmpty()) {
             return;
@@ -167,21 +165,8 @@ public class StepsUtil {
         context.setVariable(Variables.LOGS_OFFSET, lastLog.getTimestamp());
     }
 
-    // TODO remove this after next takt and use
-    // context.getVariable(Variables.LOGS_OFFSET) in its place
-    private static LocalDateTime getLogOffsetAdapter(ProcessContext context) {
-        Object value = context.getExecution()
-                              .getVariable(Variables.LOGS_OFFSET.getName());
-        if (value instanceof LogsOffset) {
-            return LocalDateTime.ofInstant(((LogsOffset) value).getTimestamp()
-                                                               .toInstant(),
-                                           ZoneId.of("UTC"));
-        }
-        return context.getVariable(Variables.LOGS_OFFSET);
-    }
-
-    private static List<ApplicationLog> getRecentLogsSafely(CloudControllerClient client, String appName, LocalDateTime offset,
-                                                            Logger logger) {
+    private static List<ApplicationLog> getRecentLogsSafely(CloudControllerClient client, String appName,
+                                                            LocalDateTime offset, Logger logger) {
         try {
             return client.getRecentLogs(appName, offset);
         } catch (RuntimeException e) {
