@@ -144,6 +144,10 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         if (!context.getVariable(Variables.VERIFY_ARCHIVE_SIGNATURE)) {
             return;
         }
+
+        if (!configuration.isArchiveSignatureVerificationEnabled()) {
+            throw new SLException(Messages.ARCHIVE_SIGNATURE_VERIFICATION_IS_DISABLED);
+        }
         getStepLogger().debug(Messages.VERIFYING_ARCHIVE_0, archiveFilePath);
         verifyArchiveSignature(archiveFilePath);
         getStepLogger().info(Messages.ARCHIVE_IS_VERIFIED);

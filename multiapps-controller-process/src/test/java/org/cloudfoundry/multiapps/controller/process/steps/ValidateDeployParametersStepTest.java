@@ -74,13 +74,7 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
 
                          // [4] Process chunked file
                          Arguments.of(new StepInput(MERGED_ARCHIVE_NAME + ".part.0," + MERGED_ARCHIVE_NAME + ".part.1,"
-                             + MERGED_ARCHIVE_NAME + ".part.2", null, 1, VersionRule.HIGHER.toString(), false), null, true, ""),
-
-                         // [5] Verify archive signature with default certificate CN
-                         Arguments.of(new StepInput(EXISTING_FILE_ID, null, 1, VersionRule.HIGHER.toString(), true), null, false, ""),
-
-                         // [6] Verify archive signature with custom certificate CN
-                         Arguments.of(new StepInput(EXISTING_FILE_ID, null, 1, VersionRule.HIGHER.toString(), true), null, false, ""));
+                             + MERGED_ARCHIVE_NAME + ".part.2", null, 1, VersionRule.HIGHER.toString(), false), null, true, ""));
     }
 
     @MethodSource

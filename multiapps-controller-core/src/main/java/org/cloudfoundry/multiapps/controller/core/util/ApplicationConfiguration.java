@@ -95,6 +95,7 @@ public class ApplicationConfiguration {
     static final String CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS = "SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS";
     static final String CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS = "SERVICE_HANDLING_MAX_PARALLEL_THREADS";
     static final String CFG_ABORTED_OPERATIONS_TTL_IN_MINUTES = "ABORTED_OPERATIONS_TTL_IN_SECONDS";
+    static final String CFG_ARCHIVE_SIGNATURE_VERIFICATION_ENABLED = "ARCHIVE_SIGNATURE_VERIFICATION_ENABLED";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -147,6 +148,7 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_ABORTED_OPERATIONS_TTL_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(30);
     public static final int DEFAULT_MAX_STOP_DELAY_IN_SECONDS = 300;
     public static final String DEFAULT_GLOBAL_AUDITOR_ORIGIN = "uaa";
+    public static final Boolean DEFAULT_ARCHIVE_SIGNATURE_VERIFICATION_ENABLED = false;
     protected final Environment environment;
 
     // Cached configuration settings:
@@ -199,6 +201,7 @@ public class ApplicationConfiguration {
     private Integer snakeyamlMaxAliasesForCollections;
     private Integer serviceHandlingMaxParallelThreads;
     private Integer abortedOperationsTtlInSeconds;
+    private Boolean archiveSignatureVerificationEnabled;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -220,6 +223,7 @@ public class ApplicationConfiguration {
         getOrgName();
         getDeployServiceUrl();
         isBasicAuthEnabled();
+        isArchiveSignatureVerificationEnabled();
         getGlobalAuditorUser();
         getGlobalAuditorPassword();
         getDbConnectionThreads();
@@ -360,6 +364,13 @@ public class ApplicationConfiguration {
             basicAuthEnabled = isBasicAuthEnabledThroughEnvironment();
         }
         return basicAuthEnabled;
+    }
+
+    public Boolean isArchiveSignatureVerificationEnabled() {
+        if (archiveSignatureVerificationEnabled == null) {
+            archiveSignatureVerificationEnabled = isArchiveSignatureVerificationEnabledThroughEnvironment();
+        }
+        return archiveSignatureVerificationEnabled;
     }
 
     public String getGlobalAuditorUser() {
@@ -744,6 +755,12 @@ public class ApplicationConfiguration {
     private Boolean isBasicAuthEnabledThroughEnvironment() {
         Boolean value = environment.getBoolean(CFG_BASIC_AUTH_ENABLED, DEFAULT_BASIC_AUTH_ENABLED);
         LOGGER.info(format(Messages.BASIC_AUTH_ENABLED, value));
+        return value;
+    }
+
+    private Boolean isArchiveSignatureVerificationEnabledThroughEnvironment() {
+        Boolean value = environment.getBoolean(CFG_ARCHIVE_SIGNATURE_VERIFICATION_ENABLED, DEFAULT_ARCHIVE_SIGNATURE_VERIFICATION_ENABLED);
+        LOGGER.info(format(Messages.ARCHIVE_SIGNATURE_VERIFICATION_ENABLED, value));
         return value;
     }
 

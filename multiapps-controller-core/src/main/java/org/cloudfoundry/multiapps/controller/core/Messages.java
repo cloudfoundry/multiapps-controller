@@ -112,6 +112,7 @@ public final class Messages {
     public static final String SPACE_GUID = "Space GUID: {0}";
     public static final String ORG_NAME = "Org name: {0}";
     public static final String BASIC_AUTH_ENABLED = "Basic authentication enabled: {0}";
+    public static final String ARCHIVE_SIGNATURE_VERIFICATION_ENABLED = "Archive signature verification enabled: {0}";
     public static final String GLOBAL_AUDITOR_USERNAME = "Global Auditor username: {0}";
     public static final String USE_XS_AUDIT_LOGGING = "Use XSA audit logging: {0}";
     public static final String DB_CONNECTION_THREADS = "Database connection thread pool size: {0}";

@@ -14,6 +14,7 @@ public class Messages {
     public static final String ERROR_RETRIEVING_MTA_RESOURCE_CONTENT = "Error retrieving content of MTA resource \"{0}\"";
     public static final String ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET = "Service described by MTA resource \"{0}\" of type [{1}] does not match already existing service \"{2}\" of type [{3}] and needs to be recreated. Use command line option \"--delete-services\" to enable the deletion of the existing one.";
     public static final String SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT = "The size of the application exceeds max size limit \"{0}\"";
+    public static final String ARCHIVE_SIGNATURE_VERIFICATION_IS_DISABLED = "Archive signature verification functionality is discontinued. Please do not use the command line option \"--verify-archive-signature\".";
     public static final String ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT = "Unable to retrieve required service key element \"{0}\" for service \"{1}\"";
     public static final String ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE = "Value \"{0}\" of parameter \"{1}\" must not be negative";
     public static final String INVALID_VALUE_0_FOR_PARAMETER_1_VALID_VALUES_ARE_2 = "Invalid value \"{0}\" for parameter \"{1}\". Valid values are: {2}";
