@@ -18,10 +18,10 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLogging
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.LockOwnerService;
+import org.cloudfoundry.multiapps.controller.process.util.LockOwnerReleaser;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.flowable.engine.ProcessEngine;
-import org.flowable.engine.impl.cmd.ClearProcessInstanceLockTimesCmd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,6 +49,9 @@ public class BootstrapServlet extends HttpServlet {
 
     @Inject
     protected LockOwnerService lockOwnerService;
+
+    @Inject
+    protected LockOwnerReleaser lockOwnerReleaser;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -103,9 +106,7 @@ public class BootstrapServlet extends HttpServlet {
                                      .getLockOwner();
         LOGGER.info(MessageFormat.format(Messages.CLEARING_LOCK_OWNER, lockOwner));
         try {
-            processEngine.getProcessEngineConfiguration()
-                         .getCommandExecutor()
-                         .execute(new ClearProcessInstanceLockTimesCmd(lockOwner));
+            lockOwnerReleaser.release(lockOwner);
             lockOwnerService.createQuery()
                             .lockOwner(lockOwner)
                             .delete();
