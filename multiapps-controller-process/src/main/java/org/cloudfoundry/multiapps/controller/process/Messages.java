@@ -279,6 +279,7 @@ public class Messages {
     public static final String CLEARING_STALE_LOCK_OWNER = "Clearing stale lock owner {0}...";
     public static final String CLEARED_STALE_LOCK_OWNER = "Cleared stale lock owner {0}";
     public static final String SERVICE_BINDING_0_IS_ALREADY_DELETED = "Service binding \"{0}\" is already deleted";
+    public static final String UNLOCKING_JOB_WITH_ID_0_LOCK_EXPIRATION_TIME_1_AND_CREATION_TIME_2 = "Unlocking job with id: \"{0}\", lock expiration time: \"{1}\" and creation time: \"{2}\"";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
