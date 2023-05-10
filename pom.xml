@@ -29,8 +29,8 @@
         <eclipselink.version>2.7.9</eclipselink.version>
         <flowable.version>6.6.0</flowable.version>
         <mybatis.version>3.5.7</mybatis.version>
-        <spring.version>5.3.26</spring.version>
-        <spring-security.version>5.7.7</spring-security.version>
+        <spring.version>5.3.27</spring.version>
+        <spring-security.version>5.7.8</spring-security.version>
         <json-smart.version>2.4.9</json-smart.version>
         <nimbus-jose-jwt.version>9.31</nimbus-jose-jwt.version>
         <hikari.version>5.0.1</hikari.version>
