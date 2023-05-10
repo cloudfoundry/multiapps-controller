@@ -83,11 +83,11 @@ class DeployedMtaDetectorTest {
                          // (2) Applications without module in metadata:
                          Arguments.of("metadata/apps-02.json", null,
                                       new Expectation(Expectation.Type.EXCEPTION,
-                                                      "MTA metadata for entity \"mta-application-1\" is incomplete. This indicates that MTA reserved variables in the entitys metadata were modified manually. Either revert the changes or delete the entity.")),
+                                                      "MTA metadata for entity \"mta-application-1\" is incomplete. This indicates that MTA reserved variables in the entity's metadata were modified manually. Either revert the changes or delete the entity.")),
                          // (3) Services without resource in metadata:
                          Arguments.of("metadata/apps-03.json", "metadata/services-03.json",
                                       new Expectation(Expectation.Type.EXCEPTION,
-                                                      "MTA metadata for entity \"mta-service-1\" is incomplete. This indicates that MTA reserved variables in the entitys metadata were modified manually. Either revert the changes or delete the entity.")),
+                                                      "MTA metadata for entity \"mta-service-1\" is incomplete. This indicates that MTA reserved variables in the entity's metadata were modified manually. Either revert the changes or delete the entity.")),
                          // (4) Two MTA applications:
                          Arguments.of("metadata/apps-04.json", null,
                                       new Expectation(Expectation.Type.JSON, "metadata/deployed-mtas-04.json")),
