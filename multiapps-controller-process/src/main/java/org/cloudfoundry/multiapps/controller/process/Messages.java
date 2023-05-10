@@ -219,7 +219,7 @@ public class Messages {
     public static final String MISSING_SERVICE_OPERATION_STATE = "Stopping service operation polling of \"{0}\" due to missing operation state...";
     public static final String CANNOT_GET_CONTEXT_FOR_EVENT_0_AND_PROCESS_1 = "Could not get context for Flowable engine event (type: {0}, process ID: {1}).";
     public static final String SERVICE_0_IS_IN_STATE_1_AND_MAY_NOT_BE_OPERATIONAL = "Service \"{0}\" is in state \"{1}\" and may not be operational. Actions like update of credentials and binding may fail! Consider recreating it by specifying the --delete-services option.";
-    public static final String SERVICE_NOT_BE_DELETED_DUE_TO_SERVICE_BINDINGS_AND_SERVICE_KEYS = "Service \"{0}\" won't be deleted due to existing service bindings and/or service keys";
+    public static final String SERVICE_NOT_BE_DELETED_DUE_TO_SERVICE_BINDINGS_AND_SERVICE_KEYS = "Service \"{0}\" won''t be deleted due to existing service bindings and/or service keys";
     public static final String RETRYING_PROCESS_ABORT = "Abort of process \"{0}\" failed due to an optimistic locking exception. Retrying abort...";
     public static final String WILL_NOT_UPDATE_SERVICE_PARAMS = "Service parameters for service \"{0}\" will not be updated, as the option for skipping service parameter updates is enabled.";
     public static final String WILL_NOT_UPDATE_SERVICE_PLAN = "Service plan for service \"{0}\" will not be updated, as the option for skipping service plan updates is enabled.";
@@ -475,7 +475,7 @@ public class Messages {
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";
     public static final String DELETED_APP_ROUTES = "App routes for applications \"{0}\" deleted";
     public static final String MODULES_TO_UNDEPLOY = "Modules to undeploy: {0}";
-    public static final String MODULES_NOT_TO_BE_CHANGED = "Modules that won't be changed: {0}";
+    public static final String MODULES_NOT_TO_BE_CHANGED = "Modules that won''t be changed: {0}";
     public static final String PROCESS_WAS_ABORTED = "Process was aborted";
     public static final String NOT_SPECIFIED_HEALTH_CHECK_TYPE = "No health-check-type is specified. Setting default type: {0}";
     public static final String EXCEPTION_CAUGHT = "Exception caught";
