@@ -2,15 +2,12 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.net.URL;
 import java.text.MessageFormat;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.common.ContentException;
-import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.CredentialsGenerator;
 import org.cloudfoundry.multiapps.controller.core.helpers.SystemParameters;
@@ -30,6 +27,7 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
 
 @Named("collectSystemParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -41,8 +39,6 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
     private ReadOnlyParametersChecker readOnlyParametersChecker;
 
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
-    protected Supplier<String> timestampSupplier = () -> DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-                                                                          .format(ZonedDateTime.now());
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -99,6 +95,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         String authorizationEndpoint = getAuthorizationEndpointGetter(client).getAuthorizationEndpoint();
         String user = context.getVariable(Variables.USER);
         String namespace = context.getVariable(Variables.MTA_NAMESPACE);
+        String timestamp = context.getVariable(Variables.TIMESTAMP);
         boolean applyNamespace = context.getVariable(Variables.APPLY_NAMESPACE);
 
         URL controllerUrl = configuration.getControllerUrl();
@@ -115,7 +112,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                                              .deployServiceUrl(deployServiceUrl)
                                              .reserveTemporaryRoutes(reserveTemporaryRoutes)
                                              .credentialsGenerator(credentialsGeneratorSupplier.get())
-                                             .timestampSupplier(timestampSupplier)
+                                             .timestamp(timestamp)
                                              .hostValidator(new HostValidator(namespace, applyNamespace))
                                              .build();
     }

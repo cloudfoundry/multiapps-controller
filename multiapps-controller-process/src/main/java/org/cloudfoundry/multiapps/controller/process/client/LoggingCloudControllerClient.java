@@ -749,12 +749,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void updateApplicationMetadata(UUID guid, Metadata metadata) {
-        logger.debug(Messages.UPDATING_METADATA_OF_APPLICATION_0_TO_1, guid, SecureSerialization.toJson(metadata));
-        delegate.updateApplicationMetadata(guid, metadata);
-    }
-
-    @Override
     public List<CloudServiceInstance> getServiceInstancesWithoutAuxiliaryContentByNames(List<String> names) {
         logger.debug(Messages.GETTING_SERVICE_INSTANCES_WITHOUT_AUXILIARY_CONTENT_BY_NAMES_0, names);
         return delegate.getServiceInstancesWithoutAuxiliaryContentByNames(names);
@@ -773,9 +767,21 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public void updateApplicationMetadata(UUID guid, Metadata metadata) {
+        logger.debug(Messages.UPDATING_METADATA_OF_APPLICATION_0_TO_1, guid, SecureSerialization.toJson(metadata));
+        delegate.updateApplicationMetadata(guid, metadata);
+    }
+
+    @Override
     public void updateServiceInstanceMetadata(UUID guid, Metadata metadata) {
         logger.debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_TO_1, guid, SecureSerialization.toJson(metadata));
         delegate.updateServiceInstanceMetadata(guid, metadata);
+    }
+
+    @Override
+    public void updateServiceBindingMetadata(UUID guid, Metadata metadata) {
+        logger.debug(Messages.UPDATING_METADATA_OF_SERVICE_BINDING_0_TO_1, guid, SecureSerialization.toJson(metadata));
+        delegate.updateServiceBindingMetadata(guid, metadata);
     }
 
     @Override

@@ -4,7 +4,6 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
@@ -36,7 +35,7 @@ public class SystemParameters {
     private final String authorizationEndpoint;
     private final String deployServiceUrl;
     private final boolean reserveTemporaryRoutes;
-    private final Supplier<String> timestampSupplier;
+    private final String timestamp;
     private final HostValidator hostValidator;
 
     public SystemParameters(Builder builder) {
@@ -52,7 +51,7 @@ public class SystemParameters {
         this.deployServiceUrl = builder.deployServiceUrl;
         this.credentialsGenerator = builder.credentialsGenerator;
         this.reserveTemporaryRoutes = builder.reserveTemporaryRoutes;
-        this.timestampSupplier = builder.timestampSupplier;
+        this.timestamp = builder.timestamp;
         this.hostValidator = builder.hostValidator;
     }
 
@@ -88,7 +87,7 @@ public class SystemParameters {
         systemParameters.put(SupportedParameters.XS_AUTHORIZATION_ENDPOINT, authorizationEndpoint);
         systemParameters.put(SupportedParameters.AUTHORIZATION_URL, authorizationEndpoint);
         systemParameters.put(SupportedParameters.DEPLOY_SERVICE_URL, deployServiceUrl);
-        systemParameters.put(SupportedParameters.TIMESTAMP, getDefaultTimestamp());
+        systemParameters.put(SupportedParameters.TIMESTAMP, timestamp);
 
         return systemParameters;
     }
@@ -115,10 +114,6 @@ public class SystemParameters {
 
     private String referenceToParameter(String parameter) {
         return "${" + parameter + "}";
-    }
-
-    private String getDefaultTimestamp() {
-        return timestampSupplier.get();
     }
 
     private void putRoutingParameters(Module module, Map<String, Object> moduleParameters, Map<String, Object> moduleSystemParameters) {
@@ -206,7 +201,7 @@ public class SystemParameters {
         private String authorizationEndpoint;
         private String deployServiceUrl;
         private boolean reserveTemporaryRoutes;
-        private Supplier<String> timestampSupplier;
+        private String timestamp;
         private HostValidator hostValidator;
 
         public Builder credentialsGenerator(CredentialsGenerator credentialsGenerator) {
@@ -264,8 +259,8 @@ public class SystemParameters {
             return this;
         }
 
-        public Builder timestampSupplier(Supplier<String> timestampSupplier) {
-            this.timestampSupplier = timestampSupplier;
+        public Builder timestamp(String timestamp) {
+            this.timestamp = timestamp;
             return this;
         }
 

@@ -9,9 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.api.model.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -30,6 +34,9 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
     private static final UUID SERVICE_KEY_GUID = UUID.randomUUID();
     private static final String EXISTING_SERVICE_KEY_NAME = "service-key-existing";
     private static final UUID EXISTING_SERVICE_KEY_GUID = UUID.randomUUID();
+    private static final String MTA_ID = "my-test-mta";
+    private static final String MTA_ID_HASH = "asdasda";
+    private static final String MTA_VERSION = "1.0.0";
 
     @Test
     void testGetServiceKeysForOptionalServiceWhichDoesNotExist() {
@@ -72,12 +79,12 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
     }
 
     @Test
-    void testUpdateServiceKeyWhichIsInProgress() {
+    void testUpdateUnchangedServiceKeyWhichIsInProgress() {
         CloudServiceInstanceExtended serviceInstance = buildCloudServiceInstanceExtended(false);
         CloudServiceKey serviceKeyToUpdate = buildCloudServiceKey();
         context.setVariable(Variables.SERVICE_TO_PROCESS, serviceInstance);
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Map.of(SERVICE_INSTANCE_NAME, List.of(serviceKeyToUpdate)));
-        CloudServiceKey serviceKeyWithCredentials = buildCloudServiceInProgress();
+        CloudServiceKey serviceKeyWithCredentials = buildCloudServiceKeyInProgress(serviceKeyToUpdate);
         when(client.getServiceKeysWithCredentials(SERVICE_INSTANCE_NAME)).thenReturn(List.of(serviceKeyWithCredentials));
         context.setVariable(Variables.DELETE_SERVICE_KEYS, true);
         step.execute(execution);
@@ -87,7 +94,7 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
     }
 
     @Test
-    void testServiceKeyDeletion() {
+    void testAbandonedServiceKeyNotDeletedInThisStep() {
         CloudServiceInstanceExtended serviceInstance = buildCloudServiceInstanceExtended(false);
         CloudServiceKey serviceKeyToCreate = buildCloudServiceKey();
         context.setVariable(Variables.SERVICE_TO_PROCESS, serviceInstance);
@@ -98,7 +105,7 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
         step.execute(execution);
         assertStepFinishedSuccessfully();
         assertEquals(List.of(serviceKeyToCreate), context.getVariable(Variables.CLOUD_SERVICE_KEYS_TO_CREATE));
-        assertEquals(List.of(existingServiceKey), context.getVariable(Variables.CLOUD_SERVICE_KEYS_TO_DELETE));
+        assertEquals(Collections.EMPTY_LIST, context.getVariable(Variables.CLOUD_SERVICE_KEYS_TO_DELETE));
     }
 
     @Test
@@ -113,6 +120,29 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
                      exception.getMessage());
     }
 
+    @Test
+    void testUpdateUnchangedServiceKeyMetadata() {
+        CloudServiceInstanceExtended serviceInstance = buildCloudServiceInstanceExtended(false);
+        CloudServiceKey serviceKeyToUpdate = buildCloudServiceKey();
+        CloudServiceKey existingVersionOfKey = ImmutableCloudServiceKey.copyOf(serviceKeyToUpdate)
+                                                                       .withV3Metadata(Metadata.builder()
+                                                                                               .label(MtaMetadataLabels.MTA_ID, "aaaaa")
+                                                                                               .annotation(MtaMetadataAnnotations.MTA_ID,
+                                                                                                           "different-test-mta")
+                                                                                               .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                           MTA_VERSION)
+                                                                                               .build());
+        context.setVariable(Variables.SERVICE_TO_PROCESS, serviceInstance);
+        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Map.of(SERVICE_INSTANCE_NAME, List.of(serviceKeyToUpdate)));
+        when(client.getServiceKeysWithCredentials(SERVICE_INSTANCE_NAME)).thenReturn(List.of(existingVersionOfKey));
+        context.setVariable(Variables.DELETE_SERVICE_KEYS, true);
+        step.execute(execution);
+        assertStepFinishedSuccessfully();
+        assertEquals(List.of(serviceKeyToUpdate), context.getVariable(Variables.CLOUD_SERVICE_KEYS_TO_UPDATE_METADATA));
+        assertEquals(Collections.EMPTY_LIST, context.getVariable(Variables.CLOUD_SERVICE_KEYS_TO_CREATE));
+        assertEquals(Collections.EMPTY_LIST, context.getVariable(Variables.CLOUD_SERVICE_KEYS_TO_DELETE));
+    }
+
     private CloudServiceInstanceExtended buildCloudServiceInstanceExtended(boolean isOptional) {
         return ImmutableCloudServiceInstanceExtended.builder()
                                                     .name(SERVICE_INSTANCE_NAME)
@@ -125,6 +155,11 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
         return ImmutableCloudServiceKey.builder()
                                        .name(SERVICE_KEY_NAME)
                                        .metadata(ImmutableCloudMetadata.of(SERVICE_KEY_GUID))
+                                       .v3Metadata(Metadata.builder()
+                                                           .label(MtaMetadataLabels.MTA_ID, MTA_ID_HASH)
+                                                           .annotation(MtaMetadataAnnotations.MTA_ID, MTA_ID)
+                                                           .annotation(MtaMetadataAnnotations.MTA_VERSION, MTA_VERSION)
+                                                           .build())
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
                                                                                                       .type(ServiceCredentialBindingOperation.Type.CREATE)
                                                                                                       .state(ServiceCredentialBindingOperation.State.SUCCEEDED)
@@ -144,15 +179,23 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
                                        .build();
     }
 
-    private CloudServiceKey buildCloudServiceInProgress() {
-        return ImmutableCloudServiceKey.builder()
-                                       .name(SERVICE_KEY_NAME)
-                                       .metadata(ImmutableCloudMetadata.of(SERVICE_KEY_GUID))
-                                       .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                      .state(ServiceCredentialBindingOperation.State.IN_PROGRESS)
-                                                                                                      .build())
-                                       .build();
+    private CloudServiceKey buildCloudServiceKeyInProgress(CloudServiceKey original) {
+        if (original == null) {
+            return ImmutableCloudServiceKey.builder()
+                                           .name(SERVICE_KEY_NAME)
+                                           .metadata(ImmutableCloudMetadata.of(SERVICE_KEY_GUID))
+                                           .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
+                                                                                                          .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                          .state(ServiceCredentialBindingOperation.State.IN_PROGRESS)
+                                                                                                          .build())
+                                           .build();
+        }
+
+        return ImmutableCloudServiceKey.copyOf(original)
+                                       .withServiceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
+                                                                                                          .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                          .state(ServiceCredentialBindingOperation.State.IN_PROGRESS)
+                                                                                                          .build());
     }
 
     private CloudServiceKey buildExisingCloudServiceKey() {

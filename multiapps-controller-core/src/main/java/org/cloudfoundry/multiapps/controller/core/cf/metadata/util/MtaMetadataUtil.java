@@ -14,8 +14,10 @@ import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
 public class MtaMetadataUtil {
 
     public static final List<String> MTA_METADATA_MANDATORY_LABELS = List.of(MtaMetadataLabels.MTA_ID);
-    public static final List<String> MTA_METADATA_MANDATORY_ANNOTATIONS = List.of(MtaMetadataAnnotations.MTA_ID, MtaMetadataAnnotations.MTA_VERSION);
-    public static final List<String> MTA_METADATA_APPLICATION_ANNOTATIONS = List.of(MtaMetadataAnnotations.MTA_MODULE, MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
+    public static final List<String> MTA_METADATA_MANDATORY_ANNOTATIONS = List.of(MtaMetadataAnnotations.MTA_ID,
+                                                                                  MtaMetadataAnnotations.MTA_VERSION);
+    public static final List<String> MTA_METADATA_APPLICATION_ANNOTATIONS = List.of(MtaMetadataAnnotations.MTA_MODULE,
+                                                                                    MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
                                                                                     MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES);
     public static final List<String> MTA_METADATA_SERVICE_ANNOTATIONS = List.of(MtaMetadataAnnotations.MTA_RESOURCE);
 
@@ -45,6 +47,7 @@ public class MtaMetadataUtil {
                        .from(metadata)
                        .label(MtaMetadataLabels.MTA_ID, null)
                        .label(MtaMetadataLabels.MTA_NAMESPACE, null)
+                       .label(MtaMetadataLabels.SPACE_GUID, null)
                        .annotation(MtaMetadataAnnotations.MTA_ID, null)
                        .annotation(MtaMetadataAnnotations.MTA_VERSION, null)
                        .annotation(MtaMetadataAnnotations.MTA_RESOURCE, null)

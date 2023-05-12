@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/processdef" exporter="Flowable Open Source Modeler" exporterVersion="6.7.2">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/processdef">
   <process id="deleteServiceKeySubProcess" name="Delete Service Key Subprocess" isExecutable="true">
     <extensionElements>
       <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessListener}"></flowable:eventListener>
       <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
       <flowable:eventListener events="ENTITY_DELETED" delegateExpression="${expiredJobListener}"></flowable:eventListener>
     </extensionElements>
-    <startEvent id="startEvent1" name="Start" flowable:formFieldValidation="true"></startEvent>
+    <startEvent id="startEvent1" name="Start"></startEvent>
     <serviceTask id="checkForServiceKeyOperationsInProgress" name="Check For Service Key Operations In Progress" flowable:delegateExpression="${checkServiceKeyOperationStep}"></serviceTask>
     <exclusiveGateway id="sid-FBA43AEE-A382-4C41-99A4-B4854C534ED7" default="sid-CC4F8D6C-48CB-4F88-B40C-651021CB216E"></exclusiveGateway>
     <intermediateCatchEvent id="sid-F4EBBC99-8981-4446-AC1B-C0784AE40B43">
@@ -15,8 +15,7 @@
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="sid-B3A86402-0BC1-465A-BAD2-93829333DC41" sourceRef="sid-F4EBBC99-8981-4446-AC1B-C0784AE40B43" targetRef="checkForServiceKeyOperationsInProgress"></sequenceFlow>
-    <serviceTask id="deleteServiceKey" name="Delete Service Key
-" flowable:delegateExpression="${deleteServiceKeyStep}"></serviceTask>
+    <serviceTask id="deleteServiceKey" name="Delete Service Key " flowable:delegateExpression="${deleteServiceKeyStep}"></serviceTask>
     <endEvent id="sid-9EDD5B98-B265-45B1-A803-875D219B57A4" name="End"></endEvent>
     <exclusiveGateway id="sid-72D65FFE-5C1F-4F0D-ABE2-8BD2677A02CB" default="sid-7B00943B-08BB-4B8B-AE9C-119EE95559E8"></exclusiveGateway>
     <intermediateCatchEvent id="sid-4E70F863-226F-436B-BE8A-FF9E5E9A037C">
@@ -29,12 +28,16 @@
     <sequenceFlow id="sid-4151B58B-C74D-4F61-A0CD-EDCCAD1BE96E" sourceRef="checkForServiceKeyOperationsInProgress" targetRef="sid-FBA43AEE-A382-4C41-99A4-B4854C534ED7"></sequenceFlow>
     <sequenceFlow id="sid-EBFA1065-D643-4F4C-BFDD-A22FF3CF1AF8" sourceRef="startEvent1" targetRef="checkForServiceKeyOperationsInProgress"></sequenceFlow>
     <sequenceFlow id="sid-7B00943B-08BB-4B8B-AE9C-119EE95559E8" sourceRef="sid-72D65FFE-5C1F-4F0D-ABE2-8BD2677A02CB" targetRef="sid-9EDD5B98-B265-45B1-A803-875D219B57A4"></sequenceFlow>
+    <sequenceFlow id="sid-ACCC63D0-5DEF-424D-B2F7-3132EE82BAEB" sourceRef="sid-72D65FFE-5C1F-4F0D-ABE2-8BD2677A02CB" targetRef="sid-4E70F863-226F-436B-BE8A-FF9E5E9A037C">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "POLL")}]]></conditionExpression>
+    </sequenceFlow>
     <sequenceFlow id="sid-CC4F8D6C-48CB-4F88-B40C-651021CB216E" sourceRef="sid-FBA43AEE-A382-4C41-99A4-B4854C534ED7" targetRef="deleteServiceKey"></sequenceFlow>
     <sequenceFlow id="sid-256DDD9C-964B-4E2E-B377-00E5AA651CB6" sourceRef="sid-FBA43AEE-A382-4C41-99A4-B4854C534ED7" targetRef="sid-F4EBBC99-8981-4446-AC1B-C0784AE40B43">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "POLL")}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="sid-ACCC63D0-5DEF-424D-B2F7-3132EE82BAEB" sourceRef="sid-72D65FFE-5C1F-4F0D-ABE2-8BD2677A02CB" targetRef="sid-4E70F863-226F-436B-BE8A-FF9E5E9A037C">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "POLL")}]]></conditionExpression>
+    <sequenceFlow id="sid-98C14D72-C3C3-43BF-BC2C-570516F92062" name="Service Key Already Deleted" sourceRef="sid-FBA43AEE-A382-4C41-99A4-B4854C534ED7" targetRef="sid-9EDD5B98-B265-45B1-A803-875D219B57A4">
+      <documentation>Service key has already been deleted</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${var:getOrDefault(serviceKeyDoesNotExist, false)}]]></conditionExpression>
     </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_deleteServiceKeySubProcess">
@@ -63,45 +66,51 @@
       <bpmndi:BPMNShape bpmnElement="sid-4E70F863-226F-436B-BE8A-FF9E5E9A037C" id="BPMNShape_sid-4E70F863-226F-436B-BE8A-FF9E5E9A037C">
         <omgdc:Bounds height="31.0" width="31.0" x="645.0" y="275.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge bpmnElement="sid-ACCC63D0-5DEF-424D-B2F7-3132EE82BAEB" id="BPMNEdge_sid-ACCC63D0-5DEF-424D-B2F7-3132EE82BAEB" flowable:sourceDockerX="20.5" flowable:sourceDockerY="20.5" flowable:targetDockerX="15.5" flowable:targetDockerY="15.5">
-        <omgdi:waypoint x="740.5" y="189.44211074104913"></omgdi:waypoint>
-        <omgdi:waypoint x="740.5" y="290.5"></omgdi:waypoint>
-        <omgdi:waypoint x="675.9499466103457" y="290.5"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-ACCC63D0-5DEF-424D-B2F7-3132EE82BAEB" id="BPMNEdge_sid-ACCC63D0-5DEF-424D-B2F7-3132EE82BAEB">
+        <omgdi:waypoint x="740.0" y="189.94169442131556"></omgdi:waypoint>
+        <omgdi:waypoint x="740.0" y="290.0"></omgdi:waypoint>
+        <omgdi:waypoint x="675.9497007901232" y="290.40251761118225"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-EBFA1065-D643-4F4C-BFDD-A22FF3CF1AF8" id="BPMNEdge_sid-EBFA1065-D643-4F4C-BFDD-A22FF3CF1AF8" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+      <bpmndi:BPMNEdge bpmnElement="sid-EBFA1065-D643-4F4C-BFDD-A22FF3CF1AF8" id="BPMNEdge_sid-EBFA1065-D643-4F4C-BFDD-A22FF3CF1AF8">
         <omgdi:waypoint x="59.949999695446046" y="170.0"></omgdi:waypoint>
         <omgdi:waypoint x="240.0" y="170.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-7C5012B6-BC95-492E-A10D-C5B71F0D540C" id="BPMNEdge_sid-7C5012B6-BC95-492E-A10D-C5B71F0D540C" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
+      <bpmndi:BPMNEdge bpmnElement="sid-7C5012B6-BC95-492E-A10D-C5B71F0D540C" id="BPMNEdge_sid-7C5012B6-BC95-492E-A10D-C5B71F0D540C">
         <omgdi:waypoint x="669.9499999999756" y="170.0"></omgdi:waypoint>
         <omgdi:waypoint x="720.0" y="170.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-7B00943B-08BB-4B8B-AE9C-119EE95559E8" id="BPMNEdge_sid-7B00943B-08BB-4B8B-AE9C-119EE95559E8" flowable:sourceDockerX="20.5" flowable:sourceDockerY="20.5" flowable:targetDockerX="14.0" flowable:targetDockerY="14.0">
-        <omgdi:waypoint x="759.5165690866403" y="170.42578125"></omgdi:waypoint>
-        <omgdi:waypoint x="855.0001009915921" y="170.054279921789"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-7B00943B-08BB-4B8B-AE9C-119EE95559E8" id="BPMNEdge_sid-7B00943B-08BB-4B8B-AE9C-119EE95559E8">
+        <omgdi:waypoint x="759.9422734314285" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="855.0" y="170.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-9BC57ED5-BC1F-46E9-91F8-A03695B6D4AD" id="BPMNEdge_sid-9BC57ED5-BC1F-46E9-91F8-A03695B6D4AD" flowable:sourceDockerX="16.0" flowable:sourceDockerY="16.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="645.0" y="291.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-9BC57ED5-BC1F-46E9-91F8-A03695B6D4AD" id="BPMNEdge_sid-9BC57ED5-BC1F-46E9-91F8-A03695B6D4AD">
+        <omgdi:waypoint x="645.0011536081361" y="290.69072662742155"></omgdi:waypoint>
         <omgdi:waypoint x="620.0" y="291.0"></omgdi:waypoint>
         <omgdi:waypoint x="620.0" y="209.95000000000002"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-CC4F8D6C-48CB-4F88-B40C-651021CB216E" id="BPMNEdge_sid-CC4F8D6C-48CB-4F88-B40C-651021CB216E" flowable:sourceDockerX="20.5" flowable:sourceDockerY="20.5" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="474.50196526508" y="170.44207317073173"></omgdi:waypoint>
-        <omgdi:waypoint x="569.9999999999919" y="170.15182370820668"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-98C14D72-C3C3-43BF-BC2C-570516F92062" id="BPMNEdge_sid-98C14D72-C3C3-43BF-BC2C-570516F92062">
+        <omgdi:waypoint x="466.577358490566" y="161.60512129380055"></omgdi:waypoint>
+        <omgdi:waypoint x="558.5" y="88.0"></omgdi:waypoint>
+        <omgdi:waypoint x="869.0" y="88.0"></omgdi:waypoint>
+        <omgdi:waypoint x="869.0" y="156.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-B3A86402-0BC1-465A-BAD2-93829333DC41" id="BPMNEdge_sid-B3A86402-0BC1-465A-BAD2-93829333DC41" flowable:sourceDockerX="16.0" flowable:sourceDockerY="16.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="315.0" y="291.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-CC4F8D6C-48CB-4F88-B40C-651021CB216E" id="BPMNEdge_sid-CC4F8D6C-48CB-4F88-B40C-651021CB216E">
+        <omgdi:waypoint x="474.9439582070356" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="569.9999999999847" y="170.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-B3A86402-0BC1-465A-BAD2-93829333DC41" id="BPMNEdge_sid-B3A86402-0BC1-465A-BAD2-93829333DC41">
+        <omgdi:waypoint x="315.00115360813606" y="290.69072662742155"></omgdi:waypoint>
         <omgdi:waypoint x="290.0" y="291.0"></omgdi:waypoint>
         <omgdi:waypoint x="290.0" y="209.95000000000002"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-4151B58B-C74D-4F61-A0CD-EDCCAD1BE96E" id="BPMNEdge_sid-4151B58B-C74D-4F61-A0CD-EDCCAD1BE96E" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
+      <bpmndi:BPMNEdge bpmnElement="sid-4151B58B-C74D-4F61-A0CD-EDCCAD1BE96E" id="BPMNEdge_sid-4151B58B-C74D-4F61-A0CD-EDCCAD1BE96E">
         <omgdi:waypoint x="339.9499999998897" y="170.0"></omgdi:waypoint>
         <omgdi:waypoint x="435.0" y="170.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-256DDD9C-964B-4E2E-B377-00E5AA651CB6" id="BPMNEdge_sid-256DDD9C-964B-4E2E-B377-00E5AA651CB6" flowable:sourceDockerX="20.5" flowable:sourceDockerY="20.5" flowable:targetDockerX="16.0" flowable:targetDockerY="16.0">
-        <omgdi:waypoint x="455.5" y="189.44214344941958"></omgdi:waypoint>
-        <omgdi:waypoint x="455.5" y="291.0"></omgdi:waypoint>
-        <omgdi:waypoint x="346.9499405114276" y="291.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-256DDD9C-964B-4E2E-B377-00E5AA651CB6" id="BPMNEdge_sid-256DDD9C-964B-4E2E-B377-00E5AA651CB6">
+        <omgdi:waypoint x="455.0" y="189.94176300578036"></omgdi:waypoint>
+        <omgdi:waypoint x="455.0" y="291.0"></omgdi:waypoint>
+        <omgdi:waypoint x="345.9496461107692" y="290.562047792531"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

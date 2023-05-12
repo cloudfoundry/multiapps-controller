@@ -57,6 +57,7 @@ class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachServicesF
         return Metadata.builder()
                        .label(MtaMetadataLabels.MTA_ID, null)
                        .label(MtaMetadataLabels.MTA_NAMESPACE, null)
+                       .label(MtaMetadataLabels.SPACE_GUID, null)
                        .annotation(MtaMetadataAnnotations.MTA_ID, null)
                        .annotation(MtaMetadataAnnotations.MTA_VERSION, null)
                        .annotation(MtaMetadataAnnotations.MTA_RESOURCE, null)

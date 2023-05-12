@@ -71,6 +71,9 @@ public interface Variables {
     Variable<String> TASK_ID = ImmutableSimpleVariable.<String> builder()
                                                       .name("__TASK_ID")
                                                       .build();
+    Variable<String> TIMESTAMP = ImmutableSimpleVariable.<String> builder()
+                                                        .name("timestamp")
+                                                        .build();
     Variable<String> SERVICE_TO_PROCESS_NAME = ImmutableSimpleVariable.<String> builder()
                                                                       .name("serviceToProcessName")
                                                                       .build();
@@ -377,12 +380,36 @@ public interface Variables {
                                                                                                      .type(new TypeReference<>() {
                                                                                                      })
                                                                                                      .build();
-    Variable<List<DeployedMtaServiceKey>> SERVICE_KEYS_TO_DELETE = ImmutableJsonBinaryVariable.<List<DeployedMtaServiceKey>> builder()
-                                                                                              .name("serviceKeysToDelete")
-                                                                                              .type(new TypeReference<>() {
-                                                                                              })
-                                                                                              .defaultValue(Collections.emptyList())
-                                                                                              .build();
+    //TODO: keep custom serializer only for one release, delete after
+//    Variable<List<DeployedMtaServiceKey>> SERVICE_KEYS_TO_DELETE = ImmutableJsonStringListVariable.<DeployedMtaServiceKey> builder()
+//                                                                                                  .name("serviceKeysToDelete")
+//                                                                                                  .type(new TypeReference<>() {
+//                                                                                                  })
+//                                                                                                  .defaultValue(Collections.emptyList())
+//                                                                                                  .build();
+    Variable<List<DeployedMtaServiceKey>> SERVICE_KEYS_TO_DELETE = new JsonStringListVariable<>() {
+
+        @Override
+        public String getName() {
+            return "serviceKeysToDelete";
+        }
+
+        @Override
+        public List<DeployedMtaServiceKey> getDefaultValue() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public TypeReference<DeployedMtaServiceKey> getType() {
+            return ServiceKeysToDeleteSerializationAdapter.SERVICE_KEY_ELEMENT_TYPE_REFERENCE;
+        }
+        
+        @Override
+        public Serializer<List<DeployedMtaServiceKey>> getSerializer() {
+            return new ServiceKeysToDeleteSerializationAdapter();
+        }
+        
+    };
     Variable<Map<String, List<CloudServiceKey>>> SERVICE_KEYS_FOR_CONTENT_DEPLOY = ImmutableJsonBinaryVariable.<Map<String, List<CloudServiceKey>>> builder()
                                                                                                               .name("serviceKeysForContentDeploy")
                                                                                                               .type(new TypeReference<>() {
@@ -653,6 +680,12 @@ public interface Variables {
                                                                                                   })
                                                                                                   .defaultValue(Collections.emptyList())
                                                                                                   .build();
+    Variable<List<CloudServiceKey>> CLOUD_SERVICE_KEYS_TO_UPDATE_METADATA = ImmutableJsonStringListVariable.<CloudServiceKey> builder()
+                                                                                                  .name("cloudServiceKeysToUpdate")
+                                                                                                  .type(new TypeReference<>() {
+                                                                                                  })
+                                                                                                  .defaultValue(Collections.emptyList())
+                                                                                                  .build();
     Variable<List<ServiceDeletionActions>> SERVICE_DELETION_ACTIONS = ImmutableEnumListVariable.<ServiceDeletionActions> builder()
                                                                                                .name("serviceDeletionActions")
                                                                                                .type(ServiceDeletionActions.class)
@@ -662,6 +695,10 @@ public interface Variables {
                                                                                   .name("serviceKeyToProcess")
                                                                                   .type(Variable.typeReference(CloudServiceKey.class))
                                                                                   .build();
+    Variable<Boolean> SERVICE_KEY_DOES_NOT_EXIST = ImmutableSimpleVariable.<Boolean> builder()
+                                                                          .name("serviceKeyDoesNotExist")
+                                                                          .defaultValue(false)
+                                                                          .build();
     Variable<List<CloudServiceKey>> CLOUD_SERVICE_KEYS_FOR_WAITING = ImmutableJsonStringListVariable.<CloudServiceKey> builder()
                                                                                                     .name("cloudServiceKeysForWaiting")
                                                                                                     .type(new TypeReference<>() {

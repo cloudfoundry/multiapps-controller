@@ -182,6 +182,7 @@ public class Messages {
     public static final String ERROR_WHILE_DETERMINING_SERVICE_BINDINGS_TO_DELETE = "Error while determining service bindings to delete";
     public static final String ERROR_WHILE_DETERMINING_SERVICE_KEYS_TO_DELETE = "Error while determining service keys to delete";
     public static final String ERROR_WHILE_DETERMINING_SERVICE_KEYS_TO_RECREATE = "Error while determining service keys to recreate";
+    public static final String ERROR_WHILE_UPDATING_SERVICE_KEYS_METADATA = "Error while updating service keys metadata";
     public static final String ERROR_WHILE_POLLING_SERVICE_KEY_OPERATION_0 = "Error while polling service key operation \"{0}\"";
 
     // WARN log messages
@@ -202,8 +203,9 @@ public class Messages {
     public static final String CREATE_OF_SERVICE_BROKERS_FAILED_403 = "Could not create service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
     public static final String DELETE_OF_SERVICE_BROKERS_FAILED_403 = "Could not delete service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
     public static final String DELETE_OF_SERVICE_BROKERS_FAILED_409 = "Could not delete service broker \"{0}\" as there are active service instances managed by it!";
-    public static final String WILL_NOT_DELETE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be deleted, as the option for deleting discontinued service keys is not specified!";
-    public static final String WILL_NOT_UPDATE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be updated, as the option for deleting discontinued service keys is not specified!";
+    public static final String WILL_NOT_DELETE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be deleted, as the option for deleting service keys is not specified!";
+    public static final String WILL_NOT_UPDATE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be updated, as the option for deleting service keys is not specified!";
+    public static final String WILL_NOT_RECREATE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be recreated, as the option for deleting discontinued service keys is not specified!";
     public static final String IGNORING_VERSION_RULE = "Version rule will be ignored, as the deployed MTA is in inconsistent state";
     public static final String FAILED_SERVICE_BROKER_UPDATE = "Failed to update service broker \"{0}\"";
     public static final String COULD_NOT_BIND_OPTIONAL_SERVICE_TO_APP = "Could not bind optional service \"{0}\" to application \"{1}\"";
@@ -382,8 +384,8 @@ public class Messages {
     public static final String ADDING_DOMAINS = "Adding domains...";
     public static final String DOMAINS_ADDED = "Domains added";
     public static final String DELETING_DISCONTINUED_SERVICE_0 = "Deleting discontinued service \"{0}\"...";
-    public static final String DELETING_OLD_SERVICE_KEYS = "Deleting old service keys for content deploy...";
-    public static final String DELETING_OLD_SERVICE_KEYS_FOR_SERVICE = "Deleting old service keys for content deploy \"{0}\"...";
+    public static final String DELETING_OLD_SERVICE_KEYS = "Mapping service keys for deletion to adaptor parameter...";
+    public static final String DELETING_OLD_SERVICE_KEYS_FOR_SERVICE = "Old unused service keys mapped \"{0}\"...";
     public static final String SERVICES_TO_CREATE = "Services to create: {0}";
     public static final String CREATED_SERVICE_KEY = "Service key \"{0}\" created";
     public static final String DELETED_SERVICE_KEY = "Service key \"{0}\" deleted";
@@ -434,6 +436,10 @@ public class Messages {
     public static final String DETACHING_SERVICES_FROM_MTA = "Detaching services from MTA...";
     public static final String DETACHING_SERVICE_0_FROM_MTA = "Detaching service \"{0}\" from MTA...";
     public static final String SERVICES_DETACHED_FROM_MTA = "Detached services from MTA";
+    public static final String DETACHING_SERVICE_KEYS_FROM_MTA = "Detaching service keys from MTA...";
+    public static final String DETACHING_SERVICE_KEY_0_FROM_MTA = "Detaching service key \"{0}\" from MTA...";
+    public static final String DETACHING_SERVICE_KEY_0_FAILED = "Detaching service key \"{0}\" from MTA failed.";
+    public static final String SERVICE_KEYS_DETACHED_FROM_MTA = "Detached services from MTA";
     public static final String DOMAIN_ALREADY_EXISTS = "Domain \"{0}\" already exists";
     public static final String SETTING_SERVICE_PARAMETERS = "Setting service \"{0}\" parameters from \"{1}\"";
     public static final String BINDING_PARAMETERS_FOR_APPLICATION = "Binding parameters for application \"{0}\": {1}";
@@ -614,6 +620,7 @@ public class Messages {
     public static final String GETTING_SERVICE_INSTANCES_WITHOUT_AUXILIARY_CONTENT_BY_NAMES_0 = "Getting service instances without auxiliary content by names {0}...";
     public static final String GETTING_SERVICE_INSTANCES_WITHOUT_AUXILIARY_CONTENT_BY_METADATA_LABEL_SELECTOR_0 = "Getting service instances without auxiliary content by metadata label selector \"{0}\"...";
     public static final String UPDATING_METADATA_OF_SERVICE_INSTANCE_0_TO_1 = "Updating metadata of service instance \"{0}\" to: {1}";
+    public static final String UPDATING_METADATA_OF_SERVICE_BINDING_0_TO_1 = "Updating metadata of service credential binding \"{0}\" to: {1}";
     public static final String CURRENTLY_USED_PACKAGE_0 = "Currently used package: \"{0}\"";
     public static final String PACKAGES_FOR_APPLICATION_0_ARE_1 = "Packages for application: \"{0}\" are: \"{1}\"";
     public static final String THE_NEWEST_PACKAGE_WILL_BE_USED_0 = "The newest package will be used: \"{0}\"!";
@@ -644,6 +651,7 @@ public class Messages {
     public static final String SETTING_WAIT_AFTER_STOP_FOR_APP_0_TO_1_SECONDS = "Setting wait after stop for \"{0}\" to \"{1}\" seconds";
     public static final String DETECTING_SERVICE_KEYS_FOR_DELETION = "Detecting service keys to delete.";
     public static final String NO_SERVICE_KEYS_FOR_DELETION = "No deployed service keys detected!";
+    public static final String WILL_NOT_DELETE_SERVICE_KEYS = "Service keys detected but will not be deleted, as the option for deleting service keys is not specified!";
     public static final String DEPLOYED_SERVICE_KEYS = "Detected deployed service keys by service \"{0}\"";
     public static final String NEW_SERVICE_KEYS = "New service keys by service \"{0}\"";
     public static final String EXISTING_SERVICE_KEYS_BY_SERVICE = "Existing service keys by service \"{0}\"";
@@ -662,7 +670,14 @@ public class Messages {
     public static final String DETERMINING_DELETE_ACTIONS_FOR_SERVICE_INSTANCE_0 = "Determining delete actions for service instance \"{0}\"";
     public static final String CANNOT_RETRIEVE_OPTIONAL_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0 = "Cannot retrieve optional service binding for service instance \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_DELETION_0 = "Service keys scheduled for deletion: \"{0}\"";
+    public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_0 = "Service keys scheduled for recreation: \"{0}\"";
+    public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_MODIFICATION_0 = "Service keys scheduled for recreation due to modification: \"{0}\"";
+    public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_STATE_0 = "Service keys scheduled for recreation due to state: \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_CREATION_0 = "Service keys scheduled for creation: \"{0}\"";
+    public static final String SERVICE_KEYS_FOR_METADATA_UPDATE_0 = "Existing service keys for label and annotation update: \"{0}\"";
+    public static final String UPDATING_SERVICE_KEY_0_METADATA = "Updating service key \"{0}\" MTA metadata...";
+    public static final String UPDATING_SERVICE_KEY_0_METADATA_FAILED = "Updating service key \"{0}\" metadata failed.";
+    public static final String SERVICE_KEYS_METADATA_UPDATE_DONE = "Service keys updated with labels and annotations.";
     public static final String POLLING_SERVICE_KEY_0_WITH_STATE_1 = "Polling service key \"{0}\" with state \"{1}\"";
     public static final String SERVICE_BINDING_HAS_ALREADY_BEEN_DELETED = "Service binding has already been deleted";
     public static final String SERVICE_BINDING_0_SCHEDULED_FOR_DELETION_IS_IN_STATE_0 = "Service binding \"{0}\" scheduled for deletion is in state \"{0}\"";
