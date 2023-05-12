@@ -56,9 +56,6 @@ class SystemParametersTest {
     void initialize() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-
-        Mockito.when(timestampSupplier.get())
-               .thenReturn(TIMESTAMP);
     }
 
     @ParameterizedTest
@@ -237,7 +234,7 @@ class SystemParametersTest {
                                              .organizationGuid(ORGANIZATION_GUID)
                                              .spaceName(SPACE_NAME)
                                              .spaceGuid(SPACE_GUID)
-                                             .timestampSupplier(timestampSupplier)
+                                             .timestamp(TIMESTAMP)
                                              .reserveTemporaryRoutes(reserveTemporaryRoutes)
                                              .user(USER_NAME)
                                              .hostValidator(new HostValidator(applyNamespace ? NAMESPACE : null, applyNamespace))

@@ -238,7 +238,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         if (existingService == null) {
             return false;
         }
-        return context.getVariable(Variables.DELETE_SERVICE_KEYS);
+        return StepsUtil.canDeleteServiceKeys(context);
     }
 
     private boolean shouldUpdatePlan(CloudServiceInstanceExtended service, CloudServiceInstance existingService) {

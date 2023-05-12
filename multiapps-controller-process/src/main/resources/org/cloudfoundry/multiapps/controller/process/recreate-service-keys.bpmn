@@ -1,83 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/processdef" exporter="Flowable Open Source Modeler" exporterVersion="6.7.2">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/processdef">
   <process id="recreateServiceKeysSubProcess" name="Recreate Service Keys Sub Process" isExecutable="true">
     <extensionElements>
       <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessListener}"></flowable:eventListener>
       <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
       <flowable:eventListener events="ENTITY_DELETED" delegateExpression="${expiredJobListener}"></flowable:eventListener>
     </extensionElements>
-    <startEvent id="startEvent1" name="start" flowable:formFieldValidation="true"></startEvent>
+    <startEvent id="startEvent1" name="start"></startEvent>
     <serviceTask id="determineServiceKeysToRecreateStep" name="Determine Service Keys To Recreate" flowable:async="true" flowable:exclusive="false" flowable:delegateExpression="${determineServiceKeysToRecreateStep}"></serviceTask>
     <callActivity id="deleteServiceKeySubProcess" name="Delete Service Keys Sub Process" flowable:async="true" flowable:exclusive="false" calledElement="deleteServiceKeySubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
-      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceKeysToDelete" flowable:elementVariable="serviceKeyToProcess">
-        <extensionElements></extensionElements>
-      </multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceKeysToDelete" flowable:elementVariable="serviceKeyToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>
-    <sequenceFlow id="sid-C97D1BD0-86F2-4FD0-AD35-D69CECEADB45" sourceRef="determineServiceKeysToRecreateStep" targetRef="deleteServiceKeySubProcess"></sequenceFlow>
     <callActivity id="createServiceKeySubProcess" name="Create Service Keys Sub Process" flowable:async="true" flowable:exclusive="false" calledElement="createServiceKeySubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
-      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceKeysToCreate" flowable:elementVariable="serviceKeyToProcess">
-        <extensionElements></extensionElements>
-      </multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceKeysToCreate" flowable:elementVariable="serviceKeyToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="sid-89ED7A30-8EB3-4766-96EF-30FCAE58640E" sourceRef="deleteServiceKeySubProcess" targetRef="createServiceKeySubProcess"></sequenceFlow>
     <endEvent id="sid-2CAA8006-0FEF-43C1-8AE7-884D358B9C32" name="end"></endEvent>
     <sequenceFlow id="sid-B4F2B2B5-E91B-405F-8D76-8957886F7599" sourceRef="createServiceKeySubProcess" targetRef="sid-2CAA8006-0FEF-43C1-8AE7-884D358B9C32"></sequenceFlow>
     <callActivity id="sid-252DB943-BE0C-40CC-AA12-802C8B79EF7F" name="Wait For Service Key In Progress" flowable:async="true" flowable:exclusive="false" calledElement="waitForServiceKeyInProgressSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
-      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceKeysForWaiting" flowable:elementVariable="serviceKeyToProcess">
-        <extensionElements></extensionElements>
-      </multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceKeysForWaiting" flowable:elementVariable="serviceKeyToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="sid-B18ECA59-FD3B-4046-8AA7-0EEEBB80DBA7" sourceRef="sid-252DB943-BE0C-40CC-AA12-802C8B79EF7F" targetRef="determineServiceKeysToRecreateStep"></sequenceFlow>
     <serviceTask id="sid-AAC32931-2316-49FE-9E1B-D29AA08F6089" name="Calculate Service Keys For Waiting" flowable:async="true" flowable:exclusive="false" flowable:delegateExpression="${calculateServiceKeyForWaitingStep}"></serviceTask>
     <sequenceFlow id="sid-B6033079-60AE-4F7B-809C-6E7BA579A22D" sourceRef="startEvent1" targetRef="sid-AAC32931-2316-49FE-9E1B-D29AA08F6089"></sequenceFlow>
     <sequenceFlow id="sid-6C3D291B-51F6-417E-84B5-FFF118187AF6" sourceRef="sid-AAC32931-2316-49FE-9E1B-D29AA08F6089" targetRef="sid-252DB943-BE0C-40CC-AA12-802C8B79EF7F"></sequenceFlow>
+    <serviceTask id="updateServiceKeysMetadataStep" name="Update Service Keys Metadata" flowable:async="true" flowable:exclusive="false" flowable:delegateExpression="${updateServiceKeysMetadataStep}"></serviceTask>
+    <sequenceFlow id="sid-C97D1BD0-86F2-4FD0-AD35-D69CECEADB45" sourceRef="determineServiceKeysToRecreateStep" targetRef="updateServiceKeysMetadataStep"></sequenceFlow>
+    <sequenceFlow id="sid-F0612020-BE17-4E1A-A3C4-723B92875E2B" sourceRef="updateServiceKeysMetadataStep" targetRef="deleteServiceKeySubProcess"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_recreateServiceKeysSubProcess">
     <bpmndi:BPMNPlane bpmnElement="recreateServiceKeysSubProcess" id="BPMNPlane_recreateServiceKeysSubProcess">
       <bpmndi:BPMNShape bpmnElement="startEvent1" id="BPMNShape_startEvent1">
-        <omgdc:Bounds height="30.0" width="30.0" x="100.0" y="163.0"></omgdc:Bounds>
+        <omgdc:Bounds height="30.0" width="30.0" x="30.0" y="163.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="determineServiceKeysToRecreateStep" id="BPMNShape_determineServiceKeysToRecreateStep">
-        <omgdc:Bounds height="80.0" width="100.0" x="555.0" y="138.0"></omgdc:Bounds>
+        <omgdc:Bounds height="80.0" width="100.0" x="450.0" y="138.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="deleteServiceKeySubProcess" id="BPMNShape_deleteServiceKeySubProcess">
-        <omgdc:Bounds height="80.0" width="100.0" x="717.0" y="138.0"></omgdc:Bounds>
+        <omgdc:Bounds height="80.0" width="100.0" x="795.0" y="138.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="createServiceKeySubProcess" id="BPMNShape_createServiceKeySubProcess">
-        <omgdc:Bounds height="80.0" width="100.0" x="885.0" y="138.0"></omgdc:Bounds>
+        <omgdc:Bounds height="80.0" width="100.0" x="963.0" y="138.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-2CAA8006-0FEF-43C1-8AE7-884D358B9C32" id="BPMNShape_sid-2CAA8006-0FEF-43C1-8AE7-884D358B9C32">
-        <omgdc:Bounds height="28.0" width="28.0" x="1080.0" y="164.0"></omgdc:Bounds>
+        <omgdc:Bounds height="28.0" width="28.0" x="1143.0" y="164.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-252DB943-BE0C-40CC-AA12-802C8B79EF7F" id="BPMNShape_sid-252DB943-BE0C-40CC-AA12-802C8B79EF7F">
-        <omgdc:Bounds height="80.0" width="100.0" x="390.0" y="138.0"></omgdc:Bounds>
+        <omgdc:Bounds height="80.0" width="100.0" x="285.0" y="138.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-AAC32931-2316-49FE-9E1B-D29AA08F6089" id="BPMNShape_sid-AAC32931-2316-49FE-9E1B-D29AA08F6089">
-        <omgdc:Bounds height="80.0" width="100.0" x="225.0" y="138.0"></omgdc:Bounds>
+        <omgdc:Bounds height="80.0" width="100.0" x="120.0" y="138.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge bpmnElement="sid-C97D1BD0-86F2-4FD0-AD35-D69CECEADB45" id="BPMNEdge_sid-C97D1BD0-86F2-4FD0-AD35-D69CECEADB45" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="654.949999999968" y="178.0"></omgdi:waypoint>
-        <omgdi:waypoint x="716.9999999999118" y="178.0"></omgdi:waypoint>
+      <bpmndi:BPMNShape bpmnElement="updateServiceKeysMetadataStep" id="BPMNShape_updateServiceKeysMetadataStep">
+        <omgdc:Bounds height="80.0" width="100.0" x="615.0" y="138.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-C97D1BD0-86F2-4FD0-AD35-D69CECEADB45" id="BPMNEdge_sid-C97D1BD0-86F2-4FD0-AD35-D69CECEADB45">
+        <omgdi:waypoint x="549.9499999999775" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="614.9999999999645" y="178.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-B4F2B2B5-E91B-405F-8D76-8957886F7599" id="BPMNEdge_sid-B4F2B2B5-E91B-405F-8D76-8957886F7599" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="14.0" flowable:targetDockerY="14.0">
-        <omgdi:waypoint x="984.9499999998701" y="178.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1080.0" y="178.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-B4F2B2B5-E91B-405F-8D76-8957886F7599" id="BPMNEdge_sid-B4F2B2B5-E91B-405F-8D76-8957886F7599">
+        <omgdi:waypoint x="1062.9499999999825" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1143.0" y="178.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-6C3D291B-51F6-417E-84B5-FFF118187AF6" id="BPMNEdge_sid-6C3D291B-51F6-417E-84B5-FFF118187AF6" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="324.9499999998897" y="178.0"></omgdi:waypoint>
-        <omgdi:waypoint x="389.99999999998465" y="178.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-6C3D291B-51F6-417E-84B5-FFF118187AF6" id="BPMNEdge_sid-6C3D291B-51F6-417E-84B5-FFF118187AF6">
+        <omgdi:waypoint x="219.9499999998897" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="284.99999999998465" y="178.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-B6033079-60AE-4F7B-809C-6E7BA579A22D" id="BPMNEdge_sid-B6033079-60AE-4F7B-809C-6E7BA579A22D" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="11.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="129.94999875192588" y="178.0"></omgdi:waypoint>
-        <omgdi:waypoint x="224.99999999997686" y="178.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-B6033079-60AE-4F7B-809C-6E7BA579A22D" id="BPMNEdge_sid-B6033079-60AE-4F7B-809C-6E7BA579A22D">
+        <omgdi:waypoint x="59.94999883049306" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="119.99999999995785" y="178.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-B18ECA59-FD3B-4046-8AA7-0EEEBB80DBA7" id="BPMNEdge_sid-B18ECA59-FD3B-4046-8AA7-0EEEBB80DBA7" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="489.9499999998897" y="178.0"></omgdi:waypoint>
-        <omgdi:waypoint x="554.9999999999847" y="178.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-F0612020-BE17-4E1A-A3C4-723B92875E2B" id="BPMNEdge_sid-F0612020-BE17-4E1A-A3C4-723B92875E2B">
+        <omgdi:waypoint x="714.9499999999431" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="794.9999999998699" y="178.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-89ED7A30-8EB3-4766-96EF-30FCAE58640E" id="BPMNEdge_sid-89ED7A30-8EB3-4766-96EF-30FCAE58640E" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="816.9499999999508" y="178.0"></omgdi:waypoint>
-        <omgdi:waypoint x="884.9999999998568" y="178.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-B18ECA59-FD3B-4046-8AA7-0EEEBB80DBA7" id="BPMNEdge_sid-B18ECA59-FD3B-4046-8AA7-0EEEBB80DBA7">
+        <omgdi:waypoint x="384.9499999998897" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="449.99999999998465" y="178.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-89ED7A30-8EB3-4766-96EF-30FCAE58640E" id="BPMNEdge_sid-89ED7A30-8EB3-4766-96EF-30FCAE58640E">
+        <omgdi:waypoint x="894.9499999999508" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="962.9999999998568" y="178.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -14,6 +14,11 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 
+/**
+ * 
+ * This class and corresponding flowable tasks should be removed in a following release.
+ *
+ */
 @Named("determineServiceKeysToDeleteStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetermineServiceKeysToDeleteStep extends SyncFlowableStep {

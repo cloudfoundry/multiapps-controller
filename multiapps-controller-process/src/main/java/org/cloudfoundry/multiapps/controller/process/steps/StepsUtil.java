@@ -99,6 +99,10 @@ public class StepsUtil {
                                  .orElse(false);
     }
 
+    public static boolean canDeleteServiceKeys(ProcessContext context) {
+        return context.getVariable(Variables.DELETE_SERVICE_KEYS);
+    }
+
     static List<ConfigurationEntry> getDeletedEntriesFromProcess(FlowableFacade flowableFacade, String processInstanceId) {
         HistoricVariableInstance deletedEntries = flowableFacade.getHistoricVariableInstance(processInstanceId,
                                                                                              Variables.DELETED_ENTRIES.getName());

@@ -46,9 +46,8 @@ public class CreateServiceKeyStep extends AsyncFlowableStep {
     private Optional<String> createServiceKey(CloudServiceKey serviceKeyToCreate, CloudControllerClient controllerClient,
                                               ProcessContext context) {
         try {
-            return controllerClient.createServiceKey(serviceKeyToCreate.getServiceInstance()
-                                                                       .getName(),
-                                                     serviceKeyToCreate.getName(), serviceKeyToCreate.getCredentials());
+            return controllerClient.createServiceKey(serviceKeyToCreate, serviceKeyToCreate.getServiceInstance()
+                                                                                           .getName());
         } catch (CloudOperationException e) {
             if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
                 CloudServiceKey serviceKey = controllerClient.getServiceKey(serviceKeyToCreate.getServiceInstance()
