@@ -167,20 +167,21 @@ public class StepsUtil {
         context.setVariable(Variables.LOGS_OFFSET, lastLog.getTimestamp());
     }
 
-    //TODO remove this after next takt and use
+    // TODO remove this after next takt and use
     // context.getVariable(Variables.LOGS_OFFSET) in its place
     private static LocalDateTime getLogOffsetAdapter(ProcessContext context) {
         Object value = context.getExecution()
                               .getVariable(Variables.LOGS_OFFSET.getName());
         if (value instanceof LogsOffset) {
             return LocalDateTime.ofInstant(((LogsOffset) value).getTimestamp()
-                                                               .toInstant(), ZoneId.of("UTC"));
+                                                               .toInstant(),
+                                           ZoneId.of("UTC"));
         }
         return context.getVariable(Variables.LOGS_OFFSET);
     }
 
-    private static List<ApplicationLog> getRecentLogsSafely(CloudControllerClient client, String appName,
-                                                            LocalDateTime offset, Logger logger) {
+    private static List<ApplicationLog> getRecentLogsSafely(CloudControllerClient client, String appName, LocalDateTime offset,
+                                                            Logger logger) {
         try {
             return client.getRecentLogs(appName, offset);
         } catch (RuntimeException e) {
@@ -218,22 +219,6 @@ public class StepsUtil {
         boolean keepOriginalNamesAfterDeploy = context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY);
         boolean isAfterResumePhase = context.getVariable(Variables.PHASE) == Phase.AFTER_RESUME;
         return new AppSuffixDeterminer(keepOriginalNamesAfterDeploy, isAfterResumePhase);
-    }
-
-    static String getGitRepoRef(ProcessContext context) {
-        Map<String, String> gitRepoConfigMap = context.getVariable(Variables.GIT_REPOSITORY_CONFIG_MAP);
-        if (gitRepoConfigMap != null) {
-            return gitRepoConfigMap.get(Variables.GIT_REF.getName());
-        }
-        return context.getVariable(Variables.GIT_REF);
-    }
-
-    static String getGitRepoUri(ProcessContext context) {
-        Map<String, String> gitRepoConfigMap = context.getVariable(Variables.GIT_REPOSITORY_CONFIG_MAP);
-        if (gitRepoConfigMap != null) {
-            return gitRepoConfigMap.get(Variables.GIT_URI.getName());
-        }
-        return context.getVariable(Variables.GIT_URI);
     }
 
     public static void setExecutedHooksForModule(VariableScope scope, String moduleName, Map<String, List<String>> moduleHooks) {

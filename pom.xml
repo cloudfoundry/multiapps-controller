@@ -39,7 +39,6 @@
         <liquibase.version>4.22.0</liquibase.version>
         <liquibase-slf4j.version>4.1.0</liquibase-slf4j.version>
         <cloudfoundry-client.version>2.32.0</cloudfoundry-client.version>
-        <jgit.version>4.11.9.201909030838-r</jgit.version>
         <swagger.version>1.6.9</swagger.version>
         <jclouds.version>2.5.0</jclouds.version>
         <guice.version>5.0.1</guice.version>
@@ -709,18 +708,6 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.databind.version}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit -->
-            <dependency>
-                <groupId>org.eclipse.jgit</groupId>
-                <artifactId>org.eclipse.jgit</artifactId>
-                <version>${jgit.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.googlecode.javaewah</groupId>
-                        <artifactId>JavaEWAH</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <!-- guice and guice-assistedinject are transitive dependencies from jclouds.
             It is set to explicit version because old one has issues with modular access. -->

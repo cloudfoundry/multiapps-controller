@@ -1,9 +1,0 @@
-{
-    "name": "node-hello-world-approuter",
-    "dependencies": {
-       "approuter": "git://example.com/xs2/approuter.js"
-    },
-    "scripts": {
-        "start": "node node_modules/approuter/approuter.js"
-    }
-}

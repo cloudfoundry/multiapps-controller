@@ -42,7 +42,6 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires org.cloudfoundry.multiapps.controller.client;
     requires org.cloudfoundry.multiapps.controller.persistence;
     requires org.cloudfoundry.multiapps.mta;
-    requires org.eclipse.jgit;
     requires org.joda.time;
     requires org.slf4j;
     requires spring.beans;
