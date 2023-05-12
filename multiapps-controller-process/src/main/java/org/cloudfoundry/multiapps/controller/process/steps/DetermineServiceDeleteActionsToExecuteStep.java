@@ -96,7 +96,7 @@ public class DetermineServiceDeleteActionsToExecuteStep extends SyncFlowableStep
     }
 
     private boolean shouldDeleteServiceKeys(ProcessContext context, List<CloudServiceKey> serviceKeys) {
-        return serviceKeys.isEmpty() || context.getVariable(Variables.DELETE_SERVICE_KEYS);
+        return serviceKeys.isEmpty() || StepsUtil.canDeleteServiceKeys(context);
     }
 
     private void logServiceBindingsAndKeys(ProcessContext context, List<CloudServiceBinding> serviceBindings,

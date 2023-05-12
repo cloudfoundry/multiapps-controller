@@ -5,16 +5,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -23,6 +20,7 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
 import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
 
 @Named("determineServiceKeysToRecreateStep")
@@ -41,56 +39,55 @@ public class DetermineServiceKeysToRecreateStep extends SyncFlowableStep {
             context.setVariable(Variables.CLOUD_SERVICE_KEYS_TO_CREATE, Collections.emptyList());
             return StepPhase.DONE;
         }
-        return calculateServiceKeysForRecreation(context, serviceKeys, existingServiceKeys);
+        return calculateServiceKeyOperations(context, serviceKeys, existingServiceKeys);
     }
 
-    private StepPhase calculateServiceKeysForRecreation(ProcessContext context, List<CloudServiceKey> serviceKeys,
-                                                        List<CloudServiceKey> existingServiceKeys) {
-        String namespace = context.getVariable(Variables.MTA_NAMESPACE);
-        List<CloudServiceKey> existingKeysForNamespace = getFilteredServiceKeys(existingServiceKeys,
-                                                                                key -> hasSameNamespace(key, namespace));
-        List<CloudServiceKey> serviceKeysToCreate = getFilteredServiceKeys(serviceKeys, key -> shouldCreate(key, existingServiceKeys));
-        List<CloudServiceKey> serviceKeysToUpdate = getFilteredServiceKeys(serviceKeys, key -> shouldUpdate(key, existingServiceKeys));
-        List<CloudServiceKey> serviceKeysToDelete = getFilteredServiceKeys(existingKeysForNamespace, key -> shouldDelete(key, serviceKeys));
-        return determineServiceKeysForRecreation(context, serviceKeysToCreate, serviceKeysToUpdate, serviceKeysToDelete);
-    }
+    private StepPhase calculateServiceKeyOperations(ProcessContext context, List<CloudServiceKey> serviceKeys,
+                                                    List<CloudServiceKey> existingServiceKeys) {
 
-    private StepPhase determineServiceKeysForRecreation(ProcessContext context, List<CloudServiceKey> serviceKeysToCreate,
-                                                        List<CloudServiceKey> serviceKeysToUpdate,
-                                                        List<CloudServiceKey> serviceKeysToDelete) {
-        List<CloudServiceKey> allServiceKeysToCreate = new ArrayList<>();
-        if (canDeleteServiceKeys(context)) {
-            List<CloudServiceKey> allServiceKeysToDelete = ListUtils.union(serviceKeysToDelete, serviceKeysToUpdate);
-            context.setVariable(Variables.CLOUD_SERVICE_KEYS_TO_DELETE, allServiceKeysToDelete);
-            getStepLogger().debug(Messages.SERVICE_KEYS_SCHEDULED_FOR_DELETION_0, JsonUtil.toJson(allServiceKeysToDelete));
-            allServiceKeysToCreate.addAll(serviceKeysToUpdate);
+        List<CloudServiceKey> serviceKeysToCreate = new ArrayList<>();
+        List<CloudServiceKey> existingUnmodifiedServiceKeys = new ArrayList<>();
+        List<CloudServiceKey> existingKeysWithDifferentMetadata = new ArrayList<>();
+        List<CloudServiceKey> modifiedServiceKeys = new ArrayList<>();
+        List<CloudServiceKey> serviceKeysInFailedState = new ArrayList<>();
+
+        for (CloudServiceKey key : serviceKeys) {
+            CloudServiceKey existingKey = getWithName(existingServiceKeys, key.getName());
+            if (existingKey == null) {
+                serviceKeysToCreate.add(key);
+            } else if (isServiceKeyStateNotSucceeded(existingKey)) {
+                serviceKeysInFailedState.add(key);
+            } else if (areServiceKeysEqual(key, existingKey)) {
+                if (Objects.equals(key.getV3Metadata(), existingKey.getV3Metadata())) {
+                    existingUnmodifiedServiceKeys.add(key);
+                } else {
+                    existingKeysWithDifferentMetadata.add(ImmutableCloudServiceKey.copyOf(existingKey)
+                                                                                  .withV3Metadata(key.getV3Metadata()));
+                }
+            } else {
+                modifiedServiceKeys.add(key);
+            }
+        }
+
+        if (StepsUtil.canDeleteServiceKeys(context)) {
+            logRecreationDebugMessages(modifiedServiceKeys, serviceKeysInFailedState);
+
+            List<CloudServiceKey> serviceKeysToRecreate = ListUtils.union(modifiedServiceKeys, serviceKeysInFailedState);
+            // TODO: uncomment when implementing custom recreate attributes e.g. 'recreate-keys' and 'skip-recreate'
+            // serviceKeysToRecreate.addAll(existingUnmodifiedServiceKeys);
+
+            serviceKeysToCreate.addAll(serviceKeysToRecreate);
+            context.setVariable(Variables.CLOUD_SERVICE_KEYS_TO_DELETE, serviceKeysToRecreate);
         } else {
-            serviceKeysToDelete.forEach(this::logWillNotDeleteMessage);
-            serviceKeysToUpdate.forEach(this::logWillNotUpdateMessage);
+            logCannotDeleteWarnMessages(modifiedServiceKeys, serviceKeysInFailedState);
+
             context.setVariable(Variables.CLOUD_SERVICE_KEYS_TO_DELETE, Collections.emptyList());
         }
-        allServiceKeysToCreate.addAll(serviceKeysToCreate);
-        context.setVariable(Variables.CLOUD_SERVICE_KEYS_TO_CREATE, allServiceKeysToCreate);
-        getStepLogger().debug(Messages.SERVICE_KEYS_SCHEDULED_FOR_CREATION_0, JsonUtil.toJson(allServiceKeysToCreate));
+
+        context.setVariable(Variables.CLOUD_SERVICE_KEYS_TO_CREATE, serviceKeysToCreate);
+        context.setVariable(Variables.CLOUD_SERVICE_KEYS_TO_UPDATE_METADATA, existingKeysWithDifferentMetadata);
+        getStepLogger().debug(Messages.SERVICE_KEYS_SCHEDULED_FOR_CREATION_0, JsonUtil.toJson(serviceKeysToCreate));
         return StepPhase.DONE;
-    }
-
-    private List<CloudServiceKey> getFilteredServiceKeys(List<CloudServiceKey> serviceKeys, Predicate<CloudServiceKey> filter) {
-        return serviceKeys.stream()
-                          .filter(filter)
-                          .collect(Collectors.toList());
-    }
-
-    private boolean shouldCreate(CloudServiceKey key, List<CloudServiceKey> existingKeys) {
-        return getWithName(existingKeys, key.getName()) == null;
-    }
-
-    private boolean shouldUpdate(CloudServiceKey key, List<CloudServiceKey> existingKeys) {
-        CloudServiceKey existingKey = getWithName(existingKeys, key.getName());
-        if (existingKey == null) {
-            return false;
-        }
-        return !areServiceKeysEqual(key, existingKey) || isServiceKeyStateNotSucceeded(existingKey);
     }
 
     private boolean isServiceKeyStateNotSucceeded(CloudServiceKey existingKey) {
@@ -102,8 +99,13 @@ public class DetermineServiceKeysToRecreateStep extends SyncFlowableStep {
         return Objects.equals(key1.getCredentials(), key2.getCredentials()) && Objects.equals(key1.getName(), key2.getName());
     }
 
-    private boolean shouldDelete(CloudServiceKey existingKey, List<CloudServiceKey> keys) {
-        return getWithName(keys, existingKey.getName()) == null;
+    public static boolean isMetadataEqual(Metadata metadataA, Metadata metadataB) {
+        if (metadataA == null || metadataB == null) {
+            return metadataA == null && metadataB == null;
+        }
+
+        return Objects.equals(metadataA.getAnnotations(), metadataB.getAnnotations())
+            && Objects.equals(metadataA.getLabels(), metadataB.getLabels());
     }
 
     private CloudServiceKey getWithName(List<CloudServiceKey> serviceKeys, String name) {
@@ -114,29 +116,19 @@ public class DetermineServiceKeysToRecreateStep extends SyncFlowableStep {
                           .orElse(null);
     }
 
-    private boolean hasSameNamespace(CloudServiceKey serviceKey, String namespace) {
-        String keyNamespace = null;
-        if (serviceKey.getV3Metadata() != null && serviceKey.getV3Metadata()
-                                                            .getAnnotations() != null) {
-            keyNamespace = serviceKey.getV3Metadata()
-                                     .getAnnotations()
-                                     .get(MtaMetadataAnnotations.MTA_NAMESPACE);
-        }
-
-        if (StringUtils.isEmpty(keyNamespace)) {
-            return StringUtils.isEmpty(namespace);
-        } else {
-            return keyNamespace.equals(namespace);
-        }
+    private void logRecreationDebugMessages(List<CloudServiceKey> modifiedServiceKeys, List<CloudServiceKey> serviceKeysInFailedState) {
+        getStepLogger().debug(Messages.SERVICE_KEYS_SCHEDULED_FOR_RECREATION_MODIFICATION_0, JsonUtil.toJson(modifiedServiceKeys));
+        getStepLogger().debug(Messages.SERVICE_KEYS_SCHEDULED_FOR_RECREATION_STATE_0, JsonUtil.toJson(serviceKeysInFailedState));
     }
 
-    private boolean canDeleteServiceKeys(ProcessContext context) {
-        return context.getVariable(Variables.DELETE_SERVICE_KEYS);
+    private void logCannotDeleteWarnMessages(List<CloudServiceKey> modifiedServiceKeys, List<CloudServiceKey> serviceKeysInFailedState) {
+        modifiedServiceKeys.forEach(this::logWillNotUpdateMessage);
+        serviceKeysInFailedState.forEach(this::logWillNotUpdateMessage);
     }
 
-    private void logWillNotDeleteMessage(CloudServiceKey key) {
-        getStepLogger().warn(Messages.WILL_NOT_DELETE_SERVICE_KEY, key.getName(), key.getServiceInstance()
-                                                                                     .getName());
+    private void logWillNotRecreateMessage(CloudServiceKey key) {
+        getStepLogger().warn(Messages.WILL_NOT_RECREATE_SERVICE_KEY, key.getName(), key.getServiceInstance()
+                                                                                       .getName());
     }
 
     private void logWillNotUpdateMessage(CloudServiceKey key) {

@@ -57,13 +57,13 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
         context.setVariable(Variables.ORGANIZATION_GUID, ORGANIZATION_GUID);
         context.setVariable(Variables.SPACE_NAME, SPACE_NAME);
         context.setVariable(Variables.SPACE_GUID, SPACE_GUID);
+        context.setVariable(Variables.TIMESTAMP, DEFAULT_TIMESTAMP);
 
         context.setVariable(Variables.MTA_NAMESPACE, DEFAULT_NAMESPACE);
         context.setVariable(Variables.APPLY_NAMESPACE, DEFAULT_APPLY_NAMESPACE);
         context.setVariable(Variables.VERSION_RULE, VERSION_RULE);
 
         step.credentialsGeneratorSupplier = () -> credentialsGenerator;
-        step.timestampSupplier = () -> DEFAULT_TIMESTAMP;
     }
 
     protected void prepareDescriptor(String descriptorPath) {

@@ -27,6 +27,7 @@ public class CheckServiceKeyOperationStep extends AsyncFlowableStep {
                                                                     serviceKeyToProcess.getName());
         if (serviceKey == null) {
             getStepLogger().debug(Messages.SERVICE_KEY_DOES_NOT_EXIST_0, serviceKeyToProcess.getName());
+            context.setVariable(Variables.SERVICE_KEY_DOES_NOT_EXIST, true);
             return StepPhase.DONE;
         }
         return checkServiceKeyLastOperation(serviceKey);
@@ -50,7 +51,7 @@ public class CheckServiceKeyOperationStep extends AsyncFlowableStep {
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
-        CloudServiceKey serviceKeyToDelete = context.getVariable(Variables.SERVICE_KEY_TO_PROCESS);
-        return MessageFormat.format(Messages.ERROR_WHILE_CHECKING_SERVICE_KEY_OPERATION_0, serviceKeyToDelete.getName());
+        CloudServiceKey serviceKeyToProcess = context.getVariable(Variables.SERVICE_KEY_TO_PROCESS);
+        return MessageFormat.format(Messages.ERROR_WHILE_CHECKING_SERVICE_KEY_OPERATION_0, serviceKeyToProcess.getName());
     }
 }
