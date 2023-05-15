@@ -58,12 +58,8 @@ public class MtaArchiveHelper {
             }
             String fileName = entry.getKey();
             MtaPathValidator.validatePath(fileName);
-            if (attributeName.equals(ATTR_MTA_MODULE)) {
-                for (String module : attributeValue.split(Constants.MODULE_SEPARATOR)) {
-                    result.put(module.trim(), fileName);
-                }
-            } else {
-                result.put(attributeValue, fileName);
+            for (String mtaEntity : attributeValue.split(Constants.MANIFEST_MTA_ENTITY_SEPARATOR)) {
+                result.put(mtaEntity.trim(), fileName);
             }
         }
         return result;

@@ -7,7 +7,7 @@ public class Constants {
 
     public static final String UNIX_PATH_SEPARATOR = "/";
     public static final String MTA_ELEMENT_SEPARATOR = "/";
-    public static final String MODULE_SEPARATOR = ",";
+    public static final String MANIFEST_MTA_ENTITY_SEPARATOR = ",";
     public static final String NAMESPACE_SEPARATOR = "-";
 
     // Metadata attributes:
