@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.resolvers.v3;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.cloudfoundry.multiapps.controller.core.resolvers.v2.PartialModulePropertiesReferenceResolver;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -15,15 +16,20 @@ public class PartialModuleReferenceResolver extends ModuleReferenceResolver {
 
     private final List<String> dependenciesToIgnore;
 
-    public PartialModuleReferenceResolver(DeploymentDescriptor descriptor, Module module, String prefix,
-                                          List<String> dependenciesToIgnore) {
-        super(descriptor, module, prefix, new ResolverBuilder(), new ResolverBuilder());
+    public PartialModuleReferenceResolver(DeploymentDescriptor descriptor, Module module, String prefix, List<String> dependenciesToIgnore,
+                                          Set<String> dynamicResolvableParameters) {
+        super(descriptor, module, prefix, new ResolverBuilder(), new ResolverBuilder(), dynamicResolvableParameters);
         this.dependenciesToIgnore = dependenciesToIgnore;
     }
 
     @Override
     protected ModulePropertiesReferenceResolver createModulePropertiesReferenceResolver(Map<String, Object> properties) {
-        return new PartialModulePropertiesReferenceResolver(descriptor, module, properties, prefix, dependenciesToIgnore);
+        return new PartialModulePropertiesReferenceResolver(descriptor,
+                                                            module,
+                                                            properties,
+                                                            prefix,
+                                                            dependenciesToIgnore,
+                                                            dynamicResolvableParameters);
     }
 
     @Override

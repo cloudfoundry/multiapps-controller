@@ -80,7 +80,8 @@
     "parametersMetadata" : {
       "metadata" : { }
     },
-    "requiredDependencies" : [ ]
+    "requiredDependencies" : [ ],
+    "processedAfter" : [ ]
   } ],
   "parameters" : {
     "q" : "~{qux/abc}${abc}",

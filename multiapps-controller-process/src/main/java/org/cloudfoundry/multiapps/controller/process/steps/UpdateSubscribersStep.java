@@ -178,7 +178,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         resolver.resolve(dummyDescriptor);
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(dummyDescriptor));
         dummyDescriptor = handlerFactory.getDescriptorReferenceResolver(dummyDescriptor, new ResolverBuilder(), new ResolverBuilder(),
-                                                                        new ResolverBuilder())
+                                                                        new ResolverBuilder(),
+                                                                        SupportedParameters.DYNAMIC_RESOLVABLE_PARAMETERS)
                                         .resolve();
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(dummyDescriptor));
 

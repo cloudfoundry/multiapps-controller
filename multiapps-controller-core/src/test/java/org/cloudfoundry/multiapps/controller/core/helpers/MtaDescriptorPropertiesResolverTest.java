@@ -32,7 +32,10 @@ class MtaDescriptorPropertiesResolverTest {
                                       new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-domain-result.json")),
                          Arguments.of("mtad-properties-resolver-test/mtad-with-escaped-references.yaml",
                                       new Expectation(Expectation.Type.JSON,
-                                                      "mtad-properties-resolver-test/mtad-with-escaped-references.json")));
+                                                      "mtad-properties-resolver-test/mtad-with-escaped-references.json")),
+                         Arguments.of("mtad-properties-resolver-test/mtad-with-service-guid.yaml",
+                                      new Expectation(Expectation.Type.JSON,
+                                                      "mtad-properties-resolver-test/mtad-with-service-guid-result.json")));
     }
 
     private final Tester tester = Tester.forClass(getClass());

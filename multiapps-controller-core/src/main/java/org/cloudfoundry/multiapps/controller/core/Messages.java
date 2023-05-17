@@ -74,6 +74,7 @@ public final class Messages {
     public static final String INVALID_TOKEN_PROVIDED = "The provided JWT token is not valid!";
     public static final String UNSUPPORTED_ALGORITHM_PROVIDED = "Unsupported algorithm: \"{0}\"";
     public static final String NO_TOKEN_PARSER_FOUND_FOR_THE_CURRENT_TOKEN = "No token parser found for the current token";
+    public static final String RESOURCE_0_CANNOT_BE_CREATED_DUE_TO_UNRESOLVED_DYNAMIC_PARAMETER = "Resouce \"{0}\" cannot be created due to unresolved dynamic parameter. Please specify \"{1}\" in the processed-after section!";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";

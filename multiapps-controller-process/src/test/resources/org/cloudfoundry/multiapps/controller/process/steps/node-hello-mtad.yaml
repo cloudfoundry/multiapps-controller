@@ -35,9 +35,17 @@ modules:
 resources:
   - name: nodejs-hdi-container
     type: com.sap.xs.hdi-container
+    parameters:
+      config:
+        test: b
+        test2: ~{uaa/uaa-guid}
+    requires:
+      - name: uaa
 
   - name: uaa
     type: org.cloudfoundry.existing-service
+    properties:
+      uaa-guid: ${service-guid}
 
   - name: ui5
     parameters:

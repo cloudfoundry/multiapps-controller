@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.helpers.v3;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -31,7 +32,8 @@ class ConfigurationSubscriptionFactoryTest
     @Override
     protected void testCreate(DeploymentDescriptor mtad, Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId,
                               Expectation expectation) {
-        tester.test(() -> new ConfigurationSubscriptionFactory(mtad, resolvedResources).create(spaceId), expectation);
+        tester.test(() -> new ConfigurationSubscriptionFactory(mtad, resolvedResources, Collections.emptySet()).create(spaceId),
+                    expectation);
     }
 
     @Override

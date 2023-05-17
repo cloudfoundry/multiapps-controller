@@ -126,6 +126,7 @@ public class SupportedParameters {
     public static final String TYPE = "type";
     public static final String SKIP_SERVICE_UPDATES = "skip-service-updates";
     public static final String SYSLOG_DRAIN_URL = "syslog-drain-url";
+    public static final String SERVICE_GUID = "service-guid";
 
     // Configuration reference (new syntax):
     public static final String PROVIDER_NID = "provider-nid";
@@ -175,6 +176,8 @@ public class SupportedParameters {
 
     public static final Set<String> READ_ONLY_RESOURCE_PARAMETERS = Set.of(DEFAULT_CONTAINER_NAME, DEFAULT_XS_APP_NAME, GENERATED_USER,
                                                                            GENERATED_PASSWORD, DEFAULT_SERVICE_NAME);
+
+    public static final Set<String> DYNAMIC_RESOLVABLE_PARAMETERS = Set.of(SERVICE_GUID);
 
     public enum RoutingParameterSet {
         // @formatter:off

@@ -13,10 +13,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.flowable.engine.ProcessEngine;
-import org.flowable.engine.RuntimeService;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.runtime.Execution;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,18 +30,11 @@ class ManageAppServiceBindingEndListenerTest {
 
     private static final String APPLICATION_NAME = "test_application";
     private static final String SERVICE_NAME = "test_service";
-    private static final String PARENT_EXECUTION_ID = "1234";
 
     @Mock
     private FlowableFacade flowableFacade;
     @Mock
     private DelegateExecution execution;
-    @Mock
-    private ProcessEngine processEngine;
-    @Mock
-    private RuntimeService runtimeService;
-    @Mock
-    private Execution parentExecution;
     @Mock
     private ProcessTypeParser processTypeParser;
     @InjectMocks
@@ -72,9 +62,10 @@ class ManageAppServiceBindingEndListenerTest {
 
         manageAppServiceBindingEndListener.notifyInternal(execution);
 
-        verify(runtimeService).setVariable(PARENT_EXECUTION_ID,
-                                           ManageAppServiceBindingEndListener.buildExportedVariableName(APPLICATION_NAME, SERVICE_NAME),
-                                           expectedBooleanValue);
+        verify(flowableFacade).setVariableInParentProcess(execution,
+                                                          ManageAppServiceBindingEndListener.buildExportedVariableName(APPLICATION_NAME,
+                                                                                                                       SERVICE_NAME),
+                                                          expectedBooleanValue);
     }
 
     private void prepareExecution(boolean shouldUnbind, boolean shouldBind) {
@@ -85,22 +76,13 @@ class ManageAppServiceBindingEndListenerTest {
         when(execution.getVariable(Variables.SERVICE_TO_UNBIND_BIND.getName())).thenReturn(SERVICE_NAME);
         when(execution.getVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP.getName())).thenReturn(shouldUnbind);
         when(execution.getVariable(Variables.SHOULD_BIND_SERVICE_TO_APP.getName())).thenReturn(shouldBind);
-        mockFlowableFacade();
-    }
-
-    private void mockFlowableFacade() {
-        when(execution.getParentId()).thenReturn(PARENT_EXECUTION_ID);
-        when(parentExecution.getSuperExecutionId()).thenReturn(PARENT_EXECUTION_ID);
-        when(flowableFacade.getParentExecution(PARENT_EXECUTION_ID)).thenReturn(parentExecution);
-        when(flowableFacade.getProcessEngine()).thenReturn(processEngine);
-        when(processEngine.getRuntimeService()).thenReturn(runtimeService);
     }
 
     @Test
     void testBindUnbindServiceEndListenerWhenAppOrServiceIsNotSet() {
         when(processTypeParser.getProcessType(any())).thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
-        mockFlowableFacade();
+
         manageAppServiceBindingEndListener.notifyInternal(execution);
-        verify(runtimeService, never()).setVariable(anyString(), anyString(), any());
+        verify(flowableFacade, never()).setVariableInParentProcess(any(), anyString(), any());
     }
 }

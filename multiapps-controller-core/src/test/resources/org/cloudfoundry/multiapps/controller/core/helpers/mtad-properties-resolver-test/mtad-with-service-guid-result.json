@@ -1,17 +1,21 @@
 {
   "majorSchemaVersion" : 3,
   "schemaVersion" : "3.0.0",
-  "id" : "mta-1",
-  "version" : "1.0.0",
+  "id" : "hello",
+  "version" : "0.1.0",
   "modules" : [ {
     "majorSchemaVersion" : 3,
-    "name" : "framework",
-    "type" : "javascript.nodejs",
+    "name" : "hello-backend",
+    "type" : "java.tomee",
+    "path" : "web/router.war",
     "properties" : { },
-    "parameters" : { },
+    "parameters" : {
+      "disk-quota" : "256M",
+      "memory" : "512M"
+    },
     "requiredDependencies" : [ {
       "majorSchemaVersion" : 3,
-      "name" : "service-1",
+      "name" : "db",
       "properties" : { },
       "parameters" : { },
       "propertiesMetadata" : {
@@ -23,7 +27,7 @@
     } ],
     "providedDependencies" : [ {
       "majorSchemaVersion" : 3,
-      "name" : "framework",
+      "name" : "hello-backend",
       "isPublic" : false,
       "properties" : { },
       "parameters" : { },
@@ -44,10 +48,10 @@
   } ],
   "resources" : [ {
     "majorSchemaVersion" : 3,
-    "name" : "service-1",
-    "type" : "org.cloudfoundry.user-provided-service",
+    "name" : "db",
+    "type" : "org.cloudfoundry.existing-service",
     "properties" : {
-      "plugins" : [ ]
+      "db-guid" : "{ds/db/service-guid}"
     },
     "parameters" : { },
     "isActive" : true,
@@ -59,6 +63,37 @@
       "metadata" : { }
     },
     "requiredDependencies" : [ ],
+    "processedAfter" : [ ]
+  }, {
+    "majorSchemaVersion" : 3,
+    "name" : "backend-service",
+    "type" : "org.cloudfoundry.managed-service",
+    "properties" : { },
+    "parameters" : {
+      "config" : {
+        "db-service" : "~{db/db-guid}"
+      }
+    },
+    "isActive" : true,
+    "isOptional" : false,
+    "propertiesMetadata" : {
+      "metadata" : { }
+    },
+    "parametersMetadata" : {
+      "metadata" : { }
+    },
+    "requiredDependencies" : [ {
+      "majorSchemaVersion" : 3,
+      "name" : "db",
+      "properties" : { },
+      "parameters" : { },
+      "propertiesMetadata" : {
+        "metadata" : { }
+      },
+      "parametersMetadata" : {
+        "metadata" : { }
+      }
+    } ],
     "processedAfter" : [ ]
   } ],
   "parameters" : { },

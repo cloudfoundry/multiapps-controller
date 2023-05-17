@@ -1,140 +1,129 @@
 {
-  "schemaVersion": "2.0.0",
-  "id": "mta-1",
-  "version": "1.0.0",
-  "modules": [
-    {
-      "name": "framework",
-      "type": "javascript.nodejs",
-      "properties": {
-        "urls": [
-          "~{plugins.0/url}",
-          "~{plugins.1/url}"
-        ]
-      },
-      "parameters": {
-        "app-name": "framework"
-      },
-      "requiredDependencies": [
-        {
-          "name": "plugins.0",
-          "list": "plugins",
-          "properties": {
-            "plugin_name": "~{plugin_name}",
-            "url": "~{url}"
-          },
-          "parameters": {
-            "managed": true
-          },
-          "propertiesMetadata": {
-            "metadata": {}
-          },
-          "parametersMetadata": {
-            "metadata": {}
-          },
-          "majorSchemaVersion": 2
-        },
-        {
-          "name": "plugins.1",
-          "list": "plugins",
-          "properties": {
-            "plugin_name": "~{plugin_name}",
-            "url": "~{url}"
-          },
-          "parameters": {
-            "managed": true
-          },
-          "propertiesMetadata": {
-            "metadata": {}
-          },
-          "parametersMetadata": {
-            "metadata": {}
-          },
-          "majorSchemaVersion": 2
-        }
-      ],
-      "providedDependencies": [
-        {
-          "name": "framework",
-          "isPublic": true,
-          "properties": {
-            "urls": "~{plugins/url}"
-          },
-          "parameters": {},
-          "propertiesMetadata": {
-            "metadata": {}
-          },
-          "parametersMetadata": {
-            "metadata": {}
-          },
-          "majorSchemaVersion": 2
-        }
-      ],
-      "propertiesMetadata": {
-        "metadata": {}
-      },
-      "parametersMetadata": {
-        "metadata": {}
-      },
-      "hooks": [],
-      "majorSchemaVersion": 2
-    }
-  ],
-  "resources": [
-    {
-      "name": "plugins.0",
-      "properties": {
-        "baz": "qux",
-        "foo": "bar",
-        "plugin_name": "plugin-1",
-        "type": "com.acme.plugin",
-        "url": "https://localhost:52010"
-      },
-      "parameters": {
-        "filter": {
-          "type": "com.acme.plugin"
-        }
-      },
-      "isActive": true,
-      "isOptional": false,
-      "propertiesMetadata": {
-        "metadata": {}
-      },
-      "parametersMetadata": {
-        "metadata": {}
-      },
-      "requiredDependencies": [],
-      "majorSchemaVersion": 2
+  "majorSchemaVersion" : 2,
+  "schemaVersion" : "2.0.0",
+  "id" : "mta-1",
+  "version" : "1.0.0",
+  "modules" : [ {
+    "majorSchemaVersion" : 2,
+    "name" : "framework",
+    "type" : "javascript.nodejs",
+    "properties" : {
+      "urls" : [ "~{plugins.0/url}", "~{plugins.1/url}" ]
     },
-    {
-      "name": "plugins.1",
-      "properties": {
-        "baz": "qux",
-        "foo": "bar",
-        "plugin_name": "plugin-2",
-        "type": "com.acme.plugin",
-        "url": "https://localhost:52011"
+    "parameters" : {
+      "app-name" : "framework"
+    },
+    "requiredDependencies" : [ {
+      "majorSchemaVersion" : 2,
+      "name" : "plugins.0",
+      "list" : "plugins",
+      "properties" : {
+        "plugin_name" : "~{plugin_name}",
+        "url" : "~{url}"
       },
-      "parameters": {
-        "filter": {
-          "type": "com.acme.plugin"
-        }
+      "parameters" : {
+        "managed" : true
       },
-      "isActive": true,
-      "isOptional": false,
-      "propertiesMetadata": {
-        "metadata": {}
+      "propertiesMetadata" : {
+        "metadata" : { }
       },
-      "parametersMetadata": {
-        "metadata": {}
+      "parametersMetadata" : {
+        "metadata" : { }
+      }
+    }, {
+      "majorSchemaVersion" : 2,
+      "name" : "plugins.1",
+      "list" : "plugins",
+      "properties" : {
+        "plugin_name" : "~{plugin_name}",
+        "url" : "~{url}"
       },
-      "requiredDependencies": [],
-      "majorSchemaVersion": 2
-    }
-  ],
-  "parameters": {},
-  "parametersMetadata": {
-    "metadata": {}
-  },
-  "majorSchemaVersion": 2
+      "parameters" : {
+        "managed" : true
+      },
+      "propertiesMetadata" : {
+        "metadata" : { }
+      },
+      "parametersMetadata" : {
+        "metadata" : { }
+      }
+    } ],
+    "providedDependencies" : [ {
+      "majorSchemaVersion" : 2,
+      "name" : "framework",
+      "isPublic" : true,
+      "properties" : {
+        "urls" : "~{plugins/url}"
+      },
+      "parameters" : { },
+      "propertiesMetadata" : {
+        "metadata" : { }
+      },
+      "parametersMetadata" : {
+        "metadata" : { }
+      }
+    } ],
+    "propertiesMetadata" : {
+      "metadata" : { }
+    },
+    "parametersMetadata" : {
+      "metadata" : { }
+    },
+    "hooks" : [ ]
+  } ],
+  "resources" : [ {
+    "majorSchemaVersion" : 2,
+    "name" : "plugins.0",
+    "properties" : {
+      "baz" : "qux",
+      "foo" : "bar",
+      "plugin_name" : "plugin-1",
+      "type" : "com.acme.plugin",
+      "url" : "https://localhost:52010"
+    },
+    "parameters" : {
+      "filter" : {
+        "type" : "com.acme.plugin"
+      }
+    },
+    "isActive" : true,
+    "isOptional" : false,
+    "propertiesMetadata" : {
+      "metadata" : { }
+    },
+    "parametersMetadata" : {
+      "metadata" : { }
+    },
+    "requiredDependencies" : [ ],
+    "processedAfter" : [ ]
+  }, {
+    "majorSchemaVersion" : 2,
+    "name" : "plugins.1",
+    "properties" : {
+      "baz" : "qux",
+      "foo" : "bar",
+      "plugin_name" : "plugin-2",
+      "type" : "com.acme.plugin",
+      "url" : "https://localhost:52011"
+    },
+    "parameters" : {
+      "filter" : {
+        "type" : "com.acme.plugin"
+      }
+    },
+    "isActive" : true,
+    "isOptional" : false,
+    "propertiesMetadata" : {
+      "metadata" : { }
+    },
+    "parametersMetadata" : {
+      "metadata" : { }
+    },
+    "requiredDependencies" : [ ],
+    "processedAfter" : [ ]
+  } ],
+  "parameters" : { },
+  "parametersMetadata" : {
+    "metadata" : { }
+  }
 }

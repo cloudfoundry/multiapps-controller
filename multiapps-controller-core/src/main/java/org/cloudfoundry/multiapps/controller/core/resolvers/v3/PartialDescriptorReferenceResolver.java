@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.resolvers.v3;
 
 import java.util.List;
+import java.util.Set;
 
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -14,19 +15,20 @@ public class PartialDescriptorReferenceResolver extends DescriptorReferenceResol
 
     private final List<String> dependenciesToIgnore;
 
-    public PartialDescriptorReferenceResolver(DeploymentDescriptor descriptor, List<String> dependenciesToIgnore) {
-        super(descriptor, new ResolverBuilder(), new ResolverBuilder(), new ResolverBuilder());
+    public PartialDescriptorReferenceResolver(DeploymentDescriptor descriptor, List<String> dependenciesToIgnore,
+                                              Set<String> dynamicResolvableParameters) {
+        super(descriptor, new ResolverBuilder(), new ResolverBuilder(), new ResolverBuilder(), dynamicResolvableParameters);
         this.dependenciesToIgnore = dependenciesToIgnore;
     }
 
     @Override
     protected ModuleReferenceResolver createModuleResolver(Module module) {
-        return new PartialModuleReferenceResolver(descriptor, module, "", dependenciesToIgnore);
+        return new PartialModuleReferenceResolver(descriptor, module, "", dependenciesToIgnore, dynamicResolvableParameters);
     }
 
     @Override
     protected ResourceReferenceResolver createResourceResolver(Resource resource) {
-        return new PartialResourceReferenceResolver(descriptor, resource, "", dependenciesToIgnore);
+        return new PartialResourceReferenceResolver(descriptor, resource, "", dependenciesToIgnore, dynamicResolvableParameters);
     }
 
 }

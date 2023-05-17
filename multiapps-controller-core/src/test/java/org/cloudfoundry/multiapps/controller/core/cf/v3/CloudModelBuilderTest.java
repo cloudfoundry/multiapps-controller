@@ -65,7 +65,8 @@ class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.c
                                                                            AppSuffixDeterminer appSuffixDeterminer) {
         deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor,
                                                                new ResolverBuilder(),
-                                                               new ResolverBuilder()).resolve();
+                                                               new ResolverBuilder(),
+                                                               Collections.emptySet()).resolve();
         var client = Mockito.mock(CloudControllerClient.class);
         Mockito.when(client.getApplicationRoutes(Mockito.any()))
                .thenReturn(Collections.emptyList());

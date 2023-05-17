@@ -10,6 +10,7 @@ import javax.inject.Named;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.DynamicResolvableParametersContextUpdater;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper.CloudComponents;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -36,6 +37,7 @@ public class CreateServiceStep extends ServiceStep {
         try {
             OperationExecutionState executionState = createCloudService(controllerClient, serviceInstance);
             getStepLogger().debug(Messages.SERVICE_CREATED, serviceInstance.getName());
+            setServiceGuid(context, controllerClient, serviceInstance);
             return executionState;
         } catch (CloudOperationException e) {
             Optional<OperationExecutionState> operationExecutionState = getServiceInstanceStateIfCreated(controllerClient, serviceInstance,
@@ -67,6 +69,10 @@ public class CreateServiceStep extends ServiceStep {
         Assert.notNull(service.getPlan(), "Service plan must not be null");
         client.createServiceInstance(service);
         return OperationExecutionState.EXECUTING;
+    }
+
+    private void setServiceGuid(ProcessContext context, CloudControllerClient client, CloudServiceInstanceExtended serviceInstance) {
+        new DynamicResolvableParametersContextUpdater(context).updateServiceGuid(serviceInstance);
     }
 
     private void processServiceCreationFailure(ProcessContext context, CloudServiceInstanceExtended serviceInstance,

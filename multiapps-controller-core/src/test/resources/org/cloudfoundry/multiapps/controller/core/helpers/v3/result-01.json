@@ -70,7 +70,8 @@
       "parametersMetadata" : {
         "metadata" : { }
       }
-    } ]
+    } ],
+    "processedAfter" : [ ]
   }, {
     "majorSchemaVersion" : 3,
     "name" : "resource-2",
@@ -88,7 +89,8 @@
     "parametersMetadata" : {
       "metadata" : { }
     },
-    "requiredDependencies" : [ ]
+    "requiredDependencies" : [ ],
+    "processedAfter" : [ ]
   } ],
   "parameters" : { },
   "parametersMetadata" : {
