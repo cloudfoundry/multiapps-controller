@@ -17,12 +17,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.FileMetadata;
@@ -44,19 +38,17 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 class FilesApiServiceImplTest {
 
     @Mock
     private FileService fileService;
     @Mock
-    private HttpServletRequest request;
+    private MultipartHttpServletRequest request;
     @Mock
-    private FileItemIterator fileItemIterator;
-    @Mock
-    private FileItemStream fileItemStream;
-    @Mock
-    private ServletFileUpload servletFileUpload;
+    private MultipartFile file;
     @Mock
     private HttpClient httpClient;
     @Mock
@@ -68,11 +60,6 @@ class FilesApiServiceImplTest {
 
     @InjectMocks
     private final FilesApiServiceImpl testedClass = new FilesApiServiceImpl() {
-        @Override
-        protected ServletFileUpload getFileUploadServlet() {
-            return servletFileUpload;
-        }
-
         @Override
         protected HttpClient buildHttpClient(String url) {
             return httpClient;
@@ -125,43 +112,32 @@ class FilesApiServiceImplTest {
     void testUploadMtaFile() throws Exception {
         String fileName = "test.mtar";
         FileEntry fileEntry = createFileEntry(fileName);
+        long fileSize = fileEntry.getSize()
+                                 .longValue();
 
-        Mockito.when(servletFileUpload.getItemIterator(Mockito.eq(request)))
-               .thenReturn(fileItemIterator);
-        Mockito.when(fileItemIterator.hasNext())
-               .thenReturn(true, true, false); // has two form entries
-        Mockito.when(fileItemIterator.next())
-               .thenReturn(fileItemStream);
-        Mockito.when(fileItemStream.isFormField())
-               .thenReturn(false, true); // only first entry is a file
-        Mockito.when(fileItemStream.openStream())
-               .thenReturn(Mockito.mock(InputStream.class));
-        Mockito.when(fileItemStream.getName())
+        Mockito.when(file.getSize())
+               .thenReturn(fileSize);
+        Mockito.when(file.getOriginalFilename())
                .thenReturn(fileName);
+        Mockito.when(file.getInputStream())
+               .thenReturn(Mockito.mock(InputStream.class));
+        Mockito.when(request.getFileMap())
+               .thenReturn(Map.of("file", file));
+
         Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName),
-                                         Mockito.any(InputStream.class)))
+                                         Mockito.any(InputStream.class), Mockito.eq(fileSize)))
                .thenReturn(fileEntry);
 
         ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID, null);
 
-        Mockito.verify(servletFileUpload)
-               .setSizeMax(Mockito.eq(new Configuration().getMaxUploadSize()));
-        Mockito.verify(fileItemIterator, Mockito.times(3))
-               .hasNext();
-        Mockito.verify(fileItemStream)
-               .openStream();
+        Mockito.verify(file)
+               .getInputStream();
         Mockito.verify(fileService)
-               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName), Mockito.any(InputStream.class));
+               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName),
+                        Mockito.any(InputStream.class), Mockito.eq(fileSize));
 
         FileMetadata fileMetadata = response.getBody();
         assertMetadataMatches(fileEntry, fileMetadata);
-    }
-
-    @Test
-    void testUploadMtaFileErrorSizeExceeded() throws Exception {
-        Mockito.when(servletFileUpload.getItemIterator(Mockito.eq(request)))
-               .thenThrow(new SizeLimitExceededException("size limit exceeded", MAX_PERMITTED_SIZE + 1024, MAX_PERMITTED_SIZE));
-        Assertions.assertThrows(SLException.class, () -> testedClass.uploadFile(request, SPACE_GUID, null, null));
     }
 
     @Test

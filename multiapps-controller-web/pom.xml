@@ -190,9 +190,5 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-jmx</artifactId>
         </dependency>
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-        </dependency>
     </dependencies>
 </project>

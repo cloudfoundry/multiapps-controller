@@ -10,6 +10,7 @@ public final class Messages {
     public static final String MAX_UPLOAD_SIZE_EXCEEDED = "Cannot upload file, size is bigger than the configured maximum upload size \"{0}\" bytes";
     public static final String COULD_NOT_GET_FILES_0 = "Could not get files: {0}";
     public static final String COULD_NOT_UPLOAD_FILE_0 = "Could not upload file: {0}";
+    public static final String NO_FILES_TO_UPLOAD = "Request has no files to upload!";
     public static final String ACTION_0_CANNOT_BE_EXECUTED_OVER_OPERATION_1_IN_STATE_2 = "Action \"{0}\" cannot be executed over operation \"{1}\" in state \"{2}\".";
     public static final String OPERATION_0_NOT_FOUND = "Operation \"{0}\" was not found.";
     public static final String TEMPORARY_PROBLEM_WITH_PERSISTENCE_LAYER = "Temporary problem with persistence layer of the service";

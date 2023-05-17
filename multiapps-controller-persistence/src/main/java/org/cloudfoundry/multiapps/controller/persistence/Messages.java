@@ -57,15 +57,9 @@ public final class Messages {
     public static final String ATTEMPT_TO_DOWNLOAD_MISSING_BLOB = "Attempt [{0}/{1}] to download missing blob {2} from ObjectStore";
 
     // INFO log messages:
-    public static final String FAILED_TO_DELETE_FILE = "Failed to delete file {0}";
-    public static final String CREATING_INDEX_CONCURRENTLY = "Creating index {0} concurrently";
-    public static final String INDEX_CREATED = "Index created.";
     public static final String DEFAULT_CONSOLE = "DefaultConsole";
 
     // DEBUG log messages:
-    public static final String DELETING_FILE_WITH_PATH_0 = "Deleting file with path \"{0}\"...";
-    public static final String DELETED_FILE_0_SUCCESSFULLY_1 = "Deleted file with path \"{0}\": {1}";
-    public static final String STORING_FILE_TO_PATH_0 = "Storing file to path \"{0}\"...";
     public static final String STORED_FILE_0 = "Stored file: \"{0}\"";
     public static final String STORED_FILE_0_WITH_SIZE_1 = "Stored file \"{0}\" with size {1}";
     public static final String DELETED_0_FILES_WITH_SPACEIDS_1 = "Deleted {0} files with space ids \"{1}\".";
@@ -73,7 +67,6 @@ public final class Messages {
     public static final String DELETED_0_FILES_MODIFIED_BEFORE_1 = "Deleted {0} files modified before \"{1}\".";
     public static final String DELETED_0_FILES_WITH_ID_1_AND_SPACE_2 = "Deleted {0} files with ID \"{1}\" and space \"{2}\".";
     public static final String DELETED_0_FILES_WITHOUT_CONTENT = "Deleted {0} files without content.";
-    public static final String PROCESSING_FILE_0 = "Processing file \"{0}\"...";
 
     protected Messages() {
     }

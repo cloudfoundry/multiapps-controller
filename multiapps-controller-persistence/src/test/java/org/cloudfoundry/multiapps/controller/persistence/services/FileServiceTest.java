@@ -10,8 +10,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.InputStream;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -28,6 +30,9 @@ class FileServiceTest extends DatabaseFileServiceTest {
         MockitoAnnotations.openMocks(this)
                           .close();
         super.setUp();
+        Mockito.doAnswer(invocationOnMock -> IOUtils.consume(invocationOnMock.getArgument(1)))
+               .when(fileStorage)
+               .addFile(Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -40,7 +45,7 @@ class FileServiceTest extends DatabaseFileServiceTest {
         String space = SPACE_1;
         String namespace = NAMESPACE_1;
         try {
-            fileService.addFile(space, namespace, PIC_STORAGE_NAME, resourceStream);
+            fileService.addFile(space, namespace, PIC_STORAGE_NAME, resourceStream, PIC_SIZE);
             fail("addFile should fail with exception");
         } catch (FileStorageException e) {
             Mockito.verify(fileStorage)
@@ -136,8 +141,11 @@ class FileServiceTest extends DatabaseFileServiceTest {
     @Override
     protected FileEntry addFile(String space, String namespace, String fileName, String resourceName) throws Exception {
         FileEntry fileEntry = super.addFile(space, namespace, fileName, resourceName);
+        FileEntry fileWithoutDigest = ImmutableFileEntry.copyOf(fileEntry)
+                                                        .withDigest(null)
+                                                        .withDigestAlgorithm(null);
         Mockito.verify(fileStorage)
-               .addFile(Mockito.eq(fileEntry), Mockito.any());
+               .addFile(Mockito.eq(fileWithoutDigest), Mockito.any());
         return fileEntry;
     }
 
@@ -148,7 +156,10 @@ class FileServiceTest extends DatabaseFileServiceTest {
 
     @Override
     protected void verifyFileIsStored(FileEntry fileEntry) throws Exception {
+        FileEntry fileWithoutDigest = ImmutableFileEntry.copyOf(fileEntry)
+                                                        .withDigest(null)
+                                                        .withDigestAlgorithm(null);
         Mockito.verify(fileStorage)
-               .addFile(Mockito.eq(fileEntry), Mockito.any());
+               .addFile(Mockito.eq(fileWithoutDigest), Mockito.any());
     }
 }

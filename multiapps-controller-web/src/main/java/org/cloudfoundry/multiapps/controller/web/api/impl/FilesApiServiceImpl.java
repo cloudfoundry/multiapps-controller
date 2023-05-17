@@ -13,7 +13,6 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.text.MessageFormat;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -21,14 +20,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.fileupload.util.LimitedInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -52,6 +44,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 @Named
 public class FilesApiServiceImpl implements FilesApiService {
@@ -82,13 +76,13 @@ public class FilesApiServiceImpl implements FilesApiService {
     }
 
     @Override
-    public ResponseEntity<FileMetadata> uploadFile(HttpServletRequest request, String spaceGuid, String namespace, String fileUrl) {
+    public ResponseEntity<FileMetadata> uploadFile(MultipartHttpServletRequest request, String spaceGuid, String namespace, String fileUrl) {
         try {
             FileEntry fileEntry;
             StopWatch stopWatch = StopWatch.createStarted();
             LOGGER.trace("Received upload request on URI: {}", ServletUtil.decodeUri(request));
             if (StringUtils.isEmpty(fileUrl)) {
-                fileEntry = uploadFiles(request, spaceGuid, namespace).get(0);
+                fileEntry = uploadFile(getFileFromRequest(request), spaceGuid, namespace);
             } else {
                 fileEntry = resilientOperationExecutor.execute((CheckedSupplier<FileEntry>) () -> uploadFileFromUrl(spaceGuid, namespace, fileUrl));
             }
@@ -105,59 +99,24 @@ public class FilesApiServiceImpl implements FilesApiService {
         }
     }
 
-    private List<FileEntry> uploadFiles(HttpServletRequest request, String spaceGuid, String namespace)
-        throws FileUploadException, IOException, FileStorageException {
-        List<FileEntry> uploadedFiles = new ArrayList<>();
-        FileItemIterator fileItemIterator = createFileIterator(request);
-
-        while (fileItemIterator.hasNext()) {
-            FileItemStream item = fileItemIterator.next();
-            if (item.isFormField()) {
-                continue; // ignore simple (non-file) form fields
-            }
-
-            try (InputStream in = item.openStream()) {
-                FileEntry entry;
-                long fileSize = getFileSizeHeaderValue(request);
-                if (fileSize != -1) {
-                    entry = fileService.addFile(spaceGuid, namespace, item.getName(), in, fileSize);
-                } else {
-                    entry = fileService.addFile(spaceGuid, namespace, item.getName(), in);
-                }
-                uploadedFiles.add(entry);
-            }
+    private MultipartFile getFileFromRequest(MultipartHttpServletRequest request) {
+        var parts = request.getFileMap();
+        var it = parts.values()
+                      .iterator();
+        if (!it.hasNext()) {
+            throw new SLException(Messages.NO_FILES_TO_UPLOAD);
         }
-        return uploadedFiles;
+        return it.next();
     }
 
-    private FileItemIterator createFileIterator(HttpServletRequest request) throws IOException, FileUploadException {
-        long maxUploadSize = new Configuration().getMaxUploadSize();
-        ServletFileUpload upload = getFileUploadServlet();
-        upload.setSizeMax(maxUploadSize);
-        try {
-            return upload.getItemIterator(request);
-        } catch (SizeLimitExceededException ex) {
-            throw new SLException(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED, maxUploadSize));
+    private FileEntry uploadFile(MultipartFile file, String spaceGuid, String namespace) throws IOException, FileStorageException {
+        try (InputStream in = file.getInputStream()) {
+            return fileService.addFile(spaceGuid, namespace, file.getOriginalFilename(), in, file.getSize());
         }
-    }
-
-    protected ServletFileUpload getFileUploadServlet() {
-        return new ServletFileUpload();
     }
 
     protected ResilientOperationExecutor getResilientOperationExecutor() {
         return new ResilientOperationExecutor();
-    }
-
-    private long getFileSizeHeaderValue(HttpServletRequest request) {
-        String fileSizeHeader = request.getHeader("X-File-Size");
-        if (StringUtils.isEmpty(fileSizeHeader)) {
-            return -1L;
-        }
-        if (!StringUtils.isNumeric(fileSizeHeader)) {
-            throw new SLException("Invalid \"X-File-Size\" header: " + fileSizeHeader);
-        }
-        return Long.parseLong(fileSizeHeader);
     }
 
     private FileMetadata parseFileEntry(FileEntry fileEntry) {
@@ -194,10 +153,9 @@ public class FilesApiServiceImpl implements FilesApiService {
 
         String fileName = extractFileName(decodedUrl);
         FileUtils.validateFileHasExtension(fileName);
-        try (InputStream content = createLimitedInputStream(response.body(), maxUploadSize);
-            // Normal stream returned from the http response always returns 0 when InputStream::available() is executed which seems to break
-            // JClods library: https://issues.apache.org/jira/browse/JCLOUDS-1623
-            BufferedInputStream bufferedContent = new BufferedInputStream(content, INPUT_STREAM_BUFFER_SIZE)) {
+        // Normal stream returned from the http response always returns 0 when InputStream::available() is executed which seems to break
+        // JClods library: https://issues.apache.org/jira/browse/JCLOUDS-1623
+        try (BufferedInputStream bufferedContent = new BufferedInputStream(response.body(), INPUT_STREAM_BUFFER_SIZE)) {
             return fileService.addFile(spaceGuid, namespace, fileName, bufferedContent, fileSize);
         }
     }
@@ -269,15 +227,6 @@ public class FilesApiServiceImpl implements FilesApiService {
         }
         String[] pathFragments = path.split("/");
         return pathFragments[pathFragments.length - 1];
-    }
-
-    private InputStream createLimitedInputStream(InputStream source, long maxUploadSize) {
-        return new LimitedInputStream(source, maxUploadSize) {
-            @Override
-            protected void raiseError(long maxSize, long currentSize) {
-                throw new SLException(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED, maxUploadSize));
-            }
-        };
     }
 
 }

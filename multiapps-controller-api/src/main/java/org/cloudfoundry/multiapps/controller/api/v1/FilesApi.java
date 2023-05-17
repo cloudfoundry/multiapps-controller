@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.api.v1;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.multiapps.controller.api.FilesApiService;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -54,7 +54,7 @@ public class FilesApi {
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = FileMetadata.class) })
     public ResponseEntity<FileMetadata>
-           uploadFile(HttpServletRequest request,
+           uploadFile(MultipartHttpServletRequest request,
                       @ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                       @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
                       @ApiParam(value = "URL reference to a remote file") @RequestHeader(name = RequestVariables.FILE_URL, required = false) String fileUrl) {

@@ -20,6 +20,10 @@
         <servlet-name>BootstrapServlet</servlet-name>
         <servlet-class>org.cloudfoundry.multiapps.controller.web.bootstrap.BootstrapServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
+        <multipart-config>
+            <max-file-size>4294967296</max-file-size> <!-- 4GB -->
+            <max-request-size>4294967296</max-request-size>
+        </multipart-config>
     </servlet>
     <servlet>
         <display-name>DispatcherServlet</display-name>
@@ -30,6 +34,10 @@
             <param-value></param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
+        <multipart-config>
+            <max-file-size>4294967296</max-file-size> <!-- 4GB -->
+            <max-request-size>4294967296</max-request-size>
+        </multipart-config>
     </servlet>
 
     <servlet-mapping>
