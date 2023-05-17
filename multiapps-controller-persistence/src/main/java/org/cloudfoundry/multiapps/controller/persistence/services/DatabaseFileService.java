@@ -67,10 +67,6 @@ public class DatabaseFileService extends FileService {
     @Override
     protected FileEntry storeFile(FileEntry fileEntry, InputStream fileStream) throws FileStorageException {
         try {
-            if (fileEntry.getDigest() != null) {
-                getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileQuery(fileEntry, fileStream));
-                return fileEntry;
-            }
             String digest = getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileAndComputeDigestQuery(fileEntry,
                                                                                                                       fileStream));
             return ImmutableFileEntry.copyOf(fileEntry)
