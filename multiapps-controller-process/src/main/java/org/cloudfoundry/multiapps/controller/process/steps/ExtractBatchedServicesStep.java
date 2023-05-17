@@ -1,5 +1,10 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.inject.Named;
+
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ServicesCloudModelBuilder;
@@ -11,10 +16,7 @@ import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import javax.inject.Named;
-import java.util.List;
-import java.util.stream.Collectors;
-
+// TODO: Delete this step after one takt, it won't be used anymore
 @Named("extractBatchedServicesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ExtractBatchedServicesStep extends SyncFlowableStep {

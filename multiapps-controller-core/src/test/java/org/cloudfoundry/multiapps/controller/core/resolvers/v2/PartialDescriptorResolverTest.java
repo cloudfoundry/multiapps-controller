@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.resolvers.v2;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,9 @@ class PartialDescriptorResolverTest {
     void testResolve() {
         Map<String, Object> deploymentDescriptorMap = new YamlParser().convertYamlToMap(getClass().getResourceAsStream("mtad.yaml"));
         DeploymentDescriptor descriptor = new DescriptorParser().parseDeploymentDescriptor(deploymentDescriptorMap);
-        PartialDescriptorReferenceResolver resolver = new PartialDescriptorReferenceResolver(descriptor, List.of("plugins"));
+        PartialDescriptorReferenceResolver resolver = new PartialDescriptorReferenceResolver(descriptor,
+                                                                                             List.of("plugins"),
+                                                                                             Collections.emptySet());
         tester.test(resolver::resolve, new Expectation(Expectation.Type.JSON, "resolved-mtad.json"));
     }
 

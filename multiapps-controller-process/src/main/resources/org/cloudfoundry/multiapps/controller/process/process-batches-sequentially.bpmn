@@ -11,7 +11,7 @@
         <flowable:executionListener event="start" delegateExpression="${startProcessListener}"></flowable:executionListener>
       </extensionElements>
     </startEvent>
-    <serviceTask id="prepareModulesDeploymentTask" name="Extract Services From Batches" flowable:async="true" flowable:exclusive="false" flowable:delegateExpression="${extractBatchedServicesStep}"></serviceTask>
+    <serviceTask id="prepareModulesDeploymentTask" name="Extract Services with Resolved Dynamic parameters from batch" flowable:async="true" flowable:exclusive="false" flowable:delegateExpression="${extractBatchedServicesWithResolvedDynamicParametersStep}"></serviceTask>
     <sequenceFlow id="flow51" sourceRef="startEvent" targetRef="prepareModulesDeploymentTask"></sequenceFlow>
     <callActivity id="createOrUpdateServicesCallActivity" name="Create or update services" flowable:async="true" calledElement="createOrUpdateServicesSubProcess" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
@@ -32,6 +32,7 @@
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
         <flowable:in source="namespace" target="namespace"></flowable:in>
         <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="dynamicResolvableParameters" target="dynamicResolvableParameters"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess">
         <extensionElements></extensionElements>
@@ -51,7 +52,7 @@
         <omgdc:Bounds height="30.0" width="30.0" x="375.0" y="226.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="prepareModulesDeploymentTask" id="BPMNShape_prepareModulesDeploymentTask">
-        <omgdc:Bounds height="58.0" width="106.0" x="480.0" y="212.0"></omgdc:Bounds>
+        <omgdc:Bounds height="103.0" width="104.0" x="482.0" y="189.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="createOrUpdateServicesCallActivity" id="BPMNShape_createOrUpdateServicesCallActivity">
         <omgdc:Bounds height="80.0" width="100.0" x="630.0" y="201.0"></omgdc:Bounds>
@@ -63,13 +64,13 @@
         <omgdi:waypoint x="729.9499999999999" y="241.0"></omgdi:waypoint>
         <omgdi:waypoint x="797.0" y="241.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-AB31BFC0-E0CC-4FF5-BACF-73CA7B749162" id="BPMNEdge_sid-AB31BFC0-E0CC-4FF5-BACF-73CA7B749162" flowable:sourceDockerX="53.0" flowable:sourceDockerY="29.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+      <bpmndi:BPMNEdge bpmnElement="sid-AB31BFC0-E0CC-4FF5-BACF-73CA7B749162" id="BPMNEdge_sid-AB31BFC0-E0CC-4FF5-BACF-73CA7B749162" flowable:sourceDockerX="52.00000000000001" flowable:sourceDockerY="51.5" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
         <omgdi:waypoint x="585.95" y="241.0"></omgdi:waypoint>
-        <omgdi:waypoint x="629.9999999999955" y="241.0"></omgdi:waypoint>
+        <omgdi:waypoint x="629.9999999999635" y="241.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow51" id="BPMNEdge_flow51" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="53.0" flowable:targetDockerY="29.0">
-        <omgdi:waypoint x="404.9499991062926" y="241.0"></omgdi:waypoint>
-        <omgdi:waypoint x="479.9999999999978" y="241.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="flow51" id="BPMNEdge_flow51" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="52.00000000000001" flowable:targetDockerY="51.5">
+        <omgdi:waypoint x="404.94999911865773" y="241.0"></omgdi:waypoint>
+        <omgdi:waypoint x="482.0" y="241.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

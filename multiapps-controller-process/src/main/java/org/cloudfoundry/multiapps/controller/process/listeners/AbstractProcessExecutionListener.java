@@ -116,16 +116,8 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         return processInstanceId.equals(correlationId);
     }
 
-    protected String getParentProcessId(DelegateExecution execution) {
-        return flowableFacade.getParentExecution(execution.getParentId())
-                             .getSuperExecutionId();
-    }
-
     protected void setVariableInParentProcess(DelegateExecution execution, String variableName, Object value) {
-        String parentProcessId = getParentProcessId(execution);
-        flowableFacade.getProcessEngine()
-                      .getRuntimeService()
-                      .setVariable(parentProcessId, variableName, value);
+        flowableFacade.setVariableInParentProcess(execution, variableName, value);
     }
 
     protected abstract void notifyInternal(DelegateExecution execution) throws Exception;

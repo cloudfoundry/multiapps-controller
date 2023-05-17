@@ -17,6 +17,7 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.api.FlowableOptimisticLockingException;
 import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.runtime.Execution;
@@ -281,6 +282,12 @@ public class FlowableFacade {
                             .createExecutionQuery()
                             .executionId(parentId)
                             .singleResult();
+    }
+
+    public void setVariableInParentProcess(DelegateExecution execution, String variableName, Object value) {
+        String parentProcessId = getParentExecution(execution.getParentId()).getSuperExecutionId();
+        processEngine.getRuntimeService()
+                     .setVariable(parentProcessId, variableName, value);
     }
 
 }

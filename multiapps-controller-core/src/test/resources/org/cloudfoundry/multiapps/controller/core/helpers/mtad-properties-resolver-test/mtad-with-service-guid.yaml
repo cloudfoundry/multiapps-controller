@@ -1,0 +1,27 @@
+_schema-version: "3.0.0"
+ID: hello
+version: 0.1.0
+
+modules:
+  - name: hello-backend
+    type: java.tomee
+    path: web/router.war
+    parameters:
+      memory: 512M
+      disk-quota: 256M
+    requires:
+      - name: db
+
+resources:
+  - name: db
+    type: org.cloudfoundry.existing-service
+    properties:
+      db-guid: ${service-guid}
+      
+  - name: backend-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      config:
+        db-service: ~{db/db-guid}
+    requires:
+      - name: db

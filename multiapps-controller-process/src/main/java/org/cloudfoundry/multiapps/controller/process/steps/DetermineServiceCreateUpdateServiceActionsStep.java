@@ -25,6 +25,7 @@ import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.DynamicResolvableParametersContextUpdater;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
@@ -48,11 +49,13 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         CloudControllerClient client = context.getControllerClient();
         CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
         getStepLogger().info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
+
         CloudServiceInstance existingService = client.getServiceInstance(serviceToProcess.getName(), false);
         setServiceParameters(context, serviceToProcess);
 
         List<ServiceAction> actions = determineActionsAndHandleExceptions(context, existingService);
 
+        setServiceGuidIfPresent(context, actions, existingService, serviceToProcess);
         context.setVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE, actions);
         context.setVariable(Variables.IS_SERVICE_UPDATED, false);
         context.setVariable(Variables.SERVICE_TO_PROCESS_NAME, serviceToProcess.getName());
@@ -306,5 +309,12 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
         String syslogDrainUrl = ObjectUtils.defaultIfNull(service.getSyslogDrainUrl(), "");
         return !Objects.equals(syslogDrainUrl, existingSyslogUrl);
+    }
+
+    private void setServiceGuidIfPresent(ProcessContext context, List<ServiceAction> actions, CloudServiceInstance existingService,
+                                         CloudServiceInstanceExtended serviceToProcess) {
+        if (existingService != null && !actions.contains(ServiceAction.RECREATE)) {
+            new DynamicResolvableParametersContextUpdater(context).updateServiceGuid(serviceToProcess, existingService);
+        }
     }
 }

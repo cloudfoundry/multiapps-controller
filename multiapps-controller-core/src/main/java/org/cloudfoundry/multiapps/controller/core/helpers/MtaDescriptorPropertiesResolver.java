@@ -3,10 +3,12 @@ package org.cloudfoundry.multiapps.controller.core.helpers;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferencesResolver;
+import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.model.MtaDescriptorPropertiesResolverContext;
 import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationReference;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
@@ -35,6 +37,7 @@ public class MtaDescriptorPropertiesResolver {
 
     private final MtaDescriptorPropertiesResolverContext context;
     private List<ConfigurationSubscription> subscriptions;
+    private Set<DynamicResolvableParameter> dynamicResolvableParameters;
 
     public MtaDescriptorPropertiesResolver(MtaDescriptorPropertiesResolverContext context) {
         this.context = context;
@@ -51,7 +54,8 @@ public class MtaDescriptorPropertiesResolver {
         // Resolve placeholders in parameters:
         CloudHandlerFactory handlerFactory = context.getHandlerFactory();
         descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(), new ResolverBuilder(),
-                                                                     SupportedParameters.SINGULAR_PLURAL_MAPPING)
+                                                                     SupportedParameters.SINGULAR_PLURAL_MAPPING,
+                                                                     SupportedParameters.DYNAMIC_RESOLVABLE_PARAMETERS)
                                    .resolve();
 
         if (context.shouldReserveTemporaryRoute()) {
@@ -60,7 +64,8 @@ public class MtaDescriptorPropertiesResolver {
 
             // Resolve again due to new temporary routes
             descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(),
-                                                                         new ResolverBuilder(), SupportedParameters.SINGULAR_PLURAL_MAPPING)
+                                                                         new ResolverBuilder(), SupportedParameters.SINGULAR_PLURAL_MAPPING,
+                                                                         SupportedParameters.DYNAMIC_RESOLVABLE_PARAMETERS)
                                        .resolve();
         }
 
@@ -70,7 +75,8 @@ public class MtaDescriptorPropertiesResolver {
 
         // Resolve placeholders in properties:
         descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new ResolverBuilder(), new NullPropertiesResolverBuilder(),
-                                                                     SupportedParameters.SINGULAR_PLURAL_MAPPING)
+                                                                     SupportedParameters.SINGULAR_PLURAL_MAPPING,
+                                                                     SupportedParameters.DYNAMIC_RESOLVABLE_PARAMETERS)
                                    .resolve();
 
         DeploymentDescriptor descriptorWithUnresolvedReferences = DeploymentDescriptor.copyOf(descriptor);
@@ -83,14 +89,18 @@ public class MtaDescriptorPropertiesResolver {
 
         resolver.resolve(descriptor);
 
-        subscriptions = createSubscriptions(descriptorWithUnresolvedReferences, resolver.getResolvedReferences());
+        subscriptions = createSubscriptions(descriptorWithUnresolvedReferences, resolver.getResolvedReferences(),
+                                            SupportedParameters.DYNAMIC_RESOLVABLE_PARAMETERS);
 
         descriptor = handlerFactory.getDescriptorReferenceResolver(descriptor, new ResolverBuilder(), new ResolverBuilder(),
-                                                                   new ResolverBuilder())
+                                                                   new ResolverBuilder(), SupportedParameters.DYNAMIC_RESOLVABLE_PARAMETERS)
                                    .resolve();
 
         descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, validatorsList, true)
                                    .validate();
+
+        dynamicResolvableParameters = createDynamicResolvableParameters(descriptor);
+
         unescapeEscapedReferences(descriptor);
 
         return descriptor;
@@ -137,14 +147,25 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     private List<ConfigurationSubscription> createSubscriptions(DeploymentDescriptor descriptorWithUnresolvedReferences,
-                                                                Map<String, ResolvedConfigurationReference> resolvedResources) {
+                                                                Map<String, ResolvedConfigurationReference> resolvedResources,
+                                                                Set<String> dynamicResolvableParameters) {
         return context.getHandlerFactory()
-                      .getConfigurationSubscriptionFactory(descriptorWithUnresolvedReferences, resolvedResources)
+                      .getConfigurationSubscriptionFactory(descriptorWithUnresolvedReferences, resolvedResources, dynamicResolvableParameters)
                       .create(context.getCurrentSpaceId());
+    }
+
+    private Set<DynamicResolvableParameter> createDynamicResolvableParameters(DeploymentDescriptor descriptor) {
+        return context.getHandlerFactory()
+                      .getDynamicResolvableParameterFactory(descriptor)
+                      .create();
     }
 
     public List<ConfigurationSubscription> getSubscriptions() {
         return subscriptions;
+    }
+
+    public Set<DynamicResolvableParameter> getDynamicResolvableParameters() {
+        return dynamicResolvableParameters;
     }
 
 }

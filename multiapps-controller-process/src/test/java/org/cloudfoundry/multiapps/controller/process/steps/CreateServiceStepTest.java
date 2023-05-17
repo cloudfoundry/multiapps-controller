@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -15,6 +16,9 @@ import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableDynamicResolvableParameter;
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -46,7 +50,7 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
     private StepInput stepInput;
 
     static Stream<Arguments> testExecute() {
-        return Stream.of(Arguments.of(createCloudService(), MANAGED_SERVICE_STEPS, false),
+        return Stream.of(Arguments.of(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, false),
                          Arguments.of(createUserProvidedCloudService(), Map.of(STEP_EXECUTION, StepPhase.DONE), false));
     }
 
@@ -69,14 +73,14 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
     @Test
     void testExceptionIsThrownOnManagedServiceCreationInternalServerError() {
-        initializeInput(createCloudService(), MANAGED_SERVICE_STEPS, false);
+        initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, false);
         throwExceptionOnServiceCreation(HttpStatus.INTERNAL_SERVER_ERROR);
         Assertions.assertThrows(SLException.class, () -> step.execute(execution));
     }
 
     @Test
     void testExceptionIsThrownOnManagedServiceCreationBadGateway() {
-        initializeInput(createCloudService(), MANAGED_SERVICE_STEPS, false);
+        initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, false);
         throwExceptionOnServiceCreation(HttpStatus.BAD_GATEWAY);
         Assertions.assertThrows(SLException.class, () -> step.execute(execution));
     }
@@ -90,8 +94,8 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
     @MethodSource
     @ParameterizedTest
     void testCreateServiceInstanceWhenAlreadyExists(ServiceOperation.State serviceInstanceState, String executionStatus) {
-        initializeInput(createCloudService(), MANAGED_SERVICE_STEPS, true);
-        ImmutableCloudServiceInstance existingCloudServiceInstance = ImmutableCloudServiceInstance.copyOf(createCloudService())
+        initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, true);
+        ImmutableCloudServiceInstance existingCloudServiceInstance = ImmutableCloudServiceInstance.copyOf(createCloudService(UUID.randomUUID()))
                                                                                                   .withLastOperation(createLastOperation(serviceInstanceState));
         Mockito.when(client.getServiceInstanceWithoutAuxiliaryContent(anyString(), anyBoolean()))
                .thenReturn(existingCloudServiceInstance);
@@ -113,6 +117,48 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
         step.execute(execution);
         Mockito.verify(client, times(1))
                .createUserProvidedServiceInstance(userProvidedService);
+    }
+
+    static Stream<Arguments> testSetServiceGuidIfPresent() {
+        return Stream.of(Arguments.of(
+                                      // (1) Test resolve service guid
+                                      Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("service-guid")
+                                                                                .relationshipEntityName("service-1")
+                                                                                .build(),
+                                             ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("service-guid")
+                                                                                .relationshipEntityName("service-2")
+                                                                                .build()),
+                                      ImmutableDynamicResolvableParameter.builder()
+                                                                         .parameterName("service-guid")
+                                                                         .relationshipEntityName("service-1")
+                                                                         .value("beeb5e8d-4ab9-46ee-9205-455a278743f0")
+                                                                         .build()),
+                         // (2) Test skip resolve of unrelated parameter
+                         Arguments.of(Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("service-guid")
+                                                                                .relationshipEntityName("service-2")
+                                                                                .build()),
+                                      null),
+                         // (3) Test skip resolve of unrelated parameter due to different parameter type
+                         Arguments.of(Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("metadata-key")
+                                                                                .relationshipEntityName("service-1")
+                                                                                .build()),
+                                      null));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testSetServiceGuidIfPresent(Set<DynamicResolvableParameter> dynamicResolvableParameters,
+                                     DynamicResolvableParameter expectedResolvedParameter) {
+        initializeInput(createCloudService(UUID.fromString("beeb5e8d-4ab9-46ee-9205-455a278743f0")), null, true);
+        context.setVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS, dynamicResolvableParameters);
+
+        step.execute(execution);
+
+        assertEquals(expectedResolvedParameter, context.getVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETER));
     }
 
     private void throwExceptionOnServiceCreation(HttpStatus httpStatus) {
@@ -165,12 +211,13 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
     }
 
-    private static CloudServiceInstance createCloudService() {
+    private static CloudServiceInstance createCloudService(UUID serviceGuid) {
         return ImmutableCloudServiceInstanceExtended.builder()
                                                     .metadata(ImmutableCloudMetadata.builder()
-                                                                                    .guid(UUID.randomUUID())
+                                                                                    .guid(serviceGuid)
                                                                                     .build())
                                                     .name(SERVICE_NAME)
+                                                    .resourceName(SERVICE_NAME)
                                                     .label("label-1")
                                                     .plan("plan-1")
                                                     .build();
@@ -179,6 +226,7 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
     private static CloudServiceInstance createUserProvidedCloudService() {
         return ImmutableCloudServiceInstanceExtended.builder()
                                                     .name(SERVICE_NAME)
+                                                    .resourceName(SERVICE_NAME)
                                                     .type(ServiceInstanceType.USER_PROVIDED)
                                                     .syslogDrainUrl(SERVICE_LOG_DRAIN)
                                                     .credentials(CREDENTIALS)

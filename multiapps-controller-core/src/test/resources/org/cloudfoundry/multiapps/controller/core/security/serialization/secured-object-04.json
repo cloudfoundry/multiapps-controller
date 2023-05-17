@@ -99,7 +99,8 @@
         }
       }
     },
-    "requiredDependencies" : [ ]
+    "requiredDependencies" : [ ],
+    "processedAfter" : [ ]
   } ],
   "parameters" : {
     "descriptor-parameter" : "********"

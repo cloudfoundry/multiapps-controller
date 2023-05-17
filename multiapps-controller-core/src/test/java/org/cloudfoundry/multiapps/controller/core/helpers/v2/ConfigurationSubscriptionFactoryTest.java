@@ -58,7 +58,8 @@ public class ConfigurationSubscriptionFactoryTest {
 
     protected void testCreate(DeploymentDescriptor mtad, Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId,
                               Expectation expectation) {
-        tester.test(() -> new ConfigurationSubscriptionFactory(mtad, resolvedResources).create(spaceId), expectation);
+        tester.test(() -> new ConfigurationSubscriptionFactory(mtad, resolvedResources, Collections.emptySet()).create(spaceId),
+                    expectation);
     }
 
     private Map<String, ResolvedConfigurationReference> getResolvedConfigurationReferences(DeploymentDescriptor descriptor) {

@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Stream;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.test.Tester;
@@ -44,9 +44,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudDomain;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRoute;
 
 public class CloudModelBuilderTest {
 
@@ -456,10 +453,11 @@ public class CloudModelBuilderTest {
                                                                            AppSuffixDeterminer appSuffixDeterminer) {
         deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor,
                                                                new ResolverBuilder(),
-                                                               new ResolverBuilder()).resolve();
-		var client = Mockito.mock(CloudControllerClient.class);
-		Mockito.when(client.getApplicationRoutes(Mockito.any()))
-			   .thenReturn(Collections.emptyList());
+                                                               new ResolverBuilder(),
+                                                               Collections.emptySet()).resolve();
+        var client = Mockito.mock(CloudControllerClient.class);
+        Mockito.when(client.getApplicationRoutes(Mockito.any()))
+               .thenReturn(Collections.emptyList());
         return new ApplicationCloudModelBuilder.Builder().deploymentDescriptor(deploymentDescriptor)
                                                          .prettyPrinting(prettyPrinting)
                                                          .deployedMta(deployedMta)
@@ -467,7 +465,7 @@ public class CloudModelBuilderTest {
                                                          .namespace(namespace)
                                                          .userMessageLogger(Mockito.mock(UserMessageLogger.class))
                                                          .appSuffixDeterminer(appSuffixDeterminer)
-														 .client(client)
+                                                         .client(client)
                                                          .build();
     }
 

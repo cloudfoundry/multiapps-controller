@@ -117,6 +117,7 @@ public class Messages {
     public static final String ERROR_INCREMENT_INDEX = "Error incrementing index";
     public static final String ERROR_PREPARING_MODULES_DEPLOYMENT = "Error preparing modules deployment";
     public static final String ERROR_PREPARING_RESOURCES_FOR_PROCESSING = "Error preparing resources for processing";
+    public static final String ERROR_PREPARING_RESOURCES_FOR_PROCESSING_AND_RESOLVE_DYNAMIC_PARAMETERS = "Error preparing resources for processing and resolution of dynamic parameters";
     public static final String ERROR_STOPPING_APP = "Error stopping application \"{0}\"";
     public static final String DOWNLOAD_APP_LOGS_FOR_MORE_INFO = "Download the application logs via the dmol command and check them for more information.";
     public static final String ERROR_STAGING_APP_0 = "Error staging application \"{0}\"";
@@ -394,6 +395,7 @@ public class Messages {
     public static final String PREPARING_MODULES_DEPLOYMENT = "Preparing modules deployment...";
     public static final String CALCULATING_RESOURCE_BATCHES = "Calculating resource batches...";
     public static final String EXTRACT_SERVICES_FROM_BATCH = "Extracting services from batch";
+    public static final String EXTACT_SERVICES_AND_RESOLVE_DYNAMIC_PARAMETERS_FROM_BATCH = "Extracting services and resolving dynamic parameters from batch";
     public static final String CALCULATING_RESOURCE_BATCHES_COMPLETE = "Calculating resource batches completed.";
     public static final String COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computing modules for next parallel iteration...";
     public static final String COMPUTED_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computed modules for next parallel iteration: {0}";

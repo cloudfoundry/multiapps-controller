@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -9,6 +10,7 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -18,6 +20,8 @@ import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableDynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -65,7 +69,7 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
         StepInput input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputFilename,
                                                                          DetermineServiceCreateUpdateServiceActionsStepTest.class),
                                             StepInput.class);
-        initializeParameters(input);
+        initializeParameters(input, null);
         if (expectedExceptionMessage != null) {
             Exception exception = assertThrows(Exception.class, () -> step.execute(execution));
             assertTrue(exception.getMessage()
@@ -146,16 +150,72 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
         assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_TAGS), "Actions should contain " + ServiceAction.UPDATE_TAGS);
     }
 
-    private void initializeParameters(StepInput input) {
-        prepareContext(input);
+    static Stream<Arguments> testSetServiceGuidIfPresent() {
+        return Stream.of(Arguments.of(
+                                      // (1) Test resolve service guid
+                                      "determine-actions-create-or-update-services-step-input-15-dynamic-parameter-relationship-match.json",
+                                      Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("service-guid")
+                                                                                .relationshipEntityName("service-1")
+                                                                                .build(),
+                                             ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("service-guid")
+                                                                                .relationshipEntityName("service-2")
+                                                                                .build()),
+                                      ImmutableDynamicResolvableParameter.builder()
+                                                                         .parameterName("service-guid")
+                                                                         .relationshipEntityName("service-1")
+                                                                         .value("beeb5e8d-4ab9-46ee-9205-455a278743f0")
+                                                                         .build()),
+                         // (2) Test skip resolve of unrelated parameter
+                         Arguments.of("determine-actions-create-or-update-services-step-input-15-dynamic-parameter-relationship-match.json",
+                                      Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("service-guid")
+                                                                                .relationshipEntityName("service-2")
+                                                                                .build()),
+                                      null),
+                         // (3) Test skip resolve of service marked for recreation
+                         Arguments.of("determine-actions-create-or-update-services-step-input-3-recreate-service.json",
+                                      Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("service-guid")
+                                                                                .relationshipEntityName("service-1")
+                                                                                .build()),
+                                      null),
+                         // (4) Test skip resolve of unrelated parameter due to different parameter type
+                         Arguments.of("determine-actions-create-or-update-services-step-input-15-dynamic-parameter-relationship-match.json",
+                                      Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("metadata-key")
+                                                                                .relationshipEntityName("service-1")
+                                                                                .build()),
+                                      null));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testSetServiceGuidIfPresent(String inputFilename, Set<DynamicResolvableParameter> dynamicResolvableParameters,
+                                     DynamicResolvableParameter expectedResolvedParameter) {
+        StepInput input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputFilename,
+                                                                         DetermineServiceCreateUpdateServiceActionsStepTest.class),
+                                            StepInput.class);
+        initializeParameters(input, dynamicResolvableParameters);
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        assertEquals(expectedResolvedParameter, context.getVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETER));
+    }
+
+    private void initializeParameters(StepInput input, Set<DynamicResolvableParameter> dynamicResolvableParameters) {
+        prepareContext(input, dynamicResolvableParameters);
         prepareClient(input);
     }
 
-    private void prepareContext(StepInput input) {
+    private void prepareContext(StepInput input, Set<DynamicResolvableParameter> dynamicResolvableParameters) {
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, input.getServiceKeysToCreate());
         context.setVariable(Variables.SERVICE_TO_PROCESS, input.service);
         context.setVariable(Variables.DELETE_SERVICE_KEYS, true);
         context.setVariable(Variables.DELETE_SERVICES, input.shouldDeleteServices);
+        context.setVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS, dynamicResolvableParameters);
     }
 
     private void prepareClient(StepInput input) {

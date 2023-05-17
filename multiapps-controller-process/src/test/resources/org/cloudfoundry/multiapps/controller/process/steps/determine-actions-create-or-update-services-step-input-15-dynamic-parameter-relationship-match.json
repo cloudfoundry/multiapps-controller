@@ -1,0 +1,12 @@
+{
+	"service": {
+		"type": "user-provided",
+		"name": "service-1",
+		"resourceName": "service-1"
+	},
+	"existingService": {
+		"type": "user-provided",
+		"name": "service-1",
+		"metadata": {"guid":  "beeb5e8d-4ab9-46ee-9205-455a278743f0"}
+	}
+}

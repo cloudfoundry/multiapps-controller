@@ -19,6 +19,7 @@ public class Constants {
     public static final String VAR_IS_APPLICATION_SERVICE_BINDING_UPDATED_VAR_PREFIX = "IS_APPLICATION_SERVICE_BINDING_UPDATED_";
     public static final String VAR_SERVICE_ACTIONS_TO_EXECUTE = "SERVICE_ACTIONS_TO_EXECUTE_";
     public static final String VAR_WAIT_AFTER_APP_STOP = "MTA_WAIT_AFTER_APP_STOP";
+    public static final String VAR_SERVICE_INSTANCE_GUID_PREFIX = "SERVICE_INSTANCE_GUID_";
 
     public static final String TOOL_TYPE = "tool_type";
     public static final String FEEDBACK_MAIL = "feedback_form";

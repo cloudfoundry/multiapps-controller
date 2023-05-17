@@ -2,13 +2,19 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorPropertiesResolver;
+import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableDynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -76,6 +82,21 @@ class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorSt
         when(resolver.resolve(any())).thenReturn(DEPLOYMENT_DESCRIPTOR);
         when(context.getVariable(Variables.MODULES_FOR_DEPLOYMENT)).thenReturn(List.of("foo", "bar"));
         assertThrows(SLException.class, () -> step.execute(execution));
+    }
+
+    @Test
+    void testDynamicParametersAreSetOnlyOnce() {
+        when(resolver.resolve(any())).thenAnswer((invocation) -> invocation.getArguments()[0]);        
+        Set<DynamicResolvableParameter> dynamicParameters = Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                   .parameterName("service-guid")
+                                                                   .relationshipEntityName("service-1")
+                                                                   .value("service-guid")
+                                                                   .build());
+        context.setVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS, dynamicParameters);
+        
+        step.execute(execution);
+
+        verify(execution, times(1)).setVariable(eq(Variables.DYNAMIC_RESOLVABLE_PARAMETERS.getName()), any());
     }
 
     @Override

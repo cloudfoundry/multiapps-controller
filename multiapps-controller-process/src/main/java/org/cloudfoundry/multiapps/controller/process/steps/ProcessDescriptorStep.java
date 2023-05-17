@@ -13,6 +13,7 @@ import javax.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorPropertiesResolver;
+import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableMtaDescriptorPropertiesResolverContext;
 import org.cloudfoundry.multiapps.controller.core.model.MtaDescriptorPropertiesResolverContext;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
@@ -46,6 +47,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.SUBSCRIPTIONS, SecureSerialization.toJson(subscriptions));
         context.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptions);
 
+        setDynamicResolvableParametersIfAbsent(context, resolver);
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, descriptor);
         // Set MTA modules in the context
         List<String> modulesForDeployment = context.getVariable(Variables.MODULES_FOR_DEPLOYMENT);
@@ -92,6 +94,14 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                               .configurationEntryService(configurationEntryService)
                                                               .applicationConfiguration(configuration)
                                                               .build();
+    }
+
+    private void setDynamicResolvableParametersIfAbsent(ProcessContext context, MtaDescriptorPropertiesResolver resolver) {
+        if (context.getVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS)
+                   .isEmpty()) {
+            Set<DynamicResolvableParameter> dynamicResolvableParameters = resolver.getDynamicResolvableParameters();
+            context.setVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS, dynamicResolvableParameters);
+        }
     }
 
     private Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor, List<String> moduleNamesForDeployment) {

@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.cf.v2;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
@@ -9,6 +10,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferencesResolver;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationSubscriptionFactory;
+import org.cloudfoundry.multiapps.controller.core.helpers.v2.DynamicResolvableParametersFactory;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationReference;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -29,11 +31,10 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHandlerFactory {
 
     @Override
-    public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting,
-                                                                        DeployedMta deployedMta, String deployId, String namespace,
-                                                                        UserMessageLogger stepLogger,
-                                                                        AppSuffixDeterminer appSuffixDeterminer,
-                                                                        CloudControllerClient client) {
+    public ApplicationCloudModelBuilder
+           getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
+                                           String deployId, String namespace, UserMessageLogger stepLogger,
+                                           AppSuffixDeterminer appSuffixDeterminer, CloudControllerClient client) {
         return new ApplicationCloudModelBuilder.Builder().deploymentDescriptor(deploymentDescriptor)
                                                          .prettyPrinting(prettyPrinting)
                                                          .deployedMta(deployedMta)
@@ -91,8 +92,14 @@ public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHand
     @Override
     public ConfigurationSubscriptionFactory
            getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
-                                               Map<String, ResolvedConfigurationReference> resolvedReferences) {
-        return new ConfigurationSubscriptionFactory(descriptor, resolvedReferences);
+                                               Map<String, ResolvedConfigurationReference> resolvedReferences,
+                                               Set<String> dynamicResolvableParameters) {
+        return new ConfigurationSubscriptionFactory(descriptor, resolvedReferences, dynamicResolvableParameters);
+    }
+
+    @Override
+    public DynamicResolvableParametersFactory getDynamicResolvableParameterFactory(DeploymentDescriptor descriptior) {
+        return new DynamicResolvableParametersFactory(descriptior);
     }
 
     @Override

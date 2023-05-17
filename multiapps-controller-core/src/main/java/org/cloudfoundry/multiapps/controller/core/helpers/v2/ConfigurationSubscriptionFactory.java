@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,15 +27,18 @@ public class ConfigurationSubscriptionFactory {
     private DeploymentDescriptor descriptor;
     protected final Map<String, ResolvedConfigurationReference> resolvedResources;
 
-    public ConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
-                                            Map<String, ResolvedConfigurationReference> resolvedResources) {
+    private final Set<String> dynamicResolvableParameters;
+
+    public ConfigurationSubscriptionFactory(DeploymentDescriptor descriptor, Map<String, ResolvedConfigurationReference> resolvedResources,
+                                            Set<String> dynamicResolvableParameters) {
         this.descriptor = descriptor;
         this.resolvedResources = resolvedResources;
+        this.dynamicResolvableParameters = dynamicResolvableParameters;
     }
 
     public List<ConfigurationSubscription> create(String spaceId) {
         List<String> dependenciesToIgnore = new ArrayList<>(resolvedResources.keySet());
-        descriptor = getPartialDescriptorReferenceResolver(descriptor, dependenciesToIgnore).resolve();
+        descriptor = getPartialDescriptorReferenceResolver(descriptor, dependenciesToIgnore, dynamicResolvableParameters).resolve();
         return descriptor.getModules()
                          .stream()
                          .flatMap(module -> createSubscriptionsForModule(module, spaceId))
@@ -49,8 +53,9 @@ public class ConfigurationSubscriptionFactory {
     }
 
     protected DescriptorReferenceResolver getPartialDescriptorReferenceResolver(DeploymentDescriptor descriptor,
-                                                                                List<String> dependenciesToIgnore) {
-        return new PartialDescriptorReferenceResolver(descriptor, dependenciesToIgnore);
+                                                                                List<String> dependenciesToIgnore,
+                                                                                Set<String> dynamicResolvableParameters) {
+        return new PartialDescriptorReferenceResolver(descriptor, dependenciesToIgnore, dynamicResolvableParameters);
     }
 
     private ConfigurationSubscription createSubscription(RequiredDependency dependency, Module module, String spaceId) {

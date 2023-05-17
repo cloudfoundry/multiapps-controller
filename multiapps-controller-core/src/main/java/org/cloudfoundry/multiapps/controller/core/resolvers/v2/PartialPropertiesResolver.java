@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.resolvers.v2;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.cloudfoundry.multiapps.mta.resolvers.PropertiesResolver;
 import org.cloudfoundry.multiapps.mta.resolvers.ProvidedValuesResolver;
@@ -13,8 +14,9 @@ public class PartialPropertiesResolver extends PropertiesResolver {
     private final List<String> dependenciesToIgnore;
 
     public PartialPropertiesResolver(Map<String, Object> properties, ProvidedValuesResolver valuesResolver,
-                                     ReferencePattern referencePattern, String prefix, List<String> dependenciesToIgnore) {
-        super(properties, valuesResolver, referencePattern, prefix);
+                                     ReferencePattern referencePattern, String prefix, List<String> dependenciesToIgnore,
+                                     Set<String> dynamicResolvableParameters) {
+        super(properties, valuesResolver, referencePattern, prefix, dynamicResolvableParameters);
         this.dependenciesToIgnore = dependenciesToIgnore;
     }
 

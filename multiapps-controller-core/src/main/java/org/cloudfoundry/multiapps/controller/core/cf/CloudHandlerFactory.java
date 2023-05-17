@@ -4,6 +4,7 @@ import static java.text.MessageFormat.format;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
@@ -14,6 +15,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.v3.CloudHandlerFactoryV3;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferencesResolver;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationSubscriptionFactory;
+import org.cloudfoundry.multiapps.controller.core.helpers.v2.DynamicResolvableParametersFactory;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationReference;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -66,7 +68,10 @@ public interface CloudHandlerFactory extends HandlerFactory {
     PlatformMerger getPlatformMerger(Platform platform);
 
     ConfigurationSubscriptionFactory getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
-                                                                         Map<String, ResolvedConfigurationReference> resolvedReferences);
+                                                                         Map<String, ResolvedConfigurationReference> resolvedReferences,
+                                                                         Set<String> dynamicResolvableParameters);
+
+    DynamicResolvableParametersFactory getDynamicResolvableParameterFactory(DeploymentDescriptor descriptior);
 
     ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting,
                                                                  DeployedMta deployedMta, String deployId, String namespace,

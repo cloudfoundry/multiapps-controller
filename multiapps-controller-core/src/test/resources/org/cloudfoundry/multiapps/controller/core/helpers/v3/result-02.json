@@ -86,7 +86,8 @@
       "parametersMetadata" : {
         "metadata" : { }
       }
-    } ]
+    } ],
+    "processedAfter" : [ ]
   }, {
     "majorSchemaVersion" : 3,
     "name" : "plugins.0",
@@ -110,7 +111,8 @@
     "parametersMetadata" : {
       "metadata" : { }
     },
-    "requiredDependencies" : [ ]
+    "requiredDependencies" : [ ],
+    "processedAfter" : [ ]
   }, {
     "majorSchemaVersion" : 3,
     "name" : "plugins.1",
@@ -134,7 +136,8 @@
     "parametersMetadata" : {
       "metadata" : { }
     },
-    "requiredDependencies" : [ ]
+    "requiredDependencies" : [ ],
+    "processedAfter" : [ ]
   } ],
   "parameters" : { },
   "parametersMetadata" : {

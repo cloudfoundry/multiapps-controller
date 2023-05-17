@@ -18,6 +18,7 @@ import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
+import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.model.SubprocessPhase;
@@ -729,4 +730,16 @@ public interface Variables {
                                                                      .defaultValue(Duration.ZERO)
                                                                      .build();
 
+    Variable<Set<DynamicResolvableParameter>> DYNAMIC_RESOLVABLE_PARAMETERS = ImmutableJsonStringVariable.<Set<DynamicResolvableParameter>> builder()
+                                                                                                         .name("dynamicResolvableParameters")
+                                                                                                         .type(new TypeReference<>() {
+                                                                                                         })
+                                                                                                         .defaultValue(Collections.emptySet())
+                                                                                                         .build();
+
+    Variable<DynamicResolvableParameter> DYNAMIC_RESOLVABLE_PARAMETER = ImmutableJsonStringVariable.<DynamicResolvableParameter> builder()
+                                                                                                   .name("dynamicResolvableParameter")
+                                                                                                   .type(new TypeReference<>() {
+                                                                                                   })
+                                                                                                   .build();
 }
