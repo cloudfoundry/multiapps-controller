@@ -61,9 +61,7 @@
         <semver4j.version>2.2.0</semver4j.version>
         <jgit.version>4.11.9.201909030838-r</jgit.version>
         <swagger.version>1.5.16</swagger.version>
-        <jclouds.version>2.2.1</jclouds.version>
         <shedlock-version>4.33.0</shedlock-version>
-        <guava.version>30.1.1-jre</guava.version>
         <com.sap.cloud.lm.sl.open.version>1.67.12</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
@@ -791,16 +789,6 @@
                         <artifactId>JavaEWAH</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.jclouds.provider</groupId>
-                <artifactId>aws-s3</artifactId>
-                <version>${jclouds.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sap.cloud.lm.sl</groupId>

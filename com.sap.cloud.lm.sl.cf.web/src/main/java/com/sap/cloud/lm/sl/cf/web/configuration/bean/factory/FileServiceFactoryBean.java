@@ -12,7 +12,6 @@ import com.sap.cloud.lm.sl.cf.persistence.services.DatabaseFileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorage;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileStorage;
-import com.sap.cloud.lm.sl.cf.persistence.services.ObjectStoreFileStorage;
 
 @Named("fileService")
 public class FileServiceFactoryBean implements FactoryBean<FileService>, InitializingBean {
@@ -22,12 +21,11 @@ public class FileServiceFactoryBean implements FactoryBean<FileService>, Initial
     @Autowired(required = false)
     private FileSystemFileStorage fileSystemFileStorage;
     @Autowired(required = false)
-    private ObjectStoreFileStorage objectStoreFileStorage;
     private FileService fileService;
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        FileStorage fileStorage = objectStoreFileStorage != null ? objectStoreFileStorage : fileSystemFileStorage;
+        FileStorage fileStorage = fileSystemFileStorage;
         if (fileStorage != null) {
             this.fileService = new FileService(dataSourceWithDialect, fileStorage);
         } else {
