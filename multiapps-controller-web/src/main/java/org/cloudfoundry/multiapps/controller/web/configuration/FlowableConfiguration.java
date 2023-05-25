@@ -86,6 +86,7 @@ public class FlowableConfiguration {
         jobExecutor.setAsyncJobLockTimeInMillis(JOB_EXECUTOR_LOCK_TIME_IN_MILLIS);
         jobExecutor.setLockOwner(jobExecutorId);
         jobExecutor.setUnlockOwnedJobs(true);
+        jobExecutor.setGlobalAcquireLockEnabled(false);
         jobExecutor.setTenantId(AbstractEngineConfiguration.NO_TENANT_ID);
         jobExecutor.setDefaultAsyncJobAcquireWaitTimeInMillis(ASYNC_JOB_ACQUIRE_WAIT_TIME_IN_MILLIS);
         return jobExecutor;
