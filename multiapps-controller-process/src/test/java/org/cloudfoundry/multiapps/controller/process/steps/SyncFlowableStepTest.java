@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.common.test.Tester;
@@ -21,13 +20,11 @@ import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Module;
-import org.flowable.engine.ManagementService;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ExecutionQuery;
-import org.flowable.job.api.DeadLetterJobQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -106,21 +103,6 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     private void prepareProcessEngineConfiguration() {
         ExecutionQuery mockExecutionQuery = createExecutionQueryMock();
         mockExecutionQuery(mockExecutionQuery);
-        DeadLetterJobQuery mockDeadLetterJobQuery = createDeadLetterJobQueryMock();
-        mockManagementService(mockDeadLetterJobQuery);
-    }
-
-    private void mockManagementService(DeadLetterJobQuery mockDeadLetterJobQuery) {
-        ManagementService mockManagementService = Mockito.mock(ManagementService.class);
-        when(mockManagementService.createDeadLetterJobQuery()).thenReturn(mockDeadLetterJobQuery);
-        when(processEngineConfiguration.getManagementService()).thenReturn(mockManagementService);
-    }
-
-    private DeadLetterJobQuery createDeadLetterJobQueryMock() {
-        DeadLetterJobQuery mockDeadLetterJobQuery = Mockito.mock(DeadLetterJobQuery.class);
-        when(mockDeadLetterJobQuery.processInstanceId(Mockito.anyString())).thenReturn(mockDeadLetterJobQuery);
-        when(mockDeadLetterJobQuery.list()).thenReturn(Collections.emptyList());
-        return mockDeadLetterJobQuery;
     }
 
     private void mockExecutionQuery(ExecutionQuery mockExecutionQuery) {
