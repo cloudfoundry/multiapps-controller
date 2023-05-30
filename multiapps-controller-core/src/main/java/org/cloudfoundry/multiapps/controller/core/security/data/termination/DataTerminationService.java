@@ -40,6 +40,9 @@ public class DataTerminationService {
     private static final int NUMBER_OF_DAYS_OF_EVENTS = 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(DataTerminationService.class);
     private static final SafeExecutor SAFE_EXECUTOR = new SafeExecutor(DataTerminationService::log);
+    // Required by CF API:
+    // https://v3-apidocs.cloudfoundry.org/version/3.128.0/index.html#timestamps
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     @Inject
     private ConfigurationEntryService configurationEntryService;
@@ -101,8 +104,7 @@ public class DataTerminationService {
     private String getDateBeforeDays(int numberOfDays) {
         ZonedDateTime dateBeforeTwoDays = ZonedDateTime.now()
                                                        .minus(Duration.ofDays(numberOfDays));
-        String result = DateTimeFormatter.ISO_INSTANT
-                                         .format(dateBeforeTwoDays);
+        String result = DATE_TIME_FORMATTER.format(dateBeforeTwoDays);
         LOGGER.info(MessageFormat.format(Messages.PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES, result));
         return result;
     }
