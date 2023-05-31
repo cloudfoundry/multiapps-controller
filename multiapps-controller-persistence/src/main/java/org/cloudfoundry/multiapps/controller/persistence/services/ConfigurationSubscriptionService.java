@@ -4,6 +4,8 @@ import static java.text.MessageFormat.format;
 
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -20,13 +22,15 @@ import org.cloudfoundry.multiapps.controller.persistence.model.filters.Configura
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.ConfigurationSubscriptionQueryImpl;
 
+@Named
 public class ConfigurationSubscriptionService extends PersistenceService<ConfigurationSubscription, ConfigurationSubscriptionDto, Long> {
 
+    @Inject
     protected ConfigurationSubscriptionMapper subscriptionMapper;
 
-    public ConfigurationSubscriptionService(EntityManagerFactory entityManagerFactory, ConfigurationSubscriptionMapper subscriptionMapper) {
+    @Inject
+    public ConfigurationSubscriptionService(EntityManagerFactory entityManagerFactory) {
         super(entityManagerFactory);
-        this.subscriptionMapper = subscriptionMapper;
     }
 
     public ConfigurationSubscriptionQuery createQuery() {
@@ -81,6 +85,7 @@ public class ConfigurationSubscriptionService extends PersistenceService<Configu
         throw new NotFoundException(Messages.CONFIGURATION_SUBSCRIPTION_NOT_FOUND, id);
     }
 
+    @Named
     public static class ConfigurationSubscriptionMapper
         implements PersistenceObjectMapper<ConfigurationSubscription, ConfigurationSubscriptionDto> {
 

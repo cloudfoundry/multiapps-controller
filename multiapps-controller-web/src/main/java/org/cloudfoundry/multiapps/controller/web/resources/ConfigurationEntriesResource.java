@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.web.resources;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
@@ -26,8 +27,10 @@ public class ConfigurationEntriesResource {
     public static final String REQUEST_PARAM_SPACE = "space";
 
     @Inject
+    @Named("configurationEntryService")
     private ConfigurationEntryService configurationEntryService;
     @Inject
+    @Named("configurationSubscriptionService")
     private ConfigurationSubscriptionService configurationSubscriptionService;
     @Inject
     private CloudControllerClientProvider clientProvider;
