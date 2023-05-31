@@ -32,8 +32,8 @@ public class DynamicResolvableParametersFactory
         List<String> parametersStringValues = getStringValueParameters(resource.getParameters());
         List<String> propertiesStringValues = getStringValueParameters(resource.getProperties());
 
-        addDynamicResolvableParameter(dynamicResolvableParameters, parametersStringValues, resource);
-        addDynamicResolvableParameter(dynamicResolvableParameters, propertiesStringValues, resource);
+        addDynamicResolvableParameter(dynamicResolvableParameters, parametersStringValues);
+        addDynamicResolvableParameter(dynamicResolvableParameters, propertiesStringValues);
     }
 
     private List<String> getStringValueParameters(Map<String, Object> parameters) {
@@ -45,7 +45,7 @@ public class DynamicResolvableParametersFactory
     }
 
     private void addDynamicResolvableParameter(Set<DynamicResolvableParameter> dynamicResolvableParameters,
-                                               List<String> parametersStringValues, Resource resource) {
+                                               List<String> parametersStringValues) {
         for (String parameter : parametersStringValues) {
             if (parameter.matches(DynamicParameterUtil.REGEX_PATTERN_FOR_DYNAMIC_PARAMETERS)) {
                 String relationshipName = DynamicParameterUtil.getRelationshipName(parameter);

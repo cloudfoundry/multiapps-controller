@@ -37,7 +37,7 @@ public class CreateServiceStep extends ServiceStep {
         try {
             OperationExecutionState executionState = createCloudService(controllerClient, serviceInstance);
             getStepLogger().debug(Messages.SERVICE_CREATED, serviceInstance.getName());
-            setServiceGuid(context, controllerClient, serviceInstance);
+            setServiceGuid(context, serviceInstance);
             return executionState;
         } catch (CloudOperationException e) {
             Optional<OperationExecutionState> operationExecutionState = getServiceInstanceStateIfCreated(controllerClient, serviceInstance,
@@ -71,7 +71,7 @@ public class CreateServiceStep extends ServiceStep {
         return OperationExecutionState.EXECUTING;
     }
 
-    private void setServiceGuid(ProcessContext context, CloudControllerClient client, CloudServiceInstanceExtended serviceInstance) {
+    private void setServiceGuid(ProcessContext context, CloudServiceInstanceExtended serviceInstance) {
         new DynamicResolvableParametersContextUpdater(context).updateServiceGuid(serviceInstance);
     }
 
