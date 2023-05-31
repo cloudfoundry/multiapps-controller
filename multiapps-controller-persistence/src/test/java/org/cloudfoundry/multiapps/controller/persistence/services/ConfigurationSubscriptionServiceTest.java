@@ -177,8 +177,8 @@ class ConfigurationSubscriptionServiceTest {
 
     private ConfigurationSubscriptionService createConfigurationSubscriptionService() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("TestDefault");
-        ConfigurationSubscriptionService configurationSubscriptionService = new ConfigurationSubscriptionService(entityManagerFactory,
-                                                                                                                 new ConfigurationSubscriptionMapper());
+        ConfigurationSubscriptionService configurationSubscriptionService = new ConfigurationSubscriptionService(entityManagerFactory);
+        configurationSubscriptionService.subscriptionMapper = new ConfigurationSubscriptionMapper();
         return configurationSubscriptionService;
     }
 

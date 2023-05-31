@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 import java.util.List;
 import java.util.Objects;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 
@@ -21,13 +22,15 @@ import org.cloudfoundry.multiapps.mta.model.Version;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+@Named
 public class ConfigurationEntryService extends PersistenceService<ConfigurationEntry, ConfigurationEntryDto, Long> {
 
+    @Inject
     protected ConfigurationEntryMapper entryMapper;
 
-    public ConfigurationEntryService(EntityManagerFactory entityManagerFactory, ConfigurationEntryMapper entryMapper) {
+    @Inject
+    public ConfigurationEntryService(EntityManagerFactory entityManagerFactory) {
         super(entityManagerFactory);
-        this.entryMapper = entryMapper;
     }
 
     public ConfigurationEntryQuery createQuery() {
@@ -88,7 +91,7 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
         throw new NotFoundException(Messages.CONFIGURATION_ENTRY_NOT_FOUND, id);
     }
 
-    @Named("configurationEntryObjectMapper")
+    @Named
     public static class ConfigurationEntryMapper implements PersistenceObjectMapper<ConfigurationEntry, ConfigurationEntryDto> {
 
         @Override
