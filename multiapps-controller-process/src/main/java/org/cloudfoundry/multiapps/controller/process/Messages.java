@@ -283,7 +283,12 @@ public class Messages {
     public static final String CLEARING_STALE_LOCK_OWNER = "Clearing stale lock owner {0}...";
     public static final String CLEARED_STALE_LOCK_OWNER = "Cleared stale lock owner {0}";
     public static final String SERVICE_BINDING_0_IS_ALREADY_DELETED = "Service binding \"{0}\" is already deleted";
-    public static final String UNLOCKING_JOB_WITH_ID_0_LOCK_EXPIRATION_TIME_1_AND_CREATION_TIME_2 = "Unlocking job with id: \"{0}\", lock expiration time: \"{1}\" and creation time: \"{2}\"";
+    public static final String UNLOCKING_JOB_WITH_ID_0_LOCK_EXPIRATION_TIME_1_CREATION_TIME_2_AND_ELEMENT_NAME_3 = "Unlocking job with id: \"{0}\", lock expiration time: \"{1}\", creation time: \"{2}\" with element name: \"{3}\"";
+    public static final String CREATING_A_LOCK_OWNER_WITH_NAME_0_AND_TIMESTAMP_1 = "Creating a lock owner with name \"{0}\" and timestamp \"{1}\"";
+    public static final String UPDATING_A_LOCK_OWNER_WITH_NAME_0_AND_TIMESTAMP_1 = "Updating a lock owner with name \"{0}\" and timestamp \"{1}\"";
+    public static final String LOCK_OWNER_WITH_NAME_0_ID_1_AND_TIMESTAMP_2_EXISTS_MORE_THAN_ONCE = "Lock owner with name \"{0}\", ID \"{1}\" and timestamp \"{2}\" exists more than once";
+    public static final String MORE_THAN_ONE_LOCK_OWNER_FOUND = "More than one lock owner found!";
+
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
