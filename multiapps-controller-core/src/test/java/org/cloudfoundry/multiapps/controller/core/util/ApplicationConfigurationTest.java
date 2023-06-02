@@ -83,7 +83,7 @@ class ApplicationConfigurationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"", "invalid", "{}"})
+    @ValueSource(strings = { "", "invalid", "{}" })
     void testGetSpaceGuidReturnsDefault(String envValue) {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
                .thenReturn(envValue);
@@ -484,6 +484,15 @@ class ApplicationConfigurationTest {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_CERTIFICATE_CN))
                .thenReturn(certificateCN);
         Assertions.assertEquals(certificateCN, configuration.getCertificateCN());
+    }
+
+    @Test
+    void testGetSpringSchedulerTaskExecutorThreads() {
+        int executorThreads = 2;
+        Mockito.when(environment.getInteger(ApplicationConfiguration.CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS,
+                                            ApplicationConfiguration.DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS))
+               .thenReturn(executorThreads);
+        Assertions.assertEquals(executorThreads, configuration.getSpringSchedulerTaskExecutorThreads());
     }
 
     @Test
