@@ -818,7 +818,7 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<UserRole> getUserRolesBySpaceAndUser(UUID spaceGuid, UUID userGuid) {
+    public Set<UserRole> getUserRolesBySpaceAndUser(UUID spaceGuid, UUID userGuid) {
         logger.debug(Messages.GETTING_ROLES_FOR_USER_0_FOR_SPACE_1, userGuid, spaceGuid);
         return delegate.getUserRolesBySpaceAndUser(spaceGuid, userGuid);
     }
