@@ -691,7 +691,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<UserRole> getUserRolesBySpaceAndUser(UUID spaceGuid, UUID userGuid) {
+    public Set<UserRole> getUserRolesBySpaceAndUser(UUID spaceGuid, UUID userGuid) {
         return executeWithRetry(() -> delegate.getUserRolesBySpaceAndUser(spaceGuid, userGuid));
     }
 
