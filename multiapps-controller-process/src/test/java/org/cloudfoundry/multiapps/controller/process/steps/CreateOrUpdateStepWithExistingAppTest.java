@@ -32,7 +32,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.HealthCheckType;
@@ -448,8 +447,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
     protected CreateOrUpdateAppStep createStep() {
         return new CreateOrUpdateAppStep() {
             @Override
-            protected AppBoundServiceInstanceNamesGetter getAppBoundServiceInstanceNamesGetter(CloudControllerClient client,
-                                                                                               String correlationId) {
+            protected AppBoundServiceInstanceNamesGetter getAppBoundServiceInstanceNamesGetter(ProcessContext context) {
                 return appServicesGetter;
             }
         };

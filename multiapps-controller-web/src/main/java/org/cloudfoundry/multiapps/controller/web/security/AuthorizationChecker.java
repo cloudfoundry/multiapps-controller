@@ -12,39 +12,41 @@ import javax.servlet.http.HttpServletRequest;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
-import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.CachedMap;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
 import com.sap.cloudfoundry.client.facade.oauth2.TokenFactory;
 
 @Named
-public class AuthorizationChecker {
+public class AuthorizationChecker implements DisposableBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationChecker.class);
     private CachedMap<SpaceWithUser, Set<UserRole>> userRolesCache = null;
 
-    private final CloudControllerClientProvider clientProvider;
-    private final ApplicationConfiguration applicationConfiguration;
+    private final CloudControllerClientFactory clientFactory;
+    private final TokenService tokenService;
 
     @Inject
-    public AuthorizationChecker(CloudControllerClientProvider clientProvider, ApplicationConfiguration applicationConfiguration) {
-        this.clientProvider = clientProvider;
-        this.applicationConfiguration = applicationConfiguration;
-        initSpaceDevelopersCache();
+    public AuthorizationChecker(CloudControllerClientFactory clientFactory, TokenService tokenService,
+                                ApplicationConfiguration applicationConfiguration) {
+        this.clientFactory = clientFactory;
+        this.tokenService = tokenService;
+        initSpaceDevelopersCache(applicationConfiguration);
     }
 
-    private synchronized void initSpaceDevelopersCache() {
+    private void initSpaceDevelopersCache(ApplicationConfiguration applicationConfiguration) {
         if (userRolesCache != null) {
             return;
         }
@@ -86,10 +88,14 @@ public class AuthorizationChecker {
         if (hasAdminScope(userInfo)) {
             return true;
         }
-        // TODO a lot of cpu time is lost in the getControllerClient method
-        CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName());
+        var userToken = tokenService.getToken(userInfo.getName());
+        var spaceClient = clientFactory.createSpaceClient(userToken);
+        var space = spaceClient.getSpace(orgName, spaceName);
+        var spaceGuid = space.getGuid()
+                             .toString();
+
+        CloudControllerClient client = clientFactory.createClient(userToken, spaceGuid, null);
         UUID userGuid = UUID.fromString(userInfo.getId());
-        CloudSpace space = client.getSpace(orgName, spaceName);
         return hasPermissions(client, getSpaceWithUser(userGuid, space.getGuid()), readOnly);
     }
 
@@ -97,9 +103,10 @@ public class AuthorizationChecker {
         if (hasAdminScope(userInfo)) {
             return true;
         }
-        UUID spaceGuid = convertSpaceIdToUUID(spaceId);
-        CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName());
+        var userToken = tokenService.getToken(userInfo.getName());
+        CloudControllerClient client = clientFactory.createClient(userToken);
         UUID userGuid = UUID.fromString(userInfo.getId());
+        UUID spaceGuid = convertSpaceIdToUUID(spaceId);
         return hasPermissions(client, getSpaceWithUser(userGuid, spaceGuid), readOnly);
     }
 
@@ -163,5 +170,10 @@ public class AuthorizationChecker {
         AuditLoggingProvider.getFacade()
                             .logSecurityIncident(message);
         throw new ResponseStatusException(status, message);
+    }
+
+    @Override
+    public void destroy() {
+        userRolesCache.clear();
     }
 }

@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.time.Duration;
 import java.util.function.Supplier;
@@ -24,5 +25,13 @@ class CachedObjectTest {
         assertEquals("b", cachedName.getOrRefresh(refreshFunction));
         assertEquals("b", cachedName.get());
         assertTrue(cachedName.isExpired());
+    }
+
+    @Test
+    void testExpiration() {
+        CachedObject<String> cache = new CachedObject<>("a", 2);
+
+        assertFalse(cache.isExpired(1));
+        assertTrue(cache.isExpired(3));
     }
 }

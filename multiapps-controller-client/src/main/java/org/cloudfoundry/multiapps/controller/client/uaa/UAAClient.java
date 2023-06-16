@@ -14,7 +14,7 @@ public class UAAClient {
     protected final URL uaaUrl;
     protected final WebClient webClient;
 
-    protected UAAClient(URL uaaUrl, WebClient webClient) {
+    public UAAClient(URL uaaUrl, WebClient webClient) {
         this.uaaUrl = uaaUrl;
         this.webClient = webClient;
     }
@@ -29,7 +29,6 @@ public class UAAClient {
         if (tokenKeyResponse == null) {
             throw new IllegalStateException(MessageFormat.format("Invalid response returned from {0}", tokenKeyURL));
         }
-
         return JsonUtil.convertJsonToMap(tokenKeyResponse);
     }
 

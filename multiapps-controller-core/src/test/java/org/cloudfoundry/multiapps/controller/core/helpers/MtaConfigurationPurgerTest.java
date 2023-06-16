@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
@@ -52,19 +53,16 @@ class MtaConfigurationPurgerTest {
 
     @Mock
     CloudControllerClient client;
-
+    @Mock
+    CloudSpaceClient spaceClient;
     @Mock
     ConfigurationEntryService configurationEntryService;
-
     @Mock(answer = Answers.RETURNS_SELF)
     ConfigurationEntryQuery configurationEntryQuery;
-
     @Mock
     ConfigurationSubscriptionService configurationSubscriptionService;
-
     @Mock(answer = Answers.RETURNS_SELF)
     ConfigurationSubscriptionQuery configurationSubscriptionQuery;
-
     @Mock
     AuditLoggingFacadeSLImpl auditLoggingFacade;
 
@@ -83,7 +81,7 @@ class MtaConfigurationPurgerTest {
 
     @Test
     void testPurge() {
-        MtaConfigurationPurger purger = new MtaConfigurationPurger(client,
+        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, spaceClient,
                                                                    configurationEntryService,
                                                                    configurationSubscriptionService,
                                                                    new MtaMetadataParser(new MtaMetadataValidator()));

@@ -12,14 +12,19 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.sap.cloudfoundry.client.facade.adapters.LogCacheClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudTask;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudTask;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskStep> {
 
@@ -40,6 +45,11 @@ class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskSt
                                                      .build();
 
     private AsyncExecutionState expectedExecutionStatus;
+
+    @Mock
+    private CloudControllerClientFactory clientFactory;
+    @Mock
+    private TokenService tokenService;
 
     public static Stream<Arguments> testPollStateExecution() {
         return Stream.of(
@@ -96,7 +106,10 @@ class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskSt
                                                     .state(currentTaskState)
                                                     .build();
         when(client.getTask(TASK_UUID)).thenReturn(taskWithState);
-        when(client.getRecentLogs(any(String.class), any())).thenReturn(Collections.emptyList());
+
+        var logCacheClient = Mockito.mock(LogCacheClient.class);
+        when(logCacheClient.getRecentLogs(any(UUID.class), any())).thenReturn(Collections.emptyList());
+        when(clientFactory.createLogCacheClient(any(), any())).thenReturn(logCacheClient);
     }
 
     @Override

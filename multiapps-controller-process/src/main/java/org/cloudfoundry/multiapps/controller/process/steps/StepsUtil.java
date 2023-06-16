@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +38,7 @@ import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.adapters.LogCacheClient;
 import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
@@ -149,10 +150,10 @@ public class StepsUtil {
         return tasks.get(index);
     }
 
-    static void saveAppLogs(ProcessContext context, CloudControllerClient client, String appName, Logger logger,
+    static void saveAppLogs(ProcessContext context, LogCacheClient client, UUID appGuid, String appName, Logger logger,
                             ProcessLoggerProvider processLoggerProvider) {
         LocalDateTime offset = context.getVariable(Variables.LOGS_OFFSET);
-        var recentLogs = getRecentLogsSafely(client, appName, offset, logger);
+        var recentLogs = getRecentLogsSafely(client, appGuid, offset, logger);
         if (recentLogs.isEmpty()) {
             return;
         }
@@ -169,10 +170,10 @@ public class StepsUtil {
         context.setVariable(Variables.LOGS_OFFSET, lastLog.getTimestamp());
     }
 
-    private static List<ApplicationLog> getRecentLogsSafely(CloudControllerClient client, String appName,
-                                                            LocalDateTime offset, Logger logger) {
+    private static List<ApplicationLog> getRecentLogsSafely(LogCacheClient client, UUID appGuid, LocalDateTime offset,
+                                                            Logger logger) {
         try {
-            return client.getRecentLogs(appName, offset);
+            return client.getRecentLogs(appGuid, offset);
         } catch (RuntimeException e) {
             logger.error(MessageFormat.format(Messages.COULD_NOT_GET_APP_LOGS, e.getMessage()), e);
             return Collections.emptyList();

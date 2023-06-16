@@ -78,15 +78,9 @@ public class OperationInFinalStateHandler {
 
     private void deleteCloudControllerClientForProcess(DelegateExecution execution) {
         String user = StepsUtil.determineCurrentUser(execution);
-        String organizationName = VariableHandling.get(execution, Variables.ORGANIZATION_NAME);
-        String spaceName = VariableHandling.get(execution, Variables.SPACE_NAME);
         String spaceGuid = VariableHandling.get(execution, Variables.SPACE_GUID);
-        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
 
-        clientProvider.releaseClient(user, spaceGuid, correlationId);
-        clientProvider.releaseClient(user, organizationName, spaceName, correlationId);
-        clientProvider.releaseClientWithNoCorrelation(user, spaceGuid);
-        clientProvider.releaseClientWithNoCorrelation(user, organizationName, spaceName);
+        clientProvider.releaseClient(user, spaceGuid);
     }
 
     protected void setOperationState(String processInstanceId, Operation.State state) {
@@ -133,7 +127,7 @@ public class OperationInFinalStateHandler {
                                                                                              .processType(processType)
                                                                                              .processDuration(overallProcessTime.getProcessDuration())
                                                                                              .build();
-       dynatracePublisher.publishProcessDuration(dynatraceProcessDuration, LOGGER);
+        dynatracePublisher.publishProcessDuration(dynatraceProcessDuration, LOGGER);
         
         LOGGER.info(format(Messages.TIME_STATISTICS_FOR_OPERATION_0_DURATION_1_DELAY_2, correlationId,
                            overallProcessTime.getProcessDuration(), overallProcessTime.getDelayBetweenSteps()));

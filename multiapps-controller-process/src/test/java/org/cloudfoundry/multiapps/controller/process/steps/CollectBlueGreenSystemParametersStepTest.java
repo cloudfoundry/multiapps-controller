@@ -84,7 +84,7 @@ class CollectBlueGreenSystemParametersStepTest extends CollectSystemParametersSt
     protected CollectBlueGreenSystemParametersStep createStep() {
         return new CollectBlueGreenSystemParametersStep() {
             @Override
-            protected AuthorizationEndpointGetter getAuthorizationEndpointGetter(CloudControllerClient client) {
+            protected AuthorizationEndpointGetter getAuthorizationEndpointGetter(ProcessContext context) {
                 return authorizationEndpointGetter;
             }
         };

@@ -3,9 +3,11 @@ package org.cloudfoundry.multiapps.controller.web.resources;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaConfigurationPurger;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
@@ -35,24 +37,29 @@ public class ConfigurationEntriesResource {
     @Inject
     private CloudControllerClientProvider clientProvider;
     @Inject
+    private CloudControllerClientFactory clientFactory;
+    @Inject
     private MtaMetadataParser mtaMetadataParser;
+    @Inject
+    private TokenService tokenService;
 
     @PostMapping("/purge")
     public ResponseEntity<Void> purgeConfigurationRegistry(@RequestParam(REQUEST_PARAM_ORGANIZATION) String organization,
                                                            @RequestParam(REQUEST_PARAM_SPACE) String space) {
-        CloudControllerClient client = createClient(organization, space);
-        MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client,
+        UserInfo user = SecurityContextUtil.getUserInfo();
+        var spaceClient = clientFactory.createSpaceClient(tokenService.getToken(user.getName()));
+
+        var cloudSpace = spaceClient.getSpace(organization, space);
+
+        CloudControllerClient client = clientProvider.getControllerClientWithNoCorrelation(user.getName(), cloudSpace.getGuid()
+                                                                                                                     .toString());
+        MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client, spaceClient,
                                                                                 configurationEntryService,
                                                                                 configurationSubscriptionService,
                                                                                 mtaMetadataParser);
         configurationPurger.purge(organization, space);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                              .build();
-    }
-
-    private CloudControllerClient createClient(String organization, String space) {
-        UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientProvider.getControllerClientWithNoCorrelation(userInfo.getName(), organization, space);
     }
 
 }

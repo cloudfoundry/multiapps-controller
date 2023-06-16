@@ -7,8 +7,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
 
-import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.CredentialsGenerator;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ReadOnlyParametersChecker;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -17,9 +18,9 @@ import org.cloudfoundry.multiapps.mta.model.VersionRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
 
 public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableStepTest<CollectSystemParametersStep> {
 
@@ -45,6 +46,10 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
     protected ReadOnlyParametersChecker readOnlyParametersChecker;
     @Mock
     protected AuthorizationEndpointGetter authorizationEndpointGetter;
+    @Mock
+    protected TokenService tokenService;
+    @Mock
+    protected WebClientFactory webClientFactory;
 
     @BeforeEach
     public void setUp() throws MalformedURLException {
@@ -90,7 +95,7 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
     protected CollectSystemParametersStep createStep() {
         return new CollectSystemParametersStep() {
             @Override
-            protected AuthorizationEndpointGetter getAuthorizationEndpointGetter(CloudControllerClient client) {
+            protected AuthorizationEndpointGetter getAuthorizationEndpointGetter(ProcessContext context) {
                 return authorizationEndpointGetter;
             }
         };

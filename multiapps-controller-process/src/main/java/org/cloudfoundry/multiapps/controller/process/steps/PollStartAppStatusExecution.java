@@ -4,8 +4,11 @@ import static java.text.MessageFormat.format;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -27,6 +30,14 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         STARTING, STARTED, CRASHED, DOWN
     }
 
+    private final CloudControllerClientFactory clientFactory;
+    private final TokenService tokenService;
+
+    public PollStartAppStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService) {
+        this.clientFactory = clientFactory;
+        this.tokenService = tokenService;
+    }
+
     @Override
     public AsyncExecutionState execute(ProcessContext context) {
         String appToPoll = getAppToPoll(context).getName();
@@ -41,7 +52,12 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         StartupStatus status = getStartupStatus(context, app.getName(), appInstances);
         ProcessLoggerProvider processLoggerProvider = context.getStepLogger()
                                                              .getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(context, client, app.getName(), LOGGER, processLoggerProvider);
+
+        var user = context.getVariable(Variables.USER);
+        var correlationId = context.getVariable(Variables.CORRELATION_ID);
+        var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(user), correlationId);
+
+        StepsUtil.saveAppLogs(context, logCacheClient, app.getGuid(), app.getName(), LOGGER, processLoggerProvider);
         return checkStartupStatus(context, app, status);
     }
 

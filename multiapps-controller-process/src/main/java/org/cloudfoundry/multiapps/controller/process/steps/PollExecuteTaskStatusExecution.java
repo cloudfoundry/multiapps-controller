@@ -1,8 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -15,6 +18,14 @@ import com.sap.cloudfoundry.client.facade.domain.CloudTask;
 public class PollExecuteTaskStatusExecution implements AsyncExecution {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PollExecuteTaskStatusExecution.class);
+
+    private final CloudControllerClientFactory clientFactory;
+    private final TokenService tokenService;
+
+    public PollExecuteTaskStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService) {
+        this.clientFactory = clientFactory;
+        this.tokenService = tokenService;
+    }
 
     @Override
     public AsyncExecutionState execute(ProcessContext context) {
@@ -29,7 +40,13 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
                                                                   .toLowerCase());
         ProcessLoggerProvider processLoggerProvider = context.getStepLogger()
                                                              .getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(context, client, app.getName(), LOGGER, processLoggerProvider);
+
+        var user = context.getVariable(Variables.USER);
+        var correlationId = context.getVariable(Variables.CORRELATION_ID);
+        var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(user), correlationId);
+
+        UUID appGuid = client.getApplicationGuid(app.getName());
+        StepsUtil.saveAppLogs(context, logCacheClient, appGuid, app.getName(), LOGGER, processLoggerProvider);
 
         if (currentState == CloudTask.State.SUCCEEDED) {
             return AsyncExecutionState.FINISHED;

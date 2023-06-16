@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -19,15 +20,19 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 
 class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribersStep> {
+
+    private final UUID FOO_SPACE_GUID = UUID.randomUUID();
+    private final UUID BAR_SPACE_GUID = UUID.randomUUID();
 
     @Test
     void testClientsForCorrectSpacesAreRequested() {
         // Given:
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
-        updatedSubscribers.add(createCloudApplication("app", createCloudSpace("org", "space-foo")));
-        updatedSubscribers.add(createCloudApplication("app", createCloudSpace("org", "space-bar")));
+        updatedSubscribers.add(createCloudApplication("app", createCloudSpace(FOO_SPACE_GUID)));
+        updatedSubscribers.add(createCloudApplication("app", createCloudSpace(BAR_SPACE_GUID)));
         context.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
 
         // When:
@@ -35,24 +40,21 @@ class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribers
 
         // Then:
         Mockito.verify(clientProvider, Mockito.atLeastOnce())
-               .getControllerClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString());
+               .getControllerClient(eq(USER_NAME), eq(FOO_SPACE_GUID.toString()), anyString());
         Mockito.verify(clientProvider, Mockito.atLeastOnce())
-               .getControllerClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString());
+               .getControllerClient(eq(USER_NAME), eq(BAR_SPACE_GUID.toString()), anyString());
     }
 
     @Test
     void testSubscribersAreRestartedWhenClientExtensionsAreNotSupported() {
         // Given:
-        List<CloudApplication> updatedSubscribers = new ArrayList<>();
-        updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace("org", "space-foo")));
-        updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace("org", "space-bar")));
-        context.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
+        setupSubscribers();
 
         CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class);
         CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class);
-        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString()))
+        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(FOO_SPACE_GUID.toString()), anyString()))
                .thenReturn(clientForSpaceFoo);
-        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString()))
+        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(BAR_SPACE_GUID.toString()), anyString()))
                .thenReturn(clientForSpaceBar);
 
         // When:
@@ -73,17 +75,14 @@ class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribers
     @Test
     void testSubscribersAreRestartedWhenClientExtensionsAreSupported() {
         // Given:
-        List<CloudApplication> updatedSubscribers = new ArrayList<>();
-        updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace("org", "space-foo")));
-        updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace("org", "space-bar")));
-        context.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
+        setupSubscribers();
 
         CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class);
         CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class);
 
-        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString()))
+        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(FOO_SPACE_GUID.toString()), anyString()))
                .thenReturn(clientForSpaceFoo);
-        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString()))
+        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(BAR_SPACE_GUID.toString()), anyString()))
                .thenReturn(clientForSpaceBar);
 
         // When:
@@ -116,10 +115,7 @@ class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribers
     @Test
     void testOtherSubscribersAreRestartedWhenOneRestartFails() {
         // Given:
-        List<CloudApplication> updatedSubscribers = new ArrayList<>();
-        updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace(ORG_NAME, SPACE_NAME)));
-        updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace(ORG_NAME, SPACE_NAME)));
-        context.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
+        setupSubscribers();
 
         Mockito.doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR))
                .when(client)
@@ -138,6 +134,13 @@ class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribers
                .startApplication("app-2");
     }
 
+    private void setupSubscribers() {
+        List<CloudApplication> updatedSubscribers = new ArrayList<>();
+        updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace(FOO_SPACE_GUID)));
+        updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace(BAR_SPACE_GUID)));
+        context.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
+    }
+
     private CloudApplication createCloudApplication(String appName, CloudSpace space) {
         return ImmutableCloudApplicationExtended.builder()
                                                 .name(appName)
@@ -145,12 +148,13 @@ class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribers
                                                 .build();
     }
 
-    private CloudSpace createCloudSpace(String orgName, String spaceName) {
+    private CloudSpace createCloudSpace(UUID guid) {
         return ImmutableCloudSpace.builder()
+                                  .metadata(ImmutableCloudMetadata.of(guid))
                                   .organization(ImmutableCloudOrganization.builder()
-                                                                          .name(orgName)
+                                                                          .name("orgName")
                                                                           .build())
-                                  .name(spaceName)
+                                  .name("spaceName")
                                   .build();
     }
 

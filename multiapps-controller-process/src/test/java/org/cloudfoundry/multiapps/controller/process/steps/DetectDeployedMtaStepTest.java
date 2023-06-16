@@ -15,6 +15,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysCl
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
 class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaStep> {
 
@@ -33,6 +35,8 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
     private DeployedMtaDetector deployedMtaDetector;
     @Mock
     private CustomServiceKeysClient customClientMock;
+    @Mock
+    private TokenService tokenService;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -100,7 +104,7 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
 
     private class DetectDeployedMtaStepMock extends DetectDeployedMtaStep {
         @Override
-        protected CustomServiceKeysClient getCustomServiceKeysClient(CloudControllerClient client, String correlationId) {
+        protected CustomServiceKeysClient getCustomServiceKeysClient(CloudCredentials credentials, String correlationId) {
             return customClientMock;
         }
     }

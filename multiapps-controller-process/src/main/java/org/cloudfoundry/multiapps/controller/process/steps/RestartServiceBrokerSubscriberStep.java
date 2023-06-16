@@ -27,7 +27,7 @@ public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollStartServiceBrokerSubscriberStatusExecution());
+        return List.of(new PollStartServiceBrokerSubscriberStatusExecution(clientFactory, tokenService));
     }
 
 }

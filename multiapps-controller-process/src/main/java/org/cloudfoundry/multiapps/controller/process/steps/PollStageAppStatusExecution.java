@@ -3,6 +3,8 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
@@ -21,9 +23,14 @@ public class PollStageAppStatusExecution implements AsyncExecution {
     private static final Logger LOGGER = LoggerFactory.getLogger(PollStageAppStatusExecution.class);
 
     private final ApplicationStager applicationStager;
+    private final CloudControllerClientFactory clientFactory;
+    private final TokenService tokenService;
 
-    public PollStageAppStatusExecution(ApplicationStager applicationStager) {
+    public PollStageAppStatusExecution(ApplicationStager applicationStager, CloudControllerClientFactory clientFactory,
+                                       TokenService tokenService) {
         this.applicationStager = applicationStager;
+        this.clientFactory = clientFactory;
+        this.tokenService = tokenService;
     }
 
     @Override
@@ -37,12 +44,18 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         stepLogger.debug(Messages.APP_STAGING_STATUS, application.getName(), state.getState());
 
         ProcessLoggerProvider processLoggerProvider = stepLogger.getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(context, client, application.getName(), LOGGER, processLoggerProvider);
+
+        var user = context.getVariable(Variables.USER);
+        var correlationId = context.getVariable(Variables.CORRELATION_ID);
+        var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(user), correlationId);
+
+        UUID appGuid = client.getApplicationGuid(application.getName());
+        StepsUtil.saveAppLogs(context, logCacheClient, appGuid, application.getName(), LOGGER, processLoggerProvider);
 
         if (state.getState() != PackageState.STAGED) {
             return checkStagingState(context.getStepLogger(), application.getName(), state);
         }
-        bindDropletToApplication(client, application.getName());
+        applicationStager.bindDropletToApplication(appGuid);
         stepLogger.info(Messages.APP_STAGED, application.getName());
         return AsyncExecutionState.FINISHED;
     }
@@ -59,11 +72,6 @@ public class PollStageAppStatusExecution implements AsyncExecution {
             return AsyncExecutionState.ERROR;
         }
         return AsyncExecutionState.RUNNING;
-    }
-
-    private void bindDropletToApplication(CloudControllerClient client, String appName) {
-        UUID applicationGuid = client.getApplicationGuid(appName);
-        applicationStager.bindDropletToApplication(applicationGuid);
     }
 
 }
