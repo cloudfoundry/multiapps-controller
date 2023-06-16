@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceBindingParametersGetter;
@@ -26,7 +27,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBinding;
@@ -40,6 +41,8 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
     private ServiceBindingParametersGetter serviceBindingParametersGetter;
     @Mock
     private AppBoundServiceInstanceNamesGetter appServicesGetter;
+    @Mock
+    private TokenService tokenService;
 
     static Stream<Arguments> testDetermineServiceBindUnbind() {
         return Stream.of(
@@ -181,7 +184,7 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
             }
 
             @Override
-            protected AppBoundServiceInstanceNamesGetter getAppServicesGetter(CloudControllerClient client, String correlationId) {
+            protected AppBoundServiceInstanceNamesGetter getAppServicesGetter(CloudCredentials credentials, String correlationId) {
                 return appServicesGetter;
             }
         };

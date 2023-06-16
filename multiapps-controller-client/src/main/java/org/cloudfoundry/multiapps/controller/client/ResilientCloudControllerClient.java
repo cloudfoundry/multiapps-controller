@@ -1,8 +1,6 @@
 package org.cloudfoundry.multiapps.controller.client;
 
-import java.net.URL;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,13 +17,11 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudControllerClientImpl;
 import com.sap.cloudfoundry.client.facade.ServiceBindingOperationCallback;
 import com.sap.cloudfoundry.client.facade.UploadStatusCallback;
-import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
 import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
 import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
 import com.sap.cloudfoundry.client.facade.domain.CloudEvent;
-import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.CloudProcess;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
@@ -44,7 +40,6 @@ import com.sap.cloudfoundry.client.facade.domain.ServicePlanVisibility;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 import com.sap.cloudfoundry.client.facade.domain.Upload;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import com.sap.cloudfoundry.client.facade.rest.CloudControllerRestClient;
 
 public class ResilientCloudControllerClient implements CloudControllerClient {
@@ -53,6 +48,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     public ResilientCloudControllerClient(CloudControllerRestClient delegate) {
         this.delegate = new CloudControllerClientImpl(delegate);
+    }
+
+    @Override
+    public CloudSpace getTarget() {
+        return delegate.getTarget();
     }
 
     @Override
@@ -209,28 +209,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudOrganization getOrganization(String organizationName) {
-        return executeWithRetry(() -> delegate.getOrganization(organizationName));
-    }
-
-    @Override
-    public CloudOrganization getOrganization(String organizationName, boolean required) {
-        return executeWithRetry(() -> delegate.getOrganization(organizationName, required));
-    }
-
-    @Override
     public List<CloudDomain> getPrivateDomains() {
         return executeWithRetry(delegate::getPrivateDomains, HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<ApplicationLog> getRecentLogs(String applicationName, LocalDateTime offset) {
-        return executeWithRetry(() -> delegate.getRecentLogs(applicationName, offset), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<ApplicationLog> getRecentLogs(UUID applicationGuid, LocalDateTime offset) {
-        return executeWithRetry(() -> delegate.getRecentLogs(applicationGuid, offset), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -321,41 +301,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public List<CloudDomain> getSharedDomains() {
         return executeWithRetry(delegate::getSharedDomains, HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public CloudSpace getSpace(UUID spaceGuid) {
-        return executeWithRetry(() -> delegate.getSpace(spaceGuid));
-    }
-
-    @Override
-    public CloudSpace getSpace(String organizationName, String spaceName) {
-        return executeWithRetry(() -> delegate.getSpace(organizationName, spaceName));
-    }
-
-    @Override
-    public CloudSpace getSpace(String organizationName, String spaceName, boolean required) {
-        return executeWithRetry(() -> delegate.getSpace(organizationName, spaceName, required));
-    }
-
-    @Override
-    public CloudSpace getSpace(String spaceName) {
-        return executeWithRetry(() -> delegate.getSpace(spaceName));
-    }
-
-    @Override
-    public CloudSpace getSpace(String spaceName, boolean required) {
-        return executeWithRetry(() -> delegate.getSpace(spaceName, required));
-    }
-
-    @Override
-    public List<CloudSpace> getSpaces() {
-        return executeWithRetry(() -> delegate.getSpaces(), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<CloudSpace> getSpaces(String organizationName) {
-        return executeWithRetry(() -> delegate.getSpaces(organizationName), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -459,11 +404,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<CloudServiceInstance> getServiceInstances() {
-        return executeWithRetry(delegate::getServiceInstances, HttpStatus.NOT_FOUND);
-    }
-
-    @Override
     public CloudServiceKey createAndFetchServiceKey(CloudServiceKey keyModel, String serviceInstanceName) {
         return executeWithRetry(() -> delegate.createAndFetchServiceKey(keyModel, serviceInstanceName));
     }
@@ -476,16 +416,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public Optional<String> createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
         return executeWithRetry(() -> delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters));
-    }
-
-    @Override
-    public void deleteAllApplications() {
-        executeWithRetry(delegate::deleteAllApplications);
-    }
-
-    @Override
-    public void deleteAllServiceInstances() {
-        executeWithRetry(delegate::deleteAllServiceInstances);
     }
 
     @Override
@@ -519,18 +449,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public URL getCloudControllerUrl() {
-        return executeWithRetry(delegate::getCloudControllerUrl);
-    }
-
-    @Override
     public List<CloudEvent> getEvents() {
         return executeWithRetry(delegate::getEvents, HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<CloudOrganization> getOrganizations() {
-        return executeWithRetry(delegate::getOrganizations, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -571,16 +491,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public List<CloudStack> getStacks() {
         return executeWithRetry(delegate::getStacks, HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public OAuth2AccessTokenWithAdditionalInfo login() {
-        return executeWithRetry(delegate::login);
-    }
-
-    @Override
-    public void logout() {
-        executeWithRetry(delegate::logout);
     }
 
     @Override

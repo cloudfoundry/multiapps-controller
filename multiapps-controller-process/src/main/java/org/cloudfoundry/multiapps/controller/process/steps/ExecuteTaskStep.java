@@ -5,9 +5,12 @@ import java.time.Duration;
 import java.util.List;
 import java.util.function.LongSupplier;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -21,6 +24,11 @@ import com.sap.cloudfoundry.client.facade.domain.CloudTask;
 public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     protected LongSupplier currentTimeSupplier = System::currentTimeMillis;
+
+    @Inject
+    private CloudControllerClientFactory clientFactory;
+    @Inject
+    private TokenService tokenService;
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
@@ -44,7 +52,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollExecuteTaskStatusExecution());
+        return List.of(new PollExecuteTaskStatusExecution(clientFactory, tokenService));
     }
 
     @Override

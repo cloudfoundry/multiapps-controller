@@ -1,8 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.client;
 
-import java.net.URL;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,13 +17,11 @@ import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.ServiceBindingOperationCallback;
 import com.sap.cloudfoundry.client.facade.UploadStatusCallback;
-import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
 import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
 import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
 import com.sap.cloudfoundry.client.facade.domain.CloudEvent;
-import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.CloudProcess;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
@@ -44,7 +40,6 @@ import com.sap.cloudfoundry.client.facade.domain.ServicePlanVisibility;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 import com.sap.cloudfoundry.client.facade.domain.Upload;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 public class LoggingCloudControllerClient implements CloudControllerClient {
 
@@ -54,6 +49,11 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public LoggingCloudControllerClient(CloudControllerClient delegate, UserMessageLogger logger) {
         this.delegate = delegate;
         this.logger = logger;
+    }
+
+    @Override
+    public CloudSpace getTarget() {
+        return delegate.getTarget();
     }
 
     @Override
@@ -127,18 +127,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public void createUserProvidedServiceInstance(CloudServiceInstance serviceInstance) {
         logger.debug(Messages.CREATING_USER_PROVIDED_SERVICE_INSTANCE_0, SecureSerialization.toJson(serviceInstance));
         delegate.createUserProvidedServiceInstance(serviceInstance);
-    }
-
-    @Override
-    public void deleteAllApplications() {
-        logger.debug(Messages.DELETING_ALL_APPLICATIONS);
-        delegate.deleteAllApplications();
-    }
-
-    @Override
-    public void deleteAllServiceInstances() {
-        logger.debug(Messages.DELETING_ALL_SERVICE_INSTANCES);
-        delegate.deleteAllServiceInstances();
     }
 
     @Override
@@ -316,39 +304,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudOrganization getOrganization(String organizationName) {
-        logger.debug(Messages.GETTING_ORGANIZATION_0, organizationName);
-        return delegate.getOrganization(organizationName);
-    }
-
-    @Override
-    public CloudOrganization getOrganization(String organizationName, boolean required) {
-        logger.debug(Messages.GETTING_ORGANIZATION_0, organizationName);
-        return delegate.getOrganization(organizationName, required);
-    }
-
-    @Override
-    public List<CloudOrganization> getOrganizations() {
-        logger.debug(Messages.GETTING_ORGANIZATIONS);
-        return delegate.getOrganizations();
-    }
-
-    @Override
     public List<CloudDomain> getPrivateDomains() {
         logger.debug(Messages.GETTING_PRIVATE_DOMAINS);
         return delegate.getPrivateDomains();
-    }
-
-    @Override
-    public List<ApplicationLog> getRecentLogs(String applicationName, LocalDateTime offset) {
-        logger.debug(Messages.GETTING_RECENT_LOGS_OF_APPLICATION_0, applicationName);
-        return delegate.getRecentLogs(applicationName, offset);
-    }
-
-    @Override
-    public List<ApplicationLog> getRecentLogs(UUID applicationGuid, LocalDateTime offset) {
-        logger.debug(Messages.GETTING_RECENT_LOGS_OF_APPLICATION_0, applicationGuid);
-        return delegate.getRecentLogs(applicationGuid, offset);
     }
 
     @Override
@@ -484,57 +442,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<CloudServiceInstance> getServiceInstances() {
-        logger.debug(Messages.GETTING_SERVICE_INSTANCES);
-        return delegate.getServiceInstances();
-    }
-
-    @Override
     public List<CloudDomain> getSharedDomains() {
         logger.debug(Messages.GETTING_SHARED_DOMAINS);
         return delegate.getSharedDomains();
-    }
-
-    @Override
-    public CloudSpace getSpace(UUID spaceGuid) {
-        logger.debug(Messages.GETTING_SPACE_0, spaceGuid);
-        return delegate.getSpace(spaceGuid);
-    }
-
-    @Override
-    public CloudSpace getSpace(String organizationName, String spaceName) {
-        logger.debug(Messages.GETTING_SPACE_IN_ORGANIZATION_0, spaceName, organizationName);
-        return delegate.getSpace(organizationName, spaceName);
-    }
-
-    @Override
-    public CloudSpace getSpace(String organizationName, String spaceName, boolean required) {
-        logger.debug(Messages.GETTING_SPACE_IN_ORGANIZATION_0, spaceName, organizationName);
-        return delegate.getSpace(organizationName, spaceName, required);
-    }
-
-    @Override
-    public CloudSpace getSpace(String spaceName) {
-        logger.debug(Messages.GETTING_SPACE_0, spaceName);
-        return delegate.getSpace(spaceName);
-    }
-
-    @Override
-    public CloudSpace getSpace(String spaceName, boolean required) {
-        logger.debug(Messages.GETTING_SPACE_0, spaceName);
-        return delegate.getSpace(spaceName, required);
-    }
-
-    @Override
-    public List<CloudSpace> getSpaces() {
-        logger.debug(Messages.GETTING_SPACES);
-        return delegate.getSpaces();
-    }
-
-    @Override
-    public List<CloudSpace> getSpaces(String organizationName) {
-        logger.debug(Messages.GETTING_SPACES_IN_ORGANIZATION_0, organizationName);
-        return delegate.getSpaces(organizationName);
     }
 
     @Override
@@ -782,21 +692,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public void updateServiceBindingMetadata(UUID guid, Metadata metadata) {
         logger.debug(Messages.UPDATING_METADATA_OF_SERVICE_BINDING_0_TO_1, guid, SecureSerialization.toJson(metadata));
         delegate.updateServiceBindingMetadata(guid, metadata);
-    }
-
-    @Override
-    public URL getCloudControllerUrl() {
-        return delegate.getCloudControllerUrl();
-    }
-
-    @Override
-    public OAuth2AccessTokenWithAdditionalInfo login() {
-        return delegate.login();
-    }
-
-    @Override
-    public void logout() {
-        delegate.logout();
     }
 
     @Override

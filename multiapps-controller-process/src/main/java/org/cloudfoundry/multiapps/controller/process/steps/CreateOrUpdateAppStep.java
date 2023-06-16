@@ -11,14 +11,18 @@ import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationAttributeUpdater;
@@ -42,6 +46,11 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
     protected BooleanSupplier shouldPrettyPrint = () -> true;
+
+    @Inject
+    private TokenService tokenService;
+    @Inject
+    private WebClientFactory webClientFactory;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws FileStorageException {
@@ -69,8 +78,12 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                                     .getName());
     }
 
-    protected AppBoundServiceInstanceNamesGetter getAppBoundServiceInstanceNamesGetter(CloudControllerClient client, String correlationId) {
-        return new AppBoundServiceInstanceNamesGetter(client, correlationId);
+    protected AppBoundServiceInstanceNamesGetter getAppBoundServiceInstanceNamesGetter(ProcessContext context) {
+        String user = context.getVariable(Variables.USER);
+        String correlationId = context.getVariable(Variables.CORRELATION_ID);
+        var token = tokenService.getToken(user);
+        var credentials = new CloudCredentials(token, true);
+        return new AppBoundServiceInstanceNamesGetter(webClientFactory, credentials, correlationId);
     }
 
     private StepFlowHandler createStepFlowHandler(ProcessContext context, CloudControllerClient client, CloudApplicationExtended app,
@@ -213,7 +226,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             if (context.getVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING)) {
                 return;
             }
-            List<String> services = getMtaAndExistingServices(context.getVariable(Variables.CORRELATION_ID));
+            List<String> services = getMtaAndExistingServices();
             context.setVariable(Variables.SERVICES_TO_UNBIND_BIND, services);
         }
 
@@ -243,8 +256,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.APP_UPDATED, app.getName());
         }
 
-        private List<String> getMtaAndExistingServices(String correlationId) {
-            var serviceNamesGetter = getAppBoundServiceInstanceNamesGetter(client, correlationId);
+        private List<String> getMtaAndExistingServices() {
+            var serviceNamesGetter = getAppBoundServiceInstanceNamesGetter(context);
             return Stream.of(app.getServices(), serviceNamesGetter.getServiceInstanceNamesBoundToApp(existingApp.getGuid()))
                          .flatMap(List::stream)
                          .distinct()

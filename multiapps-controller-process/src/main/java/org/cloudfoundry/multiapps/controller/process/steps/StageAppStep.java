@@ -4,8 +4,11 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -17,6 +20,11 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 @Named("stageAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StageAppStep extends TimeoutAsyncFlowableStep {
+
+    @Inject
+    protected CloudControllerClientFactory clientFactory;
+    @Inject
+    protected TokenService tokenService;
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
@@ -33,7 +41,7 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollStageAppStatusExecution(new ApplicationStager(context)));
+        return List.of(new PollStageAppStatusExecution(new ApplicationStager(context), clientFactory, tokenService));
     }
 
     @Override

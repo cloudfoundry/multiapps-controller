@@ -6,9 +6,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import com.sap.cloudfoundry.client.facade.util.RestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
-import org.cloudfoundry.multiapps.controller.client.uaa.UAAClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SSLUtil;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +24,8 @@ public class UAAClientConfiguration {
         if (configuration.shouldSkipSslValidation()) {
             SSLUtil.disableSSLValidation();
         }
-        return new UAAClientFactory().createClient(readTokenEndpoint(configuration.getControllerUrl()));
+        return new UAAClient(readTokenEndpoint(configuration.getControllerUrl()),
+                             new RestUtil().createWebClient(false));
     }
 
     @SuppressWarnings("unchecked")

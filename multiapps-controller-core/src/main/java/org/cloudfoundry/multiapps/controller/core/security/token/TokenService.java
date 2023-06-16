@@ -2,21 +2,23 @@ package org.cloudfoundry.multiapps.controller.core.security.token;
 
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.Messages;
+import org.cloudfoundry.multiapps.controller.core.model.CachedMap;
 import org.cloudfoundry.multiapps.controller.core.security.token.parsers.TokenParserChain;
 import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.model.AccessToken;
 import org.cloudfoundry.multiapps.controller.persistence.services.AccessTokenService;
-import org.springframework.util.ConcurrentReferenceHashMap;
+import org.springframework.beans.factory.DisposableBean;
 
 import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
@@ -24,11 +26,12 @@ import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditional
  * Provides functionality for persisting, updating and removing tokens from a token store
  */
 @Named
-public class TokenService {
+public class TokenService implements DisposableBean {
 
     private final AccessTokenService accessTokenService;
     private final TokenParserChain tokenParserChain;
-    private final Map<String, OAuth2AccessTokenWithAdditionalInfo> cachedOauth2AccessTokens = new ConcurrentReferenceHashMap<>();
+    private final Duration tokenExpirationTime = Duration.ofMinutes(10);
+    private final CachedMap<String, OAuth2AccessTokenWithAdditionalInfo> cachedTokens = new CachedMap<>(tokenExpirationTime);
 
     @Inject
     public TokenService(AccessTokenService accessTokenService, TokenParserChain tokenParserChain) {
@@ -43,7 +46,7 @@ public class TokenService {
      * @return the latest token, or throw an exception if token is not found
      */
     public OAuth2AccessTokenWithAdditionalInfo getToken(String username) {
-        OAuth2AccessTokenWithAdditionalInfo cachedAccessToken = cachedOauth2AccessTokens.get(username);
+        OAuth2AccessTokenWithAdditionalInfo cachedAccessToken = cachedTokens.get(username);
         if (shouldUseCachedToken(cachedAccessToken)) {
             return cachedAccessToken;
         }
@@ -52,7 +55,7 @@ public class TokenService {
             throw new IllegalStateException(MessageFormat.format(Messages.NO_VALID_TOKEN_FOUND, username));
         }
         OAuth2AccessTokenWithAdditionalInfo tokenByUser = getLatestToken(accessTokens);
-        cachedOauth2AccessTokens.put(username, tokenByUser);
+        cachedTokens.put(username, tokenByUser);
         deleteTokens(accessTokens.subList(1, accessTokens.size()));
         return tokenByUser;
     }
@@ -81,12 +84,19 @@ public class TokenService {
             return;
         }
         Executors.newSingleThreadExecutor()
-                 .submit(() -> accessTokens.forEach(this::deleteToken));
+                 .submit(() -> doDeleteTokens(accessTokens));
     }
 
-    private void deleteToken(AccessToken token) {
+    private void doDeleteTokens(List<AccessToken> tokens) {
         accessTokenService.createQuery()
-                          .id(token.getId())
+                          .withIdAnyOf(tokens.stream()
+                                             .map(AccessToken::getId)
+                                             .collect(Collectors.toList()))
                           .delete();
+    }
+
+    @Override
+    public void destroy() {
+        cachedTokens.clear();
     }
 }

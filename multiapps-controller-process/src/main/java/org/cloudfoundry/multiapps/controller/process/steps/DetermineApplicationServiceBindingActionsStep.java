@@ -6,11 +6,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceBindingParametersGetter;
@@ -18,6 +21,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
@@ -25,6 +29,11 @@ import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 @Named("determineApplicationServiceBindingActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableStep {
+
+    @Inject
+    private TokenService tokenService;
+    @Inject
+    private WebClientFactory webClientFactory;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws FileStorageException {
@@ -49,8 +58,7 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         ServiceBindingParametersGetter serviceBindingParametersGetter = getServiceBindingParametersGetter(context);
         Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromMta(appToProcess,
                                                                                                                   serviceInstanceToUnbindBind);
-        if (!doesServiceBindingExist(client, serviceInstanceToUnbindBind, existingApp.getGuid(),
-                                     context.getVariable(Variables.CORRELATION_ID))) {
+        if (!doesServiceBindingExist(serviceInstanceToUnbindBind, existingApp.getGuid(), context)) {
             context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, false);
             context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, true);
             context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, bindingParameters);
@@ -121,14 +129,19 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         return new ServiceBindingParametersGetter(context, fileService, configuration.getMaxManifestSize());
     }
 
-    protected AppBoundServiceInstanceNamesGetter getAppServicesGetter(CloudControllerClient client, String correlationId) {
-        return new AppBoundServiceInstanceNamesGetter(client, correlationId);
+    protected AppBoundServiceInstanceNamesGetter getAppServicesGetter(CloudCredentials credentials, String correlationId) {
+        return new AppBoundServiceInstanceNamesGetter(webClientFactory, credentials, correlationId);
     }
 
-    private boolean doesServiceBindingExist(CloudControllerClient client, String service, UUID appGuid, String correlationId) {
-        var serviceNamesGetter = getAppServicesGetter(client, correlationId);
+    private boolean doesServiceBindingExist(String serviceName, UUID appGuid, ProcessContext context) {
+        String user = context.getVariable(Variables.USER);
+        String correlationId = context.getVariable(Variables.CORRELATION_ID);
+        var token = tokenService.getToken(user);
+        var creds = new CloudCredentials(token, true);
+
+        var serviceNamesGetter = getAppServicesGetter(creds, correlationId);
         List<String> appServiceNames = serviceNamesGetter.getServiceInstanceNamesBoundToApp(appGuid);
-        return appServiceNames.contains(service);
+        return appServiceNames.contains(serviceName);
     }
 
     private boolean areBindingParametersDifferent(ServiceBindingParametersGetter serviceBindingParametersGetter, CloudApplication app,

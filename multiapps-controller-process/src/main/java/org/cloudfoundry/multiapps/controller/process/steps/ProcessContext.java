@@ -40,10 +40,10 @@ public class ProcessContext {
         return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 
-    public CloudControllerClient getControllerClient(String org, String space) {
+    public CloudControllerClient getControllerClient(String spaceGuid) {
         String userName = StepsUtil.determineCurrentUser(execution);
         String correlationId = getVariable(Variables.CORRELATION_ID);
-        CloudControllerClient delegate = clientProvider.getControllerClient(userName, org, space, correlationId);
+        CloudControllerClient delegate = clientProvider.getControllerClient(userName, spaceGuid, correlationId);
         return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 

@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
 
 @Named("restartSubscribersStep")
@@ -53,8 +52,8 @@ public class RestartSubscribersStep extends SyncFlowableStep {
 
     private CloudControllerClient getClientForApplicationSpace(ProcessContext context, CloudApplication app) {
         CloudSpace space = app.getSpace();
-        CloudOrganization organization = space.getOrganization();
-        return context.getControllerClient(organization.getName(), space.getName());
+        return context.getControllerClient(space.getGuid()
+                                                .toString());
     }
 
 }

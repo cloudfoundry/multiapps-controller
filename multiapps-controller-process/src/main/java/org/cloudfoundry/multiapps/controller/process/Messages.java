@@ -536,8 +536,6 @@ public class Messages {
     public static final String CREATING_SERVICE_BROKER_0 = "Creating service broker: {0}";
     public static final String CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2 = "Creating service key \"{0}\" for service instance \"{1}\" with parameters: {2}";
     public static final String CREATING_USER_PROVIDED_SERVICE_INSTANCE_0 = "Creating user provided service instance: {0}";
-    public static final String DELETING_ALL_APPLICATIONS = "Deleting all applications...";
-    public static final String DELETING_ALL_SERVICE_INSTANCES = "Deleting all services instances...";
     public static final String DELETING_APPLICATION_0 = "Deleting application \"{0}\"...";
     public static final String DELETING_DOMAIN_0 = "Deleting domain \"{0}\"...";
     public static final String DELETING_ORPHANED_ROUTES = "Deleting orphaned routes...";
@@ -564,7 +562,6 @@ public class Messages {
     public static final String GETTING_ORGANIZATION_0 = "Getting organization \"{0}\"...";
     public static final String GETTING_ORGANIZATIONS = "Getting organizations...";
     public static final String GETTING_PRIVATE_DOMAINS = "Getting private domains...";
-    public static final String GETTING_RECENT_LOGS_OF_APPLICATION_0 = "Getting recent logs of application \"{0}\"...";
     public static final String GETTING_ROUTES_WITH_DOMAIN_0 = "Getting routes with domain \"{0}\"...";
     public static final String GETTING_SERVICE_INSTANCE_0 = "Getting service instance \"{0}\"...";
     public static final String GETTING_SERVICE_INSTANCE_NAME_0 = "Getting service instance name \"{0}\"...";
@@ -581,7 +578,6 @@ public class Messages {
     public static final String GETTING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1 = "Getting service key \"{0}\" for service instance \"{1}\"...";
     public static final String GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0 = "Getting service keys for service instance \"{0}\"...";
     public static final String GETTING_SERVICE_OFFERINGS = "Getting service offerings...";
-    public static final String GETTING_SERVICE_INSTANCES = "Getting service instances...";
     public static final String GETTING_SHARED_DOMAINS = "Getting shared domains...";
     public static final String GETTING_SPACE_0 = "Getting space \"{0}\"...";
     public static final String GETTING_SPACE_IN_ORGANIZATION_0 = "Getting space \"{0}\" in organization \"{1}\"...";

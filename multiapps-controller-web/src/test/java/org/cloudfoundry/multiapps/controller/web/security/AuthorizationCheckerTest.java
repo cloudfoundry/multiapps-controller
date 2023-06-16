@@ -2,20 +2,24 @@ package org.cloudfoundry.multiapps.controller.web.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.UUID;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +43,7 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
+import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 class AuthorizationCheckerTest {
@@ -53,6 +58,10 @@ class AuthorizationCheckerTest {
     private CloudControllerClient client;
     @Mock
     private CloudControllerClientProvider clientProvider;
+    @Mock
+    private CloudControllerClientFactory clientFactory;
+    @Mock
+    private TokenService tokenService;
     @Mock
     private ApplicationConfiguration applicationConfiguration;
     @InjectMocks
@@ -146,20 +155,22 @@ class AuthorizationCheckerTest {
     private void setUpMocks(Set<UserRole> spaceRoles, Exception exception) {
         when(client.getUserRolesBySpaceAndUser(SPACE_ID, USER_ID)).thenReturn(spaceRoles);
         setUpException(exception);
-        when(clientProvider.getControllerClient(getUserInfo().getName())).thenReturn(client);
+        when(clientProvider.getControllerClientWithNoCorrelation(eq(getUserInfo().getName()), anyString())).thenReturn(client);
         when(applicationConfiguration.getFssCacheUpdateTimeoutMinutes()).thenReturn(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
     }
 
     private void setUpException(Exception exception) {
         if (exception != null) {
-            when(client.getSpace(ORG, SPACE)).thenThrow(exception);
             when(client.getUserRolesBySpaceAndUser(SPACE_ID, USER_ID)).thenThrow(exception);
         }
     }
 
     private void mockSpace() {
         CloudOrganization organization = getOrganization();
-        when(client.getSpace(ORG, SPACE)).thenReturn(getCloudSpace(organization));
+
+        var spaceClient = Mockito.mock(CloudSpaceClient.class);
+        when(spaceClient.getSpace(anyString(), anyString())).thenReturn(getCloudSpace(organization));
+        when(clientFactory.createSpaceClient(any())).thenReturn(spaceClient);
     }
 
     private ImmutableCloudOrganization getOrganization() {

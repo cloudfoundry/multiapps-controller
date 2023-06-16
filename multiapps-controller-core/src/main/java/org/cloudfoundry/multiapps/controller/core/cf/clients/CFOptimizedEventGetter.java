@@ -6,13 +6,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
 public class CFOptimizedEventGetter extends CustomControllerClient {
 
     private static final String FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT = "/v3/audit_events?types=%s&per_page=100&created_ats[gt]=%s";
 
-    public CFOptimizedEventGetter(CloudControllerClient client) {
-        super(client);
+    public CFOptimizedEventGetter(WebClientFactory webClientFactory, CloudCredentials credentials) {
+        super(webClientFactory, credentials);
     }
 
     public List<String> findEvents(String type, String timestamp) {

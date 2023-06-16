@@ -26,19 +26,24 @@ import org.slf4j.LoggerFactory;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 
 public class MtaConfigurationPurger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MtaConfigurationPurger.class);
 
     private final CloudControllerClient client;
+    private final CloudSpaceClient spaceClient;
     private final ConfigurationEntryService configurationEntryService;
     private final ConfigurationSubscriptionService configurationSubscriptionService;
     private MtaMetadataParser mtaMetadataParser;
 
-    public MtaConfigurationPurger(CloudControllerClient client, ConfigurationEntryService configurationEntryService,
-                                  ConfigurationSubscriptionService configurationSubscriptionService, MtaMetadataParser mtaMetadataParser) {
+    public MtaConfigurationPurger(CloudControllerClient client, CloudSpaceClient spaceClient,
+                                  ConfigurationEntryService configurationEntryService,
+                                  ConfigurationSubscriptionService configurationSubscriptionService,
+                                  MtaMetadataParser mtaMetadataParser) {
         this.client = client;
+        this.spaceClient = spaceClient;
         this.configurationEntryService = configurationEntryService;
         this.configurationSubscriptionService = configurationSubscriptionService;
         this.mtaMetadataParser = mtaMetadataParser;
@@ -46,17 +51,17 @@ public class MtaConfigurationPurger {
 
     public void purge(String org, String space) {
         CloudTarget targetSpace = new CloudTarget(org, space);
-        String targetId = new ClientHelper(client).computeSpaceId(org, space);
+        String targetId = new ClientHelper(spaceClient).computeSpaceId(org, space);
         List<CloudApplication> existingApps = getExistingApps();
         purgeConfigurationSubscriptions(targetId, existingApps);
         purgeConfigurationEntries(targetSpace, existingApps);
     }
 
-    private void purgeConfigurationSubscriptions(String targetId, List<CloudApplication> existingApps) {
-        LOGGER.info(MessageFormat.format(Messages.PURGING_SUBSCRIPTIONS, targetId));
+    private void purgeConfigurationSubscriptions(String spaceId, List<CloudApplication> existingApps) {
+        LOGGER.info(MessageFormat.format(Messages.PURGING_SUBSCRIPTIONS, spaceId));
 
         Set<String> existingAppNames = getNames(existingApps);
-        List<ConfigurationSubscription> subscriptions = getSubscriptions(targetId);
+        List<ConfigurationSubscription> subscriptions = getSubscriptions(spaceId);
         for (ConfigurationSubscription subscription : subscriptions) {
             if (!existingAppNames.contains(subscription.getAppName())) {
                 purgeSubscription(subscription);
@@ -162,9 +167,9 @@ public class MtaConfigurationPurger {
                                         .list();
     }
 
-    private List<ConfigurationSubscription> getSubscriptions(String targetId) {
+    private List<ConfigurationSubscription> getSubscriptions(String spaceId) {
         return configurationSubscriptionService.createQuery()
-                                               .spaceId(targetId)
+                                               .spaceId(spaceId)
                                                .list();
     }
 

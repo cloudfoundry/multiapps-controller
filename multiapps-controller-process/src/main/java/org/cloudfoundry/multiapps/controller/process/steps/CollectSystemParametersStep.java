@@ -13,6 +13,7 @@ import org.cloudfoundry.multiapps.controller.core.helpers.CredentialsGenerator;
 import org.cloudfoundry.multiapps.controller.core.helpers.SystemParameters;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.HostValidator;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ReadOnlyParametersChecker;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
@@ -37,6 +39,10 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
     @Inject
     private ReadOnlyParametersChecker readOnlyParametersChecker;
+    @Inject
+    private TokenService tokenService;
+    @Inject
+    private WebClientFactory webClientFactory;
 
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
 
@@ -53,7 +59,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
         DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         checkForOverwrittenReadOnlyParameters(descriptor);
-        SystemParameters systemParameters = createSystemParameters(context, client, defaultDomainName, reserveTemporaryRoutes, descriptor);
+        SystemParameters systemParameters = createSystemParameters(context, defaultDomainName, reserveTemporaryRoutes, descriptor);
         systemParameters.injectInto(descriptor);
         getStepLogger().debug(Messages.DESCRIPTOR_WITH_SYSTEM_PARAMETERS, SecureSerialization.toJson(descriptor));
 
@@ -90,9 +96,9 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.NO_READ_ONLY_PARAMETERS_ARE_OVERWRITTEN);
     }
 
-    private SystemParameters createSystemParameters(ProcessContext context, CloudControllerClient client, String defaultDomain,
+    private SystemParameters createSystemParameters(ProcessContext context, String defaultDomain,
                                                     boolean reserveTemporaryRoutes, DeploymentDescriptor descriptor) {
-        String authorizationEndpoint = getAuthorizationEndpointGetter(client).getAuthorizationEndpoint();
+        String authorizationEndpoint = getAuthorizationEndpointGetter(context).getAuthorizationEndpoint();
         String user = context.getVariable(Variables.USER);
         String namespace = context.getVariable(Variables.MTA_NAMESPACE);
         String timestamp = context.getVariable(Variables.TIMESTAMP);
@@ -160,8 +166,11 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         return true;
     }
 
-    protected AuthorizationEndpointGetter getAuthorizationEndpointGetter(CloudControllerClient client) {
-        return new AuthorizationEndpointGetter(new WebClientFactory().getWebClient(client));
+    protected AuthorizationEndpointGetter getAuthorizationEndpointGetter(ProcessContext context) {
+        String user = context.getVariable(Variables.USER);
+        var token = tokenService.getToken(user);
+        var creds = new CloudCredentials(token, true);
+        return new AuthorizationEndpointGetter(webClientFactory.getWebClient(creds));
     }
 
 }

@@ -24,7 +24,8 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
-import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
@@ -53,15 +54,17 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
+import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 
 class OperationsApiServiceImplTest {
 
     @Mock
-    private CloudControllerClientProvider clientProvider;
+    private CloudControllerClientFactory clientFactory;
+    @Mock
+    private TokenService tokenService;
     @Mock
     private OperationService operationService;
     @Mock(answer = Answers.RETURNS_SELF)
@@ -303,13 +306,13 @@ class OperationsApiServiceImplTest {
         SecurityContextHolder.setContext(securityContextMock);
         Mockito.when(securityContextMock.getAuthentication())
                .thenReturn(auth);
-        CloudControllerClient mockedClient = mockClient();
-        Mockito.when(clientProvider.getControllerClientWithNoCorrelation(Mockito.any(), Mockito.any()))
+        CloudSpaceClient mockedClient = mockClient();
+        Mockito.when(clientFactory.createSpaceClient(Mockito.any()))
                .thenReturn(mockedClient);
     }
 
-    private CloudControllerClient mockClient() {
-        CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
+    private CloudSpaceClient mockClient() {
+        CloudSpaceClient client = Mockito.mock(CloudSpaceClient.class);
         ImmutableCloudOrganization organization = ImmutableCloudOrganization.builder()
                                                                             .metadata(ImmutableCloudMetadata.builder()
                                                                                                             .guid(UUID.fromString(ORG_GUID))
@@ -323,7 +326,7 @@ class OperationsApiServiceImplTest {
                                                        .name(SPACE_NAME)
                                                        .organization(organization)
                                                        .build();
-        Mockito.when(client.getSpace((UUID) Mockito.any()))
+        Mockito.when(client.getSpace(Mockito.any()))
                .thenReturn(space);
         return client;
     }
