@@ -41,11 +41,13 @@ public class ConfigurationFilterParser {
         return (String) mergedParameters.get(SupportedParameters.TYPE);
     }
 
+    @Deprecated
     private ConfigurationFilter parseOldSyntaxFilter(Resource resource) {
         Map<String, Object> parameters = getParameters(resource);
-        String mtaId = PropertiesUtil.getRequiredParameter(parameters, SupportedParameters.MTA_ID);
-        String mtaProvidesDependency = PropertiesUtil.getRequiredParameter(parameters, SupportedParameters.MTA_PROVIDES_DEPENDENCY);
-        String mtaVersion = PropertiesUtil.getRequiredParameter(parameters, SupportedParameters.MTA_VERSION);
+        String mtaId = PropertiesUtil.getRequiredParameter(parameters, SupportedParameters.DEPRECATED_CONFIG_MTA_ID);
+        String mtaProvidesDependency = PropertiesUtil.getRequiredParameter(parameters,
+                                                                           SupportedParameters.DEPRECATED_CONFIG_MTA_PROVIDES_DEPENDENCY);
+        String mtaVersion = PropertiesUtil.getRequiredParameter(parameters, SupportedParameters.DEPRECATED_CONFIG_MTA_VERSION);
         String providerId = ConfigurationEntriesUtil.computeProviderId(mtaId, mtaProvidesDependency);
         return new ConfigurationFilter(ConfigurationEntriesUtil.PROVIDER_NID, providerId, mtaVersion, null, currentTarget, null);
     }
