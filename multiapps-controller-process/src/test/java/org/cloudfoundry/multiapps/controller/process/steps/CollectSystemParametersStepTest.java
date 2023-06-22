@@ -38,6 +38,8 @@ class CollectSystemParametersStepTest extends CollectSystemParametersStepBaseTes
 
     private static final String DEFAULT_PROTOCOL = "https";
     private static final String DEFAULT_DOMAIN_PLACEHOLDER = "apps.internal";
+    private static final String MTA_VERSION = "1.0.0";
+    private static final String MTA_ID = "system-parameters-test";
 
     @Test
     void testGeneralParameters() {
@@ -60,6 +62,8 @@ class CollectSystemParametersStepTest extends CollectSystemParametersStepBaseTes
         assertEquals(CONTROLLER_URL, generalParameters.get(SupportedParameters.CONTROLLER_URL));
         assertEquals(MULTIAPPS_CONTROLLER_URL, generalParameters.get(SupportedParameters.DEPLOY_SERVICE_URL));
         assertEquals(DEFAULT_TIMESTAMP, generalParameters.get(SupportedParameters.TIMESTAMP));
+        assertEquals(MTA_VERSION, generalParameters.get(SupportedParameters.MTA_VERSION));
+        assertEquals(MTA_ID, generalParameters.get(SupportedParameters.MTA_ID));
     }
 
     private DeployedMta createDeployedMta(String version, List<DeployedMtaApplication> deployedApplications) {

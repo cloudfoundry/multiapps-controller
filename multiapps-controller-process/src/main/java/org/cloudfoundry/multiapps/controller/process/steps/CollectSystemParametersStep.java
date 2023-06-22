@@ -53,7 +53,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
         DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         checkForOverwrittenReadOnlyParameters(descriptor);
-        SystemParameters systemParameters = createSystemParameters(context, client, defaultDomainName, reserveTemporaryRoutes);
+        SystemParameters systemParameters = createSystemParameters(context, client, defaultDomainName, reserveTemporaryRoutes, descriptor);
         systemParameters.injectInto(descriptor);
         getStepLogger().debug(Messages.DESCRIPTOR_WITH_SYSTEM_PARAMETERS, SecureSerialization.toJson(descriptor));
 
@@ -91,7 +91,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
     }
 
     private SystemParameters createSystemParameters(ProcessContext context, CloudControllerClient client, String defaultDomain,
-                                                    boolean reserveTemporaryRoutes) {
+                                                    boolean reserveTemporaryRoutes, DeploymentDescriptor descriptor) {
         String authorizationEndpoint = getAuthorizationEndpointGetter(client).getAuthorizationEndpoint();
         String user = context.getVariable(Variables.USER);
         String namespace = context.getVariable(Variables.MTA_NAMESPACE);
@@ -113,6 +113,8 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                                              .reserveTemporaryRoutes(reserveTemporaryRoutes)
                                              .credentialsGenerator(credentialsGeneratorSupplier.get())
                                              .timestamp(timestamp)
+                                             .mtaId(descriptor.getId())
+                                             .mtaVersion(descriptor.getVersion())
                                              .hostValidator(new HostValidator(namespace, applyNamespace))
                                              .build();
     }

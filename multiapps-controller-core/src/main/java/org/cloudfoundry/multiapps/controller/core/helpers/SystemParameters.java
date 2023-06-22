@@ -36,6 +36,8 @@ public class SystemParameters {
     private final String deployServiceUrl;
     private final boolean reserveTemporaryRoutes;
     private final String timestamp;
+    private final String mtaId;
+    private final String mtaVersion;
     private final HostValidator hostValidator;
 
     public SystemParameters(Builder builder) {
@@ -52,6 +54,8 @@ public class SystemParameters {
         this.credentialsGenerator = builder.credentialsGenerator;
         this.reserveTemporaryRoutes = builder.reserveTemporaryRoutes;
         this.timestamp = builder.timestamp;
+        this.mtaId = builder.mtaId;
+        this.mtaVersion = builder.mtaVersion;
         this.hostValidator = builder.hostValidator;
     }
 
@@ -88,6 +92,8 @@ public class SystemParameters {
         systemParameters.put(SupportedParameters.AUTHORIZATION_URL, authorizationEndpoint);
         systemParameters.put(SupportedParameters.DEPLOY_SERVICE_URL, deployServiceUrl);
         systemParameters.put(SupportedParameters.TIMESTAMP, timestamp);
+        systemParameters.put(SupportedParameters.MTA_ID, mtaId);
+        systemParameters.put(SupportedParameters.MTA_VERSION, mtaVersion);
 
         return systemParameters;
     }
@@ -202,6 +208,8 @@ public class SystemParameters {
         private String deployServiceUrl;
         private boolean reserveTemporaryRoutes;
         private String timestamp;
+        private String mtaId;
+        private String mtaVersion;
         private HostValidator hostValidator;
 
         public Builder credentialsGenerator(CredentialsGenerator credentialsGenerator) {
@@ -261,6 +269,16 @@ public class SystemParameters {
 
         public Builder timestamp(String timestamp) {
             this.timestamp = timestamp;
+            return this;
+        }
+
+        public Builder mtaId(String mtaId) {
+            this.mtaId = mtaId;
+            return this;
+        }
+
+        public Builder mtaVersion(String mtaVersion) {
+            this.mtaVersion = mtaVersion;
             return this;
         }
 
