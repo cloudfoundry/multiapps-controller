@@ -23,7 +23,7 @@
         <commons-fileupload.version>1.5</commons-fileupload.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <snakeyaml.version>1.32</snakeyaml.version>
+        <snakeyaml.version>2.0</snakeyaml.version>
         <httpclient.version>4.5.14</httpclient.version>
         <httpcore.version>4.4.13</httpcore.version>
         <eclipselink.version>2.7.9</eclipselink.version>
@@ -51,7 +51,7 @@
         <auto-service.version>1.0.1</auto-service.version>
         <commons-codec.version>1.15</commons-codec.version>
         <java-cfenv.version>2.4.2</java-cfenv.version>
-        <multiapps.version>2.14.0</multiapps.version>
+        <multiapps.version>2.15.0-SNAPSHOT</multiapps.version>
         <jaxb-api.version>2.3.3</jaxb-api.version>
         <jaxb-core.version>2.3.0.1</jaxb-core.version>
         <jaxb-impl.version>2.3.4</jaxb-impl.version>

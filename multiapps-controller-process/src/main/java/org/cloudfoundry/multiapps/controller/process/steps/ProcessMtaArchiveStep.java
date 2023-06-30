@@ -63,6 +63,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
     private DeploymentDescriptor extractDeploymentDescriptor(InputStream appArchiveStream) {
         String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, configuration.getMaxMtaDescriptorSize());
+        getStepLogger().debug("MTA Descriptor length: {0}", descriptorString.length());
         DescriptorParserFacade descriptorParserFacade = descriptorParserFactory.getInstance();
         return descriptorParserFacade.parseDeploymentDescriptor(descriptorString);
     }
