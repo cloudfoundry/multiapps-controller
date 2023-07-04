@@ -118,6 +118,16 @@ public class OperationQueryImpl extends AbstractQueryImpl<Operation, OperationQu
     }
 
     @Override
+    public OperationQuery endedBefore(Date endedBefore) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<Date> builder()
+                                                                       .attribute(AttributeNames.ENDED_AT)
+                                                                       .condition(getCriteriaBuilder()::lessThan)
+                                                                       .value(endedBefore)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
     public OperationQuery endedAfter(Date endedAfter) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<Date> builder()
                                                                        .attribute(AttributeNames.ENDED_AT)

@@ -161,6 +161,14 @@ class ApplicationConfigurationTest {
     }
 
     @Test
+    void testGetExecutionTimeForFinishedProcesses() {
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_EXECUTION_TIME_FOR_FINISHED_PROCESSES))
+               .thenReturn(ApplicationConfiguration.DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES,
+                                configuration.getExecutionTimeForFinishedProcesses());
+    }
+
+    @Test
     void testGetMaxTtlForOldDataFromEnvironment() {
         Mockito.when(environment.getLong(ApplicationConfiguration.CFG_MAX_TTL_FOR_OLD_DATA,
                                          ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA))

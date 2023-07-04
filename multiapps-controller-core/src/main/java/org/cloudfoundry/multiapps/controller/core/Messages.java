@@ -109,6 +109,7 @@ public final class Messages {
     public static final String MAX_MANIFEST_SIZE = "Max manifest size is set to: {0}";
     public static final String MAX_RESOURCE_FILE_SIZE = "Max resource file size is set to: {0}";
     public static final String CRON_EXPRESSION_FOR_OLD_DATA = "Cron expression for old data: {0}";
+    public static final String EXECUTION_TIME_FOR_FINISHED_PROCESSES = "Execution time for finished processes: {0}";
     public static final String MAX_TTL_FOR_OLD_DATA = "Max TTL for old data: {0}";
     public static final String SPACE_GUID = "Space GUID: {0}";
     public static final String ORG_NAME = "Org name: {0}";
