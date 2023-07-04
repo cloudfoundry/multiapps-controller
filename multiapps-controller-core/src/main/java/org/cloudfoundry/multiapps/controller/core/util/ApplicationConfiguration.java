@@ -51,6 +51,7 @@ public class ApplicationConfiguration {
     static final String CFG_MAX_MANIFEST_SIZE = "DEFAULT_MAX_MANIFEST_SIZE";
     static final String CFG_MAX_RESOURCE_FILE_SIZE = "DEFAULT_MAX_RESOURCE_FILE_SIZE";
     static final String CFG_CRON_EXPRESSION_FOR_OLD_DATA = "CRON_EXPRESSION_FOR_OLD_DATA";
+    static final String CFG_EXECUTION_TIME_FOR_FINISHED_PROCESSES = "EXECUTION_TIME_FOR_FINISHED_PROCESSES";
     static final String CFG_MAX_TTL_FOR_OLD_DATA = "MAX_TTL_FOR_OLD_DATA";
     static final String CFG_USE_XS_AUDIT_LOGGING = "USE_XS_AUDIT_LOGGING";
     static final String CFG_VCAP_APPLICATION = "VCAP_APPLICATION"; // Mandatory
@@ -113,6 +114,7 @@ public class ApplicationConfiguration {
     public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
     public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
     public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
+    public static final String DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES = Long.toString(TimeUnit.HOURS.toMillis(2)); // every 2 hours after an instance starts
     public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
     public static final Integer DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS = 5;
     public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
@@ -162,6 +164,7 @@ public class ApplicationConfiguration {
     private Long maxManifestSize;
     private Long maxResourceFileSize;
     private String cronExpressionForOldData;
+    private String executionTimeForFinishedProcesses;
     private Long maxTtlForOldData;
     private Boolean useXSAuditLogging;
     private String spaceGuid;
@@ -326,6 +329,13 @@ public class ApplicationConfiguration {
             cronExpressionForOldData = getCronExpressionForOldDataFromEnvironment();
         }
         return cronExpressionForOldData;
+    }
+
+    public String getExecutionTimeForFinishedProcesses() {
+        if (executionTimeForFinishedProcesses == null) {
+            executionTimeForFinishedProcesses = getExecutionTimeForFinishedProcessesFromEnvironment();
+        }
+        return executionTimeForFinishedProcesses;
     }
 
     public Long getMaxTtlForOldData() {
@@ -689,6 +699,12 @@ public class ApplicationConfiguration {
     private String getCronExpressionForOldDataFromEnvironment() {
         String value = getCronExpression(CFG_CRON_EXPRESSION_FOR_OLD_DATA, DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA);
         LOGGER.info(format(Messages.CRON_EXPRESSION_FOR_OLD_DATA, value));
+        return value;
+    }
+
+    private String getExecutionTimeForFinishedProcessesFromEnvironment() {
+        String value = getCronExpression(CFG_EXECUTION_TIME_FOR_FINISHED_PROCESSES, DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES);
+        LOGGER.info(format(Messages.EXECUTION_TIME_FOR_FINISHED_PROCESSES, value));
         return value;
     }
 

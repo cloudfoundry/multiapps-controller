@@ -288,7 +288,9 @@ public class Messages {
     public static final String UPDATING_A_LOCK_OWNER_WITH_NAME_0_AND_TIMESTAMP_1 = "Updating a lock owner with name \"{0}\" and timestamp \"{1}\"";
     public static final String LOCK_OWNER_WITH_NAME_0_ID_1_AND_TIMESTAMP_2_EXISTS_MORE_THAN_ONCE = "Lock owner with name \"{0}\", ID \"{1}\" and timestamp \"{2}\" exists more than once";
     public static final String MORE_THAN_ONE_LOCK_OWNER_FOUND = "More than one lock owner found!";
-
+    public static final String CLEAN_UP_JOB_FOR_FINISHED_OPERATIONS_HAS_STARTED = "Clean-up job for finished operations has started";
+    public static final String CLEAN_UP_JOB_FOR_FINISHED_OPERATIONS_HAS_FINISHED = "Clean-up job for finished operations has finished";
+    public static final String BATCH_OF_PROCESSES_DELETED = "Batch of processes deleted: {0}";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
@@ -690,6 +692,8 @@ public class Messages {
     public static final String SERVICE_BINDING_0_SCHEDULED_FOR_DELETION_IS_IN_STATE_0 = "Service binding \"{0}\" scheduled for deletion is in state \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_WAITING_0 = "Service keys scheduled for waiting: \"{0}\"";
     public static final String WILL_UNBIND_SERVICE_INSTANCE_0_FROM_APP_1 = "Will unbind service instance \"{0}\" from app \"{1}\"";
+    public static final String DELETING_PROCESS_WITH_ID_0 = "Deleting process with id: {0}";
+    public static final String PROCESS_WAS_DELETED_0 = "Process was deleted: {0}";
 
     protected Messages() {
     }

@@ -27,6 +27,8 @@ public interface OperationQuery extends Query<Operation, OperationQuery> {
 
     OperationQuery startedBefore(Date startedBefore);
 
+    OperationQuery endedBefore(Date endedBefore);
+
     OperationQuery endedAfter(Date endedAfter);
 
     OperationQuery inNonFinalState();
