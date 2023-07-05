@@ -15,7 +15,7 @@ public final class Messages {
     public static final String OPERATION_0_NOT_FOUND = "Operation \"{0}\" was not found.";
     public static final String TEMPORARY_PROBLEM_WITH_PERSISTENCE_LAYER = "Temporary problem with persistence layer of the service";
     public static final String FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH = "File URL response did not return Content-Length header";
-    public static final String ERROR_FROM_REMOTE_MTAR_ENDPOINT = "Error from remote MTAR endpoint with status code {0}, message: {1}";
+    public static final String ERROR_FROM_REMOTE_MTAR_ENDPOINT = "Error from remote MTAR endpoint {0} with status code {1}, message: {2}";
     public static final String MTAR_ENDPOINT_NOT_SECURE = "Remote MTAR endpoint is not a secure connection. HTTPS required";
     public static final String CANNOT_PARSE_CONTAINER_URI_OF_OBJECT_STORE = "Cannot parse container_uri of object store";
     public static final String UNSUPPORTED_SERVICE_PLAN_FOR_OBJECT_STORE = "Unsupported service plan for object store!";
@@ -39,6 +39,8 @@ public final class Messages {
     public static final String THE_TOKEN_HAS_EXPIRED_ON_0 = "The token has expired on: \"{0}\"";
     public static final String UNSUPPORTED_TOKEN_TYPE = "Unsupported token type: \"{0}\".";
     public static final String CLEARING_FLOWABLE_LOCK_OWNER_THREW_AN_EXCEPTION_0 = "Clearing Flowable lock owner on JVM shutdown threw an exception: {0}";
+    public static final String FETCHING_FILE_FAILED = "Fetching file {0} in space {1} failed with: {2}";
+    public static final String ASYNC_UPLOAD_JOB_FAILED = "Async upload job {0} failed with: {1}";
 
     // WARN log messages
 
@@ -53,6 +55,17 @@ public final class Messages {
     public static final String CLEARED_LOCK_OWNER = "Cleared lock owner {0}";
 
     // DEBUG log messages
+    public static final String RECEIVED_UPLOAD_REQUEST = "Received upload request on URI: {}";
+    public static final String RECEIVED_UPLOAD_FROM_URL_REQUEST = "Received upload from URL {} request";
+    public static final String UPLOADED_FILE = "Uploaded file \"{}\" with name {}, size {} and digest {} (algorithm {}) for {} ms.";
+    public static final String ASYNC_UPLOAD_JOB_EXISTS = "Async upload job for URL {} exists: {}";
+    public static final String CREATING_ASYNC_UPLOAD_JOB = "Creating async upload job for URL {} with ID: {}";
+    public static final String ASYNC_UPLOAD_JOB_REJECTED = "Async upload job {} rejected. Deleting entry";
+    public static final String STARTING_DOWNLOAD_OF_MTAR = "Starting download of MTAR from remote endpoint: {}";
+    public static final String UPLOADED_MTAR_FROM_REMOTE_ENDPOINT = "Uploaded MTAR from remote endpoint {} in {} ms";
+    public static final String ASYNC_UPLOAD_JOB_FINISHED = "Async upload job {} finished";
+    public static final String UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT = "Uploading MTAR stream from remote endpoint: {}";
+    public static final String CALLING_REMOTE_MTAR_ENDPOINT = "Calling remote MTAR endpoint {}";
 
     private Messages() {
     }

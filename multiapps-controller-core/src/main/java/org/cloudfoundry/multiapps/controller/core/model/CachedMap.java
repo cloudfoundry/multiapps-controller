@@ -34,6 +34,11 @@ public class CachedMap<K, V> {
         return null;
     }
 
+    public V getOrDefault(K key, V defaultValue) {
+        var value = get(key);
+        return value == null ? defaultValue : value;
+    }
+
     public V computeIfAbsent(K key, Supplier<V> creator) {
         V value = get(key);
         if (value != null) {

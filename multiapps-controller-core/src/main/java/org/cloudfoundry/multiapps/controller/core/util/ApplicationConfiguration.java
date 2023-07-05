@@ -93,6 +93,7 @@ public class ApplicationConfiguration {
     static final String CFG_ABORTED_OPERATIONS_TTL_IN_MINUTES = "ABORTED_OPERATIONS_TTL_IN_SECONDS";
     static final String CFG_ARCHIVE_SIGNATURE_VERIFICATION_ENABLED = "ARCHIVE_SIGNATURE_VERIFICATION_ENABLED";
     static final String CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = "SPRING_SCHEDULER_TASK_EXECUTOR_THREADS";
+    static final String CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = "FILES_ASYNC_UPLOAD_EXECUTOR_THREADS";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -148,6 +149,7 @@ public class ApplicationConfiguration {
     public static final String DEFAULT_GLOBAL_AUDITOR_ORIGIN = "uaa";
     public static final Boolean DEFAULT_ARCHIVE_SIGNATURE_VERIFICATION_ENABLED = false;
     public static final int DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = 3;
+    public static final int DEFAULT_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = 50;
 
     protected final Environment environment;
 
@@ -204,6 +206,7 @@ public class ApplicationConfiguration {
     private Integer abortedOperationsTtlInSeconds;
     private Boolean archiveSignatureVerificationEnabled;
     private Integer springSchedulerTaskExecutorThreads;
+    private Integer filesAsyncUploadExecutorThreads;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -247,6 +250,7 @@ public class ApplicationConfiguration {
         getSnakeyamlMaxAliasesForCollections();
         getServiceHandlingMaxParallelThreads();
         getAbortedOperationsTtlInSeconds();
+        getFilesAsyncUploadExecutorMaxThreads();
     }
 
     public Map<String, String> getNotSensitiveVariables() {
@@ -383,6 +387,13 @@ public class ApplicationConfiguration {
             springSchedulerTaskExecutorThreads = getSpringSchedulerTaskExecutorThreadsFromEnvironment();
         }
         return springSchedulerTaskExecutorThreads;
+    }
+
+    public Integer getFilesAsyncUploadExecutorMaxThreads() {
+        if (filesAsyncUploadExecutorThreads == null) {
+            filesAsyncUploadExecutorThreads = getFilesAsyncUploadExecutorMaxThreadsFromEnvironment();
+        }
+        return filesAsyncUploadExecutorThreads;
     }
 
     public String getGlobalAuditorUser() {
@@ -786,7 +797,12 @@ public class ApplicationConfiguration {
         Integer value = environment.getInteger(CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS, DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS);
         LOGGER.info(format(Messages.SPRING_SCHEDULER_TASK_EXECUTOR_THREADS, value));
         return value;
+    }
 
+    private Integer getFilesAsyncUploadExecutorMaxThreadsFromEnvironment() {
+        Integer value = environment.getInteger(CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS, DEFAULT_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS);
+        LOGGER.info(format(Messages.FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS, value));
+        return value;
     }
 
     private String getGlobalAuditorUserFromEnvironment() {

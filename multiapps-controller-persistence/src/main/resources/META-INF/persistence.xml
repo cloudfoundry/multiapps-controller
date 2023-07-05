@@ -13,6 +13,7 @@
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.AccessTokenDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.TextAttributeConverter</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.LockOwnerDto</class>
+        <class>org.cloudfoundry.multiapps.controller.persistence.dto.AsyncUploadJobDto</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.weaving" value="static" />

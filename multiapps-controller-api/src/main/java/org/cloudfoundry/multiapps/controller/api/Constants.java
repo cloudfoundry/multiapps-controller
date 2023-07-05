@@ -14,6 +14,7 @@ public class Constants {
         public static final String ACTION_ID = "actionId";
         public static final String LOG_ID = "logId";
         public static final String SPACE_GUID = "spaceGuid";
+        public static final String JOB_ID = "jobId";
 
     }
 
@@ -25,7 +26,7 @@ public class Constants {
         public static final String MTA_ID = "mtaId";
         public static final String NAMESPACE = "namespace";
         public static final String MTA_NAME = "name";
-        public static final String FILE_URL = "X-File-URL";
+
     }
 
     public static class QueryVariables {
@@ -51,11 +52,10 @@ public class Constants {
         public static final String MTAS = SPACE + "/mtas";
         public static final String INFO = ROOT + "/info";
         public static final String CSRF = ROOT + "/csrf-token";
-        
+
         public static final String SPACE_V2 = Resources.ROOT_V2 + "/spaces/{" + PathVariables.SPACE_GUID + "}";
         public static final String MTAS_V2 = SPACE_V2 + "/mtas";
     }
-
     public static class Endpoints {
 
         private Endpoints() {
@@ -66,6 +66,8 @@ public class Constants {
         public static final String OPERATION_LOGS = OPERATION + "/logs";
         public static final String OPERATION_LOG_CONTENT = OPERATION_LOGS + "/{" + PathVariables.LOG_ID + "}/content";
         public static final String OPERATION_ACTIONS = OPERATION + "/actions";
+        public static final String ASYNC_UPLOAD = "/async";
+        public static final String ASYNC_UPLOAD_JOB = "/jobs/{" + PathVariables.JOB_ID + "}";
 
     }
 

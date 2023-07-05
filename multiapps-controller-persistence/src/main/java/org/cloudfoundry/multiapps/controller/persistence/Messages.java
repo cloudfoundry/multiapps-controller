@@ -42,6 +42,8 @@ public final class Messages {
     public static final String LOCK_OWNER_ALREADY_EXISTS = "Lock owner entry with ID \"{0}\" already exists";
     public static final String INVALID_KEY_FORMAT = "Invalid key format: {0}";
     public static final String GENERATING_KEY_FILE_FAILED = "Generating key failed: {0}";
+    public static final String ASYNC_UPLOAD_JOB_NOT_FOUND = "Async upload job entry with ID \"{0}\" not found";
+    public static final String ASYNC_UPLOAD_JOB_ALREADY_EXISTS = "Async upload job entry with ID \"{0}\" already exists";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";
