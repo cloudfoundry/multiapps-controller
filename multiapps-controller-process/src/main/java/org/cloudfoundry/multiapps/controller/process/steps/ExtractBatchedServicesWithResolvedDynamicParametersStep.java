@@ -12,8 +12,6 @@ import javax.inject.Named;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
-import org.cloudfoundry.multiapps.controller.core.cf.v2.ServicesCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.DynamicResolvableParametersHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDynamicResolvableParameter;
@@ -22,8 +20,6 @@ import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureS
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.helpers.VisitableObject;
-import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
-import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -38,8 +34,7 @@ public class ExtractBatchedServicesWithResolvedDynamicParametersStep extends Syn
         getStepLogger().debug(Messages.EXTACT_SERVICES_AND_RESOLVE_DYNAMIC_PARAMETERS_FROM_BATCH);
 
         Set<DynamicResolvableParameter> dynamicResolvableParameters = context.getVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS);
-        List<CloudServiceInstanceExtended> servicesCalculatedForDeployment = getServicesCalculatedForDeployment(context);
-
+        List<CloudServiceInstanceExtended> servicesCalculatedForDeployment = context.getVariable(Variables.BATCH_TO_PROCESS);
         Set<DynamicResolvableParameter> dynamicParametersWithResolvedExistingInstances = resolveDynamicPramatersWithExistingInstances(context.getControllerClient(),
                                                                                                                                       dynamicResolvableParameters,
                                                                                                                                       servicesCalculatedForDeployment);
@@ -48,29 +43,15 @@ public class ExtractBatchedServicesWithResolvedDynamicParametersStep extends Syn
                                                                                                      .map(service -> resolveDynamicParametersOfServiceInstance(service,
                                                                                                                                                                dynamicParametersWithResolvedExistingInstances))
                                                                                                      .collect(Collectors.toList());
+
         setServicesToCreate(context, resolvedServiceInstances);
-
         context.setVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS, dynamicParametersWithResolvedExistingInstances);
-
         return StepPhase.DONE;
     }
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_PREPARING_RESOURCES_FOR_PROCESSING_AND_RESOLVE_DYNAMIC_PARAMETERS;
-    }
-
-    private List<CloudServiceInstanceExtended> getServicesCalculatedForDeployment(ProcessContext context) {
-        List<Resource> batchToProcess = context.getVariable(Variables.BATCH_TO_PROCESS);
-        return getServicesCloudModelBuilder(context).build(batchToProcess);
-    }
-
-    private ServicesCloudModelBuilder getServicesCloudModelBuilder(ProcessContext context) {
-        CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
-        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
-        String namespace = context.getVariable(Variables.MTA_NAMESPACE);
-
-        return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, namespace);
     }
 
     private Set<DynamicResolvableParameter>
@@ -126,6 +107,7 @@ public class ExtractBatchedServicesWithResolvedDynamicParametersStep extends Syn
     }
 
     private void setServicesToCreate(ProcessContext context, List<CloudServiceInstanceExtended> servicesCalculatedForDeployment) {
+
         List<CloudServiceInstanceExtended> servicesToCreate = servicesCalculatedForDeployment.stream()
                                                                                              .filter(CloudServiceInstanceExtended::isManaged)
                                                                                              .collect(Collectors.toList());

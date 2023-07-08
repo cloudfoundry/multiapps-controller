@@ -37,22 +37,23 @@ class ExtractBatchedServicesWithResolvedDynamicParametersStepTest
     private static final String SERVICE_NAME_2 = "service-2";
     private static final String SERVICE_NAME_3 = "service-3";
 
-    private static final String SERVICE_OFFERING = "test-offering";
-    private static final String SERVICE_PLAN = "test-plan";
-
     static Stream<Arguments> testExecute() {
         return Stream.of(
                          // (1) 3 input services but only 2 will be created due to specified "existing-service" resource type
-                         Arguments.of(List.of(Resource.createV3()
-                                                      .setName(SERVICE_NAME_3)
-                                                      .setParameters(Map.of("type", ResourceType.EXISTING_SERVICE.toString())),
-                                              Resource.createV3()
-                                                      .setName(SERVICE_NAME_2)
-                                                      .setParameters(Map.of("type", ResourceType.USER_PROVIDED_SERVICE.toString())),
-                                              Resource.createV3()
-                                                      .setName(SERVICE_NAME_1)
-                                                      .setParameters(Map.of("service", SERVICE_OFFERING, "service-plan", SERVICE_PLAN,
-                                                                            "type", ResourceType.MANAGED_SERVICE.toString()))),
+                         Arguments.of(List.of(ImmutableCloudServiceInstanceExtended.builder()
+                                                                                   .name(SERVICE_NAME_1)
+                                                                                   .type(ServiceInstanceType.MANAGED)
+                                                                                   .isManaged(true)
+                                                                                   .build(),
+                                              ImmutableCloudServiceInstanceExtended.builder()
+                                                                                   .name(SERVICE_NAME_2)
+                                                                                   .type(ServiceInstanceType.USER_PROVIDED)
+                                                                                   .isManaged(true)
+                                                                                   .build(),
+                                              ImmutableCloudServiceInstanceExtended.builder()
+                                                                                   .name(SERVICE_NAME_3)
+                                                                                   .isManaged(false)
+                                                                                   .build()),
                                       Collections.emptySet(), List.of(ImmutableCloudServiceInstanceExtended.builder()
                                                                                                            .resourceName(SERVICE_NAME_1)
                                                                                                            .type(ServiceInstanceType.MANAGED)
@@ -63,10 +64,13 @@ class ExtractBatchedServicesWithResolvedDynamicParametersStepTest
                                                                                                            .build()),
                                       false),
                          // (2) Resolve dynamic parameter inside parameters
-                         Arguments.of(List.of(Resource.createV3()
-                                                      .setName(SERVICE_NAME_2)
-                                                      .setParameters(Map.of("type", ResourceType.USER_PROVIDED_SERVICE.toString(), "config",
-                                                                            Map.of("db-service-guid", "{ds/service-1/service-guid}")))),
+                         Arguments.of(List.of(ImmutableCloudServiceInstanceExtended.builder()
+                                                                                   .name(SERVICE_NAME_2)
+                                                                                   .type(ServiceInstanceType.USER_PROVIDED)
+                                                                                   .isManaged(true)
+                                                                                   .credentials(Map.of("db-service-guid",
+                                                                                                       "{ds/service-1/service-guid}"))
+                                                                                   .build()),
                                       Set.of(ImmutableDynamicResolvableParameter.builder()
                                                                                 .relationshipEntityName(SERVICE_NAME_1)
                                                                                 .parameterName("service-guid")
@@ -79,10 +83,12 @@ class ExtractBatchedServicesWithResolvedDynamicParametersStepTest
                                                                                    .build()),
                                       false),
                          // (3) Fail step due to not resolved dynamic parameter
-                         Arguments.of(List.of(Resource.createV3()
-                                                      .setName(SERVICE_NAME_2)
-                                                      .setParameters(Map.of("type", ResourceType.USER_PROVIDED_SERVICE.toString(), "config",
-                                                                            Map.of("db-service-guid", "{ds/service-1/service-guid}")))),
+                         Arguments.of(List.of(ImmutableCloudServiceInstanceExtended.builder()
+                                                                                   .name(SERVICE_NAME_2)
+                                                                                   .type(ServiceInstanceType.USER_PROVIDED)
+                                                                                   .credentials(Map.of("db-service-guid",
+                                                                                                       "{ds/service-1/service-guid}"))
+                                                                                   .build()),
                                       Set.of(ImmutableDynamicResolvableParameter.builder()
                                                                                 .relationshipEntityName(SERVICE_NAME_1)
                                                                                 .parameterName("service-guid")
@@ -94,7 +100,7 @@ class ExtractBatchedServicesWithResolvedDynamicParametersStepTest
 
     @ParameterizedTest
     @MethodSource
-    void testExecute(List<Resource> batchToProcess, Set<DynamicResolvableParameter> dynamicResolvableParameters,
+    void testExecute(List<CloudServiceInstanceExtended> batchToProcess, Set<DynamicResolvableParameter> dynamicResolvableParameters,
                      List<CloudServiceInstanceExtended> expectedServicesToCreate, boolean expectedException) {
         loadParameters(batchToProcess, dynamicResolvableParameters);
 
@@ -117,20 +123,20 @@ class ExtractBatchedServicesWithResolvedDynamicParametersStepTest
 
         List<CloudServiceInstanceExtended> servicesToCreateResult = context.getVariable(Variables.SERVICES_TO_CREATE);
         for (var serviceToCreateResult : servicesToCreateResult) {
-            assertTrue(expectedServiceNames.contains(serviceToCreateResult.getResourceName()),
-                       MessageFormat.format("Service instance \"{0}\" is not expected to be created",
-                                            serviceToCreateResult.getResourceName()));
-            assertEquals(expectedServicesType.get(serviceToCreateResult.getResourceName()), serviceToCreateResult.getType());
-            assertEquals(expectedServicesParameters.get(serviceToCreateResult.getResourceName()), serviceToCreateResult.getCredentials());
+            assertTrue(expectedServiceNames.contains(serviceToCreateResult.getName()),
+                       MessageFormat.format("Service instance \"{0}\" is not expected to be created", serviceToCreateResult.getName()));
+            assertEquals(expectedServicesType.get(serviceToCreateResult.getName()), serviceToCreateResult.getType());
+            assertEquals(expectedServicesParameters.get(serviceToCreateResult.getName()), serviceToCreateResult.getCredentials());
         }
         assertEquals(expectedServicesToCreate.size(), context.getVariable(Variables.SERVICES_TO_CREATE_COUNT));
     }
 
     @Test
     void testResolveServiceGuidOfExistingService() {
-        loadParameters(List.of(Resource.createV3()
-                                       .setName(SERVICE_NAME_3)
-                                       .setParameters(Map.of("type", ResourceType.EXISTING_SERVICE.toString()))),
+        loadParameters(List.of(ImmutableCloudServiceInstanceExtended.builder()
+                                                                    .resourceName(SERVICE_NAME_3)
+                                                                    .isManaged(false)
+                                                                    .build()),
                        Set.of(ImmutableDynamicResolvableParameter.builder()
                                                                  .relationshipEntityName(SERVICE_NAME_3)
                                                                  .parameterName("service-guid")
@@ -147,12 +153,12 @@ class ExtractBatchedServicesWithResolvedDynamicParametersStepTest
 
         step.execute(execution);
         assertStepFinishedSuccessfully();
-
         assertTrue(context.getVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS)
                           .contains(expectedDynamicParameter));
     }
 
-    private void loadParameters(List<Resource> batchToProcess, Set<DynamicResolvableParameter> dynamicResolvableParameters) {
+    private void loadParameters(List<CloudServiceInstanceExtended> batchToProcess,
+                                Set<DynamicResolvableParameter> dynamicResolvableParameters) {
         context.setVariable(Variables.BATCH_TO_PROCESS, batchToProcess);
         context.setVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS, dynamicResolvableParameters);
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
