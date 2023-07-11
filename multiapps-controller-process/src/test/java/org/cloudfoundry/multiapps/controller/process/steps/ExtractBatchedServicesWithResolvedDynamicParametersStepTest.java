@@ -159,6 +159,7 @@ class ExtractBatchedServicesWithResolvedDynamicParametersStepTest
 
     private void loadParameters(List<CloudServiceInstanceExtended> batchToProcess,
                                 Set<DynamicResolvableParameter> dynamicResolvableParameters) {
+
         context.setVariable(Variables.BATCH_TO_PROCESS, batchToProcess);
         context.setVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS, dynamicResolvableParameters);
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);

@@ -26,6 +26,15 @@ public final class VariableHandling {
         return serializer.deserialize(serializedValue);
     }
 
+    public static <T> T getBackwardsCompatible(VariableContainer container, Variable<T> variable) {
+        Object serializedValue = container.getVariable(variable.getName());
+        if (serializedValue == null) {
+            return variable.getDefaultValue();
+        }
+        Serializer<T> serializer = variable.getSerializer();
+        return serializer.deserialize(serializedValue, container);
+    }
+
     public static void remove(VariableScope scope, Variable<?> variable) {
         scope.removeVariable(variable.getName());
     }

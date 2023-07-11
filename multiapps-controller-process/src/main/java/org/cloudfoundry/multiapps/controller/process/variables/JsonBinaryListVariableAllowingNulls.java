@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.common.util.JsonSerializationStrategy;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.flowable.common.engine.api.variable.VariableContainer;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -32,6 +33,11 @@ public abstract class JsonBinaryListVariableAllowingNulls<T> implements ListVari
                 return serializedValues.stream()
                                        .map(value -> JsonUtil.fromJsonBinary(value, JsonSerializationStrategy.ALLOW_NULLS, getType()))
                                        .collect(Collectors.toList());
+            }
+
+            @Override
+            public List<T> deserialize(Object serializedValue, VariableContainer container) {
+                return deserialize(serializedValue);
             }
 
         };

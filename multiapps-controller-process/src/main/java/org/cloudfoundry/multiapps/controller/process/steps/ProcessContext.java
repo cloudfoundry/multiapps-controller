@@ -59,6 +59,10 @@ public class ProcessContext {
         return VariableHandling.get(execution, variable);
     }
 
+    public <T> T getVariableBackwardsCompatible(Variable<T> variable) {
+        return VariableHandling.getBackwardsCompatible(execution, variable);
+    }
+
     public <T> void setVariable(Variable<T> variable, T value) {
         VariableHandling.set(execution, variable, value);
     }

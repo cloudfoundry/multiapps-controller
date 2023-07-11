@@ -592,18 +592,70 @@ public interface Variables {
                                                                                         .name("serviceBrokerNamesJobsIds")
                                                                                         .build();
 
-    Variable<List<List<CloudServiceInstanceExtended>>> BATCHES_TO_PROCESS = ImmutableJsonStringListVariable.<List<CloudServiceInstanceExtended>> builder()
-                                                                                                           .name("batchesToProcess")
-                                                                                                           .type(new TypeReference<>() {
-                                                                                                           })
-                                                                                                           .defaultValue(Collections.emptyList())
-                                                                                                           .build();
-    Variable<List<CloudServiceInstanceExtended>> BATCH_TO_PROCESS = ImmutableJsonStringVariable.<List<CloudServiceInstanceExtended>> builder()
-                                                                                               .name("batchToProcess")
-                                                                                               .type(new TypeReference<>() {
-                                                                                               })
-                                                                                               .defaultValue(Collections.emptyList())
-                                                                                               .build();
+    // TODO: keep custom serializers only for one release, delete after
+    // Variable<List<List<CloudServiceInstanceExtended>>> BATCHES_TO_PROCESS =
+    // ImmutableJsonStringListVariable.<List<CloudServiceInstanceExtended>> builder()
+    // .name("batchesToProcess")
+    // .type(new TypeReference<>() {
+    // })
+    // .defaultValue(Collections.emptyList())
+    // .build();
+
+    // Variable<List<CloudServiceInstanceExtended>> BATCH_TO_PROCESS = ImmutableJsonStringVariable.<List<CloudServiceInstanceExtended>>
+    // builder()
+    // .name("batchToProcess")
+    // .type(new TypeReference<>() {
+    // })
+    // .defaultValue(Collections.emptyList())
+    // .build();
+    Variable<List<List<CloudServiceInstanceExtended>>> BATCHES_TO_PROCESS = new JsonStringListVariable<>() {
+
+        @Override
+        public String getName() {
+            return "batchesToProcess";
+        }
+
+        @Override
+        public List<List<CloudServiceInstanceExtended>> getDefaultValue() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public TypeReference<List<CloudServiceInstanceExtended>> getType() {
+            return BatchesToProcessSerializationAdapter.BATCHES_TO_PROCESS_ELEMENT_TYPE_REFERENCE;
+        }
+
+        @Override
+        public Serializer<List<List<CloudServiceInstanceExtended>>> getSerializer() {
+            return new BatchesToProcessSerializationAdapter();
+        }
+
+    };
+
+    Variable<List<CloudServiceInstanceExtended>> BATCH_TO_PROCESS = new JsonStringListVariable<>() {
+
+        @Override
+        public String getName() {
+            return "batchToProcess";
+        }
+
+        @Override
+        public List<CloudServiceInstanceExtended> getDefaultValue() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public TypeReference<CloudServiceInstanceExtended> getType() {
+            return BatchToProcessSerializationAdapter.BATCH_TO_PROCESS_ELEMENT_TYPE_REFERENCE;
+        }
+
+        @Override
+        public Serializer<List<CloudServiceInstanceExtended>> getSerializer() {
+            return new BatchToProcessSerializationAdapter();
+        }
+
+    };
+
     Variable<Boolean> SHOULD_RECREATE_SERVICE_BINDING = ImmutableSimpleVariable.<Boolean> builder()
                                                                                .name("shouldRecreateServiceBinding")
                                                                                .defaultValue(false)
