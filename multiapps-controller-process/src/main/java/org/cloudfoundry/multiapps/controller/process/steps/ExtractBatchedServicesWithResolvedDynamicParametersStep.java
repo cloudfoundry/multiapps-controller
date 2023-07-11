@@ -34,7 +34,7 @@ public class ExtractBatchedServicesWithResolvedDynamicParametersStep extends Syn
         getStepLogger().debug(Messages.EXTACT_SERVICES_AND_RESOLVE_DYNAMIC_PARAMETERS_FROM_BATCH);
 
         Set<DynamicResolvableParameter> dynamicResolvableParameters = context.getVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS);
-        List<CloudServiceInstanceExtended> servicesCalculatedForDeployment = context.getVariable(Variables.BATCH_TO_PROCESS);
+        List<CloudServiceInstanceExtended> servicesCalculatedForDeployment = context.getVariableBackwardsCompatible(Variables.BATCH_TO_PROCESS);
         Set<DynamicResolvableParameter> dynamicParametersWithResolvedExistingInstances = resolveDynamicPramatersWithExistingInstances(context.getControllerClient(),
                                                                                                                                       dynamicResolvableParameters,
                                                                                                                                       servicesCalculatedForDeployment);

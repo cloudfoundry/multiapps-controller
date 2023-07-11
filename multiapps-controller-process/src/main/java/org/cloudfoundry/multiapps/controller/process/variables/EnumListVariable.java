@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.variables;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.flowable.common.engine.api.variable.VariableContainer;
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -28,6 +29,11 @@ public abstract class EnumListVariable<T extends Enum<T>> implements ListVariabl
                 return serializedValues.stream()
                                        .map(value -> Enum.valueOf(getType(), value))
                                        .collect(Collectors.toList());
+            }
+
+            @Override
+            public List<T> deserialize(Object serializedValue, VariableContainer container) {
+                return deserialize(serializedValue);
             }
 
         };

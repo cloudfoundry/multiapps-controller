@@ -121,7 +121,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     }
 
     private List<String> getAllServiceNames(ProcessContext context) {
-        return context.getVariable(Variables.BATCHES_TO_PROCESS)
+        return context.getVariableBackwardsCompatible(Variables.BATCHES_TO_PROCESS)
                       .stream()
                       .flatMap(List::stream)
                       .map(CloudServiceInstanceExtended::getName)
