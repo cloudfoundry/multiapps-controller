@@ -2,8 +2,9 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -25,9 +26,9 @@ public class AbortedOperationsCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbortedOperationsCleaner.class);
 
-    private HistoricOperationEventService historicOperationEventService;
-    private FlowableFacade flowableFacade;
-    private ApplicationConfiguration applicationConfiguration;
+    private final HistoricOperationEventService historicOperationEventService;
+    private final FlowableFacade flowableFacade;
+    private final ApplicationConfiguration applicationConfiguration;
 
     @Inject
     public AbortedOperationsCleaner(HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
@@ -38,13 +39,14 @@ public class AbortedOperationsCleaner implements Cleaner {
     }
 
     @Override
-    public void execute(Date expirationTime) {
+    public void execute(LocalDateTime expirationTime) {
         Instant instant = Instant.now()
                                  .minus(applicationConfiguration.getAbortedOperationsTtlInSeconds(), ChronoUnit.SECONDS);
         LOGGER.debug(CleanUpJob.LOG_MARKER, MessageFormat.format(Messages.DELETING_OPERATIONS_ABORTED_BEFORE_0, instant));
         List<HistoricOperationEvent> abortedOperations = historicOperationEventService.createQuery()
                                                                                       .type(HistoricOperationEvent.EventType.ABORTED)
-                                                                                      .olderThan(new Date(instant.toEpochMilli()))
+                                                                                      .olderThan(LocalDateTime.ofInstant(instant,
+                                                                                                                         ZoneId.systemDefault()))
                                                                                       .list();
         abortedOperations.stream()
                          .map(HistoricOperationEvent::getProcessId)

@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.query.impl;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,8 +87,8 @@ public class ProgressMessageQueryImpl extends AbstractQueryImpl<ProgressMessage,
     }
 
     @Override
-    public ProgressMessageQuery olderThan(Date time) {
-        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<Date> builder()
+    public ProgressMessageQuery olderThan(LocalDateTime time) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<LocalDateTime> builder()
                                                                        .attribute(AttributeNames.TIMESTAMP)
                                                                        .condition(getCriteriaBuilder()::lessThan)
                                                                        .value(time)

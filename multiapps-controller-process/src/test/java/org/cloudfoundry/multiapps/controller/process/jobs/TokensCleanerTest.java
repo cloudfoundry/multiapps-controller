@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import static org.mockito.ArgumentMatchers.any;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import org.cloudfoundry.multiapps.controller.persistence.query.AccessTokenQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.AccessTokenService;
@@ -33,7 +33,7 @@ class TokensCleanerTest {
                .thenReturn(accessTokenQuery);
         Mockito.when(accessTokenQuery.expiresBefore(any()))
                .thenReturn(accessTokenQuery);
-        cleaner.execute(new Date());
+        cleaner.execute(LocalDateTime.now());
         Mockito.verify(accessTokenQuery)
                .delete();
     }

@@ -17,6 +17,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -168,7 +171,7 @@ class DatabaseFileServiceTest {
         setMofidicationDate(fileEntryToDelete1, pastMoment);
         setMofidicationDate(fileEntryToDelete2, pastMoment);
 
-        Date deleteDate = new Date(currentMillis - oldFilesTtl);
+        LocalDateTime deleteDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(currentMillis - oldFilesTtl), ZoneId.systemDefault());
         int deletedFiles = fileService.deleteModifiedBefore(deleteDate);
 
         assertNotNull(fileService.getFile(SPACE_1, fileEntryToRemain1.getId()));

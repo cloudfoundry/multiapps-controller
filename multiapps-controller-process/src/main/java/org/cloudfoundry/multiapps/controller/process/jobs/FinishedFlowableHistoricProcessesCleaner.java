@@ -4,8 +4,6 @@ import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -61,15 +59,11 @@ public class FinishedFlowableHistoricProcessesCleaner {
     }
 
     private void deleteFinishedProcesses() throws InterruptedException, ExecutionException {
-        Date endedBefore = Date.from(LocalDateTime.now()
-                                                  .minusHours(2)
-                                                  .minusMinutes(30)
-                                                  .atZone(ZoneId.systemDefault())
-                                                  .toInstant());
-        Date endedAfter = Date.from(LocalDateTime.now()
-                                                 .minusHours(5)
-                                                 .atZone(ZoneId.systemDefault())
-                                                 .toInstant());
+        LocalDateTime endedBefore = LocalDateTime.now()
+                                                 .minusHours(2)
+                                                 .minusMinutes(30);
+        LocalDateTime endedAfter = LocalDateTime.now()
+                                                .minusHours(5);
         int page = 0;
         int deletedProcesses = 0;
         List<Operation> operations = getFinishedOperationsByPage(page, endedBefore, endedAfter);
@@ -93,7 +87,7 @@ public class FinishedFlowableHistoricProcessesCleaner {
         LOGGER.info(LOG_MARKER, format(Messages.DELETED_HISTORIC_PROCESSES_0, deletedProcesses));
     }
 
-    private List<Operation> getFinishedOperationsByPage(int page, Date endedBefore, Date endedAfter) {
+    private List<Operation> getFinishedOperationsByPage(int page, LocalDateTime endedBefore, LocalDateTime endedAfter) {
         return operationService.createQuery()
                                .limitOnSelect(MAX_OPERATIONS_PER_PAGE)
                                .offsetOnSelect(page * MAX_OPERATIONS_PER_PAGE)

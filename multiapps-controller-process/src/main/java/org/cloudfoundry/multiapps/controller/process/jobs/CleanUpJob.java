@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 import static java.text.MessageFormat.format;
 
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -40,7 +40,7 @@ public class CleanUpJob {
         LOGGER.info(LOG_MARKER, format(Messages.CLEAN_UP_JOB_STARTED_BY_APPLICATION_INSTANCE_0_AT_1,
                                        configuration.getApplicationInstanceIndex(), cleanUpJobStartTime));
 
-        Date expirationTime = computeExpirationTime();
+        LocalDateTime expirationTime = computeExpirationTime();
         LOGGER.info(LOG_MARKER, format(Messages.WILL_CLEAN_UP_DATA_STORED_BEFORE_0, expirationTime));
         LOGGER.info(LOG_MARKER, format(Messages.REGISTERED_CLEANERS_IN_CLEAN_UP_JOB_0, cleaners));
         for (Cleaner cleaner : cleaners) {
@@ -50,10 +50,10 @@ public class CleanUpJob {
         LOGGER.info(LOG_MARKER, format(Messages.CLEAN_UP_JOB_WHICH_STARTED_AT_0_HAS_FINISHED_AT_1, cleanUpJobStartTime, Instant.now()));
     }
 
-    private Date computeExpirationTime() {
+    private LocalDateTime computeExpirationTime() {
         long maxTtlForOldData = configuration.getMaxTtlForOldData();
-        return Date.from(Instant.now()
-                                .minusSeconds(maxTtlForOldData));
+        return LocalDateTime.now()
+                            .minusSeconds(maxTtlForOldData);
     }
 
     private static void log(Exception e) {

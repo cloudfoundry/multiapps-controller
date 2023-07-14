@@ -3,7 +3,9 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.query.ProgressMessageQuery;
@@ -17,7 +19,7 @@ import org.mockito.MockitoAnnotations;
 
 class ProgressMessagesCleanerTest {
 
-    private static final Date EXPIRATION_TIME = new Date(5000);
+    private static final LocalDateTime EXPIRATION_TIME = LocalDateTime.ofInstant(Instant.ofEpochMilli(5000), ZoneId.systemDefault());
 
     @Mock
     private ProgressMessageService progressMessageService;

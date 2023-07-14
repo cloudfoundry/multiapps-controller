@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import static java.text.MessageFormat.format;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,7 +27,7 @@ public class HistoricOperationEventsCleaner implements Cleaner {
     }
 
     @Override
-    public void execute(Date expirationTime) {
+    public void execute(LocalDateTime expirationTime) {
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.DELETING_HISTORIC_OPERATION_EVENTS_STORED_BEFORE_0, expirationTime));
         int removedHistoricOperationEvents = historicOperationEventService.createQuery()
                                                                           .olderThan(expirationTime)

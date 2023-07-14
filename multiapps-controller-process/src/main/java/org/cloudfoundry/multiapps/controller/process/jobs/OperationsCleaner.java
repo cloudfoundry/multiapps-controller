@@ -2,8 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import static java.text.MessageFormat.format;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -18,6 +18,7 @@ import org.cloudfoundry.multiapps.controller.process.flowable.Action;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessAction;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegistry;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -45,7 +46,7 @@ public class OperationsCleaner implements Cleaner {
     }
 
     @Override
-    public void execute(Date expirationTime) {
+    public void execute(LocalDateTime expirationTime) {
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.DELETING_OPERATIONS_STARTED_BEFORE_0, expirationTime));
         int abortedOperations = abortActiveOperations(expirationTime);
         LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.ABORTED_OPERATIONS_0, abortedOperations));
@@ -56,7 +57,7 @@ public class OperationsCleaner implements Cleaner {
         LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_OPERATIONS_0, deletedOperations));
     }
 
-    private int abortActiveOperations(Date expirationTime) {
+    private int abortActiveOperations(LocalDateTime expirationTime) {
         int abortedOperations = 0;
         for (int pageIndex = 0;; pageIndex++) {
             List<Operation> operationsPage = getOperationsPage(expirationTime, pageIndex);
@@ -75,7 +76,7 @@ public class OperationsCleaner implements Cleaner {
         }
     }
 
-    private List<Operation> getOperationsPage(Date expirationTime, int pageIndex) {
+    private List<Operation> getOperationsPage(LocalDateTime expirationTime, int pageIndex) {
         return operationService.createQuery()
                                .startedBefore(expirationTime)
                                .offsetOnSelect(pageIndex * pageSize)

@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.query;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage;
@@ -20,7 +20,7 @@ public interface ProgressMessageQuery extends Query<ProgressMessage, ProgressMes
 
     ProgressMessageQuery text(String text);
 
-    ProgressMessageQuery olderThan(Date time);
+    ProgressMessageQuery olderThan(LocalDateTime time);
 
     ProgressMessageQuery orderById(OrderDirection orderDirection);
 

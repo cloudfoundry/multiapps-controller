@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
@@ -46,7 +46,7 @@ public class DatabaseFileService extends FileService {
     }
 
     @Override
-    public int deleteModifiedBefore(Date modificationTime) throws FileStorageException {
+    public int deleteModifiedBefore(LocalDateTime modificationTime) throws FileStorageException {
         return deleteFileAttributesModifiedBefore(modificationTime);
     }
 

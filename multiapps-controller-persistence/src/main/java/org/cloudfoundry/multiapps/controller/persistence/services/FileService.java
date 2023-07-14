@@ -12,9 +12,12 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
@@ -27,8 +30,6 @@ import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFile
 import org.cloudfoundry.multiapps.controller.persistence.util.SqlQueryExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.DatatypeConverter;
 
 public class FileService {
 
@@ -147,7 +148,7 @@ public class FileService {
         return deleteFileAttributesBySpaceIds(spaceIds);
     }
 
-    public int deleteModifiedBefore(Date modificationTime) throws FileStorageException {
+    public int deleteModifiedBefore(LocalDateTime modificationTime) throws FileStorageException {
         int deletedItems = fileStorage.deleteFilesModifiedBefore(modificationTime);
         return deleteFileAttributesModifiedBefore(modificationTime) + deletedItems;
     }
@@ -194,7 +195,7 @@ public class FileService {
         }
     }
 
-    protected int deleteFileAttributesModifiedBefore(Date modificationTime) throws FileStorageException {
+    protected int deleteFileAttributesModifiedBefore(LocalDateTime modificationTime) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteModifiedBeforeQuery(modificationTime));
         } catch (SQLException e) {
