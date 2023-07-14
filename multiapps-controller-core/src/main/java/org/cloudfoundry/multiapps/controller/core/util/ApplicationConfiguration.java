@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.core.util;
 
 import static java.text.MessageFormat.format;
 
-import java.lang.annotation.Target;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
@@ -23,8 +22,6 @@ import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.configuration.Environment;
 import org.cloudfoundry.multiapps.controller.core.health.model.HealthCheckConfiguration;
 import org.cloudfoundry.multiapps.controller.core.health.model.ImmutableHealthCheckConfiguration;
@@ -43,8 +40,6 @@ public class ApplicationConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfiguration.class);
 
     // Environment variables:
-    static final String CFG_TYPE = "XS_TYPE";
-    static final String CFG_DB_TYPE = "DB_TYPE";
     static final String CFG_PLATFORM = "PLATFORM"; // Mandatory
     static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
@@ -102,8 +97,6 @@ public class ApplicationConfiguration {
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
     // Default values:
-    public static final List<Platform> DEFAULT_PLATFORMS = Collections.emptyList();
-    public static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
     public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024L; // 4 GB(s)
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024L; // 1 MB(s)
     public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024L; // 1MB
@@ -114,7 +107,9 @@ public class ApplicationConfiguration {
     public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
     public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
     public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
-    public static final String DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES = Long.toString(TimeUnit.HOURS.toMillis(2)); // every 2 hours after an instance starts
+    public static final String DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES = Long.toString(TimeUnit.HOURS.toMillis(2)); // every 2 hours
+                                                                                                                          // after an
+                                                                                                                          // instance starts
     public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
     public static final Integer DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS = 5;
     public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
@@ -252,10 +247,6 @@ public class ApplicationConfiguration {
         getSnakeyamlMaxAliasesForCollections();
         getServiceHandlingMaxParallelThreads();
         getAbortedOperationsTtlInSeconds();
-    }
-
-    protected AuditLoggingFacade getAuditLoggingFacade() {
-        return AuditLoggingProvider.getFacade();
     }
 
     public Map<String, String> getNotSensitiveVariables() {
