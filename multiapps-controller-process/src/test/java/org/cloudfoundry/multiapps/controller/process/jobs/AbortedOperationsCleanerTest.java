@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +44,7 @@ class AbortedOperationsCleanerTest {
     void testExecuteWithNoAbortedOperations() {
         prepareMocksWithProcesses(Collections.emptyList());
 
-        abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
+        abortedOperationsCleaner.execute(LocalDateTime.now()); // Passed argument is not used.
 
         Mockito.verify(historicOperationEventService)
                .createQuery();
@@ -55,7 +55,7 @@ class AbortedOperationsCleanerTest {
     void testExecuteWithOperationsInFinalState() {
         prepareMocksWithProcesses(List.of(new CustomProcess("foo", false), new CustomProcess("bar", false)));
 
-        abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
+        abortedOperationsCleaner.execute(LocalDateTime.now()); // Passed argument is not used.
 
         Mockito.verify(flowableFacade, Mockito.times(2))
                .getProcessInstance(anyString());
@@ -67,7 +67,7 @@ class AbortedOperationsCleanerTest {
     void testExecute() {
         prepareMocksWithProcesses(List.of(new CustomProcess("foo", true), new CustomProcess("bar", true)));
 
-        abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
+        abortedOperationsCleaner.execute(LocalDateTime.now()); // Passed argument is not used.
 
         Mockito.verify(flowableFacade, Mockito.times(2))
                .getProcessInstance(anyString());
@@ -81,7 +81,7 @@ class AbortedOperationsCleanerTest {
     void testExecuteWithMixedOperations() {
         prepareMocksWithProcesses(List.of(new CustomProcess("foo", true), new CustomProcess("bar", false)));
 
-        abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
+        abortedOperationsCleaner.execute(LocalDateTime.now()); // Passed argument is not used.
 
         Mockito.verify(flowableFacade, Mockito.times(2))
                .getProcessInstance(anyString());

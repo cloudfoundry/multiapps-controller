@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import java.io.InputStream;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -18,7 +18,7 @@ public interface FileStorage {
 
     void deleteFilesBySpaceAndNamespace(String space, String namespace);
 
-    int deleteFilesModifiedBefore(Date modificationTime) throws FileStorageException;
+    int deleteFilesModifiedBefore(LocalDateTime modificationTime) throws FileStorageException;
 
     <T> T processFileContent(String space, String id, FileContentProcessor<T> fileContentProcessor) throws FileStorageException;
 

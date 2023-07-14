@@ -7,9 +7,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
@@ -24,7 +26,7 @@ import org.mockito.MockitoAnnotations;
 
 class FlowableHistoricDataCleanerTest {
 
-    private static final Date EXPIRATION_TIME = new Date(5000);
+    private static final LocalDateTime EXPIRATION_TIME = LocalDateTime.ofInstant(Instant.ofEpochMilli(5000), ZoneId.systemDefault());
     private static final String OPERATION_ID_1 = "1";
     private static final String OPERATION_ID_2 = "2";
     private static final String OPERATION_ID_3 = "3";
@@ -67,7 +69,8 @@ class FlowableHistoricDataCleanerTest {
 
     private HistoricProcessInstanceQuery mockHistoricProcessInstanceQueryWithPages(List<List<HistoricProcessInstance>> pages) {
         HistoricProcessInstanceQuery historicProcessInstanceQuery = mock(HistoricProcessInstanceQuery.class);
-        when(historicProcessInstanceQuery.startedBefore(EXPIRATION_TIME)).thenReturn(historicProcessInstanceQuery);
+        when(historicProcessInstanceQuery.startedBefore(java.util.Date.from(EXPIRATION_TIME.atZone(ZoneId.systemDefault())
+                                                                                           .toInstant()))).thenReturn(historicProcessInstanceQuery);
         when(historicProcessInstanceQuery.finished()).thenReturn(historicProcessInstanceQuery);
         when(historicProcessInstanceQuery.excludeSubprocesses(anyBoolean())).thenReturn(historicProcessInstanceQuery);
         when(historicProcessInstanceQuery.listPage(anyInt(), anyInt())).thenAnswer(AdditionalAnswers.returnsElementsOf(pages));

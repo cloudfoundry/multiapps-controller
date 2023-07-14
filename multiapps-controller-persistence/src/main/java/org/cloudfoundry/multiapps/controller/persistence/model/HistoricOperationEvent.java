@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.model;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import org.immutables.value.Value;
 
@@ -20,8 +20,8 @@ public interface HistoricOperationEvent {
 
     @Value.Default
     @Value.Auxiliary // Makes sure timestamps won't be taken into account when comparing events in unit tests.
-    default Date getTimestamp() {
-        return new Date();
+    default LocalDateTime getTimestamp() {
+        return LocalDateTime.now();
     }
 
     enum EventType {

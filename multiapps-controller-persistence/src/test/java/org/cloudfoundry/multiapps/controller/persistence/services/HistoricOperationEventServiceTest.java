@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.persistence.EntityManagerFactory;
@@ -26,8 +26,9 @@ class HistoricOperationEventServiceTest {
 
     private static final String PROCESS_ID = "processId_1";
 
-    private static final Date DATE_1 = Date.from(Instant.parse("2020-11-15T13:30:25.010Z"));
-    private static final Date DATE_2 = Date.from(Instant.parse("2020-11-15T13:30:25.020Z"));
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    private static final LocalDateTime DATE_1 = LocalDateTime.parse("2020-11-15T13:30:25.010Z", DATE_TIME_FORMATTER);
+    private static final LocalDateTime DATE_2 = LocalDateTime.parse("2020-11-15T13:30:25.020Z", DATE_TIME_FORMATTER);
 
     private static final HistoricOperationEvent HISTORIC_OPERATION_1 = createHistoricOperationEvent(1, PROCESS_ID,
                                                                                                     HistoricOperationEvent.EventType.STARTED,
@@ -128,7 +129,8 @@ class HistoricOperationEventServiceTest {
     void testOrderOlderTimestampWithHigherIndex() {
         historicOperationEventService.add(HISTORIC_OPERATION_2);
         HistoricOperationEvent olderHistoricOperationEvent = createHistoricOperationEvent(3, PROCESS_ID, EventType.STARTED,
-                                                                                          Date.from(Instant.parse("2020-11-15T13:30:24.010Z")));
+                                                                                          LocalDateTime.parse("2020-11-15T13:30:24.010Z",
+                                                                                                              DATE_TIME_FORMATTER));
         historicOperationEventService.add(olderHistoricOperationEvent);
         List<HistoricOperationEvent> historicOperations = historicOperationEventService.createQuery()
                                                                                        .orderByTimestamp(OrderDirection.ASCENDING)
@@ -149,8 +151,8 @@ class HistoricOperationEventServiceTest {
         assertThrows(NotFoundException.class, () -> historicOperationEventService.update(HISTORIC_OPERATION_1, HISTORIC_OPERATION_2));
     }
 
-    private static ImmutableHistoricOperationEvent createHistoricOperationEvent(long id, String processId,
-                                                                                HistoricOperationEvent.EventType type, Date timeStamp) {
+    private static ImmutableHistoricOperationEvent
+            createHistoricOperationEvent(long id, String processId, HistoricOperationEvent.EventType type, LocalDateTime timeStamp) {
         return ImmutableHistoricOperationEvent.builder()
                                               .id(id)
                                               .processId(processId)

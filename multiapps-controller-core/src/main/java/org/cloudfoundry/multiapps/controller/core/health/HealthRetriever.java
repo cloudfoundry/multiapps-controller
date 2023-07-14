@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.health;
 
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -47,7 +46,7 @@ public class HealthRetriever {
         OperationQuery healthCheckOperationsQuery = operationService.createQuery()
                                                                     .mtaId(healthCheckConfiguration.getMtaId())
                                                                     .spaceId(healthCheckConfiguration.getSpaceId())
-                                                                    .endedAfter(Date.from(xSecondsAgo.toInstant()))
+                                                                    .endedAfter(xSecondsAgo.toLocalDateTime())
                                                                     .inFinalState()
                                                                     .orderByEndTime(OrderDirection.DESCENDING);
         if (healthCheckConfiguration.getUserName() != null) {

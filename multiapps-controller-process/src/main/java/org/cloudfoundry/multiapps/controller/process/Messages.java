@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process;
 
+import org.jclouds.rest.HttpClient;
+
 /**
  * A collection of string constants used for exception and logging messages.
  */
@@ -259,6 +261,7 @@ public class Messages {
     public static final String WILL_DELETE_HISTORIC_PROCESSES_BEFORE_0 = "Will delete Flowable historic processes before: {0}";
     public static final String DELETED_HISTORIC_PROCESSES_0 = "Deleted historic processes: {0}";
     public static final String DELETED_FILES_0 = "Deleted files: {0}";
+
     public static final String ABORTED_OPERATIONS_0 = "Aborted operations: {0}";
     public static final String DELETED_OPERATIONS_0 = "Deleted operations: {0}";
     public static final String DELETED_PROCESS_LOGS_0 = "Deleted process logs: {0}";

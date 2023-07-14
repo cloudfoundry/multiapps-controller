@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,7 +42,7 @@ class FlowableDataCleanerTest {
     @ParameterizedTest
     @MethodSource
     void testDeleteInvocation(List<String> processIds) {
-        Date date = new Date();
+        LocalDateTime date = LocalDateTime.now();
         prepareFlowableFacade(processIds, date);
 
         flowableDataCleaner.execute(date);
@@ -51,7 +51,7 @@ class FlowableDataCleanerTest {
         verify(flowableFacade).findAllRunningProcessInstanceStartedBefore(date);
     }
 
-    private void prepareFlowableFacade(List<String> processIds, Date date) {
+    private void prepareFlowableFacade(List<String> processIds, LocalDateTime date) {
         List<ProcessInstance> processInstances = processIds.stream()
                                                            .map(this::buildProcessInstance)
                                                            .collect(Collectors.toList());

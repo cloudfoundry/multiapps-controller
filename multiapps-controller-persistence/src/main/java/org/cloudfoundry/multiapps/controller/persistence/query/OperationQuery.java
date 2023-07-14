@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.query;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
@@ -25,11 +25,11 @@ public interface OperationQuery extends Query<Operation, OperationQuery> {
 
     OperationQuery state(Operation.State state);
 
-    OperationQuery startedBefore(Date startedBefore);
+    OperationQuery startedBefore(LocalDateTime startedBefore);
 
-    OperationQuery endedBefore(Date endedBefore);
+    OperationQuery endedBefore(LocalDateTime endedBefore);
 
-    OperationQuery endedAfter(Date endedAfter);
+    OperationQuery endedAfter(LocalDateTime endedAfter);
 
     OperationQuery inNonFinalState();
 

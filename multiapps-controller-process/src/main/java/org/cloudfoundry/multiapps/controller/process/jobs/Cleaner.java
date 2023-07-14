@@ -1,9 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public interface Cleaner {
 
-    void execute(Date expirationTime);
+    void execute(LocalDateTime expirationTime);
 
 }

@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,7 +31,7 @@ public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> impl
     }
 
     @Override
-    public void execute(Date expirationTime) {
+    public void execute(LocalDateTime expirationTime) {
         if (!executed) {
             LOGGER.info(CleanUpJob.LOG_MARKER, getStartCleanupLogMessage());
             int deletedOrphanedDataCount = deleteOrphanedData();

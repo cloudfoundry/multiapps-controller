@@ -3,7 +3,8 @@ package org.cloudfoundry.multiapps.controller.process.flowable;
 import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -269,11 +270,12 @@ public class FlowableFacade {
         return processEngine;
     }
 
-    public List<ProcessInstance> findAllRunningProcessInstanceStartedBefore(Date startedBefore) {
+    public List<ProcessInstance> findAllRunningProcessInstanceStartedBefore(LocalDateTime startedBefore) {
         return processEngine.getRuntimeService()
                             .createProcessInstanceQuery()
                             .excludeSubprocesses(true)
-                            .startedBefore(startedBefore)
+                            .startedBefore(java.util.Date.from(startedBefore.atZone(ZoneId.systemDefault())
+                                                                            .toInstant()))
                             .list();
     }
 
