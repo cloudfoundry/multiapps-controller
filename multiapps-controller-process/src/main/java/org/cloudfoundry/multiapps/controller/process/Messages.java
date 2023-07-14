@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process;
 
-import org.jclouds.rest.HttpClient;
-
 /**
  * A collection of string constants used for exception and logging messages.
  */
@@ -27,7 +25,6 @@ public class Messages {
     public static final String MISSING_SERVICE_BROKER_USERNAME = "Missing service broker username for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_PASSWORD = "Missing service broker password for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_URL = "Missing service broker url for application \"{0}\"";
-    public static final String COULD_NOT_CONFIGURE_GIT_TO_SKIP_SSL = "Could not configure Git to skip SSL";
     public static final String ERROR_MERGING_ARCHIVE_PARTS = "Error merging archive parts: {0}";
     public static final String BUILDING_ARCHIVE_FROM_PARTS = "Building archive from parts...";
     public static final String ERROR_DELETING_ARCHIVE_PARTS_CONTENT = "Error deleting archive parts content";
@@ -47,7 +44,6 @@ public class Messages {
     public static final String COULD_NOT_DELETE_PROCESS_LOGS_MODIFIED_BEFORE_0 = "Could not delete process logs modified before {0}";
     public static final String MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES = "Modules {0}, specified for deployment, are not part of deployment descriptor modules";
     public static final String SERVICE_BROKER_0_DOES_NOT_EXIST = "Service broker \"{0}\" does not exist";
-    public static final String GIT_URI_IS_NOT_SPECIFIED = "Git URI is not specified";
     public static final String PARAMETERS_OF_TASK_HOOK_0_ARE_INCOMPLETE = "Parameters of hook {0} with type \"task\" are incomplete. Expected at least \"command\".";
     public static final String CANNOT_DETERMINE_MODULE_NAME = "Cannot determine module name";
     public static final String CANNOT_DETERMINE_CURRENT_APPLICATION = "Cannot determine current application";
@@ -142,7 +138,6 @@ public class Messages {
     public static final String ERROR_DETACHING_SERVICES_FROM_MTA = "Error detaching services from MTA";
     public static final String ERROR_UPDATING_SUBSCRIBERS = "Error updating subscribers";
     public static final String ERROR_RESTARTING_SUBSCRIBERS = "Error restarting subscribers";
-    public static final String ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT = "Error downloading deployable from Git";
     public static final String ERROR_SERVICE_OPERATION = "Service operation failed";
     public static final String ERROR_CREATING_SERVICE = "Error creating service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_UPDATING_SERVICE = "Error updating service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
@@ -206,7 +201,6 @@ public class Messages {
     public static final String CREATE_OF_SERVICE_BROKERS_FAILED_403 = "Could not create service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
     public static final String DELETE_OF_SERVICE_BROKERS_FAILED_403 = "Could not delete service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
     public static final String DELETE_OF_SERVICE_BROKERS_FAILED_409 = "Could not delete service broker \"{0}\" as there are active service instances managed by it!";
-    public static final String WILL_NOT_DELETE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be deleted, as the option for deleting service keys is not specified!";
     public static final String WILL_NOT_UPDATE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be updated, as the option for deleting service keys is not specified!";
     public static final String WILL_NOT_RECREATE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be recreated, as the option for deleting discontinued service keys is not specified!";
     public static final String IGNORING_VERSION_RULE = "Version rule will be ignored, as the deployed MTA is in inconsistent state";
@@ -474,11 +468,6 @@ public class Messages {
     public static final String MODULES_TO_DEPLOY = "Modules to deploy: {0}";
     public static final String CONFIGURATION_ENTRIES_TO_PUBLISH = "Configuration entries to publish: {0}";
     public static final String SERVICE_KEYS_TO_CREATE = "Service keys to create: {0}";
-    public static final String UPLOADING_MTAR = "Uploading MTAR...";
-    public static final String MTAR_UPLOADED = "MTAR uploaded.";
-    public static final String CLONING_REPOSITORY = "Cloning repository {0}";
-    public static final String DOWNLOADING_DEPLOYABLE = "Downloading deployable from Git...";
-    public static final String COMPRESSING_MTA_CONTENT = "Compressing MTA content...";
     public static final String DESIRED_STATE = "Desired state of application {0}: {1}";
     public static final String CURRENT_STATE = "Current state of application {0}: {1}";
     public static final String ACTIONS_TO_EXECUTE = "Actions that should be executed on application {0}: {1}";
@@ -681,8 +670,6 @@ public class Messages {
     public static final String WILL_ONLY_REMOVE_SERVICE_INSTANCE_METADATA_BECAUSE_THE_SERVICE_TYPE_IS_EXISTING = "Will only remove service instance metadata, because the service type is \"existing\"";
     public static final String DETERMINING_DELETE_ACTIONS_FOR_SERVICE_INSTANCE_0 = "Determining delete actions for service instance \"{0}\"";
     public static final String CANNOT_RETRIEVE_OPTIONAL_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0 = "Cannot retrieve optional service binding for service instance \"{0}\"";
-    public static final String SERVICE_KEYS_SCHEDULED_FOR_DELETION_0 = "Service keys scheduled for deletion: \"{0}\"";
-    public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_0 = "Service keys scheduled for recreation: \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_MODIFICATION_0 = "Service keys scheduled for recreation due to modification: \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_STATE_0 = "Service keys scheduled for recreation due to state: \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_CREATION_0 = "Service keys scheduled for creation: \"{0}\"";
