@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -18,7 +17,8 @@ import java.util.stream.Stream;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
-import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.CfRolesGetter;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -36,7 +35,6 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
@@ -55,22 +53,26 @@ class AuthorizationCheckerTest {
     private static final UUID SPACE_ID = UUID.randomUUID();
 
     @Mock
-    private CloudControllerClient client;
-    @Mock
-    private CloudControllerClientProvider clientProvider;
-    @Mock
     private CloudControllerClientFactory clientFactory;
     @Mock
     private TokenService tokenService;
     @Mock
-    private ApplicationConfiguration applicationConfiguration;
-    @InjectMocks
+    private WebClientFactory webClientFactory;
+    @Mock
+    private CfRolesGetter rolesGetter;
+    private final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
     private AuthorizationChecker authorizationChecker;
 
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
+        authorizationChecker = new AuthorizationChecker(clientFactory, tokenService, applicationConfiguration, webClientFactory) {
+            @Override
+            protected CfRolesGetter getRolesGetter(OAuth2AccessTokenWithAdditionalInfo token) {
+                return rolesGetter;
+            }
+        };
     }
 
     static Stream<Arguments> checkPermissionsUsingNamesTest() {
@@ -153,15 +155,12 @@ class AuthorizationCheckerTest {
     }
 
     private void setUpMocks(Set<UserRole> spaceRoles, Exception exception) {
-        when(client.getUserRolesBySpaceAndUser(SPACE_ID, USER_ID)).thenReturn(spaceRoles);
-        setUpException(exception);
-        when(clientProvider.getControllerClientWithNoCorrelation(eq(getUserInfo().getName()), anyString())).thenReturn(client);
-        when(applicationConfiguration.getFssCacheUpdateTimeoutMinutes()).thenReturn(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
-    }
-
-    private void setUpException(Exception exception) {
+        var token = Mockito.mock(OAuth2AccessTokenWithAdditionalInfo.class);
+        when(tokenService.getToken(anyString())).thenReturn(token);
         if (exception != null) {
-            when(client.getUserRolesBySpaceAndUser(SPACE_ID, USER_ID)).thenThrow(exception);
+            when(rolesGetter.getRoles(SPACE_ID, USER_ID)).thenThrow(exception);
+        } else {
+            when(rolesGetter.getRoles(SPACE_ID, USER_ID)).thenReturn(spaceRoles);
         }
     }
 

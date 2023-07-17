@@ -13,6 +13,8 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.CfRolesGetter;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.CachedMap;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -25,8 +27,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import com.sap.cloudfoundry.client.facade.oauth2.TokenFactory;
 
 @Named
@@ -37,12 +40,14 @@ public class AuthorizationChecker implements DisposableBean {
 
     private final CloudControllerClientFactory clientFactory;
     private final TokenService tokenService;
+    private final WebClientFactory webClientFactory;
 
     @Inject
     public AuthorizationChecker(CloudControllerClientFactory clientFactory, TokenService tokenService,
-                                ApplicationConfiguration applicationConfiguration) {
+                                ApplicationConfiguration applicationConfiguration, WebClientFactory webClientFactory) {
         this.clientFactory = clientFactory;
         this.tokenService = tokenService;
+        this.webClientFactory = webClientFactory;
         initSpaceDevelopersCache(applicationConfiguration);
     }
 
@@ -91,12 +96,14 @@ public class AuthorizationChecker implements DisposableBean {
         var userToken = tokenService.getToken(userInfo.getName());
         var spaceClient = clientFactory.createSpaceClient(userToken);
         var space = spaceClient.getSpace(orgName, spaceName);
-        var spaceGuid = space.getGuid()
-                             .toString();
 
-        CloudControllerClient client = clientFactory.createClient(userToken, spaceGuid, null);
+        CfRolesGetter rolesGetter = getRolesGetter(userToken);
         UUID userGuid = UUID.fromString(userInfo.getId());
-        return hasPermissions(client, getSpaceWithUser(userGuid, space.getGuid()), readOnly);
+        return hasPermissions(rolesGetter, getSpaceWithUser(userGuid, space.getGuid()), readOnly);
+    }
+
+    protected CfRolesGetter getRolesGetter(OAuth2AccessTokenWithAdditionalInfo token) {
+        return new CfRolesGetter(webClientFactory, new CloudCredentials(token));
     }
 
     boolean checkPermissions(UserInfo userInfo, String spaceId, boolean readOnly) {
@@ -104,10 +111,10 @@ public class AuthorizationChecker implements DisposableBean {
             return true;
         }
         var userToken = tokenService.getToken(userInfo.getName());
-        CloudControllerClient client = clientFactory.createClient(userToken);
+        CfRolesGetter rolesGetter = getRolesGetter(userToken);
         UUID userGuid = UUID.fromString(userInfo.getId());
         UUID spaceGuid = convertSpaceIdToUUID(spaceId);
-        return hasPermissions(client, getSpaceWithUser(userGuid, spaceGuid), readOnly);
+        return hasPermissions(rolesGetter, getSpaceWithUser(userGuid, spaceGuid), readOnly);
     }
 
     private UUID convertSpaceIdToUUID(String spaceId) {
@@ -120,11 +127,11 @@ public class AuthorizationChecker implements DisposableBean {
         return spaceGuid;
     }
 
-    private boolean hasPermissions(CloudControllerClient client, SpaceWithUser spaceWithUser, boolean readOnly) {
+    private boolean hasPermissions(CfRolesGetter rolesGetter, SpaceWithUser spaceWithUser, boolean readOnly) {
         if (isSpaceDeveloperUsingCache(spaceWithUser)) {
             return true;
         }
-        Set<UserRole> userRoles = refreshUserRoles(client, spaceWithUser);
+        Set<UserRole> userRoles = refreshUserRoles(rolesGetter, spaceWithUser);
         if (userRoles.contains(UserRole.SPACE_DEVELOPER)) {
             return true;
         }
@@ -140,8 +147,8 @@ public class AuthorizationChecker implements DisposableBean {
         return userRoles != null && userRoles.contains(UserRole.SPACE_DEVELOPER);
     }
 
-    private Set<UserRole> refreshUserRoles(CloudControllerClient client, SpaceWithUser spaceWithUser) {
-        Set<UserRole> userRoles = client.getUserRolesBySpaceAndUser(spaceWithUser.getSpaceGuid(), spaceWithUser.getUserGuid());
+    private Set<UserRole> refreshUserRoles(CfRolesGetter rolesGetter, SpaceWithUser spaceWithUser) {
+        Set<UserRole> userRoles = rolesGetter.getRoles(spaceWithUser.getSpaceGuid(), spaceWithUser.getUserGuid());
         userRolesCache.put(spaceWithUser, userRoles);
         return userRoles;
     }
