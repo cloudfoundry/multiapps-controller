@@ -58,7 +58,7 @@
         <jaxb-impl.version>2.3.4</jaxb-impl.version>
         <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
         <javax.inject.version>1</javax.inject.version>
-        <bouncycastle.version>1.71.1</bouncycastle.version>
+        <bouncycastle.version>1.75</bouncycastle.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>
