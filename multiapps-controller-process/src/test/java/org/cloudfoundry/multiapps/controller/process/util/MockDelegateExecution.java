@@ -369,6 +369,11 @@ public class MockDelegateExecution implements DelegateExecution {
     }
 
     @Override
+    public String getProcessInstanceBusinessStatus() {
+        return null;
+    }
+
+    @Override
     public FlowElement getCurrentFlowElement() {
         FlowElement mockFlowElement = Mockito.mock(FlowElement.class);
         Mockito.when(mockFlowElement.getName())

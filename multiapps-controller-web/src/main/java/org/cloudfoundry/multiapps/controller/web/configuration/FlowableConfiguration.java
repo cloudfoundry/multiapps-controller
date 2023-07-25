@@ -88,6 +88,11 @@ public class FlowableConfiguration {
         jobExecutor.setUnlockOwnedJobs(true);
         jobExecutor.setTenantId(AbstractEngineConfiguration.NO_TENANT_ID);
         jobExecutor.setDefaultAsyncJobAcquireWaitTimeInMillis(ASYNC_JOB_ACQUIRE_WAIT_TIME_IN_MILLIS);
+        // Set explicitly globalAcquireLock to false in case the default value gets changed in a newer version of flowable
+        jobExecutor.setGlobalAcquireLockEnabled(false);
+        // Increasing maxAsyncJobsDuePerAcquisition and/or maxTimeJobsPerAcquisition leads to worse performance (defaults were 1)
+        jobExecutor.setMaxAsyncJobsDuePerAcquisition(1);
+        jobExecutor.setMaxTimerJobsPerAcquisition(1);
         return jobExecutor;
     }
 
