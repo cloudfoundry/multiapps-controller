@@ -59,6 +59,7 @@
         <jgit.version>4.11.9.201909030838-r</jgit.version>
         <swagger.version>1.5.16</swagger.version>
         <shedlock-version>4.33.0</shedlock-version>
+        <h2.database.version>1.4.198</h2.database.version>
         <com.sap.cloud.lm.sl.open.version>1.67.14-SNAPSHOT</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
@@ -326,7 +327,7 @@
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>1.4.190</version>
+                <version>${h2.database.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
