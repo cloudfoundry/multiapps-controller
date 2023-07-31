@@ -174,10 +174,6 @@ public interface Variables {
     Variable<Boolean> SKIP_MANAGE_SERVICE_BROKER = ImmutableSimpleVariable.<Boolean> builder()
                                                                           .name("skipManageServiceBroker")
                                                                           .build();
-    Variable<Boolean> VERIFY_ARCHIVE_SIGNATURE = ImmutableSimpleVariable.<Boolean> builder()
-                                                                        .name("verifyArchiveSignature")
-                                                                        .defaultValue(false)
-                                                                        .build();
     Variable<Boolean> DELETE_IDLE_URIS = ImmutableSimpleVariable.<Boolean> builder()
                                                                 .name("deleteIdleUris")
                                                                 .defaultValue(false)

@@ -14,7 +14,6 @@ public class Messages {
     public static final String ERROR_RETRIEVING_MTA_RESOURCE_CONTENT = "Error retrieving content of MTA resource \"{0}\"";
     public static final String ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET = "Service described by MTA resource \"{0}\" of type [{1}] does not match already existing service \"{2}\" of type [{3}] and needs to be recreated. Use command line option \"--delete-services\" to enable the deletion of the existing one.";
     public static final String SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT = "The size of the application exceeds max size limit \"{0}\"";
-    public static final String ARCHIVE_SIGNATURE_VERIFICATION_IS_DISABLED = "Archive signature verification functionality is discontinued. Please do not use the command line option \"--verify-archive-signature\".";
     public static final String ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT = "Unable to retrieve required service key element \"{0}\" for service \"{1}\"";
     public static final String ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE = "Value \"{0}\" of parameter \"{1}\" must not be negative";
     public static final String INVALID_VALUE_0_FOR_PARAMETER_1_VALID_VALUES_ARE_2 = "Invalid value \"{0}\" for parameter \"{1}\". Valid values are: {2}";
@@ -48,11 +47,6 @@ public class Messages {
     public static final String CANNOT_DETERMINE_MODULE_NAME = "Cannot determine module name";
     public static final String CANNOT_DETERMINE_CURRENT_APPLICATION = "Cannot determine current application";
     public static final String INVALID_FILE_ENTRY_NAME = "Invalid file entry name: \"{0}\"";
-    public static final String COULD_NOT_VERIFY_ARCHIVE_SIGNATURE = "Could not verify archive signature: {0}";
-    public static final String THE_ARCHIVE_CONTAINS_UNSIGNED_FILES = "The archive contains unsigned files: \"{0}\"";
-    public static final String THE_ARCHIVE_IS_NOT_SIGNED_BY_TRUSTED_CERTIFICATE_AUTHORITY = "The archive is not signed by the trusted certificate authority. Trusted authorities: \"{0}\"";
-    public static final String WILL_LOOK_FOR_CERTIFICATE_CN = "Will look for certificate CN \"{0}\"";
-    public static final String THE_ARCHIVE_IS_NOT_SIGNED = "The archive is not signed";
     public static final String MERGED_FILE_NOT_DELETED = "Merged file not deleted";
     public static final String FAILED_TO_RETRIEVE_FILE_WITH_ID_0 = "Failed to retrieve file with id \"{0}\"";
     public static final String PARAMETERS_HAVE_READ_ONLY_ELEMENTS = "\"{0}\" parameters have read-only elements \"{1}\"";
@@ -509,8 +503,6 @@ public class Messages {
     public static final String SERVICES_IN_PROGRESS = "Services in progress: {0}";
     public static final String BUILD_FOR_PACKAGE_0_ALREADY_EXISTS = "Build for package: \"{0}\" already exists";
     public static final String APP_NOT_FOUND = "App not found: \"{0}\"";
-    public static final String VERIFYING_ARCHIVE_0 = "Verifying archive: \"{0}\"";
-    public static final String ARCHIVE_IS_VERIFIED = "Archive signature is verified";
     public static final String CHECKING_FOR_OVERWRITING_READ_ONLY_PARAMETERS = "Checking for overwriting read-only parameters for mta with id: \"{0}\"";
     public static final String NO_READ_ONLY_PARAMETERS_ARE_OVERWRITTEN = "No read-only parameters are overwritten";
     public static final String MODULE_WITH_APPLICATION_NAME_WAS_MARKED_AS_IDLE = "Module \"{0}\" with application name \"{1}\" was marked as idle";

@@ -21,11 +21,6 @@ public class Constants {
     public static final String VAR_WAIT_AFTER_APP_STOP = "MTA_WAIT_AFTER_APP_STOP";
     public static final String VAR_SERVICE_INSTANCE_GUID_PREFIX = "SERVICE_INSTANCE_GUID_";
 
-    public static final String TOOL_TYPE = "tool_type";
-    public static final String FEEDBACK_MAIL = "feedback_form";
-    public static final String SYMANTEC_CERTIFICATE_FILE = "/symantec.crt";
-    public static final String CERTIFICATE_TYPE_X_509 = "X.509";
-
     protected Constants() {
     }
 }

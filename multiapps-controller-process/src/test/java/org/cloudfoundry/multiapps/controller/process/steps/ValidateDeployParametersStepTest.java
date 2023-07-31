@@ -3,18 +3,14 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 
 import java.io.File;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.time.Duration;
-import java.util.List;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.SLException;
@@ -23,16 +19,13 @@ import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.util.Configuration;
-import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.FilePartsMerger;
-import org.cloudfoundry.multiapps.controller.process.util.JarSignatureOperations;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.VersionRule;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDeployParametersStep> {
@@ -47,34 +40,27 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
     private StepInput stepInput;
     private boolean isArchiveChunked;
 
-    @Mock
-    private JarSignatureOperations jarSignatureOperations;
-
     private static Stream<Arguments> testExecution() {
         return Stream.of(
                          // [1] No file associated with the specified file id
-                         Arguments.of(new StepInput(EXISTING_FILE_ID, NOT_EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, null, false),
+                         Arguments.of(new StepInput(EXISTING_FILE_ID, NOT_EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, null),
                                       MessageFormat.format(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1,
                                                            "notExistingFileId", "space-id"),
                                       false, ""),
 
                          // [2] Valid parameters
-                         Arguments.of(new StepInput(EXISTING_FILE_ID,
-                                                    EXISTING_FILE_ID + "," + EXISTING_FILE_ID,
-                                                    1,
-                                                    VersionRule.HIGHER.toString(),
-                                                    false),
-                                      null, false, ""),
+                         Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1,
+                                      VersionRule.HIGHER.toString()), null, false, ""),
 
                          // [3] Max descriptor size exceeded
-                         Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_BIGGER_FILE_ID, 1, VersionRule.HIGHER.toString(), false),
+                         Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_BIGGER_FILE_ID, 1, VersionRule.HIGHER.toString()),
                                       MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
                                                            "1048577", "extDescriptorFile", "1048576"),
                                       false, ""),
 
                          // [4] Process chunked file
                          Arguments.of(new StepInput(MERGED_ARCHIVE_NAME + ".part.0," + MERGED_ARCHIVE_NAME + ".part.1,"
-                             + MERGED_ARCHIVE_NAME + ".part.2", null, 1, VersionRule.HIGHER.toString(), false), null, true, ""));
+                             + MERGED_ARCHIVE_NAME + ".part.2", null, 1, VersionRule.HIGHER.toString()), null, true, ""));
     }
 
     @MethodSource
@@ -109,7 +95,6 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
         context.setVariable(Variables.SPACE_GUID, "space-id");
         context.setVariable(Variables.SERVICE_ID, "service-id");
         context.setVariable(Variables.MTA_NAMESPACE, "namespace");
-        context.setVariable(Variables.VERIFY_ARCHIVE_SIGNATURE, stepInput.shouldVerifyArchive);
     }
 
     private void prepareFileService() throws FileStorageException {
@@ -160,11 +145,6 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
                                                   .toAbsolutePath();
             assertFalse(Files.exists(mergedArchiveAbsolutePath));
         }
-        if (stepInput.shouldVerifyArchive) {
-            List<X509Certificate> certificates = jarSignatureOperations.readCertificates(Constants.SYMANTEC_CERTIFICATE_FILE);
-            Mockito.verify(jarSignatureOperations)
-                   .checkCertificates(any(), eq(certificates), any());
-        }
         Mockito.verify(execution, Mockito.atLeastOnce())
                .setVariable(Variables.APP_ARCHIVE_ID.getName(), stepInput.appArchiveId);
     }
@@ -180,14 +160,12 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
         private final String extDescriptorId;
         private final Duration startTimeout;
         private final String versionRule;
-        private final boolean shouldVerifyArchive;
 
-        public StepInput(String appArchiveId, String extDescriptorId, int startTimeout, String versionRule, boolean shouldVerifyArchive) {
+        public StepInput(String appArchiveId, String extDescriptorId, int startTimeout, String versionRule) {
             this.appArchiveId = appArchiveId;
             this.extDescriptorId = extDescriptorId;
             this.startTimeout = Duration.ofSeconds(startTimeout);
             this.versionRule = versionRule;
-            this.shouldVerifyArchive = shouldVerifyArchive;
         }
     }
 
