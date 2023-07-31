@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.List;
@@ -132,14 +131,6 @@ class StepsUtilTest {
         Phase actualPhase = VariableHandling.get(execution, Variables.PHASE);
 
         assertEquals(expectedPhase, actualPhase);
-    }
-
-    @Test
-    void testShouldVerifyArchiveSignatureSet() {
-        VariableHandling.set(execution, Variables.VERIFY_ARCHIVE_SIGNATURE, true);
-        Boolean result = VariableHandling.get(execution, Variables.VERIFY_ARCHIVE_SIGNATURE);
-
-        assertTrue(result);
     }
 
 }

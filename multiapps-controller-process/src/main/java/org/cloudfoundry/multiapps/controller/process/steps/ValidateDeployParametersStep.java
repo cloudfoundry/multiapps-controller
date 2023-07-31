@@ -2,27 +2,21 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
-import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveMerger;
-import org.cloudfoundry.multiapps.controller.process.util.JarSignatureOperations;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -31,9 +25,6 @@ import org.springframework.context.annotation.Scope;
 @Named("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ValidateDeployParametersStep extends SyncFlowableStep {
-
-    @Inject
-    private JarSignatureOperations jarSignatureOperations;
 
     private final ResilientOperationExecutor resilientOperationExecutor = new ResilientOperationExecutor();
 
@@ -100,7 +91,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private void validateArchive(ProcessContext context) {
         String[] archivePartIds = getArchivePartIds(context);
-        if (!context.getVariable(Variables.VERIFY_ARCHIVE_SIGNATURE) && archivePartIds.length == 1) {
+        if (archivePartIds.length == 1) {
             // The archive doesn't need "validation", i.e. merging or signature verification.
             // TODO The merging of chunks should be done prior to this step, since it's not really a validation, but we may need the result
             // here, if the user wants us to verify the archive's signature.
@@ -109,10 +100,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         Path archive = null;
         try {
             archive = mergeArchiveParts(context, archivePartIds);
-            verifyArchiveSignature(context, archive);
-            if (archivePartIds.length != 1) {
-                persistMergedArchive(context, archive);
-            }
+            persistMergedArchive(context, archive);
         } finally {
             deleteArchive(archive);
         }
@@ -127,46 +115,14 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         List<FileEntry> archivePartEntries = getArchivePartEntries(context, archivePartIds);
         context.setVariable(Variables.FILE_ENTRIES, archivePartEntries);
         getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
-        return resilientOperationExecutor.execute(createArchiveFromParts(context.getExecution(), archivePartEntries));
+        var archiveMerger = new ArchiveMerger(fileService, getStepLogger(), context.getExecution());
+        return resilientOperationExecutor.execute((Supplier<Path>) () -> archiveMerger.createArchiveFromParts(archivePartEntries));
     }
 
     private List<FileEntry> getArchivePartEntries(ProcessContext context, String[] appArchivePartsId) {
         return Arrays.stream(appArchivePartsId)
                      .map(appArchivePartId -> findFile(context, appArchivePartId))
                      .collect(Collectors.toList());
-    }
-
-    private Supplier<Path> createArchiveFromParts(DelegateExecution execution, List<FileEntry> archivePartEntries) {
-        return () -> new ArchiveMerger(fileService, getStepLogger(), execution).createArchiveFromParts(archivePartEntries);
-    }
-
-    private void verifyArchiveSignature(ProcessContext context, Path archiveFilePath) {
-        if (!context.getVariable(Variables.VERIFY_ARCHIVE_SIGNATURE)) {
-            return;
-        }
-
-        if (!configuration.isArchiveSignatureVerificationEnabled()) {
-            throw new SLException(Messages.ARCHIVE_SIGNATURE_VERIFICATION_IS_DISABLED);
-        }
-        getStepLogger().debug(Messages.VERIFYING_ARCHIVE_0, archiveFilePath);
-        verifyArchiveSignature(archiveFilePath);
-        getStepLogger().info(Messages.ARCHIVE_IS_VERIFIED);
-    }
-
-    private void verifyArchiveSignature(Path archiveFilePath) {
-        String certificateCN = configuration.getCertificateCN();
-        getStepLogger().debug(Messages.WILL_LOOK_FOR_CERTIFICATE_CN, certificateCN);
-        List<X509Certificate> certificates = jarSignatureOperations.readCertificates(Constants.SYMANTEC_CERTIFICATE_FILE);
-        jarSignatureOperations.checkCertificates(getArchiveFilePathURL(archiveFilePath), certificates, certificateCN);
-    }
-
-    private URL getArchiveFilePathURL(Path archiveFilePath) {
-        try {
-            return archiveFilePath.toUri()
-                                  .toURL();
-        } catch (MalformedURLException e) {
-            throw new SLException(e, e.getMessage());
-        }
     }
 
     private void persistMergedArchive(ProcessContext context, Path archiveFilePath) {
