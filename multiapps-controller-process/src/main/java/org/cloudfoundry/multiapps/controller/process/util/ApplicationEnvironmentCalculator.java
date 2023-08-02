@@ -36,20 +36,22 @@ public class ApplicationEnvironmentCalculator {
     }
 
     public Map<String, String> calculateNewApplicationEnv(ProcessContext context, CloudApplicationExtended newApp) {
-        if (!(newApp.getAttributesUpdateStrategy()
-                    .shouldKeepExistingEnv()
-            && deploymentTypeDeterminer.determineDeploymentType(context)
-                                       .equals(ProcessType.BLUE_GREEN_DEPLOY))) {
-            return newApp.getEnv();
-        }
-        if (context.getVariable(Variables.DEPLOYED_MTA) == null) {
-            context.getStepLogger()
-                   .debug(Messages.INITIAL_DEPLOYMENT_WILL_NOT_SEARCH_FOR_LIVE_APPLICATION);
+        if (isInitialDeploy(context) || !isBlueGreenDeploy(context) || !newApp.getAttributesUpdateStrategy()
+                                                                              .shouldKeepExistingEnv()) {
             return newApp.getEnv();
         }
         context.getStepLogger()
                .debug(Messages.DETECTING_LIVE_APPLICATION_ENV);
         return MapUtil.merge(getLiveApplicationEnvIfExistsOrReturnEmpty(context), newApp.getEnv());
+    }
+
+    private boolean isInitialDeploy(ProcessContext context) {
+        return context.getVariable(Variables.DEPLOYED_MTA) == null;
+    }
+
+    private boolean isBlueGreenDeploy(ProcessContext context) {
+        return deploymentTypeDeterminer.determineDeploymentType(context)
+                                       .equals(ProcessType.BLUE_GREEN_DEPLOY);
     }
 
     private Map<String, String> getLiveApplicationEnvIfExistsOrReturnEmpty(ProcessContext context) {
