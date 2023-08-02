@@ -40,6 +40,8 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.dto.ApplicationToCreateDto;
+import com.sap.cloudfoundry.client.facade.dto.ImmutableApplicationToCreateDto;
 
 @Named("createOrUpdateAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -66,7 +68,6 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         flowHandler.handleApplicationAttributes();
         flowHandler.injectServiceKeysCredentialsInAppEnv();
         flowHandler.handleApplicationServices();
-        flowHandler.handleApplicationEnv();
         flowHandler.printStepEndMessage();
 
         return StepPhase.DONE;
@@ -141,8 +142,6 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         public abstract void handleApplicationServices();
 
-        public abstract void handleApplicationEnv();
-
         public abstract void printStepEndMessage();
     }
 
@@ -154,26 +153,30 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationAttributes() {
-            Integer diskQuota = (app.getDiskQuota() != 0) ? app.getDiskQuota() : null;
-            Integer memory = (app.getMemory() != 0) ? app.getMemory() : null;
+            Integer diskQuotaInMb = (app.getDiskQuota() != 0) ? app.getDiskQuota() : null;
+            Integer memoryInMb = (app.getMemory() != 0) ? app.getMemory() : null;
             if (app.getDockerInfo() != null) {
                 context.getStepLogger()
                        .info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, app.getName(), app.getDockerInfo()
                                                                                         .getImage());
             }
-            client.createApplication(app.getName(), app.getStaging(), diskQuota, memory, app.getV3Metadata(), app.getRoutes());
+            ApplicationToCreateDto applicationToCreateDto = ImmutableApplicationToCreateDto.builder()
+                                                                                           .name(app.getName())
+                                                                                           .staging(app.getStaging())
+                                                                                           .diskQuotaInMb(diskQuotaInMb)
+                                                                                           .memoryInMb(memoryInMb)
+                                                                                           .metadata(app.getV3Metadata())
+                                                                                           .routes(app.getRoutes())
+                                                                                           .env(app.getEnv())
+                                                                                           .build();
+            client.createApplication(applicationToCreateDto);
             context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, true);
+            context.setVariable(Variables.USER_PROPERTIES_CHANGED, true);
         }
 
         @Override
         public void handleApplicationServices() {
             context.setVariable(Variables.SERVICES_TO_UNBIND_BIND, app.getServices());
-        }
-
-        @Override
-        public void handleApplicationEnv() {
-            client.updateApplicationEnv(app.getName(), app.getEnv());
-            context.setVariable(Variables.USER_PROPERTIES_CHANGED, true);
         }
 
         @Override
@@ -210,28 +213,10 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
             reportApplicationUpdateStatus(app, arePropertiesChanged);
             context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, arePropertiesChanged);
+            updateApplicationEnvironment();
         }
 
-        private void updateMetadata() {
-            if (app.getV3Metadata() == null) {
-                return;
-            }
-            if (!Objects.equals(existingApp.getV3Metadata(), app.getV3Metadata())) {
-                client.updateApplicationMetadata(existingApp.getGuid(), app.getV3Metadata());
-            }
-        }
-
-        @Override
-        public void handleApplicationServices() {
-            if (context.getVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING)) {
-                return;
-            }
-            List<String> services = getMtaAndExistingServices();
-            context.setVariable(Variables.SERVICES_TO_UNBIND_BIND, services);
-        }
-
-        @Override
-        public void handleApplicationEnv() {
+        private void updateApplicationEnvironment() {
             Map<String, String> envAsMap = new LinkedHashMap<>(app.getEnv());
             var appEnv = client.getApplicationEnvironment(existingApp.getGuid());
             addCurrentAppDigestToNewEnv(envAsMap, appEnv);
@@ -244,6 +229,45 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                                                        appEnv).update(existingApp, app);
 
             context.setVariable(Variables.USER_PROPERTIES_CHANGED, updateApplicationEnvironmentState == UpdateState.UPDATED);
+        }
+
+        private void updateMetadata() {
+            if (app.getV3Metadata() == null) {
+                return;
+            }
+            if (!Objects.equals(existingApp.getV3Metadata(), app.getV3Metadata())) {
+                client.updateApplicationMetadata(existingApp.getGuid(), app.getV3Metadata());
+            }
+        }
+
+        private void addCurrentAppDigestToNewEnv(Map<String, String> newAppEnv, Map<String, String> existingAppEnv) {
+            String existingFileDigest = getExistingAppFileDigest(existingAppEnv);
+            if (existingFileDigest == null) {
+                return;
+            }
+            String newAppDeployAttributes = newAppEnv.get(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES);
+            TreeMap<String, Object> newAppDeployAttributesMap = new TreeMap<>(JsonUtil.convertJsonToMap(newAppDeployAttributes));
+            newAppDeployAttributesMap.put(org.cloudfoundry.multiapps.controller.core.Constants.ATTR_APP_CONTENT_DIGEST, existingFileDigest);
+            newAppEnv.put(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES,
+                          JsonUtil.toJson(newAppDeployAttributesMap, shouldPrettyPrint.getAsBoolean()));
+        }
+
+        private String getExistingAppFileDigest(Map<String, String> envAsMap) {
+            return new ApplicationFileDigestDetector(envAsMap).detectCurrentAppFileDigest();
+        }
+
+        private UpdateStrategy getEnvUpdateStrategy() {
+            return app.getAttributesUpdateStrategy()
+                      .shouldKeepExistingEnv() ? UpdateStrategy.MERGE : UpdateStrategy.REPLACE;
+        }
+
+        @Override
+        public void handleApplicationServices() {
+            if (context.getVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING)) {
+                return;
+            }
+            List<String> services = getMtaAndExistingServices();
+            context.setVariable(Variables.SERVICES_TO_UNBIND_BIND, services);
         }
 
         @Override
@@ -281,27 +305,6 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                            new MemoryApplicationAttributeUpdater(clientContext, process),
                            new DiskQuotaApplicationAttributeUpdater(clientContext, process),
                            new UrisApplicationAttributeUpdater(clientContext, UpdateStrategy.REPLACE, currentRoutes));
-        }
-
-        private UpdateStrategy getEnvUpdateStrategy() {
-            return app.getAttributesUpdateStrategy()
-                      .shouldKeepExistingEnv() ? UpdateStrategy.MERGE : UpdateStrategy.REPLACE;
-        }
-
-        private void addCurrentAppDigestToNewEnv(Map<String, String> newAppEnv, Map<String, String> existingAppEnv) {
-            String existingFileDigest = getExistingAppFileDigest(existingAppEnv);
-            if (existingFileDigest == null) {
-                return;
-            }
-            String newAppDeployAttributes = newAppEnv.get(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES);
-            TreeMap<String, Object> newAppDeployAttributesMap = new TreeMap<>(JsonUtil.convertJsonToMap(newAppDeployAttributes));
-            newAppDeployAttributesMap.put(org.cloudfoundry.multiapps.controller.core.Constants.ATTR_APP_CONTENT_DIGEST, existingFileDigest);
-            newAppEnv.put(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES,
-                          JsonUtil.toJson(newAppDeployAttributesMap, shouldPrettyPrint.getAsBoolean()));
-        }
-
-        private String getExistingAppFileDigest(Map<String, String> envAsMap) {
-            return new ApplicationFileDigestDetector(envAsMap).detectCurrentAppFileDigest();
         }
 
     }

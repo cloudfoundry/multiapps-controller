@@ -115,7 +115,6 @@ public class Messages {
     public static final String ERROR_EXECUTING_HOOK = "Error executing hook \"{0}\"";
     public static final String ERROR_INCREMENT_INDEX = "Error incrementing index";
     public static final String ERROR_PREPARING_MODULES_DEPLOYMENT = "Error preparing modules deployment";
-    public static final String ERROR_PREPARING_RESOURCES_FOR_PROCESSING = "Error preparing resources for processing";
     public static final String ERROR_PREPARING_RESOURCES_FOR_PROCESSING_AND_RESOLVE_DYNAMIC_PARAMETERS = "Error preparing resources for processing and resolution of dynamic parameters";
     public static final String ERROR_STOPPING_APP = "Error stopping application \"{0}\"";
     public static final String DOWNLOAD_APP_LOGS_FOR_MORE_INFO = "Download the application logs via the dmol command and check them for more information.";
@@ -399,8 +398,7 @@ public class Messages {
     public static final String EXISTING_SERVICE_KEYS = "Existing service keys \"{0}\"";
     public static final String PREPARING_MODULES_DEPLOYMENT = "Preparing modules deployment...";
     public static final String CALCULATING_RESOURCE_BATCHES = "Calculating resource batches...";
-    public static final String EXTRACT_SERVICES_FROM_BATCH = "Extracting services from batch";
-    public static final String EXTACT_SERVICES_AND_RESOLVE_DYNAMIC_PARAMETERS_FROM_BATCH = "Extracting services and resolving dynamic parameters from batch";
+    public static final String EXTRACT_SERVICES_AND_RESOLVE_DYNAMIC_PARAMETERS_FROM_BATCH = "Extracting services and resolving dynamic parameters from batch";
     public static final String CALCULATING_RESOURCE_BATCHES_COMPLETE = "Calculating resource batches completed.";
     public static final String COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computing modules for next parallel iteration...";
     public static final String COMPUTED_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computed modules for next parallel iteration: {0}";
@@ -532,7 +530,7 @@ public class Messages {
     public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_WITH_PARAMETERS_2 = "Binding service instance \"{0}\" to application \"{1}\" with parameters: {2}";
     public static final String SERVICE_BINDING_BETWEEN_SERVICE_0_AND_APP_1_ALREADY_CREATED = "Service binding between service instance \"{0}\" and application \"{1}\" already created";
     public static final String SERVICE_BINDING_BETWEEN_SERVICE_0_AND_APP_1_ALREADY_DELETED = "Service binding between service instance \"{0}\" and application \"{1}\" already deleted";
-    public static final String CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3 = "Creating application \"{0}\" with memory \"{1}\", URIs \"{2}\" and staging: {3}";
+    public static final String CREATING_APPLICATION_0_WITH_DISK_1_MEMORY_2_URIS_3_AND_STAGING_4 = "Creating application \"{0}\" with disk \"{1}\" memory \"{2}\", URIs \"{3}\" and staging: \"{4}\"";
     public static final String CREATING_SERVICE_INSTANCE_0 = "Creating service instance: {0}";
     public static final String CREATING_SERVICE_BROKER_0 = "Creating service broker: {0}";
     public static final String CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2 = "Creating service key \"{0}\" for service instance \"{1}\" with parameters: {2}";
@@ -560,8 +558,6 @@ public class Messages {
     public static final String GETTING_DOMAINS = "Getting domains...";
     public static final String GETTING_DOMAINS_FOR_ORGANIZATION = "Getting domains for organization...";
     public static final String GETTING_EVENTS = "Getting events...";
-    public static final String GETTING_ORGANIZATION_0 = "Getting organization \"{0}\"...";
-    public static final String GETTING_ORGANIZATIONS = "Getting organizations...";
     public static final String GETTING_PRIVATE_DOMAINS = "Getting private domains...";
     public static final String GETTING_ROUTES_WITH_DOMAIN_0 = "Getting routes with domain \"{0}\"...";
     public static final String GETTING_SERVICE_INSTANCE_0 = "Getting service instance \"{0}\"...";
@@ -580,10 +576,6 @@ public class Messages {
     public static final String GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0 = "Getting service keys for service instance \"{0}\"...";
     public static final String GETTING_SERVICE_OFFERINGS = "Getting service offerings...";
     public static final String GETTING_SHARED_DOMAINS = "Getting shared domains...";
-    public static final String GETTING_SPACE_0 = "Getting space \"{0}\"...";
-    public static final String GETTING_SPACE_IN_ORGANIZATION_0 = "Getting space \"{0}\" in organization \"{1}\"...";
-    public static final String GETTING_SPACES = "Getting spaces...";
-    public static final String GETTING_SPACES_IN_ORGANIZATION_0 = "Getting spaces in organization \"{0}\"...";
     public static final String GETTING_STACK_0 = "Getting stack \"{0}\"...";
     public static final String GETTING_STACKS = "Getting stacks...";
     public static final String RENAMING_APPLICATION_0_TO_1 = "Renaming application \"{0}\" to \"{1}\"...";
@@ -681,7 +673,6 @@ public class Messages {
     public static final String WILL_UNBIND_SERVICE_INSTANCE_0_FROM_APP_1 = "Will unbind service instance \"{0}\" from app \"{1}\"";
     public static final String DELETING_PROCESS_WITH_ID_0 = "Deleting process with id: {0}";
     public static final String PROCESS_WAS_DELETED_0 = "Process was deleted: {0}";
-    public static final String INITIAL_DEPLOYMENT_WILL_NOT_SEARCH_FOR_LIVE_APPLICATION = "Initial deployment. Will not search for live application.";
     public static final String MODULE_0_WAS_NOT_FOUND = "Module \"{0}\" was not found";
     public static final String DETECTING_LIVE_APPLICATION_ENV = "Detecting live application env...";
 

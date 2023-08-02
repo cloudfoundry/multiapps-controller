@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.util.ApplicationAttributeUpdater;
 import org.cloudfoundry.multiapps.controller.process.util.ElementUpdater.UpdateStrategy;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;

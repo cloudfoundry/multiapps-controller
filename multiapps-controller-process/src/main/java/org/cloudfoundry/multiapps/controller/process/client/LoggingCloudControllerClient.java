@@ -40,6 +40,7 @@ import com.sap.cloudfoundry.client.facade.domain.ServicePlanVisibility;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 import com.sap.cloudfoundry.client.facade.domain.Upload;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
+import com.sap.cloudfoundry.client.facade.dto.ApplicationToCreateDto;
 
 public class LoggingCloudControllerClient implements CloudControllerClient {
 
@@ -83,11 +84,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Metadata metadata,
-                                  Set<CloudRoute> routes) {
-        logger.debug(Messages.CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3, applicationName, memory,
-                     UriUtil.prettyPrintRoutes(routes), SecureSerialization.toJson(staging));
-        delegate.createApplication(applicationName, staging, disk, memory, metadata, routes);
+    public void createApplication(ApplicationToCreateDto applicationToCreateDto) {
+        logger.debug(Messages.CREATING_APPLICATION_0_WITH_DISK_1_MEMORY_2_URIS_3_AND_STAGING_4, applicationToCreateDto.getName(),
+                     applicationToCreateDto.getDiskQuotaInMb(), applicationToCreateDto.getMemoryInMb(),
+                     UriUtil.prettyPrintRoutes(applicationToCreateDto.getRoutes()),
+                     SecureSerialization.toJson(applicationToCreateDto.getStaging()));
+        delegate.createApplication(applicationToCreateDto);
     }
 
     @Override

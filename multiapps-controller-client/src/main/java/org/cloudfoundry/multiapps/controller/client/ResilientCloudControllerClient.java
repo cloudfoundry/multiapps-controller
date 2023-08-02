@@ -40,6 +40,7 @@ import com.sap.cloudfoundry.client.facade.domain.ServicePlanVisibility;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 import com.sap.cloudfoundry.client.facade.domain.Upload;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
+import com.sap.cloudfoundry.client.facade.dto.ApplicationToCreateDto;
 import com.sap.cloudfoundry.client.facade.rest.CloudControllerRestClient;
 
 public class ResilientCloudControllerClient implements CloudControllerClient {
@@ -83,9 +84,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Metadata metadata,
-                                  Set<CloudRoute> routes) {
-        executeWithRetry(() -> delegate.createApplication(applicationName, staging, disk, memory, metadata, routes));
+    public void createApplication(ApplicationToCreateDto applicationToCreateDto) {
+        executeWithRetry(() -> delegate.createApplication(applicationToCreateDto));
     }
 
     @Override

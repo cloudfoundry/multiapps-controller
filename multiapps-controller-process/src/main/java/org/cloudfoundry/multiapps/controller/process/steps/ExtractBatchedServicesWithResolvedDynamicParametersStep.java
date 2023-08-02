@@ -31,7 +31,7 @@ public class ExtractBatchedServicesWithResolvedDynamicParametersStep extends Syn
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
-        getStepLogger().debug(Messages.EXTACT_SERVICES_AND_RESOLVE_DYNAMIC_PARAMETERS_FROM_BATCH);
+        getStepLogger().debug(Messages.EXTRACT_SERVICES_AND_RESOLVE_DYNAMIC_PARAMETERS_FROM_BATCH);
 
         Set<DynamicResolvableParameter> dynamicResolvableParameters = context.getVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS);
         List<CloudServiceInstanceExtended> servicesCalculatedForDeployment = context.getVariableBackwardsCompatible(Variables.BATCH_TO_PROCESS);
