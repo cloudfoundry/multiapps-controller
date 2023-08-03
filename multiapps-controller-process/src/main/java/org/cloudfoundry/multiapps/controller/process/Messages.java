@@ -70,6 +70,7 @@ public class Messages {
     public static final String ERROR_OCCURRED_WHILE_DELETING_SERVICE_KEY_0 = "Error occurred while deleting service key \"{0}\"";
     public static final String OPERATION_FOR_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1 = "Operation for service key \"{0}\", failed with description \"{1}\"";
     public static final String OPERATION_FOR_OPTIONAL_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1 = "Operation for service key \"{0}\". for optional service, failed with description \"{1}\"";
+    public static final String APPLICATION_0_WAS_NOT_FOUND = "Application \"{0}\" was not found";
 
     // Audit log messages
 
@@ -680,6 +681,9 @@ public class Messages {
     public static final String WILL_UNBIND_SERVICE_INSTANCE_0_FROM_APP_1 = "Will unbind service instance \"{0}\" from app \"{1}\"";
     public static final String DELETING_PROCESS_WITH_ID_0 = "Deleting process with id: {0}";
     public static final String PROCESS_WAS_DELETED_0 = "Process was deleted: {0}";
+    public static final String INITIAL_DEPLOYMENT_WILL_NOT_SEARCH_FOR_LIVE_APPLICATION = "Initial deployment. Will not search for live application.";
+    public static final String MODULE_0_WAS_NOT_FOUND = "Module \"{0}\" was not found";
+    public static final String DETECTING_LIVE_APPLICATION_ENV = "Detecting live application env...";
 
     protected Messages() {
     }

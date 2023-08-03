@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+import org.cloudfoundry.multiapps.controller.process.util.ApplicationEnvironmentCalculator;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -20,6 +21,8 @@ class BuildApplicationDeployModelStepTest extends SyncFlowableStepTest<BuildAppl
 
     @Mock
     private ModuleToDeployHelper moduleToDeployHelper;
+    @Mock
+    private ApplicationEnvironmentCalculator applicationEnvironmentCalculator;
 
     @Test
     void testModuleResolutionAsyncServiceBindings() {
