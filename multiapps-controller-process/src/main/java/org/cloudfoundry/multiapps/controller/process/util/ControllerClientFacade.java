@@ -25,15 +25,15 @@ public abstract class ControllerClientFacade {
         this.context = context;
     }
 
-    final CloudControllerClient getControllerClient() {
+    public final CloudControllerClient getControllerClient() {
         return context.controllerClient;
     }
 
-    final StepLogger getLogger() {
+    public final StepLogger getLogger() {
         return context.logger;
     }
 
-    final ProcessContext getProcessContext() {
+    protected final ProcessContext getProcessContext() {
         return context.processContext;
     }
 

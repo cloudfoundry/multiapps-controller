@@ -19,6 +19,7 @@ import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureS
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ApplicationEnvironmentCalculator;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.HandlerFactory;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -36,6 +37,8 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
 
     @Inject
     private ModuleToDeployHelper moduleToDeployHelper;
+    @Inject
+    private ApplicationEnvironmentCalculator applicationEnvironmentCalculator;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -46,10 +49,12 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         CloudApplicationExtended modifiedApp = StepsUtil.getApplicationCloudModelBuilder(context)
                                                         .build(applicationModule, moduleToDeployHelper);
         Staging stagingWithUpdatedHealthCheck = modifyHealthCheckType(modifiedApp.getStaging());
+        Map<String, String> calculatedAppEnv = applicationEnvironmentCalculator.calculateNewApplicationEnv(context, modifiedApp);
         modifiedApp = ImmutableCloudApplicationExtended.builder()
                                                        .from(modifiedApp)
                                                        .staging(stagingWithUpdatedHealthCheck)
                                                        .routes(getApplicationRoutes(context, modifiedApp))
+                                                       .env(calculatedAppEnv)
                                                        .build();
         context.setVariable(Variables.APP_TO_PROCESS, modifiedApp);
         determineBindingUnbindingServicesStrategy(context, module);
