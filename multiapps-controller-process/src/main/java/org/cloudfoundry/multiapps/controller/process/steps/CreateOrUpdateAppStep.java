@@ -65,8 +65,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         flowHandler.printStepStartMessage();
 
-        flowHandler.handleApplicationAttributes();
         flowHandler.injectServiceKeysCredentialsInAppEnv();
+        flowHandler.handleApplicationAttributes();
         flowHandler.handleApplicationServices();
         flowHandler.printStepEndMessage();
 
@@ -128,6 +128,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         private void updateContextWithServiceKeysCredentials(CloudApplicationExtended app, Map<String, String> appServiceKeysCredentials) {
+            // TODO: Is this variable really used (Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT)?
             Map<String, Map<String, String>> serviceKeysCredentialsToInject = context.getVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT);
             serviceKeysCredentialsToInject.put(app.getName(), appServiceKeysCredentials);
 
