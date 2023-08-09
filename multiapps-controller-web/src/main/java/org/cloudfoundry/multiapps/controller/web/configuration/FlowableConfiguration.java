@@ -58,7 +58,8 @@ public class FlowableConfiguration {
     @Bean
     @DependsOn("liquibaseChangelog")
     public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager,
-                                                                       AsyncExecutor jobExecutor, @Lazy FailedJobCommandFactory abortFailedProcessCommandFactory) {
+                                                                       AsyncExecutor jobExecutor,
+                                                                       @Lazy FailedJobCommandFactory abortFailedProcessCommandFactory) {
         SpringProcessEngineConfiguration processEngineConfiguration = new SpringProcessEngineConfiguration();
         processEngineConfiguration.setDatabaseSchemaUpdate(DATABASE_SCHEMA_UPDATE);
         processEngineConfiguration.setDataSource(dataSource);
@@ -69,6 +70,9 @@ public class FlowableConfiguration {
         // By default Flowable will retry failed jobs and we don't want that.
         processEngineConfiguration.setAsyncExecutorNumberOfRetries(0);
         processEngineConfiguration.setIdGenerator(new StrongUuidGenerator());
+        // Before introduction of Global lock mechanism, multi instance executions always lock parent execution. Now by default it's not
+        // locked and this leads to concurrency issues with execution of parallel jobs and lead to failed mta operations.
+        processEngineConfiguration.setParallelMultiInstanceAsyncLeave(false);
         return processEngineConfiguration;
     }
 
