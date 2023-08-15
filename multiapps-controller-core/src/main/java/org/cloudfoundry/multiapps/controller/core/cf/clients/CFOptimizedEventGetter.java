@@ -5,15 +5,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+
 import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
 public class CFOptimizedEventGetter extends CustomControllerClient {
 
     private static final String FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT = "/v3/audit_events?types=%s&per_page=100&created_ats[gt]=%s";
 
-    public CFOptimizedEventGetter(WebClientFactory webClientFactory, CloudCredentials credentials) {
-        super(webClientFactory, credentials);
+    public CFOptimizedEventGetter(ApplicationConfiguration configuration, WebClientFactory webClientFactory, CloudCredentials credentials) {
+        super(configuration, webClientFactory, credentials);
     }
 
     public List<String> findEvents(String type, String timestamp) {

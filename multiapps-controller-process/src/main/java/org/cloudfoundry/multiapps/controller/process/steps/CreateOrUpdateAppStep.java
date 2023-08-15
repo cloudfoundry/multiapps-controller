@@ -84,7 +84,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
         var token = tokenService.getToken(user);
         var credentials = new CloudCredentials(token, true);
-        return new AppBoundServiceInstanceNamesGetter(webClientFactory, credentials, correlationId);
+        return new AppBoundServiceInstanceNamesGetter(configuration, webClientFactory, credentials, correlationId);
     }
 
     private StepFlowHandler createStepFlowHandler(ProcessContext context, CloudControllerClient client, CloudApplicationExtended app,
