@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.dynatrace;
 
-import org.cloudfoundry.multiapps.controller.process.dynatrace.ImmutableDynatraceProcessEvent;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
