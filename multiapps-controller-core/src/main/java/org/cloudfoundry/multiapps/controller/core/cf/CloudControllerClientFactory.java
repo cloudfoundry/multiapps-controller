@@ -7,6 +7,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.client.ResilientCloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 
@@ -34,7 +35,7 @@ public class CloudControllerClientFactory {
         this.clientFactory = createClientFactory(configuration);
         this.configuration = configuration;
         this.oAuthClientFactory = oAuthClientFactory;
-        this.headerConfiguration = new CloudControllerHeaderConfiguration();
+        this.headerConfiguration = new CloudControllerHeaderConfiguration(configuration.getVersion());
     }
 
     private ImmutableCloudControllerRestClientFactory createClientFactory(ApplicationConfiguration configuration) {
@@ -73,8 +74,8 @@ public class CloudControllerClientFactory {
                                        .createSpaceClient(configuration.getControllerUrl(), oAuthClient, requestTags);
         CloudSpace target = spaceClient.getSpace(UUID.fromString(spaceId));
 
-        CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials,
-                                                                                target, oAuthClient, requestTags);
+        CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, target,
+                                                                                oAuthClient, requestTags);
         return new ResilientCloudControllerClient(controllerClient);
     }
 
@@ -82,8 +83,9 @@ public class CloudControllerClientFactory {
         OAuthClient oAuthClient = oAuthClientFactory.createOAuthClient();
         CloudCredentials credentials = createCredentials(token);
         oAuthClient.init(credentials);
+        var requestTags = buildRequestTags(StringUtils.EMPTY);
         return clientFactory.getCloudFoundryClientFactory()
-                            .createSpaceClient(configuration.getControllerUrl(), oAuthClient, Collections.emptyMap());
+                            .createSpaceClient(configuration.getControllerUrl(), oAuthClient, requestTags);
     }
 
     public LogCacheClient createLogCacheClient(OAuth2AccessTokenWithAdditionalInfo token, String correlationId) {

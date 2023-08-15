@@ -40,15 +40,17 @@ public class AuthorizationChecker implements DisposableBean {
 
     private final CloudControllerClientFactory clientFactory;
     private final TokenService tokenService;
+    private final ApplicationConfiguration configuration;
     private final WebClientFactory webClientFactory;
 
     @Inject
     public AuthorizationChecker(CloudControllerClientFactory clientFactory, TokenService tokenService,
-                                ApplicationConfiguration applicationConfiguration, WebClientFactory webClientFactory) {
+                                ApplicationConfiguration configuration, WebClientFactory webClientFactory) {
         this.clientFactory = clientFactory;
         this.tokenService = tokenService;
         this.webClientFactory = webClientFactory;
-        initSpaceDevelopersCache(applicationConfiguration);
+        this.configuration = configuration;
+        initSpaceDevelopersCache(configuration);
     }
 
     private void initSpaceDevelopersCache(ApplicationConfiguration applicationConfiguration) {
@@ -103,7 +105,7 @@ public class AuthorizationChecker implements DisposableBean {
     }
 
     protected CfRolesGetter getRolesGetter(OAuth2AccessTokenWithAdditionalInfo token) {
-        return new CfRolesGetter(webClientFactory, new CloudCredentials(token));
+        return new CfRolesGetter(configuration, webClientFactory, new CloudCredentials(token));
     }
 
     boolean checkPermissions(UserInfo userInfo, String spaceId, boolean readOnly) {

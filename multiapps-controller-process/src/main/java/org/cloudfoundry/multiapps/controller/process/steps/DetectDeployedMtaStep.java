@@ -23,8 +23,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
 @Named("detectDeployedMtaStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -103,7 +103,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
     }
 
     protected CustomServiceKeysClient getCustomServiceKeysClient(CloudCredentials credentials, String correlationId) {
-        return new CustomServiceKeysClient(webClientFactory, credentials, correlationId);
+        return new CustomServiceKeysClient(configuration, webClientFactory, credentials, correlationId);
     }
 
     @Override

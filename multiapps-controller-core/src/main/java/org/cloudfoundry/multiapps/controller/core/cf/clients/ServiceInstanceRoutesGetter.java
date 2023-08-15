@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableServiceRouteBinding;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceRouteBinding;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 
 import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
@@ -15,9 +16,9 @@ public class ServiceInstanceRoutesGetter extends CustomControllerClient {
 
     private static final int MAX_CHAR_LENGTH_FOR_PARAMS_IN_REQUEST = 4000;
 
-    public ServiceInstanceRoutesGetter(WebClientFactory webClientFactory, CloudCredentials credentials,
-                                       String correlationId) {
-        super(webClientFactory, credentials, correlationId);
+    public ServiceInstanceRoutesGetter(ApplicationConfiguration configuration, WebClientFactory webClientFactory,
+                                       CloudCredentials credentials, String correlationId) {
+        super(configuration, webClientFactory, credentials, correlationId);
     }
 
     public List<ServiceRouteBinding> getServiceRouteBindings(Collection<String> routeGuids) {

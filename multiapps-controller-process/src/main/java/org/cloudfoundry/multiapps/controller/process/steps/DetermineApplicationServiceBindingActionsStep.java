@@ -21,8 +21,8 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 
@@ -130,7 +130,7 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
     }
 
     protected AppBoundServiceInstanceNamesGetter getAppServicesGetter(CloudCredentials credentials, String correlationId) {
-        return new AppBoundServiceInstanceNamesGetter(webClientFactory, credentials, correlationId);
+        return new AppBoundServiceInstanceNamesGetter(configuration, webClientFactory, credentials, correlationId);
     }
 
     private boolean doesServiceBindingExist(String serviceName, UUID appGuid, ProcessContext context) {

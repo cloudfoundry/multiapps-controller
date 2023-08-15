@@ -1,8 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-import com.sap.cloudfoundry.client.facade.domain.UserRole;
-
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -11,6 +8,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import com.sap.cloudfoundry.client.facade.domain.UserRole;
+
 public class CfRolesGetter extends CustomControllerClient {
 
     private static final String ROLES_FILTER = Arrays.stream(UserRole.values())
@@ -18,8 +20,8 @@ public class CfRolesGetter extends CustomControllerClient {
                                                      .collect(Collectors.joining(","));
     private static final String GET_ROLES_URL = "/v3/roles?space_guids=%s&user_guids=%s&types=" + ROLES_FILTER;
 
-    public CfRolesGetter(WebClientFactory webClientFactory, CloudCredentials credentials) {
-        super(webClientFactory, credentials);
+    public CfRolesGetter(ApplicationConfiguration configuration, WebClientFactory webClientFactory, CloudCredentials credentials) {
+        super(configuration, webClientFactory, credentials);
     }
 
     public Set<UserRole> getRoles(UUID spaceGuid, UUID userGuid) {

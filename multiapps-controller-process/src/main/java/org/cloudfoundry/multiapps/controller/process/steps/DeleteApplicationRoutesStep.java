@@ -24,8 +24,8 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
@@ -61,11 +61,10 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
     }
 
     protected ServiceInstanceRoutesGetter getServiceRoutesGetter(CloudCredentials credentials, String correlationId) {
-        return new ServiceInstanceRoutesGetter(webClientFactory, credentials, correlationId);
+        return new ServiceInstanceRoutesGetter(configuration, webClientFactory, credentials, correlationId);
     }
 
-    private List<CloudRouteExtended> getApplicationRoutes(CloudControllerClient client, CloudApplication app,
-                                                          ProcessContext context) {
+    private List<CloudRouteExtended> getApplicationRoutes(CloudControllerClient client, CloudApplication app, ProcessContext context) {
         String user = context.getVariable(Variables.USER);
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
         var token = tokenService.getToken(user);
@@ -105,7 +104,8 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
         }
         getStepLogger().info(Messages.DELETING_ROUTE, route.getUrl());
         client.deleteRoute(route.getHost(), route.getDomain()
-                                                 .getName(), route.getPath());
+                                                 .getName(),
+                           route.getPath());
         getStepLogger().debug(Messages.ROUTE_DELETED, route.getUrl());
     }
 

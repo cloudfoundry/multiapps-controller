@@ -90,7 +90,7 @@ public class DataTerminationService {
                                                                  SecurityUtil.CLIENT_ID,
                                                                  SecurityUtil.CLIENT_SECRET,
                                                                  configuration.getGlobalAuditorOrigin());
-        return new CFOptimizedEventGetter(webClientFactory, cloudCredentials);
+        return new CFOptimizedEventGetter(configuration, webClientFactory, cloudCredentials);
     }
 
     private String getDateBeforeDays(int numberOfDays) {

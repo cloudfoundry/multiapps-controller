@@ -5,14 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerHeaderConfiguration;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
 public abstract class CustomControllerClient {
 
@@ -20,16 +22,17 @@ public abstract class CustomControllerClient {
     private String correlationId = StringUtils.EMPTY;
     private final CloudControllerHeaderConfiguration headerConfiguration;
 
-    protected CustomControllerClient(WebClientFactory webClientFactory, CloudCredentials credentials,
-                                     String correlationID) {
+    protected CustomControllerClient(ApplicationConfiguration configuration, WebClientFactory webClientFactory,
+                                     CloudCredentials credentials, String correlationID) {
         this.webClient = webClientFactory.getWebClient(credentials);
         this.correlationId = correlationID;
-        this.headerConfiguration = new CloudControllerHeaderConfiguration();
+        this.headerConfiguration = new CloudControllerHeaderConfiguration(configuration.getVersion());
     }
 
-    protected CustomControllerClient(WebClientFactory webClientFactory, CloudCredentials credentials) {
+    protected CustomControllerClient(ApplicationConfiguration configuration, WebClientFactory webClientFactory,
+                                     CloudCredentials credentials) {
         this.webClient = webClientFactory.getWebClient(credentials);
-        this.headerConfiguration = new CloudControllerHeaderConfiguration();
+        this.headerConfiguration = new CloudControllerHeaderConfiguration(configuration.getVersion());
     }
 
     protected <T> List<T> getListOfResources(ResourcesResponseMapper<T> responseMapper, String uri, Object... urlVariables) {

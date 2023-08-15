@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.metadata.criteria.MtaMetada
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 
 import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
@@ -24,9 +25,9 @@ public class CustomServiceKeysClient extends CustomControllerClient {
 
     private final CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
 
-    public CustomServiceKeysClient(WebClientFactory webClientFactory, CloudCredentials credentials,
+    public CustomServiceKeysClient(ApplicationConfiguration configuration, WebClientFactory webClientFactory, CloudCredentials credentials,
                                    String correlationId) {
-        super(webClientFactory, credentials, correlationId);
+        super(configuration, webClientFactory, credentials, correlationId);
     }
 
     public List<DeployedMtaServiceKey> getServiceKeysByMetadataAndGuids(String spaceGuid, String mtaId, String mtaNamespace,
