@@ -149,7 +149,6 @@ public class Messages {
     public static final String ERROR_DETECTING_APPLICATIONS_TO_RENAME = "Error detecting applications to rename";
     public static final String ERROR_RENAMING_NEW_APPLICATIONS = "Error renaming new applications";
     public static final String ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES = "Error monitoring creation or update of services";
-    public static final String ERROR_UPDATING_METADATA_OF_SERVICE_INSTANCE_0 = "Error updating metadata of service instance \"{0}\"";
     public static final String ERROR_MONITORING_DELETION_OF_SERVICES = "Error monitoring deletion of services";
     public static final String SERVICE_IS_ALREADY_DELETED = "Service \"{0}\" is already deleted";
     public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE = "Error determining actions to execute on service \"{0}\"";
@@ -230,7 +229,6 @@ public class Messages {
     public static final String DELAY_AFTER_APP_STOP_0_ABOVE_MAX_VALUE = "Variable for delay after app stop \"{0}\", is above max allowed value. Setting it to default max value.";
     public static final String COULD_NOT_PARSE_APP_STOP_DELAY_VAR = "Could not parse variable for delay after app stop: \"{0}\"";
     public static final String DELAY_AFTER_APP_STOP_CANNOT_BE_NEGATIVE = "Delay after app stop cannot be negative: \"{0}\"";
-    public static final String METADATA_UPDATE_OF_OPTIONAL_SERVICE_INSTANCE_0_FAILED = "Metadata update of optional service instance: \"{0}\" failed!";
     public static final String SERVICE_BINDING_0_EXISTS_IN_BROKEN_STATE_WILL_BE_RECREATED = "Service binding \"{0}\" exists in broken state, will be recreated";
     public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATION_BETWEEN_APP_AND_OPTIONAL_SERVICE = "Error while polling service binding operation between app \"{0}\" and optional service instance \"{1}\"";
     public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATION_BETWEEN_APP_AND_SERVICE = "Error while polling service binding operation between app \"{0}\" and service instance \"{1}\", error \"{2}\"";
