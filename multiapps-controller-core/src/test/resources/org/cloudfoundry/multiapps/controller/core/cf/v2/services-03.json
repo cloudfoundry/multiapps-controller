@@ -2,6 +2,16 @@
   "isOptional" : false,
   "isManaged" : true,
   "name" : "user-provided-renamed",
+  "v3Metadata" : {
+    "annotations" : {
+      "mta_id" : "com.sap.sample.mta",
+      "mta_version" : "0.1.0",
+      "mta_resource" : "{\"name\":\"ups\"}"
+    },
+    "labels" : {
+      "mta_id" : "c3ec54a0d8eadd33b207c005ab4825ba"
+    }
+  },
   "credentials" : { },
   "tags" : [ ],
   "type" : "user-provided",
@@ -14,6 +24,16 @@
   "isOptional" : false,
   "isManaged" : true,
   "name" : "user-provided-service",
+  "v3Metadata" : {
+    "annotations" : {
+      "mta_id" : "com.sap.sample.mta",
+      "mta_version" : "0.1.0",
+      "mta_resource" : "{\"name\":\"user-provided-service\"}"
+    },
+    "labels" : {
+      "mta_id" : "c3ec54a0d8eadd33b207c005ab4825ba"
+    }
+  },
   "credentials" : { },
   "tags" : [ ],
   "type" : "user-provided",
@@ -26,6 +46,16 @@
   "isOptional" : false,
   "isManaged" : true,
   "name" : "user-provider-resource-named-service",
+  "v3Metadata" : {
+    "annotations" : {
+      "mta_id" : "com.sap.sample.mta",
+      "mta_version" : "0.1.0",
+      "mta_resource" : "{\"name\":\"user-provider-resource-named-service\"}"
+    },
+    "labels" : {
+      "mta_id" : "c3ec54a0d8eadd33b207c005ab4825ba"
+    }
+  },
   "credentials" : { },
   "tags" : [ ],
   "type" : "user-provided",
@@ -48,9 +78,9 @@
       "mta_id" : "c3ec54a0d8eadd33b207c005ab4825ba"
     }
   },
-  "credentials" : { },
   "label" : "xsuaa",
   "plan" : "space",
+  "credentials" : { },
   "tags" : [ ],
   "type" : "managed",
   "resourceName" : "rs",
@@ -72,9 +102,9 @@
       "mta_id" : "c3ec54a0d8eadd33b207c005ab4825ba"
     }
   },
-  "credentials" : { },
   "label" : "xsuaa",
   "plan" : "space",
+  "credentials" : { },
   "tags" : [ ],
   "type" : "managed",
   "resourceName" : "random-service",
@@ -96,9 +126,9 @@
       "mta_id" : "c3ec54a0d8eadd33b207c005ab4825ba"
     }
   },
-  "credentials" : { },
   "label" : "xsuaa",
   "plan" : "space",
+  "credentials" : { },
   "tags" : [ ],
   "type" : "managed",
   "resourceName" : "random-resource-named-service",

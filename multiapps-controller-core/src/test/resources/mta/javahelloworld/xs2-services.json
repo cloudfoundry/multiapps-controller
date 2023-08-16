@@ -38,6 +38,16 @@
   "tags" : [ ],
   "type" : "user-provided",
   "resourceName" : "uaa",
+  "v3Metadata" : {
+    "annotations" : {
+      "mta_id" : "com.sap.xs2.samples.javahelloworld",
+      "mta_version" : "0.1.0",
+      "mta_resource" : "{\"name\":\"uaa\"}"
+    },
+    "labels" : {
+      "mta_id" : "c232c91455fc92b226129257682792b2"
+    }
+  },
   "shouldSkipParametersUpdate" : false,
   "shouldSkipPlanUpdate" : false,
   "shouldSkipTagsUpdate" : false,
