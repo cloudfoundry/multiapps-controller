@@ -109,32 +109,21 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         public void injectServiceKeysCredentialsInAppEnv() {
             Map<String, String> appEnv = new LinkedHashMap<>(app.getEnv());
-            Map<String, String> appServiceKeysCredentials = buildServiceKeysCredentials(client, app, appEnv);
+            Map<String, String> appServiceKeysCredentials = buildServiceKeysCredentials(client, app);
+            appEnv.putAll(appServiceKeysCredentials);
             app = ImmutableCloudApplicationExtended.copyOf(app)
                                                    .withEnv(appEnv);
-            updateContextWithServiceKeysCredentials(app, appServiceKeysCredentials);
+            context.setVariable(Variables.APP_TO_PROCESS, app);
         }
 
-        private Map<String, String> buildServiceKeysCredentials(CloudControllerClient client, CloudApplicationExtended app,
-                                                                Map<String, String> appEnv) {
-            Map<String, String> appServiceKeysCredentials = new HashMap<>();
+        private Map<String, String> buildServiceKeysCredentials(CloudControllerClient client, CloudApplicationExtended app) {
+            Map<String, String> serviceKeys = new HashMap<>();
             for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
                 var serviceKey = client.getServiceKey(serviceKeyToInject.getServiceName(), serviceKeyToInject.getServiceKeyName());
                 String serviceKeyCredentials = JsonUtil.toJson(serviceKey.getCredentials(), shouldPrettyPrint.getAsBoolean());
-                appEnv.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
-                appServiceKeysCredentials.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
+                serviceKeys.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
             }
-            return appServiceKeysCredentials;
-        }
-
-        private void updateContextWithServiceKeysCredentials(CloudApplicationExtended app, Map<String, String> appServiceKeysCredentials) {
-            // TODO: Is this variable really used (Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT)?
-            Map<String, Map<String, String>> serviceKeysCredentialsToInject = context.getVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT);
-            serviceKeysCredentialsToInject.put(app.getName(), appServiceKeysCredentials);
-
-            // Update current process context
-            context.setVariable(Variables.APP_TO_PROCESS, app);
-            context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysCredentialsToInject);
+            return serviceKeys;
         }
 
         public abstract void printStepStartMessage();

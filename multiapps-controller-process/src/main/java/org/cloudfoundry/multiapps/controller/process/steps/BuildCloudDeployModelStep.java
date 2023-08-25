@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -98,7 +97,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.APPS_TO_DEPLOY, getAppNames(modulesCalculatedForDeployment));
 
         context.setVariable(Variables.DEPLOYMENT_MODE, applicationCloudModelBuilder.getDeploymentMode());
-        context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
         context.setVariable(Variables.USE_IDLE_URIS, false);
 
         // Build a list of custom domains and save them in the context:
