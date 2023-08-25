@@ -33,8 +33,7 @@ public class ClearJobLockOwnersCmd implements Command<Void> {
             if (runningLockedJob != null) {
                 LOGGER.info(MessageFormat.format(Messages.UNLOCKING_JOB_WITH_ID_0_LOCK_EXPIRATION_TIME_1_CREATION_TIME_2_AND_ELEMENT_NAME_3,
                                                  runningLockedJob.getId(), runningLockedJob.getLockExpirationTime(),
-                                                 runningLockedJob.getCreateTime()),
-                            runningLockedJob.getElementName());
+                                                 runningLockedJob.getCreateTime(), runningLockedJob.getElementName()));
                 runningLockedJob.setLockOwner(null);
                 runningLockedJob.setLockExpirationTime(null);
             }
