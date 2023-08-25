@@ -157,7 +157,6 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
 
     private void prepareContext(CloudApplicationExtended application, boolean shouldSkipServiceRebinding) {
         context.setVariable(Variables.APP_TO_PROCESS, application);
-        context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, Collections.emptyMap());
         context.setVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING, shouldSkipServiceRebinding);
     }
 

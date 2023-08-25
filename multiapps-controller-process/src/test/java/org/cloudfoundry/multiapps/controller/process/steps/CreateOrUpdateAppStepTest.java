@@ -64,7 +64,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
     @MethodSource
     void testHandleApplicationAttributes(Staging staging, int diskQuota, int memory, Set<CloudRoute> routes, Map<String, String> env) {
         CloudApplicationExtended application = buildApplication(staging, diskQuota, memory, routes, env);
-        prepareContext(application, Collections.emptyMap());
+        context.setVariable(Variables.APP_TO_PROCESS, application);
 
         step.execute(execution);
 
@@ -95,11 +95,6 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
                                                 .build();
     }
 
-    private void prepareContext(CloudApplicationExtended application, Map<String, Map<String, String>> serviceKeysCredentialsToInject) {
-        context.setVariable(Variables.APP_TO_PROCESS, application);
-        context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysCredentialsToInject);
-    }
-
     @Test
     void testCreateApplicationFromDockerImage() {
         DockerInfo dockerInfo = ImmutableDockerInfo.builder()
@@ -116,7 +111,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
         CloudApplicationExtended application = buildApplication(dockerStaging, 128, 256, Collections.emptySet(), Collections.emptyMap());
         application = ImmutableCloudApplicationExtended.copyOf(application)
                                                        .withDockerInfo(dockerInfo);
-        prepareContext(application, Collections.emptyMap());
+        context.setVariable(Variables.APP_TO_PROCESS, application);
 
         step.execute(execution);
 
@@ -139,7 +134,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
         List<String> services = List.of("service-1", "service-2");
         application = ImmutableCloudApplicationExtended.copyOf(application)
                                                        .withServices(services);
-        prepareContext(application, Collections.emptyMap());
+        context.setVariable(Variables.APP_TO_PROCESS, application);
 
         step.execute(execution);
 
@@ -157,8 +152,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
                                                        .withServiceKeysToInject(serviceKey);
         Map<String, String> serviceKeyCredentials = Map.of("user", "service-key-user", "password", "service-key-password");
         when(client.getServiceKey(SERVICE_NAME, serviceKey.getServiceKeyName())).thenReturn(buildCloudServiceKey(serviceKeyCredentials));
-        Map<String, Map<String, String>> serviceKeysToInjectCredentials = Map.of(APP_NAME, serviceKeyCredentials);
-        prepareContext(application, serviceKeysToInjectCredentials);
+        context.setVariable(Variables.APP_TO_PROCESS, application);
 
         step.shouldPrettyPrint = () -> false;
         step.execute(execution);
@@ -167,9 +161,6 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
         assertEquals(JsonUtil.toJson(serviceKeyCredentials), context.getVariable(Variables.APP_TO_PROCESS)
                                                                     .getEnv()
                                                                     .get(serviceKey.getEnvVarName()));
-        assertEquals(Map.of(SERVICE_KEY_ENV_NAME, JsonUtil.toJson(serviceKeyCredentials)),
-                     context.getVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT)
-                            .get(APP_NAME));
     }
 
     private CloudServiceKey buildCloudServiceKey(Map<String, String> serviceKeyCredentials) {
@@ -192,7 +183,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
                                                        .withEnv(applicationEnv)
                                                        .withServiceKeysToInject(serviceKey);
         when(client.getServiceKeys(SERVICE_NAME)).thenReturn(Collections.emptyList());
-        prepareContext(application, Collections.emptyMap());
+        context.setVariable(Variables.APP_TO_PROCESS, application);
 
         assertThrows(SLException.class, () -> step.execute(execution));
     }

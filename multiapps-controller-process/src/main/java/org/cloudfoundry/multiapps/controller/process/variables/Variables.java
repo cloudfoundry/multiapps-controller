@@ -370,11 +370,6 @@ public interface Variables {
                                                                    .type(new TypeReference<>() {
                                                                    })
                                                                    .build();
-    Variable<Map<String, Map<String, String>>> SERVICE_KEYS_CREDENTIALS_TO_INJECT = ImmutableJsonBinaryVariable.<Map<String, Map<String, String>>> builder()
-                                                                                                               .name("serviceKeysCredentialsToInject")
-                                                                                                               .type(new TypeReference<>() {
-                                                                                                               })
-                                                                                                               .build();
     Variable<Map<String, List<CloudServiceKey>>> SERVICE_KEYS_TO_CREATE = ImmutableJsonBinaryVariable.<Map<String, List<CloudServiceKey>>> builder()
                                                                                                      .name("serviceKeysToCreate")
                                                                                                      .type(new TypeReference<>() {
