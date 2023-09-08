@@ -60,7 +60,7 @@
         <swagger.version>1.5.16</swagger.version>
         <shedlock-version>4.33.0</shedlock-version>
         <h2.database.version>1.4.198</h2.database.version>
-        <com.sap.cloud.lm.sl.open.version>1.67.14</com.sap.cloud.lm.sl.open.version>
+        <com.sap.cloud.lm.sl.open.version>1.67.15-SNAPSHOT</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
         <module>com.sap.cloud.lm.sl.cf.client</module>
