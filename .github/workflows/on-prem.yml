@@ -5,7 +5,7 @@ on:
    branches: [ "rel-1.73" ]
 
 jobs:
-  build:
+  build-on-prem:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
