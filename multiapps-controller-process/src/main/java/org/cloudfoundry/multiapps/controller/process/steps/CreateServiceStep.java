@@ -118,8 +118,7 @@ public class CreateServiceStep extends ServiceStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(), getServiceProgressReporter()),
-                       new UpdateServiceMetadataExecution());
+        return List.of(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(), getServiceProgressReporter()));
     }
 
     @Override
