@@ -71,7 +71,7 @@ public class DetermineServiceDeleteActionsToExecuteStep extends SyncFlowableStep
             context.setVariable(Variables.CLOUD_SERVICE_KEYS_TO_DELETE, serviceKeys);
             context.setVariable(Variables.SERVICE_DELETION_ACTIONS,
                                 List.of(ServiceDeletionActions.DELETE_SERVICE_BINDINGS, ServiceDeletionActions.DELETE_SERVICE_KEYS,
-                                        ServiceDeletionActions.DELETE_SERVICE_INSTANCE));
+                                        ServiceDeletionActions.DELETE_METADATA, ServiceDeletionActions.DELETE_SERVICE_INSTANCE));
             return StepPhase.DONE;
         }
         getStepLogger().warn(Messages.SERVICE_NOT_BE_DELETED_DUE_TO_SERVICE_BINDINGS_AND_SERVICE_KEYS, serviceInstanceToDelete);

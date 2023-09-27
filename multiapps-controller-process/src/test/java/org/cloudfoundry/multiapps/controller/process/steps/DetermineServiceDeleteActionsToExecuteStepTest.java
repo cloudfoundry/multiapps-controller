@@ -90,7 +90,7 @@ class DetermineServiceDeleteActionsToExecuteStepTest extends SyncFlowableStepTes
         step.execute(execution);
         assertStepFinishedSuccessfully();
         assertEquals(List.of(ServiceDeletionActions.DELETE_SERVICE_BINDINGS, ServiceDeletionActions.DELETE_SERVICE_KEYS,
-                             ServiceDeletionActions.DELETE_SERVICE_INSTANCE),
+                             ServiceDeletionActions.DELETE_METADATA, ServiceDeletionActions.DELETE_SERVICE_INSTANCE),
                      context.getVariable(Variables.SERVICE_DELETION_ACTIONS));
     }
 
