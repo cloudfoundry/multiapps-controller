@@ -46,18 +46,18 @@ public class ConfigurationEntriesResource {
     @PostMapping("/purge")
     public ResponseEntity<Void> purgeConfigurationRegistry(@RequestParam(REQUEST_PARAM_ORGANIZATION) String organization,
                                                            @RequestParam(REQUEST_PARAM_SPACE) String space) {
-        UserInfo user = SecurityContextUtil.getUserInfo();
-        var spaceClient = clientFactory.createSpaceClient(tokenService.getToken(user.getName()));
+      //  UserInfo user = SecurityContextUtil.getUserInfo();
+    //    var spaceClient = clientFactory.createSpaceClient(tokenService.getToken(user.getName()));
 
-        var cloudSpace = spaceClient.getSpace(organization, space);
+    //    var cloudSpace = spaceClient.getSpace(organization, space);
 
-        CloudControllerClient client = clientProvider.getControllerClientWithNoCorrelation(user.getName(), cloudSpace.getGuid()
+    //    CloudControllerClient client = clientProvider.getControllerClientWithNoCorrelation(user.getName(), cloudSpace.getGuid()
                                                                                                                      .toString());
-        MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client, spaceClient,
+    //    MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client, spaceClient,
                                                                                 configurationEntryService,
                                                                                 configurationSubscriptionService,
                                                                                 mtaMetadataParser);
-        configurationPurger.purge(organization, space);
+     //   configurationPurger.purge(organization, space);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                              .build();
     }
