@@ -187,7 +187,7 @@ public class ConfigurationEntriesResource {
         return new ConfigurationFilter(providerNid, providerId, providerVersion, target, content);
     }
 
-    @Path("/purge")
+    @Path("/purg")
     @POST
     public Response purgeConfigurationRegistry(@QueryParam("org") String org, @QueryParam("space") String space) {
  
