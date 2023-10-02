@@ -48,15 +48,15 @@ public class ConfigurationEntriesResource {
                                                            @RequestParam(REQUEST_PARAM_SPACE) String space) {
       //  UserInfo user = SecurityContextUtil.getUserInfo();
     //    var spaceClient = clientFactory.createSpaceClient(tokenService.getToken(user.getName()));
-
+//
     //    var cloudSpace = spaceClient.getSpace(organization, space);
-
+//
     //    CloudControllerClient client = clientProvider.getControllerClientWithNoCorrelation(user.getName(), cloudSpace.getGuid()
-                                                                                                                     .toString());
+     //                                                                                                                .toString());
     //    MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client, spaceClient,
-                                                                                configurationEntryService,
-                                                                                configurationSubscriptionService,
-                                                                                mtaMetadataParser);
+     //                                                                           configurationEntryService,
+     //                                                                           configurationSubscriptionService,
+     //                                                                           mtaMetadataParser);
      //   configurationPurger.purge(organization, space);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                              .build();
