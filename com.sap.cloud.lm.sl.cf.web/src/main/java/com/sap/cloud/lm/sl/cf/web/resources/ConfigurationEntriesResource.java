@@ -190,17 +190,7 @@ public class ConfigurationEntriesResource {
     @Path("/purge")
     @POST
     public Response purgeConfigurationRegistry(@QueryParam("org") String org, @QueryParam("space") String space) {
-        if (StringUtils.isEmpty(org) || StringUtils.isEmpty(space)) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                           .entity(Messages.ORG_AND_SPACE_MUST_BE_SPECIFIED)
-                           .build();
-        }
-
-        UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        authorizationChecker.ensureUserIsAuthorized(request, userInfo, org, space, PURGE_COMMAND);
-        CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName(), org, space, null);
-        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, spaceGetter, entryDao, subscriptionDao);
-        purger.purge(org, space);
+ 
         return Response.status(Response.Status.NO_CONTENT)
                        .build();
     }
