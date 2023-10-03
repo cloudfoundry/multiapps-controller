@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.dto;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,8 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata.SequenceNames;
 import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata.TableColumnNames;
@@ -45,14 +43,13 @@ public class HistoricOperationEventDto implements DtoWithPrimaryKey<Long> {
     private String type;
 
     @Column(name = TableColumnNames.HISTORIC_OPERATION_EVENT_TIMESTAMP, nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date timestamp;
+    private LocalDateTime timestamp;
 
     protected HistoricOperationEventDto() {
         // Required by JPA
     }
 
-    public HistoricOperationEventDto(long id, String processId, String type, Date timestamp) {
+    public HistoricOperationEventDto(long id, String processId, String type, LocalDateTime timestamp) {
         this.id = id;
         this.processId = processId;
         this.type = type;
@@ -77,7 +74,7 @@ public class HistoricOperationEventDto implements DtoWithPrimaryKey<Long> {
         return type;
     }
 
-    public Date getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 

@@ -12,10 +12,14 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
@@ -26,8 +30,6 @@ import org.cloudfoundry.multiapps.controller.persistence.query.SqlQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
 import org.cloudfoundry.multiapps.controller.persistence.util.JdbcUtil;
 import org.slf4j.Logger;
-
-import javax.xml.bind.DatatypeConverter;
 
 public abstract class SqlFileQueryProvider {
 
@@ -283,12 +285,14 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
-    public SqlQuery<Integer> getDeleteModifiedBeforeQuery(Date modificationTime) {
+    public SqlQuery<Integer> getDeleteModifiedBeforeQuery(LocalDateTime modificationTime) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
                 statement = connection.prepareStatement(getQuery(DELETE_FILES_MODIFIED_BEFORE));
-                statement.setTimestamp(1, new java.sql.Timestamp(modificationTime.getTime()));
+                statement.setTimestamp(1, new Timestamp(modificationTime.atZone(ZoneId.systemDefault())
+                                                                        .toInstant()
+                                                                        .toEpochMilli()));
                 int deletedFiles = statement.executeUpdate();
                 logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_MODIFIED_BEFORE_1, deletedFiles, modificationTime));
                 return deletedFiles;

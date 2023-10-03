@@ -2,7 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import static java.text.MessageFormat.format;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -37,7 +38,7 @@ public class FlowableHistoricDataCleaner implements Cleaner {
     }
 
     @Override
-    public void execute(Date expirationTime) {
+    public void execute(LocalDateTime expirationTime) {
         LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.WILL_DELETE_HISTORIC_PROCESSES_BEFORE_0, expirationTime));
         long deletedProcessesCount = 0;
         long expiredProcessesPages = getExpiredProcessesPageCount(expirationTime);
@@ -47,29 +48,30 @@ public class FlowableHistoricDataCleaner implements Cleaner {
         LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_HISTORIC_PROCESSES_0, deletedProcessesCount));
     }
 
-    private long getExpiredProcessesPageCount(Date expirationTime) {
+    private long getExpiredProcessesPageCount(LocalDateTime expirationTime) {
         return (long) Math.ceil((double) getExpiredProcessesCount(expirationTime) / pageSize);
     }
 
-    private long getExpiredProcessesCount(Date expirationTime) {
+    private long getExpiredProcessesCount(LocalDateTime expirationTime) {
         return createExpiredHistoricProcessInstancesQuery(expirationTime).count();
     }
 
-    private HistoricProcessInstanceQuery createExpiredHistoricProcessInstancesQuery(Date expirationTime) {
+    private HistoricProcessInstanceQuery createExpiredHistoricProcessInstancesQuery(LocalDateTime expirationTime) {
         return historyService.createHistoricProcessInstanceQuery()
                              .finished()
                              .excludeSubprocesses(true)
-                             .startedBefore(expirationTime);
+                             .startedBefore(java.util.Date.from(expirationTime.atZone(ZoneId.systemDefault())
+                                                                              .toInstant()));
     }
 
-    private long deleteExpiredProcessesPage(Date expirationTime) {
+    private long deleteExpiredProcessesPage(LocalDateTime expirationTime) {
         List<HistoricProcessInstance> processesToDelete = getExpiredProcessesPage(expirationTime);
         return processesToDelete.stream()
                                 .filter(this::deleteProcessSafely)
                                 .count();
     }
 
-    private List<HistoricProcessInstance> getExpiredProcessesPage(Date expirationTime) {
+    private List<HistoricProcessInstance> getExpiredProcessesPage(LocalDateTime expirationTime) {
         return createExpiredHistoricProcessInstancesQuery(expirationTime).listPage(0, pageSize);
     }
 

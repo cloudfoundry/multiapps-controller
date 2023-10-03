@@ -34,7 +34,8 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ParameterMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.parameters.ParameterConversion;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
-import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
@@ -61,15 +62,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
+import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 
 @Named
 public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Inject
-    private CloudControllerClientProvider clientProvider;
+    private CloudControllerClientFactory clientFactory;
+    @Inject
+    private TokenService tokenService;
     @Inject
     private OperationService operationService;
     @Inject
@@ -238,18 +241,20 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private Operation addServiceParameters(Operation operation, String spaceGuid, String user) {
-        String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Map<String, Object> parameters = new HashMap<>(operation.getParameters());
-        CloudControllerClient client = getCloudFoundryClient(spaceGuid);
+
+        CloudSpaceClient client = getSpaceClient();
         CloudSpace space = client.getSpace(UUID.fromString(spaceGuid));
         CloudOrganization organization = space.getOrganization();
+
+        String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
+
         parameters.put(Constants.VARIABLE_NAME_SERVICE_ID, processDefinitionKey);
         parameters.put(Variables.USER.getName(), user);
         parameters.put(Variables.SPACE_NAME.getName(), space.getName());
         parameters.put(Variables.SPACE_GUID.getName(), spaceGuid);
         parameters.put(Variables.ORGANIZATION_NAME.getName(), organization.getName());
-        parameters.put(Variables.ORGANIZATION_GUID.getName(), organization.getMetadata()
-                                                                          .getGuid()
+        parameters.put(Variables.ORGANIZATION_GUID.getName(), organization.getGuid()
                                                                           .toString());
         parameters.put(Variables.TIMESTAMP.getName(), DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                                                                        .format(ZonedDateTime.now()));
@@ -307,9 +312,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return username;
     }
 
-    private CloudControllerClient getCloudFoundryClient(String spaceGuid) {
+    private CloudSpaceClient getSpaceClient() {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientProvider.getControllerClientWithNoCorrelation(userInfo.getName(), spaceGuid);
+        return clientFactory.createSpaceClient(tokenService.getToken(userInfo.getName()));
     }
 
     private List<Message> getOperationMessages(Operation operation) {

@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.query.impl;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -108,8 +108,8 @@ public class OperationQueryImpl extends AbstractQueryImpl<Operation, OperationQu
     }
 
     @Override
-    public OperationQuery startedBefore(Date startedBefore) {
-        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<Date> builder()
+    public OperationQuery startedBefore(LocalDateTime startedBefore) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<LocalDateTime> builder()
                                                                        .attribute(AttributeNames.STARTED_AT)
                                                                        .condition(getCriteriaBuilder()::lessThan)
                                                                        .value(startedBefore)
@@ -118,8 +118,18 @@ public class OperationQueryImpl extends AbstractQueryImpl<Operation, OperationQu
     }
 
     @Override
-    public OperationQuery endedAfter(Date endedAfter) {
-        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<Date> builder()
+    public OperationQuery endedBefore(LocalDateTime endedBefore) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<LocalDateTime> builder()
+                                                                       .attribute(AttributeNames.ENDED_AT)
+                                                                       .condition(getCriteriaBuilder()::lessThan)
+                                                                       .value(endedBefore)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
+    public OperationQuery endedAfter(LocalDateTime endedAfter) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<LocalDateTime> builder()
                                                                        .attribute(AttributeNames.ENDED_AT)
                                                                        .condition(getCriteriaBuilder()::greaterThan)
                                                                        .value(endedAfter)

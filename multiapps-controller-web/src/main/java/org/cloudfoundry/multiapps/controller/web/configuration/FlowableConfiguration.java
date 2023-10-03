@@ -58,7 +58,8 @@ public class FlowableConfiguration {
     @Bean
     @DependsOn("liquibaseChangelog")
     public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager,
-                                                                       AsyncExecutor jobExecutor, @Lazy FailedJobCommandFactory abortFailedProcessCommandFactory) {
+                                                                       AsyncExecutor jobExecutor,
+                                                                       @Lazy FailedJobCommandFactory abortFailedProcessCommandFactory) {
         SpringProcessEngineConfiguration processEngineConfiguration = new SpringProcessEngineConfiguration();
         processEngineConfiguration.setDatabaseSchemaUpdate(DATABASE_SCHEMA_UPDATE);
         processEngineConfiguration.setDataSource(dataSource);
@@ -69,6 +70,9 @@ public class FlowableConfiguration {
         // By default Flowable will retry failed jobs and we don't want that.
         processEngineConfiguration.setAsyncExecutorNumberOfRetries(0);
         processEngineConfiguration.setIdGenerator(new StrongUuidGenerator());
+        // Before introduction of Global lock mechanism, multi instance executions always lock parent execution. Now by default it's not
+        // locked and this leads to concurrency issues with execution of parallel jobs and lead to failed mta operations.
+        processEngineConfiguration.setParallelMultiInstanceAsyncLeave(false);
         return processEngineConfiguration;
     }
 
@@ -88,6 +92,11 @@ public class FlowableConfiguration {
         jobExecutor.setUnlockOwnedJobs(true);
         jobExecutor.setTenantId(AbstractEngineConfiguration.NO_TENANT_ID);
         jobExecutor.setDefaultAsyncJobAcquireWaitTimeInMillis(ASYNC_JOB_ACQUIRE_WAIT_TIME_IN_MILLIS);
+        // Set explicitly globalAcquireLock to false in case the default value gets changed in a newer version of flowable
+        jobExecutor.setGlobalAcquireLockEnabled(false);
+        // Increasing maxAsyncJobsDuePerAcquisition and/or maxTimeJobsPerAcquisition leads to worse performance (defaults were 1)
+        jobExecutor.setMaxAsyncJobsDuePerAcquisition(1);
+        jobExecutor.setMaxTimerJobsPerAcquisition(1);
         return jobExecutor;
     }
 

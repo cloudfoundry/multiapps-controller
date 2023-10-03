@@ -9,12 +9,14 @@ import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,6 +24,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
 @Named("detectDeployedMtaStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -30,6 +33,10 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
     @Inject
     @Qualifier("deployedMtaDetector")
     private DeployedMtaDetector deployedMtaDetector;
+    @Inject
+    private TokenService tokenService;
+    @Inject
+    private WebClientFactory webClientFactory;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -41,7 +48,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
 
         DeployedMta deployedMta = detectDeployedMta(mtaId, mtaNamespace, client, context);
 
-        var deployedServiceKeys = detectDeployedServiceKeys(mtaId, mtaNamespace, deployedMta, client, context);
+        var deployedServiceKeys = detectDeployedServiceKeys(mtaId, mtaNamespace, deployedMta, context);
         context.setVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS, deployedServiceKeys);
         getStepLogger().debug(Messages.DEPLOYED_MTA_SERVICE_KEYS, SecureSerialization.toJson(deployedServiceKeys));
 
@@ -67,11 +74,14 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
     }
 
     private List<DeployedMtaServiceKey> detectDeployedServiceKeys(String mtaId, String mtaNamespace, DeployedMta deployedMta,
-                                                                  CloudControllerClient client, ProcessContext context) {
+                                                                  ProcessContext context) {
         List<DeployedMtaService> deployedMtaServices = deployedMta == null ? null : deployedMta.getServices();
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
+        String user = context.getVariable(Variables.USER);
+        var token = tokenService.getToken(user);
+        var creds = new CloudCredentials(token, true);
 
-        CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(client, context.getVariable(Variables.CORRELATION_ID));
+        CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(creds, context.getVariable(Variables.CORRELATION_ID));
         return serviceKeysClient.getServiceKeysByMetadataAndGuids(spaceGuid, mtaId, mtaNamespace, deployedMtaServices);
     }
 
@@ -92,8 +102,8 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         getStepLogger().info(MessageFormat.format(Messages.DETECTED_DEPLOYED_MTA, metadata.getId(), metadata.getVersion()));
     }
 
-    protected CustomServiceKeysClient getCustomServiceKeysClient(CloudControllerClient client, String correlationId) {
-        return new CustomServiceKeysClient(client, correlationId);
+    protected CustomServiceKeysClient getCustomServiceKeysClient(CloudCredentials credentials, String correlationId) {
+        return new CustomServiceKeysClient(configuration, webClientFactory, credentials, correlationId);
     }
 
     @Override

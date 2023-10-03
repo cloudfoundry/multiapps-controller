@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManagerFactory;
@@ -110,13 +109,15 @@ class OperationServiceTest {
 
     @Test
     void testQueryByStartedBefore() {
-        testQueryByCriteria((query, operation) -> query.startedBefore(toDate(ZonedDateTime.parse("2010-10-09T00:00:00.000Z[UTC]"))),
+        testQueryByCriteria((query, operation) -> query.startedBefore(ZonedDateTime.parse("2010-10-09T00:00:00.000Z[UTC]")
+                                                                                   .toLocalDateTime()),
                             OPERATION_1, OPERATION_2);
     }
 
     @Test
     void testQueryByEndedAfter() {
-        testQueryByCriteria((query, operation) -> query.endedAfter(toDate(ZonedDateTime.parse("2010-10-13T10:00:00.000Z[UTC]"))),
+        testQueryByCriteria((query, operation) -> query.endedAfter(ZonedDateTime.parse("2010-10-13T10:00:00.000Z[UTC]")
+                                                                                .toLocalDateTime()),
                             OPERATION_1, OPERATION_2);
     }
 
@@ -183,10 +184,6 @@ class OperationServiceTest {
                                  .startedAt(startedAt)
                                  .endedAt(endedAt)
                                  .build();
-    }
-
-    private Date toDate(ZonedDateTime zonedDateTime) {
-        return Date.from(zonedDateTime.toInstant());
     }
 
     private OperationService createOperationService() {

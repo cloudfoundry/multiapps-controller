@@ -5,10 +5,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
@@ -52,5 +50,12 @@ public class UriUtil {
 
     public static boolean isUrlSecure(String url) {
         return url.startsWith(HTTPS_PROTOCOL);
+    }
+
+    public static String stripUserInfo(String url) {
+        if (url.contains("@")) {
+            return url.substring(0, url.indexOf('/') + 2) + url.substring(url.indexOf('@') + 1);
+        }
+        return url;
     }
 }

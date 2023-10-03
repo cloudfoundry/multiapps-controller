@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import static java.text.MessageFormat.format;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.inject.Inject;
@@ -27,7 +28,7 @@ public class ProgressMessagesCleaner implements Cleaner {
     }
 
     @Override
-    public void execute(Date expirationTime) {
+    public void execute(LocalDateTime expirationTime) {
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.DELETING_PROGRESS_MESSAGES_STORED_BEFORE_0, expirationTime));
         int removedProgressMessages = progressMessageService.createQuery()
                                                             .olderThan(expirationTime)

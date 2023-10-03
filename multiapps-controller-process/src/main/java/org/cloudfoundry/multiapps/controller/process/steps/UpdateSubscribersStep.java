@@ -18,6 +18,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
@@ -28,6 +29,7 @@ import org.cloudfoundry.multiapps.controller.core.helpers.ReferencingPropertiesV
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferencesResolver;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
@@ -53,6 +55,8 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
+import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 
 @Named("updateSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -77,7 +81,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
     private static final String DUMMY_VERSION = "1.0.0";
 
-    protected BiFunction<ClientHelper, String, CloudTarget> targetCalculator = ClientHelper::computeTarget;
+    protected BiFunction<ClientHelper, String, CloudSpace> targetCalculator = ClientHelper::attemptToFindSpace;
 
     @Inject
     private ConfigurationSubscriptionService configurationSubscriptionService;
@@ -87,6 +91,10 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     private FlowableFacade flowableFacade;
     @Inject
     private ModuleToDeployHelper moduleToDeployHelper;
+    @Inject
+    private CloudControllerClientFactory clientFactory;
+    @Inject
+    private TokenService tokenService;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -95,16 +103,14 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(context, flowableFacade);
         List<ConfigurationEntry> updatedEntries = ListUtils.union(publishedEntries, deletedEntries);
 
-        CloudControllerClient clientForCurrentSpace = context.getControllerClient();
-
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         List<CloudApplication> updatedServiceBrokerSubscribers = new ArrayList<>();
         List<ConfigurationSubscription> subscriptions = configurationSubscriptionService.createQuery()
                                                                                         .onSelectMatching(updatedEntries)
                                                                                         .list();
-        ClientHelper clientHelper = new ClientHelper(clientForCurrentSpace);
+        ClientHelper clientHelper = new ClientHelper(createSpaceClient(context));
         for (ConfigurationSubscription subscription : subscriptions) {
-            CloudTarget target = targetCalculator.apply(clientHelper, subscription.getSpaceId());
+            CloudSpace target = targetCalculator.apply(clientHelper, subscription.getSpaceId());
             if (target == null) {
                 getStepLogger().warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
                 continue;
@@ -126,6 +132,12 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_UPDATING_SUBSCRIBERS;
+    }
+
+    private CloudSpaceClient createSpaceClient(ProcessContext context) {
+        var user = context.getVariable(Variables.USER);
+        var token = tokenService.getToken(user);
+        return clientFactory.createSpaceClient(token);
     }
 
     private void addApplicationToProperList(List<CloudApplication> updatedSubscribers,
@@ -266,8 +278,9 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         return propertyName;
     }
 
-    private CloudControllerClient getClient(ProcessContext context, CloudTarget cloudTarget) {
-        return context.getControllerClient(cloudTarget.getOrganizationName(), cloudTarget.getSpaceName());
+    private CloudControllerClient getClient(ProcessContext context, CloudSpace space) {
+        return context.getControllerClient(space.getGuid()
+                                                .toString());
     }
 
     private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, CloudHandlerFactory handlerFactory) {

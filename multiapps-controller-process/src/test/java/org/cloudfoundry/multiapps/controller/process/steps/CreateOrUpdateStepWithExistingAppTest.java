@@ -32,7 +32,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.HealthCheckType;
@@ -158,7 +157,6 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
 
     private void prepareContext(CloudApplicationExtended application, boolean shouldSkipServiceRebinding) {
         context.setVariable(Variables.APP_TO_PROCESS, application);
-        context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, Collections.emptyMap());
         context.setVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING, shouldSkipServiceRebinding);
     }
 
@@ -448,8 +446,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
     protected CreateOrUpdateAppStep createStep() {
         return new CreateOrUpdateAppStep() {
             @Override
-            protected AppBoundServiceInstanceNamesGetter getAppBoundServiceInstanceNamesGetter(CloudControllerClient client,
-                                                                                               String correlationId) {
+            protected AppBoundServiceInstanceNamesGetter getAppBoundServiceInstanceNamesGetter(ProcessContext context) {
                 return appServicesGetter;
             }
         };

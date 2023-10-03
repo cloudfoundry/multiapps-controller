@@ -18,6 +18,7 @@ public class PersistenceMetadata {
         public static final String HISTORIC_OPERATION_EVENT_TABLE = "historic_operation_event";
         public static final String ACCESS_TOKEN_TABLE = "access_token";
         public static final String LOCK_OWNERS_TABLE = "lock_owners";
+        public static final String ASYNC_UPLOAD_JOB_TABLE = "async_upload_job";
 
     }
 
@@ -64,13 +65,6 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_SUBSCRIPTION_MODULE_ID = "module_id";
         public static final String CONFIGURATION_SUBSCRIPTION_RESOURCE_ID = "resource_id";
 
-        public static final String ONGOING_OPERATION_SPACE_ID = "spaceId";
-        public static final String ONGOING_OPERATION_STARTED_AT = "startedAt";
-        public static final String ONGOING_OPERATION_FINAL_STATE = "finalState";
-        public static final String ONGOING_OPERATION_MTA_ID = "mtaId";
-
-        public static final String DEPLOY_TARGET_NAME = "name";
-
         public static final String PROGRESS_MESSAGE_ID = "id";
         public static final String PROGRESS_MESSAGE_PROCESS_ID = "process_id";
         public static final String PROGRESS_MESSAGE_TASK_ID = "task_id";
@@ -91,6 +85,19 @@ public class PersistenceMetadata {
         public static final String LOCK_OWNER_ID = "id";
         public static final String LOCK_OWNER_LOCK_OWNER = "lock_owner";
         public static final String LOCK_OWNER_TIMESTAMP = "timestamp";
+
+        public static final String ASYNC_UPLOAD_JOB_ID = "id";
+        public static final String ASYNC_UPLOAD_JOB_STATE = "state";
+        public static final String ASYNC_UPLOAD_JOB_URL = "url";
+        public static final String ASYNC_UPLOAD_JOB_USER = "mta_user";
+        public static final String ASYNC_UPLOAD_JOB_STARTED_AT = "started_at";
+        public static final String ASYNC_UPLOAD_JOB_FINISHED_AT = "finished_at";
+        public static final String ASYNC_UPLOAD_JOB_NAMESPACE = "namespace";
+        public static final String ASYNC_UPLOAD_JOB_SPACE_GUID = "space_guid";
+        public static final String ASYNC_UPLOAD_JOB_MTA_ID = "mta_id";
+        public static final String ASYNC_UPLOAD_JOB_FILE_ID = "file_id";
+        public static final String ASYNC_UPLOAD_JOB_ERROR = "error";
+        public static final String ASYNC_UPLOAD_JOB_INSTANCE_INDEX = "instance_index";
     }
 
 }

@@ -16,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CFOptimizedEventGetter;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
 import org.cloudfoundry.multiapps.controller.core.util.SecurityUtil;
@@ -30,7 +31,6 @@ import org.cloudfoundry.multiapps.mta.model.AuditableConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClientImpl;
 import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
 @Named
@@ -54,6 +54,8 @@ public class DataTerminationService {
     private FileService fileService;
     @Inject
     private ApplicationConfiguration configuration;
+    @Inject
+    private WebClientFactory webClientFactory;
 
     public void deleteOrphanUserData() {
         assertGlobalAuditorCredentialsExist();
@@ -83,22 +85,12 @@ public class DataTerminationService {
     }
 
     protected CFOptimizedEventGetter getCfOptimizedEventGetter() {
-        CloudControllerClientImpl cfClient = getCFClient();
-        return new CFOptimizedEventGetter(cfClient);
-    }
-
-    private CloudControllerClientImpl getCFClient() {
         CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
                                                                  configuration.getGlobalAuditorPassword(),
                                                                  SecurityUtil.CLIENT_ID,
                                                                  SecurityUtil.CLIENT_SECRET,
                                                                  configuration.getGlobalAuditorOrigin());
-
-        CloudControllerClientImpl cfClient = new CloudControllerClientImpl(configuration.getControllerUrl(),
-                                                                           cloudCredentials,
-                                                                           configuration.shouldSkipSslValidation());
-        cfClient.login();
-        return cfClient;
+        return new CFOptimizedEventGetter(configuration, webClientFactory, cloudCredentials);
     }
 
     private String getDateBeforeDays(int numberOfDays) {

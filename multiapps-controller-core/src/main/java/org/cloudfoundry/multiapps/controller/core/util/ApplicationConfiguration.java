@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.core.util;
 
 import static java.text.MessageFormat.format;
 
-import java.lang.annotation.Target;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
@@ -23,8 +22,6 @@ import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.configuration.Environment;
 import org.cloudfoundry.multiapps.controller.core.health.model.HealthCheckConfiguration;
 import org.cloudfoundry.multiapps.controller.core.health.model.ImmutableHealthCheckConfiguration;
@@ -43,14 +40,13 @@ public class ApplicationConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfiguration.class);
 
     // Environment variables:
-    static final String CFG_TYPE = "XS_TYPE";
-    static final String CFG_DB_TYPE = "DB_TYPE";
     static final String CFG_PLATFORM = "PLATFORM"; // Mandatory
     static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
     static final String CFG_MAX_MANIFEST_SIZE = "DEFAULT_MAX_MANIFEST_SIZE";
     static final String CFG_MAX_RESOURCE_FILE_SIZE = "DEFAULT_MAX_RESOURCE_FILE_SIZE";
     static final String CFG_CRON_EXPRESSION_FOR_OLD_DATA = "CRON_EXPRESSION_FOR_OLD_DATA";
+    static final String CFG_EXECUTION_TIME_FOR_FINISHED_PROCESSES = "EXECUTION_TIME_FOR_FINISHED_PROCESSES";
     static final String CFG_MAX_TTL_FOR_OLD_DATA = "MAX_TTL_FOR_OLD_DATA";
     static final String CFG_USE_XS_AUDIT_LOGGING = "USE_XS_AUDIT_LOGGING";
     static final String CFG_VCAP_APPLICATION = "VCAP_APPLICATION"; // Mandatory
@@ -95,13 +91,12 @@ public class ApplicationConfiguration {
     static final String CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS = "SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS";
     static final String CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS = "SERVICE_HANDLING_MAX_PARALLEL_THREADS";
     static final String CFG_ABORTED_OPERATIONS_TTL_IN_MINUTES = "ABORTED_OPERATIONS_TTL_IN_SECONDS";
-    static final String CFG_ARCHIVE_SIGNATURE_VERIFICATION_ENABLED = "ARCHIVE_SIGNATURE_VERIFICATION_ENABLED";
+    static final String CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = "SPRING_SCHEDULER_TASK_EXECUTOR_THREADS";
+    static final String CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = "FILES_ASYNC_UPLOAD_EXECUTOR_THREADS";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
     // Default values:
-    public static final List<Platform> DEFAULT_PLATFORMS = Collections.emptyList();
-    public static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
     public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024L; // 4 GB(s)
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024L; // 1 MB(s)
     public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024L; // 1MB
@@ -112,6 +107,9 @@ public class ApplicationConfiguration {
     public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
     public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
     public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
+    public static final String DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES = Long.toString(TimeUnit.HOURS.toMillis(2)); // every 2 hours
+                                                                                                                          // after an
+                                                                                                                          // instance starts
     public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
     public static final Integer DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS = 5;
     public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
@@ -148,7 +146,9 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_ABORTED_OPERATIONS_TTL_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(30);
     public static final int DEFAULT_MAX_STOP_DELAY_IN_SECONDS = 300;
     public static final String DEFAULT_GLOBAL_AUDITOR_ORIGIN = "uaa";
-    public static final Boolean DEFAULT_ARCHIVE_SIGNATURE_VERIFICATION_ENABLED = false;
+    public static final int DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = 3;
+    public static final int DEFAULT_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = 50;
+
     protected final Environment environment;
 
     // Cached configuration settings:
@@ -159,6 +159,7 @@ public class ApplicationConfiguration {
     private Long maxManifestSize;
     private Long maxResourceFileSize;
     private String cronExpressionForOldData;
+    private String executionTimeForFinishedProcesses;
     private Long maxTtlForOldData;
     private Boolean useXSAuditLogging;
     private String spaceGuid;
@@ -201,7 +202,8 @@ public class ApplicationConfiguration {
     private Integer snakeyamlMaxAliasesForCollections;
     private Integer serviceHandlingMaxParallelThreads;
     private Integer abortedOperationsTtlInSeconds;
-    private Boolean archiveSignatureVerificationEnabled;
+    private Integer springSchedulerTaskExecutorThreads;
+    private Integer filesAsyncUploadExecutorThreads;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -223,7 +225,6 @@ public class ApplicationConfiguration {
         getOrgName();
         getDeployServiceUrl();
         isBasicAuthEnabled();
-        isArchiveSignatureVerificationEnabled();
         getGlobalAuditorUser();
         getGlobalAuditorPassword();
         getDbConnectionThreads();
@@ -245,10 +246,7 @@ public class ApplicationConfiguration {
         getSnakeyamlMaxAliasesForCollections();
         getServiceHandlingMaxParallelThreads();
         getAbortedOperationsTtlInSeconds();
-    }
-
-    protected AuditLoggingFacade getAuditLoggingFacade() {
-        return AuditLoggingProvider.getFacade();
+        getFilesAsyncUploadExecutorMaxThreads();
     }
 
     public Map<String, String> getNotSensitiveVariables() {
@@ -324,6 +322,13 @@ public class ApplicationConfiguration {
         return cronExpressionForOldData;
     }
 
+    public String getExecutionTimeForFinishedProcesses() {
+        if (executionTimeForFinishedProcesses == null) {
+            executionTimeForFinishedProcesses = getExecutionTimeForFinishedProcessesFromEnvironment();
+        }
+        return executionTimeForFinishedProcesses;
+    }
+
     public Long getMaxTtlForOldData() {
         if (maxTtlForOldData == null) {
             maxTtlForOldData = getMaxTtlForOldDataFromEnvironment();
@@ -366,11 +371,18 @@ public class ApplicationConfiguration {
         return basicAuthEnabled;
     }
 
-    public Boolean isArchiveSignatureVerificationEnabled() {
-        if (archiveSignatureVerificationEnabled == null) {
-            archiveSignatureVerificationEnabled = isArchiveSignatureVerificationEnabledThroughEnvironment();
+    public Integer getSpringSchedulerTaskExecutorThreads() {
+        if (springSchedulerTaskExecutorThreads == null) {
+            springSchedulerTaskExecutorThreads = getSpringSchedulerTaskExecutorThreadsFromEnvironment();
         }
-        return archiveSignatureVerificationEnabled;
+        return springSchedulerTaskExecutorThreads;
+    }
+
+    public Integer getFilesAsyncUploadExecutorMaxThreads() {
+        if (filesAsyncUploadExecutorThreads == null) {
+            filesAsyncUploadExecutorThreads = getFilesAsyncUploadExecutorMaxThreadsFromEnvironment();
+        }
+        return filesAsyncUploadExecutorThreads;
     }
 
     public String getGlobalAuditorUser() {
@@ -681,6 +693,12 @@ public class ApplicationConfiguration {
         return value;
     }
 
+    private String getExecutionTimeForFinishedProcessesFromEnvironment() {
+        String value = getCronExpression(CFG_EXECUTION_TIME_FOR_FINISHED_PROCESSES, DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES);
+        LOGGER.info(format(Messages.EXECUTION_TIME_FOR_FINISHED_PROCESSES, value));
+        return value;
+    }
+
     private Long getMaxTtlForOldDataFromEnvironment() {
         Long value = environment.getLong(CFG_MAX_TTL_FOR_OLD_DATA, DEFAULT_MAX_TTL_FOR_OLD_DATA);
         LOGGER.info(format(Messages.MAX_TTL_FOR_OLD_DATA, value));
@@ -758,9 +776,15 @@ public class ApplicationConfiguration {
         return value;
     }
 
-    private Boolean isArchiveSignatureVerificationEnabledThroughEnvironment() {
-        Boolean value = environment.getBoolean(CFG_ARCHIVE_SIGNATURE_VERIFICATION_ENABLED, DEFAULT_ARCHIVE_SIGNATURE_VERIFICATION_ENABLED);
-        LOGGER.info(format(Messages.ARCHIVE_SIGNATURE_VERIFICATION_ENABLED, value));
+    private Integer getSpringSchedulerTaskExecutorThreadsFromEnvironment() {
+        Integer value = environment.getInteger(CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS, DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS);
+        LOGGER.info(format(Messages.SPRING_SCHEDULER_TASK_EXECUTOR_THREADS, value));
+        return value;
+    }
+
+    private Integer getFilesAsyncUploadExecutorMaxThreadsFromEnvironment() {
+        Integer value = environment.getInteger(CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS, DEFAULT_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS);
+        LOGGER.info(format(Messages.FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS, value));
         return value;
     }
 

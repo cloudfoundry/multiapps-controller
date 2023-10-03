@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -15,14 +16,16 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudRouteExtende
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudRouteExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceRouteBinding;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceInstanceRoutesGetter;
-import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
@@ -30,10 +33,24 @@ import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DeleteApplicationRoutesStep extends UndeployAppStep implements BeforeStepHookPhaseProvider {
 
+    @Inject
+    private TokenService tokenService;
+    @Inject
+    private WebClientFactory webClientFactory;
+
     @Override
-    protected StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy,
-                                            ProcessContext context) {
-        deleteApplicationRoutes(client, cloudApplicationToUndeploy, context.getVariable(Variables.CORRELATION_ID));
+    protected StepPhase undeployApplication(CloudControllerClient client, CloudApplication app, ProcessContext context) {
+        getStepLogger().info(Messages.DELETING_APP_ROUTES, app.getName());
+
+        List<CloudRouteExtended> appRoutes = getApplicationRoutes(client, app, context);
+
+        getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, app.getName(), JsonUtil.toJson(appRoutes, true));
+
+        client.updateApplicationRoutes(app.getName(), Collections.emptySet());
+        for (CloudRouteExtended route : appRoutes) {
+            deleteApplicationRoute(client, route);
+        }
+        getStepLogger().debug(Messages.DELETED_APP_ROUTES, app.getName());
         return StepPhase.DONE;
     }
 
@@ -43,31 +60,22 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
                                                                                .getName());
     }
 
-    protected ServiceInstanceRoutesGetter getServiceRoutesGetter(CloudControllerClient client, String correlationId) {
-        return new ServiceInstanceRoutesGetter(client, correlationId);
+    protected ServiceInstanceRoutesGetter getServiceRoutesGetter(CloudCredentials credentials, String correlationId) {
+        return new ServiceInstanceRoutesGetter(configuration, webClientFactory, credentials, correlationId);
     }
 
-    private void deleteApplicationRoutes(CloudControllerClient client, CloudApplication cloudApplication, String correlationId) {
-        getStepLogger().info(Messages.DELETING_APP_ROUTES, cloudApplication.getName());
-        List<CloudRouteExtended> appRoutes = getApplicationRoutes(client, cloudApplication, correlationId);
+    private List<CloudRouteExtended> getApplicationRoutes(CloudControllerClient client, CloudApplication app, ProcessContext context) {
+        String user = context.getVariable(Variables.USER);
+        String correlationId = context.getVariable(Variables.CORRELATION_ID);
+        var token = tokenService.getToken(user);
+        var credentials = new CloudCredentials(token, true);
+        var serviceInstanceRoutesGetter = getServiceRoutesGetter(credentials, correlationId);
 
-        getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, cloudApplication.getName(), JsonUtil.toJson(appRoutes, true));
-
-        client.updateApplicationRoutes(cloudApplication.getName(), Collections.emptySet());
-        var clientHelper = new ClientHelper(client);
-        for (CloudRouteExtended route : appRoutes) {
-            deleteApplicationRoute(clientHelper, route);
-        }
-        getStepLogger().debug(Messages.DELETED_APP_ROUTES, cloudApplication.getName());
-    }
-
-    private List<CloudRouteExtended> getApplicationRoutes(CloudControllerClient client, CloudApplication app, String correlationId) {
         var routes = client.getApplicationRoutes(app.getGuid());
         var routeGuids = routes.stream()
                                .map(CloudRoute::getGuid)
                                .map(UUID::toString)
                                .collect(Collectors.toList());
-        var serviceInstanceRoutesGetter = getServiceRoutesGetter(client, correlationId);
         var serviceRouteBindings = serviceInstanceRoutesGetter.getServiceRouteBindings(routeGuids);
         var routeIdsToServiceInstanceIds = serviceRouteBindings.stream()
                                                                .collect(Collectors.groupingBy(ServiceRouteBinding::getRouteId,
@@ -88,14 +96,16 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
                                           .build();
     }
 
-    private void deleteApplicationRoute(ClientHelper clientHelper, CloudRouteExtended route) {
+    private void deleteApplicationRoute(CloudControllerClient client, CloudRouteExtended route) {
         if (route.getAppsUsingRoute() > 1 || !route.getBoundServiceInstanceGuids()
                                                    .isEmpty()) {
             getStepLogger().warn(Messages.ROUTE_NOT_DELETED, route.getUrl());
             return;
         }
         getStepLogger().info(Messages.DELETING_ROUTE, route.getUrl());
-        clientHelper.deleteRoute(route);
+        client.deleteRoute(route.getHost(), route.getDomain()
+                                                 .getName(),
+                           route.getPath());
         getStepLogger().debug(Messages.ROUTE_DELETED, route.getUrl());
     }
 

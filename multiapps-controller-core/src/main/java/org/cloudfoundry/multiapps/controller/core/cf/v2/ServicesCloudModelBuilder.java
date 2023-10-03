@@ -113,6 +113,7 @@ public class ServicesCloudModelBuilder {
                                                     .shouldSkipTagsUpdate(commonServiceParameters.shouldSkipTagsUpdate())
                                                     .shouldSkipPlanUpdate(commonServiceParameters.shouldSkipPlanUpdate())
                                                     .shouldSkipSyslogUrlUpdate(commonServiceParameters.shouldSkipSyslogUrlUpdate())
+                                                    .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
 

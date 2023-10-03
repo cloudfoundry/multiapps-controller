@@ -8,10 +8,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
@@ -42,7 +42,7 @@ import org.mockito.MockitoAnnotations;
 
 class OperationsCleanerTest {
 
-    private static final Date EXPIRATION_TIME = new Date(5000);
+    private static final LocalDateTime EXPIRATION_TIME = LocalDateTime.ofInstant(Instant.ofEpochMilli(5000), ZoneId.systemDefault());
     private static final long TIME_BEFORE_EXPIRATION_1 = 2000;
     private static final long TIME_BEFORE_EXPIRATION_2 = 3000;
     private static final String OPERATION_ID_1 = "1";

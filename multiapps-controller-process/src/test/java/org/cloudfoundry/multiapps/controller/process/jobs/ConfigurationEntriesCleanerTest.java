@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationEntryQuery;
@@ -22,7 +23,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 class ConfigurationEntriesCleanerTest {
@@ -35,9 +36,11 @@ class ConfigurationEntriesCleanerTest {
     @Mock
     private ApplicationConfiguration configuration;
     @Mock
-    private CloudControllerClient clientMock;
+    private CloudSpaceClient clientMock;
     @Mock
     private ConfigurationEntryService configurationEntryService;
+    @Mock
+    private OAuthClientFactory oAuthClientFactory;
     @Mock
     private ConfigurationEntryQuery query;
 
@@ -47,10 +50,10 @@ class ConfigurationEntriesCleanerTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        cleaner = new ConfigurationEntriesCleaner(configuration, configurationEntryService) {
+        cleaner = new ConfigurationEntriesCleaner(configuration, configurationEntryService, oAuthClientFactory) {
             @Override
-            protected void initCloudControllerClient() {
-                super.client = clientMock;
+            protected void initSpaceClient() {
+                super.spaceClient = clientMock;
             }
         };
         AuditLoggingProvider.setFacade(auditLoggingFacade);

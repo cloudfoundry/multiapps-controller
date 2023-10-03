@@ -7,9 +7,7 @@ public final class Messages {
 
     // Exception messages
     public static final String NO_VALID_TOKEN_FOUND = "No valid access token was found for user \"{0}\"";
-    public static final String TOKEN_EXPIRED = "The access token associated with user \"{0}\" has expired";
     public static final String CANT_CREATE_CLIENT = "Could not create client";
-    public static final String CANT_CREATE_CLIENT_2 = "Could not create client in organization \"{0}\" and space \"{1}\"";
     public static final String CANT_CREATE_CLIENT_FOR_SPACE_ID = "Could not create client in space with guid \"{0}\"";
     public static final String UNAUTHORISED_OPERATION_ORG_SPACE = "Not authorized to perform operation \"{0}\" in organization \"{1}\" and space \"{2}\"";
     public static final String UNAUTHORISED_OPERATION_SPACE_ID = "Not authorized to perform operation \"{0}\" in space with ID \"{1}\"";
@@ -109,11 +107,11 @@ public final class Messages {
     public static final String MAX_MANIFEST_SIZE = "Max manifest size is set to: {0}";
     public static final String MAX_RESOURCE_FILE_SIZE = "Max resource file size is set to: {0}";
     public static final String CRON_EXPRESSION_FOR_OLD_DATA = "Cron expression for old data: {0}";
+    public static final String EXECUTION_TIME_FOR_FINISHED_PROCESSES = "Execution time for finished processes: {0}";
     public static final String MAX_TTL_FOR_OLD_DATA = "Max TTL for old data: {0}";
     public static final String SPACE_GUID = "Space GUID: {0}";
     public static final String ORG_NAME = "Org name: {0}";
     public static final String BASIC_AUTH_ENABLED = "Basic authentication enabled: {0}";
-    public static final String ARCHIVE_SIGNATURE_VERIFICATION_ENABLED = "Archive signature verification enabled: {0}";
     public static final String GLOBAL_AUDITOR_USERNAME = "Global Auditor username: {0}";
     public static final String USE_XS_AUDIT_LOGGING = "Use XSA audit logging: {0}";
     public static final String DB_CONNECTION_THREADS = "Database connection thread pool size: {0}";
@@ -168,6 +166,8 @@ public final class Messages {
     public static final String SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS = "SnakeYaml max aliases for collections: {0}";
     public static final String SERVICE_HANDLING_MAX_PARALLEL_THREADS = "Service handling max parallel threads: {0}";
     public static final String ABORTED_OPERATIONS_TTL_IN_SECONDS = "Aborted operations TTL in seconds: {0}";
+    public static final String SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = "Spring scheduler task executor threads: {0}";
+    public static final String FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = "Files async executor max threads: {0}";
 
     // Debug messages
     public static final String DEPLOYMENT_DESCRIPTOR = "Deployment descriptor: {0}";

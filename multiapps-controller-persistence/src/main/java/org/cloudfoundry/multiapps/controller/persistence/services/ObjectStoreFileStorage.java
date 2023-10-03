@@ -2,7 +2,9 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +94,7 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     @Override
-    public int deleteFilesModifiedBefore(Date modificationTime) {
+    public int deleteFilesModifiedBefore(LocalDateTime modificationTime) {
         return removeBlobsByFilter(blob -> filterByModificationTime(blob, modificationTime));
     }
 
@@ -189,7 +191,7 @@ public class ObjectStoreFileStorage implements FileStorage {
                         .collect(Collectors.toSet());
     }
 
-    private boolean filterByModificationTime(StorageMetadata blobMetadata, Date modificationTime) {
+    private boolean filterByModificationTime(StorageMetadata blobMetadata, LocalDateTime modificationTime) {
         Map<String, String> userMetadata = blobMetadata.getUserMetadata();
         // Clean up any blobStore entries that don't have any metadata as we can't check their creation date
         if (CollectionUtils.isEmpty(userMetadata)) {
@@ -198,8 +200,8 @@ public class ObjectStoreFileStorage implements FileStorage {
         String longString = userMetadata.get(Constants.FILE_ENTRY_MODIFIED.toLowerCase());
         try {
             long dateLong = Long.parseLong(longString);
-            Date date = new Date(dateLong);
-            return date.before(modificationTime);
+            LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(dateLong), ZoneId.systemDefault());
+            return date.isBefore(modificationTime);
         } catch (NumberFormatException e) {
             // Clean up any blobStore entries that have invalid timestamp
             return true;

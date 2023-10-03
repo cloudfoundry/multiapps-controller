@@ -34,6 +34,8 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceCredentialBindi
 import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
 import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
+import com.sap.cloudfoundry.client.facade.dto.ApplicationToCreateDto;
+import com.sap.cloudfoundry.client.facade.dto.ImmutableApplicationToCreateDto;
 
 class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
 
@@ -49,43 +51,48 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
 //@formatter:off
                          // (1) Everything is specified properly:
                          Arguments.of(ImmutableStaging.builder().command("command1").healthCheckType("none").addBuildpack("buildpackUrl").build(),
-                                      128, 256, TestData.routeSet("example.com", "foo-bar.xyz")),
+                                      128, 256, TestData.routeSet("example.com", "foo-bar.xyz"), Map.of("env-key", "env-value")),
                          // (2) Disk quota is 0:
-                         Arguments.of(DEFAULT_STAGING, 0, 256, Collections.emptySet()),
+                         Arguments.of(DEFAULT_STAGING, 0, 256, Collections.emptySet(), Collections.emptyMap()),
                          // (3) Memory is 0:
-                         Arguments.of(DEFAULT_STAGING, 1024, 0, Collections.emptySet())
+                         Arguments.of(DEFAULT_STAGING, 1024, 0, Collections.emptySet(), Collections.emptyMap())
 //@formatter:on             
         );
     }
 
     @ParameterizedTest
     @MethodSource
-    void testHandleApplicationAttributes(Staging staging, int diskQuota, int memory, Set<CloudRoute> routes) {
-        CloudApplicationExtended application = buildApplication(staging, diskQuota, memory, routes);
-        prepareContext(application, Collections.emptyMap());
+    void testHandleApplicationAttributes(Staging staging, int diskQuota, int memory, Set<CloudRoute> routes, Map<String, String> env) {
+        CloudApplicationExtended application = buildApplication(staging, diskQuota, memory, routes, env);
+        context.setVariable(Variables.APP_TO_PROCESS, application);
 
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
         Integer expectedDiskQuota = diskQuota == 0 ? null : diskQuota;
         Integer expectedMemory = memory == 0 ? null : memory;
-        verify(client).createApplication(APP_NAME, staging, expectedDiskQuota, expectedMemory, null, routes);
+        ApplicationToCreateDto applicationToCreateDto = ImmutableApplicationToCreateDto.builder()
+                                                                                       .name(APP_NAME)
+                                                                                       .staging(staging)
+                                                                                       .diskQuotaInMb(expectedDiskQuota)
+                                                                                       .memoryInMb(expectedMemory)
+                                                                                       .routes(routes)
+                                                                                       .env(env)
+                                                                                       .build();
+        verify(client).createApplication(applicationToCreateDto);
         assertTrue(context.getVariable(Variables.VCAP_APP_PROPERTIES_CHANGED));
     }
 
-    private CloudApplicationExtended buildApplication(Staging staging, int diskQuota, int memory, Set<CloudRoute> routes) {
+    private CloudApplicationExtended buildApplication(Staging staging, int diskQuota, int memory, Set<CloudRoute> routes,
+                                                      Map<String, String> env) {
         return ImmutableCloudApplicationExtended.builder()
                                                 .name(APP_NAME)
                                                 .staging(staging)
                                                 .diskQuota(diskQuota)
                                                 .memory(memory)
                                                 .routes(routes)
+                                                .env(env)
                                                 .build();
-    }
-
-    private void prepareContext(CloudApplicationExtended application, Map<String, Map<String, String>> serviceKeysCredentialsToInject) {
-        context.setVariable(Variables.APP_TO_PROCESS, application);
-        context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysCredentialsToInject);
     }
 
     @Test
@@ -101,25 +108,33 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
                                                 .dockerInfo(dockerInfo)
                                                 .build();
 
-        CloudApplicationExtended application = buildApplication(dockerStaging, 128, 256, Collections.emptySet());
+        CloudApplicationExtended application = buildApplication(dockerStaging, 128, 256, Collections.emptySet(), Collections.emptyMap());
         application = ImmutableCloudApplicationExtended.copyOf(application)
                                                        .withDockerInfo(dockerInfo);
-        prepareContext(application, Collections.emptyMap());
+        context.setVariable(Variables.APP_TO_PROCESS, application);
 
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
-        verify(client).createApplication(APP_NAME, dockerStaging, 128, 256, null, Collections.emptySet());
+        ApplicationToCreateDto applicationToCreateDto = ImmutableApplicationToCreateDto.builder()
+                                                                                       .name(APP_NAME)
+                                                                                       .staging(dockerStaging)
+                                                                                       .diskQuotaInMb(128)
+                                                                                       .memoryInMb(256)
+                                                                                       .routes(Collections.emptySet())
+                                                                                       .env(Collections.emptyMap())
+                                                                                       .build();
+        verify(client).createApplication((applicationToCreateDto));
         verify(stepLogger).info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, APP_NAME, dockerInfo.getImage());
     }
 
     @Test
     void testHandleApplicationServices() {
-        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptySet());
+        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptySet(), Collections.emptyMap());
         List<String> services = List.of("service-1", "service-2");
         application = ImmutableCloudApplicationExtended.copyOf(application)
                                                        .withServices(services);
-        prepareContext(application, Collections.emptyMap());
+        context.setVariable(Variables.APP_TO_PROCESS, application);
 
         step.execute(execution);
 
@@ -128,23 +143,8 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
     }
 
     @Test
-    void testHandleApplicationEnv() {
-        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptySet());
-        Map<String, String> applicationEnv = Map.of("restart-policy", "always");
-        application = ImmutableCloudApplicationExtended.copyOf(application)
-                                                       .withEnv(applicationEnv);
-        prepareContext(application, Collections.emptyMap());
-
-        step.execute(execution);
-
-        assertStepFinishedSuccessfully();
-        verify(client).updateApplicationEnv(APP_NAME, applicationEnv);
-        assertTrue(context.getVariable(Variables.USER_PROPERTIES_CHANGED));
-    }
-
-    @Test
     void testInjectServiceKeysCredentialsInAppEnv() {
-        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptySet());
+        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptySet(), Collections.emptyMap());
         Map<String, String> applicationEnv = Map.of("restart-policy", "always");
         ServiceKeyToInject serviceKey = new ServiceKeyToInject(SERVICE_KEY_ENV_NAME, SERVICE_NAME, SERVICE_KEY_NAME);
         application = ImmutableCloudApplicationExtended.copyOf(application)
@@ -152,8 +152,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
                                                        .withServiceKeysToInject(serviceKey);
         Map<String, String> serviceKeyCredentials = Map.of("user", "service-key-user", "password", "service-key-password");
         when(client.getServiceKey(SERVICE_NAME, serviceKey.getServiceKeyName())).thenReturn(buildCloudServiceKey(serviceKeyCredentials));
-        Map<String, Map<String, String>> serviceKeysToInjectCredentials = Map.of(APP_NAME, serviceKeyCredentials);
-        prepareContext(application, serviceKeysToInjectCredentials);
+        context.setVariable(Variables.APP_TO_PROCESS, application);
 
         step.shouldPrettyPrint = () -> false;
         step.execute(execution);
@@ -162,9 +161,6 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
         assertEquals(JsonUtil.toJson(serviceKeyCredentials), context.getVariable(Variables.APP_TO_PROCESS)
                                                                     .getEnv()
                                                                     .get(serviceKey.getEnvVarName()));
-        assertEquals(Map.of(SERVICE_KEY_ENV_NAME, JsonUtil.toJson(serviceKeyCredentials)),
-                     context.getVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT)
-                            .get(APP_NAME));
     }
 
     private CloudServiceKey buildCloudServiceKey(Map<String, String> serviceKeyCredentials) {
@@ -180,14 +176,14 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
 
     @Test
     void testThrowExceptionWhenSpecifiedServiceKeyNotExist() {
-        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptySet());
+        CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptySet(), Collections.emptyMap());
         Map<String, String> applicationEnv = Map.of("restart-policy", "always");
         ServiceKeyToInject serviceKey = new ServiceKeyToInject(SERVICE_KEY_ENV_NAME, SERVICE_NAME, SERVICE_KEY_NAME);
         application = ImmutableCloudApplicationExtended.copyOf(application)
                                                        .withEnv(applicationEnv)
                                                        .withServiceKeysToInject(serviceKey);
         when(client.getServiceKeys(SERVICE_NAME)).thenReturn(Collections.emptyList());
-        prepareContext(application, Collections.emptyMap());
+        context.setVariable(Variables.APP_TO_PROCESS, application);
 
         assertThrows(SLException.class, () -> step.execute(execution));
     }

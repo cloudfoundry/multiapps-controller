@@ -12,6 +12,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -145,7 +148,8 @@ class ObjectStoreFileStorageTest {
 
         String blobWithNoMetadataId = addBlobWithNoMetadata();
 
-        int deletedFiles = fileStorage.deleteFilesModifiedBefore(new Date(currentMillis - oldFilesTtl));
+        int deletedFiles = fileStorage.deleteFilesModifiedBefore(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentMillis - oldFilesTtl),
+                                                                                         ZoneId.systemDefault()));
 
         assertEquals(3, deletedFiles);
         assertFileExists(true, fileEntryToRemain1);

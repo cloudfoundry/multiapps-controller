@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -21,7 +21,7 @@ public class UserDataCleaner implements Cleaner {
     private DataTerminationService dataTerminationService;
 
     @Override
-    public void execute(Date expirationTime) {
+    public void execute(LocalDateTime expirationTime) {
         LOGGER.debug(CleanUpJob.LOG_MARKER, Messages.DELETING_DATA_FOR_NON_EXISTING_USERS);
         dataTerminationService.deleteOrphanUserData();
         LOGGER.info(CleanUpJob.LOG_MARKER, Messages.DELETED_DATA_FOR_NON_EXISTING_USERS);

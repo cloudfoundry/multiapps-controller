@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceInstanceRoutesGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.util.HooksExecutor;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseGetter;
@@ -21,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
@@ -36,6 +37,8 @@ class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
     private ProcessTypeParser processTypeParser;
     @Mock
     private HooksPhaseBuilder hooksPhaseBuilder;
+    @Mock
+    private TokenService tokenService;
 
     @BeforeEach
     void setUp() {
@@ -82,7 +85,7 @@ class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
     protected UndeployAppStep createStep() {
         return new DeleteApplicationRoutesStep() {
             @Override
-            protected ServiceInstanceRoutesGetter getServiceRoutesGetter(CloudControllerClient client, String correlationId) {
+            protected ServiceInstanceRoutesGetter getServiceRoutesGetter(CloudCredentials credentials, String correlationId) {
                 return serviceInstanceRoutesGetter;
             }
         };

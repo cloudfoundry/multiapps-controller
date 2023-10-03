@@ -9,30 +9,30 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerHeaderConfiguration;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
 public abstract class CustomControllerClient {
 
-    protected final CloudControllerClient client;
     private final WebClient webClient;
     private String correlationId = StringUtils.EMPTY;
-    private CloudControllerHeaderConfiguration headerConfiguration;
+    private final CloudControllerHeaderConfiguration headerConfiguration;
 
-    protected CustomControllerClient(CloudControllerClient client, String correlationID) {
-        this.client = client;
-        this.webClient = new WebClientFactory().getWebClient(client);
+    protected CustomControllerClient(ApplicationConfiguration configuration, WebClientFactory webClientFactory,
+                                     CloudCredentials credentials, String correlationID) {
+        this.webClient = webClientFactory.getWebClient(credentials);
         this.correlationId = correlationID;
-        this.headerConfiguration = new CloudControllerHeaderConfiguration();
+        this.headerConfiguration = new CloudControllerHeaderConfiguration(configuration.getVersion());
     }
 
-    protected CustomControllerClient(CloudControllerClient client) {
-        this.client = client;
-        this.webClient = new WebClientFactory().getWebClient(client);
-        this.headerConfiguration = new CloudControllerHeaderConfiguration();
+    protected CustomControllerClient(ApplicationConfiguration configuration, WebClientFactory webClientFactory,
+                                     CloudCredentials credentials) {
+        this.webClient = webClientFactory.getWebClient(credentials);
+        this.headerConfiguration = new CloudControllerHeaderConfiguration(configuration.getVersion());
     }
 
     protected <T> List<T> getListOfResources(ResourcesResponseMapper<T> responseMapper, String uri, Object... urlVariables) {
@@ -46,7 +46,7 @@ public abstract class CustomControllerClient {
     private PaginationV3 addPageOfResources(String uri, ResourcesResponseMapper<?> responseMapper, Object... urlVariables) {
         String responseString = webClient.get()
                                          .uri(uri, urlVariables)
-                                         .headers(httpHeaders -> httpHeaders.addAll(generateRequestHeaders(correlationId)))
+                                         .headers(httpHeaders -> httpHeaders.addAll(generateRequestHeaders()))
                                          .retrieve()
                                          .bodyToMono(String.class)
                                          .block();
@@ -55,7 +55,7 @@ public abstract class CustomControllerClient {
         return PaginationV3.fromResponse(responseMap);
     }
 
-    private MultiValueMap<String, String> generateRequestHeaders(String correlationId) {
+    private MultiValueMap<String, String> generateRequestHeaders() {
         var result = new LinkedMultiValueMap<String, String>();
         headerConfiguration.generateHeaders(correlationId)
                            .forEach(result::add);

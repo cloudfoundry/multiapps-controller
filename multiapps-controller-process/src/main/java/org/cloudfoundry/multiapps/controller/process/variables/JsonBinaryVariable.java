@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.variables;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.flowable.common.engine.api.variable.VariableContainer;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -22,6 +23,11 @@ public abstract class JsonBinaryVariable<T> implements Variable<T> {
             @Override
             public T deserialize(Object serializedObject) {
                 return JsonUtil.fromJsonBinary((byte[]) serializedObject, getType());
+            }
+
+            @Override
+            public T deserialize(Object serializedValue, VariableContainer container) {
+                return deserialize(serializedValue);
             }
 
         };

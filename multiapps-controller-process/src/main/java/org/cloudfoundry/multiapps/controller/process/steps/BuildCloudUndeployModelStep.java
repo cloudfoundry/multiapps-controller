@@ -10,9 +10,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -21,6 +21,7 @@ import javax.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -62,7 +63,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
 
         if (deployedMta == null) {
-            setComponentsToUndeploy(context, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+            setComponentsToUndeploy(context, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                                    Collections.emptyList());
             return StepPhase.DONE;
         }
 
@@ -89,7 +91,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         List<String> servicesToDelete = computeServicesToDelete(context, appsWithoutChange, deployedMta.getServices(),
                                                                 servicesForApplications, serviceNames);
         getStepLogger().debug(Messages.SERVICES_TO_DELETE, servicesToDelete);
-        
+
         List<DeployedMtaServiceKey> serviceKeysToDelete = computeServiceKeysToDelete(context);
         getStepLogger().debug(Messages.SERVICE_KEYS_FOR_DELETION, serviceKeysToDelete);
 
@@ -119,10 +121,10 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     }
 
     private List<String> getAllServiceNames(ProcessContext context) {
-        return context.getVariable(Variables.BATCHES_TO_PROCESS)
+        return context.getVariableBackwardsCompatible(Variables.BATCHES_TO_PROCESS)
                       .stream()
                       .flatMap(List::stream)
-                      .map(Resource::getName)
+                      .map(CloudServiceInstanceExtended::getName)
                       .collect(Collectors.toList());
     }
 
@@ -198,8 +200,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     private boolean isExistingService(ProcessContext context, String serviceName) {
         var deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         // the process type is checked because the deployment descriptor is null during undeployment
-        return !ProcessType.UNDEPLOY.equals(processTypeParser.getProcessType(context.getExecution())) &&
-            CloudModelBuilderUtil.isExistingService(deploymentDescriptor.getResources(), serviceName);
+        return !ProcessType.UNDEPLOY.equals(processTypeParser.getProcessType(context.getExecution()))
+            && CloudModelBuilderUtil.isExistingService(deploymentDescriptor.getResources(), serviceName);
     }
 
     private List<DeployedMtaServiceKey> computeServiceKeysToDelete(ProcessContext context) {
@@ -210,7 +212,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.NO_SERVICE_KEYS_FOR_DELETION);
             return Collections.emptyList();
         }
-        
+
         if (ProcessType.UNDEPLOY.equals(processTypeParser.getProcessType(context.getExecution()))) {
             if (StepsUtil.canDeleteServiceKeys(context)) {
                 return deployedServiceKeys;
@@ -219,11 +221,11 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                 return Collections.emptyList();
             }
         }
-        
+
         return computeUnusedServiceKeys(context, deployedServiceKeys);
 
     }
-    
+
     private List<DeployedMtaServiceKey> computeUnusedServiceKeys(ProcessContext context, List<DeployedMtaServiceKey> deployedServiceKeys) {
         Map<String, List<DeployedMtaServiceKey>> deployedServiceKeysByService = deployedServiceKeys.stream()
                                                                                                    .collect(groupingBy(key -> key.getServiceInstance()

@@ -16,12 +16,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
@@ -47,6 +51,9 @@ import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 
 class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersStep> {
 
@@ -63,6 +70,10 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
     private ConfigurationEntryQuery configurationEntryQuery;
     @Mock
     private CloudControllerClient clientForCurrentSpace;
+    @Mock
+    private CloudControllerClientFactory clientFactory;
+    @Mock
+    private TokenService tokenService;
     @Mock
     protected ModuleToDeployHelper moduleToDeployHelper;
 
@@ -143,7 +154,7 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
         context.setVariable(Variables.DELETED_ENTRIES, getDeletedEntries());
 
         context.setVariable(Variables.USER, USER);
-        step.targetCalculator = (client, spaceId) -> new CloudTarget(spaceId, spaceId);
+        step.targetCalculator = this::getMockSpace;
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
                .thenReturn(List.of("test-subprocess-id"));
         HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
@@ -155,19 +166,30 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
                .thenReturn(true);
     }
 
+    private CloudSpace getMockSpace(ClientHelper client, String spaceId) {
+        return ImmutableCloudSpace.builder()
+                                  .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
+                                  .name("space")
+                                  .organization(ImmutableCloudOrganization.builder()
+                                                                          .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
+                                                                          .name("org")
+                                                                          .build())
+                                  .build();
+    }
+
     private byte[] getBytes(List<ConfigurationEntry> publishedEntries) {
         return JsonUtil.toJsonBinary(publishedEntries.toArray(new ConfigurationEntry[] {}));
     }
 
     private List<ConfigurationEntry> getDeletedEntries() {
         return input.subscribersToUpdate.stream()
-                                        .flatMap((subscriber) -> subscriber.relevantDeletedEntries.stream())
+                                        .flatMap(subscriber -> subscriber.relevantDeletedEntries.stream())
                                         .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> getPublishedEntries() {
         return input.subscribersToUpdate.stream()
-                                        .flatMap((subscriber) -> subscriber.relevantPublishedEntries.stream())
+                                        .flatMap(subscriber -> subscriber.relevantPublishedEntries.stream())
                                         .collect(Collectors.toList());
     }
 
@@ -180,10 +202,8 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
     }
 
     private void prepareClientProvider(CloudSpace space, CloudControllerClient clientMock) {
-        String orgName = space.getOrganization()
-                              .getName();
         String spaceName = space.getName();
-        when(clientProvider.getControllerClient(eq(USER), eq(orgName), eq(spaceName), anyString())).thenReturn(clientMock);
+        when(clientProvider.getControllerClient(eq(USER), eq(spaceName), anyString())).thenReturn(clientMock);
     }
 
     private Map<CloudSpace, CloudControllerClient> createClientsForSpacesOfSubscribedApps() {
@@ -214,7 +234,6 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
                                    .getName());
     }
 
-    @SuppressWarnings("unchecked")
     private void mockClientInvocations(SubscriberToUpdate subscriber, CloudControllerClient client) {
         when(client.getApplicationEnvironment(eq(subscriber.app.getGuid()))).thenReturn(subscriber.appEnv);
         if (userHasPermissions(subscriber.app.getSpace(), UserPermission.READ)) {

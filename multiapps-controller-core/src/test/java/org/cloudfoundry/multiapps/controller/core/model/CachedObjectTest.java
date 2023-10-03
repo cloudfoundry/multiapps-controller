@@ -1,9 +1,10 @@
 package org.cloudfoundry.multiapps.controller.core.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import java.util.concurrent.TimeUnit;
-import java.util.function.LongSupplier;
+import java.time.Duration;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
@@ -11,47 +12,26 @@ import org.mockito.Mockito;
 
 class CachedObjectTest {
 
-    @SuppressWarnings("unchecked")
     @Test
-    void testGet() {
-        LongSupplier currentTimeSupplier = Mockito.mock(LongSupplier.class);
-        Mockito.when(currentTimeSupplier.getAsLong())
-               .thenReturn(0L, toMillis(5), toMillis(15), toMillis(25), toMillis(30));
-
+    void testCaching() {
+        @SuppressWarnings("unchecked")
         Supplier<String> refreshFunction = Mockito.mock(Supplier.class);
         Mockito.when(refreshFunction.get())
-               .thenReturn("a", "b");
+                .thenReturn("a", "b");
 
-        CachedObject<String> cachedName = new CachedObject<>(10, currentTimeSupplier);
+        CachedObject<String> cachedName = new CachedObject<>(Duration.ZERO);
 
-        assertEquals("a", cachedName.get(refreshFunction));
-        assertEquals("a", cachedName.get(refreshFunction));
-        assertEquals("b", cachedName.get(refreshFunction));
-        assertEquals("b", cachedName.get(refreshFunction));
-        assertEquals("b", cachedName.get(refreshFunction));
+        assertEquals("a", cachedName.getOrRefresh(refreshFunction));
+        assertEquals("b", cachedName.getOrRefresh(refreshFunction));
+        assertEquals("b", cachedName.get());
+        assertTrue(cachedName.isExpired());
     }
 
-    @SuppressWarnings("unchecked")
     @Test
-    void testForceRefresh() {
-        LongSupplier currentTimeSupplier = Mockito.mock(LongSupplier.class);
-        Mockito.when(currentTimeSupplier.getAsLong())
-               .thenReturn(0L, toMillis(5), toMillis(10), toMillis(15), toMillis(25));
+    void testExpiration() {
+        CachedObject<String> cache = new CachedObject<>("a", 2);
 
-        Supplier<String> refreshFunction = Mockito.mock(Supplier.class);
-        Mockito.when(refreshFunction.get())
-               .thenReturn("a", "b", "c");
-
-        CachedObject<String> cachedName = new CachedObject<>(20, currentTimeSupplier);
-
-        assertEquals("a", cachedName.get(refreshFunction));
-        assertEquals("a", cachedName.get(refreshFunction));
-        assertEquals("b", cachedName.forceRefresh(refreshFunction));
-        assertEquals("b", cachedName.get(refreshFunction));
+        assertFalse(cache.isExpired(1));
+        assertTrue(cache.isExpired(3));
     }
-
-    private Long toMillis(int seconds) {
-        return TimeUnit.SECONDS.toMillis(seconds);
-    }
-
 }

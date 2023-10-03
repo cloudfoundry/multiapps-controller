@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.flowable.common.engine.api.variable.VariableContainer;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -31,6 +32,11 @@ public abstract class JsonStringListVariable<T> implements ListVariable<T, List<
                 return serializedValues.stream()
                                        .map(value -> JsonUtil.fromJson(value, getType()))
                                        .collect(Collectors.toList());
+            }
+
+            @Override
+            public List<T> deserialize(Object serializedValue, VariableContainer container) {
+                return deserialize(serializedValue);
             }
 
         };

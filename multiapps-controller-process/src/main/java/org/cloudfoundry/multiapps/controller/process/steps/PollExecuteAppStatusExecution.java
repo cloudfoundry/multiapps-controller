@@ -8,11 +8,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -54,8 +57,16 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         }
     }
 
+    private final CloudControllerClientFactory clientFactory;
+    private final TokenService tokenService;
+
     private static final String DEFAULT_SUCCESS_MARKER = "STDOUT:SUCCESS";
     private static final String DEFAULT_FAILURE_MARKER = "STDERR:FAILURE";
+
+    public PollExecuteAppStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService) {
+        this.clientFactory = clientFactory;
+        this.tokenService = tokenService;
+    }
 
     @Override
     public AsyncExecutionState execute(ProcessContext context) {
@@ -69,14 +80,19 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app, app.getEnv());
 
         LocalDateTime logsOffset = context.getVariable(Variables.LOGS_OFFSET_FOR_APP_EXECUTION);
-        List<ApplicationLog> recentLogs = client.getRecentLogs(app.getName(), logsOffset);
+        var user = context.getVariable(Variables.USER);
+        var correlationId = context.getVariable(Variables.CORRELATION_ID);
+        var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(user), correlationId);
+
+        UUID appGuid = client.getApplicationGuid(app.getName());
+        List<ApplicationLog> recentLogs = logCacheClient.getRecentLogs(appGuid, logsOffset);
         setLogsOffset(context, recentLogs);
 
         AppExecutionDetailedStatus status = getAppExecutionStatus(context, appAttributes, recentLogs);
         ProcessLoggerProvider processLoggerProvider = context.getStepLogger()
                                                              .getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(context, client, app.getName(), LOGGER, processLoggerProvider);
-        return checkAppExecutionStatus(context, client, app, appAttributes, status);
+        StepsUtil.saveAppLogs(context, logCacheClient, appGuid, app.getName(), LOGGER, processLoggerProvider);
+        return checkAppExecutionStatus(context, app, appAttributes, status);
     }
 
     @Override
@@ -137,7 +153,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         return null;
     }
 
-    private AsyncExecutionState checkAppExecutionStatus(ProcessContext context, CloudControllerClient client, CloudApplication app,
+    private AsyncExecutionState checkAppExecutionStatus(ProcessContext context, CloudApplication app,
                                                         ApplicationAttributes appAttributes, AppExecutionDetailedStatus status) {
         var execStatus = status.getStatus();
         boolean stopApp = appAttributes.get(SupportedParameters.STOP_APP, Boolean.class, Boolean.FALSE);
@@ -146,7 +162,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             context.getStepLogger()
                    .error(format(Messages.ERROR_EXECUTING_APP_2, app.getName(), status.getMessage()));
             if (stopApp) {
-                stopApplication(context, client, app);
+                stopApplication(context, app);
             }
             return AsyncExecutionState.ERROR;
         }
@@ -154,17 +170,18 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             context.getStepLogger()
                    .info(Messages.APP_EXECUTED, app.getName());
             if (stopApp) {
-                stopApplication(context, client, app);
+                stopApplication(context, app);
             }
             return AsyncExecutionState.FINISHED;
         }
         return AsyncExecutionState.RUNNING;
     }
 
-    private void stopApplication(ProcessContext context, CloudControllerClient client, CloudApplication app) {
+    private void stopApplication(ProcessContext context, CloudApplication app) {
         context.getStepLogger()
                .info(Messages.STOPPING_APP, app.getName());
-        client.stopApplication(app.getName());
+        context.getControllerClient()
+               .stopApplication(app.getName());
         context.getStepLogger()
                .debug(Messages.APP_STOPPED, app.getName());
     }

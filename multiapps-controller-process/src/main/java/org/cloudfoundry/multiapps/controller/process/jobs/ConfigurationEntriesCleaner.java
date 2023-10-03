@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
@@ -22,8 +23,9 @@ public class ConfigurationEntriesCleaner extends OrphanedDataCleaner<Configurati
 
     @Inject
     public ConfigurationEntriesCleaner(ApplicationConfiguration applicationConfiguration,
-                                       ConfigurationEntryService configurationEntryService) {
-        super(applicationConfiguration);
+                                       ConfigurationEntryService configurationEntryService,
+                                       OAuthClientFactory oAuthClientFactory) {
+        super(applicationConfiguration, oAuthClientFactory);
         this.configurationEntryService = configurationEntryService;
     }
 

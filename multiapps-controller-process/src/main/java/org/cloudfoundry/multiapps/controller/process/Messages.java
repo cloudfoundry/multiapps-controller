@@ -14,7 +14,6 @@ public class Messages {
     public static final String ERROR_RETRIEVING_MTA_RESOURCE_CONTENT = "Error retrieving content of MTA resource \"{0}\"";
     public static final String ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET = "Service described by MTA resource \"{0}\" of type [{1}] does not match already existing service \"{2}\" of type [{3}] and needs to be recreated. Use command line option \"--delete-services\" to enable the deletion of the existing one.";
     public static final String SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT = "The size of the application exceeds max size limit \"{0}\"";
-    public static final String ARCHIVE_SIGNATURE_VERIFICATION_IS_DISABLED = "Archive signature verification functionality is discontinued. Please do not use the command line option \"--verify-archive-signature\".";
     public static final String ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT = "Unable to retrieve required service key element \"{0}\" for service \"{1}\"";
     public static final String ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE = "Value \"{0}\" of parameter \"{1}\" must not be negative";
     public static final String INVALID_VALUE_0_FOR_PARAMETER_1_VALID_VALUES_ARE_2 = "Invalid value \"{0}\" for parameter \"{1}\". Valid values are: {2}";
@@ -25,7 +24,6 @@ public class Messages {
     public static final String MISSING_SERVICE_BROKER_USERNAME = "Missing service broker username for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_PASSWORD = "Missing service broker password for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_URL = "Missing service broker url for application \"{0}\"";
-    public static final String COULD_NOT_CONFIGURE_GIT_TO_SKIP_SSL = "Could not configure Git to skip SSL";
     public static final String ERROR_MERGING_ARCHIVE_PARTS = "Error merging archive parts: {0}";
     public static final String BUILDING_ARCHIVE_FROM_PARTS = "Building archive from parts...";
     public static final String ERROR_DELETING_ARCHIVE_PARTS_CONTENT = "Error deleting archive parts content";
@@ -45,16 +43,10 @@ public class Messages {
     public static final String COULD_NOT_DELETE_PROCESS_LOGS_MODIFIED_BEFORE_0 = "Could not delete process logs modified before {0}";
     public static final String MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES = "Modules {0}, specified for deployment, are not part of deployment descriptor modules";
     public static final String SERVICE_BROKER_0_DOES_NOT_EXIST = "Service broker \"{0}\" does not exist";
-    public static final String GIT_URI_IS_NOT_SPECIFIED = "Git URI is not specified";
     public static final String PARAMETERS_OF_TASK_HOOK_0_ARE_INCOMPLETE = "Parameters of hook {0} with type \"task\" are incomplete. Expected at least \"command\".";
     public static final String CANNOT_DETERMINE_MODULE_NAME = "Cannot determine module name";
     public static final String CANNOT_DETERMINE_CURRENT_APPLICATION = "Cannot determine current application";
     public static final String INVALID_FILE_ENTRY_NAME = "Invalid file entry name: \"{0}\"";
-    public static final String COULD_NOT_VERIFY_ARCHIVE_SIGNATURE = "Could not verify archive signature: {0}";
-    public static final String THE_ARCHIVE_CONTAINS_UNSIGNED_FILES = "The archive contains unsigned files: \"{0}\"";
-    public static final String THE_ARCHIVE_IS_NOT_SIGNED_BY_TRUSTED_CERTIFICATE_AUTHORITY = "The archive is not signed by the trusted certificate authority. Trusted authorities: \"{0}\"";
-    public static final String WILL_LOOK_FOR_CERTIFICATE_CN = "Will look for certificate CN \"{0}\"";
-    public static final String THE_ARCHIVE_IS_NOT_SIGNED = "The archive is not signed";
     public static final String MERGED_FILE_NOT_DELETED = "Merged file not deleted";
     public static final String FAILED_TO_RETRIEVE_FILE_WITH_ID_0 = "Failed to retrieve file with id \"{0}\"";
     public static final String PARAMETERS_HAVE_READ_ONLY_ELEMENTS = "\"{0}\" parameters have read-only elements \"{1}\"";
@@ -72,6 +64,7 @@ public class Messages {
     public static final String ERROR_OCCURRED_WHILE_DELETING_SERVICE_KEY_0 = "Error occurred while deleting service key \"{0}\"";
     public static final String OPERATION_FOR_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1 = "Operation for service key \"{0}\", failed with description \"{1}\"";
     public static final String OPERATION_FOR_OPTIONAL_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1 = "Operation for service key \"{0}\". for optional service, failed with description \"{1}\"";
+    public static final String APPLICATION_0_WAS_NOT_FOUND = "Application \"{0}\" was not found";
 
     // Audit log messages
 
@@ -116,7 +109,6 @@ public class Messages {
     public static final String ERROR_EXECUTING_HOOK = "Error executing hook \"{0}\"";
     public static final String ERROR_INCREMENT_INDEX = "Error incrementing index";
     public static final String ERROR_PREPARING_MODULES_DEPLOYMENT = "Error preparing modules deployment";
-    public static final String ERROR_PREPARING_RESOURCES_FOR_PROCESSING = "Error preparing resources for processing";
     public static final String ERROR_PREPARING_RESOURCES_FOR_PROCESSING_AND_RESOLVE_DYNAMIC_PARAMETERS = "Error preparing resources for processing and resolution of dynamic parameters";
     public static final String ERROR_STOPPING_APP = "Error stopping application \"{0}\"";
     public static final String DOWNLOAD_APP_LOGS_FOR_MORE_INFO = "Download the application logs via the dmol command and check them for more information.";
@@ -140,7 +132,6 @@ public class Messages {
     public static final String ERROR_DETACHING_SERVICES_FROM_MTA = "Error detaching services from MTA";
     public static final String ERROR_UPDATING_SUBSCRIBERS = "Error updating subscribers";
     public static final String ERROR_RESTARTING_SUBSCRIBERS = "Error restarting subscribers";
-    public static final String ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT = "Error downloading deployable from Git";
     public static final String ERROR_SERVICE_OPERATION = "Service operation failed";
     public static final String ERROR_CREATING_SERVICE = "Error creating service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_UPDATING_SERVICE = "Error updating service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
@@ -152,7 +143,6 @@ public class Messages {
     public static final String ERROR_DETECTING_APPLICATIONS_TO_RENAME = "Error detecting applications to rename";
     public static final String ERROR_RENAMING_NEW_APPLICATIONS = "Error renaming new applications";
     public static final String ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES = "Error monitoring creation or update of services";
-    public static final String ERROR_UPDATING_METADATA_OF_SERVICE_INSTANCE_0 = "Error updating metadata of service instance \"{0}\"";
     public static final String ERROR_MONITORING_DELETION_OF_SERVICES = "Error monitoring deletion of services";
     public static final String SERVICE_IS_ALREADY_DELETED = "Service \"{0}\" is already deleted";
     public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE = "Error determining actions to execute on service \"{0}\"";
@@ -204,7 +194,6 @@ public class Messages {
     public static final String CREATE_OF_SERVICE_BROKERS_FAILED_403 = "Could not create service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
     public static final String DELETE_OF_SERVICE_BROKERS_FAILED_403 = "Could not delete service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
     public static final String DELETE_OF_SERVICE_BROKERS_FAILED_409 = "Could not delete service broker \"{0}\" as there are active service instances managed by it!";
-    public static final String WILL_NOT_DELETE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be deleted, as the option for deleting service keys is not specified!";
     public static final String WILL_NOT_UPDATE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be updated, as the option for deleting service keys is not specified!";
     public static final String WILL_NOT_RECREATE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be recreated, as the option for deleting discontinued service keys is not specified!";
     public static final String IGNORING_VERSION_RULE = "Version rule will be ignored, as the deployed MTA is in inconsistent state";
@@ -234,7 +223,6 @@ public class Messages {
     public static final String DELAY_AFTER_APP_STOP_0_ABOVE_MAX_VALUE = "Variable for delay after app stop \"{0}\", is above max allowed value. Setting it to default max value.";
     public static final String COULD_NOT_PARSE_APP_STOP_DELAY_VAR = "Could not parse variable for delay after app stop: \"{0}\"";
     public static final String DELAY_AFTER_APP_STOP_CANNOT_BE_NEGATIVE = "Delay after app stop cannot be negative: \"{0}\"";
-    public static final String METADATA_UPDATE_OF_OPTIONAL_SERVICE_INSTANCE_0_FAILED = "Metadata update of optional service instance: \"{0}\" failed!";
     public static final String SERVICE_BINDING_0_EXISTS_IN_BROKEN_STATE_WILL_BE_RECREATED = "Service binding \"{0}\" exists in broken state, will be recreated";
     public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATION_BETWEEN_APP_AND_OPTIONAL_SERVICE = "Error while polling service binding operation between app \"{0}\" and optional service instance \"{1}\"";
     public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATION_BETWEEN_APP_AND_SERVICE = "Error while polling service binding operation between app \"{0}\" and service instance \"{1}\", error \"{2}\"";
@@ -259,6 +247,8 @@ public class Messages {
     public static final String WILL_DELETE_HISTORIC_PROCESSES_BEFORE_0 = "Will delete Flowable historic processes before: {0}";
     public static final String DELETED_HISTORIC_PROCESSES_0 = "Deleted historic processes: {0}";
     public static final String DELETED_FILES_0 = "Deleted files: {0}";
+    public static final String DELETED_FILE_UPLOAD_JOBS_0 = "Deleted file upload jobs: {0}";
+
     public static final String ABORTED_OPERATIONS_0 = "Aborted operations: {0}";
     public static final String DELETED_OPERATIONS_0 = "Deleted operations: {0}";
     public static final String DELETED_PROCESS_LOGS_0 = "Deleted process logs: {0}";
@@ -283,7 +273,14 @@ public class Messages {
     public static final String CLEARING_STALE_LOCK_OWNER = "Clearing stale lock owner {0}...";
     public static final String CLEARED_STALE_LOCK_OWNER = "Cleared stale lock owner {0}";
     public static final String SERVICE_BINDING_0_IS_ALREADY_DELETED = "Service binding \"{0}\" is already deleted";
-    public static final String UNLOCKING_JOB_WITH_ID_0_LOCK_EXPIRATION_TIME_1_AND_CREATION_TIME_2 = "Unlocking job with id: \"{0}\", lock expiration time: \"{1}\" and creation time: \"{2}\"";
+    public static final String UNLOCKING_JOB_WITH_ID_0_LOCK_EXPIRATION_TIME_1_CREATION_TIME_2_AND_ELEMENT_NAME_3 = "Unlocking job with id: \"{0}\", lock expiration time: \"{1}\", creation time: \"{2}\" with element name: \"{3}\"";
+    public static final String CREATING_A_LOCK_OWNER_WITH_NAME_0_AND_TIMESTAMP_1 = "Creating a lock owner with name \"{0}\" and timestamp \"{1}\"";
+    public static final String UPDATING_A_LOCK_OWNER_WITH_NAME_0_AND_TIMESTAMP_1 = "Updating a lock owner with name \"{0}\" and timestamp \"{1}\"";
+    public static final String LOCK_OWNER_WITH_NAME_0_ID_1_AND_TIMESTAMP_2_EXISTS_MORE_THAN_ONCE = "Lock owner with name \"{0}\", ID \"{1}\" and timestamp \"{2}\" exists more than once";
+    public static final String MORE_THAN_ONE_LOCK_OWNER_FOUND = "More than one lock owner found!";
+    public static final String CLEAN_UP_JOB_FOR_FINISHED_OPERATIONS_HAS_STARTED = "Clean-up job for finished operations has started";
+    public static final String CLEAN_UP_JOB_FOR_FINISHED_OPERATIONS_HAS_FINISHED = "Clean-up job for finished operations has finished";
+    public static final String BATCH_OF_PROCESSES_DELETED = "Batch of processes deleted: {0}";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
@@ -394,8 +391,7 @@ public class Messages {
     public static final String EXISTING_SERVICE_KEYS = "Existing service keys \"{0}\"";
     public static final String PREPARING_MODULES_DEPLOYMENT = "Preparing modules deployment...";
     public static final String CALCULATING_RESOURCE_BATCHES = "Calculating resource batches...";
-    public static final String EXTRACT_SERVICES_FROM_BATCH = "Extracting services from batch";
-    public static final String EXTACT_SERVICES_AND_RESOLVE_DYNAMIC_PARAMETERS_FROM_BATCH = "Extracting services and resolving dynamic parameters from batch";
+    public static final String EXTRACT_SERVICES_AND_RESOLVE_DYNAMIC_PARAMETERS_FROM_BATCH = "Extracting services and resolving dynamic parameters from batch";
     public static final String CALCULATING_RESOURCE_BATCHES_COMPLETE = "Calculating resource batches completed.";
     public static final String COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computing modules for next parallel iteration...";
     public static final String COMPUTED_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computed modules for next parallel iteration: {0}";
@@ -464,11 +460,6 @@ public class Messages {
     public static final String MODULES_TO_DEPLOY = "Modules to deploy: {0}";
     public static final String CONFIGURATION_ENTRIES_TO_PUBLISH = "Configuration entries to publish: {0}";
     public static final String SERVICE_KEYS_TO_CREATE = "Service keys to create: {0}";
-    public static final String UPLOADING_MTAR = "Uploading MTAR...";
-    public static final String MTAR_UPLOADED = "MTAR uploaded.";
-    public static final String CLONING_REPOSITORY = "Cloning repository {0}";
-    public static final String DOWNLOADING_DEPLOYABLE = "Downloading deployable from Git...";
-    public static final String COMPRESSING_MTA_CONTENT = "Compressing MTA content...";
     public static final String DESIRED_STATE = "Desired state of application {0}: {1}";
     public static final String CURRENT_STATE = "Current state of application {0}: {1}";
     public static final String ACTIONS_TO_EXECUTE = "Actions that should be executed on application {0}: {1}";
@@ -512,8 +503,6 @@ public class Messages {
     public static final String SERVICES_IN_PROGRESS = "Services in progress: {0}";
     public static final String BUILD_FOR_PACKAGE_0_ALREADY_EXISTS = "Build for package: \"{0}\" already exists";
     public static final String APP_NOT_FOUND = "App not found: \"{0}\"";
-    public static final String VERIFYING_ARCHIVE_0 = "Verifying archive: \"{0}\"";
-    public static final String ARCHIVE_IS_VERIFIED = "Archive signature is verified";
     public static final String CHECKING_FOR_OVERWRITING_READ_ONLY_PARAMETERS = "Checking for overwriting read-only parameters for mta with id: \"{0}\"";
     public static final String NO_READ_ONLY_PARAMETERS_ARE_OVERWRITTEN = "No read-only parameters are overwritten";
     public static final String MODULE_WITH_APPLICATION_NAME_WAS_MARKED_AS_IDLE = "Module \"{0}\" with application name \"{1}\" was marked as idle";
@@ -532,13 +521,11 @@ public class Messages {
     public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_WITH_PARAMETERS_2 = "Binding service instance \"{0}\" to application \"{1}\" with parameters: {2}";
     public static final String SERVICE_BINDING_BETWEEN_SERVICE_0_AND_APP_1_ALREADY_CREATED = "Service binding between service instance \"{0}\" and application \"{1}\" already created";
     public static final String SERVICE_BINDING_BETWEEN_SERVICE_0_AND_APP_1_ALREADY_DELETED = "Service binding between service instance \"{0}\" and application \"{1}\" already deleted";
-    public static final String CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3 = "Creating application \"{0}\" with memory \"{1}\", URIs \"{2}\" and staging: {3}";
+    public static final String CREATING_APPLICATION_0_WITH_DISK_1_MEMORY_2_URIS_3_AND_STAGING_4 = "Creating application \"{0}\" with disk \"{1}\" memory \"{2}\", URIs \"{3}\" and staging: \"{4}\"";
     public static final String CREATING_SERVICE_INSTANCE_0 = "Creating service instance: {0}";
     public static final String CREATING_SERVICE_BROKER_0 = "Creating service broker: {0}";
     public static final String CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2 = "Creating service key \"{0}\" for service instance \"{1}\" with parameters: {2}";
     public static final String CREATING_USER_PROVIDED_SERVICE_INSTANCE_0 = "Creating user provided service instance: {0}";
-    public static final String DELETING_ALL_APPLICATIONS = "Deleting all applications...";
-    public static final String DELETING_ALL_SERVICE_INSTANCES = "Deleting all services instances...";
     public static final String DELETING_APPLICATION_0 = "Deleting application \"{0}\"...";
     public static final String DELETING_DOMAIN_0 = "Deleting domain \"{0}\"...";
     public static final String DELETING_ORPHANED_ROUTES = "Deleting orphaned routes...";
@@ -562,10 +549,7 @@ public class Messages {
     public static final String GETTING_DOMAINS = "Getting domains...";
     public static final String GETTING_DOMAINS_FOR_ORGANIZATION = "Getting domains for organization...";
     public static final String GETTING_EVENTS = "Getting events...";
-    public static final String GETTING_ORGANIZATION_0 = "Getting organization \"{0}\"...";
-    public static final String GETTING_ORGANIZATIONS = "Getting organizations...";
     public static final String GETTING_PRIVATE_DOMAINS = "Getting private domains...";
-    public static final String GETTING_RECENT_LOGS_OF_APPLICATION_0 = "Getting recent logs of application \"{0}\"...";
     public static final String GETTING_ROUTES_WITH_DOMAIN_0 = "Getting routes with domain \"{0}\"...";
     public static final String GETTING_SERVICE_INSTANCE_0 = "Getting service instance \"{0}\"...";
     public static final String GETTING_SERVICE_INSTANCE_NAME_0 = "Getting service instance name \"{0}\"...";
@@ -582,12 +566,7 @@ public class Messages {
     public static final String GETTING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1 = "Getting service key \"{0}\" for service instance \"{1}\"...";
     public static final String GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0 = "Getting service keys for service instance \"{0}\"...";
     public static final String GETTING_SERVICE_OFFERINGS = "Getting service offerings...";
-    public static final String GETTING_SERVICE_INSTANCES = "Getting service instances...";
     public static final String GETTING_SHARED_DOMAINS = "Getting shared domains...";
-    public static final String GETTING_SPACE_0 = "Getting space \"{0}\"...";
-    public static final String GETTING_SPACE_IN_ORGANIZATION_0 = "Getting space \"{0}\" in organization \"{1}\"...";
-    public static final String GETTING_SPACES = "Getting spaces...";
-    public static final String GETTING_SPACES_IN_ORGANIZATION_0 = "Getting spaces in organization \"{0}\"...";
     public static final String GETTING_STACK_0 = "Getting stack \"{0}\"...";
     public static final String GETTING_STACKS = "Getting stacks...";
     public static final String RENAMING_APPLICATION_0_TO_1 = "Renaming application \"{0}\" to \"{1}\"...";
@@ -671,8 +650,6 @@ public class Messages {
     public static final String WILL_ONLY_REMOVE_SERVICE_INSTANCE_METADATA_BECAUSE_THE_SERVICE_TYPE_IS_EXISTING = "Will only remove service instance metadata, because the service type is \"existing\"";
     public static final String DETERMINING_DELETE_ACTIONS_FOR_SERVICE_INSTANCE_0 = "Determining delete actions for service instance \"{0}\"";
     public static final String CANNOT_RETRIEVE_OPTIONAL_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0 = "Cannot retrieve optional service binding for service instance \"{0}\"";
-    public static final String SERVICE_KEYS_SCHEDULED_FOR_DELETION_0 = "Service keys scheduled for deletion: \"{0}\"";
-    public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_0 = "Service keys scheduled for recreation: \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_MODIFICATION_0 = "Service keys scheduled for recreation due to modification: \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_STATE_0 = "Service keys scheduled for recreation due to state: \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_CREATION_0 = "Service keys scheduled for creation: \"{0}\"";
@@ -685,6 +662,10 @@ public class Messages {
     public static final String SERVICE_BINDING_0_SCHEDULED_FOR_DELETION_IS_IN_STATE_0 = "Service binding \"{0}\" scheduled for deletion is in state \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_WAITING_0 = "Service keys scheduled for waiting: \"{0}\"";
     public static final String WILL_UNBIND_SERVICE_INSTANCE_0_FROM_APP_1 = "Will unbind service instance \"{0}\" from app \"{1}\"";
+    public static final String DELETING_PROCESS_WITH_ID_0 = "Deleting process with id: {0}";
+    public static final String PROCESS_WAS_DELETED_0 = "Process was deleted: {0}";
+    public static final String MODULE_0_WAS_NOT_FOUND = "Module \"{0}\" was not found";
+    public static final String DETECTING_LIVE_APPLICATION_ENV = "Detecting live application env...";
 
     protected Messages() {
     }

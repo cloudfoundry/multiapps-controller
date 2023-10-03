@@ -7,7 +7,6 @@ import javax.inject.Named;
 
 import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -35,8 +34,7 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
         CloudControllerClient client = context.getControllerClient();
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
 
-        var clientHelper = new ClientHelper(client);
-        deleteIdleRoutes(context, clientHelper, app);
+        deleteIdleRoutes(context, client, app);
 
         getStepLogger().debug(Messages.IDLE_URIS_DELETED);
         return StepPhase.DONE;
@@ -47,21 +45,22 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
         return Messages.ERROR_DELETING_IDLE_ROUTES;
     }
 
-    private void deleteIdleRoutes(ProcessContext context, ClientHelper clientHelper, CloudApplicationExtended newLiveApp) {
+    private void deleteIdleRoutes(ProcessContext context, CloudControllerClient client, CloudApplicationExtended newLiveApp) {
         var currentRoutes = context.getVariable(Variables.CURRENT_ROUTES);
         Set<CloudRoute> idleRoutes = SetUtils.difference(new HashSet<>(currentRoutes), newLiveApp.getRoutes())
                                              .toSet();
         getStepLogger().debug(Messages.IDLE_URIS_FOR_APPLICATION, idleRoutes);
 
         for (CloudRoute idleRoute : idleRoutes) {
-            deleteRoute(idleRoute, clientHelper);
+            deleteRoute(idleRoute, client);
             getStepLogger().debug(Messages.ROUTE_DELETED, idleRoute.getUrl());
         }
     }
 
-    private void deleteRoute(CloudRoute route, ClientHelper clientHelper) {
+    private void deleteRoute(CloudRoute route, CloudControllerClient client) {
         try {
-            clientHelper.deleteRoute(route);
+            client.deleteRoute(route.getHost(), route.getDomain()
+                                                     .getName(), route.getPath());
         } catch (CloudOperationException e) {
             handleCloudOperationException(e, route);
         }

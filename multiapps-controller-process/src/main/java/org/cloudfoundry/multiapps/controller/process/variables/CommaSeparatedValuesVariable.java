@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.flowable.common.engine.api.variable.VariableContainer;
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -25,6 +26,11 @@ public abstract class CommaSeparatedValuesVariable implements ListVariable<Strin
 
             private List<String> split(String serializedValue) {
                 return serializedValue.isEmpty() ? Collections.emptyList() : Arrays.asList(serializedValue.split(","));
+            }
+
+            @Override
+            public List<String> deserialize(Object serializedValue, VariableContainer container) {
+                return deserialize(serializedValue);
             }
 
         };

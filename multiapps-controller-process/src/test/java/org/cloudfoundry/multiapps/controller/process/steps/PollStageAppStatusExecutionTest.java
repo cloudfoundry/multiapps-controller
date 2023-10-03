@@ -4,14 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
 import org.cloudfoundry.multiapps.controller.process.util.ImmutableStagingState;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
@@ -36,8 +37,7 @@ class PollStageAppStatusExecutionTest {
 
     private static final String USER_NAME = "testUsername";
     private static final String APPLICATION_NAME = "testApplication";
-    private static final long PROCESS_START_TIME = new GregorianCalendar(2019, Calendar.JANUARY, 1).toInstant()
-                                                                                                   .toEpochMilli();
+    private static final long PROCESS_START_TIME = Instant.EPOCH.toEpochMilli();
 
     @Mock
     private ApplicationStager applicationStager;
@@ -47,6 +47,10 @@ class PollStageAppStatusExecutionTest {
     private CloudControllerClientProvider clientProvider;
     @Mock
     private CloudControllerClient client;
+    @Mock
+    private CloudControllerClientFactory clientFactory;
+    @Mock
+    private TokenService tokenService;
 
     private ProcessContext context;
     private DelegateExecution execution;
@@ -58,7 +62,7 @@ class PollStageAppStatusExecutionTest {
                           .close();
         execution = MockDelegateExecution.createSpyInstance();
         context = new ProcessContext(execution, stepLogger, clientProvider);
-        step = new PollStageAppStatusExecution(applicationStager);
+        step = new PollStageAppStatusExecution(applicationStager, clientFactory, tokenService);
     }
 
     static Stream<Arguments> testStep() {

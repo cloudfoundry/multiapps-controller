@@ -4,6 +4,7 @@ import org.cloudfoundry.multiapps.controller.core.model.CachedObject;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 
 import java.nio.file.Paths;
+import java.time.Duration;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -19,8 +20,8 @@ public class Metrics implements MetricsMBean {
     public Metrics(ApplicationConfiguration appConfigurations, FssMonitor fssMonitor,
                    FlowableJobExecutorInformation flowableJobExecutorInformation) {
         this.fssMonitor = fssMonitor;
-        this.cachedFlowableThreadMonitor = new CachedObject<>(appConfigurations.getThreadMonitorCacheUpdateInSeconds());
-        this.cachedCloudFoundryClientThreadMonitor = new CachedObject<>(appConfigurations.getThreadMonitorCacheUpdateInSeconds());
+        this.cachedFlowableThreadMonitor = new CachedObject<>(Duration.ofSeconds(appConfigurations.getThreadMonitorCacheUpdateInSeconds()));
+        this.cachedCloudFoundryClientThreadMonitor = new CachedObject<>(Duration.ofSeconds(appConfigurations.getThreadMonitorCacheUpdateInSeconds()));
         this.flowableJobExecutorInformation = flowableJobExecutorInformation;
     }
 
@@ -64,11 +65,11 @@ public class Metrics implements MetricsMBean {
     }
 
     private FlowableThreadInformation getFlowableThreadInformation() {
-        return cachedFlowableThreadMonitor.get(FlowableThreadInformation::get);
+        return cachedFlowableThreadMonitor.getOrRefresh(FlowableThreadInformation::get);
     }
 
     private CloudFoundryClientThreadInformation getCloudFoundryThreadInformation() {
-        return cachedCloudFoundryClientThreadMonitor.get(CloudFoundryClientThreadInformation::get);
+        return cachedCloudFoundryClientThreadMonitor.getOrRefresh(CloudFoundryClientThreadInformation::get);
     }
 
     @Override

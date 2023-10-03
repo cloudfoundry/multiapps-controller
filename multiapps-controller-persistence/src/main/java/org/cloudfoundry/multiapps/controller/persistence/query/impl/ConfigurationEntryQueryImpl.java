@@ -91,8 +91,7 @@ public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<Configuration
         if (shouldFilterForEmptyNamespace) {
             queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
                                                                            .attribute(AttributeNames.PROVIDER_NAMESPACE)
-                                                                           .condition(getCriteriaBuilder()::equal)
-                                                                           .value(null)
+                                                                           .condition((attribute, value) -> attribute.isNull())
                                                                            .build());
         } else {
             queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()

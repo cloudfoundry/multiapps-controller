@@ -1,23 +1,19 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
@@ -33,7 +29,6 @@ import org.cloudfoundry.multiapps.controller.core.cf.v2.ServicesCloudModelBuilde
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
-import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
@@ -53,7 +48,6 @@ import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.util.CollectionUtils;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
@@ -103,7 +97,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.APPS_TO_DEPLOY, getAppNames(modulesCalculatedForDeployment));
 
         context.setVariable(Variables.DEPLOYMENT_MODE, applicationCloudModelBuilder.getDeploymentMode());
-        context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
         context.setVariable(Variables.USE_IDLE_URIS, false);
 
         // Build a list of custom domains and save them in the context:
@@ -125,11 +118,9 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         selectiveDeployChecker.check(resourcesForDeployment);
         getStepLogger().debug(Messages.CALCULATING_RESOURCE_BATCHES);
 
-        List<List<Resource>> batchesToProcess = getResourceBatches(context, resourcesForDeployment);
+        List<List<CloudServiceInstanceExtended>> batchesToProcess = getResourceBatches(context, resourcesForDeployment);
         context.setVariable(Variables.BATCHES_TO_PROCESS, batchesToProcess);
-
         getStepLogger().debug(Messages.CALCULATING_RESOURCE_BATCHES_COMPLETE);
-
         getStepLogger().debug(Messages.CLOUD_MODEL_BUILT);
         return StepPhase.DONE;
     }
@@ -140,19 +131,37 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         return handlerFactory.getSelectiveDeployChecker(descriptor, descriptorHandler);
     }
 
+    private List<List<CloudServiceInstanceExtended>> getResourceBatches(ProcessContext context, List<Resource> resources) {
+        if (resources.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(getServicesFromResources(context, resources).values());
+    }
+
+    private Map<Integer, List<CloudServiceInstanceExtended>> getServicesFromResources(ProcessContext context, List<Resource> resources) {
+        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+        ResourceBatchCalculator resourceBatchCalculator = getResourceBatchCalculator(context, deploymentDescriptor);
+
+        Map<Integer, List<Resource>> weightedResources = resourceBatchCalculator.groupResourcesByWeight(resources);
+
+        return weightedResources.entrySet()
+                                .stream()
+                                .collect(Collectors.toMap(Map.Entry::getKey,
+                                                          e -> transformResourcesToServices(context, e.getValue(), deploymentDescriptor)));
+
+    }
+
     private ResourceBatchCalculator getResourceBatchCalculator(ProcessContext context, DeploymentDescriptor descriptor) {
         CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
         return handlerFactory.getResourceBatchCalculator(descriptor);
     }
 
-    private List<List<Resource>> getResourceBatches(ProcessContext context, List<Resource> resources) {
-        if (resources.isEmpty()) {
-            return Collections.emptyList();
-        }
-        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
-        ResourceBatchCalculator resourceBatchCalculator = getResourceBatchCalculator(context, deploymentDescriptor);
-        return new ArrayList<>(resourceBatchCalculator.groupResourcesByWeight(resources)
-                                                      .values());
+    private List<CloudServiceInstanceExtended> transformResourcesToServices(ProcessContext context, List<Resource> resources,
+                                                                            DeploymentDescriptor deploymentDescriptor) {
+        CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
+        String namespace = context.getVariable(Variables.MTA_NAMESPACE);
+        ServicesCloudModelBuilder servicesCloudModelBuilder = handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, namespace);
+        return servicesCloudModelBuilder.build(resources);
     }
 
     @Override

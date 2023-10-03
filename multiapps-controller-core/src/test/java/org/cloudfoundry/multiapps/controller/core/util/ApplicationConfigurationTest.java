@@ -83,7 +83,7 @@ class ApplicationConfigurationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"", "invalid", "{}"})
+    @ValueSource(strings = { "", "invalid", "{}" })
     void testGetSpaceGuidReturnsDefault(String envValue) {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
                .thenReturn(envValue);
@@ -158,6 +158,14 @@ class ApplicationConfigurationTest {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_CRON_EXPRESSION_FOR_OLD_DATA))
                .thenReturn(ApplicationConfiguration.DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA, configuration.getCronExpressionForOldData());
+    }
+
+    @Test
+    void testGetExecutionTimeForFinishedProcesses() {
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_EXECUTION_TIME_FOR_FINISHED_PROCESSES))
+               .thenReturn(ApplicationConfiguration.DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES,
+                                configuration.getExecutionTimeForFinishedProcesses());
     }
 
     @Test
@@ -484,6 +492,15 @@ class ApplicationConfigurationTest {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_CERTIFICATE_CN))
                .thenReturn(certificateCN);
         Assertions.assertEquals(certificateCN, configuration.getCertificateCN());
+    }
+
+    @Test
+    void testGetSpringSchedulerTaskExecutorThreads() {
+        int executorThreads = 2;
+        Mockito.when(environment.getInteger(ApplicationConfiguration.CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS,
+                                            ApplicationConfiguration.DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS))
+               .thenReturn(executorThreads);
+        Assertions.assertEquals(executorThreads, configuration.getSpringSchedulerTaskExecutorThreads());
     }
 
     @Test

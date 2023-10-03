@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
@@ -15,15 +16,19 @@ import java.util.stream.Stream;
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDynamicResolvableParameter;
+import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
+import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
@@ -37,15 +42,18 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
     private static final String POLLING = "polling";
     private static final String STEP_EXECUTION = "stepExecution";
-    private static final String METADATA_UPDATE = "metadataUpdate";
     private static final String SERVICE_NAME = "service-1";
     private static final String SERVICE_LOG_DRAIN = "syslogDrain";
 
     private static final Map<String, Object> CREDENTIALS = Map.of("testCredentialsKey", "testCredentialsValue");
     private static final List<String> SERVICE_TAGS = List.of("custom-tag-A", "custom-tag-B");
 
-    private static final Map<String, StepPhase> MANAGED_SERVICE_STEPS = Map.of(STEP_EXECUTION, StepPhase.POLL, POLLING, StepPhase.POLL,
-                                                                               METADATA_UPDATE, StepPhase.DONE);
+    private static final Map<String, StepPhase> MANAGED_SERVICE_STEPS = Map.of(STEP_EXECUTION, StepPhase.POLL, POLLING, StepPhase.POLL);
+
+    @Mock
+    private ServiceOperationGetter serviceOperationGetter;
+    @Mock
+    private ServiceProgressReporter serviceProgressReporter;
 
     private StepInput stepInput;
 
@@ -56,7 +64,7 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
     @ParameterizedTest
     @MethodSource
-    void testExecute(CloudServiceInstance service, Map<String, StepPhase> stepPhaseResults, boolean serviceExists) {
+    void testExecute(CloudServiceInstanceExtended service, Map<String, StepPhase> stepPhaseResults, boolean serviceExists) {
         initializeInput(service, stepPhaseResults, serviceExists);
         step.execute(execution);
         assertStepPhase(STEP_EXECUTION);
@@ -65,10 +73,17 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
             return;
         }
         prepareClient(true);
+        prepareServiceOperationsGetter(service);
         step.execute(execution);
         assertStepPhase(POLLING);
-        step.execute(execution);
-        assertStepPhase(METADATA_UPDATE);
+    }
+
+    private void prepareServiceOperationsGetter(CloudServiceInstanceExtended service) {
+        context.setVariable(Variables.SERVICES_TO_CREATE, List.of(service));
+        when(serviceOperationGetter.getLastServiceOperation(any(),
+                                                            any())).thenReturn(new ServiceOperation(ServiceOperation.Type.CREATE,
+                                                                                                    "create done",
+                                                                                                    ServiceOperation.State.IN_PROGRESS));
     }
 
     @Test
@@ -211,7 +226,7 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
     }
 
-    private static CloudServiceInstance createCloudService(UUID serviceGuid) {
+    private static CloudServiceInstanceExtended createCloudService(UUID serviceGuid) {
         return ImmutableCloudServiceInstanceExtended.builder()
                                                     .metadata(ImmutableCloudMetadata.builder()
                                                                                     .guid(serviceGuid)

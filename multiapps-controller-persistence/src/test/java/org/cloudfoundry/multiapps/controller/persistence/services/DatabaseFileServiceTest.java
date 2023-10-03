@@ -17,6 +17,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -42,13 +45,13 @@ class DatabaseFileServiceTest {
 
     private static final String DIGEST_METHOD = "MD5";
     private static final String PIC_MD5_DIGEST = "b39a167875c3771c384c9aa5601fc2d6";
-    private static final int PIC_SIZE = 2095730;
 
     protected static final String SPACE_1 = "myspace";
     protected static final String SPACE_2 = "myspace2";
     protected static final String NAMESPACE_1 = "system/deployables";
     protected static final String NAMESPACE_2 = "dido";
     protected static final String PIC_RESOURCE_NAME = "pexels-photo-401794.jpeg";
+    protected static final int PIC_SIZE = 2095730;
     protected static final String PIC_STORAGE_NAME = "pic1.jpeg";
 
     protected FileService fileService;
@@ -165,10 +168,10 @@ class DatabaseFileServiceTest {
         FileEntry fileEntryToDelete1 = addFileEntry(SPACE_1);
         FileEntry fileEntryToDelete2 = addFileEntry(SPACE_2);
 
-        setMofidicationDate(fileEntryToDelete1, pastMoment);
-        setMofidicationDate(fileEntryToDelete2, pastMoment);
+        setModificationDate(fileEntryToDelete1, pastMoment);
+        setModificationDate(fileEntryToDelete2, pastMoment);
 
-        Date deleteDate = new Date(currentMillis - oldFilesTtl);
+        LocalDateTime deleteDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(currentMillis - oldFilesTtl), ZoneId.systemDefault());
         int deletedFiles = fileService.deleteModifiedBefore(deleteDate);
 
         assertNotNull(fileService.getFile(SPACE_1, fileEntryToRemain1.getId()));
@@ -189,7 +192,7 @@ class DatabaseFileServiceTest {
 
     protected FileEntry addFile(String space, String namespace, String fileName, String resourceName) throws Exception {
         InputStream resourceStream = getResource(resourceName);
-        FileEntry fileEntry = fileService.addFile(space, namespace, fileName, resourceStream);
+        FileEntry fileEntry = fileService.addFile(space, namespace, fileName, resourceStream, PIC_SIZE);
         verifyFileEntry(fileEntry, space, namespace);
         return fileEntry;
     }
@@ -231,7 +234,7 @@ class DatabaseFileServiceTest {
 
     private FileEntry addFileEntry(String spaceId) throws FileStorageException {
         InputStream resourceStream = getResource(PIC_RESOURCE_NAME);
-        return fileService.addFile(spaceId, NAMESPACE_1, PIC_STORAGE_NAME, resourceStream);
+        return fileService.addFile(spaceId, NAMESPACE_1, PIC_STORAGE_NAME, resourceStream, PIC_SIZE);
     }
 
     private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {
@@ -258,7 +261,7 @@ class DatabaseFileServiceTest {
         }
     }
 
-    private void setMofidicationDate(FileEntry fileEntry, Date modificationDate) throws SQLException {
+    private void setModificationDate(FileEntry fileEntry, Date modificationDate) throws SQLException {
         PreparedStatement statement = null;
         try {
             statement = testDataSource.getDataSource()

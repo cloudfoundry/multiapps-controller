@@ -2,6 +2,16 @@
   "isOptional" : false,
   "isManaged" : true,
   "name" : "shine-database",
+  "v3Metadata" : {
+    "annotations" : {
+      "mta_id" : "com.sap.xs2.samples.shine",
+      "mta_version" : "0.1.0",
+      "mta_resource" : "{\"name\":\"shine-database\"}"
+    },
+    "labels" : {
+      "mta_id" : "be5ee71b7aaf0d059a831b9babd5547c"
+    }
+  },
   "credentials" : {
     "driver" : "com.sap.db.jdbc.Driver",
     "host" : "example.com",
@@ -21,6 +31,16 @@
   "isOptional" : false,
   "isManaged" : true,
   "name" : "uaa",
+  "v3Metadata" : {
+    "annotations" : {
+      "mta_id" : "com.sap.xs2.samples.shine",
+      "mta_version" : "0.1.0",
+      "mta_resource" : "{\"name\":\"uaa\"}"
+    },
+    "labels" : {
+      "mta_id" : "be5ee71b7aaf0d059a831b9babd5547c"
+    }
+  },
   "credentials" : {
     "clientid" : "xs2.java",
     "clientsecret" : "javaclientsecret",

@@ -2,7 +2,9 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import static org.mockito.Mockito.verify;
 
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
@@ -14,7 +16,7 @@ import org.mockito.MockitoAnnotations;
 
 class ProcessLogsCleanerTest {
 
-    private static final Date EXPIRATION_TIME = new Date(5000);
+    private static final LocalDateTime EXPIRATION_TIME = LocalDateTime.ofInstant(Instant.ofEpochMilli(5000), ZoneId.systemDefault());
 
     @Mock
     private ProcessLogsPersistenceService processLogsPersistenceService;

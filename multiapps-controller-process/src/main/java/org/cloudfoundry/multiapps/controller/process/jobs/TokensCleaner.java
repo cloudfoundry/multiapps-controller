@@ -4,7 +4,6 @@ import static java.text.MessageFormat.format;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.Date;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -29,7 +28,7 @@ public class TokensCleaner implements Cleaner {
     }
 
     @Override
-    public void execute(Date expirationTime) {
+    public void execute(LocalDateTime expirationTime) {
         LocalDateTime date = ZonedDateTime.now()
                                           .toLocalDateTime();
         LOGGER.debug(CleanUpJob.LOG_MARKER, Messages.REMOVING_EXPIRED_TOKENS_FROM_TOKEN_STORE);

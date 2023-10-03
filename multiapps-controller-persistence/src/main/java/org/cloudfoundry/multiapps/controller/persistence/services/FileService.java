@@ -12,9 +12,12 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
@@ -27,8 +30,6 @@ import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFile
 import org.cloudfoundry.multiapps.controller.persistence.util.SqlQueryExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.DatatypeConverter;
 
 public class FileService {
 
@@ -52,37 +53,6 @@ public class FileService {
         this.sqlQueryExecutor = new SqlQueryExecutor(dataSourceWithDialect.getDataSource());
         this.sqlFileQueryProvider = sqlFileQueryProvider.withLogger(logger);
         this.fileStorage = fileStorage;
-    }
-
-    /**
-     * Uploads a new file.
-     *
-     * @param space the uploaded file will be associated with the specified space
-     * @param namespace namespace where the file will be uploaded
-     * @param name name of the uploaded file
-     * @param inputStream input stream to read the content from
-     * @return an object representing the file upload
-     * @throws FileStorageException if the file cannot be uploaded
-     */
-    public FileEntry addFile(String space, String namespace, String name, InputStream inputStream) throws FileStorageException {
-        // Stream the file to a temp location and get the size and MD5 digest
-        // as an alternative we can pass the original stream to the database,
-        // and decorate the blob stream to calculate digest and size, but this will still require
-        // two roundtrips to the database (insert of the content and then update with the digest and
-        // size), which is probably inefficient
-        FileInfo fileInfo = null;
-        FileEntry fileEntry = null;
-        try (inputStream) {
-            fileInfo = FileUploader.uploadFile(inputStream);
-            fileEntry = addFile(space, namespace, name, fileInfo);
-        } catch (IOException e) {
-            logger.debug(e.getMessage(), e);
-        } finally {
-            if (fileInfo != null) {
-                FileUploader.removeFile(fileInfo);
-            }
-        }
-        return fileEntry;
     }
 
     public FileEntry addFile(String space, String namespace, String name, InputStream content, long fileSize) throws FileStorageException {
@@ -147,7 +117,7 @@ public class FileService {
         return deleteFileAttributesBySpaceIds(spaceIds);
     }
 
-    public int deleteModifiedBefore(Date modificationTime) throws FileStorageException {
+    public int deleteModifiedBefore(LocalDateTime modificationTime) throws FileStorageException {
         int deletedItems = fileStorage.deleteFilesModifiedBefore(modificationTime);
         return deleteFileAttributesModifiedBefore(modificationTime) + deletedItems;
     }
@@ -168,11 +138,6 @@ public class FileService {
     }
 
     protected FileEntry storeFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
-        if (fileEntry.getDigest() != null) {
-            fileStorage.addFile(fileEntry, content);
-            storeFileAttributes(fileEntry);
-            return fileEntry;
-        }
         try (DigestInputStream dis = new DigestInputStream(content, MessageDigest.getInstance(Constants.DIGEST_ALGORITHM))) {
             fileStorage.addFile(fileEntry, dis);
             FileEntry completeFileEntry = ImmutableFileEntry.copyOf(fileEntry)
@@ -194,7 +159,7 @@ public class FileService {
         }
     }
 
-    protected int deleteFileAttributesModifiedBefore(Date modificationTime) throws FileStorageException {
+    protected int deleteFileAttributesModifiedBefore(LocalDateTime modificationTime) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteModifiedBeforeQuery(modificationTime));
         } catch (SQLException e) {
@@ -237,17 +202,6 @@ public class FileService {
 
     protected SqlFileQueryProvider getSqlFileQueryProvider() {
         return sqlFileQueryProvider;
-    }
-
-    private FileEntry addFile(String space, String namespace, String name, FileInfo fileInfo) throws FileStorageException {
-        FileEntry fileEntry = createFileEntry(space, namespace, name, fileInfo);
-        try (InputStream content = fileInfo.getInputStream()) {
-            storeFile(fileEntry, content);
-        } catch (IOException e) {
-            throw new FileStorageException(e);
-        }
-        logger.debug(MessageFormat.format(Messages.STORED_FILE_0, fileEntry));
-        return fileEntry;
     }
 
     private String generateRandomId() {

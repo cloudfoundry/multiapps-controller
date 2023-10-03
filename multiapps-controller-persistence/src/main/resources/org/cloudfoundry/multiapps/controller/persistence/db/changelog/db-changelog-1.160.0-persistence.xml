@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="add_table_async_upload_job">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="async_upload_job" />
+            </not>
+        </preConditions>
+        <createTable tableName="async_upload_job">
+            <column name="id" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="async_upload_job_pk" />
+            </column>
+            <column name="state" type="VARCHAR(64)">
+                <constraints nullable="false" />
+            </column>
+            <column name="url" type="TEXT">
+                <constraints nullable="false" />
+            </column>
+            <column name="mta_user" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="space_guid" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="instance_index" type="INTEGER">
+                <constraints nullable="false" />
+            </column>
+            <column name="started_at" type="TIMESTAMP" />
+            <column name="finished_at" type="TIMESTAMP" />
+            <column name="namespace" type="VARCHAR(255)" />
+            <column name="mta_id" type="VARCHAR(255)" />
+            <column name="error" type="TEXT" />
+            <column name="file_id" type="VARCHAR(255)" />
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

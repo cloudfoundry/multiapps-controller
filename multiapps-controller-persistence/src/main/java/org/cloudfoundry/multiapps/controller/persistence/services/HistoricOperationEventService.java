@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -68,7 +68,7 @@ public class HistoricOperationEventService extends PersistenceService<HistoricOp
             String processId = historicOperationEvent.getProcessId();
             String type = historicOperationEvent.getType()
                                                 .name();
-            Date timestamp = historicOperationEvent.getTimestamp();
+            LocalDateTime timestamp = historicOperationEvent.getTimestamp();
             return new HistoricOperationEventDto(id, processId, type, timestamp);
         }
 

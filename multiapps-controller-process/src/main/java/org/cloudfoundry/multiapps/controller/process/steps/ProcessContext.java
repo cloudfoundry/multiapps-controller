@@ -40,10 +40,10 @@ public class ProcessContext {
         return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 
-    public CloudControllerClient getControllerClient(String org, String space) {
+    public CloudControllerClient getControllerClient(String spaceGuid) {
         String userName = StepsUtil.determineCurrentUser(execution);
         String correlationId = getVariable(Variables.CORRELATION_ID);
-        CloudControllerClient delegate = clientProvider.getControllerClient(userName, org, space, correlationId);
+        CloudControllerClient delegate = clientProvider.getControllerClient(userName, spaceGuid, correlationId);
         return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 
@@ -57,6 +57,10 @@ public class ProcessContext {
 
     public <T> T getVariable(Variable<T> variable) {
         return VariableHandling.get(execution, variable);
+    }
+
+    public <T> T getVariableBackwardsCompatible(Variable<T> variable) {
+        return VariableHandling.getBackwardsCompatible(execution, variable);
     }
 
     public <T> void setVariable(Variable<T> variable, T value) {

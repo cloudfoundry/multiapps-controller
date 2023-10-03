@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -19,15 +20,19 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.sap.cloudfoundry.client.facade.adapters.LogCacheClient;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
@@ -51,7 +56,9 @@ class PollExecuteAppStatusExecutionTest {
 
     private static final String USER_NAME = "testUsername";
     private static final String APP_SOURCE = "APP";
-    private static final String APPLICATION_GUID = "1";
+    private static final String APPLICATION_GUID = UUID.randomUUID()
+                                                       .toString();
+    private static final String APPLICATION_NAME = "test-app";
     private static final LocalDateTime LOG_TIMESTAMP = LocalDateTime.of(LocalDate.of(2019, Month.AUGUST, 1), LocalTime.MIN);
     private static final long PROCESS_START_TIME = LocalDateTime.of(LocalDate.of(2019, Month.JANUARY, 1), LocalTime.MIN).toInstant(ZoneOffset.UTC)
                                                                                                                         .toEpochMilli();
@@ -64,6 +71,12 @@ class PollExecuteAppStatusExecutionTest {
     private CloudControllerClientProvider clientProvider;
     @Mock
     private CloudControllerClient client;
+    @Mock
+    private CloudControllerClientFactory clientFactory;
+    @Mock
+    private TokenService tokenService;
+    @Mock
+    private LogCacheClient logCacheClient;
 
     private DelegateExecution execution;
     private ProcessContext context;
@@ -75,7 +88,7 @@ class PollExecuteAppStatusExecutionTest {
                           .close();
         execution = MockDelegateExecution.createSpyInstance();
         context = new ProcessContext(execution, stepLogger, clientProvider);
-        step = new PollExecuteAppStatusExecution();
+        step = new PollExecuteAppStatusExecution(clientFactory, tokenService);
     }
 
     static Stream<Arguments> testStep() {
@@ -107,9 +120,9 @@ class PollExecuteAppStatusExecutionTest {
 
     private static ApplicationLog createAppLog(String message, MessageType messageType, String sourceName) {
         return ImmutableApplicationLog.builder()
-                                      .applicationGuid(PollExecuteAppStatusExecutionTest.APPLICATION_GUID)
+                                      .applicationGuid(APPLICATION_GUID)
                                       .message(message)
-                                      .timestamp(PollExecuteAppStatusExecutionTest.LOG_TIMESTAMP)
+                                      .timestamp(LOG_TIMESTAMP)
                                       .messageType(messageType)
                                       .sourceName(sourceName)
                                       .build();
@@ -122,7 +135,7 @@ class PollExecuteAppStatusExecutionTest {
         CloudApplicationExtended application = buildApplication(successMarker, failureMarker, shouldStopApp);
         prepareContext(application);
         prepareStepLogger();
-        prepareClientProvider(applicationLog);
+        prepareClients(applicationLog);
 
         AsyncExecutionState resultState = step.execute(context);
 
@@ -147,7 +160,7 @@ class PollExecuteAppStatusExecutionTest {
 
         Map<String, String> applicationEnv = Map.of(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(deployAttributes));
         return ImmutableCloudApplicationExtended.builder()
-                                                .name("test-app")
+                                                .name(APPLICATION_NAME)
                                                 .env(applicationEnv)
                                                 .build();
     }
@@ -166,8 +179,10 @@ class PollExecuteAppStatusExecutionTest {
         when(processLoggerProvider.getLogger(any(), anyString())).thenReturn(mock(ProcessLogger.class));
     }
 
-    private void prepareClientProvider(ApplicationLog applicationLog) {
-        when(client.getRecentLogs(any(String.class), any())).thenReturn(List.of(applicationLog));
+    private void prepareClients(ApplicationLog applicationLog) {
+        when(logCacheClient.getRecentLogs(any(), any())).thenReturn(List.of(applicationLog));
+        when(clientFactory.createLogCacheClient(any(), any())).thenReturn(logCacheClient);
+        when(client.getApplicationGuid(eq(APPLICATION_NAME))).thenReturn(UUID.fromString(APPLICATION_GUID));
         when(clientProvider.getControllerClient(any(), any(), any())).thenReturn(client);
     }
 

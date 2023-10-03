@@ -31,6 +31,8 @@ public class SupportedParameters {
     public static final String SPACE_GUID = "space-guid";
     public static final String NAMESPACE = "namespace";
     public static final String APPLY_NAMESPACE = "apply-namespace";
+    public static final String MTA_VERSION = "mta-version";
+    public static final String MTA_ID = "mta-id";
 
     // Module / module type parameters:
     public static final String APP_NAME = "app-name";
@@ -137,13 +139,18 @@ public class SupportedParameters {
     public static final String FILTER = "filter";
     public static final String VISIBILITY = "visibility";
     // Configuration reference (old syntax):
-    public static final String MTA_VERSION = "mta-version";
-    public static final String MTA_ID = "mta-id";
-    public static final String MTA_MODULE = "mta-module";
-    public static final String MTA_PROVIDES_DEPENDENCY = "mta-provides-dependency";
+    @Deprecated
+    public static final String DEPRECATED_CONFIG_MTA_VERSION = "mta-version";
+    @Deprecated
+    public static final String DEPRECATED_CONFIG_MTA_ID = "mta-id";
+    @Deprecated
+    public static final String DEPRECATED_CONFIG_MTA_MODULE = "mta-module";
+    @Deprecated
+    public static final String DEPRECATED_CONFIG_MTA_PROVIDES_DEPENDENCY = "mta-provides-dependency";
 
-    public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Set.of(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION, MTA_ID,
-                                                                                MTA_VERSION, MTA_PROVIDES_DEPENDENCY, NAMESPACE);
+    public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Set.of(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION,
+                                                                                DEPRECATED_CONFIG_MTA_ID, DEPRECATED_CONFIG_MTA_VERSION,
+                                                                                DEPRECATED_CONFIG_MTA_PROVIDES_DEPENDENCY, NAMESPACE);
 
     public static final Set<String> APP_ATTRIBUTES = Set.of(EXECUTE_APP, SUCCESS_MARKER, FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID,
                                                             REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,

@@ -2,7 +2,7 @@ name: Multiapps Controller Maven build
 
 on:
   pull_request:
-    branches: [ master,rel-1.73 ]
+    branches: [ master ]
 
 jobs:
   build:

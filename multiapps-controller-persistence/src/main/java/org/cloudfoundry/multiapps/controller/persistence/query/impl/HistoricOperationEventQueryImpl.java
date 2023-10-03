@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.query.impl;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,8 +57,8 @@ public class HistoricOperationEventQueryImpl extends AbstractQueryImpl<HistoricO
     }
 
     @Override
-    public HistoricOperationEventQuery olderThan(Date time) {
-        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<Date> builder()
+    public HistoricOperationEventQuery olderThan(LocalDateTime time) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<LocalDateTime> builder()
                                                                        .attribute(AttributeNames.TIMESTAMP)
                                                                        .condition(getCriteriaBuilder()::lessThan)
                                                                        .value(time)

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.criteria.Expression;
 
 import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.dto.AccessTokenDto;
@@ -33,6 +34,16 @@ public class AccessTokenQueryImpl extends AbstractQueryImpl<AccessToken, AccessT
                                                                        .attribute(AttributeNames.ID)
                                                                        .condition(getCriteriaBuilder()::equal)
                                                                        .value(id)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
+    public AccessTokenQuery withIdAnyOf(List<Long> ids) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<List<Long>> builder()
+                                                                       .attribute(AttributeNames.ID)
+                                                                       .condition(Expression::in)
+                                                                       .value(ids)
                                                                        .build());
         return this;
     }

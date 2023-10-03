@@ -15,7 +15,9 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -48,6 +50,10 @@ class PollStartAppStatusExecutionTest {
     private CloudControllerClientProvider clientProvider;
     @Mock
     private CloudControllerClient client;
+    @Mock
+    private CloudControllerClientFactory clientFactory;
+    @Mock
+    private TokenService tokenService;
 
     private ProcessContext context;
     private PollStartAppStatusExecution step;
@@ -58,7 +64,7 @@ class PollStartAppStatusExecutionTest {
                           .close();
         DelegateExecution execution = MockDelegateExecution.createSpyInstance();
         context = new ProcessContext(execution, stepLogger, clientProvider);
-        step = new PollStartAppStatusExecution();
+        step = new PollStartAppStatusExecution(clientFactory, tokenService);
     }
 
     static Stream<Arguments> testStep() {

@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -12,20 +11,12 @@ import org.mockito.Mockito;
 public class StepsTestUtil {
 
     public static void mockApplicationsToDeploy(List<CloudApplicationExtended> applications, DelegateExecution execution) {
-        String[] appsInArray = getAppsInArray(applications);
-        for (String appInArray : appsInArray) {
-            // FIXME: This does not work! It will always return the last app in the array.
-            Mockito.when(execution.getVariable(Variables.APP_TO_PROCESS.getName()))
-                   .thenReturn(appInArray);
+        if (applications == null || applications.isEmpty()) {
+            return;
+        }
+        var stubbing = Mockito.when(execution.getVariable(Variables.APP_TO_PROCESS.getName()));
+        for (var app : applications) {
+            stubbing = stubbing.thenReturn(JsonUtil.toJson(app));
         }
     }
-
-    private static String[] getAppsInArray(List<CloudApplicationExtended> applications) {
-        List<String> applicationsString = new ArrayList<>();
-        for (CloudApplicationExtended app : applications) {
-            applicationsString.add(JsonUtil.toJson(app));
-        }
-        return applicationsString.toArray(new String[0]);
-    }
-
 }

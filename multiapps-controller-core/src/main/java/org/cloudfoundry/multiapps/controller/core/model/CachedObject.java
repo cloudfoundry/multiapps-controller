@@ -1,40 +1,39 @@
 package org.cloudfoundry.multiapps.controller.core.model;
 
-import java.util.concurrent.TimeUnit;
-import java.util.function.LongSupplier;
+import java.time.Duration;
 import java.util.function.Supplier;
 
 public class CachedObject<T> {
 
     private T object;
-    private final long expirationTimeInSeconds;
-    private long lastRefreshTime;
-    private final LongSupplier currentTimeSupplier;
+    private final long expirationTimestamp;
 
-    public CachedObject(long expirationTimeInSeconds) {
-        this(expirationTimeInSeconds, System::currentTimeMillis);
+    public CachedObject(Duration expirationDuration) {
+        this(null, System.currentTimeMillis() + expirationDuration.toMillis());
     }
 
-    public CachedObject(long expirationTimeInSeconds, LongSupplier currentTimeSupplier) {
-        this.expirationTimeInSeconds = expirationTimeInSeconds;
-        this.currentTimeSupplier = currentTimeSupplier;
+    public CachedObject(T object, long expirationTimestamp) {
+        this.object = object;
+        this.expirationTimestamp = expirationTimestamp;
     }
 
-    public synchronized T get(Supplier<T> refreshFunction) {
-        long currentTime = currentTimeSupplier.getAsLong();
-        long millisecondsSinceLastRefresh = currentTime - lastRefreshTime;
-        long secondsSinceLastRefresh = TimeUnit.MILLISECONDS.toSeconds(millisecondsSinceLastRefresh);
-        if (object == null || secondsSinceLastRefresh > expirationTimeInSeconds) {
-            this.object = refreshFunction.get();
-            this.lastRefreshTime = currentTimeSupplier.getAsLong();
+    public synchronized T get() {
+        return object;
+    }
+
+    public synchronized T getOrRefresh(Supplier<T> refresher) {
+        if (isExpired() || object == null) {
+            return object = refresher.get();
         }
         return object;
     }
 
-    public synchronized T forceRefresh(Supplier<T> refreshFunction) {
-        object = refreshFunction.get();
-        lastRefreshTime = currentTimeSupplier.getAsLong();
-        return object;
+    public boolean isExpired() {
+        return System.currentTimeMillis() >= expirationTimestamp;
+    }
+
+    public boolean isExpired(long currentTime) {
+        return currentTime >= expirationTimestamp;
     }
 
 }
