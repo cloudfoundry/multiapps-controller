@@ -109,7 +109,7 @@
                                     <info>
                                         <title>MTA REST API</title>
                                         <description>This is the API of the Cloud Foundry MultiApps Controller</description>
-                                        <version>1.3.0</version>
+                                        <version>1.4.0</version>
                                     </info>
                                 </apiSource>
                             </apiSources>
