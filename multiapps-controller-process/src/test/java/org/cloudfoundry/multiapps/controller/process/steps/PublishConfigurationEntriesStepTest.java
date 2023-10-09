@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -18,6 +19,7 @@ import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationEntryQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
+import org.cloudfoundry.multiapps.controller.process.util.ConfigurationEntryDynamicParameterResolver;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -47,6 +49,8 @@ class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishCo
     private ConfigurationEntryService configurationEntryService;
     @Mock(answer = Answers.RETURNS_SELF)
     private ConfigurationEntryQuery configurationEntryQuery;
+    @Mock
+    private ConfigurationEntryDynamicParameterResolver dynamicParameterResolver;
 
     public static Stream<Arguments> test() {
         return Stream.of(
@@ -78,11 +82,14 @@ class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishCo
         assertStepFinishedSuccessfully();
 
         validateConfigurationEntryService(input);
+        assertDynamicParameterResolverIsCalled();
     }
 
     public void initializeParameters(StepInput input) {
         prepareContext(input);
         prepareConfigurationEntryService();
+        prapareDynamicParameterResolver(input);
+
     }
 
     public void prepareConfigurationEntryService() {
@@ -97,6 +104,10 @@ class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishCo
             doReturn(List.of(entry)).when(entryQueryMock)
                                                       .list();
         }
+    }
+
+    private void prapareDynamicParameterResolver(StepInput input) {
+        when(dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(Mockito.anyList(), Mockito.anySet())).then(returnsFirstArg());
     }
 
     private void prepareContext(StepInput input) {
@@ -158,6 +169,14 @@ class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishCo
                 && Objects.equals(entry1.getTargetSpace(), entry2.getTargetSpace())
                 && Objects.equals(entry1.getContent(), entry2.getContent());
         // @formatter:on
+    }
+
+    private void assertDynamicParameterResolverIsCalled() {
+        if (!context.getVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH)
+                    .isEmpty()) {
+            Mockito.verify(dynamicParameterResolver, Mockito.atLeastOnce())
+                   .resolveDynamicParametersOfConfigurationEntries(Mockito.anyList(), Mockito.anySet());
+        }
     }
 
     @Override
