@@ -136,4 +136,17 @@ public class ConfigurationEntriesUtil {
         return new CloudTarget(orgSpace[0], orgSpace[1]);
     }
 
+    public static ConfigurationEntry setContent(ConfigurationEntry entry, String newContent) {
+        return new ConfigurationEntry(entry.getId(),
+                                      entry.getProviderNid(),
+                                      entry.getProviderId(),
+                                      entry.getProviderVersion(),
+                                      entry.getProviderNamespace(),
+                                      entry.getTargetSpace(),
+                                      newContent,
+                                      entry.getVisibility(),
+                                      entry.getSpaceId(),
+                                      entry.getContentId());
+    }
+
 }

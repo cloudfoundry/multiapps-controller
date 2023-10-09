@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -11,10 +12,12 @@ import javax.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ConfigurationEntryDynamicParameterResolver;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -25,6 +28,9 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
 
     @Inject
     private ConfigurationEntryService configurationEntryService;
+
+    @Inject
+    private ConfigurationEntryDynamicParameterResolver dynamicParameterResolver;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -39,8 +45,11 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.NO_PUBLIC_PROVIDED_DEPENDENCIES_FOR_PUBLISHING);
             return StepPhase.DONE;
         }
+        Set<DynamicResolvableParameter> dynamicResolvableParameters = context.getVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS);
+        List<ConfigurationEntry> resolvedEntriesToPublish = dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(entriesToPublish,
+                                                                                                                                    dynamicResolvableParameters);
 
-        List<ConfigurationEntry> publishedEntries = publish(entriesToPublish);
+        List<ConfigurationEntry> publishedEntries = publish(resolvedEntriesToPublish);
 
         getStepLogger().debug(Messages.PUBLISHED_ENTRIES, SecureSerialization.toJson(publishedEntries));
         context.setVariable(Variables.PUBLISHED_ENTRIES, publishedEntries);
