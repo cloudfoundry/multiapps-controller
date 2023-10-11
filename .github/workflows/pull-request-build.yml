@@ -32,10 +32,10 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-    - name: Build and analyze
+    - name: Build and Analyze Code Coverage
       run: mvn verify -Pcoverage
       
-    - name: Build and analyze
+    - name: Sonar Scan
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
