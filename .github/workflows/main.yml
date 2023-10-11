@@ -13,7 +13,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '11'
-        distribution: 'zulul'
+        distribution: 'zulu'
 
     - name: Build and Analyze Code Coverage
       run: mvn clean package -Pcoverage
