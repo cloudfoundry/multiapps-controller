@@ -6,7 +6,7 @@ package org.cloudfoundry.multiapps.controller.web;
 public final class Messages {
 
     // Exception messages
-    public static final String ERROR_EXECUTING_REST_API_CALL = "Error occurred while executing REST API call";
+    public static final String ERROR_EXECUTING_REST_API_CALL = "Error occurred while executing REST API call!";
     public static final String MAX_UPLOAD_SIZE_EXCEEDED = "Cannot upload file, size is bigger than the configured maximum upload size \"{0}\" bytes";
     public static final String COULD_NOT_GET_FILES_0 = "Could not get files: {0}";
     public static final String COULD_NOT_UPLOAD_FILE_0 = "Could not upload file: {0}";
