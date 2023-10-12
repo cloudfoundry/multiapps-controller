@@ -120,10 +120,6 @@
             <artifactId>jclouds-blobstore</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.jclouds.common</groupId>
-            <artifactId>googlecloud</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.aliyun.oss</groupId>
             <artifactId>aliyun-sdk-oss</artifactId>
         </dependency>
