@@ -20,6 +20,14 @@ public abstract class AuthorizationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    protected void doFilterInternalFake(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+        throws ServletException, IOException {
+        if (!ensureUserIsAuthorized(request, response)) {
+            return;
+        }
+        filterChain.doFilter(request, response);
+    }
+    
     /**
      * @return Whether or not the request should be forwarded to the rest of the filter chain and eventually to the appropriate handler.
      */
