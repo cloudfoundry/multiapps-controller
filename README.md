@@ -14,7 +14,7 @@ The project has also provided [schema support](https://github.com/cloudfoundry-i
 
 # Components
 ## multiapps-controller-api
-Contains the Swagger generated definitions of the REST API models and endpoints. The complete Swagger definitions can be found at: https://app.swaggerhub.com/apis/SAP53/mtarest/1.0.0
+Contains the Swagger generated definitions of the REST API models and endpoints. The complete Swagger definitions can be found at: https://app.swaggerhub.com/apis/SAP53/mtarest/1.3.0 and https://app.swaggerhub.com/apis/SAP53/mtarest2.0/2.0.0
 
 ## multiapps-controller-client
 Extends the [Java Client Library for Cloud Foundry](https://github.com/SAP/cf-java-client-sap) with additional domain model objects and attributes, OAuth token providers and retrying functionality.  
