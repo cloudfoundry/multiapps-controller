@@ -13,6 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>cloudfoundry</sonar.organization>
+        <sonar.coverage.jacoco.xmlReportPaths>../multiapps-controller-coverage/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <junit.version>5.9.3</junit.version>
         <junit-platform.version>1.9.2</junit-platform.version>
         <mockito.version>4.11.0</mockito.version>
@@ -72,6 +73,7 @@
         <module>multiapps-controller-persistence-test</module>
         <module>multiapps-controller-shutdown-client</module>
         <module>multiapps-controller-database-migration</module>
+        <module>multiapps-controller-coverage</module>
     </modules>
 
     <organization>
@@ -996,24 +998,6 @@
                                   <goal>prepare-agent</goal>
                               </goals>
                           </execution>
-                          <execution>
-                              <id>prepare-agent-integration</id>
-                              <goals>
-                                  <goal>prepare-agent-integration</goal>
-                              </goals>
-                          </execution>
-                          <execution>
-                              <id>report</id>
-                              <phase>verify</phase>
-                              <goals>
-                                  <goal>report</goal>
-                              </goals>
-                              <configuration>
-                                <formats>
-                                  <format>XML</format>
-                                </formats>
-                              </configuration>
-                          </execution>
                       </executions>
                   </plugin>
                 </plugins>
@@ -1035,19 +1019,6 @@
                               <id>prepare-agent</id>
                               <goals>
                                   <goal>prepare-agent</goal>
-                              </goals>
-                          </execution>
-                          <execution>
-                              <id>prepare-agent-integration</id>
-                              <goals>
-                                  <goal>prepare-agent-integration</goal>
-                              </goals>
-                          </execution>
-                          <execution>
-                              <id>report</id>
-                              <phase>verify</phase>
-                              <goals>
-                                  <goal>report</goal>
                               </goals>
                           </execution>
                       </executions>
