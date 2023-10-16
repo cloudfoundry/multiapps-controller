@@ -28,7 +28,7 @@
         <snakeyaml.version>2.0</snakeyaml.version>
         <httpclient.version>4.5.14</httpclient.version>
         <httpcore.version>4.4.13</httpcore.version>
-        <eclipselink.version>2.7.12</eclipselink.version>
+        <eclipselink.version>2.7.13</eclipselink.version>
         <flowable.version>6.8.0</flowable.version>
         <mybatis.version>3.5.7</mybatis.version>
         <spring.version>5.3.30</spring.version>
