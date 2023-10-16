@@ -40,7 +40,7 @@
         <jackson.databind.version>2.15.0</jackson.databind.version>
         <liquibase.version>4.22.0</liquibase.version>
         <liquibase-slf4j.version>4.1.0</liquibase-slf4j.version>
-        <cloudfoundry-client.version>2.37.0</cloudfoundry-client.version>
+        <cloudfoundry-client.version>2.37.1</cloudfoundry-client.version>
         <swagger.version>1.6.9</swagger.version>
         <jclouds.version>2.5.0</jclouds.version>
         <guice.version>5.0.1</guice.version>
