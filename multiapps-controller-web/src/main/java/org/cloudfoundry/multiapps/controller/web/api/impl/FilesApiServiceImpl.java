@@ -112,7 +112,7 @@ public class FilesApiServiceImpl implements FilesApiService {
     public ResponseEntity<FileMetadata> uploadFile(MultipartHttpServletRequest request, String spaceGuid, String namespace) {
         LOGGER.trace(Messages.RECEIVED_UPLOAD_REQUEST, ServletUtil.decodeUri(request));
         var multipartFile = getFileFromRequest(request);
-        try (InputStream in = multipartFile.getInputStream()) {
+        try (InputStream in = new BufferedInputStream(multipartFile.getInputStream(), INPUT_STREAM_BUFFER_SIZE)) {
             var startTime = LocalDateTime.now();
             FileEntry fileEntry = fileService.addFile(spaceGuid, namespace, multipartFile.getOriginalFilename(), in, multipartFile.getSize());
             FileMetadata file = parseFileEntry(fileEntry);

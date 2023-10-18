@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,7 +14,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 public class FileService {
 
     protected static final String DEFAULT_TABLE_NAME = "LM_SL_PERSISTENCE_FILE";
+    private static final int INPUT_STREAM_BUFFER_SIZE = 16 * 1024;
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -70,7 +71,7 @@ public class FileService {
     }
 
     public FileEntry addFile(String space, String namespace, String name, File existingFile) throws FileStorageException {
-        try (InputStream content = new FileInputStream(existingFile)) {
+        try (InputStream content = new BufferedInputStream(new FileInputStream(existingFile), INPUT_STREAM_BUFFER_SIZE)) {
             return addFile(space, namespace, name, content, existingFile.length());
         } catch (FileNotFoundException e) {
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_FINDING_FILE_TO_UPLOAD, existingFile.getName()), e);
