@@ -86,6 +86,7 @@ public class RoutesValidator implements ParameterValidator {
                                                                       .filter(relatedParameter -> isGlobalParameterValueNotOverridenInRouteElement(relatedParameter,
                                                                                                                                                    routeElement,
                                                                                                                                                    context))
+                                                                      .filter(relatedParameter -> !getSpecificRouteParameterNames().contains(relatedParameter))
                                                                       .collect(Collectors.toMap(Function.identity(), context::get));
         updatedAllRouteElements.putAll(globalParametersValues);
         return updatedAllRouteElements;
@@ -163,7 +164,11 @@ public class RoutesValidator implements ParameterValidator {
 
     @Override
     public Set<String> getRelatedParameterNames() {
-        return Set.of(SupportedParameters.NO_HOSTNAME, SupportedParameters.APPLY_NAMESPACE);
+        return Set.of(SupportedParameters.NO_HOSTNAME, SupportedParameters.ROUTE_PROTOCOL, SupportedParameters.APPLY_NAMESPACE);
+    }
+
+    private Set<String> getSpecificRouteParameterNames() {
+        return Set.of(SupportedParameters.ROUTE_PROTOCOL);
     }
 
 }

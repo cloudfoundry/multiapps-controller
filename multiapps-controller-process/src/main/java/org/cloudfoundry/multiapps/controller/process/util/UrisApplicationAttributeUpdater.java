@@ -2,7 +2,10 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -24,7 +27,31 @@ public class UrisApplicationAttributeUpdater extends ApplicationAttributeUpdater
 
     @Override
     protected boolean shouldUpdateAttribute(CloudApplication existingApplication, CloudApplicationExtended application) {
-        return !SetUtils.isEqualSet(application.getRoutes(), existingRoutes);
+        if (!SetUtils.isEqualSet(application.getRoutes(), existingRoutes)) {
+            return true;
+        }
+        return application.getRoutes()
+                          .stream()
+                          .filter(updatedRoute -> updatedRoute.getRequestedProtocol() != null)
+                          .anyMatch(updatedRoute -> doesProtocolOfTheExistingRouteDiffer(updatedRoute, existingApplication.getGuid()));
+    }
+
+    private boolean doesProtocolOfTheExistingRouteDiffer(CloudRoute updatedRoute, UUID applicationGuid) {
+        Optional<CloudRoute> existingRoute = findCloudRoute(updatedRoute.getUrl(), existingRoutes);
+        if (existingRoute.isEmpty()) {
+            return true;
+        }
+        return existingRoute.get()
+                            .getDestinations()
+                            .stream()
+                            .noneMatch(destination -> Objects.equals(destination.getApplicationGuid(), applicationGuid)
+                                && Objects.equals(destination.getProtocol(), updatedRoute.getRequestedProtocol()));
+    }
+
+    private Optional<CloudRoute> findCloudRoute(String url, List<CloudRoute> cloudRoutes) {
+        return cloudRoutes.stream()
+                          .filter(cloudRoute -> url.equals(cloudRoute.getUrl()))
+                          .findFirst();
     }
 
     @Override

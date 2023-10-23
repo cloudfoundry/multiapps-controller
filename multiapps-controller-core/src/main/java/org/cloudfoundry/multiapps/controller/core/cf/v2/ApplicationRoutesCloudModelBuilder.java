@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.cf.v2;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -53,12 +54,25 @@ public class ApplicationRoutesCloudModelBuilder {
         if (deployedMtaApplication == null) {
             return routes;
         }
+        List<CloudRoute> existingRoutes = client.getApplicationRoutes(deployedMtaApplication.getGuid());
+        Set<CloudRoute> mergedRoutes = new HashSet<>();
+        for (CloudRoute route : routes) {
+            if (route.getRequestedProtocol() == null) {
+                mergedRoutes.add(getExistingRouteOrReturnNew(route, existingRoutes));
+            } else {
+                mergedRoutes.add(route);
+            }
+        }
+        mergedRoutes.addAll(existingRoutes);
+        return mergedRoutes;
+    }
 
-        var existingRoutes = client.getApplicationRoutes(deployedMtaApplication.getGuid());
-        Set<CloudRoute> combinedRoutes = new HashSet<>(existingRoutes);
-        combinedRoutes.addAll(routes);
-
-        return combinedRoutes;
+    private CloudRoute getExistingRouteOrReturnNew(CloudRoute newRoute, Collection<CloudRoute> existingRoutes) {
+        return existingRoutes.stream()
+                             .filter(route -> newRoute.getUrl()
+                                                      .equals(route.getUrl()))
+                             .findFirst()
+                             .orElse(newRoute);
     }
 
     public List<String> getApplicationDomains(Module module, List<Map<String, Object>> propertiesList) {

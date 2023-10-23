@@ -54,11 +54,11 @@ public class TestData {
     public static final String NOHOSTNAME_URI_FLAG = "NOHOSTNAME-";
 
     public static CloudRoute route(String uri) {
-        return route(removePrefix(uri), uriIsHostless(uri));
+        return route(removePrefix(uri), uriIsHostless(uri), "http1");
     }
 
-    public static CloudRoute route(String uri, boolean noHostname) {
-        return new ApplicationURI(uri, noHostname).toCloudRoute();
+    public static CloudRoute route(String uri, boolean noHostname, String protocol) {
+        return new ApplicationURI(uri, noHostname, protocol).toCloudRoute();
     }
 
     public static CloudRoute route(String host, String domain, String path) {

@@ -33,10 +33,11 @@ class ApplicationURITest {
     @ParameterizedTest
     @MethodSource
     void testGetHostDomainPath(String uri, boolean noHostname, String expectedHost, String expectedDomain, String expectedPath) {
-        ApplicationURI applicationURI = new ApplicationURI(uri, noHostname);
+        ApplicationURI applicationURI = new ApplicationURI(uri, noHostname, "http2");
         Assertions.assertEquals(expectedHost, applicationURI.getHost());
         Assertions.assertEquals(expectedDomain, applicationURI.getDomain());
         Assertions.assertEquals(expectedPath, applicationURI.getPath());
+        Assertions.assertEquals("http2", applicationURI.getProtocol());
     }
 
     @SuppressWarnings("serial")
@@ -44,16 +45,16 @@ class ApplicationURITest {
         return Stream.of(
 //@formatter:off
                 Arguments.of("host", "domain.com", "/path",
-                             Map.of(SupportedParameters.HOST, "host", 
+                             Map.of(SupportedParameters.HOST, "host",
                                     SupportedParameters.DOMAIN, "domain.com",
                                     SupportedParameters.ROUTE_PATH, "/path")),
                 Arguments.of("", "domain.com", "/path",
-                             Map.of(SupportedParameters.DOMAIN, "domain.com", 
+                             Map.of(SupportedParameters.DOMAIN, "domain.com",
                                     SupportedParameters.ROUTE_PATH, "/path")),
                 Arguments.of(null, "domain.com", "/path",
-                             Map.of(SupportedParameters.DOMAIN, "domain.com", 
+                             Map.of(SupportedParameters.DOMAIN, "domain.com",
                                     SupportedParameters.ROUTE_PATH, "/path")),
-                Arguments.of("", "domain.only.this.time", "", 
+                Arguments.of("", "domain.only.this.time", "",
                              Map.of(SupportedParameters.DOMAIN, "domain.only.this.time")));
 // @formatter:on
     }

@@ -127,8 +127,9 @@ public class MtaDescriptorPropertiesResolver {
             for (Map<String, Object> routeMap : routes) {
                 Object routeValue = routeMap.get(SupportedParameters.ROUTE);
                 boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
+                String protocol = (String) routeMap.get(SupportedParameters.ROUTE_PROTOCOL);
                 if (routeValue instanceof String) {
-                    routeMap.put(SupportedParameters.ROUTE, replacePartsWithIdlePlaceholders((String) routeValue, noHostname));
+                    routeMap.put(SupportedParameters.ROUTE, replacePartsWithIdlePlaceholders((String) routeValue, noHostname, protocol));
                 }
 
                 if (routeMap.containsKey(SupportedParameters.NO_HOSTNAME)) {
@@ -139,8 +140,8 @@ public class MtaDescriptorPropertiesResolver {
         }
     }
 
-    private String replacePartsWithIdlePlaceholders(String uriString, boolean noHostname) {
-        ApplicationURI uri = new ApplicationURI(uriString, noHostname);
+    private String replacePartsWithIdlePlaceholders(String uriString, boolean noHostname, String protocol) {
+        ApplicationURI uri = new ApplicationURI(uriString, noHostname, protocol);
         uri.setDomain(IDLE_DOMAIN_PLACEHOLDER);
         uri.setHost(IDLE_HOST_PLACEHOLDER);
         return uri.toString();

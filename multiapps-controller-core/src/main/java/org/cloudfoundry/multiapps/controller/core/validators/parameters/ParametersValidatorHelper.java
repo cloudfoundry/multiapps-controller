@@ -44,8 +44,8 @@ public class ParametersValidatorHelper {
         String parameterName = validator.getParameterName();
 
         Object initialParameterValue = parameters.get(parameterName);
-        Object correctParameterValue = validateAndCorrect(NameUtil.getPrefixedName(prefix, parameterName), initialParameterValue,
-                                                          validator, parameters);
+        Object correctParameterValue = validateAndCorrect(NameUtil.getPrefixedName(prefix, parameterName), initialParameterValue, validator,
+                                                          parameters);
         if (!Objects.equals(initialParameterValue, correctParameterValue)) {
             correctedParameters.put(parameterName, correctParameterValue);
         }
@@ -67,7 +67,7 @@ public class ParametersValidatorHelper {
 
         List<Object> correctedParameterValues = initialParameterValues.stream()
                                                                       .map(parameter -> validateAndCorrect(NameUtil.getPrefixedName(prefix,
-                                                                                                                                         validator.getParameterName()),
+                                                                                                                                    validator.getParameterName()),
                                                                                                            parameter, validator,
                                                                                                            parameters))
                                                                       .collect(Collectors.toList());
