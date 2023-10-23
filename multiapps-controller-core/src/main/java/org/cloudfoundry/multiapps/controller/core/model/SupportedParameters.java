@@ -62,6 +62,7 @@ public class SupportedParameters {
     public static final String ENABLE_SSH = "enable-ssh";
     public static final String NO_HOSTNAME = "no-hostname";
     public static final String NO_ROUTE = "no-route";
+    public static final String ROUTE_PROTOCOL = "protocol";
     public static final String DEFAULT_URI = "default-uri";
     public static final String DEFAULT_IDLE_URI = "default-idle-uri";
     public static final String DEFAULT_URL = "default-url";

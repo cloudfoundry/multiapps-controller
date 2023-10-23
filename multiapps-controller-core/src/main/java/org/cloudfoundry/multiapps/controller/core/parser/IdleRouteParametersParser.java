@@ -7,15 +7,15 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudDomain;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRoute;
-
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesValidator;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudDomain;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRoute;
 
 public class IdleRouteParametersParser extends RouteParametersParser {
 
@@ -24,7 +24,7 @@ public class IdleRouteParametersParser extends RouteParametersParser {
     }
 
     public IdleRouteParametersParser(String defaultHost, String defaultDomain, String hostParameterName, String domainParameterName,
-                                   String routePath) {
+                                     String routePath) {
         super(defaultHost, defaultDomain, hostParameterName, domainParameterName, routePath);
     }
 
@@ -55,13 +55,12 @@ public class IdleRouteParametersParser extends RouteParametersParser {
 
     public CloudRoute parseIdleRouteMap(Map<String, Object> routeMap) {
         String routeString = (String) routeMap.get(SupportedParameters.IDLE_ROUTE);
-        boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
-
         if (routeString == null) {
             return null;
         }
-
-        return new ApplicationURI(routeString, noHostname).toCloudRoute();
+        boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
+        String protocol = (String) routeMap.get(SupportedParameters.ROUTE_PROTOCOL);
+        return new ApplicationURI(routeString, noHostname, protocol).toCloudRoute();
     }
 
     private Set<CloudRoute> modifyLiveRoutes(Set<CloudRoute> liveRoutes) {
@@ -88,7 +87,8 @@ public class IdleRouteParametersParser extends RouteParametersParser {
 
         var appUri = new ApplicationURI(defaultHost == null ? inputRoute.getHost() : defaultHost,
                                         defaultDomain == null ? inputRoute.getDomain()
-                                                                          .getName() : defaultDomain,
+                                                                          .getName()
+                                            : defaultDomain,
                                         inputRoute.getPath());
         return modifiedRouteBuilder.url(appUri.toCloudRoute()
                                               .getUrl())

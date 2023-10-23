@@ -27,8 +27,8 @@ public class RouteValidator implements ParameterValidator {
         }
         String routeString = (String) route;
         boolean noHostname = MapUtil.parseBooleanFlag(context, SupportedParameters.NO_HOSTNAME, false);
-
-        ApplicationURI uri = new ApplicationURI(routeString, noHostname);
+        String protocol = (String) context.get(SupportedParameters.ROUTE_PROTOCOL);
+        ApplicationURI uri = new ApplicationURI(routeString, noHostname, protocol);
         try {
             for (ParameterValidator validator : validators) {
                 correctUriPartIfPresent(uri, validator, context);
@@ -72,8 +72,8 @@ public class RouteValidator implements ParameterValidator {
         }
 
         boolean noHostname = MapUtil.parseBooleanFlag(context, SupportedParameters.NO_HOSTNAME, false);
-
-        ApplicationURI uri = new ApplicationURI(routeString, noHostname);
+        String protocol = (String) context.get(SupportedParameters.ROUTE_PROTOCOL);
+        ApplicationURI uri = new ApplicationURI(routeString, noHostname, protocol);
         Map<String, Object> uriParts = uri.getURIParts();
 
         for (ParameterValidator validator : validators) {

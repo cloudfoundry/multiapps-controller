@@ -8,13 +8,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesValidator;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 public class RouteParametersParser implements ParametersParser<Set<CloudRoute>> {
 
@@ -29,7 +29,7 @@ public class RouteParametersParser implements ParametersParser<Set<CloudRoute>> 
     }
 
     public RouteParametersParser(String defaultHost, String defaultDomain, String hostParameterName, String domainParameterName,
-                               String routePath) {
+                                 String routePath) {
         this.defaultHost = defaultHost;
         this.defaultDomain = defaultDomain;
         this.hostParameterName = hostParameterName;
@@ -134,13 +134,12 @@ public class RouteParametersParser implements ParametersParser<Set<CloudRoute>> 
 
     public CloudRoute parseRouteMap(Map<String, Object> routeMap) {
         String routeString = (String) routeMap.get(SupportedParameters.ROUTE);
-        boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
-
         if (routeString == null) {
             return null;
         }
-
-        return new ApplicationURI(routeString, noHostname).toCloudRoute();
+        boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
+        String protocol = (String) routeMap.get(SupportedParameters.ROUTE_PROTOCOL);
+        return new ApplicationURI(routeString, noHostname, protocol).toCloudRoute();
     }
 
     private List<String> getDomainsFromRoutes(Set<CloudRoute> routes) {

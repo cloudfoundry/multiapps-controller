@@ -336,7 +336,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
 
     private static Set<CloudRoute> constructRoutes(String... uriStrings) {
         return Stream.of(uriStrings)
-                     .map(uri -> new ApplicationURI(uri, false).toCloudRoute())
+                     .map(uri -> new ApplicationURI(uri, false, null).toCloudRoute())
                      .collect(Collectors.toSet());
     }
 
