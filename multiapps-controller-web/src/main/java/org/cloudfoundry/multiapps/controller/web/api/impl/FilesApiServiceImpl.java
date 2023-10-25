@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -145,14 +144,10 @@ public class FilesApiServiceImpl implements FilesApiService {
 
         var entry = createJobEntry(spaceGuid, namespace, urlWithoutUserInfo);
         LOGGER.debug(Messages.CREATING_ASYNC_UPLOAD_JOB, urlWithoutUserInfo, entry.getId());
-        uploadJobService.add(entry);
         try {
             deployFromUrlExecutor.execute(() -> uploadFileFromUrl(entry, spaceGuid, namespace, decodedUrl));
         } catch (RejectedExecutionException ignored) {
             LOGGER.debug(Messages.ASYNC_UPLOAD_JOB_REJECTED, entry.getId());
-            resilientOperationExecutor.execute((Runnable) () -> uploadJobService.createQuery()
-                                                                                .id(entry.getId())
-                                                                                .delete());
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                                  .header(HttpHeaders.RETRY_AFTER, RETRY_AFTER_SECONDS)
                                  .build();
@@ -286,6 +281,7 @@ public class FilesApiServiceImpl implements FilesApiService {
         var counter = new AtomicLong(0);
         jobCounters.put(jobEntry.getId(), counter);
         try {
+            uploadJobService.add(jobEntry);
             LOGGER.debug(Messages.STARTING_DOWNLOAD_OF_MTAR, jobEntry.getUrl());
             var startTime = LocalDateTime.now();
             uploadJobService.update(jobEntry, ImmutableAsyncUploadJobEntry.copyOf(jobEntry)
