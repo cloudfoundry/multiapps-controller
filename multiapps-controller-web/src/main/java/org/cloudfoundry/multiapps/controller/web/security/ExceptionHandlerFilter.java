@@ -28,16 +28,16 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (ResponseStatusException e) {
             LOGGER.error(e.getMessage(), e);
-            response.setStatus(e.getStatus()
+            response.sendError(e.getStatus()
                                 .value());
             response.getWriter()
                     .write(e.getMessage());
         } catch (InsufficientAuthenticationException e) {
             LOGGER.error(e.getMessage(), e);
-            response.setStatus(HttpStatus.SC_FORBIDDEN);
+            response.sendError(HttpStatus.SC_FORBIDDEN);
         } catch (InternalAuthenticationServiceException e) {
             LOGGER.error(e.getMessage(), e);
-            response.setStatus(HttpStatus.SC_UNAUTHORIZED);
+            response.sendError(HttpStatus.SC_UNAUTHORIZED);
         }
     }
 }
