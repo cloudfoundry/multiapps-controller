@@ -50,5 +50,8 @@ open module org.cloudfoundry.multiapps.controller.persistence {
 
     requires static java.compiler;
     requires static org.immutables.value;
+    requires google.cloud.storage;
+    requires googlecloud;
+    requires oauth;
 
 }
