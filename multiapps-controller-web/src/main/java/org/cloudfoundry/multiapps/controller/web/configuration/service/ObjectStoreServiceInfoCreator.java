@@ -97,7 +97,7 @@ public class ObjectStoreServiceInfoCreator {
         String decodedCredential = new String(decodedKey, StandardCharsets.UTF_8);
         Supplier<Credentials> credentialsSupplier = new GoogleCredentialsFromJson(decodedCredential);
         return ImmutableObjectStoreServiceInfo.builder()
-                                              .provider("google-cloud-storage")
+                                              .provider("google-cloud-storage-custom")
                                               .credentialsSupplier(credentialsSupplier)
                                               .container(bucket)
                                               .region(region)
