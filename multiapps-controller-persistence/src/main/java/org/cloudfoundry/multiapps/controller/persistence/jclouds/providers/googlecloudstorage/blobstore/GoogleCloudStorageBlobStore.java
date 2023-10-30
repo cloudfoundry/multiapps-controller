@@ -78,9 +78,9 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 // This class is almost a copy of GoogleCloudStorageBlobStore with the exception it overrides putMultipartBlob
 // with a slightly modified slicing algorithm MultipartUploadSlicingAlgorithmForGcp.
 // The MultipartUploadSlicingAlgorithmForGcp is modified thus it splits the file that is being uploaded
-// to maximum of 32 parts (including the reminder) because this is the maximum count of parts the GCP
-// Object Store can handle. The default algorithm splits it to maximum of 33 parts because of the reminder.
-// which leads to failure during the upload of the merged MTA to Object Store.
+// to a maximum of 32 parts (including the reminder) because this is the maximum count of parts the GCP
+// Object Store can handle. The default algorithm splits it to a maximum of 33 parts because of the reminder
+// which leads to а failure during the upload of the merged MTA to the Object Store.
 public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCloudStorageBlobStore.class);
