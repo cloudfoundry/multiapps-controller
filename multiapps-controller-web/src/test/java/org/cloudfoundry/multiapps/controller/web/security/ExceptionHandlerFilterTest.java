@@ -59,7 +59,7 @@ class ExceptionHandlerFilterTest {
                .doFilter(request, response);
         assertDoesNotThrow(() -> exceptionHandlerFilter.doFilterInternal(request, response, filterChain));
         Mockito.verify(response)
-               .sendError(HttpStatus.UNAUTHORIZED.value());
+               .setStatus(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
@@ -70,7 +70,7 @@ class ExceptionHandlerFilterTest {
                .doFilter(request, response);
         assertDoesNotThrow(() -> exceptionHandlerFilter.doFilterInternal(request, response, filterChain));
         Mockito.verify(response)
-               .sendError(HttpStatus.FORBIDDEN.value());
+               .setStatus(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
@@ -81,7 +81,7 @@ class ExceptionHandlerFilterTest {
                .doFilter(request, response);
         assertDoesNotThrow(() -> exceptionHandlerFilter.doFilterInternal(request, response, filterChain));
         Mockito.verify(response)
-               .sendError(HttpStatus.UNAUTHORIZED.value());
+               .setStatus(HttpStatus.UNAUTHORIZED.value());
     }
 
 }
