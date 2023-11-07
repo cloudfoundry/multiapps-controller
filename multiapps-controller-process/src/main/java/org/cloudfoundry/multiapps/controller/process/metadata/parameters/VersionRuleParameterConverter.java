@@ -19,7 +19,7 @@ public class VersionRuleParameterConverter implements ParameterConverter {
 
     private void validate(String versionRule) {
         try {
-            VersionRule.value(versionRule);
+            VersionRule.valueOf(versionRule.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new SLException(e,
                                   Messages.INVALID_VALUE_0_FOR_PARAMETER_1_VALID_VALUES_ARE_2,
