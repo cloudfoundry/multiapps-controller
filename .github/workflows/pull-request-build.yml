@@ -18,13 +18,6 @@ jobs:
         java-version: '11'
         distribution: 'zulu'
         
-    - name: Cache SonarCloud packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.sonar/cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
-        
     - name: Cache Maven packages
       uses: actions/cache@v3
       with:
@@ -32,11 +25,6 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-    - name: Build and Analyze Code Coverage
-      run: mvn clean install -Pcoverage
-      
-    - name: Sonar Scan
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: mvn sonar:sonar -Dsonar.projectKey=cloudfoundry_multiapps-controller
+    - name: Build and Run Unit Tests
+      run: mvn clean install
+
