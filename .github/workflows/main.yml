@@ -15,12 +15,6 @@ jobs:
         java-version: '11'
         distribution: 'zulu'
 
-    - name: Build and Analyze Code Coverage
-      run: mvn clean install -Pcoverage
-      
-    - name: Sonar Scan
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: mvn sonar:sonar -Dsonar.projectKey=cloudfoundry_multiapps-controller
+    - name: Build and Run Unit Tests
+      run: mvn clean install
 
