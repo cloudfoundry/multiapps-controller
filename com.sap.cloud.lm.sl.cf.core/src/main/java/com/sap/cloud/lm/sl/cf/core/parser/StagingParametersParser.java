@@ -31,7 +31,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                            .buildpackUrl(buildpack)
                                            .stack(stack)
                                            .healthCheckTimeout(healthCheckTimeout)
-                                           .invocationTimout(invocationTimeout)
+                                           .invocationTimeout(invocationTimeout)
                                            .healthCheckType(healthCheckType)
                                            .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
                                            .sshEnabled(isSshEnabled)
