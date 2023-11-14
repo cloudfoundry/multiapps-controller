@@ -26,11 +26,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
@@ -48,31 +46,27 @@ class DeployedMtaDetectorTest {
 
     private final MtaMetadataValidator mtaMetadataValidator = new MtaMetadataValidator();
 
-    @Spy
     private final MtaMetadataParser mtaMetadataParser = new MtaMetadataParser(mtaMetadataValidator);
 
     private final MtaMetadataServiceCollector serviceCollector = new MtaMetadataServiceCollector();
 
-    @Spy
-    private final List<MtaMetadataEntityCollector> collectors = new ArrayList<>();
+    private final List<MtaMetadataEntityCollector<?>> collectors = new ArrayList<>();
 
-    @Spy
     private final MtaMetadataEntityAggregator mtaMetadataEntityAggregator = new MtaMetadataEntityAggregator(mtaMetadataParser);
 
-    @InjectMocks
-    @Spy
     private DeployedMtaDetector deployedMtaDetector;
 
     @Mock
     private CloudControllerClient client;
 
     @BeforeEach
-    void initMocks() throws Exception {
+    void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
         collectors.clear();
         collectors.add(appCollector);
         collectors.add(serviceCollector);
+        deployedMtaDetector = new DeployedMtaDetector(collectors, mtaMetadataEntityAggregator);
     }
 
     static Stream<Arguments> testGetAllDeployedMtas() {
