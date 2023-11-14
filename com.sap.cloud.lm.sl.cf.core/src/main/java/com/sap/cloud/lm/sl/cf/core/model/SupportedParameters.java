@@ -56,6 +56,7 @@ public class SupportedParameters {
     public static final String BUILDPACK = "buildpack";
     public static final String STACK = "stack";
     public static final String HEALTH_CHECK_TIMEOUT = "health-check-timeout";
+    public static final String HTTP_INVOCATION_TIMEOUT = "invocation-timeout";
     public static final String HEALTH_CHECK_TYPE = "health-check-type";
     public static final String HEALTH_CHECK_HTTP_ENDPOINT = "health-check-http-endpoint";
     public static final String UPLOAD_TIMEOUT = "upload-timeout";
@@ -163,8 +164,8 @@ public class SupportedParameters {
                                                                                                         BUILDPACK, HEALTH_CHECK_TYPE,
                                                                                                         HEALTH_CHECK_HTTP_ENDPOINT,
                                                                                                         ENABLE_SSH, STACK,
-                                                                                                        HEALTH_CHECK_TIMEOUT, IDLE_HOST,
-                                                                                                        MEMORY, INSTANCES, NO_HOSTNAME,
+                                                                                                        HEALTH_CHECK_TIMEOUT, HTTP_INVOCATION_TIMEOUT,
+                                                                                                        IDLE_HOST,MEMORY, INSTANCES, NO_HOSTNAME,
                                                                                                         NO_ROUTE, IDLE_PORT, IDLE_DOMAIN,
                                                                                                         DISK_QUOTA, IDLE_PORTS,
                                                                                                         IDLE_DOMAINS, IDLE_HOSTS, TASKS,
