@@ -21,11 +21,16 @@ import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
 @Named
 public class DeployedMtaDetector {
 
-    @Inject
     private List<MtaMetadataEntityCollector<?>> mtaMetadataEntityCollectors;
 
-    @Inject
     private MtaMetadataEntityAggregator mtaMetadataEntityAggregator;
+
+    @Inject
+    public DeployedMtaDetector(List<MtaMetadataEntityCollector<?>> mtaMetadataEntityCollectors,
+                               MtaMetadataEntityAggregator mtaMetadataEntityAggregator) {
+        this.mtaMetadataEntityCollectors = mtaMetadataEntityCollectors;
+        this.mtaMetadataEntityAggregator = mtaMetadataEntityAggregator;
+    }
 
     public List<DeployedMta> detectDeployedMtas(CloudControllerClient client) {
         MtaMetadataCriteria allMtasCriteria = MtaMetadataCriteriaBuilder.builder()
@@ -90,7 +95,8 @@ public class DeployedMtaDetector {
         return mtaMetadataEntityAggregator.aggregate(mtaMetadataEntities);
     }
 
-    protected <T extends CloudEntity> List<T> collect(MtaMetadataEntityCollector<T> collector, MtaMetadataCriteria criteria, CloudControllerClient client) {
+    protected <T extends CloudEntity> List<T> collect(MtaMetadataEntityCollector<T> collector, MtaMetadataCriteria criteria,
+                                                      CloudControllerClient client) {
         return collector.collect(client, criteria);
     }
 
