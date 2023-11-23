@@ -89,6 +89,15 @@ public class FileService {
         }
     }
 
+    public List<FileEntry> listFilesCreatedAfter(LocalDateTime timestamp) throws FileStorageException {
+        try {
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesCreatedAfterQuery(timestamp));
+        } catch (SQLException e) {
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_CREATED_AFTER_0, timestamp),
+                                           e);
+        }
+    }
+
     public FileEntry getFile(String space, String id) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getRetrieveFileQuery(space, id));

@@ -118,6 +118,16 @@ public class OperationQueryImpl extends AbstractQueryImpl<Operation, OperationQu
     }
 
     @Override
+    public OperationQuery startedAfter(LocalDateTime timestamp) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<LocalDateTime> builder()
+                                                                       .attribute(AttributeNames.STARTED_AT)
+                                                                       .condition(getCriteriaBuilder()::greaterThanOrEqualTo)
+                                                                       .value(timestamp)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
     public OperationQuery endedBefore(LocalDateTime endedBefore) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<LocalDateTime> builder()
                                                                        .attribute(AttributeNames.ENDED_AT)
