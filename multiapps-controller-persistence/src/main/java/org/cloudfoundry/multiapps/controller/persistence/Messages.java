@@ -13,6 +13,7 @@ public final class Messages {
     public static final String FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST = "File with ID \"{0}\" and space \"{1}\" does not exist.";
     public static final String ERROR_DELETING_FILE_WITH_ID = "Error deleting file with ID \"{0}\"";
     public static final String ERROR_GETTING_FILES_WITH_SPACE_AND_NAMESPACE = "Error getting files with space {0} and namespace {1}";
+    public static final String ERROR_GETTING_FILES_CREATED_AFTER_0 = "Error getting files created after {0}";
     public static final String ERROR_GETTING_FILES_WITH_SPACE_NAMESPACE_AND_NAME = "Error getting files with space {0} namespace {1} and file name {2}";
     public static final String ERROR_GETTING_ALL_FILES = "Error getting all files";
     public static final String ERROR_DELETING_PROCESS_LOGS_WITH_NAMESPACE = "Error deleting process logs with namespace \"{0}\"";
