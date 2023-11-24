@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
@@ -18,6 +19,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+
+import javax.persistence.NoResultException;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -58,8 +61,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-import javax.persistence.NoResultException;
 
 class FilesApiServiceImplTest {
 
@@ -125,8 +126,9 @@ class FilesApiServiceImplTest {
             Runnable r = invocationOnMock.getArgument(0);
             r.run();
             return null;
-        }).when(asyncFileUploadExecutor)
-                .execute(Mockito.any());
+        })
+               .when(asyncFileUploadExecutor)
+               .execute(Mockito.any());
     }
 
     @Test
@@ -176,8 +178,8 @@ class FilesApiServiceImplTest {
         Mockito.verify(file)
                .getInputStream();
         Mockito.verify(fileService)
-               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName),
-                        Mockito.any(InputStream.class), Mockito.eq(fileSize));
+               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName), Mockito.any(InputStream.class),
+                        Mockito.eq(fileSize));
 
         FileMetadata fileMetadata = response.getBody();
         assertMetadataMatches(fileEntry, fileMetadata);
@@ -206,14 +208,17 @@ class FilesApiServiceImplTest {
                .thenReturn(jobEntry);
         Mockito.when(uploadJobService.createQuery())
                .thenReturn(query);
+        Mockito.when(uploadJobService.update(any(), any()))
+               .thenReturn(jobEntry);
 
-        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName),
-                                         Mockito.any(), Mockito.eq(20L)))
+        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName), Mockito.any(),
+                                         Mockito.eq(20L)))
                .thenReturn(fileEntry);
         Mockito.when(fileService.getFile(Mockito.eq(SPACE_GUID), Mockito.eq(fileEntry.getId())))
                .thenReturn(fileEntry);
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE_GUID, ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE_GUID,
+                                                                                  ImmutableFileUrl.of(FILE_URL));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -226,8 +231,7 @@ class FilesApiServiceImplTest {
         assertEquals(uploadJobResponse.getStatusCode(), HttpStatus.CREATED);
 
         Mockito.verify(fileService)
-               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName), Mockito.any(),
-                        Mockito.eq(20L));
+               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName), Mockito.any(), Mockito.eq(20L));
 
         var responseBody = uploadJobResponse.getBody();
         var fileMetadata = responseBody.getFile();
@@ -247,7 +251,7 @@ class FilesApiServiceImplTest {
                .singleResult();
 
         Mockito.when(uploadJobService.createQuery())
-                .thenReturn(query);
+               .thenReturn(query);
 
         ResponseEntity<AsyncUploadResult> response = testedClass.getUploadFromUrlJob(SPACE_GUID, NAMESPACE_GUID, "invalid");
 
@@ -273,8 +277,11 @@ class FilesApiServiceImplTest {
                .thenReturn(jobEntry);
         Mockito.when(uploadJobService.createQuery())
                .thenReturn(query);
+        Mockito.when(uploadJobService.update(any(), any()))
+               .thenReturn(jobEntry);
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE_GUID, ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE_GUID,
+                                                                                  ImmutableFileUrl.of(FILE_URL));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -312,8 +319,11 @@ class FilesApiServiceImplTest {
                .thenReturn(jobEntry);
         Mockito.when(uploadJobService.createQuery())
                .thenReturn(query);
+        Mockito.when(uploadJobService.update(any(), any()))
+               .thenReturn(jobEntry);
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE_GUID, ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE_GUID,
+                                                                                  ImmutableFileUrl.of(FILE_URL));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -331,7 +341,7 @@ class FilesApiServiceImplTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"https://host.domain/path/file?query=true", "http://host.domain/path/file.mtar?query=true"})
+    @ValueSource(strings = { "https://host.domain/path/file?query=true", "http://host.domain/path/file.mtar?query=true" })
     void testUploadFileWithInvalidUrl(String url) throws Exception {
         AsyncUploadJobsQuery query = Mockito.mock(AsyncUploadJobsQuery.class, Answers.RETURNS_SELF);
         HttpHeaders headers = HttpHeaders.of(Map.of("Content-Length", List.of("20")), (a, b) -> true);
@@ -349,11 +359,14 @@ class FilesApiServiceImplTest {
                .thenReturn(jobEntry);
         Mockito.when(uploadJobService.createQuery())
                .thenReturn(query);
+        Mockito.when(uploadJobService.update(any(), any()))
+               .thenReturn(jobEntry);
 
         String invalidFileUrl = Base64.getUrlEncoder()
                                       .encodeToString(url.getBytes(StandardCharsets.UTF_8));
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE_GUID, ImmutableFileUrl.of(invalidFileUrl));
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE_GUID,
+                                                                                  ImmutableFileUrl.of(invalidFileUrl));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -400,6 +413,7 @@ class FilesApiServiceImplTest {
         when(jobEntry.getStartedAt()).thenReturn(LocalDateTime.MIN);
         when(jobEntry.getFileId()).thenReturn(fileId);
         when(jobEntry.getState()).thenReturn(jobState);
+        when(jobEntry.getUrl()).thenReturn("https://artifactory.sap/mta");
         if (jobState == AsyncUploadJobEntry.State.ERROR) {
             when(jobEntry.getError()).thenReturn(error);
         }

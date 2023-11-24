@@ -113,13 +113,14 @@ public class FilesApiServiceImpl implements FilesApiService {
         var multipartFile = getFileFromRequest(request);
         try (InputStream in = new BufferedInputStream(multipartFile.getInputStream(), INPUT_STREAM_BUFFER_SIZE)) {
             var startTime = LocalDateTime.now();
-            FileEntry fileEntry = fileService.addFile(spaceGuid, namespace, multipartFile.getOriginalFilename(), in, multipartFile.getSize());
+            FileEntry fileEntry = fileService.addFile(spaceGuid, namespace, multipartFile.getOriginalFilename(), in,
+                                                      multipartFile.getSize());
             FileMetadata file = parseFileEntry(fileEntry);
             AuditLoggingProvider.getFacade()
                                 .logConfigCreate(file);
             var endTime = LocalDateTime.now();
-            LOGGER.trace(Messages.UPLOADED_FILE, file.getId(), file.getName(), file.getSize(), file.getDigest(),
-                         file.getDigestAlgorithm(), ChronoUnit.MILLIS.between(startTime, endTime));
+            LOGGER.trace(Messages.UPLOADED_FILE, file.getId(), file.getName(), file.getSize(), file.getDigest(), file.getDigestAlgorithm(),
+                         ChronoUnit.MILLIS.between(startTime, endTime));
             return ResponseEntity.status(HttpStatus.CREATED)
                                  .body(file);
         } catch (Exception e) {
@@ -145,17 +146,30 @@ public class FilesApiServiceImpl implements FilesApiService {
         var entry = createJobEntry(spaceGuid, namespace, urlWithoutUserInfo);
         LOGGER.debug(Messages.CREATING_ASYNC_UPLOAD_JOB, urlWithoutUserInfo, entry.getId());
         try {
+            uploadJobService.add(entry);
             deployFromUrlExecutor.execute(() -> uploadFileFromUrl(entry, spaceGuid, namespace, decodedUrl));
         } catch (RejectedExecutionException ignored) {
             LOGGER.debug(Messages.ASYNC_UPLOAD_JOB_REJECTED, entry.getId());
+            deleteAsyncJobEntry(entry);
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                                  .header(HttpHeaders.RETRY_AFTER, RETRY_AFTER_SECONDS)
                                  .build();
         }
         return ResponseEntity.accepted()
-                             .header("x-cf-app-instance", configuration.getApplicationGuid() + ":" + configuration.getApplicationInstanceIndex())
+                             .header("x-cf-app-instance",
+                                     configuration.getApplicationGuid() + ":" + configuration.getApplicationInstanceIndex())
                              .header(HttpHeaders.LOCATION, getLocationHeader(spaceGuid, entry.getId()))
                              .build();
+    }
+
+    private void deleteAsyncJobEntry(AsyncUploadJobEntry entry) {
+        try {
+            uploadJobService.createQuery()
+                            .id(entry.getId())
+                            .delete();
+        } catch (Exception e) {
+            LOGGER.error(Messages.ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY, e);
+        }
     }
 
     private String getLocationHeader(String spaceGuid, String jobId) {
@@ -259,8 +273,8 @@ public class FilesApiServiceImpl implements FilesApiService {
         try {
             return uploadJobService.createQuery()
                                    .id(id)
-                                   //even though the ID fully qualifies the job, we add these filters
-                                   //to prevent accessing a job from another space, namespace or a different user
+                                   // even though the ID fully qualifies the job, we add these filters
+                                   // to prevent accessing a job from another space, namespace or a different user
                                    .spaceGuid(spaceGuid)
                                    .user(SecurityContextUtil.getUsername())
                                    .namespace(namespace)
@@ -280,29 +294,32 @@ public class FilesApiServiceImpl implements FilesApiService {
     private void uploadFileFromUrl(AsyncUploadJobEntry jobEntry, String spaceGuid, String namespace, String fileUrl) {
         var counter = new AtomicLong(0);
         jobCounters.put(jobEntry.getId(), counter);
+        LOGGER.debug(Messages.STARTING_DOWNLOAD_OF_MTAR, jobEntry.getUrl());
+        var startTime = LocalDateTime.now();
+        AsyncUploadJobEntry jobEntryWithTimestamp = ImmutableAsyncUploadJobEntry.copyOf(jobEntry)
+                                                                                .withState(State.RUNNING)
+                                                                                .withStartedAt(startTime);
         try {
-            uploadJobService.add(jobEntry);
-            LOGGER.debug(Messages.STARTING_DOWNLOAD_OF_MTAR, jobEntry.getUrl());
-            var startTime = LocalDateTime.now();
-            uploadJobService.update(jobEntry, ImmutableAsyncUploadJobEntry.copyOf(jobEntry)
-                                                                          .withState(State.RUNNING)
-                                                                          .withStartedAt(startTime));
-            FileEntry fileEntry = resilientOperationExecutor.execute((CheckedSupplier<FileEntry>) () -> doUploadFileFromUrl(spaceGuid, namespace, fileUrl, counter));
-            LOGGER.trace(Messages.UPLOADED_MTAR_FROM_REMOTE_ENDPOINT, jobEntry.getUrl(),
+            jobEntryWithTimestamp = uploadJobService.update(jobEntry, jobEntryWithTimestamp);
+            FileEntry fileEntry = resilientOperationExecutor.execute((CheckedSupplier<FileEntry>) () -> doUploadFileFromUrl(spaceGuid,
+                                                                                                                            namespace,
+                                                                                                                            fileUrl,
+                                                                                                                            counter));
+            LOGGER.trace(Messages.UPLOADED_MTAR_FROM_REMOTE_ENDPOINT_AND_JOB_ID, jobEntry.getUrl(), jobEntry.getId(),
                          ChronoUnit.MILLIS.between(startTime, LocalDateTime.now()));
 
             var descriptor = fileService.processFileContent(spaceGuid, fileEntry.getId(), this::extractDeploymentDescriptor);
             LOGGER.debug(Messages.ASYNC_UPLOAD_JOB_FINISHED, jobEntry.getId());
-            uploadJobService.update(jobEntry, ImmutableAsyncUploadJobEntry.copyOf(jobEntry)
-                                                                          .withFileId(fileEntry.getId())
-                                                                          .withMtaId(descriptor.getId())
-                                                                          .withFinishedAt(LocalDateTime.now())
-                                                                          .withState(State.FINISHED));
+            uploadJobService.update(jobEntryWithTimestamp, ImmutableAsyncUploadJobEntry.copyOf(jobEntryWithTimestamp)
+                                                                                       .withFileId(fileEntry.getId())
+                                                                                       .withMtaId(descriptor.getId())
+                                                                                       .withFinishedAt(LocalDateTime.now())
+                                                                                       .withState(State.FINISHED));
         } catch (Exception e) {
             LOGGER.error(MessageFormat.format(Messages.ASYNC_UPLOAD_JOB_FAILED, jobEntry.getId(), e.getMessage()), e);
-            uploadJobService.update(jobEntry, ImmutableAsyncUploadJobEntry.copyOf(jobEntry)
-                                                                          .withError(e.getMessage())
-                                                                          .withState(State.ERROR));
+            uploadJobService.update(jobEntryWithTimestamp, ImmutableAsyncUploadJobEntry.copyOf(jobEntryWithTimestamp)
+                                                                                       .withError(e.getMessage())
+                                                                                       .withState(State.ERROR));
         }
     }
 
@@ -325,11 +342,11 @@ public class FilesApiServiceImpl implements FilesApiService {
 
         String fileName = extractFileName(fileUrl);
         FileUtils.validateFileHasExtension(fileName);
-        counter.set(0); //reset counter on retry
+        counter.set(0); // reset counter on retry
         // Normal stream returned from the http response always returns 0 when InputStream::available() is executed which seems to break
         // JClods library: https://issues.apache.org/jira/browse/JCLOUDS-1623
         try (CountingInputStream source = new CountingInputStream(response.body(), counter);
-             BufferedInputStream bufferedContent = new BufferedInputStream(source, INPUT_STREAM_BUFFER_SIZE)) {
+            BufferedInputStream bufferedContent = new BufferedInputStream(source, INPUT_STREAM_BUFFER_SIZE)) {
             LOGGER.debug(Messages.UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT, response.uri());
             return fileService.addFile(spaceGuid, namespace, fileName, bufferedContent, fileSize);
         }
@@ -342,8 +359,8 @@ public class FilesApiServiceImpl implements FilesApiService {
             var response = client.send(request, BodyHandlers.ofInputStream());
             if (response.statusCode() / 100 != 2) {
                 String error = readErrorBodyFromResponse(response);
-                throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, request.uri(),
-                                                           response.statusCode(), error));
+                throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, request.uri(), response.statusCode(),
+                                                           error));
             }
             return response;
         });
