@@ -20,6 +20,7 @@ public final class Messages {
     public static final String CANNOT_PARSE_CONTAINER_URI_OF_OBJECT_STORE = "Cannot parse container_uri of object store";
     public static final String UNSUPPORTED_SERVICE_PLAN_FOR_OBJECT_STORE = "Unsupported service plan for object store!";
     public static final String REQUEST_0_1_FAILED_WITH_2 = "Request \"{0} {1}\" failed with \"{2}\"";
+    public static final String ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY = "Error occurred while deleting job entry";
 
     // Audit log messages
 
@@ -63,7 +64,7 @@ public final class Messages {
     public static final String CREATING_ASYNC_UPLOAD_JOB = "Creating async upload job for URL {} with ID: {}";
     public static final String ASYNC_UPLOAD_JOB_REJECTED = "Async upload job {} rejected. Deleting entry";
     public static final String STARTING_DOWNLOAD_OF_MTAR = "Starting download of MTAR from remote endpoint: {}";
-    public static final String UPLOADED_MTAR_FROM_REMOTE_ENDPOINT = "Uploaded MTAR from remote endpoint {} in {} ms";
+    public static final String UPLOADED_MTAR_FROM_REMOTE_ENDPOINT_AND_JOB_ID = "Uploaded MTAR from remote endpoint {} with job id: {} in {} ms";
     public static final String ASYNC_UPLOAD_JOB_FINISHED = "Async upload job {} finished";
     public static final String UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT = "Uploading MTAR stream from remote endpoint: {}";
     public static final String CALLING_REMOTE_MTAR_ENDPOINT = "Calling remote MTAR endpoint {}";
