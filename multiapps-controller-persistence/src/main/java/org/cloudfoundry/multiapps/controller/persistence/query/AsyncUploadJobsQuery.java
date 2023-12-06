@@ -1,8 +1,8 @@
 package org.cloudfoundry.multiapps.controller.persistence.query;
 
-import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
-
 import java.time.LocalDateTime;
+
+import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
 
 public interface AsyncUploadJobsQuery extends Query<AsyncUploadJobEntry, AsyncUploadJobsQuery> {
 
@@ -23,4 +23,12 @@ public interface AsyncUploadJobsQuery extends Query<AsyncUploadJobEntry, AsyncUp
     AsyncUploadJobsQuery withStateAnyOf(AsyncUploadJobEntry.State... states);
 
     AsyncUploadJobsQuery startedBefore(LocalDateTime startedBefore);
+
+    AsyncUploadJobsQuery addedBefore(LocalDateTime addedBefore);
+
+    AsyncUploadJobsQuery withoutStartedAt();
+
+    AsyncUploadJobsQuery withoutAddedAt();
+    
+    AsyncUploadJobsQuery instanceIndex(int instanceIndex);
 }

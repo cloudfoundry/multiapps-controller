@@ -4,14 +4,14 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.multiapps.controller.api.FilesApiService;
 import org.cloudfoundry.multiapps.controller.api.Constants.Endpoints;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.RequestVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.Resources;
+import org.cloudfoundry.multiapps.controller.api.FilesApiService;
+import org.cloudfoundry.multiapps.controller.api.model.AsyncUploadResult;
 import org.cloudfoundry.multiapps.controller.api.model.FileMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.FileUrl;
-import org.cloudfoundry.multiapps.controller.api.model.AsyncUploadResult;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -64,10 +64,10 @@ public class FilesApi {
     }
 
     @PostMapping(path = Endpoints.ASYNC_UPLOAD, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", nickname = "startUploadFromUrl", notes = "Uploads a Multi Target Application archive or an Extension Descriptor from a remote endpoint",  authorizations = {
-            @Authorization(value = "oauth2", scopes = {
+    @ApiOperation(value = "", nickname = "startUploadFromUrl", notes = "Uploads a Multi Target Application archive or an Extension Descriptor from a remote endpoint", authorizations = {
+        @Authorization(value = "oauth2", scopes = {
 
-            }) }, tags = {})
+        }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted") })
     public ResponseEntity<Void>
            startUploadFromUrl(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
@@ -78,13 +78,15 @@ public class FilesApi {
 
     @GetMapping(path = Endpoints.ASYNC_UPLOAD_JOB, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "", nickname = "getAsyncUploadJob", notes = "Gets the status of an async upload job", response = AsyncUploadResult.class, authorizations = {
-            @Authorization(value = "oauth2", scopes = {
+        @Authorization(value = "oauth2", scopes = {
 
-            }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 201, message = "Created", response = AsyncUploadResult.class) })
-    public ResponseEntity<AsyncUploadResult> getUploadFromUrlJob(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                                                                 @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
-                                                                 @ApiParam(value = "ID of the upload job") @PathVariable(PathVariables.JOB_ID) String jobId) {
+        }) }, tags = {})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+        @ApiResponse(code = 201, message = "Created", response = AsyncUploadResult.class) })
+    public ResponseEntity<AsyncUploadResult>
+           getUploadFromUrlJob(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                               @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
+                               @ApiParam(value = "ID of the upload job") @PathVariable(PathVariables.JOB_ID) String jobId) {
         return delegate.getUploadFromUrlJob(spaceGuid, namespace, jobId);
     }
 

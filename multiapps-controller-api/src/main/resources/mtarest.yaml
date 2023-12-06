@@ -426,6 +426,13 @@ definitions:
       mta_id:
         type: "string"
         readOnly: true
+      client_actions:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+          enum:
+          - "RETRY_UPLOAD"
   FileMetadata:
     type: "object"
     properties:

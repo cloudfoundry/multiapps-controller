@@ -1,5 +1,15 @@
 package org.cloudfoundry.multiapps.controller.persistence.query.impl;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
+import javax.persistence.criteria.Expression;
+
 import org.cloudfoundry.multiapps.controller.persistence.dto.AsyncUploadJobDto;
 import org.cloudfoundry.multiapps.controller.persistence.dto.AsyncUploadJobDto.AttributeNames;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
@@ -8,15 +18,6 @@ import org.cloudfoundry.multiapps.controller.persistence.query.AsyncUploadJobsQu
 import org.cloudfoundry.multiapps.controller.persistence.query.criteria.ImmutableQueryAttributeRestriction;
 import org.cloudfoundry.multiapps.controller.persistence.query.criteria.QueryCriteria;
 import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService.AsyncUploadJobMapper;
-
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.criteria.Expression;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class AsyncUploadJobsQueryImpl extends AbstractQueryImpl<AsyncUploadJobEntry, AsyncUploadJobsQuery> implements AsyncUploadJobsQuery {
 
@@ -99,6 +100,7 @@ public class AsyncUploadJobsQueryImpl extends AbstractQueryImpl<AsyncUploadJobEn
         return this;
     }
 
+    @Override
     public AsyncUploadJobsQuery withStateAnyOf(State... states) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<List<State>> builder()
                                                                        .attribute(AttributeNames.STATE)
@@ -108,6 +110,17 @@ public class AsyncUploadJobsQueryImpl extends AbstractQueryImpl<AsyncUploadJobEn
         return this;
     }
 
+    @Override
+    public AsyncUploadJobsQuery addedBefore(LocalDateTime addedBefore) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<LocalDateTime> builder()
+                                                                       .attribute(AttributeNames.ADDED_AT)
+                                                                       .condition(getCriteriaBuilder()::lessThan)
+                                                                       .value(addedBefore)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
     public AsyncUploadJobsQuery startedBefore(LocalDateTime startedBefore) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<LocalDateTime> builder()
                                                                        .attribute(AttributeNames.STARTED_AT)
@@ -115,6 +128,35 @@ public class AsyncUploadJobsQueryImpl extends AbstractQueryImpl<AsyncUploadJobEn
                                                                        .value(startedBefore)
                                                                        .build());
         return this;
+    }
+
+    @Override
+    public AsyncUploadJobsQuery withoutStartedAt() {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.STARTED_AT)
+                                                                       .condition((attribute, value) -> attribute.isNull())
+                                                                       .build());
+        return this;
+    }
+
+    @Override
+    public AsyncUploadJobsQuery withoutAddedAt() {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.ADDED_AT)
+                                                                       .condition((attribute, value) -> attribute.isNull())
+                                                                       .build());
+        return this;
+    }
+
+    @Override
+    public AsyncUploadJobsQuery instanceIndex(int instanceIndex) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.INSTANCE_INDEX)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(instanceIndex)
+                                                                       .build());
+        return this;
+
     }
 
     @Override

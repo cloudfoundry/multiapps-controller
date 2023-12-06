@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +37,7 @@ public class FileStorageConfiguration {
 
     @Inject
     @Bean(name = "asyncFileUploadExecutor")
-    public Executor asyncFileUploadExecutor(ApplicationConfiguration configuration) {
+    public ExecutorService asyncFileUploadExecutor(ApplicationConfiguration configuration) {
         return new ThreadPoolExecutor(5,
                                       configuration.getFilesAsyncUploadExecutorMaxThreads(),
                                       30,

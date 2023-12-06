@@ -1,5 +1,9 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.persistence.EntityManagerFactory;
+
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
@@ -8,10 +12,6 @@ import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEnt
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableAsyncUploadJobEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.AsyncUploadJobsQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.AsyncUploadJobsQueryImpl;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.persistence.EntityManagerFactory;
 
 @Named
 public class AsyncUploadJobService extends PersistenceService<AsyncUploadJobEntry, AsyncUploadJobDto, String> {
@@ -48,6 +48,7 @@ public class AsyncUploadJobService extends PersistenceService<AsyncUploadJobEntr
                                                .id(dto.getPrimaryKey())
                                                .user(dto.getMtaUser())
                                                .state(AsyncUploadJobEntry.State.valueOf(dto.getState()))
+                                               .addedAt(dto.getAddedAt())
                                                .startedAt(dto.getStartedAt())
                                                .finishedAt(dto.getFinishedAt())
                                                .namespace(dto.getNamespace())
@@ -67,6 +68,7 @@ public class AsyncUploadJobService extends PersistenceService<AsyncUploadJobEntr
                                          entry.getState()
                                               .toString(),
                                          entry.getUrl(),
+                                         entry.getAddedAt(),
                                          entry.getStartedAt(),
                                          entry.getFinishedAt(),
                                          entry.getNamespace(),

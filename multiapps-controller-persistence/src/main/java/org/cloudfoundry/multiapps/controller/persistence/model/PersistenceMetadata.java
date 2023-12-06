@@ -90,6 +90,7 @@ public class PersistenceMetadata {
         public static final String ASYNC_UPLOAD_JOB_STATE = "state";
         public static final String ASYNC_UPLOAD_JOB_URL = "url";
         public static final String ASYNC_UPLOAD_JOB_USER = "mta_user";
+        public static final String ASYNC_UPLOAD_JOB_ADDED_AT = "added_at";
         public static final String ASYNC_UPLOAD_JOB_STARTED_AT = "started_at";
         public static final String ASYNC_UPLOAD_JOB_FINISHED_AT = "finished_at";
         public static final String ASYNC_UPLOAD_JOB_NAMESPACE = "namespace";
