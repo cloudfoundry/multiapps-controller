@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.web.api.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
@@ -18,7 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import javax.persistence.NoResultException;
 
@@ -75,7 +77,7 @@ class FilesApiServiceImplTest {
     @Mock
     private HttpResponse<InputStream> fileUrlResponse;
     @Mock
-    private Executor asyncFileUploadExecutor;
+    private ExecutorService asyncFileUploadExecutor;
     @Mock
     private ApplicationConfiguration configuration = new ApplicationConfiguration();
     @Spy
@@ -103,7 +105,7 @@ class FilesApiServiceImplTest {
     };
 
     private static final String SPACE_GUID = "896e6be9-8217-4a1c-b938-09b30966157a";
-    private static final String NAMESPACE_GUID = "0a42c085-b772-4b1e-bf4d-75c463aab5f6";
+    private static final String NAMESPACE = "custom-namespace";
 
     private static final String DIGEST_CHARACTER_TABLE = "123456789ABCDEF";
 
@@ -122,22 +124,16 @@ class FilesApiServiceImplTest {
         Mockito.when(request.getRequestURI())
                .thenReturn("");
         AuditLoggingProvider.setFacade(Mockito.mock(AuditLoggingFacade.class));
-        Mockito.doAnswer(invocationOnMock -> {
-            Runnable r = invocationOnMock.getArgument(0);
-            r.run();
-            return null;
-        })
-               .when(asyncFileUploadExecutor)
-               .execute(Mockito.any());
+
     }
 
     @Test
     void testGetMtaFiles() throws Exception {
         FileEntry entryOne = createFileEntry("test.mtar");
         FileEntry entryTwo = createFileEntry("extension.mtaet");
-        Mockito.when(fileService.listFiles(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID)))
+        Mockito.when(fileService.listFiles(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE)))
                .thenReturn(List.of(entryOne, entryTwo));
-        ResponseEntity<List<FileMetadata>> response = testedClass.getFiles(SPACE_GUID, NAMESPACE_GUID);
+        ResponseEntity<List<FileMetadata>> response = testedClass.getFiles(SPACE_GUID, NAMESPACE);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<FileMetadata> files = response.getBody();
         assertEquals(2, files.size());
@@ -169,16 +165,16 @@ class FilesApiServiceImplTest {
         Mockito.when(request.getFileMap())
                .thenReturn(Map.of("file", file));
 
-        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName),
+        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE), Mockito.eq(fileName),
                                          Mockito.any(InputStream.class), Mockito.eq(fileSize)))
                .thenReturn(fileEntry);
 
-        ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID);
+        ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID, NAMESPACE);
 
         Mockito.verify(file)
                .getInputStream();
         Mockito.verify(fileService)
-               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName), Mockito.any(InputStream.class),
+               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE), Mockito.eq(fileName), Mockito.any(InputStream.class),
                         Mockito.eq(fileSize));
 
         FileMetadata fileMetadata = response.getBody();
@@ -203,22 +199,24 @@ class FilesApiServiceImplTest {
 
         Mockito.when(httpClient.send(Mockito.any(), Mockito.eq(BodyHandlers.ofInputStream())))
                .thenReturn(fileUrlResponse);
-
-        Mockito.when(query.singleResult())
-               .thenReturn(jobEntry);
+        AsyncUploadJobsQuery queryReturningNoJobs = mock(AsyncUploadJobsQuery.class);
+        when(query.withStateAnyOf(AsyncUploadJobEntry.State.INITIAL, AsyncUploadJobEntry.State.RUNNING)).thenReturn(queryReturningNoJobs);
+        when(query.list()).thenReturn(List.of(jobEntry));
         Mockito.when(uploadJobService.createQuery())
                .thenReturn(query);
         Mockito.when(uploadJobService.update(any(), any()))
                .thenReturn(jobEntry);
 
-        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName), Mockito.any(),
+        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE), Mockito.eq(fileName), Mockito.any(),
                                          Mockito.eq(20L)))
                .thenReturn(fileEntry);
         Mockito.when(fileService.getFile(Mockito.eq(SPACE_GUID), Mockito.eq(fileEntry.getId())))
                .thenReturn(fileEntry);
+        Future<?> future = Mockito.mock(Future.class);
+        when(future.isDone()).thenReturn(true);
+        prepareAsyncExecutor(future);
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE_GUID,
-                                                                                  ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -226,12 +224,12 @@ class FilesApiServiceImplTest {
                                            .getFirst("Location");
         String jobGuid = jobUrl.substring(jobUrl.lastIndexOf('/'));
 
-        ResponseEntity<AsyncUploadResult> uploadJobResponse = testedClass.getUploadFromUrlJob(SPACE_GUID, NAMESPACE_GUID, jobGuid);
+        ResponseEntity<AsyncUploadResult> uploadJobResponse = testedClass.getUploadFromUrlJob(SPACE_GUID, NAMESPACE, jobGuid);
 
         assertEquals(uploadJobResponse.getStatusCode(), HttpStatus.CREATED);
 
         Mockito.verify(fileService)
-               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName), Mockito.any(), Mockito.eq(20L));
+               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE), Mockito.eq(fileName), Mockito.any(), Mockito.eq(20L));
 
         var responseBody = uploadJobResponse.getBody();
         var fileMetadata = responseBody.getFile();
@@ -241,6 +239,16 @@ class FilesApiServiceImplTest {
         var status = responseBody.getStatus();
         assertEquals(mtaId, MTA_ID);
         assertEquals(status, AsyncUploadResult.JobStatus.FINISHED);
+    }
+
+    private void prepareAsyncExecutor(Future<?> future) {
+        Mockito.doAnswer(invocationOnMock -> {
+            Runnable r = invocationOnMock.getArgument(0);
+            r.run();
+            return future;
+        })
+               .when(asyncFileUploadExecutor)
+               .submit((Runnable) Mockito.any());
     }
 
     @Test
@@ -253,7 +261,7 @@ class FilesApiServiceImplTest {
         Mockito.when(uploadJobService.createQuery())
                .thenReturn(query);
 
-        ResponseEntity<AsyncUploadResult> response = testedClass.getUploadFromUrlJob(SPACE_GUID, NAMESPACE_GUID, "invalid");
+        ResponseEntity<AsyncUploadResult> response = testedClass.getUploadFromUrlJob(SPACE_GUID, NAMESPACE, "invalid");
 
         assertEquals(response.getStatusCode(), HttpStatus.NOT_FOUND);
     }
@@ -273,15 +281,18 @@ class FilesApiServiceImplTest {
         Mockito.when(httpClient.send(Mockito.any(), Mockito.eq(BodyHandlers.ofInputStream())))
                .thenReturn(fileUrlResponse);
 
-        Mockito.when(query.singleResult())
-               .thenReturn(jobEntry);
+        AsyncUploadJobsQuery queryReturningNoJobs = mock(AsyncUploadJobsQuery.class);
+        when(query.withStateAnyOf(AsyncUploadJobEntry.State.INITIAL, AsyncUploadJobEntry.State.RUNNING)).thenReturn(queryReturningNoJobs);
+        when(query.list()).thenReturn(List.of(jobEntry));
         Mockito.when(uploadJobService.createQuery())
                .thenReturn(query);
         Mockito.when(uploadJobService.update(any(), any()))
                .thenReturn(jobEntry);
+        Future<?> future = Mockito.mock(Future.class);
+        when(future.isDone()).thenReturn(true);
+        prepareAsyncExecutor(future);
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE_GUID,
-                                                                                  ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -289,13 +300,31 @@ class FilesApiServiceImplTest {
                                            .getFirst("Location");
         String jobGuid = jobUrl.substring(jobUrl.lastIndexOf('/'));
 
-        ResponseEntity<AsyncUploadResult> uploadJobResponse = testedClass.getUploadFromUrlJob(SPACE_GUID, NAMESPACE_GUID, jobGuid);
+        ResponseEntity<AsyncUploadResult> uploadJobResponse = testedClass.getUploadFromUrlJob(SPACE_GUID, NAMESPACE, jobGuid);
 
         assertEquals(uploadJobResponse.getStatusCode(), HttpStatus.OK);
 
         var responseBody = uploadJobResponse.getBody();
         assertEquals(responseBody.getStatus(), AsyncUploadResult.JobStatus.ERROR);
         assertEquals(responseBody.getError(), error);
+    }
+
+    @Test
+    void testUploadFromUrlWhenThereIsValidExistingJob() {
+        AsyncUploadJobsQuery query = Mockito.mock(AsyncUploadJobsQuery.class, Answers.RETURNS_SELF);
+        when(uploadJobService.createQuery()).thenReturn(query);
+        var jobEntry = mockUploadJobEntry(null, AsyncUploadJobEntry.State.ERROR, null);
+        when(query.list()).thenReturn(List.of(jobEntry));
+        Future<?> runningTask = mock(Future.class);
+        prepareAsyncExecutor(runningTask);
+        when(uploadJobService.update(any(), any())).thenReturn(jobEntry);
+        ResponseEntity<Void> firstUpload = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
+        String locationHeader = firstUpload.getHeaders()
+                                           .getFirst(org.springframework.http.HttpHeaders.LOCATION);
+        String createdJobId = locationHeader.substring(locationHeader.lastIndexOf("/") + 1);
+        when(jobEntry.getId()).thenReturn(createdJobId);
+        ResponseEntity<Void> secondUpload = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
+        assertEquals(HttpStatus.SEE_OTHER, secondUpload.getStatusCode());
     }
 
     @Test
@@ -315,15 +344,18 @@ class FilesApiServiceImplTest {
         Mockito.when(httpClient.send(Mockito.any(), Mockito.eq(BodyHandlers.ofInputStream())))
                .thenReturn(fileUrlResponse);
 
-        Mockito.when(query.singleResult())
-               .thenReturn(jobEntry);
+        AsyncUploadJobsQuery queryReturningNoJobs = mock(AsyncUploadJobsQuery.class);
+        when(query.withStateAnyOf(AsyncUploadJobEntry.State.INITIAL, AsyncUploadJobEntry.State.RUNNING)).thenReturn(queryReturningNoJobs);
+        when(query.list()).thenReturn(List.of(jobEntry));
         Mockito.when(uploadJobService.createQuery())
                .thenReturn(query);
         Mockito.when(uploadJobService.update(any(), any()))
                .thenReturn(jobEntry);
+        Future<?> future = Mockito.mock(Future.class);
+        when(future.isDone()).thenReturn(true);
+        prepareAsyncExecutor(future);
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE_GUID,
-                                                                                  ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -331,7 +363,7 @@ class FilesApiServiceImplTest {
                                            .getFirst("Location");
         String jobGuid = jobUrl.substring(jobUrl.lastIndexOf('/'));
 
-        ResponseEntity<AsyncUploadResult> uploadJobResponse = testedClass.getUploadFromUrlJob(SPACE_GUID, NAMESPACE_GUID, jobGuid);
+        ResponseEntity<AsyncUploadResult> uploadJobResponse = testedClass.getUploadFromUrlJob(SPACE_GUID, NAMESPACE, jobGuid);
 
         assertEquals(uploadJobResponse.getStatusCode(), HttpStatus.OK);
 
@@ -355,17 +387,21 @@ class FilesApiServiceImplTest {
         Mockito.when(httpClient.send(Mockito.any(), Mockito.eq(BodyHandlers.ofInputStream())))
                .thenReturn(fileUrlResponse);
 
-        Mockito.when(query.singleResult())
-               .thenReturn(jobEntry);
+        AsyncUploadJobsQuery queryReturningNoJobs = mock(AsyncUploadJobsQuery.class);
+        when(query.withStateAnyOf(AsyncUploadJobEntry.State.INITIAL, AsyncUploadJobEntry.State.RUNNING)).thenReturn(queryReturningNoJobs);
+        when(query.list()).thenReturn(List.of(jobEntry));
         Mockito.when(uploadJobService.createQuery())
                .thenReturn(query);
         Mockito.when(uploadJobService.update(any(), any()))
                .thenReturn(jobEntry);
+        Future<?> future = Mockito.mock(Future.class);
+        when(future.isDone()).thenReturn(true);
+        prepareAsyncExecutor(future);
 
         String invalidFileUrl = Base64.getUrlEncoder()
                                       .encodeToString(url.getBytes(StandardCharsets.UTF_8));
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE_GUID,
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE,
                                                                                   ImmutableFileUrl.of(invalidFileUrl));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
@@ -374,12 +410,26 @@ class FilesApiServiceImplTest {
                                            .getFirst("Location");
         String jobGuid = jobUrl.substring(jobUrl.lastIndexOf('/'));
 
-        ResponseEntity<AsyncUploadResult> uploadJobResponse = testedClass.getUploadFromUrlJob(SPACE_GUID, NAMESPACE_GUID, jobGuid);
+        ResponseEntity<AsyncUploadResult> uploadJobResponse = testedClass.getUploadFromUrlJob(SPACE_GUID, NAMESPACE, jobGuid);
 
         assertEquals(uploadJobResponse.getStatusCode(), HttpStatus.OK);
 
         var responseBody = uploadJobResponse.getBody();
-        assertEquals(responseBody.getStatus(), AsyncUploadResult.JobStatus.ERROR);
+        assertEquals(AsyncUploadResult.JobStatus.ERROR, responseBody.getStatus());
+    }
+
+    @Test
+    void testGetUploadFromUrlOnDifferentInstance() {
+        AsyncUploadJobsQuery query = Mockito.mock(AsyncUploadJobsQuery.class, Answers.RETURNS_SELF);
+        when(query.withStateAnyOf(AsyncUploadJobEntry.State.INITIAL, AsyncUploadJobEntry.State.RUNNING)).thenReturn(query);
+        var jobEntry = mockUploadJobEntry(null, AsyncUploadJobEntry.State.RUNNING, null);
+        when(query.list()).thenReturn(List.of(jobEntry));
+        Mockito.when(uploadJobService.createQuery())
+               .thenReturn(query);
+        when(configuration.getApplicationInstanceIndex()).thenReturn(3);
+        ResponseEntity<AsyncUploadResult> uploadJobResponse = testedClass.getUploadFromUrlJob(SPACE_GUID, NAMESPACE, jobEntry.getId());
+        assertEquals(AsyncUploadResult.JobStatus.ERROR, uploadJobResponse.getBody()
+                                                                         .getStatus());
     }
 
     private void assertMetadataMatches(FileEntry expected, FileMetadata actual) {
@@ -398,7 +448,7 @@ class FilesApiServiceImplTest {
                                  .digest(RandomStringUtils.random(32, DIGEST_CHARACTER_TABLE))
                                  .digestAlgorithm(Constants.DIGEST_ALGORITHM)
                                  .name(name)
-                                 .namespace(NAMESPACE_GUID)
+                                 .namespace(NAMESPACE)
                                  .size(BigInteger.valueOf(new Random().nextInt(1024 * 1024 * 10)))
                                  .space(SPACE_GUID)
                                  .build();
@@ -414,6 +464,7 @@ class FilesApiServiceImplTest {
         when(jobEntry.getFileId()).thenReturn(fileId);
         when(jobEntry.getState()).thenReturn(jobState);
         when(jobEntry.getUrl()).thenReturn("https://artifactory.sap/mta");
+        when(jobEntry.getInstanceIndex()).thenReturn(0);
         if (jobState == AsyncUploadJobEntry.State.ERROR) {
             when(jobEntry.getError()).thenReturn(error);
         }

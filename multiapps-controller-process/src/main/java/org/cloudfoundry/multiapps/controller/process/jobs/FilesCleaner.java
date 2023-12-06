@@ -37,9 +37,21 @@ public class FilesCleaner implements Cleaner {
         try {
             int removedOldFilesCount = fileService.deleteModifiedBefore(expirationTime);
             LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_FILES_0, removedOldFilesCount));
+
             int deletedJobs = uploadJobService.createQuery()
-                                              .startedBefore(expirationTime)
+                                              .addedBefore(expirationTime)
                                               .delete();
+
+            // TODO Delete after one tact, this should remove leaked jobs
+            deletedJobs += uploadJobService.createQuery()
+                                           .startedBefore(expirationTime)
+                                           .delete();
+            deletedJobs += uploadJobService.createQuery()
+                                           .withoutStartedAt()
+                                           .withoutAddedAt()
+                                           .delete();
+            // TODO: Delete after one tact, this should remove leaked jobs
+
             LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_FILE_UPLOAD_JOBS_0, deletedJobs));
         } catch (FileStorageException e) {
             throw new SLException(e, Messages.COULD_NOT_DELETE_FILES_MODIFIED_BEFORE_0, expirationTime);

@@ -1,9 +1,9 @@
 package org.cloudfoundry.multiapps.controller.persistence.model;
 
+import java.time.LocalDateTime;
+
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
-
-import java.time.LocalDateTime;
 
 @Value.Immutable
 public interface AsyncUploadJobEntry {
@@ -19,6 +19,9 @@ public interface AsyncUploadJobEntry {
     String getUser();
 
     String getUrl();
+
+    @Nullable
+    LocalDateTime getAddedAt();
 
     @Nullable
     LocalDateTime getStartedAt();

@@ -19,14 +19,14 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.ProxyInputStream;
@@ -88,9 +88,12 @@ public class FilesApiServiceImpl implements FilesApiService {
     private AsyncUploadJobService uploadJobService;
     @Inject
     @Named("asyncFileUploadExecutor")
-    private Executor deployFromUrlExecutor;
+    private ExecutorService deployFromUrlExecutor;
 
-    private final CachedMap<String, AtomicLong> jobCounters = new CachedMap<>(Duration.ofMinutes(30));
+    private final CachedMap<String, AtomicLong> jobCounters = new CachedMap<>(Duration.ofHours(1));
+
+    private final CachedMap<String, Future<?>> runningTasks = new CachedMap<>(Duration.ofHours(1));
+
     private final ResilientOperationExecutor resilientOperationExecutor = getResilientOperationExecutor();
 
     @Override
@@ -134,42 +137,20 @@ public class FilesApiServiceImpl implements FilesApiService {
                                              .decode(fileUrl.getFileUrl()));
         String urlWithoutUserInfo = UriUtil.stripUserInfo(decodedUrl);
         LOGGER.trace(Messages.RECEIVED_UPLOAD_FROM_URL_REQUEST, urlWithoutUserInfo);
-
         var existingJob = getExistingJob(spaceGuid, namespace, urlWithoutUserInfo);
         if (existingJob != null) {
-            LOGGER.debug(Messages.ASYNC_UPLOAD_JOB_EXISTS, urlWithoutUserInfo, existingJob);
-            return ResponseEntity.status(HttpStatus.SEE_OTHER)
-                                 .header(HttpHeaders.LOCATION, getLocationHeader(spaceGuid, existingJob.getId()))
-                                 .build();
+            if (runningTasks.get(existingJob.getId()) != null) {
+                LOGGER.info(Messages.ASYNC_UPLOAD_JOB_EXISTS, urlWithoutUserInfo, existingJob);
+                return ResponseEntity.status(HttpStatus.SEE_OTHER)
+                                     .header(HttpHeaders.LOCATION, getLocationHeader(spaceGuid, existingJob.getId()))
+                                     .header("x-cf-app-instance", configuration.getApplicationGuid() + ":" + existingJob.getInstanceIndex())
+                                     .build();
+            } else {
+                LOGGER.warn(Messages.THE_JOB_EXISTS_BUT_IT_IS_NOT_RUNNING_DELETING);
+                deleteAsyncJobEntry(existingJob);
+            }
         }
-
-        var entry = createJobEntry(spaceGuid, namespace, urlWithoutUserInfo);
-        LOGGER.debug(Messages.CREATING_ASYNC_UPLOAD_JOB, urlWithoutUserInfo, entry.getId());
-        try {
-            uploadJobService.add(entry);
-            deployFromUrlExecutor.execute(() -> uploadFileFromUrl(entry, spaceGuid, namespace, decodedUrl));
-        } catch (RejectedExecutionException ignored) {
-            LOGGER.debug(Messages.ASYNC_UPLOAD_JOB_REJECTED, entry.getId());
-            deleteAsyncJobEntry(entry);
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                                 .header(HttpHeaders.RETRY_AFTER, RETRY_AFTER_SECONDS)
-                                 .build();
-        }
-        return ResponseEntity.accepted()
-                             .header("x-cf-app-instance",
-                                     configuration.getApplicationGuid() + ":" + configuration.getApplicationInstanceIndex())
-                             .header(HttpHeaders.LOCATION, getLocationHeader(spaceGuid, entry.getId()))
-                             .build();
-    }
-
-    private void deleteAsyncJobEntry(AsyncUploadJobEntry entry) {
-        try {
-            uploadJobService.createQuery()
-                            .id(entry.getId())
-                            .delete();
-        } catch (Exception e) {
-            LOGGER.error(Messages.ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY, e);
-        }
+        return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl);
     }
 
     private String getLocationHeader(String spaceGuid, String jobId) {
@@ -183,18 +164,41 @@ public class FilesApiServiceImpl implements FilesApiService {
             return ResponseEntity.notFound()
                                  .build();
         }
+        return getAsyncUploadResult(spaceGuid, namespace, job);
+    }
 
+    private ResponseEntity<AsyncUploadResult> getAsyncUploadResult(String spaceGuid, String namespace, AsyncUploadJobEntry job) {
         if (job.getState() == State.RUNNING || job.getState() == State.INITIAL) {
-            var count = jobCounters.getOrDefault(jobId, new AtomicLong(-1));
-            return ResponseEntity.ok(ImmutableAsyncUploadResult.builder()
-                                                               .status(AsyncUploadResult.JobStatus.RUNNING)
-                                                               .bytes(count.get())
-                                                               .build());
+            Future<?> futureTask = runningTasks.get(job.getId());
+            if (futureTask == null) {
+                LOGGER.error(MessageFormat.format(Messages.JOB_0_WAS_NOT_FOUND_IN_THE_RUNNING_TASKS, job.getId()));
+                return ResponseEntity.ok(createErrorResult(Messages.JOB_IS_NOT_BEING_EXECUTED,
+                                                           AsyncUploadResult.ClientAction.RETRY_UPLOAD));
+            }
+            if (!futureTask.isDone()) {
+                var count = jobCounters.getOrDefault(job.getId(), new AtomicLong(-1));
+                return ResponseEntity.ok(ImmutableAsyncUploadResult.builder()
+                                                                   .status(AsyncUploadResult.JobStatus.RUNNING)
+                                                                   .bytes(count.get())
+                                                                   .build());
+            }
+            var jobWithLatestState = getJob(job.getId(), spaceGuid, namespace);
+            if (jobWithLatestState.getState() == State.RUNNING || jobWithLatestState.getState() == State.INITIAL) {
+                LOGGER.error(MessageFormat.format(Messages.JOB_0_EXISTS_IN_STATE_1_BUT_DOES_NOT_EXISTS_IN_THE_RUNNING_TASKS, job.getId(),
+                                                  jobWithLatestState.getState()));
+                return ResponseEntity.ok(createErrorResult(Messages.JOB_THREAD_IS_NOT_RUNNING_BUT_STATE_IS_STILL_IN_PROGRESS_UPLOAD_FAILED,
+                                                           AsyncUploadResult.ClientAction.RETRY_UPLOAD));
+            }
         }
         if (job.getState() == State.ERROR) {
+            jobCounters.remove(job.getId());
+            runningTasks.remove(job.getId());
             return ResponseEntity.ok(createErrorResult(job.getError()));
         }
+        return addFileEntryToAsyncUploadResult(spaceGuid, job);
+    }
 
+    private ResponseEntity<AsyncUploadResult> addFileEntryToAsyncUploadResult(String spaceGuid, AsyncUploadJobEntry job) {
         FileEntry fileEntry;
         try {
             fileEntry = fileService.getFile(spaceGuid, job.getFileId());
@@ -202,11 +206,11 @@ public class FilesApiServiceImpl implements FilesApiService {
             LOGGER.error(MessageFormat.format(Messages.FETCHING_FILE_FAILED, job.getFileId(), spaceGuid, e.getMessage()), e);
             return ResponseEntity.ok(createErrorResult(e.getMessage()));
         }
-
         FileMetadata file = parseFileEntry(fileEntry);
         AuditLoggingProvider.getFacade()
                             .logConfigCreate(file);
-        jobCounters.remove(jobId);
+        jobCounters.remove(job.getId());
+        runningTasks.remove(job.getId());
         return ResponseEntity.status(HttpStatus.CREATED)
                              .body(ImmutableAsyncUploadResult.builder()
                                                              .status(AsyncUploadResult.JobStatus.FINISHED)
@@ -247,13 +251,42 @@ public class FilesApiServiceImpl implements FilesApiService {
                                    .user(SecurityContextUtil.getUsername())
                                    .namespace(namespace)
                                    .url(url)
+                                   .instanceIndex(configuration.getApplicationInstanceIndex())
                                    .withoutFinishedAt()
                                    .withStateAnyOf(State.INITIAL, State.RUNNING)
                                    .list();
-        if (jobs.isEmpty()) {
-            return null;
+        return jobs.isEmpty() ? null : jobs.get(0);
+    }
+
+    private void deleteAsyncJobEntry(AsyncUploadJobEntry entry) {
+        try {
+            uploadJobService.createQuery()
+                            .id(entry.getId())
+                            .delete();
+        } catch (Exception e) {
+            LOGGER.error(Messages.ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY, e);
         }
-        return jobs.get(0);
+    }
+
+    private ResponseEntity<Void> triggerUploadFromUrl(String spaceGuid, String namespace, String urlWithoutUserInfo, String decodedUrl) {
+        var entry = createJobEntry(spaceGuid, namespace, urlWithoutUserInfo);
+        LOGGER.debug(Messages.CREATING_ASYNC_UPLOAD_JOB, urlWithoutUserInfo, entry.getId());
+        uploadJobService.add(entry);
+        try {
+            Future<?> runningTask = deployFromUrlExecutor.submit(() -> uploadFileFromUrl(entry, spaceGuid, namespace, decodedUrl));
+            runningTasks.put(entry.getId(), runningTask);
+        } catch (RejectedExecutionException ignored) {
+            LOGGER.debug(Messages.ASYNC_UPLOAD_JOB_REJECTED, entry.getId());
+            deleteAsyncJobEntry(entry);
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                                 .header(HttpHeaders.RETRY_AFTER, RETRY_AFTER_SECONDS)
+                                 .build();
+        }
+        return ResponseEntity.accepted()
+                             .header("x-cf-app-instance",
+                                     configuration.getApplicationGuid() + ":" + configuration.getApplicationInstanceIndex())
+                             .header(HttpHeaders.LOCATION, getLocationHeader(spaceGuid, entry.getId()))
+                             .build();
     }
 
     private AsyncUploadJobEntry createJobEntry(String spaceGuid, String namespace, String url) {
@@ -261,6 +294,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                                            .id(UUID.randomUUID()
                                                    .toString())
                                            .user(SecurityContextUtil.getUsername())
+                                           .addedAt(LocalDateTime.now())
                                            .spaceGuid(spaceGuid)
                                            .namespace(namespace)
                                            .instanceIndex(configuration.getApplicationInstanceIndex())
@@ -270,54 +304,52 @@ public class FilesApiServiceImpl implements FilesApiService {
     }
 
     private AsyncUploadJobEntry getJob(String id, String spaceGuid, String namespace) {
-        try {
-            return uploadJobService.createQuery()
+        var jobs = uploadJobService.createQuery()
                                    .id(id)
                                    // even though the ID fully qualifies the job, we add these filters
                                    // to prevent accessing a job from another space, namespace or a different user
                                    .spaceGuid(spaceGuid)
                                    .user(SecurityContextUtil.getUsername())
                                    .namespace(namespace)
-                                   .singleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+                                   .instanceIndex(configuration.getApplicationInstanceIndex())
+                                   .list();
+        return jobs.isEmpty() ? null : jobs.get(0);
     }
 
-    private AsyncUploadResult createErrorResult(String error) {
+    private AsyncUploadResult createErrorResult(String error, AsyncUploadResult.ClientAction... clientActions) {
         return ImmutableAsyncUploadResult.builder()
                                          .status(AsyncUploadResult.JobStatus.ERROR)
                                          .error(error)
+                                         .clientActions(List.of(clientActions))
                                          .build();
     }
 
     private void uploadFileFromUrl(AsyncUploadJobEntry jobEntry, String spaceGuid, String namespace, String fileUrl) {
         var counter = new AtomicLong(0);
         jobCounters.put(jobEntry.getId(), counter);
-        LOGGER.debug(Messages.STARTING_DOWNLOAD_OF_MTAR, jobEntry.getUrl());
+        LOGGER.info(Messages.STARTING_DOWNLOAD_OF_MTAR, jobEntry.getUrl());
         var startTime = LocalDateTime.now();
-        AsyncUploadJobEntry jobEntryWithTimestamp = ImmutableAsyncUploadJobEntry.copyOf(jobEntry)
+        AsyncUploadJobEntry jobEntryWithStartTime = ImmutableAsyncUploadJobEntry.copyOf(jobEntry)
                                                                                 .withState(State.RUNNING)
                                                                                 .withStartedAt(startTime);
         try {
-            jobEntryWithTimestamp = uploadJobService.update(jobEntry, jobEntryWithTimestamp);
+            jobEntryWithStartTime = uploadJobService.update(jobEntry, jobEntryWithStartTime);
             FileEntry fileEntry = resilientOperationExecutor.execute((CheckedSupplier<FileEntry>) () -> doUploadFileFromUrl(spaceGuid,
                                                                                                                             namespace,
                                                                                                                             fileUrl,
                                                                                                                             counter));
             LOGGER.trace(Messages.UPLOADED_MTAR_FROM_REMOTE_ENDPOINT_AND_JOB_ID, jobEntry.getUrl(), jobEntry.getId(),
                          ChronoUnit.MILLIS.between(startTime, LocalDateTime.now()));
-
             var descriptor = fileService.processFileContent(spaceGuid, fileEntry.getId(), this::extractDeploymentDescriptor);
             LOGGER.debug(Messages.ASYNC_UPLOAD_JOB_FINISHED, jobEntry.getId());
-            uploadJobService.update(jobEntryWithTimestamp, ImmutableAsyncUploadJobEntry.copyOf(jobEntryWithTimestamp)
+            uploadJobService.update(jobEntryWithStartTime, ImmutableAsyncUploadJobEntry.copyOf(jobEntryWithStartTime)
                                                                                        .withFileId(fileEntry.getId())
                                                                                        .withMtaId(descriptor.getId())
                                                                                        .withFinishedAt(LocalDateTime.now())
                                                                                        .withState(State.FINISHED));
         } catch (Exception e) {
             LOGGER.error(MessageFormat.format(Messages.ASYNC_UPLOAD_JOB_FAILED, jobEntry.getId(), e.getMessage()), e);
-            uploadJobService.update(jobEntryWithTimestamp, ImmutableAsyncUploadJobEntry.copyOf(jobEntryWithTimestamp)
+            uploadJobService.update(jobEntryWithStartTime, ImmutableAsyncUploadJobEntry.copyOf(jobEntryWithStartTime)
                                                                                        .withError(e.getMessage())
                                                                                        .withState(State.ERROR));
         }
@@ -342,7 +374,7 @@ public class FilesApiServiceImpl implements FilesApiService {
 
         String fileName = extractFileName(fileUrl);
         FileUtils.validateFileHasExtension(fileName);
-        counter.set(0); // reset counter on retry
+        resetCounterOnRetry(counter);
         // Normal stream returned from the http response always returns 0 when InputStream::available() is executed which seems to break
         // JClods library: https://issues.apache.org/jira/browse/JCLOUDS-1623
         try (CountingInputStream source = new CountingInputStream(response.body(), counter);
@@ -364,6 +396,10 @@ public class FilesApiServiceImpl implements FilesApiService {
             }
             return response;
         });
+    }
+
+    private void resetCounterOnRetry(AtomicLong counter) {
+        counter.set(0);
     }
 
     protected HttpClient buildHttpClient(String decodedUrl) {

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 class FilesCleanerTest {
@@ -42,6 +43,7 @@ class FilesCleanerTest {
         when(uploadJobService.createQuery()).thenReturn(query);
         cleaner.execute(EXPIRATION_TIME);
         verify(fileService).deleteModifiedBefore(EXPIRATION_TIME);
+        verify(query, Mockito.atLeastOnce()).delete();
     }
 
 }

@@ -8,6 +8,8 @@ import io.swagger.annotations.ApiModelProperty;
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 
+import java.util.List;
+
 @Value.Immutable
 @JsonSerialize(as = ImmutableAsyncUploadResult.class)
 @JsonDeserialize(as = ImmutableAsyncUploadResult.class)
@@ -15,6 +17,10 @@ public interface AsyncUploadResult {
 
     enum JobStatus {
         RUNNING, FINISHED, ERROR
+    }
+
+    enum ClientAction {
+        RETRY_UPLOAD
     }
 
     @ApiModelProperty
@@ -40,4 +46,9 @@ public interface AsyncUploadResult {
     @ApiModelProperty
     @JsonProperty("mta_id")
     String getMtaId();
+
+    @Nullable
+    @ApiModelProperty
+    @JsonProperty("client_actions")
+    List<ClientAction> getClientActions();
 }

@@ -1,12 +1,13 @@
 package org.cloudfoundry.multiapps.controller.persistence.dto;
 
-import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.time.LocalDateTime;
+
+import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata;
 
 @Entity
 @Table(name = PersistenceMetadata.TableNames.ASYNC_UPLOAD_JOB_TABLE)
@@ -21,6 +22,7 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
         public static final String USER = "mtaUser";
         public static final String STATE = "state";
         public static final String URL = "url";
+        public static final String ADDED_AT = "addedAt";
         public static final String STARTED_AT = "startedAt";
         public static final String FINISHED_AT = "finishedAt";
         public static final String NAMESPACE = "namespace";
@@ -43,6 +45,9 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
 
     @Column(name = PersistenceMetadata.TableColumnNames.ASYNC_UPLOAD_JOB_URL, nullable = false)
     private String url;
+
+    @Column(name = PersistenceMetadata.TableColumnNames.ASYNC_UPLOAD_JOB_ADDED_AT)
+    private LocalDateTime addedAt;
 
     @Column(name = PersistenceMetadata.TableColumnNames.ASYNC_UPLOAD_JOB_STARTED_AT)
     private LocalDateTime startedAt;
@@ -72,13 +77,14 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
         // Required by JPA
     }
 
-    public AsyncUploadJobDto(String id, String mtaUser, String state, String url, LocalDateTime startedAt,
-                             LocalDateTime finishedAt, String namespace, String spaceGuid, String mtaId, String fileId,
-                             String error, Integer instanceIndex) {
+    public AsyncUploadJobDto(String id, String mtaUser, String state, String url, LocalDateTime addedAt, LocalDateTime startedAt,
+                             LocalDateTime finishedAt, String namespace, String spaceGuid, String mtaId, String fileId, String error,
+                             Integer instanceIndex) {
         this.id = id;
         this.mtaUser = mtaUser;
         this.state = state;
         this.url = url;
+        this.addedAt = addedAt;
         this.startedAt = startedAt;
         this.finishedAt = finishedAt;
         this.namespace = namespace;
@@ -121,6 +127,14 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public LocalDateTime getAddedAt() {
+        return addedAt;
+    }
+
+    public void setAddedAt(LocalDateTime addedAt) {
+        this.addedAt = addedAt;
     }
 
     public LocalDateTime getStartedAt() {
@@ -194,6 +208,7 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
                 ", mtaUser='" + mtaUser + '\'' +
                 ", state='" + state + '\'' +
                 ", url='" + url + '\'' +
+                ", addedAt=" + addedAt +
                 ", startedAt=" + startedAt +
                 ", finishedAt=" + finishedAt +
                 ", namespace='" + namespace + '\'' +
