@@ -672,6 +672,8 @@ public class Messages {
     public static final String GETTING_HISTORIC_VARIABLES_FOR_OPERATIONS_STARTED_AFTER_0 = "Getting historic variables for operations started after {0}";
     public static final String NO_ORPHANED_FILES_TO_DELETE = "No orphaned files to delete.";
     public static final String DELETING_ORPHANED_FILES_0 = "Deleting {0} orphaned files: {1}";
+    public static final String USED_EXTENSION_DESCRIPTORS_IDS = "Used extension descriptors with IDs: [{0}]";
+    public static final String NO_EXTENSION_DESCRIPTORS_PROVIDED = "No extension descriptors provided";
 
     protected Messages() {
     }
