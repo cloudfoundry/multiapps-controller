@@ -1,13 +1,21 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.test.Tester;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
@@ -37,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import org.springframework.http.HttpStatus;
 
 public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
 
@@ -48,6 +57,12 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected static final String SPACE_GUID = "spaceGuid";
     protected final String TEST_CORRELATION_ID = "test";
     protected final String TEST_TASK_ID = "testTask";
+    protected final String RETRY_STEP_EXECUTION_STATUS = "RETRY";
+    protected final String DONE_STEP_EXECUTION_STATUS = "DONE";
+    protected static final String SERVICE_NAME = "test-service";
+    private static final String METADATA_LABEL = "test-label";
+    private static final String METADATA_LABEL_VALUE = "test-label-value";
+    private static final String SYSLOG_DRAIN_URL = "test-syslog-url";
 
     protected final Tester tester = Tester.forClass(getClass());
 
@@ -135,6 +150,32 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         ExecutionQuery mockExecutionQuery = Mockito.mock(ExecutionQuery.class);
         when(mockRuntimeService.createExecutionQuery()).thenReturn(mockExecutionQuery);
         return mockExecutionQuery;
+    }
+
+    protected void assertExecutionStepStatus(String executionStepStatus) {
+        assertEquals(executionStepStatus, getExecutionStatus());
+    }
+
+    protected void prepareServiceToProcess(CloudServiceInstanceExtended serviceToProcess) {
+        context.setVariable(Variables.SERVICE_TO_PROCESS, serviceToProcess);
+    }
+
+    protected void prepareClient(CloudServiceInstanceExtended serviceToProcess) {
+        when(client.getRequiredServiceInstanceGuid(SERVICE_NAME)).thenReturn(serviceToProcess.getGuid());
+    }
+
+    protected CloudServiceInstanceExtended buildServiceToProcess(boolean isOptional) {
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .name(SERVICE_NAME)
+                                                    .metadata(ImmutableCloudMetadata.builder()
+                                                                                    .guid(UUID.randomUUID())
+                                                                                    .build())
+                                                    .syslogDrainUrl(SYSLOG_DRAIN_URL)
+                                                    .v3Metadata(Metadata.builder()
+                                                                        .label(METADATA_LABEL, METADATA_LABEL_VALUE)
+                                                                        .build())
+                                                    .isOptional(isOptional)
+                                                    .build();
     }
 
     protected void assertStepFinishedSuccessfully() {

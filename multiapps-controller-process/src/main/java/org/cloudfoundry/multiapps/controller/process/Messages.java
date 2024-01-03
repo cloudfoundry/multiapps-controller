@@ -202,6 +202,11 @@ public class Messages {
     public static final String COULD_NOT_BIND_OPTIONAL_SERVICE_TO_APP = "Could not bind optional service \"{0}\" to application \"{1}\"";
     public static final String COULD_NOT_UNBIND_OPTIONAL_SERVICE_TO_APP = "Could not unbind optional service \"{0}\" to application \"{1}\"";
     public static final String COULD_NOT_CREATE_OPTIONAL_SERVICE = "Could not create optional service \"{0}\"";
+    public static final String COULD_NOT_UPDATE_TAGS_OF_OPTIONAL_SERVICE = "Could not update tags of optional service \"{0}\" : {1}";
+    public static final String COULD_NOT_UPDATE_METADATA_OF_OPTIONAL_SERVICE = "Could not update metadata of optional service \"{0}\" : {1}";
+    public static final String COULD_NOT_UPDATE_PARAMETERS_OPTIONAL_SERVICE = "Could not update parameters of optional service \"{0}\" : {1}";
+    public static final String COULD_NOT_UPDATE_PLAN_OPTIONAL_SERVICE = "Could not update plan of optional service \"{0}\" : {1}";
+    public static final String COULD_NOT_UPDATE_SYSLOG_DRAIN_URL_OPTIONAL_SERVICE = "Could not update syslog drain url of optional service \"{0}\" : {1}";
     public static final String COULD_NOT_GET_SERVICE_KEYS_FOR_OPTIONAL_SERVICE = "Could not get service keys for optional service \"{0}\"";
     public static final String DEFAULT_FAILED_OPERATION_DESCRIPTION = "The service broker returned an error with no description!";
     public static final String ERROR_DURING_CLEAN_UP_0 = "Error during clean-up: {0}";

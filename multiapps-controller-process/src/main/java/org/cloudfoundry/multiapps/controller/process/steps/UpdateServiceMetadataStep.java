@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
 @Named("updateServiceMetadataStep")
@@ -24,10 +26,21 @@ public class UpdateServiceMetadataStep extends ServiceStep {
                                                        CloudServiceInstanceExtended service) {
         getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0, service.getName(), service.getResourceName());
 
-        UUID serviceGuid = client.getRequiredServiceInstanceGuid(service.getName());
-        client.updateServiceInstanceMetadata(serviceGuid, service.getV3Metadata());
+        try {
+            UUID serviceGuid = client.getRequiredServiceInstanceGuid(service.getName());
+            client.updateServiceInstanceMetadata(serviceGuid, service.getV3Metadata());
+            getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_DONE, service.getName());
+        } catch (CloudOperationException e) {
+            String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_UPDATE_METADATA_OF_OPTIONAL_SERVICE, service.getName(),
+                                                               e.getDescription());
+            CloudOperationException cloudOperationException = new CloudOperationException(e.getStatusCode(),
+                                                                                          e.getStatusText(),
+                                                                                          exceptionDescription);
 
-        getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_DONE, service.getName());
+            processServiceActionFailure(context, service, cloudOperationException);
+            return OperationExecutionState.FINISHED;
+        }
+
         return OperationExecutionState.EXECUTING;
     }
 
