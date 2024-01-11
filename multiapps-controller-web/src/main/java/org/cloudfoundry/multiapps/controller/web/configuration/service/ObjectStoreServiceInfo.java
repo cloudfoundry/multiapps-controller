@@ -20,6 +20,7 @@ public interface ObjectStoreServiceInfo {
     @Nullable
     String getCredential();
 
+    @Nullable
     String getContainer();
 
     @Nullable

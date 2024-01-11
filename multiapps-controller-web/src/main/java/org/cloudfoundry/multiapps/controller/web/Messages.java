@@ -18,10 +18,11 @@ public final class Messages {
     public static final String ERROR_FROM_REMOTE_MTAR_ENDPOINT = "Error from remote MTAR endpoint {0} with status code {1}, message: {2}";
     public static final String MTAR_ENDPOINT_NOT_SECURE = "Remote MTAR endpoint is not a secure connection. HTTPS required";
     public static final String CANNOT_PARSE_CONTAINER_URI_OF_OBJECT_STORE = "Cannot parse container_uri of object store";
-    public static final String UNSUPPORTED_SERVICE_PLAN_FOR_OBJECT_STORE = "Unsupported service plan for object store!";
     public static final String REQUEST_0_1_FAILED_WITH_2 = "Request \"{0} {1}\" failed with \"{2}\"";
     public static final String ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY = "Error occurred while deleting job entry";
-    public static final String JOB_0_HAS_NOT_BEEN_UPDATED_FOR_15_MINUTES = "Job {0} has not been updated for 15 minutes.";
+    public static final String CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0 = "Cannot create Object Store client with provider: {0}";
+    public static final String NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND = "No valid Object Store configuration found!";
+    public static final String MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER = "Missing properties for creating the specific provider!";
 
     // Audit log messages
 
@@ -61,6 +62,7 @@ public final class Messages {
     public static final String OBJECTSTORE_FOR_BINARIES_STORAGE = "Objectstore will be used for binaries storage";
     public static final String CLEARING_LOCK_OWNER = "Clearing lock owner {0}...";
     public static final String CLEARED_LOCK_OWNER = "Cleared lock owner {0}";
+    public static final String OBJECT_STORE_WITH_PROVIDER_0_CREATED = "Object store with provider: {0} created";
 
     // DEBUG log messages
     public static final String RECEIVED_UPLOAD_REQUEST = "Received upload request on URI: {}";
