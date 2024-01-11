@@ -114,6 +114,11 @@ public class ObjectStoreFileStorage implements FileStorage {
         }
     }
 
+    @Override
+    public void testConnection() {
+        blobStore.blobExists(container, "test");
+    }
+
     private FileEntry createFileEntry(String space, String id) {
         return ImmutableFileEntry.builder()
                                  .space(space)
