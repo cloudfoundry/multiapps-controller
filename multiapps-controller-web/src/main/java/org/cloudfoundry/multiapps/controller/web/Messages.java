@@ -18,7 +18,6 @@ public final class Messages {
     public static final String ERROR_FROM_REMOTE_MTAR_ENDPOINT = "Error from remote MTAR endpoint {0} with status code {1}, message: {2}";
     public static final String MTAR_ENDPOINT_NOT_SECURE = "Remote MTAR endpoint is not a secure connection. HTTPS required";
     public static final String CANNOT_PARSE_CONTAINER_URI_OF_OBJECT_STORE = "Cannot parse container_uri of object store";
-    public static final String UNSUPPORTED_SERVICE_PLAN_FOR_OBJECT_STORE = "Unsupported service plan for object store!";
     public static final String REQUEST_0_1_FAILED_WITH_2 = "Request \"{0} {1}\" failed with \"{2}\"";
     public static final String ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY = "Error occurred while deleting job entry";
     public static final String JOB_0_HAS_NOT_BEEN_UPDATED_FOR_15_MINUTES = "Job {0} has not been updated for 15 minutes.";
@@ -48,6 +47,7 @@ public final class Messages {
     public static final String JOB_IS_NOT_BEING_EXECUTED = "Job is not being executed";
     public static final String JOB_0_EXISTS_IN_STATE_1_BUT_DOES_NOT_EXISTS_IN_THE_RUNNING_TASKS = "Job \"{0}\" exists in state \"{1}\" but does not exists in the running tasks";
     public static final String JOB_THREAD_IS_NOT_RUNNING_BUT_STATE_IS_STILL_IN_PROGRESS_UPLOAD_FAILED = "Job thread is not running but state is still in progress. Upload failed";
+    public static final String ERROR_BUILDING_OBJECT_STORE_CONFIGURATION = "Error while building object store configuration.";
 
     // WARN log messages
     public static final String THE_JOB_EXISTS_BUT_IT_IS_NOT_RUNNING_DELETING = "The job exists but it is not running. Deleting";
@@ -61,6 +61,10 @@ public final class Messages {
     public static final String OBJECTSTORE_FOR_BINARIES_STORAGE = "Objectstore will be used for binaries storage";
     public static final String CLEARING_LOCK_OWNER = "Clearing lock owner {0}...";
     public static final String CLEARED_LOCK_OWNER = "Cleared lock owner {0}";
+    public static final String CREATING_OBJECT_STORE_FOR_ALI_CLOUD = "Creating object store for Ali Cloud";
+    public static final String CREATING_OBJECT_STORE_FOR_AWS = "Creating object store for AWS";
+    public static final String CREATING_OBJECT_STORE_FOR_AZURE = "Creating object store for Azure";
+    public static final String CREATING_OBJECT_STORE_FOR_GCP = "Creating object store for GCP";
 
     // DEBUG log messages
     public static final String RECEIVED_UPLOAD_REQUEST = "Received upload request on URI: {}";
