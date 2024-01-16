@@ -1,5 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
+
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -7,57 +15,47 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
-import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
-
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
-
-class UpdateServiceMetadataStepTest extends SyncFlowableStepTest<UpdateServiceMetadataStep> {
+class UpdateServiceParametersStepTest extends SyncFlowableStepTest<UpdateServiceParametersStep> {
 
     @Test
-    void testUpdateServiceMetadata() {
+    void testUpdateServiceParameters() {
         CloudServiceInstanceExtended serviceToProcess = buildServiceToProcess(FALSE);
         prepareServiceToProcess(serviceToProcess);
         prepareClient(serviceToProcess);
 
         step.execute(execution);
 
-        verify(client).updateServiceInstanceMetadata(serviceToProcess.getMetadata()
-                                                                     .getGuid(),
-                                                     serviceToProcess.getV3Metadata());
+        verify(client).updateServiceParameters(serviceToProcess.getName(),
+                serviceToProcess.getCredentials());
     }
 
     @Test
-    void testExceptionIsThrownOnMandatoryServiceMetadataUpdateBadGateway() {
+    void testExceptionIsThrownOnMandatoryServiceParametersUpdateBadGateway() {
         CloudServiceInstanceExtended serviceToProcess = buildServiceToProcess(FALSE);
         prepareServiceToProcess(serviceToProcess);
         prepareClient(serviceToProcess);
-        throwExceptionOnServiceMetadataUpdate(HttpStatus.BAD_GATEWAY);
+        throwExceptionOnServiceParametersUpdate(HttpStatus.BAD_GATEWAY);
 
         assertThrows(SLException.class, () -> step.execute(execution));
     }
 
     @Test
-    void testExceptionIsThrownOnMandatoryServiceMetadataUpdateInternalServerError() {
+    void testExceptionIsThrownOnMandatoryServiceParametersUpdateInternalServerError() {
         CloudServiceInstanceExtended serviceToProcess = buildServiceToProcess(FALSE);
         prepareServiceToProcess(serviceToProcess);
         prepareClient(serviceToProcess);
-        throwExceptionOnServiceMetadataUpdate(HttpStatus.INTERNAL_SERVER_ERROR);
+        throwExceptionOnServiceParametersUpdate(HttpStatus.INTERNAL_SERVER_ERROR);
 
         assertThrows(SLException.class, () -> step.execute(execution));
         assertExecutionStepStatus(RETRY_STEP_EXECUTION_STATUS);
     }
 
     @Test
-    void testExceptionIsNotThrownOnOptionalServiceMetadataUpdateBadGateway() {
+    void testExceptionIsNotThrownOnOptionalServiceParametersUpdateBadGateway() {
         CloudServiceInstanceExtended serviceToProcess = buildServiceToProcess(TRUE);
         prepareServiceToProcess(serviceToProcess);
         prepareClient(serviceToProcess);
-        throwExceptionOnServiceMetadataUpdate(HttpStatus.BAD_GATEWAY);
+        throwExceptionOnServiceParametersUpdate(HttpStatus.BAD_GATEWAY);
 
         step.execute(execution);
 
@@ -65,11 +63,11 @@ class UpdateServiceMetadataStepTest extends SyncFlowableStepTest<UpdateServiceMe
     }
 
     @Test
-    void testExceptionIsNotThrownOnOptionalServiceMetadataUpdateInternalServerError() {
+    void testExceptionIsNotThrownOnOptionalServiceParametersUpdateInterServerError() {
         CloudServiceInstanceExtended serviceToProcess = buildServiceToProcess(TRUE);
         prepareServiceToProcess(serviceToProcess);
         prepareClient(serviceToProcess);
-        throwExceptionOnServiceMetadataUpdate(HttpStatus.INTERNAL_SERVER_ERROR);
+        throwExceptionOnServiceParametersUpdate(HttpStatus.INTERNAL_SERVER_ERROR);
 
         step.execute(execution);
 
@@ -81,15 +79,14 @@ class UpdateServiceMetadataStepTest extends SyncFlowableStepTest<UpdateServiceMe
         assertEquals(ServiceOperation.Type.UPDATE, step.getOperationType());
     }
 
-    private void throwExceptionOnServiceMetadataUpdate(HttpStatus httpStatus) {
+    private void throwExceptionOnServiceParametersUpdate(HttpStatus httpStatus) {
         Mockito.doThrow(new CloudOperationException(httpStatus, "Error occurred"))
-               .when(client)
-               .updateServiceInstanceMetadata(any(), any());
+                .when(client)
+                .updateServiceParameters(any(), any());
     }
 
     @Override
-    protected UpdateServiceMetadataStep createStep() {
-        return new UpdateServiceMetadataStep();
+    protected UpdateServiceParametersStep createStep() {
+        return new UpdateServiceParametersStep();
     }
-
 }

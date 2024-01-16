@@ -19,9 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudControllerException;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
@@ -44,7 +42,12 @@ public class CreateServiceStep extends ServiceStep {
             if (operationExecutionState.isPresent()) {
                 return operationExecutionState.get();
             }
-            processServiceCreationFailure(context, serviceInstance, e);
+            String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_CREATE_OPTIONAL_SERVICE, serviceInstance.getName());
+            CloudOperationException cloudOperationException = new CloudOperationException(e.getStatusCode(),
+                                                                                          e.getStatusText(),
+                                                                                          exceptionDescription);
+
+            processServiceActionFailure(context, serviceInstance, cloudOperationException);
         }
         return OperationExecutionState.FINISHED;
     }
@@ -72,21 +75,6 @@ public class CreateServiceStep extends ServiceStep {
 
     private void setServiceGuid(ProcessContext context, CloudServiceInstanceExtended serviceInstance) {
         new DynamicResolvableParametersContextUpdater(context).updateServiceGuid(serviceInstance);
-    }
-
-    private void processServiceCreationFailure(ProcessContext context, CloudServiceInstanceExtended serviceInstance,
-                                               CloudOperationException e) {
-        if (!serviceInstance.isOptional()) {
-            String detailedDescription = MessageFormat.format(Messages.ERROR_CREATING_SERVICE, serviceInstance.getName(),
-                                                              serviceInstance.getLabel(), serviceInstance.getPlan(), e.getDescription());
-            if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
-                context.setVariable(Variables.SERVICE_OFFERING, serviceInstance.getLabel());
-                throw new CloudServiceBrokerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
-            }
-            throw new CloudControllerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
-        }
-        getStepLogger().warn(MessageFormat.format(Messages.COULD_NOT_CREATE_OPTIONAL_SERVICE, serviceInstance.getName()), e,
-                             ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, serviceInstance.getLabel()));
     }
 
     private Optional<OperationExecutionState> getServiceInstanceStateIfCreated(CloudControllerClient controllerClient,
