@@ -1,9 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static java.text.MessageFormat.format;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -41,6 +44,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
         List<ExtensionDescriptor> extensionDescriptorChain = extensionDescriptorChainBuilder.build(deploymentDescriptor,
                                                                                                    extensionDescriptors);
 
+        logUsedExtensionDescriptors(extensionDescriptorChain);
         context.setVariable(Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN, extensionDescriptorChain);
         getStepLogger().debug(Messages.MTA_EXTENSION_DESCRIPTORS_PROCESSED);
         return StepPhase.DONE;
@@ -77,6 +81,20 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
             throw new SLException(e, e.getMessage());
         }
 
+    }
+
+    private void logUsedExtensionDescriptors(List<ExtensionDescriptor> extensionDescriptorChain) {
+        if (!extensionDescriptorChain.isEmpty()) {
+            getStepLogger().debug(createExtensionDescriptorsIdsMessage(extensionDescriptorChain));
+        } else {
+            getStepLogger().debug(Messages.NO_EXTENSION_DESCRIPTORS_PROVIDED);
+        }
+    }
+
+    private String createExtensionDescriptorsIdsMessage(List<ExtensionDescriptor> extensionDescriptorChain) {
+        return format(Messages.USED_EXTENSION_DESCRIPTORS_IDS, extensionDescriptorChain.stream()
+                                                                                       .map(ExtensionDescriptor::getId)
+                                                                                       .collect(Collectors.joining(", ")));
     }
 
 }
