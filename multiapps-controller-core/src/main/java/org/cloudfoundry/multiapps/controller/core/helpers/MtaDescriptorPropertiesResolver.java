@@ -32,8 +32,9 @@ import org.cloudfoundry.multiapps.mta.resolvers.ResolverBuilder;
 
 public class MtaDescriptorPropertiesResolver {
 
-    public static final String IDLE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.IDLE_DOMAIN + "}";
-    public static final String IDLE_HOST_PLACEHOLDER = "${" + SupportedParameters.IDLE_HOST + "}";
+
+    public static final String LIVE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.DEFAULT_LIVE_DOMAIN + "}";
+    public static final String LIVE_HOST_PLACEHOLDER = "${" + SupportedParameters.DEFAULT_LIVE_HOST + "}";
 
     private final MtaDescriptorPropertiesResolverContext context;
     private List<ConfigurationSubscription> subscriptions;
@@ -142,8 +143,8 @@ public class MtaDescriptorPropertiesResolver {
 
     private String replacePartsWithIdlePlaceholders(String uriString, boolean noHostname, String protocol) {
         ApplicationURI uri = new ApplicationURI(uriString, noHostname, protocol);
-        uri.setDomain(IDLE_DOMAIN_PLACEHOLDER);
-        uri.setHost(IDLE_HOST_PLACEHOLDER);
+        uri.setDomain(LIVE_DOMAIN_PLACEHOLDER);
+        uri.setHost(LIVE_HOST_PLACEHOLDER);
         return uri.toString();
     }
 
