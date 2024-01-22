@@ -25,6 +25,7 @@ import org.cloudfoundry.multiapps.mta.handlers.v2.HandlerFactoryV2;
 import org.cloudfoundry.multiapps.mta.mergers.PlatformMerger;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Platform;
+import org.cloudfoundry.multiapps.mta.resolvers.LiveRoutesProvidedParametersResolver;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
@@ -69,6 +70,12 @@ public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHand
     public DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
                                                                           List<ParameterValidator> parameterValidators) {
         return new DescriptorParametersValidator(descriptor, parameterValidators);
+    }
+
+    @Override
+    public LiveRoutesProvidedParametersResolver getLiveRoutesProvidedParametersResolver(DeploymentDescriptor descriptor,
+                                                                                        String useLiveRoutesParameterKeyName) {
+        return new LiveRoutesProvidedParametersResolver(descriptor, useLiveRoutesParameterKeyName);
     }
 
     @Override

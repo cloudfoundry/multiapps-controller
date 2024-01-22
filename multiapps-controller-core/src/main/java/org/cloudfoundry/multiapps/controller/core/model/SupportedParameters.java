@@ -138,6 +138,12 @@ public class SupportedParameters {
     public static final String PROVIDER_NAMESPACE = "provider-namespace";
     public static final String TARGET = "target";
     public static final String FILTER = "filter";
+    public static final String DEFAULT_LIVE_URL = "default-live-url";
+    public static final String USE_LIVE_ROUTES = "use-live-routes";
+    public static final String DEFAULT_LIVE_URI = "default-live-uri";
+    public static final String DEFAULT_LIVE_APP_NAME = "default-live-app-name";
+    public static final String DEFAULT_LIVE_HOST = "default-live-host";
+    public static final String DEFAULT_LIVE_DOMAIN = "default-live-domain";
     public static final String VISIBILITY = "visibility";
     // Configuration reference (old syntax):
     @Deprecated
@@ -180,7 +186,9 @@ public class SupportedParameters {
     public static final Set<String> READ_ONLY_MODULE_PARAMETERS = Set.of(DEFAULT_DOMAIN, DEFAULT_IDLE_DOMAIN, DEFAULT_HOST, PROTOCOL,
                                                                          GENERATED_USER, GENERATED_PASSWORD, DEFAULT_URI, DEFAULT_URL,
                                                                          DEFAULT_IDLE_HOST, DEFAULT_IDLE_URI, DEFAULT_IDLE_URL,
-                                                                         DEFAULT_APP_NAME, DEFAULT_INSTANCES);
+                                                                         DEFAULT_APP_NAME, DEFAULT_INSTANCES, DEFAULT_LIVE_URL,
+                                                                         DEFAULT_LIVE_HOST, DEFAULT_LIVE_APP_NAME, DEFAULT_LIVE_URI,
+                                                                         DEFAULT_LIVE_DOMAIN);
 
     public static final Set<String> READ_ONLY_RESOURCE_PARAMETERS = Set.of(DEFAULT_CONTAINER_NAME, DEFAULT_XS_APP_NAME, GENERATED_USER,
                                                                            GENERATED_PASSWORD, DEFAULT_SERVICE_NAME);

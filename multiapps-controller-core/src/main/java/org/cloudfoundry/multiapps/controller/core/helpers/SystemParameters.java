@@ -20,8 +20,10 @@ public class SystemParameters {
     public static final String ROUTE_PATH_PLACEHOLDER = "${route-path}";
     public static final String DEFAULT_HOST_BASED_IDLE_URI = "${idle-host}.${idle-domain}";
     public static final String DEFAULT_HOST_BASED_URI = "${host}.${domain}";
+    public static final String DOMAIN_PLACEHOLDER_SUFFIX = ".${domain}";
     public static final String DEFAULT_IDLE_URL = "${protocol}://${default-idle-uri}";
     public static final String DEFAULT_URL = "${protocol}://${default-uri}";
+    public static final String DEFAULT_LIVE_URL = "${protocol}://${default-live-uri}";
 
     private final CredentialsGenerator credentialsGenerator;
     private final String targetName;
@@ -103,10 +105,12 @@ public class SystemParameters {
 
         Map<String, Object> moduleParameters = Collections.unmodifiableMap(module.getParameters());
         moduleSystemParameters.put(SupportedParameters.DOMAIN, referenceToParameter(SupportedParameters.DEFAULT_DOMAIN));
+        moduleSystemParameters.put(SupportedParameters.DEFAULT_LIVE_DOMAIN, defaultDomain);
         if (reserveTemporaryRoutes) {
             moduleSystemParameters.put(SupportedParameters.IDLE_DOMAIN, referenceToParameter(SupportedParameters.DEFAULT_IDLE_DOMAIN));
         }
         moduleSystemParameters.put(SupportedParameters.DEFAULT_APP_NAME, module.getName());
+        moduleSystemParameters.put(SupportedParameters.DEFAULT_LIVE_APP_NAME, module.getName());
         moduleSystemParameters.put(SupportedParameters.APP_NAME, referenceToParameter(SupportedParameters.DEFAULT_APP_NAME));
         moduleSystemParameters.put(SupportedParameters.DEFAULT_INSTANCES, 1);
         moduleSystemParameters.put(SupportedParameters.INSTANCES, referenceToParameter(SupportedParameters.DEFAULT_INSTANCES));
@@ -133,6 +137,9 @@ public class SystemParameters {
         }
         moduleSystemParameters.put(SupportedParameters.DEFAULT_URI, appendRoutePathIfPresent(defaultUri, moduleParameters));
 
+        String liveUri = getDefaultHost(module.getName()) + DOMAIN_PLACEHOLDER_SUFFIX;
+        moduleSystemParameters.put(SupportedParameters.DEFAULT_LIVE_URI, appendRoutePathIfPresent(liveUri, moduleParameters));
+
         String defaultUrl = DEFAULT_URL;
         if (reserveTemporaryRoutes) {
             String defaultIdleUrl = DEFAULT_IDLE_URL;
@@ -141,10 +148,12 @@ public class SystemParameters {
         }
         moduleSystemParameters.put(SupportedParameters.PROTOCOL, protocol);
         moduleSystemParameters.put(SupportedParameters.DEFAULT_URL, defaultUrl);
+        moduleSystemParameters.put(SupportedParameters.DEFAULT_LIVE_URL, DEFAULT_LIVE_URL);
     }
 
     private void putHostRoutingParameters(Module module, Map<String, Object> moduleSystemParameters) {
         String defaultHost = getDefaultHost(module.getName());
+        moduleSystemParameters.put(SupportedParameters.DEFAULT_LIVE_HOST, defaultHost);
         if (reserveTemporaryRoutes) {
             String idleHost = getDefaultHost(module.getName() + IDLE_HOST_SUFFIX);
             moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_HOST, idleHost);

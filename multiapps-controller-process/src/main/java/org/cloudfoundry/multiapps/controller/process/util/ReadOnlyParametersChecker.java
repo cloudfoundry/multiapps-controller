@@ -35,7 +35,8 @@ public class ReadOnlyParametersChecker {
     private void checkForCommonParameters(NamedParametersContainer namedParametersContainer, Set<String> readOnlyParameters,
                                           Map<String, Set<String>> commonReadOnlyParameters) {
         Set<String> commonParameters = SetUtils.intersection(namedParametersContainer.getParameters()
-                                                                                     .keySet(), readOnlyParameters);
+                                                                                     .keySet(),
+                                                             readOnlyParameters);
         if (!commonParameters.isEmpty()) {
             commonReadOnlyParameters.put(namedParametersContainer.getName(), commonParameters);
         }

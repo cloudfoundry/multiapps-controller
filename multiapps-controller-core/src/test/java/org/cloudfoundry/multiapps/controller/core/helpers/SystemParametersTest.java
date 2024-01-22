@@ -200,6 +200,9 @@ class SystemParametersTest {
         assertEquals("${default-app-name}", moduleParameters.get(SupportedParameters.APP_NAME));
         assertEquals(1, moduleParameters.get(SupportedParameters.DEFAULT_INSTANCES));
         assertEquals("${default-instances}", moduleParameters.get(SupportedParameters.INSTANCES));
+        assertEquals("${protocol}://${default-live-uri}", moduleParameters.get(SupportedParameters.DEFAULT_LIVE_URL));
+        assertEquals(moduleName, moduleParameters.get(SupportedParameters.DEFAULT_LIVE_APP_NAME));
+
         assertEquals(PROTOCOL, moduleParameters.get(SupportedParameters.PROTOCOL));
     }
 
