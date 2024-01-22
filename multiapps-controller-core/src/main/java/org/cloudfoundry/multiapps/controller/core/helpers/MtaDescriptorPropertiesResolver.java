@@ -59,9 +59,11 @@ public class MtaDescriptorPropertiesResolver {
                                    .resolve();
 
         if (context.shouldReserveTemporaryRoute()) {
+            // Resolve placeholders first in case provided dependency is set to not provide idle routes
+            descriptor = handlerFactory.getLiveRoutesProvidedParametersResolver(descriptor, SupportedParameters.USE_LIVE_ROUTES)
+                                       .resolve();
             // temporary placeholders should be set at this point, since they are needed for provides/requires placeholder resolution
             editRoutesSetTemporaryPlaceholders(descriptor);
-
             // Resolve again due to new temporary routes
             descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(),
                                                                          new ResolverBuilder(), SupportedParameters.SINGULAR_PLURAL_MAPPING,
@@ -151,7 +153,8 @@ public class MtaDescriptorPropertiesResolver {
                                                                 Map<String, ResolvedConfigurationReference> resolvedResources,
                                                                 Set<String> dynamicResolvableParameters) {
         return context.getHandlerFactory()
-                      .getConfigurationSubscriptionFactory(descriptorWithUnresolvedReferences, resolvedResources, dynamicResolvableParameters)
+                      .getConfigurationSubscriptionFactory(descriptorWithUnresolvedReferences, resolvedResources,
+                                                           dynamicResolvableParameters)
                       .create(context.getCurrentSpaceId());
     }
 
@@ -168,5 +171,4 @@ public class MtaDescriptorPropertiesResolver {
     public Set<DynamicResolvableParameter> getDynamicResolvableParameters() {
         return dynamicResolvableParameters;
     }
-
 }
