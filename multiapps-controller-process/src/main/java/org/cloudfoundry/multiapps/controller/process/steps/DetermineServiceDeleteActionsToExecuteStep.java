@@ -37,6 +37,7 @@ public class DetermineServiceDeleteActionsToExecuteStep extends SyncFlowableStep
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
         String serviceInstanceToDelete = context.getVariable(Variables.SERVICE_TO_DELETE);
+
         if (serviceInstanceToDelete == null) {
             getStepLogger().debug(Messages.MISSING_SERVICE_TO_DELETE);
             context.setVariable(Variables.SERVICE_DELETION_ACTIONS, Collections.emptyList());
@@ -50,19 +51,22 @@ public class DetermineServiceDeleteActionsToExecuteStep extends SyncFlowableStep
     private StepPhase calculateDeleteActions(ProcessContext context, String serviceInstanceToDelete) {
         CloudControllerClient controllerClient = context.getControllerClient();
         CloudServiceInstance serviceInstance = controllerClient.getServiceInstance(serviceInstanceToDelete, false);
+        List<CloudServiceBinding> serviceBindings = controllerClient.getServiceAppBindings(serviceInstance.getGuid());
+
         if (serviceInstance == null) {
             getStepLogger().info(Messages.SERVICE_IS_ALREADY_DELETED, serviceInstanceToDelete);
             context.setVariable(Variables.SERVICE_DELETION_ACTIONS, Collections.emptyList());
             return StepPhase.DONE;
         }
-        if (serviceInstance.getV3Metadata() != null && isExistingService(context, serviceInstanceToDelete)) {
+        if (serviceInstance.getV3Metadata() != null
+            && (isExistingService(context, serviceInstanceToDelete) || !serviceBindings.isEmpty())) {
             context.getStepLogger()
                    .debug(Messages.WILL_ONLY_REMOVE_SERVICE_INSTANCE_METADATA_BECAUSE_THE_SERVICE_TYPE_IS_EXISTING);
             context.setVariable(Variables.SERVICE_DELETION_ACTIONS, List.of(ServiceDeletionActions.DELETE_METADATA));
             return StepPhase.DONE;
         }
-        List<CloudServiceBinding> serviceBindings = controllerClient.getServiceAppBindings(serviceInstance.getGuid());
         List<CloudServiceKey> serviceKeys = controllerClient.getServiceKeys(serviceInstance);
+
         if (isDeletePossible(context, serviceBindings, serviceKeys)) {
             context.getStepLogger()
                    .debug(Messages.WILL_DELETE_SERVICE_BINDINGS_SERVICE_KEYS_AND_SERVICE_INSTANCE_0, serviceInstanceToDelete);

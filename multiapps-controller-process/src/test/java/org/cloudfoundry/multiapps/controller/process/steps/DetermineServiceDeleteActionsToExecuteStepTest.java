@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.cloudfoundry.multiapps.controller.process.util.ServiceDeletionActions.DELETE_METADATA;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -58,7 +59,7 @@ class DetermineServiceDeleteActionsToExecuteStepTest extends SyncFlowableStepTes
         mockDeploymentDescriptorResources();
         step.execute(execution);
         assertStepFinishedSuccessfully();
-        assertEquals(List.of(ServiceDeletionActions.DELETE_METADATA), context.getVariable(Variables.SERVICE_DELETION_ACTIONS));
+        assertEquals(List.of(DELETE_METADATA), context.getVariable(Variables.SERVICE_DELETION_ACTIONS));
     }
 
     private void prepareServiceInstance(CloudServiceInstanceExtended serviceInstance) {
@@ -72,7 +73,7 @@ class DetermineServiceDeleteActionsToExecuteStepTest extends SyncFlowableStepTes
         when(client.getServiceAppBindings(any())).thenReturn(List.of(buildCloudServiceBinding()));
         step.execute(execution);
         assertStepFinishedSuccessfully();
-        assertEquals(Collections.emptyList(), context.getVariable(Variables.SERVICE_DELETION_ACTIONS));
+        assertEquals(List.of(DELETE_METADATA), context.getVariable(Variables.SERVICE_DELETION_ACTIONS));
     }
 
     @Test
