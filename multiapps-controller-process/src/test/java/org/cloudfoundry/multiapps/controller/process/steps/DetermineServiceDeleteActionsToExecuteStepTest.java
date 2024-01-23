@@ -59,7 +59,7 @@ class DetermineServiceDeleteActionsToExecuteStepTest extends SyncFlowableStepTes
         mockDeploymentDescriptorResources();
         step.execute(execution);
         assertStepFinishedSuccessfully();
-        assertEquals(List.of(DELETE_METADATA), context.getVariable(Variables.SERVICE_DELETION_ACTIONS));
+        assertEquals(List.of(ServiceDeletionActions.DELETE_METADATA), context.getVariable(Variables.SERVICE_DELETION_ACTIONS));
     }
 
     private void prepareServiceInstance(CloudServiceInstanceExtended serviceInstance) {
@@ -73,7 +73,7 @@ class DetermineServiceDeleteActionsToExecuteStepTest extends SyncFlowableStepTes
         when(client.getServiceAppBindings(any())).thenReturn(List.of(buildCloudServiceBinding()));
         step.execute(execution);
         assertStepFinishedSuccessfully();
-        assertEquals(List.of(DELETE_METADATA), context.getVariable(Variables.SERVICE_DELETION_ACTIONS));
+        assertEquals(List.of(ServiceDeletionActions.DELETE_METADATA), context.getVariable(Variables.SERVICE_DELETION_ACTIONS));
     }
 
     @Test
@@ -82,7 +82,7 @@ class DetermineServiceDeleteActionsToExecuteStepTest extends SyncFlowableStepTes
         when(client.getServiceKeys(any(CloudServiceInstanceExtended.class))).thenReturn(List.of(buildCloudServiceKey()));
         step.execute(execution);
         assertStepFinishedSuccessfully();
-        assertEquals(Collections.emptyList(), context.getVariable(Variables.SERVICE_DELETION_ACTIONS));
+        assertEquals(List.of(ServiceDeletionActions.DELETE_METADATA), context.getVariable(Variables.SERVICE_DELETION_ACTIONS));
     }
 
     @Test
