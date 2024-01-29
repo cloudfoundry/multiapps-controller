@@ -18,7 +18,6 @@ import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageExc
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveMerger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 

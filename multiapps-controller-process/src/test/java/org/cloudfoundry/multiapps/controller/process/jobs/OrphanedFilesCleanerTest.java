@@ -1,12 +1,14 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
@@ -26,8 +28,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.List;
-
 class OrphanedFilesCleanerTest {
 
     @Mock
@@ -46,7 +46,7 @@ class OrphanedFilesCleanerTest {
     @BeforeEach
     void initMocks() throws Exception {
         MockitoAnnotations.openMocks(this)
-                .close();
+                          .close();
     }
 
     @Test
@@ -54,7 +54,7 @@ class OrphanedFilesCleanerTest {
         when(configuration.getApplicationInstanceIndex()).thenReturn(1);
         when(query.list()).thenReturn(List.of());
         when(operationService.createQuery()).thenReturn(query);
-        when(fileService.listFilesCreatedAfter(any())).thenReturn(List.of(createFileEntry("id-1", "space-1"),
+        when(fileService.listFilesCreatedAfterAndBefore(any(), any())).thenReturn(List.of(createFileEntry("id-1", "space-1"),
                                                                           createFileEntry("id-2", "space-2")));
 
         cleaner.run();
@@ -65,16 +65,22 @@ class OrphanedFilesCleanerTest {
     @Test
     void testWithoutOrphanedFiles() throws FileStorageException {
         when(configuration.getApplicationInstanceIndex()).thenReturn(1);
-        when(query.list()).thenReturn(List.of(createOperation("process-1"), createOperation("process-2")));
-        when(operationService.createQuery()).thenReturn(query);
-        when(fileService.listFilesCreatedAfter(any())).thenReturn(List.of(createFileEntry("id-1", "space-1"),
-                                                                          createFileEntry("id-2", "space-2")));
+        when(query.list()).thenReturn(List.of(createOperation("process-1"), createOperation("process-2"), createOperation("process-3")));
+        when(operationService.createQuery())
+                             .thenReturn(query);
+        when(fileService.listFilesCreatedAfterAndBefore(any(), any())).thenReturn(List.of(createFileEntry("id-1", "space-1"),
+                createFileEntry("id-2", "space-2"),
+                createFileEntry("split-1","space-3"),
+                createFileEntry("split-2", "space-3")));
         var histVar1 = mock(HistoricVariableInstance.class);
         when(histVar1.getValue()).thenReturn("id-1");
         var histVar2 = mock(HistoricVariableInstance.class);
         when(histVar2.getValue()).thenReturn("id-2");
+        var histVar3 = mock(HistoricVariableInstance.class);
+        when(histVar3.getValue()).thenReturn("split-1,split-2");
         when(flowableFacade.getHistoricVariableInstance(eq("process-1"), any())).thenReturn(histVar1);
         when(flowableFacade.getHistoricVariableInstance(eq("process-2"), any())).thenReturn(histVar2);
+        when(flowableFacade.getHistoricVariableInstance(eq("process-3"), any())).thenReturn(histVar3);
 
         cleaner.run();
 

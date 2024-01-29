@@ -1,27 +1,29 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Named
 public class OrphanedFilesCleaner {
@@ -35,16 +37,16 @@ public class OrphanedFilesCleaner {
     private final ApplicationConfiguration configuration;
 
     @Inject
-    public OrphanedFilesCleaner(FileService fileService, OperationService operationService,
-                                FlowableFacade flowableFacade, ApplicationConfiguration config) {
+    public OrphanedFilesCleaner(FileService fileService, OperationService operationService, FlowableFacade flowableFacade,
+                                ApplicationConfiguration config) {
         this.fileService = fileService;
         this.operationService = operationService;
         this.flowableFacade = flowableFacade;
         this.configuration = config;
     }
 
-    //this is quite inefficient because the Operation table does not contain any info on which archive
-    //it is started with
+    // this is quite inefficient because the Operation table does not contain any info on which archive
+    // it is started with
     @Scheduled(fixedRate = 30, timeUnit = TimeUnit.MINUTES)
     public void run() {
         if (configuration.getApplicationInstanceIndex() != SELECTED_INSTANCE_FOR_CLEANUP) {
@@ -52,27 +54,29 @@ public class OrphanedFilesCleaner {
         }
 
         var timestamp = LocalDateTime.now();
-        var oneHourAgo = timestamp.minusHours(1);
+        var oneAndHalfHoursAgo = timestamp.minusHours(1)
+                                          .minusMinutes(30);
+        var halfHourAgo = timestamp.minusMinutes(30);
         try {
-            LOGGER.debug(MessageFormat.format(Messages.GETTING_FILES_CREATED_AFTER_0, oneHourAgo));
-            var files = fileService.listFilesCreatedAfter(oneHourAgo);
+            LOGGER.info(MessageFormat.format(Messages.GETTING_FILES_CREATED_AFTER_0_AND_BEFORE_1, oneAndHalfHoursAgo, halfHourAgo));
+            var files = fileService.listFilesCreatedAfterAndBefore(oneAndHalfHoursAgo, halfHourAgo);
             var fileIdsToFiles = files.stream()
-                                      .collect(Collectors.toMap(FileEntry::getId, entry -> entry));
+                                      .collect(Collectors.toMap(FileEntry::getId, Function.identity()));
 
-            var historicVariables = getHistoricAppArchiveIDs(oneHourAgo);
-
-            filterFilesWithStartedOperations(fileIdsToFiles, historicVariables);
+            var archiveIdsWithAssociatedOperation = getHistoricAppArchiveIDs(oneAndHalfHoursAgo);
+            filterFilesWithStartedOperations(fileIdsToFiles, archiveIdsWithAssociatedOperation);
 
             if (fileIdsToFiles.isEmpty()) {
                 LOGGER.info(Messages.NO_ORPHANED_FILES_TO_DELETE);
                 return;
             }
-            LOGGER.debug(MessageFormat.format(Messages.DELETING_ORPHANED_FILES_0, fileIdsToFiles.size(), fileIdsToFiles.keySet()));
-            for (var orphanedFile : fileIdsToFiles.values()) {
-                fileService.deleteFile(orphanedFile.getSpace(), orphanedFile.getId());
-            }
-        } catch (FileStorageException e) {
-            throw new SLException(e, Messages.COULD_NOT_DELETE_ORPHANED_FILES_MODIFIED_AFTER_0, oneHourAgo);
+            LOGGER.info(MessageFormat.format(Messages.DELETING_ORPHANED_FILES_0, fileIdsToFiles.size(), fileIdsToFiles.keySet()));
+            fileIdsToFiles.forEach((fileId, file) -> deleteFileSafely(file));
+        } catch (Exception e) {
+            throw new SLException(e,
+                                  Messages.COULD_NOT_DELETE_ORPHANED_FILES_MODIFIED_AFTER_0_AND_BEFORE_1,
+                                  oneAndHalfHoursAgo,
+                                  halfHourAgo);
         }
     }
 
@@ -81,23 +85,28 @@ public class OrphanedFilesCleaner {
         var operations = operationService.createQuery()
                                          .startedAfter(startedAfter)
                                          .list();
-
         LOGGER.debug(MessageFormat.format(Messages.GETTING_HISTORIC_VARIABLES_FOR_OPERATIONS_STARTED_AFTER_0, startedAfter));
-        List<String> result = new LinkedList<>();
-        for (var operation : operations) {
-            var historicVariable = flowableFacade.getHistoricVariableInstance(operation.getProcessId(),
-                                                                              Variables.APP_ARCHIVE_ID.getName());
-            result.add(String.valueOf(historicVariable.getValue()));
-        }
-        return result;
+        return operations.stream()
+                         .map(operation -> flowableFacade.getHistoricVariableInstance(operation.getProcessId(),
+                                                                                      Variables.APP_ARCHIVE_ID.getName()))
+                         .map(HistoricVariableInstance::getValue)
+                         .map(String::valueOf)
+                         .flatMap(appArchiveId -> Arrays.stream(appArchiveId.split(",")))
+                         .collect(Collectors.toList());
     }
 
-    private void filterFilesWithStartedOperations(Map<String, FileEntry> files, List<String> historicVars) {
-        var fileIDs = files.keySet();
-        for (var appArchiveId : historicVars) {
-            if (fileIDs.contains(appArchiveId)) {
-                files.remove(appArchiveId);
-            }
+    private void filterFilesWithStartedOperations(Map<String, FileEntry> files, List<String> historicAppArchiveIds) {
+        for (var appArchiveId : historicAppArchiveIds) {
+            files.remove(appArchiveId);
         }
     }
+
+    private void deleteFileSafely(FileEntry orphanedFile) {
+        try {
+            fileService.deleteFile(orphanedFile.getSpace(), orphanedFile.getId());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
 }

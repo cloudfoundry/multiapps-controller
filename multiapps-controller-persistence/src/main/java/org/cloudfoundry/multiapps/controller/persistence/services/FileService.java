@@ -89,11 +89,11 @@ public class FileService {
         }
     }
 
-    public List<FileEntry> listFilesCreatedAfter(LocalDateTime timestamp) throws FileStorageException {
+    public List<FileEntry> listFilesCreatedAfterAndBefore(LocalDateTime after, LocalDateTime before) throws FileStorageException {
         try {
-            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesCreatedAfterQuery(timestamp));
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesCreatedAfterAndBeforeQuery(after, before));
         } catch (SQLException e) {
-            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_CREATED_AFTER_0, timestamp),
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_CREATED_AFTER_0_AND_BEFORE_1, after, before),
                                            e);
         }
     }

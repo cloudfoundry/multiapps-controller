@@ -38,7 +38,7 @@ public abstract class SqlFileQueryProvider {
     private static final String UPDATE_FILE_DIGEST = "UPDATE %s SET DIGEST = ? WHERE FILE_ID = ?";
     private static final String INSERT_FILE_ATTRIBUTES = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_ALL_FILES = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s";
-    private static final String SELECT_FILES_CREATED_AFTER = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE MODIFIED > ?";
+    private static final String SELECT_FILES_CREATED_AFTER_AND_BEFORE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE MODIFIED > ? AND MODIFIED < ?";
     private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE NAMESPACE=? AND SPACE=?";
     private static final String SELECT_FILES_BY_NAMESPACE_SPACE_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE NAMESPACE=? AND SPACE=? AND FILE_NAME=? ORDER BY MODIFIED ASC";
     private static final String SELECT_FILES_BY_SPACE_WITH_NO_NAMESPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE SPACE=? AND NAMESPACE IS NULL";
@@ -198,15 +198,17 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
-    public SqlQuery<List<FileEntry>> getListFilesCreatedAfterQuery(LocalDateTime timestamp) {
+    public SqlQuery<List<FileEntry>> getListFilesCreatedAfterAndBeforeQuery(LocalDateTime after, LocalDateTime before) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
             try {
                 List<FileEntry> files = new ArrayList<>();
-                statement = connection.prepareStatement(getQuery(SELECT_FILES_CREATED_AFTER));
-                statement.setTimestamp(1, Timestamp.from(timestamp.atZone(ZoneId.systemDefault())
-                                                                  .toInstant()));
+                statement = connection.prepareStatement(getQuery(SELECT_FILES_CREATED_AFTER_AND_BEFORE));
+                statement.setTimestamp(1, Timestamp.from(after.atZone(ZoneId.systemDefault())
+                                                              .toInstant()));
+                statement.setTimestamp(2, Timestamp.from(before.atZone(ZoneId.systemDefault())
+                                                               .toInstant()));
                 resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     files.add(getFileEntry(resultSet));
