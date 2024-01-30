@@ -38,7 +38,6 @@ public abstract class SqlFileQueryProvider {
     private static final String UPDATE_FILE_DIGEST = "UPDATE %s SET DIGEST = ? WHERE FILE_ID = ?";
     private static final String INSERT_FILE_ATTRIBUTES = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_ALL_FILES = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s";
-    private static final String SELECT_FILES_CREATED_AFTER = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE MODIFIED > ?";
     private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE NAMESPACE=? AND SPACE=?";
     private static final String SELECT_FILES_BY_NAMESPACE_SPACE_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE NAMESPACE=? AND SPACE=? AND FILE_NAME=? ORDER BY MODIFIED ASC";
     private static final String SELECT_FILES_BY_SPACE_WITH_NO_NAMESPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE SPACE=? AND NAMESPACE IS NULL";
@@ -198,27 +197,6 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
-    public SqlQuery<List<FileEntry>> getListFilesCreatedAfterQuery(LocalDateTime timestamp) {
-        return (Connection connection) -> {
-            PreparedStatement statement = null;
-            ResultSet resultSet = null;
-            try {
-                List<FileEntry> files = new ArrayList<>();
-                statement = connection.prepareStatement(getQuery(SELECT_FILES_CREATED_AFTER));
-                statement.setTimestamp(1, Timestamp.from(timestamp.atZone(ZoneId.systemDefault())
-                                                                  .toInstant()));
-                resultSet = statement.executeQuery();
-                while (resultSet.next()) {
-                    files.add(getFileEntry(resultSet));
-                }
-                return files;
-            } finally {
-                JdbcUtil.closeQuietly(resultSet);
-                JdbcUtil.closeQuietly(statement);
-            }
-        };
-    }
-
     public SqlQuery<FileEntry> getRetrieveFileQuery(String space, String id) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
@@ -312,8 +290,9 @@ public abstract class SqlFileQueryProvider {
             PreparedStatement statement = null;
             try {
                 statement = connection.prepareStatement(getQuery(DELETE_FILES_MODIFIED_BEFORE));
-                statement.setTimestamp(1, Timestamp.from(modificationTime.atZone(ZoneId.systemDefault())
-                                                                         .toInstant()));
+                statement.setTimestamp(1, new Timestamp(modificationTime.atZone(ZoneId.systemDefault())
+                                                                        .toInstant()
+                                                                        .toEpochMilli()));
                 int deletedFiles = statement.executeUpdate();
                 logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_MODIFIED_BEFORE_1, deletedFiles, modificationTime));
                 return deletedFiles;
