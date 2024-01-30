@@ -28,15 +28,16 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
     }
 
     private ObjectStoreFileStorage createObjectStoreFileStorage() {
+        BlobStoreContext context = getBlobStoreContext();
+        return context == null ? null : new ObjectStoreFileStorage(context.getBlobStore(), getServiceInfo().getContainer());
+    }
+
+    private BlobStoreContext getBlobStoreContext() {
+        BlobStoreContext blobStoreContext;
         ObjectStoreServiceInfo serviceInfo = getServiceInfo();
         if (serviceInfo == null) {
             return null;
         }
-        BlobStoreContext context = getBlobStoreContext(serviceInfo);
-        return context == null ? null : new ObjectStoreFileStorage(context.getBlobStore(), serviceInfo.getContainer());
-    }
-
-    private BlobStoreContext getBlobStoreContext(ObjectStoreServiceInfo serviceInfo) {
         ContextBuilder contextBuilder = ContextBuilder.newBuilder(serviceInfo.getProvider());
         if (serviceInfo.getCredentialsSupplier() != null) {
             contextBuilder.credentialsSupplier(serviceInfo.getCredentialsSupplier());
@@ -48,7 +49,8 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         if (serviceInfo.getEndpoint() != null) {
             contextBuilder.endpoint(serviceInfo.getEndpoint());
         }
-        return contextBuilder.buildView(BlobStoreContext.class);
+        blobStoreContext = contextBuilder.buildView(BlobStoreContext.class);
+        return blobStoreContext;
     }
 
     private ObjectStoreServiceInfo getServiceInfo() {

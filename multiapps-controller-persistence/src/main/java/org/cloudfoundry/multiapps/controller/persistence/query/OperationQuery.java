@@ -27,8 +27,6 @@ public interface OperationQuery extends Query<Operation, OperationQuery> {
 
     OperationQuery startedBefore(LocalDateTime startedBefore);
 
-    OperationQuery startedAfter(LocalDateTime timestamp);
-
     OperationQuery endedBefore(LocalDateTime endedBefore);
 
     OperationQuery endedAfter(LocalDateTime endedAfter);
