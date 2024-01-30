@@ -54,16 +54,15 @@ public class OrphanedFilesCleaner {
         }
 
         var timestamp = LocalDateTime.now();
-        var oneAndHalfHoursAgo = timestamp.minusHours(1)
-                                          .minusMinutes(30);
-        var halfHourAgo = timestamp.minusMinutes(30);
+        var twoHoursAgo = timestamp.minusHours(2);
+        var oneHourAgo = timestamp.minusHours(1);
         try {
-            LOGGER.info(MessageFormat.format(Messages.GETTING_FILES_CREATED_AFTER_0_AND_BEFORE_1, oneAndHalfHoursAgo, halfHourAgo));
-            var files = fileService.listFilesCreatedAfterAndBefore(oneAndHalfHoursAgo, halfHourAgo);
+            LOGGER.info(MessageFormat.format(Messages.GETTING_FILES_CREATED_AFTER_0_AND_BEFORE_1, twoHoursAgo, oneHourAgo));
+            var files = fileService.listFilesCreatedAfterAndBefore(twoHoursAgo, oneHourAgo);
             var fileIdsToFiles = files.stream()
                                       .collect(Collectors.toMap(FileEntry::getId, Function.identity()));
 
-            var archiveIdsWithAssociatedOperation = getHistoricAppArchiveIDs(oneAndHalfHoursAgo);
+            var archiveIdsWithAssociatedOperation = getHistoricAppArchiveIDs(twoHoursAgo);
             filterFilesWithStartedOperations(fileIdsToFiles, archiveIdsWithAssociatedOperation);
 
             if (fileIdsToFiles.isEmpty()) {
@@ -73,10 +72,7 @@ public class OrphanedFilesCleaner {
             LOGGER.info(MessageFormat.format(Messages.DELETING_ORPHANED_FILES_0, fileIdsToFiles.size(), fileIdsToFiles.keySet()));
             fileIdsToFiles.forEach((fileId, file) -> deleteFileSafely(file));
         } catch (Exception e) {
-            throw new SLException(e,
-                                  Messages.COULD_NOT_DELETE_ORPHANED_FILES_MODIFIED_AFTER_0_AND_BEFORE_1,
-                                  oneAndHalfHoursAgo,
-                                  halfHourAgo);
+            throw new SLException(e, Messages.COULD_NOT_DELETE_ORPHANED_FILES_MODIFIED_AFTER_0_AND_BEFORE_1, twoHoursAgo, oneHourAgo);
         }
     }
 
