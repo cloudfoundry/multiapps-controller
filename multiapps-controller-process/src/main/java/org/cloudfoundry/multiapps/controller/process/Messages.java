@@ -40,7 +40,6 @@ public class Messages {
     public static final String VERSION_RULE_DOES_NOT_ALLOW_DEPLOYMENT_TYPE = "Version rule \"{0}\" does not allow deployment type \"{1}\".";
     public static final String UNKNOWN_UPLOAD_STATUS = "Unknown upload status: {0}";
     public static final String COULD_NOT_DELETE_FILES_MODIFIED_BEFORE_0 = "Could not delete files modified before {0}";
-    public static final String COULD_NOT_DELETE_ORPHANED_FILES_MODIFIED_AFTER_0 = "Could not delete orphaned files modified after {0}";
     public static final String COULD_NOT_DELETE_PROCESS_LOGS_MODIFIED_BEFORE_0 = "Could not delete process logs modified before {0}";
     public static final String MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES = "Modules {0}, specified for deployment, are not part of deployment descriptor modules";
     public static final String SERVICE_BROKER_0_DOES_NOT_EXIST = "Service broker \"{0}\" does not exist";
@@ -667,11 +666,6 @@ public class Messages {
     public static final String PROCESS_WAS_DELETED_0 = "Process was deleted: {0}";
     public static final String MODULE_0_WAS_NOT_FOUND = "Module \"{0}\" was not found";
     public static final String DETECTING_LIVE_APPLICATION_ENV = "Detecting live application env...";
-    public static final String GETTING_FILES_CREATED_AFTER_0 = "Getting files created after {0} to check for deletion";
-    public static final String GETTING_OPERATIONS_STARTED_AFTER_0 = "Getting operations started after {0} to check for orphaned files";
-    public static final String GETTING_HISTORIC_VARIABLES_FOR_OPERATIONS_STARTED_AFTER_0 = "Getting historic variables for operations started after {0}";
-    public static final String NO_ORPHANED_FILES_TO_DELETE = "No orphaned files to delete.";
-    public static final String DELETING_ORPHANED_FILES_0 = "Deleting {0} orphaned files: {1}";
 
     protected Messages() {
     }
