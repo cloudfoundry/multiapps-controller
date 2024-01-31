@@ -33,7 +33,7 @@ public class UpdateServiceTagsStep extends ServiceStep {
             client.updateServiceTags(service.getName(), service.getTags());
             getStepLogger().debug(Messages.SERVICE_TAGS_UPDATED, service.getName());
         } catch (CloudOperationException e) {
-            String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_UPDATE_TAGS_OF_OPTIONAL_SERVICE, service.getName(),
+            String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_UPDATE_TAGS_OF_SERVICE, service.getName(),
                                                                e.getDescription());
             CloudOperationException cloudOperationException = new CloudOperationException(e.getStatusCode(),
                                                                                           e.getStatusText(),
