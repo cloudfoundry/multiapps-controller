@@ -6,8 +6,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerException;
-import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
@@ -15,11 +13,13 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.springframework.http.HttpStatus;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudControllerException;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
-import org.springframework.http.HttpStatus;
 
 public abstract class ServiceStep extends AsyncFlowableStep {
 
@@ -67,15 +67,15 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     protected void processServiceActionFailure(ProcessContext context, CloudServiceInstanceExtended serviceInstance,
                                                CloudOperationException e) {
         if (!serviceInstance.isOptional()) {
-            String detailedDescription = MessageFormat.format(Messages.ERROR_CREATING_SERVICE, serviceInstance.getName(),
-                    serviceInstance.getLabel(), serviceInstance.getPlan(), e.getDescription());
+            String detailedMessage = MessageFormat.format(Messages.ERROR_CREATING_OR_UPDATING_SERVICE_INSTANCE, e.getDescription());
             if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
                 context.setVariable(Variables.SERVICE_OFFERING, serviceInstance.getLabel());
-                throw new CloudServiceBrokerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
+                throw new CloudServiceBrokerException(e.getStatusCode(), e.getStatusText(), detailedMessage);
             }
-            throw new CloudControllerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
+            throw new CloudControllerException(e.getStatusCode(), e.getStatusText(), detailedMessage);
         }
-        getStepLogger().warn(e.getDescription());
+
+        getStepLogger().warn(MessageFormat.format(Messages.ERROR_CREATING_OR_UPDATING_OPTIONAL_SERVICE_INSTANCE, e.getDescription()));
     }
 
     protected abstract ServiceOperation.Type getOperationType();

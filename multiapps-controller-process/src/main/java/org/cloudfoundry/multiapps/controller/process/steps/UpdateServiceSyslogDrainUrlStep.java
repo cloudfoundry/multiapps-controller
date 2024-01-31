@@ -34,8 +34,8 @@ public class UpdateServiceSyslogDrainUrlStep extends ServiceStep {
             client.updateServiceSyslogDrainUrl(service.getName(), service.getSyslogDrainUrl());
             getStepLogger().debug(Messages.SERVICE_SYSLOG_URL_UPDATED, service.getName());
         } catch (CloudOperationException e) {
-            String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_UPDATE_SYSLOG_DRAIN_URL_OPTIONAL_SERVICE,
-                                                               service.getName(), e.getDescription());
+            String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_UPDATE_SYSLOG_DRAIN_URL_SERVICE, service.getName(),
+                                                               e.getDescription());
             CloudOperationException cloudOperationException = new CloudOperationException(e.getStatusCode(),
                                                                                           e.getStatusText(),
                                                                                           exceptionDescription);

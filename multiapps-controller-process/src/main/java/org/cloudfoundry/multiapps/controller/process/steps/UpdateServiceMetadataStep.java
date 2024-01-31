@@ -31,7 +31,7 @@ public class UpdateServiceMetadataStep extends ServiceStep {
             client.updateServiceInstanceMetadata(serviceGuid, service.getV3Metadata());
             getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_DONE, service.getName());
         } catch (CloudOperationException e) {
-            String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_UPDATE_METADATA_OF_OPTIONAL_SERVICE, service.getName(),
+            String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_UPDATE_METADATA_OF_SERVICE, service.getName(),
                                                                e.getDescription());
             CloudOperationException cloudOperationException = new CloudOperationException(e.getStatusCode(),
                                                                                           e.getStatusText(),

@@ -33,7 +33,7 @@ public class UpdateServicePlanStep extends ServiceStep {
             client.updateServicePlan(service.getName(), service.getPlan());
             getStepLogger().debug(Messages.SERVICE_PLAN_FOR_SERVICE_0_UPDATED, service.getName());
         } catch (CloudOperationException e) {
-            String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_UPDATE_PLAN_OPTIONAL_SERVICE, service.getName(),
+            String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_UPDATE_PLAN_SERVICE, service.getName(),
                                                                e.getDescription());
             CloudOperationException cloudOperationException = new CloudOperationException(e.getStatusCode(),
                                                                                           e.getStatusText(),
