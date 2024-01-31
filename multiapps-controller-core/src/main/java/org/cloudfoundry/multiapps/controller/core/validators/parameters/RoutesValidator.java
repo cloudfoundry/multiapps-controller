@@ -16,6 +16,8 @@ import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.model.Module;
 
+import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.LIVE_ROUTE;
+
 public class RoutesValidator implements ParameterValidator {
 
     protected Map<String, ParameterValidator> validators;
@@ -26,7 +28,7 @@ public class RoutesValidator implements ParameterValidator {
 
     protected void initRoutesValidators(String namespace, boolean applyNamespaceGlobal) {
         ParameterValidator routeValidator = new RouteValidator(namespace, applyNamespaceGlobal);
-        this.validators = Map.of(routeValidator.getParameterName(), routeValidator);
+        this.validators = Map.of(routeValidator.getParameterName(), routeValidator, LIVE_ROUTE, routeValidator);
     }
 
     @Override

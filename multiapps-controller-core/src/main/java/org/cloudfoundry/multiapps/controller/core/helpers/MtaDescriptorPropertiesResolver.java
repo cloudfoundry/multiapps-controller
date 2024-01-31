@@ -32,7 +32,8 @@ import org.cloudfoundry.multiapps.mta.resolvers.ResolverBuilder;
 
 public class MtaDescriptorPropertiesResolver {
 
-
+    public static final String IDLE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.IDLE_DOMAIN + "}";
+    public static final String IDLE_HOST_PLACEHOLDER = "${" + SupportedParameters.IDLE_HOST + "}";
     public static final String LIVE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.DEFAULT_LIVE_DOMAIN + "}";
     public static final String LIVE_HOST_PLACEHOLDER = "${" + SupportedParameters.DEFAULT_LIVE_HOST + "}";
 
@@ -131,6 +132,7 @@ public class MtaDescriptorPropertiesResolver {
                 String protocol = (String) routeMap.get(SupportedParameters.ROUTE_PROTOCOL);
                 if (routeValue instanceof String) {
                     routeMap.put(SupportedParameters.ROUTE, replacePartsWithIdlePlaceholders((String) routeValue, noHostname, protocol));
+                    routeMap.put(SupportedParameters.LIVE_ROUTE, replacePartsWithLivePlaceholders((String) routeValue, noHostname, protocol));
                 }
 
                 if (routeMap.containsKey(SupportedParameters.NO_HOSTNAME)) {
@@ -142,6 +144,13 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     private String replacePartsWithIdlePlaceholders(String uriString, boolean noHostname, String protocol) {
+        ApplicationURI uri = new ApplicationURI(uriString, noHostname, protocol);
+        uri.setDomain(IDLE_DOMAIN_PLACEHOLDER);
+        uri.setHost(IDLE_HOST_PLACEHOLDER);
+        return uri.toString();
+    }
+
+    private String replacePartsWithLivePlaceholders(String uriString, boolean noHostname, String protocol) {
         ApplicationURI uri = new ApplicationURI(uriString, noHostname, protocol);
         uri.setDomain(LIVE_DOMAIN_PLACEHOLDER);
         uri.setHost(LIVE_HOST_PLACEHOLDER);

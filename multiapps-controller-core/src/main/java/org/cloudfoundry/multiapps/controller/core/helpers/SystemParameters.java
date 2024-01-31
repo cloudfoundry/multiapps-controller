@@ -20,7 +20,7 @@ public class SystemParameters {
     public static final String ROUTE_PATH_PLACEHOLDER = "${route-path}";
     public static final String DEFAULT_HOST_BASED_IDLE_URI = "${idle-host}.${idle-domain}";
     public static final String DEFAULT_HOST_BASED_URI = "${host}.${domain}";
-    public static final String DEFAULT_LIVE_HOST_BASED_URI = ".${domain}";
+    public static final String DOMAIN_PLACEHOLDER_SUFFIX = ".${domain}";
     public static final String DEFAULT_IDLE_URL = "${protocol}://${default-idle-uri}";
     public static final String DEFAULT_URL = "${protocol}://${default-uri}";
     public static final String DEFAULT_LIVE_URL = "${protocol}://${default-live-uri}";
@@ -137,7 +137,7 @@ public class SystemParameters {
         }
         moduleSystemParameters.put(SupportedParameters.DEFAULT_URI, appendRoutePathIfPresent(defaultUri, moduleParameters));
 
-        String liveHostUri = getDefaultHost(module.getName()) + DEFAULT_LIVE_HOST_BASED_URI;
+        String liveHostUri = getDefaultHost(module.getName()) + DOMAIN_PLACEHOLDER_SUFFIX;
         moduleSystemParameters.put(SupportedParameters.DEFAULT_LIVE_URI, appendRoutePathIfPresent(liveHostUri, moduleParameters));
 
         String defaultUrl = DEFAULT_URL;

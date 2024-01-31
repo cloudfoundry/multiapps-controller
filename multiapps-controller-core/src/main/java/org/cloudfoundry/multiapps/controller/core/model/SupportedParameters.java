@@ -143,6 +143,7 @@ public class SupportedParameters {
     public static final String DEFAULT_LIVE_APP_NAME = "default-live-app-name";
     public static final String DEFAULT_LIVE_HOST = "default-live-host";
     public static final String DEFAULT_LIVE_DOMAIN = "default-live-domain";
+    public static final String LIVE_ROUTE = "live-route";
     public static final String VISIBILITY = "visibility";
     // Configuration reference (old syntax):
     @Deprecated
