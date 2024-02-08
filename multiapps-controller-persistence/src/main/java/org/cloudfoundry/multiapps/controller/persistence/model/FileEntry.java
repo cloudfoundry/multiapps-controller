@@ -38,4 +38,7 @@ public interface FileEntry {
     @Nullable
     Date getModified();
 
+    @Nullable
+    String getOperationId();
+
 }

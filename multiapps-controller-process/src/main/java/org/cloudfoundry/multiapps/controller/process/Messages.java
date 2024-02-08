@@ -65,7 +65,7 @@ public class Messages {
     public static final String OPERATION_FOR_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1 = "Operation for service key \"{0}\", failed with description \"{1}\"";
     public static final String OPERATION_FOR_OPTIONAL_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1 = "Operation for service key \"{0}\". for optional service, failed with description \"{1}\"";
     public static final String APPLICATION_0_WAS_NOT_FOUND = "Application \"{0}\" was not found";
-
+    public static final String FAILED_TO_UPDATE_FILES_OF_OPERATION_0 = "Failed to update files of operation: {0}";
     // Audit log messages
 
     // ERROR log messages
@@ -256,6 +256,7 @@ public class Messages {
     public static final String DELETED_HISTORIC_PROCESSES_0 = "Deleted historic processes: {0}";
     public static final String DELETED_FILES_0 = "Deleted files: {0}";
     public static final String DELETED_FILE_UPLOAD_JOBS_0 = "Deleted file upload jobs: {0}";
+    public static final String FILES_FOR_OPERATION_0_WERE_UPDATED_1 = "Files for operation {0} were updated: {1}";
 
     public static final String ABORTED_OPERATIONS_0 = "Aborted operations: {0}";
     public static final String DELETED_OPERATIONS_0 = "Deleted operations: {0}";

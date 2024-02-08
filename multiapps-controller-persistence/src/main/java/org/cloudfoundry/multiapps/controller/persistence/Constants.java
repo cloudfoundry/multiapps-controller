@@ -19,6 +19,7 @@ public class Constants {
     public static final String FILE_ENTRY_NAME = "FILE_NAME";
     public static final String FILE_ENTRY_DIGEST = "DIGEST";
     public static final String FILE_ENTRY_ID = "FILE_ID";
+    public static final String FILE_ENTRY_OPERATION_ID = "OPERATION_ID";
 
     public static final String SSL_CLIENT_KEY_FILE_NAME = "ClientKey.der";
 

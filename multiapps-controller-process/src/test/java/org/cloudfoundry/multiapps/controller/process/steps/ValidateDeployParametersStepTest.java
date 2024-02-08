@@ -49,8 +49,11 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
                                       false, ""),
 
                          // [2] Valid parameters
-                         Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1,
-                                      VersionRule.HIGHER.toString()), null, false, ""),
+                         Arguments.of(new StepInput(EXISTING_FILE_ID,
+                                                    EXISTING_FILE_ID + "," + EXISTING_FILE_ID,
+                                                    1,
+                                                    VersionRule.HIGHER.toString()),
+                                      null, false, ""),
 
                          // [3] Max descriptor size exceeded
                          Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_BIGGER_FILE_ID, 1, VersionRule.HIGHER.toString()),
@@ -61,6 +64,14 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
                          // [4] Process chunked file
                          Arguments.of(new StepInput(MERGED_ARCHIVE_NAME + ".part.0," + MERGED_ARCHIVE_NAME + ".part.1,"
                              + MERGED_ARCHIVE_NAME + ".part.2", null, 1, VersionRule.HIGHER.toString()), null, true, ""));
+    }
+
+    private static FileEntry createFileEntry(String id, String name, long size) {
+        return ImmutableFileEntry.builder()
+                                 .id(id)
+                                 .name(name)
+                                 .size(BigInteger.valueOf(size))
+                                 .build();
     }
 
     @MethodSource
@@ -113,16 +124,8 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
                .thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024L + 1));
         Mockito.when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID))
                .thenReturn(null);
-        Mockito.when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("namespace"), Mockito.anyString(), Mockito.any(File.class)))
+        Mockito.when(fileService.addFile(Mockito.any(FileEntry.class), Mockito.any(File.class)))
                .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024L));
-    }
-
-    private static FileEntry createFileEntry(String id, String name, long size) {
-        return ImmutableFileEntry.builder()
-                                 .id(id)
-                                 .name(name)
-                                 .size(BigInteger.valueOf(size))
-                                 .build();
     }
 
     private void prepareArchiveMerger() {

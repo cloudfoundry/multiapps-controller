@@ -66,6 +66,13 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 class FilesApiServiceImplTest {
 
+    private static final long MAX_PERMITTED_SIZE = new Configuration().getMaxUploadSize();
+    private static final String MTA_ID = "anatz";
+    private static final String FILE_URL = Base64.getUrlEncoder()
+                                                 .encodeToString("https://host.domain/test.mtar?query=true".getBytes(StandardCharsets.UTF_8));
+    private static final String SPACE_GUID = "896e6be9-8217-4a1c-b938-09b30966157a";
+    private static final String NAMESPACE = "custom-namespace";
+    private static final String DIGEST_CHARACTER_TABLE = "123456789ABCDEF";
     @Mock
     private FileService fileService;
     @Mock
@@ -74,22 +81,6 @@ class FilesApiServiceImplTest {
     private MultipartFile file;
     @Mock
     private HttpClient httpClient;
-    @Mock
-    private HttpResponse<InputStream> fileUrlResponse;
-    @Mock
-    private ExecutorService asyncFileUploadExecutor;
-    @Mock
-    private ApplicationConfiguration configuration = new ApplicationConfiguration();
-    @Spy
-    private DescriptorParserFacadeFactory descriptorParserFactory = new DescriptorParserFacadeFactory(configuration);
-    @Mock
-    private AsyncUploadJobService uploadJobService;
-
-    private static final long MAX_PERMITTED_SIZE = new Configuration().getMaxUploadSize();
-    private static final String MTA_ID = "anatz";
-    private static final String FILE_URL = Base64.getUrlEncoder()
-                                                 .encodeToString("https://host.domain/test.mtar?query=true".getBytes(StandardCharsets.UTF_8));
-
     @InjectMocks
     private final FilesApiServiceImpl testedClass = new FilesApiServiceImpl() {
         @Override
@@ -103,11 +94,16 @@ class FilesApiServiceImplTest {
                                                    .withWaitTimeBetweenRetriesInMillis(0);
         }
     };
-
-    private static final String SPACE_GUID = "896e6be9-8217-4a1c-b938-09b30966157a";
-    private static final String NAMESPACE = "custom-namespace";
-
-    private static final String DIGEST_CHARACTER_TABLE = "123456789ABCDEF";
+    @Mock
+    private HttpResponse<InputStream> fileUrlResponse;
+    @Mock
+    private ExecutorService asyncFileUploadExecutor;
+    @Mock
+    private ApplicationConfiguration configuration = new ApplicationConfiguration();
+    @Spy
+    private DescriptorParserFacadeFactory descriptorParserFactory = new DescriptorParserFacadeFactory(configuration);
+    @Mock
+    private AsyncUploadJobService uploadJobService;
 
     @BeforeAll
     public static void setUser() {
@@ -165,8 +161,13 @@ class FilesApiServiceImplTest {
         Mockito.when(request.getFileMap())
                .thenReturn(Map.of("file", file));
 
-        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE), Mockito.eq(fileName),
-                                         Mockito.any(InputStream.class), Mockito.eq(fileSize)))
+        Mockito.when(fileService.addFile(Mockito.eq(ImmutableFileEntry.builder()
+                                                                      .space(SPACE_GUID)
+                                                                      .namespace(NAMESPACE)
+                                                                      .name(fileName)
+                                                                      .size(BigInteger.valueOf(fileSize))
+                                                                      .build()),
+                                         Mockito.any(InputStream.class)))
                .thenReturn(fileEntry);
 
         ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID, NAMESPACE);
@@ -174,8 +175,13 @@ class FilesApiServiceImplTest {
         Mockito.verify(file)
                .getInputStream();
         Mockito.verify(fileService)
-               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE), Mockito.eq(fileName), Mockito.any(InputStream.class),
-                        Mockito.eq(fileSize));
+               .addFile(Mockito.eq(ImmutableFileEntry.builder()
+                                                     .space(SPACE_GUID)
+                                                     .namespace(NAMESPACE)
+                                                     .name(fileName)
+                                                     .size(BigInteger.valueOf(fileSize))
+                                                     .build()),
+                        Mockito.any(InputStream.class));
 
         FileMetadata fileMetadata = response.getBody();
         assertMetadataMatches(fileEntry, fileMetadata);
@@ -207,8 +213,13 @@ class FilesApiServiceImplTest {
         Mockito.when(uploadJobService.update(any(), any()))
                .thenReturn(jobEntry);
 
-        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE), Mockito.eq(fileName), Mockito.any(),
-                                         Mockito.eq(20L)))
+        Mockito.when(fileService.addFile(Mockito.eq(ImmutableFileEntry.builder()
+                                                                      .name(SPACE_GUID)
+                                                                      .namespace(NAMESPACE)
+                                                                      .name(fileName)
+                                                                      .size(BigInteger.valueOf(20L))
+                                                                      .build()),
+                                         Mockito.any(InputStream.class)))
                .thenReturn(fileEntry);
         Mockito.when(fileService.getFile(Mockito.eq(SPACE_GUID), Mockito.eq(fileEntry.getId())))
                .thenReturn(fileEntry);
@@ -229,7 +240,13 @@ class FilesApiServiceImplTest {
         assertEquals(uploadJobResponse.getStatusCode(), HttpStatus.CREATED);
 
         Mockito.verify(fileService)
-               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE), Mockito.eq(fileName), Mockito.any(), Mockito.eq(20L));
+               .addFile(Mockito.eq(ImmutableFileEntry.builder()
+                                                     .name(fileName)
+                                                     .namespace(NAMESPACE)
+                                                     .space(SPACE_GUID)
+                                                     .size(BigInteger.valueOf(20L))
+                                                     .build()),
+                        Mockito.any(InputStream.class));
 
         var responseBody = uploadJobResponse.getBody();
         var fileMetadata = responseBody.getFile();

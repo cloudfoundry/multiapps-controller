@@ -56,23 +56,20 @@ public class FileService {
         this.fileStorage = fileStorage;
     }
 
-    public FileEntry addFile(String space, String namespace, String name, InputStream content, long fileSize) throws FileStorageException {
-        FileEntry entryWithoutDigest = ImmutableFileEntry.builder()
-                                                         .id(generateRandomId())
-                                                         .name(name)
-                                                         .namespace(namespace)
-                                                         .space(space)
-                                                         .size(BigInteger.valueOf(fileSize))
-                                                         .modified(new Timestamp(System.currentTimeMillis()))
-                                                         .build();
+    public FileEntry addFile(FileEntry baseEntry, InputStream content) throws FileStorageException {
+        FileEntry entryWithoutDigest = ImmutableFileEntry.copyOf(baseEntry)
+                                                         .withId(generateRandomId())
+                                                         .withModified(new Timestamp(System.currentTimeMillis()));
         FileEntry fileEntry = storeFile(entryWithoutDigest, content);
         logger.debug(MessageFormat.format(Messages.STORED_FILE_0, fileEntry));
         return fileEntry;
     }
 
-    public FileEntry addFile(String space, String namespace, String name, File existingFile) throws FileStorageException {
+    public FileEntry addFile(FileEntry fileEntry, File existingFile) throws FileStorageException {
         try (InputStream content = new BufferedInputStream(new FileInputStream(existingFile), INPUT_STREAM_BUFFER_SIZE)) {
-            return addFile(space, namespace, name, content, existingFile.length());
+            return addFile(ImmutableFileEntry.copyOf(fileEntry)
+                                             .withSize(BigInteger.valueOf(existingFile.length())),
+                           content);
         } catch (FileNotFoundException e) {
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_FINDING_FILE_TO_UPLOAD, existingFile.getName()), e);
         } catch (IOException e) {
@@ -92,6 +89,14 @@ public class FileService {
     public FileEntry getFile(String space, String id) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getRetrieveFileQuery(space, id));
+        } catch (SQLException e) {
+            throw new FileStorageException(e.getMessage(), e);
+        }
+    }
+
+    public int updateFilesOperationId(List<String> fileIds, String operationId) throws FileStorageException {
+        try {
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getUpdateFilesOperationIdQuery(fileIds, operationId));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }

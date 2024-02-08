@@ -1,14 +1,16 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
+import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
@@ -18,6 +20,8 @@ import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.util.LoggingUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessEvent;
@@ -25,6 +29,7 @@ import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublishe
 import org.cloudfoundry.multiapps.controller.process.dynatrace.ImmutableDynatraceProcessEvent;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
+import org.cloudfoundry.multiapps.controller.process.util.OperationFileIdsUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -39,17 +44,17 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessListener.class);
-
-    @Inject
-    private OperationService operationService;
     @Inject
     protected ProcessTypeParser processTypeParser;
+    Supplier<ZonedDateTime> currentTimeSupplier = ZonedDateTime::now;
+    @Inject
+    private OperationService operationService;
     @Autowired(required = false)
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     @Inject
     private DynatracePublisher dynatracePublisher;
-
-    Supplier<ZonedDateTime> currentTimeSupplier = ZonedDateTime::now;
+    @Inject
+    private FileService fileService;
 
     @Override
     protected void notifyInternal(DelegateExecution execution) {
@@ -60,34 +65,37 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         getStepLogger().info(Messages.OPERATION_ID, correlationId);
         ProcessType processType = processTypeParser.getProcessType(execution);
 
-        if (getOperation(correlationId) == null) {
+        if (operationDoesNotExist(correlationId)) {
             addOperation(execution, correlationId, processType);
         }
+
+        updateOperationFiles(execution, correlationId);
         getHistoricOperationEventService().add(ImmutableHistoricOperationEvent.of(correlationId, HistoricOperationEvent.EventType.STARTED));
         logProcessEnvironment();
         logProcessVariables(execution, processType, correlationId);
         publishDynatraceEvent(execution, processType, correlationId);
     }
 
-    private void publishDynatraceEvent(DelegateExecution execution, ProcessType processType, String correlationId) {
-        DynatraceProcessEvent startEvent = ImmutableDynatraceProcessEvent.builder()
-                                                                         .processId(correlationId)
-                                                                         .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
-                                                                         .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
-                                                                         .eventType(DynatraceProcessEvent.EventType.STARTED)
-                                                                         .processType(processType)
-                                                                         .build();
-        dynatracePublisher.publishProcessEvent(startEvent, getLogger());
+    private boolean operationDoesNotExist(String correlationId) {
+        return operationService.createQuery()
+                               .processId(correlationId)
+                               .list()
+                               .isEmpty();
     }
 
-    private Operation getOperation(String correlationId) {
-        try {
-            return operationService.createQuery()
-                                   .processId(correlationId)
-                                   .singleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+    private void addOperation(DelegateExecution execution, String correlationId, ProcessType processType) {
+        Operation operation = ImmutableOperation.builder()
+                                                .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
+                                                .processId(correlationId)
+                                                .processType(processType)
+                                                .startedAt(currentTimeSupplier.get())
+                                                .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
+                                                .user(StepsUtil.determineCurrentUser(execution))
+                                                .hasAcquiredLock(false)
+                                                .namespace(VariableHandling.get(execution, Variables.MTA_NAMESPACE))
+                                                .state(Operation.State.RUNNING)
+                                                .build();
+        operationService.add(operation);
     }
 
     private void logProcessEnvironment() {
@@ -105,7 +113,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
                                                                                           JsonUtil.toJson(processVariables, true)));
     }
 
-    protected Map<String, Object> findProcessVariables(DelegateExecution execution, ProcessType processType) {
+    private Map<String, Object> findProcessVariables(DelegateExecution execution, ProcessType processType) {
         OperationMetadata operationMetadata = operationMetadataMapper.getOperationMetadata(processType);
         Map<String, Object> result = new HashMap<>();
         for (ParameterMetadata parameterMetadata : operationMetadata.getParameters()) {
@@ -117,19 +125,26 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         return result;
     }
 
-    private void addOperation(DelegateExecution execution, String correlationId, ProcessType processType) {
-        Operation operation = ImmutableOperation.builder()
-                                                .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
-                                                .processId(correlationId)
-                                                .processType(processType)
-                                                .startedAt(currentTimeSupplier.get())
-                                                .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
-                                                .user(StepsUtil.determineCurrentUser(execution))
-                                                .hasAcquiredLock(false)
-                                                .namespace(VariableHandling.get(execution, Variables.MTA_NAMESPACE))
-                                                .state(Operation.State.RUNNING)
-                                                .build();
-        operationService.add(operation);
+    private void updateOperationFiles(DelegateExecution execution, String correlationId) {
+        List<String> operationFilesIds = OperationFileIdsUtil.getOperationFileIds(execution);
+        try {
+            LOGGER.info(MessageFormat.format(Messages.FILES_FOR_OPERATION_0_WERE_UPDATED_1, correlationId,
+                                             fileService.updateFilesOperationId(operationFilesIds, correlationId)));
+        } catch (FileStorageException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new SLException(MessageFormat.format(Messages.FAILED_TO_UPDATE_FILES_OF_OPERATION_0, correlationId));
+        }
+    }
+
+    private void publishDynatraceEvent(DelegateExecution execution, ProcessType processType, String correlationId) {
+        DynatraceProcessEvent startEvent = ImmutableDynatraceProcessEvent.builder()
+                                                                         .processId(correlationId)
+                                                                         .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
+                                                                         .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
+                                                                         .eventType(DynatraceProcessEvent.EventType.STARTED)
+                                                                         .processType(processType)
+                                                                         .build();
+        dynatracePublisher.publishProcessEvent(startEvent, getLogger());
     }
 
     @Override

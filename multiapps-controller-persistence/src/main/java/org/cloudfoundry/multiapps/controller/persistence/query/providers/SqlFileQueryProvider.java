@@ -36,13 +36,14 @@ public abstract class SqlFileQueryProvider {
     private static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT_WITHOUT_DIGEST = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST_ALGORITHM, MODIFIED, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_FILE_DIGEST = "UPDATE %s SET DIGEST = ? WHERE FILE_ID = ?";
-    private static final String INSERT_FILE_ATTRIBUTES = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String SELECT_ALL_FILES = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s";
-    private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE NAMESPACE=? AND SPACE=?";
-    private static final String SELECT_FILES_BY_NAMESPACE_SPACE_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE NAMESPACE=? AND SPACE=? AND FILE_NAME=? ORDER BY MODIFIED ASC";
-    private static final String SELECT_FILES_BY_SPACE_WITH_NO_NAMESPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE SPACE=? AND NAMESPACE IS NULL";
-    private static final String SELECT_FILES_BY_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE SPACE=?";
-    private static final String SELECT_FILE_BY_ID_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE FILE_ID=? AND SPACE=?";
+    private static final String UPDATE_FILES_OPERATION_ID = "UPDATE %s SET OPERATION_ID = ? where FILE_ID = ANY(?)";
+    private static final String INSERT_FILE_ATTRIBUTES = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED, OPERATION_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SELECT_ALL_FILES = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s";
+    private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE NAMESPACE=? AND SPACE=?";
+    private static final String SELECT_FILES_BY_NAMESPACE_SPACE_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE NAMESPACE=? AND SPACE=? AND FILE_NAME=? ORDER BY MODIFIED ASC";
+    private static final String SELECT_FILES_BY_SPACE_WITH_NO_NAMESPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND NAMESPACE IS NULL";
+    private static final String SELECT_FILES_BY_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=?";
+    private static final String SELECT_FILE_BY_ID_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE FILE_ID=? AND SPACE=?";
     private static final String SELECT_FILE_WITH_CONTENT_BY_ID_AND_SPACE = "SELECT FILE_ID, SPACE, %s FROM %s WHERE FILE_ID=? AND SPACE=?";
     private static final String DELETE_FILES_BY_NAMESPACE_AND_SPACE = "DELETE FROM %s WHERE NAMESPACE=? AND SPACE=?";
     private static final String DELETE_FILES_BY_NAMESPACE = "DELETE FROM %s WHERE NAMESPACE=?";
@@ -114,6 +115,20 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
+    public SqlQuery<Integer> getUpdateFilesOperationIdQuery(List<String> filesIds, String operationId) {
+        return connection -> {
+            PreparedStatement statement = null;
+            try {
+                statement = connection.prepareStatement(getQuery(UPDATE_FILES_OPERATION_ID));
+                statement.setString(1, operationId);
+                statement.setArray(2, connection.createArrayOf("VARCHAR", filesIds.toArray(new String[0])));
+                return statement.executeUpdate();
+            } finally {
+                JdbcUtil.closeQuietly(statement);
+            }
+        };
+    }
+
     protected abstract void setContentBinaryStream(PreparedStatement statement, int index, InputStream content) throws SQLException;
 
     public SqlQuery<Boolean> getStoreFileAttributesQuery(FileEntry fileEntry) {
@@ -130,6 +145,7 @@ public abstract class SqlFileQueryProvider {
                 statement.setString(7, fileEntry.getDigestAlgorithm());
                 statement.setTimestamp(8, new Timestamp(fileEntry.getModified()
                                                                  .getTime()));
+                statement.setString(9, fileEntry.getOperationId());
                 return statement.executeUpdate() > 0;
             } finally {
                 JdbcUtil.closeQuietly(statement);
@@ -435,6 +451,7 @@ public abstract class SqlFileQueryProvider {
                                  .space(resultSet.getString(Constants.FILE_ENTRY_SPACE))
                                  .modified(new Date(modifiedAsTimestamp.getTime()))
                                  .size(getDataSourceDialect().getBigInteger(resultSet, Constants.FILE_ENTRY_SIZE))
+                                 .operationId(resultSet.getString(Constants.FILE_ENTRY_OPERATION_ID))
                                  .build();
     }
 
