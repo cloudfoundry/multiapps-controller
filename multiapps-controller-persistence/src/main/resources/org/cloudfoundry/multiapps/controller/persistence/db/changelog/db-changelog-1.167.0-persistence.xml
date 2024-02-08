@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="add_column_operation_id_lm_sl_persistence_file">
+        <preConditions>
+            <tableExists tableName="lm_sl_persistence_file"/>
+        </preConditions>
+        <addColumn tableName="lm_sl_persistence_file">
+            <column name="operation_id" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="sap.com" id="add_column_operation_id_process_log">
+        <preConditions>
+            <tableExists tableName="process_log"/>
+        </preConditions>
+        <addColumn tableName="process_log">
+            <column name="operation_id" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

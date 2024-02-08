@@ -30,4 +30,6 @@
 
     <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.164.0-persistence.xml" />
 
+    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.167.0-persistence.xml" />
+
 </databaseChangeLog>

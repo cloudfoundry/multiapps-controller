@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.web.api.impl;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URI;
@@ -49,6 +50,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEnt
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry.State;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableAsyncUploadJobEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
@@ -76,7 +78,9 @@ public class FilesApiServiceImpl implements FilesApiService {
     private static final int INPUT_STREAM_BUFFER_SIZE = 16 * 1024;
     private static final Duration HTTP_CONNECT_TIMEOUT = Duration.ofMinutes(10);
     private static final String RETRY_AFTER_SECONDS = "30";
-
+    private final CachedMap<String, AtomicLong> jobCounters = new CachedMap<>(Duration.ofHours(1));
+    private final CachedMap<String, Future<?>> runningTasks = new CachedMap<>(Duration.ofHours(1));
+    private final ResilientOperationExecutor resilientOperationExecutor = getResilientOperationExecutor();
     @Inject
     @Named("fileService")
     private FileService fileService;
@@ -89,12 +93,6 @@ public class FilesApiServiceImpl implements FilesApiService {
     @Inject
     @Named("asyncFileUploadExecutor")
     private ExecutorService deployFromUrlExecutor;
-
-    private final CachedMap<String, AtomicLong> jobCounters = new CachedMap<>(Duration.ofHours(1));
-
-    private final CachedMap<String, Future<?>> runningTasks = new CachedMap<>(Duration.ofHours(1));
-
-    private final ResilientOperationExecutor resilientOperationExecutor = getResilientOperationExecutor();
 
     @Override
     public ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid, String namespace) {
@@ -116,8 +114,13 @@ public class FilesApiServiceImpl implements FilesApiService {
         var multipartFile = getFileFromRequest(request);
         try (InputStream in = new BufferedInputStream(multipartFile.getInputStream(), INPUT_STREAM_BUFFER_SIZE)) {
             var startTime = LocalDateTime.now();
-            FileEntry fileEntry = fileService.addFile(spaceGuid, namespace, multipartFile.getOriginalFilename(), in,
-                                                      multipartFile.getSize());
+            FileEntry fileEntry = fileService.addFile(ImmutableFileEntry.builder()
+                                                                        .space(spaceGuid)
+                                                                        .namespace(namespace)
+                                                                        .name(multipartFile.getOriginalFilename())
+                                                                        .size(BigInteger.valueOf(multipartFile.getSize()))
+                                                                        .build(),
+                                                      in);
             FileMetadata file = parseFileEntry(fileEntry);
             AuditLoggingProvider.getFacade()
                                 .logConfigCreate(file);
@@ -380,7 +383,13 @@ public class FilesApiServiceImpl implements FilesApiService {
         try (CountingInputStream source = new CountingInputStream(response.body(), counter);
             BufferedInputStream bufferedContent = new BufferedInputStream(source, INPUT_STREAM_BUFFER_SIZE)) {
             LOGGER.debug(Messages.UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT, response.uri());
-            return fileService.addFile(spaceGuid, namespace, fileName, bufferedContent, fileSize);
+            return fileService.addFile(ImmutableFileEntry.builder()
+                                                         .space(spaceGuid)
+                                                         .namespace(namespace)
+                                                         .name(fileName)
+                                                         .size(BigInteger.valueOf(fileSize))
+                                                         .build(),
+                                       bufferedContent);
         }
     }
 

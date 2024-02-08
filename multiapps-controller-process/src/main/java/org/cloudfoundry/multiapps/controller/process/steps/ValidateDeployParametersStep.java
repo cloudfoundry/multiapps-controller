@@ -14,11 +14,11 @@ import javax.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveMerger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -136,9 +136,14 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private FileEntry persistArchive(Path archivePath, ProcessContext context) {
         try {
-            return fileService.addFile(context.getVariable(Variables.SPACE_GUID), context.getVariable(Variables.MTA_NAMESPACE),
-                                       archivePath.getFileName()
-                                                  .toString(),
+            return fileService.addFile(ImmutableFileEntry.builder()
+                                                         .name(archivePath.getFileName()
+                                                                          .toString())
+                                                         .space(context.getVariable(Variables.SPACE_GUID))
+                                                         .namespace(context.getVariable(Variables.MTA_NAMESPACE))
+                                                         .operationId(context.getExecution()
+                                                                             .getProcessInstanceId())
+                                                         .build(),
                                        archivePath.toFile());
         } catch (FileStorageException e) {
             throw new SLException(e, e.getMessage());
@@ -156,6 +161,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         try {
             Files.deleteIfExists(archiveFilePath);
         } catch (IOException e) {
+            logger.error(e.getMessage(), e);
             logger.warn(Messages.MERGED_FILE_NOT_DELETED);
         }
     }

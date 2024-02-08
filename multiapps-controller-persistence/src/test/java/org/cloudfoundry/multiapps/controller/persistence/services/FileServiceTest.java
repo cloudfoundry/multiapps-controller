@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -45,7 +46,13 @@ class FileServiceTest extends DatabaseFileServiceTest {
         String space = SPACE_1;
         String namespace = NAMESPACE_1;
         try {
-            fileService.addFile(space, namespace, PIC_STORAGE_NAME, resourceStream, PIC_SIZE);
+            fileService.addFile(ImmutableFileEntry.builder()
+                                                  .space(space)
+                                                  .namespace(namespace)
+                                                  .name(PIC_STORAGE_NAME)
+                                                  .size(BigInteger.valueOf(PIC_SIZE))
+                                                  .build(),
+                                resourceStream);
             fail("addFile should fail with exception");
         } catch (FileStorageException e) {
             Mockito.verify(fileStorage)

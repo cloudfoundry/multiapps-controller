@@ -7,9 +7,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
@@ -17,6 +19,8 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
@@ -50,12 +54,16 @@ class StartProcessListenerTest {
     private static final String USER = "current-user";
     private final static String MTA_ID = "my-mta";
     private static final ZonedDateTime START_TIME = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.of("UTC"));
-
+    private static final String APP_ARCHIVE_IDS = "436c97b3-36f2-46b1-b418-755ccf250dd8,756ff7aa-069f-4e0f-959f-0297c80b9417";
+    private static final String EXT_DESCRIPTOR_IDS = "d1626c5f-783c-447f-bc4a-d76fa754a5f5,d69fbc83-b27e-40f4-ac53-924cf6af60c4";
+    private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
+    @Spy
+    private final ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
+    private final Supplier<ZonedDateTime> currentTimeSupplier = () -> START_TIME;
+    @InjectMocks
+    private final StartProcessListener listener = new StartProcessListener();
     private String processInstanceId;
     private ProcessType processType;
-
-    private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
-
     @Mock
     private OperationService operationService;
     @Mock(answer = Answers.RETURNS_SELF)
@@ -68,21 +76,16 @@ class StartProcessListenerTest {
     private ProcessTypeParser processTypeParser;
     @Mock
     private ProcessLogsPersistenceService processLogsPersistenceService;
-    @Spy
-    private final ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
     @Mock
     private ApplicationConfiguration configuration;
     @Mock
     private DynatracePublisher dynatracePublisher;
     @Mock
     private HistoricOperationEventService historicOperationEventService;
+    @Mock
+    private FileService fileService;
     @Spy
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
-
-    private final Supplier<ZonedDateTime> currentTimeSupplier = () -> START_TIME;
-
-    @InjectMocks
-    private final StartProcessListener listener = new StartProcessListener();
 
     static Stream<Arguments> testVerify() {
         return Stream.of(
@@ -107,17 +110,8 @@ class StartProcessListenerTest {
         listener.notify(execution);
 
         verifyOperationInsertion();
+        verifyOperationFilesAreUpdated();
         verifyDynatracePublishEvent();
-    }
-
-    private void verifyDynatracePublishEvent() {
-        ArgumentCaptor<DynatraceProcessEvent> argumentCaptor = ArgumentCaptor.forClass(DynatraceProcessEvent.class);
-        Mockito.verify(dynatracePublisher).publishProcessEvent(argumentCaptor.capture(), Mockito.any());
-        DynatraceProcessEvent actualDynatraceEvent = argumentCaptor.getValue();
-        assertEquals(MTA_ID, actualDynatraceEvent.getMtaId());
-        assertEquals(SPACE_ID, actualDynatraceEvent.getSpaceId());
-        assertEquals(processType, actualDynatraceEvent.getProcessType());
-        assertEquals(DynatraceProcessEvent.EventType.STARTED, actualDynatraceEvent.getEventType());
     }
 
     private void prepare() throws Exception {
@@ -149,6 +143,8 @@ class StartProcessListenerTest {
         VariableHandling.set(execution, Variables.USER, USER);
         VariableHandling.set(execution, Variables.CORRELATION_ID, processInstanceId);
         VariableHandling.set(execution, Variables.TASK_ID, TASK_ID);
+        VariableHandling.set(execution, Variables.APP_ARCHIVE_ID, APP_ARCHIVE_IDS);
+        VariableHandling.set(execution, Variables.EXT_DESCRIPTOR_FILE_ID, EXT_DESCRIPTOR_IDS);
     }
 
     private void verifyOperationInsertion() throws SLException {
@@ -167,6 +163,23 @@ class StartProcessListenerTest {
                .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
         Mockito.verify(processLogsPersister, Mockito.atLeastOnce())
                .persistLogs(processInstanceId, TASK_ID);
+    }
+
+    private void verifyOperationFilesAreUpdated() throws FileStorageException {
+        List<String> expectedFileIds = List.of(ArrayUtils.addAll(APP_ARCHIVE_IDS.split(","), EXT_DESCRIPTOR_IDS.split(",")));
+        Mockito.verify(fileService)
+               .updateFilesOperationId(Mockito.eq(expectedFileIds), Mockito.anyString());
+    }
+
+    private void verifyDynatracePublishEvent() {
+        ArgumentCaptor<DynatraceProcessEvent> argumentCaptor = ArgumentCaptor.forClass(DynatraceProcessEvent.class);
+        Mockito.verify(dynatracePublisher)
+               .publishProcessEvent(argumentCaptor.capture(), Mockito.any());
+        DynatraceProcessEvent actualDynatraceEvent = argumentCaptor.getValue();
+        assertEquals(MTA_ID, actualDynatraceEvent.getMtaId());
+        assertEquals(SPACE_ID, actualDynatraceEvent.getSpaceId());
+        assertEquals(processType, actualDynatraceEvent.getProcessType());
+        assertEquals(DynatraceProcessEvent.EventType.STARTED, actualDynatraceEvent.getEventType());
     }
 
 }

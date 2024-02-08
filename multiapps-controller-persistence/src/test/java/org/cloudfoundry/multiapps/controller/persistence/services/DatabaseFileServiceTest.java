@@ -28,6 +28,7 @@ import javax.xml.bind.DatatypeConverter;
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.test.TestDataSourceProvider;
 import org.cloudfoundry.multiapps.controller.persistence.util.JdbcUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -37,15 +38,6 @@ import org.mockito.MockitoAnnotations;
 
 class DatabaseFileServiceTest {
 
-    private static final String SELECT_FILE_WITH_CONTENT = "SELECT FILE_ID FROM {0} WHERE FILE_ID=? AND CONTENT IS NOT NULL";
-
-    private static final String UPDATE_MODIFICATION_TIME = "UPDATE {0} SET MODIFIED=? WHERE FILE_ID=?";
-
-    private static final String LIQUIBASE_CHANGELOG_LOCATION = "org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog.xml";
-
-    private static final String DIGEST_METHOD = "MD5";
-    private static final String PIC_MD5_DIGEST = "b39a167875c3771c384c9aa5601fc2d6";
-
     protected static final String SPACE_1 = "myspace";
     protected static final String SPACE_2 = "myspace2";
     protected static final String NAMESPACE_1 = "system/deployables";
@@ -53,7 +45,11 @@ class DatabaseFileServiceTest {
     protected static final String PIC_RESOURCE_NAME = "pexels-photo-401794.jpeg";
     protected static final int PIC_SIZE = 2095730;
     protected static final String PIC_STORAGE_NAME = "pic1.jpeg";
-
+    private static final String SELECT_FILE_WITH_CONTENT = "SELECT FILE_ID FROM {0} WHERE FILE_ID=? AND CONTENT IS NOT NULL";
+    private static final String UPDATE_MODIFICATION_TIME = "UPDATE {0} SET MODIFIED=? WHERE FILE_ID=?";
+    private static final String LIQUIBASE_CHANGELOG_LOCATION = "org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog.xml";
+    private static final String DIGEST_METHOD = "MD5";
+    private static final String PIC_MD5_DIGEST = "b39a167875c3771c384c9aa5601fc2d6";
     protected FileService fileService;
 
     protected DataSourceWithDialect testDataSource;
@@ -192,7 +188,13 @@ class DatabaseFileServiceTest {
 
     protected FileEntry addFile(String space, String namespace, String fileName, String resourceName) throws Exception {
         InputStream resourceStream = getResource(resourceName);
-        FileEntry fileEntry = fileService.addFile(space, namespace, fileName, resourceStream, PIC_SIZE);
+        FileEntry fileEntry = fileService.addFile(ImmutableFileEntry.builder()
+                                                                    .space(space)
+                                                                    .namespace(namespace)
+                                                                    .name(fileName)
+                                                                    .size(BigInteger.valueOf(PIC_SIZE))
+                                                                    .build(),
+                                                  resourceStream);
         verifyFileEntry(fileEntry, space, namespace);
         return fileEntry;
     }
@@ -234,7 +236,13 @@ class DatabaseFileServiceTest {
 
     private FileEntry addFileEntry(String spaceId) throws FileStorageException {
         InputStream resourceStream = getResource(PIC_RESOURCE_NAME);
-        return fileService.addFile(spaceId, NAMESPACE_1, PIC_STORAGE_NAME, resourceStream, PIC_SIZE);
+        return fileService.addFile(ImmutableFileEntry.builder()
+                                                     .space(spaceId)
+                                                     .namespace(NAMESPACE_1)
+                                                     .name(PIC_STORAGE_NAME)
+                                                     .size(BigInteger.valueOf(PIC_SIZE))
+                                                     .build(),
+                                   resourceStream);
     }
 
     private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {
