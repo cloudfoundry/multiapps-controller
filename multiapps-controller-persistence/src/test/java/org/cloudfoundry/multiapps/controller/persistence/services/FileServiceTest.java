@@ -164,6 +164,22 @@ class FileServiceTest extends DatabaseFileServiceTest {
         assertEquals(1, fileEntries.size());
     }
 
+    @Test
+    void updateFilesOperationIdTest() throws Exception {
+        FileEntry fileEntry = addFile("foo", "bar", PIC_STORAGE_NAME, PIC_RESOURCE_NAME, null);
+        int updated = fileService.updateFilesOperationId(List.of(fileEntry.getId()), "123");
+        FileEntry updatedFileEntry = fileService.getFile("foo", fileEntry.getId());
+        assertEquals(1, updated);
+        assertEquals("123", updatedFileEntry.getOperationId());
+    }
+
+    @Test
+    void listFilesBySpaceAndOperationIdTest() throws Exception {
+        addFile("foo", "bar", PIC_STORAGE_NAME, PIC_RESOURCE_NAME, "123");
+        List<FileEntry> fileEntries = fileService.listFilesBySpaceAndOperationId("foo", "123");
+        assertEquals(1, fileEntries.size());
+    }
+
     @Override
     protected FileEntry addFile(String space, String namespace, String fileName, String resourceName, String operationId) throws Exception {
         FileEntry fileEntry = super.addFile(space, namespace, fileName, resourceName, operationId);

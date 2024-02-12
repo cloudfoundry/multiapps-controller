@@ -23,7 +23,6 @@ import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.FileInfo;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.ExternalSqlFileQueryProvider;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFileQueryProvider;
@@ -82,6 +81,16 @@ public class FileService {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesQuery(space, namespace));
         } catch (SQLException e) {
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_WITH_SPACE_AND_NAMESPACE, space, namespace),
+                                           e);
+        }
+    }
+
+    public List<FileEntry> listFilesBySpaceAndOperationId(String space, String operationId) throws FileStorageException {
+        try {
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesBySpaceAndOperationId(space, operationId));
+        } catch (SQLException e) {
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_WITH_SPACE_AND_OPERATION_ID, space,
+                                                                operationId),
                                            e);
         }
     }
@@ -213,19 +222,6 @@ public class FileService {
         }
     }
 
-    protected FileEntry createFileEntry(String space, String namespace, String name, FileInfo localFile) {
-        return ImmutableFileEntry.builder()
-                                 .id(generateRandomId())
-                                 .space(space)
-                                 .name(name)
-                                 .namespace(namespace)
-                                 .size(localFile.getSize())
-                                 .digest(localFile.getDigest())
-                                 .digestAlgorithm(localFile.getDigestAlgorithm())
-                                 .modified(new Timestamp(System.currentTimeMillis()))
-                                 .build();
-    }
-
     protected SqlQueryExecutor getSqlQueryExecutor() {
         return sqlQueryExecutor;
     }
@@ -234,7 +230,7 @@ public class FileService {
         return sqlFileQueryProvider;
     }
 
-    private String generateRandomId() {
+    protected String generateRandomId() {
         return UUID.randomUUID()
                    .toString();
     }

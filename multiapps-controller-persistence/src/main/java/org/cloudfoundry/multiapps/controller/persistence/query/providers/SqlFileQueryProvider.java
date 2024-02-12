@@ -33,21 +33,21 @@ import org.slf4j.Logger;
 
 public abstract class SqlFileQueryProvider {
 
-    private static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT_WITHOUT_DIGEST = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST_ALGORITHM, MODIFIED, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED, OPERATION_ID, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT_WITHOUT_DIGEST = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST_ALGORITHM, MODIFIED, OPERATION_ID, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_FILE_DIGEST = "UPDATE %s SET DIGEST = ? WHERE FILE_ID = ?";
     private static final String UPDATE_FILES_OPERATION_ID = "UPDATE %s SET OPERATION_ID = ? where FILE_ID = ANY(?)";
     private static final String INSERT_FILE_ATTRIBUTES = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED, OPERATION_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_FILES_CREATED_AFTER_AND_BEFORE_WITHOUT_OPERATION = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE MODIFIED > ? AND MODIFIED < ? AND OPERATION_ID ISNULL";
     private static final String SELECT_ALL_FILES = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s";
     private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE NAMESPACE=? AND SPACE=?";
-    private static final String SELECT_FILES_BY_NAMESPACE_SPACE_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE NAMESPACE=? AND SPACE=? AND FILE_NAME=? ORDER BY MODIFIED ASC";
+    private static final String SELECT_FILES_BY_SPACE_AND_OPERATION_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND (NAMESPACE=? OR OPERATION_ID=?)";
+    private static final String SELECT_FILES_BY_SPACE_OPERATION_ID_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND (NAMESPACE=? OR OPERATION_ID=?) AND FILE_NAME=? ORDER BY MODIFIED ASC";
     private static final String SELECT_FILES_BY_SPACE_WITH_NO_NAMESPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND NAMESPACE IS NULL";
     private static final String SELECT_FILES_BY_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=?";
     private static final String SELECT_FILE_BY_ID_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE FILE_ID=? AND SPACE=?";
     private static final String SELECT_FILE_WITH_CONTENT_BY_ID_AND_SPACE = "SELECT FILE_ID, SPACE, %s FROM %s WHERE FILE_ID=? AND SPACE=?";
     private static final String DELETE_FILES_BY_NAMESPACE_AND_SPACE = "DELETE FROM %s WHERE NAMESPACE=? AND SPACE=?";
-    private static final String DELETE_FILES_BY_NAMESPACE = "DELETE FROM %s WHERE NAMESPACE=?";
     private static final String DELETE_FILES_BY_SPACE = "DELETE FROM %s WHERE SPACE=?";
     private static final String DELETE_FILES_BY_IDS = "DELETE FROM %s WHERE FILE_ID = ANY(?)";
     private static final String DELETE_FILES_MODIFIED_BEFORE = "DELETE FROM %s WHERE MODIFIED<?";
@@ -77,7 +77,8 @@ public abstract class SqlFileQueryProvider {
                 statement.setString(7, fileEntry.getDigestAlgorithm());
                 statement.setTimestamp(8, new Timestamp(fileEntry.getModified()
                                                                  .getTime()));
-                setContentBinaryStream(statement, 9, content);
+                statement.setString(9, fileEntry.getOperationId());
+                setContentBinaryStream(statement, 10, content);
                 return statement.executeUpdate() > 0;
             } finally {
                 JdbcUtil.closeQuietly(statement);
@@ -98,7 +99,8 @@ public abstract class SqlFileQueryProvider {
                 statement.setString(6, Constants.DIGEST_ALGORITHM);
                 statement.setTimestamp(7, new Timestamp(entryWithoutDigest.getModified()
                                                                           .getTime()));
-                setContentBinaryStream(statement, 8, dis);
+                statement.setString(8, entryWithoutDigest.getOperationId());
+                setContentBinaryStream(statement, 9, dis);
                 statement.executeUpdate();
 
                 String digest = DatatypeConverter.printHexBinary(dis.getMessageDigest()
@@ -174,16 +176,41 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
-    public SqlQuery<List<FileEntry>> getListFilesQuery(String space, String namespace, String fileName) {
+    public SqlQuery<List<FileEntry>> getListFilesBySpaceAndOperationId(String space, String operationId) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
             try {
                 List<FileEntry> files = new ArrayList<>();
-                statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_NAMESPACE_SPACE_AND_NAME));
-                statement.setString(1, namespace);
-                statement.setString(2, space);
-                statement.setString(3, fileName);
+                statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE_AND_OPERATION_ID));
+                statement.setString(1, space);
+                // TODO: The namespace is currently used as operation ID, and will be set for backwards compatibility for 1 tact
+                statement.setString(2, operationId);
+                statement.setString(3, operationId);
+                resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    files.add(getFileEntry(resultSet));
+                }
+                return files;
+            } finally {
+                JdbcUtil.closeQuietly(resultSet);
+                JdbcUtil.closeQuietly(statement);
+            }
+        };
+    }
+
+    public SqlQuery<List<FileEntry>> getListFilesQueryBySpaceOperationIdAndFileName(String space, String operationId, String fileName) {
+        return (Connection connection) -> {
+            PreparedStatement statement = null;
+            ResultSet resultSet = null;
+            try {
+                List<FileEntry> files = new ArrayList<>();
+                statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE_OPERATION_ID_AND_NAME));
+                statement.setString(1, space);
+                // TODO: The namespace is currently used as operation ID, and will be set for backwards compatibility for 1 tact
+                statement.setString(2, operationId);
+                statement.setString(3, operationId);
+                statement.setString(4, fileName);
                 resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     files.add(getFileEntry(resultSet));
@@ -297,20 +324,6 @@ public abstract class SqlFileQueryProvider {
                 JdbcUtil.closeQuietly(statement);
             }
         };
-    }
-
-    public SqlQuery<Integer> getDeleteByNamespaceQuery(String namespace) {
-        return (Connection connection) -> {
-            PreparedStatement statement = null;
-            try {
-                statement = connection.prepareStatement(getQuery(DELETE_FILES_BY_NAMESPACE));
-                statement.setString(1, namespace);
-                return statement.executeUpdate();
-            } finally {
-                JdbcUtil.closeQuietly(statement);
-            }
-        };
-
     }
 
     public SqlQuery<Integer> getDeleteBySpaceIdsQuery(List<String> spaceIds) {

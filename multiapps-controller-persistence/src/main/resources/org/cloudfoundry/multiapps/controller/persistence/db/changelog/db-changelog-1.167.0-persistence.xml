@@ -22,4 +22,11 @@
         </addColumn>
     </changeSet>
 
+    <changeSet author="sap.com" id="drop_not_null_constrain_process_log_namespace">
+        <preConditions>
+            <tableExists tableName="process_log"/>
+        </preConditions>
+        <dropNotNullConstraint tableName="process_log" columnName="namespace" columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
 </databaseChangeLog>
