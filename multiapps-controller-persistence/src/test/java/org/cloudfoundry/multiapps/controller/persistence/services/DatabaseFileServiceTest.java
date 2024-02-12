@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -43,6 +44,8 @@ class DatabaseFileServiceTest {
     protected static final String NAMESPACE_1 = "system/deployables";
     protected static final String NAMESPACE_2 = "dido";
     protected static final String PIC_RESOURCE_NAME = "pexels-photo-401794.jpeg";
+    protected static final String FILE_OPERATION_ID = UUID.randomUUID()
+                                                          .toString();
     protected static final int PIC_SIZE = 2095730;
     protected static final String PIC_STORAGE_NAME = "pic1.jpeg";
     private static final String SELECT_FILE_WITH_CONTENT = "SELECT FILE_ID FROM {0} WHERE FILE_ID=? AND CONTENT IS NOT NULL";
@@ -183,16 +186,17 @@ class DatabaseFileServiceTest {
     }
 
     protected FileEntry addTestFile(String space, String namespace) throws Exception {
-        return addFile(space, namespace, PIC_STORAGE_NAME, PIC_RESOURCE_NAME);
+        return addFile(space, namespace, PIC_STORAGE_NAME, PIC_RESOURCE_NAME, FILE_OPERATION_ID);
     }
 
-    protected FileEntry addFile(String space, String namespace, String fileName, String resourceName) throws Exception {
+    protected FileEntry addFile(String space, String namespace, String fileName, String resourceName, String operationId) throws Exception {
         InputStream resourceStream = getResource(resourceName);
         FileEntry fileEntry = fileService.addFile(ImmutableFileEntry.builder()
                                                                     .space(space)
                                                                     .namespace(namespace)
                                                                     .name(fileName)
                                                                     .size(BigInteger.valueOf(PIC_SIZE))
+                                                                    .operationId(operationId)
                                                                     .build(),
                                                   resourceStream);
         verifyFileEntry(fileEntry, space, namespace);

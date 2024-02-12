@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -158,6 +159,19 @@ class ObjectStoreFileStorageTest {
         assertFileExists(false, fileEntryToDelete2);
         assertNull(blobStoreContext.getBlobStore()
                                    .getBlob(CONTAINER, blobWithNoMetadataId));
+    }
+
+    @Test
+    void testConnection() {
+        assertDoesNotThrow(() -> fileStorage.testConnection());
+    }
+
+    @Test
+    void testDeleteFilesByIds() throws Exception {
+        FileEntry fileEntry = addFile(TEST_FILE_LOCATION);
+        fileStorage.deleteFilesByIds(List.of(fileEntry.getId()));
+        assertNull(blobStoreContext.getBlobStore()
+                                   .getBlob(CONTAINER, fileEntry.getId()));
     }
 
     private String addBlobWithNoMetadata() throws Exception {

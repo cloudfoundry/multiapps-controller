@@ -38,6 +38,7 @@ public abstract class SqlFileQueryProvider {
     private static final String UPDATE_FILE_DIGEST = "UPDATE %s SET DIGEST = ? WHERE FILE_ID = ?";
     private static final String UPDATE_FILES_OPERATION_ID = "UPDATE %s SET OPERATION_ID = ? where FILE_ID = ANY(?)";
     private static final String INSERT_FILE_ATTRIBUTES = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED, OPERATION_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SELECT_FILES_CREATED_AFTER_AND_BEFORE_WITHOUT_OPERATION = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE MODIFIED > ? AND MODIFIED < ? AND OPERATION_ID ISNULL";
     private static final String SELECT_ALL_FILES = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s";
     private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE NAMESPACE=? AND SPACE=?";
     private static final String SELECT_FILES_BY_NAMESPACE_SPACE_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE NAMESPACE=? AND SPACE=? AND FILE_NAME=? ORDER BY MODIFIED ASC";
@@ -48,6 +49,7 @@ public abstract class SqlFileQueryProvider {
     private static final String DELETE_FILES_BY_NAMESPACE_AND_SPACE = "DELETE FROM %s WHERE NAMESPACE=? AND SPACE=?";
     private static final String DELETE_FILES_BY_NAMESPACE = "DELETE FROM %s WHERE NAMESPACE=?";
     private static final String DELETE_FILES_BY_SPACE = "DELETE FROM %s WHERE SPACE=?";
+    private static final String DELETE_FILES_BY_IDS = "DELETE FROM %s WHERE FILE_ID = ANY(?)";
     private static final String DELETE_FILES_MODIFIED_BEFORE = "DELETE FROM %s WHERE MODIFIED<?";
     private static final String DELETE_FILE_BY_ID_AND_SPACE = "DELETE FROM %s WHERE FILE_ID=? AND SPACE=?";
     private static final String DELETE_FILES_WITHOUT_CONTENT = "DELETE FROM %s WHERE CONTENT IS NULL";
@@ -194,6 +196,33 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
+    public SqlQuery<List<FileEntry>> getListFilesCreatedAfterAndBeforeWithoutOperationQuery(LocalDateTime after, LocalDateTime before) {
+        return (Connection connection) -> {
+            PreparedStatement statement = null;
+            ResultSet resultSet = null;
+            try {
+                List<FileEntry> files = new ArrayList<>();
+                statement = connection.prepareStatement(getListFilesCreateAfterAndBeforeWithoutOperationQueryString());
+                statement.setTimestamp(1, Timestamp.from(after.atZone(ZoneId.systemDefault())
+                                                              .toInstant()));
+                statement.setTimestamp(2, Timestamp.from(before.atZone(ZoneId.systemDefault())
+                                                               .toInstant()));
+                resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    files.add(getFileEntry(resultSet));
+                }
+                return files;
+            } finally {
+                JdbcUtil.closeQuietly(resultSet);
+                JdbcUtil.closeQuietly(statement);
+            }
+        };
+    }
+
+    protected String getListFilesCreateAfterAndBeforeWithoutOperationQueryString() {
+        return getQuery(SELECT_FILES_CREATED_AFTER_AND_BEFORE_WITHOUT_OPERATION);
+    }
+
     public SqlQuery<List<FileEntry>> getListAllFilesQuery() {
         return (Connection connection) -> {
             PreparedStatement statement = null;
@@ -295,6 +324,19 @@ public abstract class SqlFileQueryProvider {
                                             .sum();
                 logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACEIDS_1, deletedFiles, spaceIds));
                 return deletedFiles;
+            } finally {
+                JdbcUtil.closeQuietly(statement);
+            }
+        };
+    }
+
+    public SqlQuery<Integer> getDeleteByFileIdsQuery(List<String> fileIds) {
+        return (Connection connection) -> {
+            PreparedStatement statement = null;
+            try {
+                statement = connection.prepareStatement(getQuery(DELETE_FILES_BY_IDS));
+                statement.setArray(1, connection.createArrayOf("VARCHAR", fileIds.toArray(new String[0])));
+                return statement.executeUpdate();
             } finally {
                 JdbcUtil.closeQuietly(statement);
             }

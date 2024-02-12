@@ -126,10 +126,10 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     }
 
     private void updateOperationFiles(DelegateExecution execution, String correlationId) {
-        List<String> operationFilesIds = OperationFileIdsUtil.getOperationFileIds(execution);
+        List<String> operationFileIds = OperationFileIdsUtil.getOperationFileIds(execution);
         try {
             LOGGER.info(MessageFormat.format(Messages.FILES_FOR_OPERATION_0_WERE_UPDATED_1, correlationId,
-                                             fileService.updateFilesOperationId(operationFilesIds, correlationId)));
+                                             fileService.updateFilesOperationId(operationFileIds, correlationId)));
         } catch (FileStorageException e) {
             LOGGER.error(e.getMessage(), e);
             throw new SLException(MessageFormat.format(Messages.FAILED_TO_UPDATE_FILES_OF_OPERATION_0, correlationId));

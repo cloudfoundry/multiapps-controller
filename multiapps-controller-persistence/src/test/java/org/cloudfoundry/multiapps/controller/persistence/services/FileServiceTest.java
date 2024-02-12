@@ -9,12 +9,14 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.query.providers.ExternalSqlFileQueryProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -145,9 +147,26 @@ class FileServiceTest extends DatabaseFileServiceTest {
         assertNull(fileService.getFile(SPACE_2, noContent2.getId()));
     }
 
+    @Test
+    void deleteFilesByIdsTest() throws Exception {
+        FileEntry fileEntry = addTestFile("foo", "bar");
+        int deletedEntries = fileService.deleteFilesByIds(List.of(fileEntry.getId()));
+        assertEquals(1, deletedEntries);
+    }
+
+    @Test
+    void listFilesCreatedAfterAndBeforeWithoutOperationIdTest() throws Exception {
+        addFile("foo", "bar", PIC_STORAGE_NAME, PIC_RESOURCE_NAME, null);
+        List<FileEntry> fileEntries = fileService.listFilesCreatedAfterAndBeforeWithoutOperationId(LocalDateTime.now()
+                                                                                                                .minusDays(1),
+                                                                                                   LocalDateTime.now()
+                                                                                                                .plusDays(1));
+        assertEquals(1, fileEntries.size());
+    }
+
     @Override
-    protected FileEntry addFile(String space, String namespace, String fileName, String resourceName) throws Exception {
-        FileEntry fileEntry = super.addFile(space, namespace, fileName, resourceName);
+    protected FileEntry addFile(String space, String namespace, String fileName, String resourceName, String operationId) throws Exception {
+        FileEntry fileEntry = super.addFile(space, namespace, fileName, resourceName, operationId);
         FileEntry fileWithoutDigest = ImmutableFileEntry.copyOf(fileEntry)
                                                         .withDigest(null)
                                                         .withDigestAlgorithm(null);
@@ -158,7 +177,15 @@ class FileServiceTest extends DatabaseFileServiceTest {
 
     @Override
     protected FileService createFileService(DataSourceWithDialect dataSource) {
-        return new FileService(dataSource, fileStorage);
+        ExternalSqlFileQueryProvider externalSqlFileQueryProvider = new ExternalSqlFileQueryProvider(FileService.DEFAULT_TABLE_NAME,
+                                                                                                     dataSource.getDataSourceDialect()) {
+            @Override
+            protected String getListFilesCreateAfterAndBeforeWithoutOperationQueryString() {
+                return String.format("SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE MODIFIED > ? AND MODIFIED < ? AND OPERATION_ID IS NULL",
+                                     FileService.DEFAULT_TABLE_NAME);
+            }
+        };
+        return new FileService(dataSource, externalSqlFileQueryProvider, fileStorage);
     }
 
     @Override
