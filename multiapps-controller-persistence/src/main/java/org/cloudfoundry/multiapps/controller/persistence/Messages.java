@@ -11,13 +11,10 @@ public final class Messages {
     public static final String ERROR_FINDING_FILE_TO_UPLOAD = "Error finding file to upload with name {0}: {1}";
     public static final String ERROR_READING_FILE_CONTENT = "Error reading content of file {0}: {1}";
     public static final String FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST = "File with ID \"{0}\" and space \"{1}\" does not exist.";
-    public static final String ERROR_DELETING_FILE_WITH_ID = "Error deleting file with ID \"{0}\"";
     public static final String ERROR_GETTING_FILES_WITH_SPACE_AND_NAMESPACE = "Error getting files with space {0} and namespace {1}";
-    public static final String ERROR_GETTING_FILES_WITH_SPACE_NAMESPACE_AND_NAME = "Error getting files with space {0} namespace {1} and file name {2}";
+    public static final String ERROR_GETTING_FILES_WITH_SPACE_AND_OPERATION_ID = "Error getting files with space {0} and operation id {1}";
+    public static final String ERROR_GETTING_FILES_WITH_SPACE_OPERATION_ID_AND_NAME = "Error getting files with space {0} operation id {1} and file name {2}";
     public static final String ERROR_GETTING_ALL_FILES = "Error getting all files";
-    public static final String ERROR_DELETING_PROCESS_LOGS_WITH_NAMESPACE = "Error deleting process logs with namespace \"{0}\"";
-    public static final String ERROR_DELETING_DIRECTORY = "Error deleting directory \"{0}\"";
-    public static final String ERROR_DELETING_DIRECTORIES = "Error deleting directires {0}";
     public static final String ERROR_STORING_LOG_FILE = "Error storing log file \"{0}\"";
     public static final String ERROR_LOG_FILE_NOT_FOUND = "Log file with name \"{0}\" for operation \"{1}\" in space \"{2}\" was not found";
     public static final String ERROR_CORRELATION_ID_OR_ACTIVITY_ID_NULL = "Unable to retrieve correlation id or activity id for process \"{0}\" at activity \"{1}\" and space \"{2}\"";
