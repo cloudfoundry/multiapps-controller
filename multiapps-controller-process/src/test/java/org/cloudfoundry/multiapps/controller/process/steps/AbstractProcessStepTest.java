@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
-import org.cloudfoundry.multiapps.controller.process.MonitoringException;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,7 +24,6 @@ class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProcessStepTe
 // @formatter:off
             Arguments.of(new UnsupportedOperationException(), ErrorType.UNKNOWN_ERROR),
             Arguments.of(new Exception(), ErrorType.UNKNOWN_ERROR),
-            Arguments.of(new MonitoringException("Process \"4321\" failed, because of an infrastructure issue!"), ErrorType.UNKNOWN_ERROR),
             Arguments.of(new ContentException("There's something wrong with your MTA!"), ErrorType.CONTENT_ERROR)
 // @formatter:on
         );
@@ -49,6 +47,11 @@ class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProcessStepTe
         }
     }
 
+    @Override
+    protected MockStep createStep() {
+        return new MockStep();
+    }
+
     public static class MockStep extends SyncFlowableStep {
 
         private Supplier<Exception> exceptionSupplier;
@@ -63,11 +66,6 @@ class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProcessStepTe
             return "mock error";
         }
 
-    }
-
-    @Override
-    protected MockStep createStep() {
-        return new MockStep();
     }
 
 }

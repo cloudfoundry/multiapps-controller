@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.persistence.model;
 
 import java.math.BigInteger;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
@@ -36,7 +36,7 @@ public interface FileEntry {
     String getDigestAlgorithm();
 
     @Nullable
-    Date getModified();
+    LocalDateTime getModified();
 
     @Nullable
     String getOperationId();

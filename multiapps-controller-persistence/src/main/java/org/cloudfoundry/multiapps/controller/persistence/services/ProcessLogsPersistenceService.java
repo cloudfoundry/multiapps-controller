@@ -8,8 +8,8 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -104,10 +104,9 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
                                  .size(localLogFileInfo.getSize())
                                  .digest(localLogFileInfo.getDigest())
                                  .digestAlgorithm(localLogFileInfo.getDigestAlgorithm())
-                                 .modified(new Timestamp(System.currentTimeMillis()))
+                                 .modified(LocalDateTime.now())
                                  .operationId(operationId)
                                  .build();
-
     }
 
 }

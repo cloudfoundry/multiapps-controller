@@ -11,11 +11,11 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -58,7 +58,7 @@ public class FileService {
     public FileEntry addFile(FileEntry baseEntry, InputStream content) throws FileStorageException {
         FileEntry entryWithoutDigest = ImmutableFileEntry.copyOf(baseEntry)
                                                          .withId(generateRandomId())
-                                                         .withModified(new Timestamp(System.currentTimeMillis()));
+                                                         .withModified(LocalDateTime.now());
         FileEntry fileEntry = storeFile(entryWithoutDigest, content);
         logger.debug(MessageFormat.format(Messages.STORED_FILE_0, fileEntry));
         return fileEntry;
@@ -162,7 +162,9 @@ public class FileService {
         try {
             List<FileEntry> entries = getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListAllFilesQuery());
             List<FileEntry> missing = fileStorage.getFileEntriesWithoutContent(entries);
-            return deleteFileEntries(missing);
+            return deleteFilesAttributesByIds(missing.stream()
+                                                     .map(FileEntry::getId)
+                                                     .collect(Collectors.toList()));
         } catch (SQLException e) {
             throw new FileStorageException(Messages.ERROR_GETTING_ALL_FILES, e);
         }
@@ -238,14 +240,6 @@ public class FileService {
     private boolean storeFileAttributes(FileEntry fileEntry) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileAttributesQuery(fileEntry));
-        } catch (SQLException e) {
-            throw new FileStorageException(e.getMessage(), e);
-        }
-    }
-
-    private int deleteFileEntries(List<FileEntry> fileEntries) throws FileStorageException {
-        try {
-            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteFileEntriesQuery(fileEntries));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
