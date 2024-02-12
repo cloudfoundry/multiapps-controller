@@ -27,4 +27,6 @@ public interface FileStorage {
      */
     void testConnection();
 
+    void deleteFilesByIds(List<String> fileIds) throws FileStorageException;
+
 }

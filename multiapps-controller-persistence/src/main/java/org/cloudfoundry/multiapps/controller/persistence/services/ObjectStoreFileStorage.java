@@ -119,6 +119,11 @@ public class ObjectStoreFileStorage implements FileStorage {
         blobStore.blobExists(container, "test");
     }
 
+    @Override
+    public void deleteFilesByIds(List<String> fileIds) {
+        removeBlobsByFilter(blob -> fileIds.contains(blob.getName()));
+    }
+
     private FileEntry createFileEntry(String space, String id) {
         return ImmutableFileEntry.builder()
                                  .space(space)

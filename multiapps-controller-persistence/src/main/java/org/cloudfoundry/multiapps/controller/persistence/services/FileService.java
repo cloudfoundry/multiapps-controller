@@ -86,6 +86,17 @@ public class FileService {
         }
     }
 
+    public List<FileEntry> listFilesCreatedAfterAndBeforeWithoutOperationId(LocalDateTime after, LocalDateTime before)
+        throws FileStorageException {
+        try {
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesCreatedAfterAndBeforeWithoutOperationQuery(after,
+                                                                                                                                  before));
+        } catch (SQLException e) {
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_CREATED_AFTER_0_AND_BEFORE_1, after, before),
+                                           e);
+        }
+    }
+
     public FileEntry getFile(String space, String id) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getRetrieveFileQuery(space, id));
@@ -133,6 +144,11 @@ public class FileService {
         return deleteFileAttribute(space, id);
     }
 
+    public int deleteFilesByIds(List<String> fileIds) throws FileStorageException {
+        fileStorage.deleteFilesByIds(fileIds);
+        return deleteFilesAttributesByIds(fileIds);
+    }
+
     public int deleteFilesEntriesWithoutContent() throws FileStorageException {
         try {
             List<FileEntry> entries = getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListAllFilesQuery());
@@ -176,6 +192,14 @@ public class FileService {
     protected int deleteFileAttributesBySpaceAndNamespace(String space, String namespace) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteBySpaceAndNamespaceQuery(space, namespace));
+        } catch (SQLException e) {
+            throw new FileStorageException(e.getMessage(), e);
+        }
+    }
+
+    protected int deleteFilesAttributesByIds(List<String> fileIds) throws FileStorageException {
+        try {
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteByFileIdsQuery(fileIds));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }

@@ -66,6 +66,8 @@ public class Messages {
     public static final String OPERATION_FOR_OPTIONAL_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1 = "Operation for service key \"{0}\". for optional service, failed with description \"{1}\"";
     public static final String APPLICATION_0_WAS_NOT_FOUND = "Application \"{0}\" was not found";
     public static final String FAILED_TO_UPDATE_FILES_OF_OPERATION_0 = "Failed to update files of operation: {0}";
+    public static final String COULD_NOT_DELETE_ORPHANED_FILES_MODIFIED_AFTER_0_AND_BEFORE_1 = "Could not delete orphaned files modified after {0} and before {1}";
+
     // Audit log messages
 
     // ERROR log messages
@@ -290,6 +292,8 @@ public class Messages {
     public static final String CLEAN_UP_JOB_FOR_FINISHED_OPERATIONS_HAS_STARTED = "Clean-up job for finished operations has started";
     public static final String CLEAN_UP_JOB_FOR_FINISHED_OPERATIONS_HAS_FINISHED = "Clean-up job for finished operations has finished";
     public static final String BATCH_OF_PROCESSES_DELETED = "Batch of processes deleted: {0}";
+    public static final String DELETING_THE_FOLLOWING_FILE_ENTRIES_WITHOUT_CONTENT_0 = "Deleting the following file entries without content: {0}";
+    public static final String DELETED_FILE_ENTRIES_0 = "Deleted file entries: {0}";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";

@@ -156,7 +156,16 @@ public class AsyncUploadJobsQueryImpl extends AbstractQueryImpl<AsyncUploadJobEn
                                                                        .value(instanceIndex)
                                                                        .build());
         return this;
+    }
 
+    @Override
+    public AsyncUploadJobsQuery withFileIds(List<String> fileIds) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<List<String>> builder()
+                                                                       .attribute(AttributeNames.FILE_ID)
+                                                                       .condition(Expression::in)
+                                                                       .value(fileIds)
+                                                                       .build());
+        return this;
     }
 
     @Override

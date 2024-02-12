@@ -24,7 +24,7 @@ public interface QueryAttributeRestriction<T> {
     }
 
     interface Condition<T> {
-        Predicate satisfiedBy(Expression attribute, T value);
+        Predicate satisfiedBy(Expression<T> attribute, T value);
     }
 
 }

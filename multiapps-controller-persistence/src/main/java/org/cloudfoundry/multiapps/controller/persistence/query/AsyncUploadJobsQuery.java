@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.persistence.query;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
 
@@ -31,4 +32,6 @@ public interface AsyncUploadJobsQuery extends Query<AsyncUploadJobEntry, AsyncUp
     AsyncUploadJobsQuery withoutAddedAt();
     
     AsyncUploadJobsQuery instanceIndex(int instanceIndex);
+
+    AsyncUploadJobsQuery withFileIds(List<String> fileIds);
 }
