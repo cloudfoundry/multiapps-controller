@@ -41,9 +41,9 @@ public class OrphanedFilesCleaner {
         if (applicationConfiguration.getApplicationInstanceIndex() != SELECTED_INSTANCE_FOR_CLEAN_UP) {
             return;
         }
-        var timestamp = LocalDateTime.now();
-        var twoHoursAgo = timestamp.minusHours(2);
-        var oneHourAgo = timestamp.minusHours(1);
+        var currentTime = LocalDateTime.now();
+        var twoHoursAgo = currentTime.minusHours(2);
+        var oneHourAgo = currentTime.minusHours(1);
         try {
             List<FileEntry> entriesToDelete = fileService.listFilesCreatedAfterAndBeforeWithoutOperationId(twoHoursAgo, oneHourAgo);
             LOGGER.info(MessageFormat.format(Messages.DELETING_THE_FOLLOWING_FILE_ENTRIES_WITHOUT_CONTENT_0, entriesToDelete));

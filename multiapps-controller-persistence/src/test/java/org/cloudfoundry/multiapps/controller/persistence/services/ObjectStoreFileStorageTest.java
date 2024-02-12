@@ -17,7 +17,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -144,8 +143,10 @@ class ObjectStoreFileStorageTest {
 
         FileEntry fileEntryToRemain1 = addFile(TEST_FILE_LOCATION);
         FileEntry fileEntryToRemain2 = addFile(SECOND_FILE_TEST_LOCATION);
-        FileEntry fileEntryToDelete1 = addFile(TEST_FILE_LOCATION, spaceId, namespace, new Date(pastMoment));
-        FileEntry fileEntryToDelete2 = addFile(SECOND_FILE_TEST_LOCATION, spaceId, null, new Date(pastMoment));
+        FileEntry fileEntryToDelete1 = addFile(TEST_FILE_LOCATION, spaceId, namespace,
+                                               LocalDateTime.ofInstant(Instant.ofEpochMilli(pastMoment), ZoneId.systemDefault()));
+        FileEntry fileEntryToDelete2 = addFile(SECOND_FILE_TEST_LOCATION, spaceId, null,
+                                               LocalDateTime.ofInstant(Instant.ofEpochMilli(pastMoment), ZoneId.systemDefault()));
 
         String blobWithNoMetadataId = addBlobWithNoMetadata();
 
@@ -244,7 +245,7 @@ class ObjectStoreFileStorageTest {
         return addFile(pathString, space, namespace, null);
     }
 
-    private FileEntry addFile(String pathString, String space, String namespace, Date date) throws Exception {
+    private FileEntry addFile(String pathString, String space, String namespace, LocalDateTime date) throws Exception {
         Path testFilePath = Paths.get(pathString)
                                  .toAbsolutePath();
         FileEntry fileEntry = createFileEntry(space, namespace);
@@ -268,13 +269,13 @@ class ObjectStoreFileStorageTest {
                                  .build();
     }
 
-    private FileEntry enrichFileEntry(FileEntry fileEntry, Path path, Date date) throws IOException {
+    private FileEntry enrichFileEntry(FileEntry fileEntry, Path path, LocalDateTime date) throws IOException {
         long sizeOfFile = Files.size(path);
         BigInteger bigInteger = BigInteger.valueOf(sizeOfFile);
         return ImmutableFileEntry.builder()
                                  .from(fileEntry)
                                  .size(bigInteger)
-                                 .modified(date != null ? date : new Date(System.currentTimeMillis()))
+                                 .modified(date != null ? date : LocalDateTime.now())
                                  .name(path.getFileName()
                                            .toString())
                                  .build();

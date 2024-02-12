@@ -196,7 +196,7 @@ class FileServiceTest extends DatabaseFileServiceTest {
         ExternalSqlFileQueryProvider externalSqlFileQueryProvider = new ExternalSqlFileQueryProvider(FileService.DEFAULT_TABLE_NAME,
                                                                                                      dataSource.getDataSourceDialect()) {
             @Override
-            protected String getListFilesCreateAfterAndBeforeWithoutOperationQueryString() {
+            protected String getSelectFilesWithoutOperationCreatedAfterTime1AndBeforeTime2Query() {
                 return String.format("SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE MODIFIED > ? AND MODIFIED < ? AND OPERATION_ID IS NULL",
                                      FileService.DEFAULT_TABLE_NAME);
             }

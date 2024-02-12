@@ -72,7 +72,6 @@ public class ObjectStoreFileStorage implements FileStorage {
                                              .stream()
                                              .map(StorageMetadata::getName)
                                              .collect(Collectors.toSet());
-
         return fileEntries.stream()
                           .filter(fileEntry -> !existingFiles.contains(fileEntry.getId()))
                           .collect(Collectors.toList());
@@ -177,7 +176,9 @@ public class ObjectStoreFileStorage implements FileStorage {
         Map<String, String> metadata = new HashMap<>();
         metadata.put(Constants.FILE_ENTRY_SPACE.toLowerCase(), fileEntry.getSpace());
         metadata.put(Constants.FILE_ENTRY_MODIFIED.toLowerCase(), Long.toString(fileEntry.getModified()
-                                                                                         .getTime()));
+                                                                                         .atZone(ZoneId.systemDefault())
+                                                                                         .toInstant()
+                                                                                         .toEpochMilli()));
         if (fileEntry.getNamespace() != null) {
             metadata.put(Constants.FILE_ENTRY_NAMESPACE.toLowerCase(), fileEntry.getNamespace());
         }

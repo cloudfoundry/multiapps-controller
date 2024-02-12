@@ -15,7 +15,6 @@ import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -38,17 +37,17 @@ public abstract class SqlFileQueryProvider {
     private static final String UPDATE_FILE_DIGEST = "UPDATE %s SET DIGEST = ? WHERE FILE_ID = ?";
     private static final String UPDATE_FILES_OPERATION_ID = "UPDATE %s SET OPERATION_ID = ? where FILE_ID = ANY(?)";
     private static final String INSERT_FILE_ATTRIBUTES = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED, OPERATION_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String SELECT_FILES_CREATED_AFTER_AND_BEFORE_WITHOUT_OPERATION = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE MODIFIED > ? AND MODIFIED < ? AND OPERATION_ID ISNULL";
+    private static final String SELECT_FILES_WITHOUT_OPERATION_CREATED_AFTER_TIME1_AND_BEFORE_TIME2 = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE MODIFIED > ? AND MODIFIED < ? AND OPERATION_ID ISNULL";
     private static final String SELECT_ALL_FILES = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s";
-    private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE NAMESPACE=? AND SPACE=?";
-    private static final String SELECT_FILES_BY_SPACE_AND_OPERATION_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND (NAMESPACE=? OR OPERATION_ID=?)";
-    private static final String SELECT_FILES_BY_SPACE_OPERATION_ID_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND (NAMESPACE=? OR OPERATION_ID=?) AND FILE_NAME=? ORDER BY MODIFIED ASC";
-    private static final String SELECT_FILES_BY_SPACE_WITH_NO_NAMESPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND NAMESPACE IS NULL";
-    private static final String SELECT_FILES_BY_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=?";
-    private static final String SELECT_FILE_BY_ID_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE FILE_ID=? AND SPACE=?";
-    private static final String SELECT_FILE_WITH_CONTENT_BY_ID_AND_SPACE = "SELECT FILE_ID, SPACE, %s FROM %s WHERE FILE_ID=? AND SPACE=?";
-    private static final String DELETE_FILES_BY_NAMESPACE_AND_SPACE = "DELETE FROM %s WHERE NAMESPACE=? AND SPACE=?";
-    private static final String DELETE_FILES_BY_SPACE = "DELETE FROM %s WHERE SPACE=?";
+    private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE NAMESPACE=? AND SPACE=?";
+    private static final String SELECT_FILES_BY_SPACE_ID_AND_OPERATION_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND (NAMESPACE=? OR OPERATION_ID=?)";
+    private static final String SELECT_FILES_BY_SPACE_ID_OPERATION_ID_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND (NAMESPACE=? OR OPERATION_ID=?) AND FILE_NAME=? ORDER BY MODIFIED ASC";
+    private static final String SELECT_FILES_BY_SPACE_ID_WITH_NO_NAMESPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND NAMESPACE IS NULL";
+    private static final String SELECT_FILES_BY_SPACE_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=?";
+    private static final String SELECT_FILE_BY_ID_AND_SPACE_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE FILE_ID=? AND SPACE=?";
+    private static final String SELECT_FILE_WITH_CONTENT_BY_ID_AND_SPACE_ID = "SELECT FILE_ID, SPACE, %s FROM %s WHERE FILE_ID=? AND SPACE=?";
+    private static final String DELETE_FILES_BY_NAMESPACE_AND_SPACE_ID = "DELETE FROM %s WHERE NAMESPACE=? AND SPACE=?";
+    private static final String DELETE_FILES_BY_SPACE_ID = "DELETE FROM %s WHERE SPACE=?";
     private static final String DELETE_FILES_BY_IDS = "DELETE FROM %s WHERE FILE_ID = ANY(?)";
     private static final String DELETE_FILES_MODIFIED_BEFORE = "DELETE FROM %s WHERE MODIFIED<?";
     private static final String DELETE_FILE_BY_ID_AND_SPACE = "DELETE FROM %s WHERE FILE_ID=? AND SPACE=?";
@@ -70,13 +69,13 @@ public abstract class SqlFileQueryProvider {
                 statement = connection.prepareStatement(getInsertWithContentQuery());
                 statement.setString(1, fileEntry.getId());
                 statement.setString(2, fileEntry.getSpace());
+
                 statement.setString(3, fileEntry.getName());
                 setOrNull(statement, 4, fileEntry.getNamespace());
                 getDataSourceDialect().setBigInteger(statement, 5, fileEntry.getSize());
                 statement.setString(6, fileEntry.getDigest());
                 statement.setString(7, fileEntry.getDigestAlgorithm());
-                statement.setTimestamp(8, new Timestamp(fileEntry.getModified()
-                                                                 .getTime()));
+                statement.setTimestamp(8, Timestamp.valueOf(fileEntry.getModified()));
                 statement.setString(9, fileEntry.getOperationId());
                 setContentBinaryStream(statement, 10, content);
                 return statement.executeUpdate() > 0;
@@ -97,8 +96,7 @@ public abstract class SqlFileQueryProvider {
                 setOrNull(statement, 4, entryWithoutDigest.getNamespace());
                 getDataSourceDialect().setBigInteger(statement, 5, entryWithoutDigest.getSize());
                 statement.setString(6, Constants.DIGEST_ALGORITHM);
-                statement.setTimestamp(7, new Timestamp(entryWithoutDigest.getModified()
-                                                                          .getTime()));
+                statement.setTimestamp(7, Timestamp.valueOf(entryWithoutDigest.getModified()));
                 statement.setString(8, entryWithoutDigest.getOperationId());
                 setContentBinaryStream(statement, 9, dis);
                 statement.executeUpdate();
@@ -147,8 +145,7 @@ public abstract class SqlFileQueryProvider {
                 getDataSourceDialect().setBigInteger(statement, 5, fileEntry.getSize());
                 statement.setString(6, fileEntry.getDigest());
                 statement.setString(7, fileEntry.getDigestAlgorithm());
-                statement.setTimestamp(8, new Timestamp(fileEntry.getModified()
-                                                                 .getTime()));
+                statement.setTimestamp(8, Timestamp.valueOf(fileEntry.getModified()));
                 statement.setString(9, fileEntry.getOperationId());
                 return statement.executeUpdate() > 0;
             } finally {
@@ -182,7 +179,7 @@ public abstract class SqlFileQueryProvider {
             ResultSet resultSet = null;
             try {
                 List<FileEntry> files = new ArrayList<>();
-                statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE_AND_OPERATION_ID));
+                statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE_ID_AND_OPERATION_ID));
                 statement.setString(1, space);
                 // TODO: The namespace is currently used as operation ID, and will be set for backwards compatibility for 1 tact
                 statement.setString(2, operationId);
@@ -205,7 +202,7 @@ public abstract class SqlFileQueryProvider {
             ResultSet resultSet = null;
             try {
                 List<FileEntry> files = new ArrayList<>();
-                statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE_OPERATION_ID_AND_NAME));
+                statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE_ID_OPERATION_ID_AND_NAME));
                 statement.setString(1, space);
                 // TODO: The namespace is currently used as operation ID, and will be set for backwards compatibility for 1 tact
                 statement.setString(2, operationId);
@@ -229,11 +226,9 @@ public abstract class SqlFileQueryProvider {
             ResultSet resultSet = null;
             try {
                 List<FileEntry> files = new ArrayList<>();
-                statement = connection.prepareStatement(getListFilesCreateAfterAndBeforeWithoutOperationQueryString());
-                statement.setTimestamp(1, Timestamp.from(after.atZone(ZoneId.systemDefault())
-                                                              .toInstant()));
-                statement.setTimestamp(2, Timestamp.from(before.atZone(ZoneId.systemDefault())
-                                                               .toInstant()));
+                statement = connection.prepareStatement(getSelectFilesWithoutOperationCreatedAfterTime1AndBeforeTime2Query());
+                statement.setTimestamp(1, Timestamp.valueOf(after));
+                statement.setTimestamp(2, Timestamp.valueOf(before));
                 resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     files.add(getFileEntry(resultSet));
@@ -246,8 +241,8 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
-    protected String getListFilesCreateAfterAndBeforeWithoutOperationQueryString() {
-        return getQuery(SELECT_FILES_CREATED_AFTER_AND_BEFORE_WITHOUT_OPERATION);
+    protected String getSelectFilesWithoutOperationCreatedAfterTime1AndBeforeTime2Query() {
+        return getQuery(SELECT_FILES_WITHOUT_OPERATION_CREATED_AFTER_TIME1_AND_BEFORE_TIME2);
     }
 
     public SqlQuery<List<FileEntry>> getListAllFilesQuery() {
@@ -274,7 +269,7 @@ public abstract class SqlFileQueryProvider {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
             try {
-                statement = connection.prepareStatement(getQuery(SELECT_FILE_BY_ID_AND_SPACE));
+                statement = connection.prepareStatement(getQuery(SELECT_FILE_BY_ID_AND_SPACE_ID));
                 statement.setString(1, id);
                 statement.setString(2, space);
                 resultSet = statement.executeQuery();
@@ -314,7 +309,7 @@ public abstract class SqlFileQueryProvider {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
-                statement = connection.prepareStatement(getQuery(DELETE_FILES_BY_NAMESPACE_AND_SPACE));
+                statement = connection.prepareStatement(getQuery(DELETE_FILES_BY_NAMESPACE_AND_SPACE_ID));
                 statement.setString(1, namespace);
                 statement.setString(2, space);
                 int deletedFiles = statement.executeUpdate();
@@ -330,7 +325,7 @@ public abstract class SqlFileQueryProvider {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
-                statement = connection.prepareStatement(getQuery(DELETE_FILES_BY_SPACE));
+                statement = connection.prepareStatement(getQuery(DELETE_FILES_BY_SPACE_ID));
                 addSpaceIdsAsBatches(statement, spaceIds);
                 int[] batchResults = statement.executeBatch();
                 int deletedFiles = IntStream.of(batchResults)
@@ -361,9 +356,7 @@ public abstract class SqlFileQueryProvider {
             PreparedStatement statement = null;
             try {
                 statement = connection.prepareStatement(getQuery(DELETE_FILES_MODIFIED_BEFORE));
-                statement.setTimestamp(1, new Timestamp(modificationTime.atZone(ZoneId.systemDefault())
-                                                                        .toInstant()
-                                                                        .toEpochMilli()));
+                statement.setTimestamp(1, Timestamp.valueOf(modificationTime));
                 int deletedFiles = statement.executeUpdate();
                 logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_MODIFIED_BEFORE_1, deletedFiles, modificationTime));
                 return deletedFiles;
@@ -383,23 +376,6 @@ public abstract class SqlFileQueryProvider {
                 int deletedRows = statement.executeUpdate();
                 logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_ID_1_AND_SPACE_2, deletedRows, id, space));
                 return deletedRows > 0;
-            } finally {
-                JdbcUtil.closeQuietly(statement);
-            }
-        };
-    }
-
-    public SqlQuery<Integer> getDeleteFileEntriesQuery(List<FileEntry> fileEntries) {
-        return (Connection connection) -> {
-            PreparedStatement statement = null;
-            try {
-                statement = connection.prepareStatement(getQuery(DELETE_FILE_BY_ID_AND_SPACE));
-                addFileEntriesAsBatches(statement, fileEntries);
-                int[] batchResults = statement.executeBatch();
-                int deletedEntries = IntStream.of(batchResults)
-                                              .sum();
-                logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITHOUT_CONTENT, deletedEntries));
-                return deletedEntries;
             } finally {
                 JdbcUtil.closeQuietly(statement);
             }
@@ -439,7 +415,7 @@ public abstract class SqlFileQueryProvider {
     }
 
     private String getSelectWithContentQuery() {
-        return String.format(SELECT_FILE_WITH_CONTENT_BY_ID_AND_SPACE, getContentColumnName(), tableName);
+        return String.format(SELECT_FILE_WITH_CONTENT_BY_ID_AND_SPACE_ID, getContentColumnName(), tableName);
     }
 
     protected String getContentColumnName() {
@@ -481,13 +457,13 @@ public abstract class SqlFileQueryProvider {
         PreparedStatement statement;
 
         if (namespace == null) {
-            statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE));
+            statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE_ID));
             statement.setString(1, space);
         } else if (namespace.equals("")) {
-            statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE_WITH_NO_NAMESPACE));
+            statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE_ID_WITH_NO_NAMESPACE));
             statement.setString(1, space);
         } else {
-            statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_NAMESPACE_AND_SPACE));
+            statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_NAMESPACE_AND_SPACE_ID));
             statement.setString(1, namespace);
             statement.setString(2, space);
         }
@@ -504,18 +480,12 @@ public abstract class SqlFileQueryProvider {
                                  .name(resultSet.getString(Constants.FILE_ENTRY_NAME))
                                  .namespace(resultSet.getString(Constants.FILE_ENTRY_NAMESPACE))
                                  .space(resultSet.getString(Constants.FILE_ENTRY_SPACE))
-                                 .modified(new Date(modifiedAsTimestamp.getTime()))
+                                 .modified(modifiedAsTimestamp.toInstant()
+                                                              .atZone(ZoneId.systemDefault())
+                                                              .toLocalDateTime())
                                  .size(getDataSourceDialect().getBigInteger(resultSet, Constants.FILE_ENTRY_SIZE))
                                  .operationId(resultSet.getString(Constants.FILE_ENTRY_OPERATION_ID))
                                  .build();
-    }
-
-    private void addFileEntriesAsBatches(PreparedStatement statement, List<FileEntry> entries) throws SQLException {
-        for (FileEntry entry : entries) {
-            statement.setString(1, entry.getId());
-            statement.setString(2, entry.getSpace());
-            statement.addBatch();
-        }
     }
 
     private void addSpaceIdsAsBatches(PreparedStatement statement, List<String> spaceIds) throws SQLException {

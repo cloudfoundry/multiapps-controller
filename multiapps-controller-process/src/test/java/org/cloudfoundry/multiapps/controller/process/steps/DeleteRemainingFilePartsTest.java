@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -55,7 +55,7 @@ class DeleteRemainingFilePartsTest extends SyncFlowableStepTest<DeleteRemainingF
                                  .digest(DIGEST)
                                  .digestAlgorithm(DIGEST_ALGORITHM)
                                  .size(BigInteger.TEN)
-                                 .modified(new Date())
+                                 .modified(LocalDateTime.now())
                                  .build();
     }
 

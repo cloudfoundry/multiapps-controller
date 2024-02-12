@@ -20,6 +20,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -75,10 +76,15 @@ class DatabaseFileServiceTest {
     void testCorrectFileEntryTimestamp() throws Exception {
         FileEntry fileEntry = addTestFile(SPACE_1, NAMESPACE_1);
         FileEntry fileEntryMetadata = fileService.getFile(SPACE_1, fileEntry.getId());
+        // For some reason Java 17 with Ubuntu (as of now Sonar scan) uses nanoseconds precision
+        // while Java 11 uses microseconds precision as well as the default Database timestamps
+        // and this is the reason for the truncations
+        // This should be considered during the migration
+        // https://bugs.openjdk.org/browse/JDK-8242504
         assertEquals(fileEntry.getModified()
-                              .getTime(),
+                              .truncatedTo(ChronoUnit.MILLIS),
                      fileEntryMetadata.getModified()
-                                      .getTime());
+                                      .truncatedTo(ChronoUnit.MILLIS));
     }
 
     @Test
