@@ -1,9 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
@@ -29,6 +26,8 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.resolvers.NullPropertiesResolverBuilder;
 import org.cloudfoundry.multiapps.mta.resolvers.ReferencesUnescaper;
 import org.cloudfoundry.multiapps.mta.resolvers.ResolverBuilder;
+
+import static org.apache.logging.log4j.util.Strings.EMPTY;
 
 public class MtaDescriptorPropertiesResolver {
 
@@ -59,6 +58,8 @@ public class MtaDescriptorPropertiesResolver {
                                                                      SupportedParameters.SINGULAR_PLURAL_MAPPING,
                                                                      SupportedParameters.DYNAMIC_RESOLVABLE_PARAMETERS)
                                    .resolve();
+        // add live route as empty string because if we don't do it, the resolve will fail, if the user wants to use the live-route
+        editRoutesAddLiveParameter(descriptor);
 
         if (context.shouldReserveTemporaryRoute()) {
             // temporary placeholders should be set at this point, since they are needed for provides/requires placeholder resolution
@@ -118,6 +119,22 @@ public class MtaDescriptorPropertiesResolver {
         return context.getHandlerFactory()
                       .getDescriptorParametersValidator(descriptor, correctors)
                       .validate();
+    }
+
+    private void editRoutesAddLiveParameter(DeploymentDescriptor descriptor) {
+        for (Module module : descriptor.getModules()) {
+            Map<String, Object> moduleParameters = module.getParameters();
+
+            List<Map<String, Object>> routes = RoutesValidator.applyRoutesType(moduleParameters.get(SupportedParameters.ROUTES));
+
+            for (Map<String, Object> routeMap : routes) {
+                Object liveRoute = routeMap.get(SupportedParameters.LIVE_ROUTE);
+
+                if (Objects.isNull(liveRoute)) {
+                    routeMap.put(SupportedParameters.LIVE_ROUTE, EMPTY);
+                }
+            }
+        }
     }
 
     private void editRoutesSetTemporaryPlaceholders(DeploymentDescriptor descriptor) {

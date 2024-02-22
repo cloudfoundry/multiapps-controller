@@ -137,8 +137,8 @@ public class SystemParameters {
         }
         moduleSystemParameters.put(SupportedParameters.DEFAULT_URI, appendRoutePathIfPresent(defaultUri, moduleParameters));
 
-        String liveHostUri = getDefaultHost(module.getName()) + DOMAIN_PLACEHOLDER_SUFFIX;
-        moduleSystemParameters.put(SupportedParameters.DEFAULT_LIVE_URI, appendRoutePathIfPresent(liveHostUri, moduleParameters));
+        String liveUri = getDefaultHost(module.getName()) + DOMAIN_PLACEHOLDER_SUFFIX;
+        moduleSystemParameters.put(SupportedParameters.DEFAULT_LIVE_URI, appendRoutePathIfPresent(liveUri, moduleParameters));
 
         String defaultUrl = DEFAULT_URL;
         if (reserveTemporaryRoutes) {
