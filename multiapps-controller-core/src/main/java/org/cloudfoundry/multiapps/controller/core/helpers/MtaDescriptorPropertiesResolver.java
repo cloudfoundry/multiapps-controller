@@ -1,6 +1,10 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Objects;
 
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
@@ -59,7 +63,7 @@ public class MtaDescriptorPropertiesResolver {
                                                                      SupportedParameters.DYNAMIC_RESOLVABLE_PARAMETERS)
                                    .resolve();
         // add live route as empty string because if we don't do it, the resolve will fail, if the user wants to use the live-route
-        editRoutesAddLiveParameter(descriptor);
+        replaceNullLiveRoutesWithEmpty(descriptor);
 
         if (context.shouldReserveTemporaryRoute()) {
             // temporary placeholders should be set at this point, since they are needed for provides/requires placeholder resolution
@@ -121,7 +125,7 @@ public class MtaDescriptorPropertiesResolver {
                       .validate();
     }
 
-    private void editRoutesAddLiveParameter(DeploymentDescriptor descriptor) {
+    private void replaceNullLiveRoutesWithEmpty(DeploymentDescriptor descriptor) {
         for (Module module : descriptor.getModules()) {
             Map<String, Object> moduleParameters = module.getParameters();
 
