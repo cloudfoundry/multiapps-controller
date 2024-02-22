@@ -28,7 +28,7 @@ public class RoutesValidator implements ParameterValidator {
 
     protected void initRoutesValidators(String namespace, boolean applyNamespaceGlobal) {
         ParameterValidator routeValidator = new RouteValidator(namespace, applyNamespaceGlobal);
-        this.validators = Map.of(routeValidator.getParameterName(), routeValidator, LIVE_ROUTE, routeValidator);
+        this.validators = Map.of(routeValidator.getParameterName(), routeValidator);
     }
 
     @Override
@@ -166,7 +166,7 @@ public class RoutesValidator implements ParameterValidator {
 
     @Override
     public Set<String> getRelatedParameterNames() {
-        return Set.of(SupportedParameters.NO_HOSTNAME, SupportedParameters.ROUTE_PROTOCOL, SupportedParameters.APPLY_NAMESPACE);
+        return Set.of(SupportedParameters.NO_HOSTNAME, SupportedParameters.ROUTE_PROTOCOL, SupportedParameters.APPLY_NAMESPACE, SupportedParameters.LIVE_ROUTE);
     }
 
     private Set<String> getSpecificRouteParameterNames() {
