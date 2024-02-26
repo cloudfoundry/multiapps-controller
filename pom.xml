@@ -15,7 +15,7 @@
         <sonar.organization>cloudfoundry</sonar.organization>
         <sonar.coverage.jacoco.xmlReportPaths>../multiapps-controller-coverage/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <junit.version>5.10.2</junit.version>
-        <junit-platform.version>1.9.2</junit-platform.version>
+        <junit-platform.version>1.10.2</junit-platform.version>
         <mockito.version>4.11.0</mockito.version>
         <derby.version>10.14.2.0</derby.version>
         <h2.version>2.1.210</h2.version>
