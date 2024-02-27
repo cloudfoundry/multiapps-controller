@@ -2,8 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.sap.cloud.lm.sl.cf</groupId>
-    <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
+    <groupId>org.cloudfoundry.multiapps</groupId>
+    <artifactId>multiapps-controller-parent</artifactId>
     <version>1.73.44-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>LM SL CF Parent</name>
@@ -60,15 +60,15 @@
         <swagger.version>1.5.16</swagger.version>
         <shedlock-version>4.33.0</shedlock-version>
         <h2.database.version>1.4.198</h2.database.version>
-        <com.sap.cloud.lm.sl.open.version>1.67.15-SNAPSHOT</com.sap.cloud.lm.sl.open.version>
+        <org.cloudfoundry.multiapps.version>1.67.15-SNAPSHOT</org.cloudfoundry.multiapps.version>
     </properties>
     <modules>
-        <module>com.sap.cloud.lm.sl.cf.client</module>
-        <module>com.sap.cloud.lm.sl.cf.core</module>
-        <module>com.sap.cloud.lm.sl.cf.process</module>
-        <module>com.sap.cloud.lm.sl.cf.web</module>
-        <module>com.sap.cloud.lm.sl.cf.api</module>
-        <module>com.sap.cloud.lm.sl.cf.persistence</module>
+        <module>multiapps-controller-client</module>
+        <module>multiapps-controller-core</module>
+        <module>multiapps-controller-process</module>
+        <module>multiapps-controller-web</module>
+        <module>multiapps-controller-api</module>
+        <module>multiapps-controller-persistence</module>
     </modules>
 
     <organization>
@@ -288,9 +288,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.lm.sl</groupId>
-            <artifactId>com.sap.cloud.lm.sl.common</artifactId>
-            <version>${com.sap.cloud.lm.sl.open.version}</version>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-common</artifactId>
+            <version>${org.cloudfoundry.multiapps.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -805,50 +805,40 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl</groupId>
-                <artifactId>com.sap.cloud.lm.sl.common</artifactId>
-                <version>${com.sap.cloud.lm.sl.open.version}</version>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-common</artifactId>
+                <version>${org.cloudfoundry.multiapps.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl</groupId>
-                <artifactId>com.sap.cloud.lm.sl.mta</artifactId>
-                <version>${com.sap.cloud.lm.sl.open.version}</version>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-mta</artifactId>
+                <version>${org.cloudfoundry.multiapps.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.persistence</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.client</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.core</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-core</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.process</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-process</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.web</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-web</artifactId>
                 <version>${project.version}</version>
                 <classifier>classes</classifier>
                 <exclusions>
@@ -863,8 +853,8 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.web</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-web</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>
                 <exclusions>
@@ -878,17 +868,27 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-persistence</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
         </snapshotRepository>
         <repository>
             <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
 
@@ -964,7 +964,7 @@
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
                             <autoReleaseAfterClose>false</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
@@ -1015,7 +1015,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
-                        <version>2.5</version>
+                        <version>3.0.1</version>
                         <configuration>
                             <autoVersionSubmodules>true</autoVersionSubmodules>
                             <useReleaseProfile>false</useReleaseProfile>
