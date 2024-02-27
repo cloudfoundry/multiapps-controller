@@ -39,6 +39,7 @@ public class MtaDescriptorPropertiesResolver {
     public static final String IDLE_HOST_PLACEHOLDER = "${" + SupportedParameters.IDLE_HOST + "}";
     public static final String LIVE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.DEFAULT_LIVE_DOMAIN + "}";
     public static final String LIVE_HOST_PLACEHOLDER = "${" + SupportedParameters.DEFAULT_LIVE_HOST + "}";
+    private static final String ROUTE_REFERENCE_PLACEHOLDER = "${routes/%s/route}";
 
     private final MtaDescriptorPropertiesResolverContext context;
     private List<ConfigurationSubscription> subscriptions;
@@ -62,8 +63,8 @@ public class MtaDescriptorPropertiesResolver {
                                                                      SupportedParameters.SINGULAR_PLURAL_MAPPING,
                                                                      SupportedParameters.DYNAMIC_RESOLVABLE_PARAMETERS)
                                    .resolve();
-        // add live route as empty string because if we don't do it, the resolve will fail, if the user wants to use the live-route
-        replaceNullLiveRoutesWithEmpty(descriptor);
+        // add live route as reference to its route because if we don't do it, the resolve will fail, if the user wants to use the live-route
+        replaceNullLiveRoutesWithReferenceToRoute(descriptor);
 
         if (context.shouldReserveTemporaryRoute()) {
             // temporary placeholders should be set at this point, since they are needed for provides/requires placeholder resolution
@@ -125,7 +126,7 @@ public class MtaDescriptorPropertiesResolver {
                       .validate();
     }
 
-    private void replaceNullLiveRoutesWithEmpty(DeploymentDescriptor descriptor) {
+    private void replaceNullLiveRoutesWithReferenceToRoute(DeploymentDescriptor descriptor) {
         for (Module module : descriptor.getModules()) {
             Map<String, Object> moduleParameters = module.getParameters();
 
@@ -135,7 +136,9 @@ public class MtaDescriptorPropertiesResolver {
                 Object liveRoute = routeMap.get(SupportedParameters.LIVE_ROUTE);
 
                 if (Objects.isNull(liveRoute)) {
-                    routeMap.put(SupportedParameters.LIVE_ROUTE, EMPTY);
+                    int routeIndex = routes.indexOf(routeMap);
+
+                    routeMap.put(SupportedParameters.LIVE_ROUTE, String.format(ROUTE_REFERENCE_PLACEHOLDER, routeIndex));
                 }
             }
         }
