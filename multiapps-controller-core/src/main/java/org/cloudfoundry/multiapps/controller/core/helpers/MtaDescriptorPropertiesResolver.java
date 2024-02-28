@@ -142,18 +142,23 @@ public class MtaDescriptorPropertiesResolver {
                 boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
                 String protocol = (String) routeMap.get(SupportedParameters.ROUTE_PROTOCOL);
                 if (routeValue instanceof String) {
-                    routeMap.put(SupportedParameters.ROUTE,
-                                 replaceUriPartsWithPlaceholders((String) routeValue, noHostname, protocol, IDLE_DOMAIN_PLACEHOLDER,
-                                                                 IDLE_HOST_PLACEHOLDER));
+                    routeMap.put(SupportedParameters.ROUTE, replacePartsWithIdlePlaceholders((String) routeValue, noHostname, protocol));
                     routeMap.put(SupportedParameters.LIVE_ROUTE,
-                                 replaceUriPartsWithPlaceholders((String) routeValue, noHostname, protocol, LIVE_DOMAIN_PLACEHOLDER,
-                                                                 LIVE_HOST_PLACEHOLDER));
+                                 replacePartsWithLivePlaceholders((String) routeValue, noHostname, protocol));
                 }
 
                 // remove no-hostname value, since it will be ignored for idle routes
                 routeMap.remove(SupportedParameters.NO_HOSTNAME);
             }
         }
+    }
+
+    private String replacePartsWithLivePlaceholders(String uriString, boolean noHostname, String protocol) {
+        return replaceUriPartsWithPlaceholders(uriString, noHostname, protocol, LIVE_DOMAIN_PLACEHOLDER, LIVE_HOST_PLACEHOLDER);
+    }
+
+    private String replacePartsWithIdlePlaceholders(String uriString, boolean noHostname, String protocol) {
+        return replaceUriPartsWithPlaceholders(uriString, noHostname, protocol, IDLE_DOMAIN_PLACEHOLDER, IDLE_HOST_PLACEHOLDER);
     }
 
     private String replaceUriPartsWithPlaceholders(String uriString, boolean noHostname, String protocol, String domainPlaceholder,
