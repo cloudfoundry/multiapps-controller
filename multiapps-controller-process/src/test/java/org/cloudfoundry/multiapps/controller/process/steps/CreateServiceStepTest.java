@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -62,76 +63,10 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
                          Arguments.of(createUserProvidedCloudService(), Map.of(STEP_EXECUTION, StepPhase.DONE), false));
     }
 
-    @ParameterizedTest
-    @MethodSource
-    void testExecute(CloudServiceInstanceExtended service, Map<String, StepPhase> stepPhaseResults, boolean serviceExists) {
-        initializeInput(service, stepPhaseResults, serviceExists);
-        step.execute(execution);
-        assertStepPhase(STEP_EXECUTION);
-
-        if (getExecutionStatus().equals(StepPhase.DONE.toString())) {
-            return;
-        }
-        prepareClient(true);
-        prepareServiceOperationsGetter(service);
-        step.execute(execution);
-        assertStepPhase(POLLING);
-    }
-
-    private void prepareServiceOperationsGetter(CloudServiceInstanceExtended service) {
-        context.setVariable(Variables.SERVICES_TO_CREATE, List.of(service));
-        when(serviceOperationGetter.getLastServiceOperation(any(),
-                                                            any())).thenReturn(new ServiceOperation(ServiceOperation.Type.CREATE,
-                                                                                                    "create done",
-                                                                                                    ServiceOperation.State.IN_PROGRESS));
-    }
-
-    @Test
-    void testExceptionIsThrownOnManagedServiceCreationInternalServerError() {
-        initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, false);
-        throwExceptionOnServiceCreation(HttpStatus.INTERNAL_SERVER_ERROR);
-        Assertions.assertThrows(SLException.class, () -> step.execute(execution));
-    }
-
-    @Test
-    void testExceptionIsThrownOnManagedServiceCreationBadGateway() {
-        initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, false);
-        throwExceptionOnServiceCreation(HttpStatus.BAD_GATEWAY);
-        Assertions.assertThrows(SLException.class, () -> step.execute(execution));
-    }
-
     private static Stream<Arguments> testCreateServiceInstanceWhenAlreadyExists() {
         return Stream.of(Arguments.of(ServiceOperation.State.SUCCEEDED, StepPhase.DONE.toString()),
                          Arguments.of(ServiceOperation.State.INITIAL, StepPhase.POLL.toString()),
                          Arguments.of(ServiceOperation.State.IN_PROGRESS, StepPhase.POLL.toString()));
-    }
-
-    @MethodSource
-    @ParameterizedTest
-    void testCreateServiceInstanceWhenAlreadyExists(ServiceOperation.State serviceInstanceState, String executionStatus) {
-        initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, true);
-        ImmutableCloudServiceInstance existingCloudServiceInstance = ImmutableCloudServiceInstance.copyOf(createCloudService(UUID.randomUUID()))
-                                                                                                  .withLastOperation(createLastOperation(serviceInstanceState));
-        Mockito.when(client.getServiceInstanceWithoutAuxiliaryContent(anyString(), anyBoolean()))
-               .thenReturn(existingCloudServiceInstance);
-        Mockito.doThrow(new CloudOperationException(HttpStatus.UNPROCESSABLE_ENTITY))
-               .when(client)
-               .createServiceInstance(any());
-        step.execute(execution);
-        assertEquals(executionStatus, getExecutionStatus());
-    }
-
-    private ServiceOperation createLastOperation(ServiceOperation.State state) {
-        return new ServiceOperation(ServiceOperation.Type.CREATE, null, state);
-    }
-
-    @Test
-    void testUserProvidedParametersParsing() {
-        CloudServiceInstance userProvidedService = createUserProvidedCloudService();
-        initializeInput(userProvidedService, Map.of(STEP_EXECUTION, StepPhase.DONE), false);
-        step.execute(execution);
-        Mockito.verify(client, times(1))
-               .createUserProvidedServiceInstance(userProvidedService);
     }
 
     static Stream<Arguments> testSetServiceGuidIfPresent() {
@@ -164,6 +99,104 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
                                       null));
     }
 
+    private static CloudServiceInstanceExtended createCloudService(UUID serviceGuid) {
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .metadata(ImmutableCloudMetadata.builder()
+                                                                                    .guid(serviceGuid)
+                                                                                    .build())
+                                                    .name(SERVICE_NAME)
+                                                    .resourceName(SERVICE_NAME)
+                                                    .label("label-1")
+                                                    .plan("plan-1")
+                                                    .build();
+    }
+
+    private static CloudServiceInstance createUserProvidedCloudService() {
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .name(SERVICE_NAME)
+                                                    .resourceName(SERVICE_NAME)
+                                                    .type(ServiceInstanceType.USER_PROVIDED)
+                                                    .syslogDrainUrl(SERVICE_LOG_DRAIN)
+                                                    .credentials(CREDENTIALS)
+                                                    .tags(SERVICE_TAGS)
+                                                    .build();
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testExecute(CloudServiceInstanceExtended service, Map<String, StepPhase> stepPhaseResults, boolean serviceExists) {
+        initializeInput(service, stepPhaseResults, serviceExists);
+        step.execute(execution);
+        assertStepPhase(STEP_EXECUTION);
+
+        if (getExecutionStatus().equals(StepPhase.DONE.toString())) {
+            return;
+        }
+        prepareClient(true);
+        prepareServiceOperationsGetter(service);
+        step.execute(execution);
+        assertStepPhase(POLLING);
+    }
+
+    private void prepareServiceOperationsGetter(CloudServiceInstanceExtended service) {
+        context.setVariable(Variables.SERVICES_TO_CREATE, List.of(service));
+        when(serviceOperationGetter.getLastServiceOperation(any(),
+                                                            any())).thenReturn(new ServiceOperation(ServiceOperation.Type.CREATE,
+                                                                                                    "create done",
+                                                                                                    ServiceOperation.State.IN_PROGRESS));
+    }
+
+    @Test
+    void testExceptionIsThrownOnManagedServiceCreationInternalServerError() {
+        initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, false);
+        throwExceptionOnServiceCreation(HttpStatus.INTERNAL_SERVER_ERROR);
+        Assertions.assertThrows(SLException.class, () -> step.execute(execution));
+    }
+
+    @Test
+    void testExceptionIsThrownOnManagedServiceCreationUnprocessableEntity() {
+        initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, false);
+        throwExceptionOnServiceCreation(HttpStatus.UNPROCESSABLE_ENTITY);
+        Exception exception = assertThrows(SLException.class, () -> step.execute(execution));
+        assertEquals("Service operation failed: Controller operation failed: 422 Updating service \"service-1\" failed: Error occurred: Error creating or updating service instance: Could not create service \"service-1\" : Expected Exception message ",
+                     exception.getMessage());
+    }
+
+    @Test
+    void testExceptionIsThrownOnManagedServiceCreationBadGateway() {
+        initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, false);
+        throwExceptionOnServiceCreation(HttpStatus.BAD_GATEWAY);
+        Assertions.assertThrows(SLException.class, () -> step.execute(execution));
+    }
+
+    @MethodSource
+    @ParameterizedTest
+    void testCreateServiceInstanceWhenAlreadyExists(ServiceOperation.State serviceInstanceState, String executionStatus) {
+        initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, true);
+        ImmutableCloudServiceInstance existingCloudServiceInstance = ImmutableCloudServiceInstance.copyOf(createCloudService(UUID.randomUUID()))
+                                                                                                  .withLastOperation(createLastOperation(serviceInstanceState));
+        Mockito.when(client.getServiceInstanceWithoutAuxiliaryContent(anyString(), anyBoolean()))
+               .thenReturn(existingCloudServiceInstance);
+        Mockito.doThrow(new CloudOperationException(HttpStatus.UNPROCESSABLE_ENTITY))
+               .when(client)
+               .createServiceInstance(any());
+        step.execute(execution);
+        assertEquals(executionStatus, getExecutionStatus());
+    }
+
+    private ServiceOperation createLastOperation(ServiceOperation.State state) {
+        return new ServiceOperation(ServiceOperation.Type.CREATE, null, state);
+    }
+
+    @Test
+    void testUserProvidedParametersParsing() {
+        CloudServiceInstance userProvidedService = createUserProvidedCloudService();
+        initializeInput(userProvidedService, Map.of(STEP_EXECUTION, StepPhase.DONE), false);
+        step.execute(execution);
+        Mockito.verify(client, times(1))
+               .createUserProvidedServiceInstance(userProvidedService);
+    }
+
     @ParameterizedTest
     @MethodSource
     void testSetServiceGuidIfPresent(Set<DynamicResolvableParameter> dynamicResolvableParameters,
@@ -177,7 +210,7 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
     }
 
     private void throwExceptionOnServiceCreation(HttpStatus httpStatus) {
-        Mockito.doThrow(new CloudOperationException(httpStatus, "Error occurred"))
+        Mockito.doThrow(new CloudOperationException(httpStatus, "Error occurred", "Expected Exception message"))
                .when(client)
                .createServiceInstance(any());
     }
@@ -224,29 +257,6 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
             this.stepPhaseResults = stepPhaseResults;
         }
 
-    }
-
-    private static CloudServiceInstanceExtended createCloudService(UUID serviceGuid) {
-        return ImmutableCloudServiceInstanceExtended.builder()
-                                                    .metadata(ImmutableCloudMetadata.builder()
-                                                                                    .guid(serviceGuid)
-                                                                                    .build())
-                                                    .name(SERVICE_NAME)
-                                                    .resourceName(SERVICE_NAME)
-                                                    .label("label-1")
-                                                    .plan("plan-1")
-                                                    .build();
-    }
-
-    private static CloudServiceInstance createUserProvidedCloudService() {
-        return ImmutableCloudServiceInstanceExtended.builder()
-                                                    .name(SERVICE_NAME)
-                                                    .resourceName(SERVICE_NAME)
-                                                    .type(ServiceInstanceType.USER_PROVIDED)
-                                                    .syslogDrainUrl(SERVICE_LOG_DRAIN)
-                                                    .credentials(CREDENTIALS)
-                                                    .tags(SERVICE_TAGS)
-                                                    .build();
     }
 
 }
