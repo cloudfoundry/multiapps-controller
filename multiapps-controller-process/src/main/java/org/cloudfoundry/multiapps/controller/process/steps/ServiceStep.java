@@ -31,7 +31,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
         CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
-        OperationExecutionState executionState = executeOperationAndHandleExceptions(context, serviceToProcess);
+        OperationExecutionState executionState = executeOperation(context, context.getControllerClient(), serviceToProcess);
         if (executionState == OperationExecutionState.FINISHED) {
             return StepPhase.DONE;
         }
@@ -50,15 +50,6 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_SERVICE_OPERATION;
-    }
-
-    private OperationExecutionState executeOperationAndHandleExceptions(ProcessContext context, CloudServiceInstanceExtended service) {
-        try {
-            return executeOperation(context, context.getControllerClient(), service);
-        } catch (CloudOperationException e) {
-            String serviceUpdateFailedMessage = MessageFormat.format(Messages.FAILED_SERVICE_UPDATE, service.getName(), e.getStatusText());
-            throw new CloudOperationException(e.getStatusCode(), serviceUpdateFailedMessage, e.getDescription(), e);
-        }
     }
 
     protected abstract OperationExecutionState executeOperation(ProcessContext context, CloudControllerClient controllerClient,

@@ -158,7 +158,7 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
         initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, false);
         throwExceptionOnServiceCreation(HttpStatus.UNPROCESSABLE_ENTITY);
         Exception exception = assertThrows(SLException.class, () -> step.execute(execution));
-        assertEquals("Service operation failed: Controller operation failed: 422 Updating service \"service-1\" failed: Error occurred: Error creating or updating service instance: Could not create service \"service-1\" : Expected Exception message ",
+        assertEquals("Service operation failed: Controller operation failed: 422 Error occurred: Error creating or updating service instance: Could not create service \"service-1\" : Expected Exception message ",
                      exception.getMessage());
     }
 
