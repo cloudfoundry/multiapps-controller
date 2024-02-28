@@ -59,12 +59,12 @@ public class MtaDescriptorPropertiesResolver {
         descriptor = correctEntityNames(descriptor);
         // Resolve placeholders in parameters:
         CloudHandlerFactory handlerFactory = context.getHandlerFactory();
+        // add live route as reference to its route because if we don't do it, the resolve will fail, if the user wants to use the live-route
+        replaceNullLiveRoutesWithReferenceToRoute(descriptor);
         descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(), new ResolverBuilder(),
                                                                      SupportedParameters.SINGULAR_PLURAL_MAPPING,
                                                                      SupportedParameters.DYNAMIC_RESOLVABLE_PARAMETERS)
                                    .resolve();
-        // add live route as reference to its route because if we don't do it, the resolve will fail, if the user wants to use the live-route
-        replaceNullLiveRoutesWithReferenceToRoute(descriptor);
 
         if (context.shouldReserveTemporaryRoute()) {
             // temporary placeholders should be set at this point, since they are needed for provides/requires placeholder resolution
