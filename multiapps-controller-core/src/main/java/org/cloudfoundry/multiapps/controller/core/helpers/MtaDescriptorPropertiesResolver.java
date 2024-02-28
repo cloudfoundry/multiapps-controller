@@ -1,10 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Objects;
+import java.util.*;
 
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
@@ -14,15 +10,7 @@ import org.cloudfoundry.multiapps.controller.core.model.MtaDescriptorPropertiesR
 import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationReference;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.ApplicationNameValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.DomainValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.HostValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.IdleRoutesValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.ParameterValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.RestartOnEnvChangeValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.ServiceNameValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.TasksValidator;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.*;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.v3.VisibilityValidator;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -30,8 +18,6 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.resolvers.NullPropertiesResolverBuilder;
 import org.cloudfoundry.multiapps.mta.resolvers.ReferencesUnescaper;
 import org.cloudfoundry.multiapps.mta.resolvers.ResolverBuilder;
-
-import static org.apache.logging.log4j.util.Strings.EMPTY;
 
 public class MtaDescriptorPropertiesResolver {
 
@@ -59,7 +45,8 @@ public class MtaDescriptorPropertiesResolver {
         descriptor = correctEntityNames(descriptor);
         // Resolve placeholders in parameters:
         CloudHandlerFactory handlerFactory = context.getHandlerFactory();
-        // add live route as reference to its route because if we don't do it, the resolve will fail, if the user wants to use the live-route
+        // add live route as reference to its route because if we don't do it, the resolve will fail, if the user wants to use the
+        // live-route
         replaceNullLiveRoutesWithReferenceToRoute(descriptor);
         descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(), new ResolverBuilder(),
                                                                      SupportedParameters.SINGULAR_PLURAL_MAPPING,
@@ -155,29 +142,25 @@ public class MtaDescriptorPropertiesResolver {
                 boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
                 String protocol = (String) routeMap.get(SupportedParameters.ROUTE_PROTOCOL);
                 if (routeValue instanceof String) {
-                    routeMap.put(SupportedParameters.ROUTE, replacePartsWithIdlePlaceholders((String) routeValue, noHostname, protocol));
-                    routeMap.put(SupportedParameters.LIVE_ROUTE, replacePartsWithLivePlaceholders((String) routeValue, noHostname, protocol));
+                    routeMap.put(SupportedParameters.ROUTE,
+                                 replaceUriPartsWithPlaceholders((String) routeValue, noHostname, protocol, IDLE_DOMAIN_PLACEHOLDER,
+                                                                 IDLE_HOST_PLACEHOLDER));
+                    routeMap.put(SupportedParameters.LIVE_ROUTE,
+                                 replaceUriPartsWithPlaceholders((String) routeValue, noHostname, protocol, LIVE_DOMAIN_PLACEHOLDER,
+                                                                 LIVE_HOST_PLACEHOLDER));
                 }
 
-                if (routeMap.containsKey(SupportedParameters.NO_HOSTNAME)) {
-                    // remove no-hostname value, since it will be ignored for idle routes
-                    routeMap.remove(SupportedParameters.NO_HOSTNAME);
-                }
+                // remove no-hostname value, since it will be ignored for idle routes
+                routeMap.remove(SupportedParameters.NO_HOSTNAME);
             }
         }
     }
 
-    private String replacePartsWithIdlePlaceholders(String uriString, boolean noHostname, String protocol) {
+    private String replaceUriPartsWithPlaceholders(String uriString, boolean noHostname, String protocol, String domainPlaceholder,
+                                                   String hostPlaceholder) {
         ApplicationURI uri = new ApplicationURI(uriString, noHostname, protocol);
-        uri.setDomain(IDLE_DOMAIN_PLACEHOLDER);
-        uri.setHost(IDLE_HOST_PLACEHOLDER);
-        return uri.toString();
-    }
-
-    private String replacePartsWithLivePlaceholders(String uriString, boolean noHostname, String protocol) {
-        ApplicationURI uri = new ApplicationURI(uriString, noHostname, protocol);
-        uri.setDomain(LIVE_DOMAIN_PLACEHOLDER);
-        uri.setHost(LIVE_HOST_PLACEHOLDER);
+        uri.setDomain(domainPlaceholder);
+        uri.setHost(hostPlaceholder);
         return uri.toString();
     }
 
@@ -185,7 +168,8 @@ public class MtaDescriptorPropertiesResolver {
                                                                 Map<String, ResolvedConfigurationReference> resolvedResources,
                                                                 Set<String> dynamicResolvableParameters) {
         return context.getHandlerFactory()
-                      .getConfigurationSubscriptionFactory(descriptorWithUnresolvedReferences, resolvedResources, dynamicResolvableParameters)
+                      .getConfigurationSubscriptionFactory(descriptorWithUnresolvedReferences, resolvedResources,
+                                                           dynamicResolvableParameters)
                       .create(context.getCurrentSpaceId());
     }
 
