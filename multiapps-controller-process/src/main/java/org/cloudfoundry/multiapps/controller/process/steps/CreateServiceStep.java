@@ -42,7 +42,8 @@ public class CreateServiceStep extends ServiceStep {
             if (operationExecutionState.isPresent()) {
                 return operationExecutionState.get();
             }
-            String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_CREATE_SERVICE, serviceInstance.getName());
+            String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_CREATE_SERVICE, serviceInstance.getName(),
+                                                               e.getDescription());
             CloudOperationException cloudOperationException = new CloudOperationException(e.getStatusCode(),
                                                                                           e.getStatusText(),
                                                                                           exceptionDescription);

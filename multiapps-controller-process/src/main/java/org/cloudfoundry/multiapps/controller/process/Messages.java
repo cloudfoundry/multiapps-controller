@@ -202,7 +202,7 @@ public class Messages {
     public static final String COULD_NOT_UNBIND_OPTIONAL_SERVICE_TO_APP = "Could not unbind optional service \"{0}\" to application \"{1}\"";
     public static final String ERROR_CREATING_OR_UPDATING_OPTIONAL_SERVICE_INSTANCE = "Error creating or updating optional service instance: {0}";
     public static final String ERROR_CREATING_OR_UPDATING_SERVICE_INSTANCE = "Error creating or updating service instance: {0}";
-    public static final String COULD_NOT_CREATE_SERVICE = "Could not create service \"{0}\"";
+    public static final String COULD_NOT_CREATE_SERVICE = "Could not create service \"{0}\" : {1}";
     public static final String COULD_NOT_UPDATE_TAGS_OF_SERVICE = "Could not update tags of service \"{0}\" : {1}";
     public static final String COULD_NOT_UPDATE_METADATA_OF_SERVICE = "Could not update metadata of service \"{0}\" : {1}";
     public static final String COULD_NOT_UPDATE_PARAMETERS_SERVICE = "Could not update parameters of service \"{0}\" : {1}";
