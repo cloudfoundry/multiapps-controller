@@ -1,15 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.READ_ONLY_MODULE_PARAMETERS;
-import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.READ_ONLY_RESOURCE_PARAMETERS;
-import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.READ_ONLY_SYSTEM_PARAMETERS;
+import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.*;
 
 import java.text.MessageFormat;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.inject.Named;
@@ -17,6 +11,7 @@ import javax.inject.Named;
 import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -24,9 +19,6 @@ import org.cloudfoundry.multiapps.mta.model.NamedParametersContainer;
 
 @Named
 public class ReadOnlyParametersChecker {
-
-    private static final String LIVE_ROUTE_PARAMETER_NAME = "live-route";
-    private static final String ROUTES_PARAMETER_NAME = "routes";
 
     public void check(DeploymentDescriptor descriptor) {
         Map<String, Set<String>> detectedReadOnlyParameters = new LinkedHashMap<>();
@@ -42,27 +34,28 @@ public class ReadOnlyParametersChecker {
     private void checkForCommonParameters(NamedParametersContainer namedParametersContainer, Set<String> readOnlyParameters,
                                           Map<String, Set<String>> commonReadOnlyParameters) {
         Set<String> commonParameters = SetUtils.intersection(namedParametersContainer.getParameters()
-                                                                                     .keySet(), readOnlyParameters);
+                                                                                     .keySet(),
+                                                             readOnlyParameters);
         if (!commonParameters.isEmpty()) {
             commonReadOnlyParameters.put(namedParametersContainer.getName(), commonParameters);
         }
     }
 
-    private void checkModulesForLiveRouteParameter(List<Module> modules,
-                                              Map<String, Set<String>> commonReadOnlyParameters) {
+    private void checkModulesForLiveRouteParameter(List<Module> modules, Map<String, Set<String>> commonReadOnlyParameters) {
         for (Module module : modules) {
             checkParametersForLiveRoute(module, commonReadOnlyParameters);
         }
     }
 
     private void checkParametersForLiveRoute(NamedParametersContainer namedParametersContainer,
-                                       Map<String, Set<String>> commonReadOnlyParameters) {
-        Object routes = namedParametersContainer.getParameters().get(ROUTES_PARAMETER_NAME);
+                                             Map<String, Set<String>> commonReadOnlyParameters) {
+        Object routes = namedParametersContainer.getParameters()
+                                                .get(SupportedParameters.ROUTES);
 
         if (Objects.nonNull(routes)) {
-            for (var route: MiscUtil.<List<Map<String, Object>>>cast(routes)) {
-                if (Objects.nonNull(route.get(LIVE_ROUTE_PARAMETER_NAME))) {
-                    commonReadOnlyParameters.put(namedParametersContainer.getName(), Set.of(LIVE_ROUTE_PARAMETER_NAME));
+            for (var route : MiscUtil.<List<Map<String, Object>>> cast(routes)) {
+                if (Objects.nonNull(route.get(SupportedParameters.LIVE_ROUTE))) {
+                    commonReadOnlyParameters.put(namedParametersContainer.getName(), Set.of(SupportedParameters.LIVE_ROUTE));
                     return;
                 }
             }
