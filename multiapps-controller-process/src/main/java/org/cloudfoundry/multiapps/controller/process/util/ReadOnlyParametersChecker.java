@@ -19,6 +19,7 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.NamedParametersContainer;
 
 @Named
@@ -31,7 +32,7 @@ public class ReadOnlyParametersChecker {
         Map<String, Set<String>> detectedReadOnlyParameters = new LinkedHashMap<>();
         checkForCommonParameters(new GlobalParameters(descriptor), READ_ONLY_SYSTEM_PARAMETERS, detectedReadOnlyParameters);
         checkCollectionForCommonParameters(descriptor.getModules(), READ_ONLY_MODULE_PARAMETERS, detectedReadOnlyParameters);
-        checkModulesForLiveParameter(descriptor.getModules(), detectedReadOnlyParameters);
+        checkModulesForLiveRouteParameter(descriptor.getModules(), detectedReadOnlyParameters);
         checkCollectionForCommonParameters(descriptor.getResources(), READ_ONLY_RESOURCE_PARAMETERS, detectedReadOnlyParameters);
         if (!detectedReadOnlyParameters.isEmpty()) {
             throw new SLException(getFormattedOutput(detectedReadOnlyParameters));
@@ -47,13 +48,15 @@ public class ReadOnlyParametersChecker {
         }
     }
 
-    private void checkModulesForLiveParameter(List<? extends NamedParametersContainer> namedElementsWithParametersContainers, Map<String, Set<String>> commonReadOnlyParameters) {
-        for (NamedParametersContainer namedElement : namedElementsWithParametersContainers) {
-            checkForLiveParameter(namedElement, commonReadOnlyParameters);
+    private void checkModulesForLiveRouteParameter(List<Module> modules,
+                                              Map<String, Set<String>> commonReadOnlyParameters) {
+        for (Module module : modules) {
+            checkParametersForLiveRoute(module, commonReadOnlyParameters);
         }
     }
 
-    private void checkForLiveParameter(NamedParametersContainer namedParametersContainer, Map<String, Set<String>> commonReadOnlyParameters) {
+    private void checkParametersForLiveRoute(NamedParametersContainer namedParametersContainer,
+                                       Map<String, Set<String>> commonReadOnlyParameters) {
         Object routes = namedParametersContainer.getParameters().get(ROUTES_PARAMETER_NAME);
 
         if (Objects.nonNull(routes)) {

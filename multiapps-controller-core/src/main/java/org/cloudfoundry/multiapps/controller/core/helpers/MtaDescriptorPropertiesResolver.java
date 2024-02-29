@@ -37,14 +37,14 @@ public class MtaDescriptorPropertiesResolver {
     public static final String IDLE_HOST_PLACEHOLDER = "${" + SupportedParameters.IDLE_HOST + "}";
     public static final String LIVE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.DEFAULT_LIVE_DOMAIN + "}";
     public static final String LIVE_HOST_PLACEHOLDER = "${" + SupportedParameters.DEFAULT_LIVE_HOST + "}";
-    private static final String ROUTE_REFERENCE_PLACEHOLDER = "${routes/%s/route}";
-
+    LiveRouteParameterHelper liveRouteParameterHelper;
     private final MtaDescriptorPropertiesResolverContext context;
     private List<ConfigurationSubscription> subscriptions;
     private Set<DynamicResolvableParameter> dynamicResolvableParameters;
 
     public MtaDescriptorPropertiesResolver(MtaDescriptorPropertiesResolverContext context) {
         this.context = context;
+        this.liveRouteParameterHelper = new LiveRouteParameterHelper();
     }
 
     public List<ParameterValidator> getValidatorsList() {
@@ -59,7 +59,7 @@ public class MtaDescriptorPropertiesResolver {
         CloudHandlerFactory handlerFactory = context.getHandlerFactory();
         // add live route as reference to its route because if we don't do it, the resolve will fail, if the user wants to use the
         // live-route
-        replaceNullLiveRoutesWithReferenceToRoute(descriptor);
+        descriptor = liveRouteParameterHelper.addLiveRoutesWithReferenceToRoute(descriptor);
         descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(), new ResolverBuilder(),
                                                                      SupportedParameters.SINGULAR_PLURAL_MAPPING,
                                                                      SupportedParameters.DYNAMIC_RESOLVABLE_PARAMETERS)
@@ -123,24 +123,6 @@ public class MtaDescriptorPropertiesResolver {
         return context.getHandlerFactory()
                       .getDescriptorParametersValidator(descriptor, correctors)
                       .validate();
-    }
-
-    private void replaceNullLiveRoutesWithReferenceToRoute(DeploymentDescriptor descriptor) {
-        for (Module module : descriptor.getModules()) {
-            Map<String, Object> moduleParameters = module.getParameters();
-
-            List<Map<String, Object>> routes = RoutesValidator.applyRoutesType(moduleParameters.get(SupportedParameters.ROUTES));
-
-            for (Map<String, Object> routeMap : routes) {
-                Object liveRoute = routeMap.get(SupportedParameters.LIVE_ROUTE);
-
-                if (Objects.isNull(liveRoute)) {
-                    int routeIndex = routes.indexOf(routeMap);
-
-                    routeMap.put(SupportedParameters.LIVE_ROUTE, String.format(ROUTE_REFERENCE_PLACEHOLDER, routeIndex));
-                }
-            }
-        }
     }
 
     private void editRoutesSetTemporaryPlaceholders(DeploymentDescriptor descriptor) {
