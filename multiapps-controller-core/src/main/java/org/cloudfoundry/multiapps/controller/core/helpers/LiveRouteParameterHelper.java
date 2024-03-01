@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.core.helpers;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesValidator;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
-import org.cloudfoundry.multiapps.mta.model.Descriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 
 import java.util.List;
