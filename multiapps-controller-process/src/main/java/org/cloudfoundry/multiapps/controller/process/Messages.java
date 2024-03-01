@@ -477,7 +477,7 @@ public class Messages {
     public static final String DELETING_ERROR_TYPE_O_FOR_PROCESS_1 = "Deleting error type \"{0}\" for process \"{1}\"";
     public static final String UPLOAD_APP_TIMEOUT = "Upload app timeout in seconds: {0}";
     public static final String MERGING_ARCHIVE_PART = "Merging archive part with ID \"{0}\", name \"{1}\"";
-    public static final String EXTENSION_DESCRIPTORS = "Extension descriptors: {0}";
+    public static final String PROVIDED_EXTENSION_DESCRIPTORS = "Provided extension descriptors: {0}";
     public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";
     public static final String DELETED_APP_ROUTES = "App routes for applications \"{0}\" deleted";
@@ -674,8 +674,10 @@ public class Messages {
     public static final String PROCESS_WAS_DELETED_0 = "Process was deleted: {0}";
     public static final String MODULE_0_WAS_NOT_FOUND = "Module \"{0}\" was not found";
     public static final String DETECTING_LIVE_APPLICATION_ENV = "Detecting live application env...";
-    public static final String USED_EXTENSION_DESCRIPTORS_IDS = "Used extension descriptors with IDs: [{0}]";
-    public static final String NO_EXTENSION_DESCRIPTORS_PROVIDED = "No extension descriptors provided";
+    public static final String USING_EXTENSION_DESCRIPTOR = "Using extension descriptor with ID: \"{0}\"";
+    public static final String USING_EXTENSION_DESCRIPTORS_IN_SEQUENCE = "Using extension descriptors with IDs in this sequence: [{0}]";
+    public static final String PROVIDED_AND_UNUSED_EXTENSION_DESCRIPTORS = "Provided but unused extension descriptors because extend another MTA ID or extends order is not correct: [{0}]";
+    public static final String NO_EXTENSION_DESCRIPTORS_IN_USE = "No extension descriptors in use";
 
     protected Messages() {
     }
