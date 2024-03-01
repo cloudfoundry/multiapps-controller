@@ -1,6 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.*;
+import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.READ_ONLY_MODULE_PARAMETERS;
+import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.READ_ONLY_RESOURCE_PARAMETERS;
+import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.READ_ONLY_SYSTEM_PARAMETERS;
 
 import java.text.MessageFormat;
 import java.util.LinkedHashMap;
@@ -14,8 +16,8 @@ import javax.inject.Named;
 
 import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesValidator;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -57,7 +59,7 @@ public class ReadOnlyParametersChecker {
                                                 .get(SupportedParameters.ROUTES);
 
         if (Objects.nonNull(routes)) {
-            for (var route : MiscUtil.<List<Map<String, Object>>> cast(routes)) {
+            for (var route : RoutesValidator.applyRoutesType(routes)) {
                 if (Objects.nonNull(route.get(SupportedParameters.LIVE_ROUTE))) {
                     commonReadOnlyParameters.put(namedParametersContainer.getName(), Set.of(SupportedParameters.LIVE_ROUTE));
                     return;
