@@ -82,9 +82,27 @@
     <sequenceFlow id="doNotExecuteOneOffTasksFlow" sourceRef="shouldExecuteTasks" targetRef="shouldUpdateConfigurations">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(not executeOneOffTasks)}]]></conditionExpression>
     </sequenceFlow>
-    <callActivity id="executeTasksCallActivity" name="Execute Tasks Call Activity" flowable:async="true" calledElement="executeTasksSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
+    <callActivity id="executeTasksCallActivity" name="Execute Tasks Call Activity" flowable:async="true" calledElement="executeTasksSubProcess" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+          <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
+          <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
+          <flowable:in source="tasksIndex" target="tasksIndex"></flowable:in>
+          <flowable:in source="user" target="user"></flowable:in>
+          <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+          <flowable:in source="correlationId" target="correlationId"></flowable:in>
+      </extensionElements>
+    </callActivity>
     <sequenceFlow id="sid-26C87D1E-88D5-47E3-907B-0F8EBBCD2C36" sourceRef="executeTasksCallActivity" targetRef="publishProvidedDependenciesTask"></sequenceFlow>
-    <callActivity id="hooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="hooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+          <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
+          <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
+          <flowable:in source="tasksIndex" target="tasksIndex"></flowable:in>
+          <flowable:in source="user" target="user"></flowable:in>
+          <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+          <flowable:in source="correlationId" target="correlationId"></flowable:in>
+          <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
+      </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="sid-4433C2BB-6626-4F02-8061-F70191657A5A" sourceRef="hooksCallActivity" targetRef="sid-70329A91-339F-4215-9AB6-41ED6C769C40"></sequenceFlow>
@@ -94,7 +112,16 @@
     <sequenceFlow id="sid-74CBBBDE-B4B8-451B-8193-8B1A08835E23" sourceRef="publishProvidedDependenciesTask" targetRef="shouldDeleteIdleRoutes"></sequenceFlow>
     <sequenceFlow id="flow90" sourceRef="exclusivegateway6" targetRef="timerintermediatecatchevent3"></sequenceFlow>
     <sequenceFlow id="sid-EDE0C6AF-FE13-4120-94B8-406BFCE8A407" sourceRef="stopAppTask" targetRef="hooksCallActivity"></sequenceFlow>
-    <callActivity id="sid-F6B2FD75-29A0-4347-B49F-94B4CD7C1469" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="sid-F6B2FD75-29A0-4347-B49F-94B4CD7C1469" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+          <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
+          <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
+          <flowable:in source="tasksIndex" target="tasksIndex"></flowable:in>
+          <flowable:in source="user" target="user"></flowable:in>
+          <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+          <flowable:in source="correlationId" target="correlationId"></flowable:in>
+          <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
+      </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow84" sourceRef="timerintermediatecatchevent1" targetRef="startAppTask"></sequenceFlow>
