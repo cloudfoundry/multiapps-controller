@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>com.sap.cloud.lm.sl.cf.api</artifactId>
+    <artifactId>multiapps-controller-api</artifactId>
     <packaging>jar</packaging>
     <name>LM SL CF Web Application Api</name>
 
     <parent>
-        <groupId>com.sap.cloud.lm.sl.cf</groupId>
-        <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
+        <groupId>org.cloudfoundry.multiapps</groupId>
+        <artifactId>multiapps-controller-parent</artifactId>
         <version>1.73.44-SNAPSHOT</version>
     </parent>
 
@@ -46,12 +46,12 @@
             <artifactId>spring-context-support</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.lm.sl</groupId>
-            <artifactId>com.sap.cloud.lm.sl.common</artifactId>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.lm.sl</groupId>
-            <artifactId>com.sap.cloud.lm.sl.mta</artifactId>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-mta</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -2,13 +2,13 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>com.sap.cloud.lm.sl.cf.core</artifactId>
+    <artifactId>multiapps-controller-core</artifactId>
     <packaging>jar</packaging>
     <name>LM SL CF Core</name>
 
     <parent>
-        <groupId>com.sap.cloud.lm.sl.cf</groupId>
-        <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
+        <groupId>org.cloudfoundry.multiapps</groupId>
+        <artifactId>multiapps-controller-parent</artifactId>
         <version>1.73.44-SNAPSHOT</version>
     </parent>
 
@@ -151,24 +151,24 @@
             <artifactId>spring-security-jwt</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.lm.sl</groupId>
-            <artifactId>com.sap.cloud.lm.sl.common</artifactId>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.lm.sl.cf</groupId>
-            <artifactId>com.sap.cloud.lm.sl.cf.persistence</artifactId>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-mta</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.lm.sl</groupId>
-            <artifactId>com.sap.cloud.lm.sl.mta</artifactId>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-controller-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.lm.sl.cf</groupId>
-            <artifactId>com.sap.cloud.lm.sl.cf.client</artifactId>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-controller-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.lm.sl.cf</groupId>
-            <artifactId>com.sap.cloud.lm.sl.cf.api</artifactId>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-controller-persistence</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
