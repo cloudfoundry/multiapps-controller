@@ -680,7 +680,7 @@
                 <version>${jackson.databind.version}</version>
             </dependency>
             <!-- guice and guice-assistedinject are transitive dependencies from jclouds.
-            It is set to explicit version because old one has issues with modular access. -->
+            It is set to an explicit version because old one has issues with modular access. -->
             <!-- https://mvnrepository.com/artifact/com.google.inject/guice -->
             <dependency>
                 <groupId>com.google.inject</groupId>
