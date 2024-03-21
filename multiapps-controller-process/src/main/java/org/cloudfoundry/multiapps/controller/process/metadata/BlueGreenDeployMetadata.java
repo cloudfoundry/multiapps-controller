@@ -105,6 +105,13 @@ public class BlueGreenDeployMetadata {
                                                                                  .id(Variables.SKIP_IDLE_START.getName())
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE.getName())
+                                                                                 .type(ParameterType.BOOLEAN)
+                                                                                 // Apply incremental instances update on default for
+                                                                                 // testing
+                                                                                 .defaultValue(true)
+                                                                                 .build())
                                          .build();
     }
 
