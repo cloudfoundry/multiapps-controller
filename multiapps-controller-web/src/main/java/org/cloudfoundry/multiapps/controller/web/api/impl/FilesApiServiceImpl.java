@@ -40,7 +40,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableAsyncUploadResul
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableFileMetadata;
 import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.FilesApiServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.model.CachedMap;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -93,10 +93,13 @@ public class FilesApiServiceImpl implements FilesApiService {
     @Inject
     @Named("asyncFileUploadExecutor")
     private ExecutorService deployFromUrlExecutor;
+    @Inject
+    private FilesApiServiceAuditLog filesApiServiceAuditLog;
 
     @Override
     public ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid, String namespace) {
         try {
+            filesApiServiceAuditLog.logGetFiles(SecurityContextUtil.getUsername(), spaceGuid, namespace);
             List<FileEntry> entries = fileService.listFiles(spaceGuid, namespace);
             List<FileMetadata> files = entries.stream()
                                               .map(this::parseFileEntry)
@@ -122,8 +125,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                                                                         .build(),
                                                       in);
             FileMetadata file = parseFileEntry(fileEntry);
-            AuditLoggingProvider.getFacade()
-                                .logConfigCreate(file);
+            filesApiServiceAuditLog.logUploadFile(SecurityContextUtil.getUsername(), spaceGuid, file);
             var endTime = LocalDateTime.now();
             LOGGER.trace(Messages.UPLOADED_FILE, file.getId(), file.getName(), file.getSize(), file.getDigest(), file.getDigestAlgorithm(),
                          ChronoUnit.MILLIS.between(startTime, endTime));
@@ -140,6 +142,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                                              .decode(fileUrl.getFileUrl()));
         String urlWithoutUserInfo = UriUtil.stripUserInfo(decodedUrl);
         LOGGER.trace(Messages.RECEIVED_UPLOAD_FROM_URL_REQUEST, urlWithoutUserInfo);
+        filesApiServiceAuditLog.logStartUploadFromUrl(SecurityContextUtil.getUsername(), spaceGuid, decodedUrl);
         var existingJob = getExistingJob(spaceGuid, namespace, urlWithoutUserInfo);
         if (existingJob != null) {
             if (runningTasks.get(existingJob.getId()) != null) {
@@ -162,6 +165,7 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     @Override
     public ResponseEntity<AsyncUploadResult> getUploadFromUrlJob(String spaceGuid, String namespace, String jobId) {
+        filesApiServiceAuditLog.logGetUploadFromUrlJob(SecurityContextUtil.getUsername(), spaceGuid, namespace, jobId);
         AsyncUploadJobEntry job = getJob(jobId, spaceGuid, namespace);
         if (job == null) {
             return ResponseEntity.notFound()
@@ -210,8 +214,6 @@ public class FilesApiServiceImpl implements FilesApiService {
             return ResponseEntity.ok(createErrorResult(e.getMessage()));
         }
         FileMetadata file = parseFileEntry(fileEntry);
-        AuditLoggingProvider.getFacade()
-                            .logConfigCreate(file);
         jobCounters.remove(job.getId());
         runningTasks.remove(job.getId());
         return ResponseEntity.status(HttpStatus.CREATED)

@@ -12,9 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.sql.DataSource;
 
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.UserInfoProvider;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.LockOwnerService;
@@ -25,6 +23,7 @@ import org.flowable.engine.ProcessEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 public class BootstrapServlet extends HttpServlet {
@@ -59,7 +58,6 @@ public class BootstrapServlet extends HttpServlet {
         try {
             SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
             initializeApplicationConfiguration();
-            initializeProviders();
             initializeFileService();
             initExtras();
             processEngine.getProcessEngineConfiguration()
@@ -120,13 +118,8 @@ public class BootstrapServlet extends HttpServlet {
         // Do nothing
     }
 
-    protected static UserInfoProvider getUserInfoProvider() {
+    @Bean
+    public UserInfoProvider buildUserInfoProvider() {
         return SecurityContextUtil::getUserInfo;
     }
-
-    private void initializeProviders() {
-        // Initialize audit logging provider
-        AuditLoggingProvider.setFacade(new AuditLoggingFacadeSLImpl(dataSource, getUserInfoProvider()));
-    }
-
 }

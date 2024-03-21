@@ -10,8 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
@@ -32,8 +31,6 @@ class ConfigurationEntriesCleanerTest {
     private static final UUID NON_EXISTING_SPACE = UUID.randomUUID();
 
     @Mock
-    private AuditLoggingFacade auditLoggingFacade;
-    @Mock
     private ApplicationConfiguration configuration;
     @Mock
     private CloudSpaceClient clientMock;
@@ -43,20 +40,23 @@ class ConfigurationEntriesCleanerTest {
     private OAuthClientFactory oAuthClientFactory;
     @Mock
     private ConfigurationEntryQuery query;
-
+    @Mock
+    private MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
     private ConfigurationEntriesCleaner cleaner;
 
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        cleaner = new ConfigurationEntriesCleaner(configuration, configurationEntryService, oAuthClientFactory) {
+        cleaner = new ConfigurationEntriesCleaner(configuration,
+                                                  configurationEntryService,
+                                                  oAuthClientFactory,
+                                                  mtaConfigurationPurgerAuditLog) {
             @Override
             protected void initSpaceClient() {
                 super.spaceClient = clientMock;
             }
         };
-        AuditLoggingProvider.setFacade(auditLoggingFacade);
     }
 
     @Test

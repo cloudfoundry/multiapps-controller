@@ -30,8 +30,7 @@ import org.cloudfoundry.multiapps.controller.api.model.AsyncUploadResult;
 import org.cloudfoundry.multiapps.controller.api.model.FileMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableFileUrl;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.FilesApiServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
@@ -81,6 +80,8 @@ class FilesApiServiceImplTest {
     private MultipartFile file;
     @Mock
     private HttpClient httpClient;
+    @Mock
+    private FilesApiServiceAuditLog filesApiServiceAuditLog;
     @InjectMocks
     private final FilesApiServiceImpl testedClass = new FilesApiServiceImpl() {
         @Override
@@ -119,8 +120,6 @@ class FilesApiServiceImplTest {
                           .close();
         Mockito.when(request.getRequestURI())
                .thenReturn("");
-        AuditLoggingProvider.setFacade(Mockito.mock(AuditLoggingFacade.class));
-
     }
 
     @Test

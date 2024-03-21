@@ -179,6 +179,60 @@ public final class Messages {
     public static final String PARSED_TOKEN_EXPIRES_IN_0 = "Parsed token expires in: {0}";
     public static final String PARSER_CHAIN_0 = "Parser chain: {0}";
 
+    // Audit log
+
+    public static final String RETRIEVE_CSRF_TOKEN_AUDIT_LOG_MESSAGE = "Retrieve a CSRF token";
+
+    public static final String LIST_FILES_AUDIT_LOG_MESSAGE = "List files in space with id: {0}";
+    public static final String DELETE_SUBSCRIPTION_AUDIT_LOG_MESSAGE = "Delete subscription in space with id: {0}";
+    public static final String DELETE_ENTRY_AUDIT_LOG_MESSAGE = "Delete entry in space with id: {0}";
+    public static final String DELETE_OPERATION_AUDIT_LOG_MESSAGE = "Delete operation in space with id: {0}";
+    public static final String UPLOAD_FILE_AUDIT_LOG_MESSAGE = "Upload file in space with id: {0}";
+    public static final String UPLOAD_FILE_FROM_URL_AUDIT_LOG_MESSAGE = "Upload file from url in space with id: {0}";
+    public static final String GET_INFO_FOR_UPLOAD_URL_JOB_AUDIT_LOG_MESSAGE = "Get info for upload from url job in space with id: {0}";
+
+    public static final String LIST_OPERATIONS_AUDIT_LOG_MESSAGE = "List operations for mta in space with id: {0}";
+    public static final String LIST_OPERATION_ACTIONS_AUDIT_LOG_MESSAGE = "List operation action in space with id: {0}";
+    public static final String EXECUTE_OPERATION_AUDIT_LOG_MESSAGE = "Execute operation in space with id: {0}";
+    public static final String GET_OPERATION_LOGS_AUDIT_LOG_MESSAGE = "Get operation logs in space with id: {0}";
+    public static final String GET_OPERATION_LOG_CONTENT_AUDIT_LOG_MESSAGE =  "Get operation log content in space with id: {0}";
+    public static final String START_OPERATION_AUDIT_LOG_MESSAGE = "Start {0} operation in space with id: {1}";
+    public static final String GET_INFO_FOR_OPERATION = "Get info for operation in space with id: {0}";
+
+    public static final String LIST_MTA_AUDIT_LOG_MESSAGE =  "List MTA in space with id: {0}";
+    public static final String GET_MTA_AUDIT_LOG_MESSAGE = "Get MTA in space with id: {0}";
+
+    public static final String GET_INFO_FOR_API_AUDIT_LOG_CONFIG = "Get information for api";
+    public static final String FETCH_TOKEN_AUDIT_LOG_MESSAGE = "Attempt to fetch access token for client: \"{0}\" in space: \"{1}\" for service \"{2}\"";
+    public static final String FAILED_TO_FETCH_TOKEN_AUDIT_LOG_MESSAGE = "Failed to fetch access token for client: \"{0}\" in space: \"{1}\" for service \"{2}\"";
+
+    public static final String FETCH_TOKEN_AUDIT_LOG_CONFIG = "Access token fetch";
+
+
+    // Audit log configuration
+    public static final String GET_CSRF_TOKEN_AUDIT_LOG_CONFIG = "CSRF token get ";
+
+    public static final String FILE_INFO_AUDIT_LOG_CONFIG = "File list";
+    public static final String SUBSCRIPTION_DELETE_AUDIT_LOG_CONFIG = "Subscription delete";
+    public static final String ENTRY_DELETE_AUDIT_LOG_CONFIG = "Entry delete";
+    public static final String OPERATION_DELETE_AUDIT_LOG_CONFIG = "Operation delete";
+    public static final String FILE_UPLOAD_AUDIT_LOG_CONFIG = "File upload";
+    public static final String FILE_UPLOAD_FROM_URL_AUDIT_LOG_CONFIG = "File upload from url";
+    public static final String UPLOAD_FROM_URL_JOB_INFO_AUDIT_LOG_CONFIG = "Upload from url job info";
+
+    public static final String OPERATION_LIST_AUDIT_LOG_CONFIG = "Operation list";
+    public static final String OPERATION_ACTIONS_LIST_AUDIT_LOG_CONFIG = "Operation actions list";
+    public static final String EXECUTE_OPERATION_AUDIT_LOG_CONFIG = "Operation action execute";
+    public static final String LIST_OPERATION_LOGS_AUDIT_LOG_CONFIG = "Operation logs list";
+    public static final String GET_OPERATION_LOG_CONTENT_AUDIT_LOG_CONFIG = "Operation log content info";
+    public static final String START_OPERATION_AUDIT_LOG_CONFIG = "Operation start";
+    public static final String GET_OPERATION_INFO_AUDIT_LOG_CONFIG = "Operation info";
+
+    public static final String MTA_INFO_AUDIT_LOG_CONFIG= "MTA info";
+    public static final String MTA_LIST_AUDIT_LOG_CONFIG = "MTA list";
+
+    public static final String API_INFO_AUDIT_LOG_CONFIG= "Api info";
+
     private Messages() {
     }
 }

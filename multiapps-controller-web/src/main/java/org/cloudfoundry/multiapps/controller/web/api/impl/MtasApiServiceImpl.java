@@ -17,6 +17,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableMta;
 import org.cloudfoundry.multiapps.controller.api.model.Metadata;
 import org.cloudfoundry.multiapps.controller.api.model.Module;
 import org.cloudfoundry.multiapps.controller.api.model.Mta;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.MtasApiServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
@@ -42,9 +43,12 @@ public class MtasApiServiceImpl implements MtasApiService {
     @Inject
     @Qualifier("deployedMtaRequiredDataOnlyDetector")
     private DeployedMtaDetector deployedMtaDetector;
+    @Inject
+    private MtasApiServiceAuditLog mtasApiServiceAuditLog;
 
     @Override
     public ResponseEntity<List<Mta>> getMtas(String spaceGuid) {
+        mtasApiServiceAuditLog.logGetMtas(SecurityContextUtil.getUsername(), spaceGuid);
         CloudControllerClient client = getCloudFoundryClient(spaceGuid);
         List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtasWithoutNamespace(client);
         List<Mta> mtas = getMtas(deployedMtas, client);
@@ -54,6 +58,7 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     @Override
     public ResponseEntity<Mta> getMta(String spaceGuid, String mtaId) {
+        mtasApiServiceAuditLog.logGetMta(SecurityContextUtil.getUsername(), spaceGuid, mtaId);
         CloudControllerClient client = getCloudFoundryClient(spaceGuid);
         List<DeployedMta> mtas = deployedMtaDetector.detectDeployedMtasByName(mtaId, client);
 
@@ -71,7 +76,7 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     @Override
     public ResponseEntity<List<Mta>> getMtas(String spaceGuid, String namespace, String name) {
-
+        mtasApiServiceAuditLog.logGetMtas(SecurityContextUtil.getUsername(), spaceGuid, namespace, name);
         if (name == null && namespace == null) {
             return getAllMtas(spaceGuid);
         }
@@ -85,8 +90,7 @@ public class MtasApiServiceImpl implements MtasApiService {
         }
 
         CloudControllerClient client = getCloudFoundryClient(spaceGuid);
-        Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(name, namespace,
-                                                                                                            client);
+        Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(name, namespace, client);
         DeployedMta deployedMta = optionalDeployedMta.orElseThrow(() -> new NotFoundException(Messages.SPECIFIC_MTA_NOT_FOUND,
                                                                                               name,
                                                                                               namespace));

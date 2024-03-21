@@ -2,6 +2,7 @@ open module org.cloudfoundry.multiapps.controller.core {
 
     exports org.cloudfoundry.multiapps.controller.core;
     exports org.cloudfoundry.multiapps.controller.core.auditlogging;
+    exports org.cloudfoundry.multiapps.controller.core.auditlogging.model;
     exports org.cloudfoundry.multiapps.controller.core.auditlogging.impl;
     exports org.cloudfoundry.multiapps.controller.core.cf;
     exports org.cloudfoundry.multiapps.controller.core.cf.apps;

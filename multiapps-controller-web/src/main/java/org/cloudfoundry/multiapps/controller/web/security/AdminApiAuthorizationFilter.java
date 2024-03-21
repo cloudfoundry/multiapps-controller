@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.LoginAttemptAuditLog;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 
 @Named
@@ -14,8 +15,9 @@ public class AdminApiAuthorizationFilter extends SpaceGuidBasedAuthorizationFilt
     private final ApplicationConfiguration applicationConfiguration;
 
     @Inject
-    public AdminApiAuthorizationFilter(ApplicationConfiguration applicationConfiguration, AuthorizationChecker authorizationChecker) {
-        super(authorizationChecker);
+    public AdminApiAuthorizationFilter(ApplicationConfiguration applicationConfiguration, AuthorizationChecker authorizationChecker,
+                                       LoginAttemptAuditLog loginAttemptAuditLog) {
+        super(authorizationChecker, loginAttemptAuditLog);
         this.applicationConfiguration = applicationConfiguration;
     }
 

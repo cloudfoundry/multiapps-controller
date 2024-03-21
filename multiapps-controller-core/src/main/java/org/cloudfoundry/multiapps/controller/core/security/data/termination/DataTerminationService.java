@@ -14,7 +14,7 @@ import javax.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.Messages;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CFOptimizedEventGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -56,6 +56,12 @@ public class DataTerminationService {
     private ApplicationConfiguration configuration;
     @Inject
     private WebClientFactory webClientFactory;
+    @Inject
+    private MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
+
+    private static void log(Exception e) {
+        LOGGER.error(format(Messages.ERROR_DURING_DATA_TERMINATION_0, e.getMessage()), e);
+    }
 
     public void deleteOrphanUserData() {
         assertGlobalAuditorCredentialsExist();
@@ -108,16 +114,10 @@ public class DataTerminationService {
         if (configurationSubscriptions.isEmpty()) {
             return;
         }
-        auditLogDeletion(configurationSubscriptions);
+        configurationSubscriptions.forEach(configurationSubscription -> mtaConfigurationPurgerAuditLog.logDeleteSubscription(spaceId,
+                                                                                                                             configurationSubscription));
         configurationSubscriptionService.createQuery()
                                         .deleteAll(spaceId);
-    }
-
-    private void auditLogDeletion(List<? extends AuditableConfiguration> configurationEntities) {
-        for (AuditableConfiguration configurationEntity : configurationEntities) {
-            AuditLoggingProvider.getFacade()
-                                .logConfigDelete(configurationEntity);
-        }
     }
 
     private void deleteConfigurationEntryOrphanData(String spaceId) {
@@ -127,7 +127,7 @@ public class DataTerminationService {
         if (configurationEntities.isEmpty()) {
             return;
         }
-        auditLogDeletion(configurationEntities);
+        configurationEntities.forEach(configurationEntity -> mtaConfigurationPurgerAuditLog.logDeleteEntry(spaceId, configurationEntity));
         configurationEntryService.createQuery()
                                  .deleteAll(spaceId);
     }
@@ -136,7 +136,7 @@ public class DataTerminationService {
         List<Operation> operationsToBeDeleted = operationService.createQuery()
                                                                 .spaceId(deleteEventSpaceId)
                                                                 .list();
-        auditLogDeletion(operationsToBeDeleted);
+        operationsToBeDeleted.forEach(operation -> mtaConfigurationPurgerAuditLog.logDeleteOperation(deleteEventSpaceId, operation));
         operationService.createQuery()
                         .spaceId(deleteEventSpaceId)
                         .delete();
@@ -148,10 +148,6 @@ public class DataTerminationService {
         } catch (FileStorageException e) {
             throw new SLException(e, Messages.COULD_NOT_DELETE_SPACEIDS_LEFTOVERS);
         }
-    }
-
-    private static void log(Exception e) {
-        LOGGER.error(format(Messages.ERROR_DURING_DATA_TERMINATION_0, e.getMessage()), e);
     }
 
 }

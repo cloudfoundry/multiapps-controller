@@ -19,8 +19,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.core.Messages;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CFOptimizedEventGetter;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -71,8 +70,7 @@ class DataTerminationServiceTest {
     @Mock
     private CFOptimizedEventGetter cfOptimizedEventsGetter;
     @Mock
-    private AuditLoggingFacade auditLoggingFacade;
-
+    private MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
     @InjectMocks
     private final DataTerminationService dataTerminationService = createDataTerminationService();
 
@@ -80,7 +78,6 @@ class DataTerminationServiceTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        AuditLoggingProvider.setFacade(auditLoggingFacade);
     }
 
     private DataTerminationService createDataTerminationService() {
