@@ -201,7 +201,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
                                                                                                                    context.getVariable(Variables.MTA_NAMESPACE),
                                                                                                                    getStepLogger(),
                                                                                                                    StepsUtil.getAppSuffixDeterminer(context),
-                                                                                                                   client);
+                                                                                                                   client, false);
 
         Module module = dummyDescriptor.getModules()
                                        .get(0);

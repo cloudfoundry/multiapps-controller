@@ -170,8 +170,7 @@ public class StepsUtil {
         context.setVariable(Variables.LOGS_OFFSET, lastLog.getTimestamp());
     }
 
-    private static List<ApplicationLog> getRecentLogsSafely(LogCacheClient client, UUID appGuid, LocalDateTime offset,
-                                                            Logger logger) {
+    private static List<ApplicationLog> getRecentLogsSafely(LogCacheClient client, UUID appGuid, LocalDateTime offset, Logger logger) {
         try {
             return client.getRecentLogs(appGuid, offset);
         } catch (RuntimeException e) {
@@ -202,13 +201,20 @@ public class StepsUtil {
 
         return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, namespace,
                                                               context.getStepLogger(), getAppSuffixDeterminer(context),
-                                                              context.getControllerClient());
+                                                              context.getControllerClient(),
+                                                              shouldApplyincrementalInstancesUpdate(context));
     }
 
     static AppSuffixDeterminer getAppSuffixDeterminer(ProcessContext context) {
         boolean keepOriginalNamesAfterDeploy = context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY);
         boolean isAfterResumePhase = context.getVariable(Variables.PHASE) == Phase.AFTER_RESUME;
         return new AppSuffixDeterminer(keepOriginalNamesAfterDeploy, isAfterResumePhase);
+    }
+
+    private static boolean shouldApplyincrementalInstancesUpdate(ProcessContext context) {
+        boolean shouldApplyIncrementalInstancesUpdate = context.getVariable(Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE);
+        Phase deploymentPhase = context.getVariable(Variables.PHASE);
+        return shouldApplyIncrementalInstancesUpdate && !Phase.AFTER_RESUME.equals(deploymentPhase);
     }
 
     public static void setExecutedHooksForModule(VariableScope scope, String moduleName, Map<String, List<String>> moduleHooks) {
