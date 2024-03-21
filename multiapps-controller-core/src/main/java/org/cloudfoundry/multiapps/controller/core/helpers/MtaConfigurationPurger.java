@@ -77,8 +77,8 @@ public class MtaConfigurationPurger {
 
     private void purgeSubscription(ConfigurationSubscription subscription) {
         LOGGER.debug(MessageFormat.format(Messages.DELETING_SUBSCRIPTION, subscription.getId()));
-        AuditLoggingProvider.getFacade()
-                            .logConfigDelete(subscription);
+//        AuditLoggingProvider.getFacade()
+//                            .logConfigDelete(subscription);
         configurationSubscriptionService.createQuery()
                                         .id(subscription.getId())
                                         .delete();
@@ -141,8 +141,8 @@ public class MtaConfigurationPurger {
 
     private void purgeConfigurationEntry(ConfigurationEntry entry) {
         LOGGER.debug(MessageFormat.format(Messages.DELETING_ENTRY, entry.getId()));
-        AuditLoggingProvider.getFacade()
-                            .logConfigDelete(entry);
+//        AuditLoggingProvider.getFacade()
+//                            .logConfigDelete(entry);
         configurationEntryService.createQuery()
                                  .id(entry.getId())
                                  .delete();

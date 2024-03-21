@@ -6,6 +6,8 @@ import java.text.MessageFormat;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.model.ExtentensionAuditLog;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.cloudfoundry.multiapps.controller.web.util.ServletUtil;
@@ -26,10 +28,12 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
     @Override
     public final boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String spaceGuid = extractAndLogSpaceGuid(request);
+        AuditLoggingProvider.getFacade().logSecurityIncident(new ExtentensionAuditLog(SecurityContextUtil.getUsername(), spaceGuid, SecurityContextUtil.getUsername() + " in space " + spaceGuid + " tried to login", "Login attempt"));
         try {
             authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), spaceGuid, null);
             return true;
         } catch (ResponseStatusException e) {
+            AuditLoggingProvider.getFacade().logSecurityIncident(new ExtentensionAuditLog(SecurityContextUtil.getUsername(), spaceGuid, SecurityContextUtil.getUsername() + " in space " + spaceGuid + " failed to login", "Login attempt"));
             logUnauthorizedRequest(request, e);
             response.sendError(e.getStatus()
                                 .value(),

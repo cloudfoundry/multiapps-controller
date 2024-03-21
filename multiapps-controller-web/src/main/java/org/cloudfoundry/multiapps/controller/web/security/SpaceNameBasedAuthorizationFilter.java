@@ -2,10 +2,13 @@ package org.cloudfoundry.multiapps.controller.web.security;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.model.ExtentensionAuditLog;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
@@ -27,10 +30,13 @@ public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizat
     @Override
     public final boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
         CloudTarget target = extractAndLogTarget(request);
+        AuditLoggingProvider.getFacade().logSecurityIncident(new ExtentensionAuditLog(SecurityContextUtil.getUsername(), target.getSpaceName(), SecurityContextUtil.getUsername() + " in space " + target.getSpaceName() + " tried to login", "Login attempt"));
+
         try {
             authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), target, null);
             return true;
         } catch (ResponseStatusException e) {
+            AuditLoggingProvider.getFacade().logSecurityIncident(new ExtentensionAuditLog(SecurityContextUtil.getUsername(), target.getSpaceName(), SecurityContextUtil.getUsername() + " in space " + target.getSpaceName() + " failed to login", "Login attempt"));
             logUnauthorizedRequest(request, e);
             response.sendError(e.getStatus()
                                 .value(),

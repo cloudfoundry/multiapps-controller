@@ -115,8 +115,8 @@ public class DataTerminationService {
 
     private void auditLogDeletion(List<? extends AuditableConfiguration> configurationEntities) {
         for (AuditableConfiguration configurationEntity : configurationEntities) {
-            AuditLoggingProvider.getFacade()
-                                .logConfigDelete(configurationEntity);
+//            AuditLoggingProvider.getFacade()
+//                                .logConfigDelete(configurationEntity);
         }
     }
 

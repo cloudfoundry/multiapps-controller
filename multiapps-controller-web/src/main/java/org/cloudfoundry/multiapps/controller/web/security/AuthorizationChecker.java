@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CfRolesGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
@@ -176,8 +175,6 @@ public class AuthorizationChecker implements DisposableBean {
 
     private static void failWithStatus(HttpStatus status, String message) {
         LOGGER.warn(message);
-        AuditLoggingProvider.getFacade()
-                            .logSecurityIncident(message);
         throw new ResponseStatusException(status, message);
     }
 
