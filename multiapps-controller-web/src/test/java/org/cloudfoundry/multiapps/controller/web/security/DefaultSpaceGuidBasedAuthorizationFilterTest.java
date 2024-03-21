@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.LoginAttemptAuditLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,13 +23,15 @@ class DefaultSpaceGuidBasedAuthorizationFilterTest {
 
     @Mock
     private HttpServletRequest request;
+    @Mock
+    private LoginAttemptAuditLog loginAttemptAuditLog;
     private DefaultSpaceGuidBasedAuthorizationFilter defaultSpaceGuidBasedAuthorizationFilter;
 
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        defaultSpaceGuidBasedAuthorizationFilter = new DefaultSpaceGuidBasedAuthorizationFilter(null);
+        defaultSpaceGuidBasedAuthorizationFilter = new DefaultSpaceGuidBasedAuthorizationFilter(null, loginAttemptAuditLog);
     }
 
     @ParameterizedTest

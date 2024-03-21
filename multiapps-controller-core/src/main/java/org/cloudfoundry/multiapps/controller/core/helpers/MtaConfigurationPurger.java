@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
@@ -32,6 +32,7 @@ public class MtaConfigurationPurger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MtaConfigurationPurger.class);
 
+    private final MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
     private final CloudControllerClient client;
     private final CloudSpaceClient spaceClient;
     private final ConfigurationEntryService configurationEntryService;
@@ -40,13 +41,14 @@ public class MtaConfigurationPurger {
 
     public MtaConfigurationPurger(CloudControllerClient client, CloudSpaceClient spaceClient,
                                   ConfigurationEntryService configurationEntryService,
-                                  ConfigurationSubscriptionService configurationSubscriptionService,
-                                  MtaMetadataParser mtaMetadataParser) {
+                                  ConfigurationSubscriptionService configurationSubscriptionService, MtaMetadataParser mtaMetadataParser,
+                                  MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog) {
         this.client = client;
         this.spaceClient = spaceClient;
         this.configurationEntryService = configurationEntryService;
         this.configurationSubscriptionService = configurationSubscriptionService;
         this.mtaMetadataParser = mtaMetadataParser;
+        this.mtaConfigurationPurgerAuditLog = mtaConfigurationPurgerAuditLog;
     }
 
     public void purge(String org, String space) {
@@ -54,7 +56,7 @@ public class MtaConfigurationPurger {
         String targetId = new ClientHelper(spaceClient).computeSpaceId(org, space);
         List<CloudApplication> existingApps = getExistingApps();
         purgeConfigurationSubscriptions(targetId, existingApps);
-        purgeConfigurationEntries(targetSpace, existingApps);
+        purgeConfigurationEntries(targetSpace, existingApps, targetId);
     }
 
     private void purgeConfigurationSubscriptions(String spaceId, List<CloudApplication> existingApps) {
@@ -64,7 +66,7 @@ public class MtaConfigurationPurger {
         List<ConfigurationSubscription> subscriptions = getSubscriptions(spaceId);
         for (ConfigurationSubscription subscription : subscriptions) {
             if (!existingAppNames.contains(subscription.getAppName())) {
-                purgeSubscription(subscription);
+                purgeSubscription(subscription, spaceId);
             }
         }
     }
@@ -75,23 +77,22 @@ public class MtaConfigurationPurger {
                    .collect(Collectors.toSet());
     }
 
-    private void purgeSubscription(ConfigurationSubscription subscription) {
+    private void purgeSubscription(ConfigurationSubscription subscription, String spaceId) {
         LOGGER.debug(MessageFormat.format(Messages.DELETING_SUBSCRIPTION, subscription.getId()));
-        AuditLoggingProvider.getFacade()
-                            .logConfigDelete(subscription);
+        mtaConfigurationPurgerAuditLog.logDeleteSubscription(spaceId, subscription);
         configurationSubscriptionService.createQuery()
                                         .id(subscription.getId())
                                         .delete();
     }
 
-    private void purgeConfigurationEntries(CloudTarget targetSpace, List<CloudApplication> apps) {
+    private void purgeConfigurationEntries(CloudTarget targetSpace, List<CloudApplication> apps, String spaceId) {
         LOGGER.info(MessageFormat.format(Messages.PURGING_ENTRIES, targetSpace));
 
         List<ConfigurationEntry> entries = getConfigurationEntries(targetSpace);
         List<ConfigurationEntry> stillRelevantEntries = getStillRelevantConfigurationEntries(apps);
         for (ConfigurationEntry entry : entries) {
             if (!isStillRelevant(stillRelevantEntries, entry)) {
-                purgeConfigurationEntry(entry);
+                purgeConfigurationEntry(entry, spaceId);
             }
         }
     }
@@ -139,10 +140,9 @@ public class MtaConfigurationPurger {
         return new ConfigurationEntry(computeProviderId(metadata, providedDependencyName), metadata.getVersion());
     }
 
-    private void purgeConfigurationEntry(ConfigurationEntry entry) {
+    private void purgeConfigurationEntry(ConfigurationEntry entry, String spaceId) {
         LOGGER.debug(MessageFormat.format(Messages.DELETING_ENTRY, entry.getId()));
-        AuditLoggingProvider.getFacade()
-                            .logConfigDelete(entry);
+        mtaConfigurationPurgerAuditLog.logDeleteEntry(spaceId, entry);
         configurationEntryService.createQuery()
                                  .id(entry.getId())
                                  .delete();

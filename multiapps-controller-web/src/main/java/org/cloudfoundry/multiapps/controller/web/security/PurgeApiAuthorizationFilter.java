@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.LoginAttemptAuditLog;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.resources.ConfigurationEntriesResource;
@@ -14,8 +15,8 @@ import org.cloudfoundry.multiapps.controller.web.resources.ConfigurationEntriesR
 public class PurgeApiAuthorizationFilter extends SpaceNameBasedAuthorizationFilter {
 
     @Inject
-    public PurgeApiAuthorizationFilter(AuthorizationChecker authorizationChecker) {
-        super(authorizationChecker);
+    public PurgeApiAuthorizationFilter(AuthorizationChecker authorizationChecker, LoginAttemptAuditLog loginAttemptAuditLog) {
+        super(authorizationChecker, loginAttemptAuditLog);
     }
 
     @Override

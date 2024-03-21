@@ -23,7 +23,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.OperationsApiServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
@@ -83,9 +83,11 @@ class OperationsApiServiceImplTest {
     private ProcessActionRegistry processActionRegistry;
     @Mock
     private ProcessAction processAction;
+    @Mock
+    private OperationsApiServiceAuditLog operationsApiServiceAuditLog;
 
     @InjectMocks
-    private OperationsApiServiceImpl operationsApiService;
+    private OperationsApiServiceImpl operationsApiService = new OperationsApiServiceImpl();
 
     private static final String SPACE_GUID = "896e6be9-8217-4a1c-b938-09b30966157a";
     private static final String ORG_GUID = "0a42c085-b772-4b1e-bf4d-75c463aab5f6";
@@ -115,7 +117,6 @@ class OperationsApiServiceImplTest {
         operations.add(createOperation(ERROR_PROCESS, Operation.State.ERROR, Collections.emptyMap()));
         operations.add(createOperation(ABORTED_PROCESS, Operation.State.ABORTED, Collections.emptyMap()));
 
-        AuditLoggingProvider.setFacade(Mockito.mock(AuditLoggingFacade.class));
         setupOperationServiceMock();
         setupOperationsHelperMock();
         mockProcessActionRegistry();

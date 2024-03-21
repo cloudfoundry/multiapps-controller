@@ -6,6 +6,7 @@ import java.text.MessageFormat;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cloudfoundry.multiapps.controller.core.auditlogging.LoginAttemptAuditLog;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.cloudfoundry.multiapps.controller.web.util.ServletUtil;
@@ -19,17 +20,27 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
 
     private final AuthorizationChecker authorizationChecker;
 
-    protected SpaceGuidBasedAuthorizationFilter(AuthorizationChecker authorizationChecker) {
+    private final LoginAttemptAuditLog loginAttemptAuditLog;
+
+    protected SpaceGuidBasedAuthorizationFilter(AuthorizationChecker authorizationChecker, LoginAttemptAuditLog loginAttemptAuditLog) {
         this.authorizationChecker = authorizationChecker;
+        this.loginAttemptAuditLog = loginAttemptAuditLog;
     }
 
     @Override
     public final boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String spaceGuid = extractAndLogSpaceGuid(request);
+        loginAttemptAuditLog.logLoginAttempt(SecurityContextUtil.getUsername(), spaceGuid, Messages.USER_TRYING_TO_LOGIN_AUDIT_LOG_MESSAGE,
+                                             Messages.LOGIN_ATTEMPT_AUDIT_LOG_CONFIG);
         try {
             authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), spaceGuid, null);
+            loginAttemptAuditLog.logLoginAttempt(SecurityContextUtil.getUsername(), spaceGuid,
+                                                 Messages.USER_SUCCESSFULLY_LOGGED_IN_AUDIT_LOG_MESSAGE,
+                                                 Messages.LOGIN_ATTEMPT_AUDIT_LOG_CONFIG);
             return true;
         } catch (ResponseStatusException e) {
+            loginAttemptAuditLog.logLoginAttempt(SecurityContextUtil.getUsername(), spaceGuid,
+                                                 Messages.USER_FAILED_TO_LOG_IN_AUDIT_LOG_MESSAGE, Messages.LOGIN_ATTEMPT_AUDIT_LOG_CONFIG);
             logUnauthorizedRequest(request, e);
             response.sendError(e.getStatus()
                                 .value(),
@@ -53,5 +64,4 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
     }
 
     protected abstract String extractSpaceGuid(HttpServletRequest request);
-
 }

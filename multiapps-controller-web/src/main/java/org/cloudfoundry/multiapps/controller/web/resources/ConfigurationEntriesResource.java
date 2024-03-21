@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.web.resources;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
@@ -42,6 +43,8 @@ public class ConfigurationEntriesResource {
     private MtaMetadataParser mtaMetadataParser;
     @Inject
     private TokenService tokenService;
+    @Inject
+    private MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
 
     @PostMapping("/purge")
     public ResponseEntity<Void> purgeConfigurationRegistry(@RequestParam(REQUEST_PARAM_ORGANIZATION) String organization,
@@ -53,10 +56,12 @@ public class ConfigurationEntriesResource {
 
         CloudControllerClient client = clientProvider.getControllerClientWithNoCorrelation(user.getName(), cloudSpace.getGuid()
                                                                                                                      .toString());
-        MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client, spaceClient,
+        MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client,
+                                                                                spaceClient,
                                                                                 configurationEntryService,
                                                                                 configurationSubscriptionService,
-                                                                                mtaMetadataParser);
+                                                                                mtaMetadataParser,
+                                                                                mtaConfigurationPurgerAuditLog);
         configurationPurger.purge(organization, space);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                              .build();
