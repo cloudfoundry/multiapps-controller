@@ -30,13 +30,14 @@ public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizat
     @Override
     public final boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
         CloudTarget target = extractAndLogTarget(request);
-        AuditLoggingProvider.getFacade().logSecurityIncident(new ExtentensionAuditLog(SecurityContextUtil.getUsername(), target.getSpaceName(), SecurityContextUtil.getUsername() + " in space " + target.getSpaceName() + " tried to login", "Login attempt"));
+        auditLogLoginAttempt(SecurityContextUtil.getUsername(), target.getSpaceName(), Messages.USER_TRYING_TO_LOGIN_AUDIT_LOG_MESSAGE);
 
         try {
             authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), target, null);
+            auditLogLoginAttempt(SecurityContextUtil.getUsername(), target.getSpaceName(), Messages.USER_SUCCESSFULLY_LOGGED_IN_AUDIT_LOG_MESSAGE);
             return true;
         } catch (ResponseStatusException e) {
-            AuditLoggingProvider.getFacade().logSecurityIncident(new ExtentensionAuditLog(SecurityContextUtil.getUsername(), target.getSpaceName(), SecurityContextUtil.getUsername() + " in space " + target.getSpaceName() + " failed to login", "Login attempt"));
+            auditLogLoginAttempt(SecurityContextUtil.getUsername(), target.getSpaceName(), Messages.USER_FAILED_TO_LOG_IN_AUDIT_LOG_MESSAGE);
             logUnauthorizedRequest(request, e);
             response.sendError(e.getStatus()
                                 .value(),

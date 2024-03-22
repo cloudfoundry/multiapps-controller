@@ -28,12 +28,13 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
     @Override
     public final boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String spaceGuid = extractAndLogSpaceGuid(request);
-        AuditLoggingProvider.getFacade().logSecurityIncident(new ExtentensionAuditLog(SecurityContextUtil.getUsername(), spaceGuid, SecurityContextUtil.getUsername() + " in space " + spaceGuid + " tried to login", "Login attempt"));
+        auditLogLoginAttempt(SecurityContextUtil.getUsername(), spaceGuid, Messages.USER_TRYING_TO_LOGIN_AUDIT_LOG_MESSAGE);
         try {
             authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), spaceGuid, null);
+            auditLogLoginAttempt(SecurityContextUtil.getUsername(), spaceGuid, Messages.USER_SUCCESSFULLY_LOGGED_IN_AUDIT_LOG_MESSAGE);
             return true;
         } catch (ResponseStatusException e) {
-            AuditLoggingProvider.getFacade().logSecurityIncident(new ExtentensionAuditLog(SecurityContextUtil.getUsername(), spaceGuid, SecurityContextUtil.getUsername() + " in space " + spaceGuid + " failed to login", "Login attempt"));
+            auditLogLoginAttempt(SecurityContextUtil.getUsername(), spaceGuid, Messages.USER_FAILED_TO_LOG_IN_AUDIT_LOG_MESSAGE);
             logUnauthorizedRequest(request, e);
             response.sendError(e.getStatus()
                                 .value(),
@@ -57,5 +58,4 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
     }
 
     protected abstract String extractSpaceGuid(HttpServletRequest request);
-
 }
