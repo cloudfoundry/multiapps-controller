@@ -33,7 +33,7 @@ class FileServiceTest extends DatabaseFileServiceTest {
         MockitoAnnotations.openMocks(this)
                           .close();
         super.setUp();
-        Mockito.doAnswer(invocationOnMock -> IOUtils.consume(invocationOnMock.getArgument(1)))
+        Mockito.doAnswer(invocationOnMock -> IOUtils.consume((InputStream)invocationOnMock.getArgument(1)))
                .when(fileStorage)
                .addFile(Mockito.any(), Mockito.any());
     }
