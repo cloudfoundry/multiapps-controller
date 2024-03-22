@@ -35,7 +35,6 @@ import org.cloudfoundry.multiapps.controller.api.model.ParameterMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.parameters.ParameterConversion;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.OperationsApiServiceAuditLog;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.model.OperationActionListAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
@@ -212,8 +211,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<List<String>> getOperationActions(String spaceGuid, String operationId) {
-        AuditLoggingProvider.getFacade()
-                .logDataAccessAuditLog(new OperationActionListAuditLog(spaceGuid, SecurityContextUtil.getUsername(), operationId));
+        OperationsApiServiceAuditLog.auditLogGetOperationActions(spaceGuid, SecurityContextUtil.getUsername(), operationId);
         Operation operation = getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
         return ResponseEntity.ok()
                              .body(getAvailableActions(operation));

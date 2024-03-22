@@ -189,6 +189,7 @@ public final class Messages {
     public static final String GET_INFO_FOR_UPLOAD_URL_JOB_AUDIT_LOG_MESSAGE = "Get info for upload from url job in space with id: {0}";
 
     public static final String LIST_OPERATIONS_AUDIT_LOG_MESSAGE = "List operations for mta in space with id: {0}";
+    public static final String LIST_OPERATION_ACTIONS_AUDIT_LOG_MESSAGE = "List operation action in space with id: {0}";
     public static final String EXECUTE_OPERATION_AUDIT_LOG_MESSAGE = "Execute operation in space with id: {0}";
     public static final String GET_OPERATION_LOGS_AUDIT_LOG_MESSAGE = "Get operation logs in space with id: {0}";
     public static final String GET_OPERATION_LOG_CONTENT_AUDIT_LOG_MESSAGE =  "Get operation log content in space with id: {0}";
@@ -210,6 +211,7 @@ public final class Messages {
     public static final String UPLOAD_FROM_URL_JOB_INFO_AUDIT_LOG_CONFIG = "Upload from url job info";
 
     public static final String OPERATION_LIST_AUDIT_LOG_CONFIG = "Operation list";
+    public static final String OPERATION_ACTIONS_LIST_AUDIT_LOG_CONFIG = "Operation actions list";
     public static final String EXECUTE_OPERATION_AUDIT_LOG_CONFIG = "Operation action execute";
     public static final String LIST_OPERATION_LOGS_AUDIT_LOG_CONFIG = "Operation logs list";
     public static final String GET_OPERATION_LOG_CONTENT_AUDIT_LOG_CONFIG = "Operation log content info";

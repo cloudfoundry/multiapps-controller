@@ -39,14 +39,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableAsyncUploadResul
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableFileMetadata;
 import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.FilesApiServiceAuditLog;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.model.ExtentensionAuditLog;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.model.FileUploadAuditLog;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.model.FileUploadFromUrlAuditLog;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.model.FilesListAuditLog;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.model.MtaListAuditLog;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.model.UploadFromUrlJobInfo;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.model.CachedMap;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;

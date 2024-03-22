@@ -30,6 +30,17 @@ public class OperationsApiServiceAuditLog {
                                                                             configIdentifiers));
     }
 
+    public static void auditLogGetOperationActions(String username, String spaceId, String operationId) {
+        String performedAction = MessageFormat.format(Messages.LIST_OPERATION_ACTIONS_AUDIT_LOG_MESSAGE, spaceId);
+        Map<String, String> configIdentifiers = createAuditLogGetOperationLogsConfigurationIdentifier(operationId);
+        AuditLoggingProvider.getFacade()
+                            .logDataAccessAuditLog(new ExtentensionAuditLog(username,
+                                                                            spaceId,
+                                                                            performedAction,
+                                                                            Messages.OPERATION_ACTIONS_LIST_AUDIT_LOG_CONFIG,
+                                                                            configIdentifiers));
+    }
+
     public static void auditLogExecuteOperationAction(String username, String spaceId, String operationId, String actionId) {
         String performedAction = MessageFormat.format(Messages.EXECUTE_OPERATION_AUDIT_LOG_MESSAGE, spaceId);
         Map<String, String> configIdentifiers = createAuditLogExecuteOperationActionConfigurationIdentifier(operationId, actionId);
