@@ -9,14 +9,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
 import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesValidator;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.NamedParametersContainer;
 
 @Named
@@ -26,6 +30,7 @@ public class ReadOnlyParametersChecker {
         Map<String, Set<String>> detectedReadOnlyParameters = new LinkedHashMap<>();
         checkForCommonParameters(new GlobalParameters(descriptor), READ_ONLY_SYSTEM_PARAMETERS, detectedReadOnlyParameters);
         checkCollectionForCommonParameters(descriptor.getModules(), READ_ONLY_MODULE_PARAMETERS, detectedReadOnlyParameters);
+        checkModulesForLiveRouteParameter(descriptor.getModules(), detectedReadOnlyParameters);
         checkCollectionForCommonParameters(descriptor.getResources(), READ_ONLY_RESOURCE_PARAMETERS, detectedReadOnlyParameters);
         if (!detectedReadOnlyParameters.isEmpty()) {
             throw new SLException(getFormattedOutput(detectedReadOnlyParameters));
@@ -35,9 +40,31 @@ public class ReadOnlyParametersChecker {
     private void checkForCommonParameters(NamedParametersContainer namedParametersContainer, Set<String> readOnlyParameters,
                                           Map<String, Set<String>> commonReadOnlyParameters) {
         Set<String> commonParameters = SetUtils.intersection(namedParametersContainer.getParameters()
-                                                                                     .keySet(), readOnlyParameters);
+                                                                                     .keySet(),
+                                                             readOnlyParameters);
         if (!commonParameters.isEmpty()) {
             commonReadOnlyParameters.put(namedParametersContainer.getName(), commonParameters);
+        }
+    }
+
+    private void checkModulesForLiveRouteParameter(List<Module> modules, Map<String, Set<String>> commonReadOnlyParameters) {
+        for (Module module : modules) {
+            checkParametersForLiveRoute(module, commonReadOnlyParameters);
+        }
+    }
+
+    private void checkParametersForLiveRoute(NamedParametersContainer namedParametersContainer,
+                                             Map<String, Set<String>> commonReadOnlyParameters) {
+        Object routes = namedParametersContainer.getParameters()
+                                                .get(SupportedParameters.ROUTES);
+
+        if (Objects.nonNull(routes)) {
+            for (var route : RoutesValidator.applyRoutesType(routes)) {
+                if (Objects.nonNull(route.get(SupportedParameters.LIVE_ROUTE))) {
+                    commonReadOnlyParameters.put(namedParametersContainer.getName(), Set.of(SupportedParameters.LIVE_ROUTE));
+                    return;
+                }
+            }
         }
     }
 

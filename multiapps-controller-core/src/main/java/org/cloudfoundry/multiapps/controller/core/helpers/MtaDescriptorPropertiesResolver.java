@@ -34,13 +34,16 @@ public class MtaDescriptorPropertiesResolver {
 
     public static final String IDLE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.IDLE_DOMAIN + "}";
     public static final String IDLE_HOST_PLACEHOLDER = "${" + SupportedParameters.IDLE_HOST + "}";
-
+    public static final String LIVE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.DEFAULT_LIVE_DOMAIN + "}";
+    public static final String LIVE_HOST_PLACEHOLDER = "${" + SupportedParameters.DEFAULT_LIVE_HOST + "}";
+    LiveRouteParameterHelper liveRouteParameterHelper;
     private final MtaDescriptorPropertiesResolverContext context;
     private List<ConfigurationSubscription> subscriptions;
     private Set<DynamicResolvableParameter> dynamicResolvableParameters;
 
     public MtaDescriptorPropertiesResolver(MtaDescriptorPropertiesResolverContext context) {
         this.context = context;
+        this.liveRouteParameterHelper = new LiveRouteParameterHelper();
     }
 
     public List<ParameterValidator> getValidatorsList() {
@@ -53,6 +56,9 @@ public class MtaDescriptorPropertiesResolver {
         descriptor = correctEntityNames(descriptor);
         // Resolve placeholders in parameters:
         CloudHandlerFactory handlerFactory = context.getHandlerFactory();
+        // add live route as reference to its route because if we don't do it, the resolve will fail, if the user wants to use the
+        // live-route
+        descriptor = liveRouteParameterHelper.addLiveRoutesWithReferenceToRoute(descriptor);
         descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(), new ResolverBuilder(),
                                                                      SupportedParameters.SINGULAR_PLURAL_MAPPING,
                                                                      SupportedParameters.DYNAMIC_RESOLVABLE_PARAMETERS)
@@ -130,20 +136,29 @@ public class MtaDescriptorPropertiesResolver {
                 String protocol = (String) routeMap.get(SupportedParameters.ROUTE_PROTOCOL);
                 if (routeValue instanceof String) {
                     routeMap.put(SupportedParameters.ROUTE, replacePartsWithIdlePlaceholders((String) routeValue, noHostname, protocol));
+                    routeMap.put(SupportedParameters.LIVE_ROUTE,
+                                 replacePartsWithLivePlaceholders((String) routeValue, noHostname, protocol));
                 }
 
-                if (routeMap.containsKey(SupportedParameters.NO_HOSTNAME)) {
-                    // remove no-hostname value, since it will be ignored for idle routes
-                    routeMap.remove(SupportedParameters.NO_HOSTNAME);
-                }
+                // remove no-hostname value, since it will be ignored for idle routes
+                routeMap.remove(SupportedParameters.NO_HOSTNAME);
             }
         }
     }
 
+    private String replacePartsWithLivePlaceholders(String uriString, boolean noHostname, String protocol) {
+        return replaceUriPartsWithPlaceholders(uriString, noHostname, protocol, LIVE_DOMAIN_PLACEHOLDER, LIVE_HOST_PLACEHOLDER);
+    }
+
     private String replacePartsWithIdlePlaceholders(String uriString, boolean noHostname, String protocol) {
+        return replaceUriPartsWithPlaceholders(uriString, noHostname, protocol, IDLE_DOMAIN_PLACEHOLDER, IDLE_HOST_PLACEHOLDER);
+    }
+
+    private String replaceUriPartsWithPlaceholders(String uriString, boolean noHostname, String protocol, String domainPlaceholder,
+                                                   String hostPlaceholder) {
         ApplicationURI uri = new ApplicationURI(uriString, noHostname, protocol);
-        uri.setDomain(IDLE_DOMAIN_PLACEHOLDER);
-        uri.setHost(IDLE_HOST_PLACEHOLDER);
+        uri.setDomain(domainPlaceholder);
+        uri.setHost(hostPlaceholder);
         return uri.toString();
     }
 
@@ -151,7 +166,8 @@ public class MtaDescriptorPropertiesResolver {
                                                                 Map<String, ResolvedConfigurationReference> resolvedResources,
                                                                 Set<String> dynamicResolvableParameters) {
         return context.getHandlerFactory()
-                      .getConfigurationSubscriptionFactory(descriptorWithUnresolvedReferences, resolvedResources, dynamicResolvableParameters)
+                      .getConfigurationSubscriptionFactory(descriptorWithUnresolvedReferences, resolvedResources,
+                                                           dynamicResolvableParameters)
                       .create(context.getCurrentSpaceId());
     }
 

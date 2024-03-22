@@ -16,6 +16,8 @@ import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.model.Module;
 
+import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.LIVE_ROUTE;
+
 public class RoutesValidator implements ParameterValidator {
 
     protected Map<String, ParameterValidator> validators;
@@ -164,7 +166,7 @@ public class RoutesValidator implements ParameterValidator {
 
     @Override
     public Set<String> getRelatedParameterNames() {
-        return Set.of(SupportedParameters.NO_HOSTNAME, SupportedParameters.ROUTE_PROTOCOL, SupportedParameters.APPLY_NAMESPACE);
+        return Set.of(SupportedParameters.NO_HOSTNAME, SupportedParameters.ROUTE_PROTOCOL, SupportedParameters.APPLY_NAMESPACE, SupportedParameters.LIVE_ROUTE);
     }
 
     private Set<String> getSpecificRouteParameterNames() {
