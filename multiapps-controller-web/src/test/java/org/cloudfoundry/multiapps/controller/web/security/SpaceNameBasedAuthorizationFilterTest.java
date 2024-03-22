@@ -5,6 +5,9 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +37,7 @@ class SpaceNameBasedAuthorizationFilterTest {
         Mockito.when(request.getRequestURI())
                .thenReturn("");
         dummyUriAuthorizationFilter = new DummyUriAuthorizationFilter(authorizationChecker);
+        AuditLoggingProvider.setFacade(Mockito.mock(AuditLoggingFacade.class));
     }
 
     @Test

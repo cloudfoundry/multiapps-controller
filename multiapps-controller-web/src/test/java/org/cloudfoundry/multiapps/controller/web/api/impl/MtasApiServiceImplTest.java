@@ -17,6 +17,8 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.api.model.Metadata;
 import org.cloudfoundry.multiapps.controller.api.model.Module;
 import org.cloudfoundry.multiapps.controller.api.model.Mta;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaRequiredDataOnlyDetector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
@@ -72,6 +74,7 @@ class MtasApiServiceImplTest {
                           .close();
         mtas = parseMtas();
         mockClient();
+        AuditLoggingProvider.setFacade(Mockito.mock(AuditLoggingFacade.class));
     }
 
     private List<Mta> parseMtas() {
