@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
 
     private static final Logger LOGGER = (Logger) LogManager.getLogger(AuditLoggingFacadeSLImpl.class);
-    private final AuditLogM anager auditLogManager;
+    private final AuditLogManager auditLogManager;
 
     public AuditLoggingFacadeSLImpl(DataSource dataSource, UserInfoProvider userInfoProvider) {
         this.auditLogManager = new AuditLogManager(dataSource, userInfoProvider);
