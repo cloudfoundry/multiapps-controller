@@ -135,7 +135,7 @@ class ObjectStoreServiceInfoCreatorTest {
 
     private static ObjectStoreServiceInfo buildGcpObjectStoreServiceInfo() {
         return ImmutableObjectStoreServiceInfo.builder()
-                                              .provider(Constants.GOOGLE_CLOUD_STORAGE_CUSTOM)
+                                              .provider(Constants.GOOGLE_CLOUD_STORAGE)
                                               .credentialsSupplier(CREDENTIALS_SUPPLIER)
                                               .container(BUCKET_VALUE)
                                               .region(REGION_VALUE)

@@ -41,15 +41,12 @@
         <liquibase-slf4j.version>5.0.0</liquibase-slf4j.version>
         <cloudfoundry-client.version>2.40.1</cloudfoundry-client.version>
         <swagger.version>1.6.9</swagger.version>
-        <jclouds.version>2.5.0</jclouds.version>
-        <guice.version>5.0.1</guice.version>
-        <gson.version>2.8.9</gson.version>
+        <jclouds.version>2.6.0</jclouds.version>
         <guava.version>32.0.1-jre</guava.version>
         <resilience4j.version>1.7.1</resilience4j.version>
         <immutables.version>2.8.8</immutables.version>
         <micrometer.version>1.12.3</micrometer.version>
-        <aliyun-sdk-oss.version>3.15.2</aliyun-sdk-oss.version>
-        <jettison.version>1.5.4</jettison.version>
+        <aliyun-sdk-oss.version>3.17.4</aliyun-sdk-oss.version>
         <auto-service.version>1.1.1</auto-service.version>
         <commons-codec.version>1.16.1</commons-codec.version>
         <java-cfenv.version>2.4.2</java-cfenv.version>
@@ -679,20 +676,6 @@
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.databind.version}</version>
             </dependency>
-            <!-- guice and guice-assistedinject are transitive dependencies from jclouds.
-            It is set to an explicit version because old one has issues with modular access. -->
-            <!-- https://mvnrepository.com/artifact/com.google.inject/guice -->
-            <dependency>
-                <groupId>com.google.inject</groupId>
-                <artifactId>guice</artifactId>
-                <version>${guice.version}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject -->
-            <dependency>
-                <groupId>com.google.inject.extensions</groupId>
-                <artifactId>guice-assistedinject</artifactId>
-                <version>${guice.version}</version>
-            </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.jclouds/jclouds-blobstore -->
             <dependency>
                 <groupId>org.apache.jclouds</groupId>
@@ -723,14 +706,6 @@
                 <groupId>org.apache.jclouds.provider</groupId>
                 <artifactId>azureblob</artifactId>
                 <version>${jclouds.version}</version>
-            </dependency>
-            <!-- Transitive dependency from jclouds. They're using an old version with security vulnerabilities.
-             In order to avoid the vulnerabilities explicit versioning is required.-->
-            <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>${gson.version}</version>
             </dependency>
             <!-- Transitive dependency from jclouds. They're using an old version with security vulnerabilities.
              In order to avoid the vulnerabilities explicit versioning is required.-->
@@ -765,14 +740,6 @@
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>${commons-codec.version}</version>
-            </dependency>
-            <!-- Transitive dependency from aliyun-sdk-oss. They're using an old version with security vulnerabilities.
-                 In order to avoid the vulnerabilities explicit versioning is required. -->
-            <!-- https://mvnrepository.com/artifact/org.codehaus.jettison/jettison -->
-            <dependency>
-                <groupId>org.codehaus.jettison</groupId>
-                <artifactId>jettison</artifactId>
-                <version>${jettison.version}</version>
             </dependency>
             <!-- Transitive dependency from spring-security-oauth2-client. They're using an old version with security vulnerabilities.
                  In order to avoid the vulnerabilities explicit versioning is required. -->

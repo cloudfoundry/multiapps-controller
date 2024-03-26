@@ -10,9 +10,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.persistence.jclouds.providers.aliyun.AliOSSApi;
 import org.jclouds.blobstore.BlobStoreContext;
@@ -52,6 +49,9 @@ import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.oss.model.PutObjectResult;
 import com.google.common.base.Supplier;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
 @Singleton
 public class AliOSSBlobStore extends BaseBlobStore {
 
@@ -89,9 +89,12 @@ public class AliOSSBlobStore extends BaseBlobStore {
         return doOssOperation(oss -> {
             try {
                 ObjectMetadata objectMetadata = createObjectMetadataFromBlob(blob);
-                PutObjectRequest request = new PutObjectRequest(container, blob.getMetadata()
-                                                                               .getProviderId(), blob.getPayload()
-                                                                                                     .openStream(), objectMetadata);
+                PutObjectRequest request = new PutObjectRequest(container,
+                                                                blob.getMetadata()
+                                                                    .getProviderId(),
+                                                                blob.getPayload()
+                                                                    .openStream(),
+                                                                objectMetadata);
                 PutObjectResult result = oss.putObject(request);
                 return result.getETag();
             } catch (IOException e) {
@@ -163,9 +166,16 @@ public class AliOSSBlobStore extends BaseBlobStore {
     private StorageMetadata toStorageMetadata(OSS oss, String container, OSSObjectSummary ossObjectSummary) {
         ObjectMetadata metadata = oss.getObjectMetadata(container, ossObjectSummary.getKey());
         URI url = getPresignedUriForObject(oss, ossObjectSummary);
-        return new StorageMetadataImpl(StorageType.BLOB, ossObjectSummary.getKey(), ossObjectSummary.getKey(), defaultLocation.get(),
-                                       url, ossObjectSummary.getETag(), ossObjectSummary.getLastModified(),
-                                       ossObjectSummary.getLastModified(), metadata.getUserMetadata(), ossObjectSummary.getSize(),
+        return new StorageMetadataImpl(StorageType.BLOB,
+                                       ossObjectSummary.getKey(),
+                                       ossObjectSummary.getKey(),
+                                       defaultLocation.get(),
+                                       url,
+                                       ossObjectSummary.getETag(),
+                                       ossObjectSummary.getLastModified(),
+                                       ossObjectSummary.getLastModified(),
+                                       metadata.getUserMetadata(),
+                                       ossObjectSummary.getSize(),
                                        Tier.STANDARD);
     }
 
@@ -174,7 +184,7 @@ public class AliOSSBlobStore extends BaseBlobStore {
         time.set(Calendar.HOUR, time.get(Calendar.HOUR) + 1);
         try {
             return oss.generatePresignedUrl(ossObjectSummary.getBucketName(), ossObjectSummary.getKey(), time.getTime())
-                .toURI();
+                      .toURI();
         } catch (URISyntaxException e) {
             throw new SLException(e);
         }
@@ -242,8 +252,8 @@ public class AliOSSBlobStore extends BaseBlobStore {
     }
 
     /****************************************************
-    ******* UNSUPPORTED OR NOT YET SUPPORTED APIS *******
-    ****************************************************/
+     ******* UNSUPPORTED OR NOT YET SUPPORTED APIS *******
+     ****************************************************/
 
     @Override
     protected boolean deleteAndVerifyContainerGone(String container) {
