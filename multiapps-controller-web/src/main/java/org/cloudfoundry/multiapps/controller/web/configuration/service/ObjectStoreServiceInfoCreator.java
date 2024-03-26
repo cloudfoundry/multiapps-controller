@@ -84,7 +84,7 @@ public class ObjectStoreServiceInfoCreator {
         String region = (String) credentials.get(Constants.REGION);
         Supplier<Credentials> credentialsSupplier = getGcpCredentialsSupplier(credentials);
         return ImmutableObjectStoreServiceInfo.builder()
-                                              .provider(Constants.GOOGLE_CLOUD_STORAGE_CUSTOM)
+                                              .provider(Constants.GOOGLE_CLOUD_STORAGE)
                                               .credentialsSupplier(credentialsSupplier)
                                               .container(bucket)
                                               .region(region)

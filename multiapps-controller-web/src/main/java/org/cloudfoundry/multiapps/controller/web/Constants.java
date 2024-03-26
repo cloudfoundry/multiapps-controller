@@ -33,5 +33,5 @@ public class Constants {
     public static final String AWS_S_3 = "aws-s3";
     public static final String AZUREBLOB = "azureblob";
     public static final String ALIYUN_OSS = "aliyun-oss";
-    public static final String GOOGLE_CLOUD_STORAGE_CUSTOM = "google-cloud-storage-custom";
+    public static final String GOOGLE_CLOUD_STORAGE = "google-cloud-storage";
 }

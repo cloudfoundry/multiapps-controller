@@ -1,8 +1,5 @@
 package org.cloudfoundry.multiapps.controller.persistence.jclouds.providers.aliyun;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.jclouds.domain.Credentials;
 import org.jclouds.location.Provider;
 import org.jclouds.location.suppliers.ProviderURISupplier;
@@ -12,6 +9,9 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.common.comm.Protocol;
 import com.google.common.base.Supplier;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class AliOSSApi {
