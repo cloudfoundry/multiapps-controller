@@ -2,10 +2,13 @@ package org.cloudfoundry.multiapps.controller.web.security;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.model.ExtentensionAuditLog;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
@@ -27,10 +30,14 @@ public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizat
     @Override
     public final boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
         CloudTarget target = extractAndLogTarget(request);
+        auditLogLoginAttempt(SecurityContextUtil.getUsername(), target.getSpaceName(), Messages.USER_TRYING_TO_LOGIN_AUDIT_LOG_MESSAGE);
+
         try {
             authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), target, null);
+            auditLogLoginAttempt(SecurityContextUtil.getUsername(), target.getSpaceName(), Messages.USER_SUCCESSFULLY_LOGGED_IN_AUDIT_LOG_MESSAGE);
             return true;
         } catch (ResponseStatusException e) {
+            auditLogLoginAttempt(SecurityContextUtil.getUsername(), target.getSpaceName(), Messages.USER_FAILED_TO_LOG_IN_AUDIT_LOG_MESSAGE);
             logUnauthorizedRequest(request, e);
             response.sendError(e.getStatus()
                                 .value(),

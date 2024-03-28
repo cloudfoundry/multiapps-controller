@@ -54,7 +54,6 @@ public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> impl
         List<T> configurationData = getConfigurationData();
         return configurationData.stream()
                                 .filter(this::hasNoAssociatedSpace)
-                                .peek(this::auditLogDeletion)
                                 .map(this::getSpaceId)
                                 .distinct()
                                 .mapToInt(this::deleteConfigurationDataBySpaceId)
@@ -105,10 +104,4 @@ public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> impl
         oauthClient.init(cloudCredentials);
         spaceClient = clientFactory.createSpaceClient(configuration.getControllerUrl(), oauthClient, Collections.emptyMap());
     }
-
-    private void auditLogDeletion(T configurationData) {
-        AuditLoggingProvider.getFacade()
-                            .logConfigDelete(configurationData);
-    }
-
 }

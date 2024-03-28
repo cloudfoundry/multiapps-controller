@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.web;
 
+import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
+
 /**
  * A collection of string constants used for exception and logging messages.
  */
@@ -25,8 +27,14 @@ public final class Messages {
     public static final String MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER = "Missing properties for creating the specific provider!";
 
     // Audit log messages
+    public static final String USER_TRYING_TO_LOGIN_AUDIT_LOG_MESSAGE = "{0} is trying to login in space {1} tried to login";
+    public static final String USER_SUCCESSFULLY_LOGGED_IN_AUDIT_LOG_MESSAGE = "{0} successfully logged into in space {1}";
+    public static final String USER_FAILED_TO_LOG_IN_AUDIT_LOG_MESSAGE = "{0} failed to login in space {1} tried to login";
 
-    // ERROR log messages
+    // Audit log configuration
+    public static final String LOGIN_ATTEMPT_AUDIT_LOG_CONFIG = "Login attempt";
+
+
     public static final String MTA_NOT_FOUND = "MTA with id \"{0}\" does not exist";
     public static final String MTAS_NOT_FOUND_BY_NAME = "MTAs with name \"{0}\" do not exist";
     public static final String MTAS_NOT_FOUND_BY_NAMESPACE = "MTAs with namespace \"{0}\" do not exist";
