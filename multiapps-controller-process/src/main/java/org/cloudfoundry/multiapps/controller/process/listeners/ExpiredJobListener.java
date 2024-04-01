@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 import static java.text.MessageFormat.format;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import javax.inject.Named;
 
@@ -48,6 +49,7 @@ public class ExpiredJobListener extends AbstractFlowableEngineEventListener {
             return false;
         }
         return Instant.now()
+                      .truncatedTo(ChronoUnit.MILLIS)
                       .isAfter(jobEntity.getLockExpirationTime()
                                         .toInstant());
     }
