@@ -160,7 +160,7 @@ class ServiceBindingParametersGetterTest {
         Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application,
                                                                                                                                SERVICE_NAME);
         assertNull(bindingParameters, "Returned result from CloudOperationException should be null");
-        verify(stepLogger).warnWithoutProgressMessage(anyString(), any());
+        verify(stepLogger).warnWithoutProgressMessage(anyString(), any(Object[].class));
     }
 
     private CloudApplicationExtended buildApplication(Map<String, Object> descriptorParameters) {

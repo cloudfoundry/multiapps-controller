@@ -16,6 +16,6 @@ open module org.cloudfoundry.multiapps.controller.api {
     requires static java.xml.bind;
     requires static javax.inject;
     requires static org.immutables.value;
-    requires static swagger.annotations;
+    requires static io.swagger.annotations;
 
 }

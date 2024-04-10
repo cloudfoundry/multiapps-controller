@@ -4,6 +4,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -54,6 +55,15 @@ class ApplicationColorDetectorTest {
     private static final String EXPECTED_EXCEPTION_MESSAGE = "There are both blue and green applications already deployed for MTA \"com.sap.sample.mta.consumer\"";
     private static final String FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID = "123123123";
     private static final String FAKE_PROCESS_ID = "abc";
+    private final Tester tester = Tester.forClass(getClass());
+    @Mock
+    private OperationService operationService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private OperationQuery operationQuery;
+    @Mock
+    private FlowableFacade flowableFacade;
+    @InjectMocks
+    private ApplicationColorDetector applicationColorDetector;
 
     static Stream<Arguments> detectLiveApplicationColorMtaColorAndPhase() {
         return Stream.of(Arguments.of("deployed-mta-01.json", GREEN, Operation.State.FINISHED, Operation.State.ABORTED, GREEN),
@@ -76,20 +86,6 @@ class ApplicationColorDetectorTest {
                          Arguments.of("deployed-mta-05.json", new Expectation(null)),
                          Arguments.of("deployed-mta-06.json", new Expectation(GREEN)));
     }
-
-    private final Tester tester = Tester.forClass(getClass());
-
-    @Mock
-    private OperationService operationService;
-
-    @Mock(answer = Answers.RETURNS_SELF)
-    private OperationQuery operationQuery;
-
-    @Mock
-    private FlowableFacade flowableFacade;
-
-    @InjectMocks
-    private ApplicationColorDetector applicationColorDetector;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -135,9 +131,9 @@ class ApplicationColorDetectorTest {
     @Test
     void detectSingularDeployedApp3ModulesGreenBlueSuffix() {
         DeployedMta deployedMta = createMta("com.sap.sample.mta.consumer", Collections.emptySet(),
-                                            List.of(createMtaApplication("app-1", "app-1-blue", parseDate("2016-15-10")),
+                                            List.of(createMtaApplication("app-1", "app-1-blue", parseDate("2016-10-10")),
                                                     createMtaApplication("app-2", "app-2-green", parseDate("2016-10-10")),
-                                                    createMtaApplication("app-3", "app-3-blue", parseDate("2016-15-10"))));
+                                                    createMtaApplication("app-3", "app-3-blue", parseDate("2016-10-10"))));
         Expectation expectation = new Expectation(Expectation.Type.EXCEPTION, EXPECTED_EXCEPTION_MESSAGE);
         tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation);
     }
@@ -152,7 +148,7 @@ class ApplicationColorDetectorTest {
     @Test
     void detectSingularDeployedApp2ModuleBlueGreenSuffix() {
         DeployedMta deployedMta = createMta("com.sap.sample.mta.consumer", Collections.emptySet(),
-                                            List.of(createMtaApplication("consumer", "consumer-green", parseDate("2016-15-10")),
+                                            List.of(createMtaApplication("consumer", "consumer-green", parseDate("2016-09-10")),
                                                     createMtaApplication("consumer", "consumer-blue", parseDate("2016-10-10"))));
         Expectation expectation = new Expectation(Expectation.Type.EXCEPTION, EXPECTED_EXCEPTION_MESSAGE);
         tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation);
@@ -227,7 +223,8 @@ class ApplicationColorDetectorTest {
 
     private LocalDateTime parseDate(String date) {
         try {
-            return LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            return LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                            .atStartOfDay();
         } catch (DateTimeParseException e) {
             e.printStackTrace();
         }

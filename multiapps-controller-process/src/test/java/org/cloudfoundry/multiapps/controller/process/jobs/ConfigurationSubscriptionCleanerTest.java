@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,8 +23,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 
 class ConfigurationSubscriptionCleanerTest {
 
@@ -78,7 +78,7 @@ class ConfigurationSubscriptionCleanerTest {
         cleaner.execute(null);
         cleaner.execute(null);
 
-        verify(query, only()).list();
+        verify(query, times(1)).list();
     }
 
     private List<ConfigurationSubscription> generateConfigurationSubscriptions() {

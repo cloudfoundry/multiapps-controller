@@ -12,12 +12,11 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApp
 import org.cloudfoundry.multiapps.controller.client.lib.domain.RestartParameters;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStartupState;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStartupStateCalculator;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.mockito.Mock;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
@@ -30,12 +29,9 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
 
     @Mock
     protected ApplicationStartupStateCalculator appStateCalculator;
-    @Mock
-    protected ApplicationConfiguration configuration;
 
-    protected void initializeParameters(ApplicationStartupState currentAppState,
-                      ApplicationStartupState desiredAppState, boolean hasAppChanged,
-                      boolean hasCloudPacakge) {
+    protected void initializeParameters(ApplicationStartupState currentAppState, ApplicationStartupState desiredAppState,
+                                        boolean hasAppChanged, boolean hasCloudPacakge) {
         prepareContext(hasAppChanged);
         prepareAppStepCalculator(currentAppState, desiredAppState);
         prepareStep();

@@ -71,9 +71,9 @@ class ModuleParametersCompatibilityValidatorTest {
 
     private void verifyUserMessageLogger(boolean shouldWarnMessage) {
         if (shouldWarnMessage) {
-            verify(userMessageLogger, atLeastOnce()).warn(anyString(), any());
+            verify(userMessageLogger, atLeastOnce()).warn(anyString(), any(Object[].class));
             return;
         }
-        verify(userMessageLogger, never()).warn(anyString(), any());
+        verify(userMessageLogger, never()).warn(anyString(), any(Object[].class));
     }
 }
