@@ -38,8 +38,8 @@ public class ExpiredJobListener extends AbstractFlowableEngineEventListener {
 
     private JobEntity getJobEntity(FlowableEngineEntityEvent event) {
         Object entity = event.getEntity();
-        if (entity instanceof JobEntity) {
-            return (JobEntity) entity;
+        if (entity instanceof JobEntity jobEntity) {
+            return jobEntity;
         }
         return null;
     }
