@@ -40,7 +40,6 @@
         <liquibase.version>4.27.0</liquibase.version>
         <liquibase-slf4j.version>5.0.0</liquibase-slf4j.version>
         <cloudfoundry-client.version>2.42.0</cloudfoundry-client.version>
-        <cloudfoundry-client.version>2.41.0</cloudfoundry-client.version>
         <swagger.version>1.6.14</swagger.version>
         <jclouds.version>2.6.0</jclouds.version>
         <guava.version>33.1.0-jre</guava.version>
