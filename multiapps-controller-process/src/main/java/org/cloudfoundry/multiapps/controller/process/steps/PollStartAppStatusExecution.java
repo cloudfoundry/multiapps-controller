@@ -80,8 +80,6 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     }
 
     private StartupStatus getStartupStatus(ProcessContext context, String appName, List<InstanceInfo> appInstances) {
-        boolean failOnCrashed = context.getVariable(Variables.FAIL_ON_CRASHED);
-
         int expectedInstances = appInstances.size();
         long runningInstances = getInstanceCount(appInstances, InstanceState.RUNNING);
         long downInstances = getInstanceCount(appInstances, InstanceState.DOWN);
@@ -102,7 +100,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         if (downInstances > 0) {
             return StartupStatus.DOWN;
         }
-        if (crashedInstances > 0 && failOnCrashed) {
+        if (crashedInstances > 0) {
             return StartupStatus.CRASHED;
         }
         return StartupStatus.STARTING;
