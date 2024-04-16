@@ -71,7 +71,7 @@ class PollStartAppStatusExecutionTest {
         return Stream.of(Arguments.of(List.of(InstanceState.RUNNING, InstanceState.STARTING), true, AsyncExecutionState.RUNNING),
                          Arguments.of(List.of(InstanceState.CRASHED, InstanceState.CRASHED, InstanceState.CRASHED), true,
                                       AsyncExecutionState.ERROR),
-                         Arguments.of(List.of(InstanceState.CRASHED), false, AsyncExecutionState.RUNNING),
+                         Arguments.of(List.of(InstanceState.CRASHED), false, AsyncExecutionState.ERROR),
                          Arguments.of(List.of(InstanceState.DOWN, InstanceState.RUNNING), true, AsyncExecutionState.ERROR),
                          Arguments.of(List.of(InstanceState.RUNNING, InstanceState.RUNNING), true, AsyncExecutionState.FINISHED));
     }
