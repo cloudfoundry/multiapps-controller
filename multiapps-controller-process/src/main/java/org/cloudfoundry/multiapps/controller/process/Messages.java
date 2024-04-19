@@ -683,6 +683,10 @@ public class Messages {
     public static final String USING_EXTENSION_DESCRIPTORS_IN_SEQUENCE = "Using extension descriptors with IDs in this sequence: [{0}]";
     public static final String PROVIDED_AND_UNUSED_EXTENSION_DESCRIPTORS = "Provided but unused extension descriptors because extend another MTA ID or extends order is not correct: [{0}]";
     public static final String NO_EXTENSION_DESCRIPTORS_IN_USE = "No extension descriptors in use";
+    public static final String ERROR_MONITORING_OPERATION_OF_BINDING_OR_KEY_OF_SERVICE = "Error monitoring operation of binding or key of services";
+    public static final String WAITING_FOR_SERVICE_OPERATION_TO_FINISH = "Waiting for service operation to finish";
+    public static final String ERROR_WAITING_FOR_OPERATION_TO_FINISH = "Error waiting for operation to finish";
+    public static final String OPERATION_OF_SERVICE_BINDING_OR_KEY_IS_IN_PROGRESS = "Operation of service binding or key is in progress";
 
     protected Messages() {
     }

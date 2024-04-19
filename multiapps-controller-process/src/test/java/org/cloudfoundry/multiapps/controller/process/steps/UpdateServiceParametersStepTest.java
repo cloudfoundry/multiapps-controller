@@ -1,19 +1,25 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
 class UpdateServiceParametersStepTest extends SyncFlowableStepTest<UpdateServiceParametersStep> {
 
@@ -25,8 +31,7 @@ class UpdateServiceParametersStepTest extends SyncFlowableStepTest<UpdateService
 
         step.execute(execution);
 
-        verify(client).updateServiceParameters(serviceToProcess.getName(),
-                serviceToProcess.getCredentials());
+        verify(client).updateServiceParameters(serviceToProcess.getName(), serviceToProcess.getCredentials());
     }
 
     @Test
@@ -48,6 +53,32 @@ class UpdateServiceParametersStepTest extends SyncFlowableStepTest<UpdateService
 
         assertThrows(SLException.class, () -> step.execute(execution));
         assertExecutionStepStatus(RETRY_STEP_EXECUTION_STATUS);
+    }
+
+    @Test
+    void testUpdateServiceParametersWithConflictStatusCodeFromController() {
+        CloudServiceInstanceExtended serviceToProcess = buildServiceToProcess(FALSE);
+        prepareServiceToProcess(serviceToProcess);
+        prepareClient(serviceToProcess);
+
+        throwExceptionOnServiceParametersUpdate(HttpStatus.CONFLICT);
+
+        assertDoesNotThrow(() -> step.execute(execution));
+        assertTrue(context.getVariable(Variables.IS_SERVICE_BINDING_KEY_OPERATION_IN_PROGRESS));
+        assertEquals(context.getVariable(Variables.SERVICE_WITH_BIND_IN_PROGRESS), serviceToProcess.getName());
+    }
+
+    @Test
+    void testUpdateServiceParametersWithConflictStatusCodeFromConatroller() {
+        CloudServiceInstanceExtended serviceToProcess = buildServiceToProcess(TRUE);
+        prepareServiceToProcess(serviceToProcess);
+        prepareClient(serviceToProcess);
+
+        throwExceptionOnServiceParametersUpdate(HttpStatus.CONFLICT);
+
+        assertDoesNotThrow(() -> step.execute(execution));
+        assertFalse(context.getVariable(Variables.IS_SERVICE_BINDING_KEY_OPERATION_IN_PROGRESS));
+        assertNull(context.getVariable(Variables.SERVICE_WITH_BIND_IN_PROGRESS));
     }
 
     @Test
@@ -81,8 +112,12 @@ class UpdateServiceParametersStepTest extends SyncFlowableStepTest<UpdateService
 
     private void throwExceptionOnServiceParametersUpdate(HttpStatus httpStatus) {
         Mockito.doThrow(new CloudOperationException(httpStatus, "Error occurred"))
-                .when(client)
-                .updateServiceParameters(any(), any());
+               .when(client)
+               .updateServiceParameters(any(), any());
+    }
+
+    private CloudOperationException createConflictCfException() {
+        return new CloudOperationException(HttpStatus.CONFLICT);
     }
 
     @Override

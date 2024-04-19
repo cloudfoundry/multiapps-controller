@@ -57,16 +57,22 @@ public abstract class ServiceStep extends AsyncFlowableStep {
 
     protected void processServiceActionFailure(ProcessContext context, CloudServiceInstanceExtended serviceInstance,
                                                CloudOperationException e) {
-        if (!serviceInstance.isOptional()) {
-            String detailedMessage = MessageFormat.format(Messages.ERROR_CREATING_OR_UPDATING_SERVICE_INSTANCE, e.getDescription());
-            if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
-                context.setVariable(Variables.SERVICE_OFFERING, serviceInstance.getLabel());
-                throw new CloudServiceBrokerException(e.getStatusCode(), e.getStatusText(), detailedMessage);
-            }
-            throw new CloudControllerException(e.getStatusCode(), e.getStatusText(), detailedMessage);
+        if (serviceInstance.isOptional()) {
+            getStepLogger().warn(MessageFormat.format(Messages.ERROR_CREATING_OR_UPDATING_OPTIONAL_SERVICE_INSTANCE, e.getDescription()));
+            return;
         }
-
-        getStepLogger().warn(MessageFormat.format(Messages.ERROR_CREATING_OR_UPDATING_OPTIONAL_SERVICE_INSTANCE, e.getDescription()));
+        if (e.getStatusCode() == HttpStatus.CONFLICT && !context.getVariable(Variables.WAS_SERVICE_BINDING_KEY_OPERATION_ALREADY_DONE)) {
+            getStepLogger().warn(Messages.OPERATION_OF_SERVICE_BINDING_OR_KEY_IS_IN_PROGRESS);
+            context.setVariable(Variables.IS_SERVICE_BINDING_KEY_OPERATION_IN_PROGRESS, true);
+            context.setVariable(Variables.SERVICE_WITH_BIND_IN_PROGRESS, serviceInstance.getName());
+            return;
+        }
+        String detailedMessage = MessageFormat.format(Messages.ERROR_CREATING_OR_UPDATING_SERVICE_INSTANCE, e.getDescription());
+        if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
+            context.setVariable(Variables.SERVICE_OFFERING, serviceInstance.getLabel());
+            throw new CloudServiceBrokerException(e.getStatusCode(), e.getStatusText(), detailedMessage);
+        }
+        throw new CloudControllerException(e.getStatusCode(), e.getStatusText(), detailedMessage);
     }
 
     protected abstract ServiceOperation.Type getOperationType();

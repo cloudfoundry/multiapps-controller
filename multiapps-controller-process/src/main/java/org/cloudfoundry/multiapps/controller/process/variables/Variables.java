@@ -583,6 +583,25 @@ public interface Variables {
                                                                                         .name("serviceBrokerNamesJobsIds")
                                                                                         .build();
 
+    Variable<Boolean> IS_SERVICE_BINDING_KEY_OPERATION_IN_PROGRESS = ImmutableSimpleVariable.<Boolean> builder()
+                                                                                            .name("isServiceBindingKeyOperationInProgress")
+                                                                                            .defaultValue(false)
+                                                                                            .build();
+
+    Variable<Boolean> WAS_SERVICE_BINDING_KEY_OPERATION_ALREADY_DONE = ImmutableSimpleVariable.<Boolean> builder()
+                                                                                             .name("wasServiceBindingKeyOperationAlreadyDone")
+                                                                                             .defaultValue(false)
+                                                                                             .build();
+
+    Variable<String> SERVICE_WITH_BIND_IN_PROGRESS = ImmutableSimpleVariable.<String> builder()
+                                                                            .name("serviceWithBindInProgress")
+                                                                            .build();
+
+    Variable<Duration> WAIT_BIND_SERVICE_TIMEOUT = ImmutableSimpleVariable.<Duration> builder()
+                                                                          .name("waitBindServiceTimeout")
+                                                                          .defaultValue(Duration.ofHours(1))
+                                                                          .build();
+
     // TODO: keep custom serializers only for one release, delete after
     // Variable<List<List<CloudServiceInstanceExtended>>> BATCHES_TO_PROCESS =
     // ImmutableJsonStringListVariable.<List<CloudServiceInstanceExtended>> builder()
