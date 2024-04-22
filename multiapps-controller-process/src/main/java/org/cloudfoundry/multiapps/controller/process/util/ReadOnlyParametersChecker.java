@@ -19,17 +19,29 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.NamedParametersContainer;
 
-@Named
+@Named("readOnlyParametersChecker")
 public class ReadOnlyParametersChecker {
 
     public void check(DeploymentDescriptor descriptor) {
         Map<String, Set<String>> detectedReadOnlyParameters = new LinkedHashMap<>();
-        checkForCommonParameters(new GlobalParameters(descriptor), READ_ONLY_SYSTEM_PARAMETERS, detectedReadOnlyParameters);
-        checkCollectionForCommonParameters(descriptor.getModules(), READ_ONLY_MODULE_PARAMETERS, detectedReadOnlyParameters);
-        checkCollectionForCommonParameters(descriptor.getResources(), READ_ONLY_RESOURCE_PARAMETERS, detectedReadOnlyParameters);
+        checkForCommonParameters(new GlobalParameters(descriptor), getReadOnlySystemParameters(), detectedReadOnlyParameters);
+        checkCollectionForCommonParameters(descriptor.getModules(), getReadOnlyModuleParameters(), detectedReadOnlyParameters);
+        checkCollectionForCommonParameters(descriptor.getResources(), getReadOnlyResourceParameters(), detectedReadOnlyParameters);
         if (!detectedReadOnlyParameters.isEmpty()) {
             throw new SLException(getFormattedOutput(detectedReadOnlyParameters));
         }
+    }
+
+    protected Set<String> getReadOnlySystemParameters() {
+        return READ_ONLY_SYSTEM_PARAMETERS;
+    }
+
+    protected Set<String> getReadOnlyModuleParameters() {
+        return READ_ONLY_MODULE_PARAMETERS;
+    }
+
+    protected Set<String> getReadOnlyResourceParameters() {
+        return READ_ONLY_RESOURCE_PARAMETERS;
     }
 
     private void checkForCommonParameters(NamedParametersContainer namedParametersContainer, Set<String> readOnlyParameters,
