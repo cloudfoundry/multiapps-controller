@@ -32,7 +32,7 @@ public class ReadOnlyParametersChecker {
         }
     }
 
-    private void checkForCommonParameters(NamedParametersContainer namedParametersContainer, Set<String> readOnlyParameters,
+    protected void checkForCommonParameters(NamedParametersContainer namedParametersContainer, Set<String> readOnlyParameters,
                                           Map<String, Set<String>> commonReadOnlyParameters) {
         Set<String> commonParameters = SetUtils.intersection(namedParametersContainer.getParameters()
                                                                                      .keySet(), readOnlyParameters);
@@ -41,14 +41,14 @@ public class ReadOnlyParametersChecker {
         }
     }
 
-    private void checkCollectionForCommonParameters(List<? extends NamedParametersContainer> namedElementsWithParametersContainers,
+    protected void checkCollectionForCommonParameters(List<? extends NamedParametersContainer> namedElementsWithParametersContainers,
                                                     Set<String> readOnlyParameters, Map<String, Set<String>> commonReadOnlyParameters) {
         for (NamedParametersContainer namedElement : namedElementsWithParametersContainers) {
             checkForCommonParameters(namedElement, readOnlyParameters, commonReadOnlyParameters);
         }
     }
 
-    private String getFormattedOutput(Map<String, Set<String>> readOnlyParameters) {
+    protected String getFormattedOutput(Map<String, Set<String>> readOnlyParameters) {
         return System.lineSeparator() + readOnlyParameters.entrySet()
                                                           .stream()
                                                           .map(entry -> MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS,
