@@ -15,6 +15,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.api.FlowableOptimisticLockingException;
 import org.flowable.engine.ProcessEngine;
@@ -53,6 +54,10 @@ public class FlowableFacade {
 
     public String getProcessInstanceId(String executionId) {
         return getVariable(executionId, Constants.CORRELATION_ID);
+    }
+
+    public String getSubprocessInstanceId(String executionId) {
+        return getVariable(executionId, Variables.SUBPROCESS_ID.getName());
     }
 
     public String getCurrentTaskId(String executionId) {
