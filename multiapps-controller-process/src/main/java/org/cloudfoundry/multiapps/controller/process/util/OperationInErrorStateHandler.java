@@ -32,11 +32,11 @@ import org.flowable.engine.runtime.Execution;
 @Named
 public class OperationInErrorStateHandler {
 
-    private ProgressMessageService progressMessageService;
-    private FlowableFacade flowableFacade;
-    private HistoricOperationEventService historicOperationEventService;
-    private ClientReleaser clientReleaser;
-    private OperationService operationService;
+    protected final FlowableFacade flowableFacade;
+    private final OperationService operationService;
+    private final ProgressMessageService progressMessageService;
+    private final HistoricOperationEventService historicOperationEventService;
+    private final ClientReleaser clientReleaser;
 
     @Inject
     public OperationInErrorStateHandler(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
@@ -146,7 +146,7 @@ public class OperationInErrorStateHandler {
                                           .orElse(null);
     }
 
-    private void persistErrorState(FlowableEngineEvent event) {
+    protected void persistErrorState(FlowableEngineEvent event) {
         String processInstanceId = flowableFacade.getProcessInstanceId(event.getExecutionId());
         Operation operation = operationService.createQuery()
                                               .processId(processInstanceId)

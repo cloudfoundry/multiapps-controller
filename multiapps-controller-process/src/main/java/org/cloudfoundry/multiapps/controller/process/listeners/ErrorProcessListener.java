@@ -51,7 +51,6 @@ public class ErrorProcessListener extends AbstractFlowableEngineEventListener {
     }
 
     private void handle(FlowableEngineEvent event, DeadLetterJobEntity entity) {
-
         if (entity.getExceptionMessage() == null) {
             LOGGER.error("Dead letter job detected for process \"{}\" (definition: \"{}\"), but it does not contain an exception.",
                          event.getProcessInstanceId(), event.getProcessDefinitionId());
