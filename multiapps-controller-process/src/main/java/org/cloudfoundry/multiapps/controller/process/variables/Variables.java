@@ -206,10 +206,6 @@ public interface Variables {
                                                                                  .name("skipUpdateConfigurationEntries")
                                                                                  .defaultValue(false)
                                                                                  .build();
-    Variable<Boolean> FAIL_ON_CRASHED = ImmutableSimpleVariable.<Boolean> builder()
-                                                               .name("failOnCrashed")
-                                                               .defaultValue(true)
-                                                               .build();
     Variable<Boolean> USER_PROPERTIES_CHANGED = ImmutableSimpleVariable.<Boolean> builder()
                                                                        .name("vcapUserPropertiesChanged")
                                                                        .defaultValue(false)
