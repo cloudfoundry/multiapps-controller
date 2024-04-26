@@ -102,7 +102,6 @@ class PollStartAppStatusExecutionTest {
         context.setVariable(Variables.USER, USER_NAME);
         context.setVariable(Variables.START_TIME, PROCESS_START_TIME);
         context.setVariable(Variables.APP_TO_PROCESS, application);
-        context.setVariable(Variables.FAIL_ON_CRASHED, failOnCrash);
     }
 
     private void prepareClientProvider() {
