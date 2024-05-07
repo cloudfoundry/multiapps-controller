@@ -5,11 +5,18 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessEvent;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.ImmutableDynatraceProcessEvent;
+import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInFinalStateHandler;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
+import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -23,9 +30,16 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     protected final DynatracePublisher dynatracePublisher;
     protected final ProcessTypeParser processTypeParser;
 
-    @Inject
-    public EndProcessListener(OperationInFinalStateHandler eventHandler, DynatracePublisher dynatracePublisher,
+    public EndProcessListener(ProgressMessageService progressMessageService,
+                              StepLogger.Factory stepLoggerFactory,
+                              ProcessLoggerProvider processLoggerProvider,
+                              ProcessLogsPersister processLogsPersister,
+                              HistoricOperationEventService historicOperationEventService,
+                              FlowableFacade flowableFacade, ApplicationConfiguration configuration,
+                              OperationInFinalStateHandler eventHandler,
+                              DynatracePublisher dynatracePublisher,
                               ProcessTypeParser processTypeParser) {
+        super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
         this.eventHandler = eventHandler;
         this.dynatracePublisher = dynatracePublisher;
         this.processTypeParser = processTypeParser;

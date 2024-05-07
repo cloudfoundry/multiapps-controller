@@ -25,22 +25,26 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractProcessExecutionListener.class);
 
-    @Inject
-    private ProgressMessageService progressMessageService;
-    @Inject
-    private StepLogger.Factory stepLoggerFactory;
-    @Inject
-    private ProcessLoggerProvider processLoggerProvider;
-    @Inject
-    private ProcessLogsPersister processLogsPersister;
-    @Inject
-    private HistoricOperationEventService historicOperationEventService;
-    @Inject
-    private FlowableFacade flowableFacade;
-    @Inject
-    protected ApplicationConfiguration configuration;
+    private final ProgressMessageService progressMessageService;
+    private final StepLogger.Factory stepLoggerFactory;
+    private final ProcessLoggerProvider processLoggerProvider;
+    private final ProcessLogsPersister processLogsPersister;
+    private final HistoricOperationEventService historicOperationEventService;
+    private final FlowableFacade flowableFacade;
+    protected final ApplicationConfiguration configuration;
 
     private StepLogger stepLogger;
+
+    @Inject
+    protected AbstractProcessExecutionListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory, ProcessLoggerProvider processLoggerProvider, ProcessLogsPersister processLogsPersister, HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade, ApplicationConfiguration configuration) {
+        this.progressMessageService = progressMessageService;
+        this.stepLoggerFactory = stepLoggerFactory;
+        this.processLoggerProvider = processLoggerProvider;
+        this.processLogsPersister = processLogsPersister;
+        this.historicOperationEventService = historicOperationEventService;
+        this.flowableFacade = flowableFacade;
+        this.configuration = configuration;
+    }
 
     @Override
     public void notify(DelegateExecution execution) {

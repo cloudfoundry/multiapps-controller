@@ -2,10 +2,14 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -18,15 +22,20 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessEvent;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
+import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
@@ -46,9 +55,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class StartProcessListenerTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessListener.class);
     private static final String SPACE_ID = "9ba1dfc7-9c2c-40d5-8bf9-fd04fa7a1722";
     private static final String TASK_ID = "test-task-id";
     private static final String USER = "current-user";
@@ -58,10 +70,14 @@ class StartProcessListenerTest {
     private static final String EXT_DESCRIPTOR_IDS = "d1626c5f-783c-447f-bc4a-d76fa754a5f5,d69fbc83-b27e-40f4-ac53-924cf6af60c4";
     private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
     @Spy
-    private final ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
+    private ProcessLoggerProvider processLoggerProvider = new ProcessLoggerProvider();
+    @Mock
+    private ProcessLogsPersistenceService processLogsPersistenceService;
+    @Spy
+    private final ProcessLogsPersister processLogsPersister = new ProcessLogsPersister(processLoggerProvider, processLogsPersistenceService);
+
     private final Supplier<ZonedDateTime> currentTimeSupplier = () -> START_TIME;
-    @InjectMocks
-    private final StartProcessListener listener = new StartProcessListener();
+
     private String processInstanceId;
     private ProcessType processType;
     @Mock
@@ -70,12 +86,10 @@ class StartProcessListenerTest {
     private OperationQuery operationQuery;
     @Mock
     private StepLogger.Factory stepLoggerFactory;
-    @Mock
     private StepLogger stepLogger;
     @Mock
     private ProcessTypeParser processTypeParser;
-    @Mock
-    private ProcessLogsPersistenceService processLogsPersistenceService;
+
     @Mock
     private ApplicationConfiguration configuration;
     @Mock
@@ -86,19 +100,28 @@ class StartProcessListenerTest {
     private FileService fileService;
     @Spy
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
+    @Mock
+    private ProgressMessageService progressMessageService;
+    @Mock
+    private FlowableFacade flowableFacade;
+    @Mock
+    private ProcessLogger processLogger;
+    @InjectMocks
+    private final StartProcessListener listener = new StartProcessListener(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
 
     static Stream<Arguments> testVerify() {
         return Stream.of(
-                         // (0) Create Operation for process undeploy
-                         Arguments.of("process-instance-id", ProcessType.UNDEPLOY),
-                         // (1) Create Operation for process deploy
-                         Arguments.of("process-instance-id", ProcessType.DEPLOY));
+                // (0) Create Operation for process undeploy
+                Arguments.of("process-instance-id", ProcessType.UNDEPLOY),
+                // (1) Create Operation for process deploy
+                Arguments.of("process-instance-id", ProcessType.DEPLOY));
     }
 
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
-                          .close();
+                .close();
+        processLogger = mock(ProcessLogger.class);
     }
 
     @ParameterizedTest
@@ -116,28 +139,32 @@ class StartProcessListenerTest {
 
     private void prepare() throws Exception {
         MockitoAnnotations.openMocks(this)
-                          .close();
+                .close();
         prepareContext();
+        when(stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, LOGGER)).thenReturn(stepLogger);
         Mockito.when(stepLoggerFactory.create(any(), any(), any(), any()))
-               .thenReturn(stepLogger);
+                .thenReturn(stepLogger);
         Mockito.doNothing()
-               .when(processLogsPersister)
-               .persistLogs(processInstanceId, TASK_ID);
+                .when(processLogsPersister)
+                .persistLogs(processInstanceId, TASK_ID);
         Mockito.when(operationService.createQuery())
-               .thenReturn(operationQuery);
+                .thenReturn(operationQuery);
         Mockito.doReturn(null)
-               .when(operationQuery)
-               .singleResult();
+                .when(operationQuery)
+                .singleResult();
     }
 
     private void prepareContext() {
         listener.currentTimeSupplier = currentTimeSupplier;
+        List<ProcessLogger> processLoggerList = new ArrayList<>();
+        processLoggerList.add(processLogger);
+        when(processLoggerProvider.getExistingLoggers(processInstanceId,TASK_ID)).thenReturn(processLoggerList);
         Mockito.when(execution.getProcessInstanceId())
-               .thenReturn(processInstanceId);
+                .thenReturn(processInstanceId);
         Mockito.when(execution.getVariables())
-               .thenReturn(Collections.emptyMap());
+                .thenReturn(Collections.emptyMap());
         Mockito.when(processTypeParser.getProcessType(execution))
-               .thenReturn(processType);
+                .thenReturn(processType);
         VariableHandling.set(execution, Variables.SPACE_GUID, SPACE_ID);
         VariableHandling.set(execution, Variables.MTA_ID, MTA_ID);
         VariableHandling.set(execution, Variables.USER, USER);
@@ -150,31 +177,31 @@ class StartProcessListenerTest {
     private void verifyOperationInsertion() throws SLException {
         String user = StepsUtil.determineCurrentUser(execution);
         Operation operation = ImmutableOperation.builder()
-                                                .mtaId(MTA_ID)
-                                                .processId(processInstanceId)
-                                                .processType(processType)
-                                                .spaceId(SPACE_ID)
-                                                .startedAt(START_TIME)
-                                                .user(user)
-                                                .hasAcquiredLock(false)
-                                                .state(Operation.State.RUNNING)
-                                                .build();
+                .mtaId(MTA_ID)
+                .processId(processInstanceId)
+                .processType(processType)
+                .spaceId(SPACE_ID)
+                .startedAt(START_TIME)
+                .user(user)
+                .hasAcquiredLock(false)
+                .state(Operation.State.RUNNING)
+                .build();
         Mockito.verify(operationService)
-               .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
+                .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
         Mockito.verify(processLogsPersister, Mockito.atLeastOnce())
-               .persistLogs(processInstanceId, TASK_ID);
+                .persistLogs(processInstanceId, TASK_ID);
     }
 
     private void verifyOperationFilesAreUpdated() throws FileStorageException {
         List<String> expectedFileIds = List.of(ArrayUtils.addAll(APP_ARCHIVE_IDS.split(","), EXT_DESCRIPTOR_IDS.split(",")));
         Mockito.verify(fileService)
-               .updateFilesOperationId(Mockito.eq(expectedFileIds), Mockito.anyString());
+                .updateFilesOperationId(Mockito.eq(expectedFileIds), Mockito.anyString());
     }
 
     private void verifyDynatracePublishEvent() {
         ArgumentCaptor<DynatraceProcessEvent> argumentCaptor = ArgumentCaptor.forClass(DynatraceProcessEvent.class);
         Mockito.verify(dynatracePublisher)
-               .publishProcessEvent(argumentCaptor.capture(), Mockito.any());
+                .publishProcessEvent(argumentCaptor.capture(), Mockito.any());
         DynatraceProcessEvent actualDynatraceEvent = argumentCaptor.getValue();
         assertEquals(MTA_ID, actualDynatraceEvent.getMtaId());
         assertEquals(SPACE_ID, actualDynatraceEvent.getSpaceId());

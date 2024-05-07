@@ -35,7 +35,7 @@ class ProcessLogsPersisterTest {
     @Mock
     private ProcessLogger processLogger;
     @InjectMocks
-    private ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
+    private ProcessLogsPersister processLogsPersister = new ProcessLogsPersister(processLoggerProvider, processLogsPersistenceService);
 
     @BeforeEach
     void setUp() throws Exception {
