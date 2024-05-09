@@ -25,6 +25,7 @@ public class ManageAppServiceBindingEndListener extends AbstractProcessExecution
 
     private final ProcessTypeParser processTypeParser;
 
+    @Inject
     protected ManageAppServiceBindingEndListener(ProgressMessageService progressMessageService,
                                                  StepLogger.Factory stepLoggerFactory,
                                                  ProcessLoggerProvider processLoggerProvider,

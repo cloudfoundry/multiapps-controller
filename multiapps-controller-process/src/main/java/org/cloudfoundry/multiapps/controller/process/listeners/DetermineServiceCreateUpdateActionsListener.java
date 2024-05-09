@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
@@ -23,13 +24,14 @@ public class DetermineServiceCreateUpdateActionsListener extends AbstractProcess
 
     private static final long serialVersionUID = 1L;
 
+    @Inject
     protected DetermineServiceCreateUpdateActionsListener(ProgressMessageService progressMessageService,
-                                             StepLogger.Factory stepLoggerFactory,
-                                             ProcessLoggerProvider processLoggerProvider,
-                                             ProcessLogsPersister processLogsPersister,
-                                             HistoricOperationEventService historicOperationEventService,
-                                             FlowableFacade flowableFacade,
-                                             ApplicationConfiguration configuration) {
+                                                          StepLogger.Factory stepLoggerFactory,
+                                                          ProcessLoggerProvider processLoggerProvider,
+                                                          ProcessLogsPersister processLogsPersister,
+                                                          HistoricOperationEventService historicOperationEventService,
+                                                          FlowableFacade flowableFacade,
+                                                          ApplicationConfiguration configuration) {
         super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
     }
 

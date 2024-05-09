@@ -1,11 +1,8 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import org.cloudfoundry.multiapps.controller.persistence.Constants;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -13,8 +10,6 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,7 +30,7 @@ class ProcessLogsPersisterTest {
     @Mock
     private ProcessLogger processLogger;
     @InjectMocks
-    private ProcessLogsPersister processLogsPersister = new ProcessLogsPersister(processLoggerProvider, processLogsPersistenceService);
+    private ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
 
     @BeforeEach
     void setUp() throws Exception {

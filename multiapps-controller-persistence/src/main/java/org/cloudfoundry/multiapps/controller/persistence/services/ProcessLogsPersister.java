@@ -9,14 +9,10 @@ import org.springframework.scheduling.annotation.Async;
 @Named("processLogsPersister")
 public class ProcessLogsPersister {
 
-    private final ProcessLoggerProvider processLoggerProvider;
-    private final ProcessLogsPersistenceService processLogsPersistenceService;
-
     @Inject
-    public ProcessLogsPersister(ProcessLoggerProvider processLoggerProvider, ProcessLogsPersistenceService processLogsPersistenceService) {
-        this.processLoggerProvider = processLoggerProvider;
-        this.processLogsPersistenceService = processLogsPersistenceService;
-    }
+    private ProcessLoggerProvider processLoggerProvider;
+    @Inject
+    private ProcessLogsPersistenceService processLogsPersistenceService;
 
     @Async("asyncExecutor")
     public void persistLogs(String correlationId, String taskId) {

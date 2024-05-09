@@ -2,14 +2,10 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -22,13 +18,11 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
-import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
@@ -55,12 +49,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class StartProcessListenerTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessListener.class);
     private static final String SPACE_ID = "9ba1dfc7-9c2c-40d5-8bf9-fd04fa7a1722";
     private static final String TASK_ID = "test-task-id";
     private static final String USER = "current-user";
@@ -70,14 +61,8 @@ class StartProcessListenerTest {
     private static final String EXT_DESCRIPTOR_IDS = "d1626c5f-783c-447f-bc4a-d76fa754a5f5,d69fbc83-b27e-40f4-ac53-924cf6af60c4";
     private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
     @Spy
-    private ProcessLoggerProvider processLoggerProvider = new ProcessLoggerProvider();
-    @Mock
-    private ProcessLogsPersistenceService processLogsPersistenceService;
-    @Spy
-    private final ProcessLogsPersister processLogsPersister = new ProcessLogsPersister(processLoggerProvider, processLogsPersistenceService);
-
+    private final ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
     private final Supplier<ZonedDateTime> currentTimeSupplier = () -> START_TIME;
-
     private String processInstanceId;
     private ProcessType processType;
     @Mock
@@ -86,10 +71,12 @@ class StartProcessListenerTest {
     private OperationQuery operationQuery;
     @Mock
     private StepLogger.Factory stepLoggerFactory;
+    @Mock
     private StepLogger stepLogger;
     @Mock
     private ProcessTypeParser processTypeParser;
-
+    @Mock
+    private ProcessLogsPersistenceService processLogsPersistenceService;
     @Mock
     private ApplicationConfiguration configuration;
     @Mock
@@ -100,14 +87,15 @@ class StartProcessListenerTest {
     private FileService fileService;
     @Spy
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
+
     @Mock
     private ProgressMessageService progressMessageService;
     @Mock
-    private FlowableFacade flowableFacade;
+    private ProcessLoggerProvider processLoggerProvider;
     @Mock
-    private ProcessLogger processLogger;
+    private FlowableFacade flowableFacade;
     @InjectMocks
-    private final StartProcessListener listener = new StartProcessListener(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
+    private final StartProcessListener listener = new StartProcessListener(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration, processTypeParser, operationService, operationMetadataMapper, dynatracePublisher, fileService);
 
     static Stream<Arguments> testVerify() {
         return Stream.of(
@@ -121,7 +109,6 @@ class StartProcessListenerTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                 .close();
-        processLogger = mock(ProcessLogger.class);
     }
 
     @ParameterizedTest
@@ -141,7 +128,6 @@ class StartProcessListenerTest {
         MockitoAnnotations.openMocks(this)
                 .close();
         prepareContext();
-        when(stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, LOGGER)).thenReturn(stepLogger);
         Mockito.when(stepLoggerFactory.create(any(), any(), any(), any()))
                 .thenReturn(stepLogger);
         Mockito.doNothing()
@@ -156,9 +142,6 @@ class StartProcessListenerTest {
 
     private void prepareContext() {
         listener.currentTimeSupplier = currentTimeSupplier;
-        List<ProcessLogger> processLoggerList = new ArrayList<>();
-        processLoggerList.add(processLogger);
-        when(processLoggerProvider.getExistingLoggers(processInstanceId,TASK_ID)).thenReturn(processLoggerList);
         Mockito.when(execution.getProcessInstanceId())
                 .thenReturn(processInstanceId);
         Mockito.when(execution.getVariables())

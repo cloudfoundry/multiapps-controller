@@ -43,7 +43,6 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Named
 public class StartProcessListener extends AbstractProcessExecutionListener {
@@ -51,26 +50,32 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessListener.class);
-    @Inject
     protected ProcessTypeParser processTypeParser;
     Supplier<ZonedDateTime> currentTimeSupplier = ZonedDateTime::now;
-    @Inject
-    private OperationService operationService;
-    @Autowired(required = false)
-    private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
-    @Inject
-    private DynatracePublisher dynatracePublisher;
-    @Inject
-    private FileService fileService;
+    private final OperationService operationService;
+    private final ProcessTypeToOperationMetadataMapper operationMetadataMapper;
+    private final DynatracePublisher dynatracePublisher;
+    private final FileService fileService;
 
     @Inject
-    protected StartProcessListener(ProgressMessageService progressMessageService,
-                                   StepLogger.Factory stepLoggerFactory,
-                                   ProcessLoggerProvider processLoggerProvider,
-                                   ProcessLogsPersister processLogsPersister,
-                                   HistoricOperationEventService historicOperationEventService,
-                                   FlowableFacade flowableFacade, ApplicationConfiguration configuration) {
+    public StartProcessListener(ProgressMessageService progressMessageService,
+                                StepLogger.Factory stepLoggerFactory,
+                                ProcessLoggerProvider processLoggerProvider,
+                                ProcessLogsPersister processLogsPersister,
+                                HistoricOperationEventService historicOperationEventService,
+                                FlowableFacade flowableFacade,
+                                ApplicationConfiguration configuration,
+                                ProcessTypeParser processTypeParser,
+                                OperationService operationService,
+                                ProcessTypeToOperationMetadataMapper operationMetadataMapper,
+                                DynatracePublisher dynatracePublisher,
+                                FileService fileService) {
         super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
+        this.processTypeParser = processTypeParser;
+        this.operationService = operationService;
+        this.operationMetadataMapper = operationMetadataMapper;
+        this.dynatracePublisher = dynatracePublisher;
+        this.fileService = fileService;
     }
 
     @Override

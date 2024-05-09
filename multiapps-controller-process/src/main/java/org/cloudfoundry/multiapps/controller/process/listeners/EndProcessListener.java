@@ -30,6 +30,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     protected final DynatracePublisher dynatracePublisher;
     protected final ProcessTypeParser processTypeParser;
 
+    @Inject
     public EndProcessListener(ProgressMessageService progressMessageService,
                               StepLogger.Factory stepLoggerFactory,
                               ProcessLoggerProvider processLoggerProvider,

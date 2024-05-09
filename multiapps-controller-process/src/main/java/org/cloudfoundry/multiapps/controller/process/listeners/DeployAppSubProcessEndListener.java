@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -24,13 +25,14 @@ public class DeployAppSubProcessEndListener extends AbstractProcessExecutionList
 
     private static final long serialVersionUID = 1L;
 
+    @Inject
     protected DeployAppSubProcessEndListener(ProgressMessageService progressMessageService,
-                                           StepLogger.Factory stepLoggerFactory,
-                                           ProcessLoggerProvider processLoggerProvider,
-                                           ProcessLogsPersister processLogsPersister,
-                                           HistoricOperationEventService historicOperationEventService,
-                                           FlowableFacade flowableFacade,
-                                           ApplicationConfiguration configuration) {
+                                             StepLogger.Factory stepLoggerFactory,
+                                             ProcessLoggerProvider processLoggerProvider,
+                                             ProcessLogsPersister processLogsPersister,
+                                             HistoricOperationEventService historicOperationEventService,
+                                             FlowableFacade flowableFacade,
+                                             ApplicationConfiguration configuration) {
         super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
     }
 
