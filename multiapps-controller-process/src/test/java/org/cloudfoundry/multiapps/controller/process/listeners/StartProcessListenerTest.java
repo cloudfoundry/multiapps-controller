@@ -2,6 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import com.google.errorprone.annotations.Var;
 import org.apache.commons.lang3.ArrayUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
@@ -23,6 +26,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
@@ -49,6 +53,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.slf4j.Logger;
+import org.springframework.security.core.parameters.P;
 
 class StartProcessListenerTest {
 
@@ -70,9 +76,9 @@ class StartProcessListenerTest {
     @Mock(answer = Answers.RETURNS_SELF)
     private OperationQuery operationQuery;
     @Mock
-    private StepLogger.Factory stepLoggerFactory;
+    private StepLogger.Factory stepLoggerFactory = new StepLogger.Factory();
     @Mock
-    private StepLogger stepLogger;
+    private StepLogger stepLogger = mock(StepLogger.class);
     @Mock
     private ProcessTypeParser processTypeParser;
     @Mock
@@ -87,15 +93,21 @@ class StartProcessListenerTest {
     private FileService fileService;
     @Spy
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
-
     @Mock
-    private ProgressMessageService progressMessageService;
+    private final ProcessLoggerProvider processLoggerProvider = mock(ProcessLoggerProvider.class);
     @Mock
-    private ProcessLoggerProvider processLoggerProvider;
+    private ProgressMessageService progressMessageService = mock(ProgressMessageService.class);
     @Mock
     private FlowableFacade flowableFacade;
+    @Mock
+    private ProcessLogger processLogger;
+    @Mock
+    private Logger simpleStepLogger;
     @InjectMocks
     private final StartProcessListener listener = new StartProcessListener(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration, processTypeParser, operationService, operationMetadataMapper, dynatracePublisher, fileService);
+
+//    @InjectMocks
+//    private StartProcessListener listener;// = new StartProcessListener(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration, processTypeParser, operationService, operationMetadataMapper, dynatracePublisher, fileService);
 
     static Stream<Arguments> testVerify() {
         return Stream.of(
@@ -138,6 +150,9 @@ class StartProcessListenerTest {
         Mockito.doReturn(null)
                 .when(operationQuery)
                 .singleResult();
+        Mockito.when(stepLogger.getProcessLogger())
+                .thenReturn(processLogger);
+        Mockito.doNothing().when(processLogger).info(anyString());
     }
 
     private void prepareContext() {
@@ -191,5 +206,4 @@ class StartProcessListenerTest {
         assertEquals(processType, actualDynatraceEvent.getProcessType());
         assertEquals(DynatraceProcessEvent.EventType.STARTED, actualDynatraceEvent.getEventType());
     }
-
 }
