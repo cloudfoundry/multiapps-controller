@@ -30,6 +30,7 @@ public class CreateUpdateServicesListener extends AbstractProcessExecutionListen
 
     private static final long serialVersionUID = 1L;
 
+    @Inject
     protected CreateUpdateServicesListener(ProgressMessageService progressMessageService,
                                            StepLogger.Factory stepLoggerFactory,
                                            ProcessLoggerProvider processLoggerProvider,

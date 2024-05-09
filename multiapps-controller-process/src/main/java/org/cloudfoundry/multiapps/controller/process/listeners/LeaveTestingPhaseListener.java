@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -17,6 +18,7 @@ public class LeaveTestingPhaseListener extends AbstractProcessExecutionListener 
 
     private static final long serialVersionUID = 1L;
 
+    @Inject
     protected LeaveTestingPhaseListener(ProgressMessageService progressMessageService,
                                         StepLogger.Factory stepLoggerFactory,
                                         ProcessLoggerProvider processLoggerProvider,

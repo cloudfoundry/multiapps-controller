@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import com.google.errorprone.annotations.Var;
 import org.apache.commons.lang3.ArrayUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
@@ -28,7 +27,6 @@ import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperat
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessEvent;
@@ -48,13 +46,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.slf4j.Logger;
-import org.springframework.security.core.parameters.P;
+
 
 class StartProcessListenerTest {
 
@@ -78,11 +74,9 @@ class StartProcessListenerTest {
     @Mock
     private StepLogger.Factory stepLoggerFactory = new StepLogger.Factory();
     @Mock
-    private StepLogger stepLogger = mock(StepLogger.class);
+    private StepLogger stepLogger;
     @Mock
     private ProcessTypeParser processTypeParser;
-    @Mock
-    private ProcessLogsPersistenceService processLogsPersistenceService;
     @Mock
     private ApplicationConfiguration configuration;
     @Mock
@@ -94,20 +88,13 @@ class StartProcessListenerTest {
     @Spy
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     @Mock
-    private final ProcessLoggerProvider processLoggerProvider = mock(ProcessLoggerProvider.class);
+    private ProcessLoggerProvider processLoggerProvider;
     @Mock
-    private ProgressMessageService progressMessageService = mock(ProgressMessageService.class);
+    private ProgressMessageService progressMessageService;
     @Mock
     private FlowableFacade flowableFacade;
-    @Mock
-    private ProcessLogger processLogger;
-    @Mock
-    private Logger simpleStepLogger;
-    @InjectMocks
-    private final StartProcessListener listener = new StartProcessListener(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration, processTypeParser, operationService, operationMetadataMapper, dynatracePublisher, fileService);
 
-//    @InjectMocks
-//    private StartProcessListener listener;// = new StartProcessListener(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration, processTypeParser, operationService, operationMetadataMapper, dynatracePublisher, fileService);
+    private StartProcessListener listener;
 
     static Stream<Arguments> testVerify() {
         return Stream.of(
@@ -121,6 +108,7 @@ class StartProcessListenerTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                 .close();
+        listener = new StartProcessListener(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration, processTypeParser, operationService, operationMetadataMapper, dynatracePublisher, fileService);
     }
 
     @ParameterizedTest
@@ -136,9 +124,7 @@ class StartProcessListenerTest {
         verifyDynatracePublishEvent();
     }
 
-    private void prepare() throws Exception {
-        MockitoAnnotations.openMocks(this)
-                .close();
+    private void prepare() {
         prepareContext();
         Mockito.when(stepLoggerFactory.create(any(), any(), any(), any()))
                 .thenReturn(stepLogger);
@@ -150,9 +136,6 @@ class StartProcessListenerTest {
         Mockito.doReturn(null)
                 .when(operationQuery)
                 .singleResult();
-        Mockito.when(stepLogger.getProcessLogger())
-                .thenReturn(processLogger);
-        Mockito.doNothing().when(processLogger).info(anyString());
     }
 
     private void prepareContext() {
