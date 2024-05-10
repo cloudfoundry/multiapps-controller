@@ -1,12 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
-import java.time.LocalDateTime;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SecurityUtil;
@@ -26,13 +26,15 @@ public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> impl
 
     private final ApplicationConfiguration configuration;
     private final OAuthClientFactory oAuthClientFactory;
+    private final MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
     protected CloudSpaceClient spaceClient;
     private boolean executed;
 
-    protected OrphanedDataCleaner(ApplicationConfiguration applicationConfiguration,
-                                  OAuthClientFactory oAuthClientFactory) {
+    protected OrphanedDataCleaner(ApplicationConfiguration applicationConfiguration, OAuthClientFactory oAuthClientFactory,
+                                  MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog) {
         this.configuration = applicationConfiguration;
         this.oAuthClientFactory = oAuthClientFactory;
+        this.mtaConfigurationPurgerAuditLog = mtaConfigurationPurgerAuditLog;
         this.executed = false;
     }
 
@@ -54,7 +56,6 @@ public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> impl
         List<T> configurationData = getConfigurationData();
         return configurationData.stream()
                                 .filter(this::hasNoAssociatedSpace)
-                                .peek(this::auditLogDeletion)
                                 .map(this::getSpaceId)
                                 .distinct()
                                 .mapToInt(this::deleteConfigurationDataBySpaceId)
@@ -87,6 +88,10 @@ public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> impl
         }
     }
 
+    protected MtaConfigurationPurgerAuditLog getMtaConfigurationPurgerAuditLog() {
+        return mtaConfigurationPurgerAuditLog;
+    }
+
     protected abstract int deleteConfigurationDataBySpaceId(String spaceId);
 
     protected void initSpaceClient() {
@@ -105,10 +110,4 @@ public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> impl
         oauthClient.init(cloudCredentials);
         spaceClient = clientFactory.createSpaceClient(configuration.getControllerUrl(), oauthClient, Collections.emptyMap());
     }
-
-    private void auditLogDeletion(T configurationData) {
-        AuditLoggingProvider.getFacade()
-                            .logConfigDelete(configurationData);
-    }
-
 }

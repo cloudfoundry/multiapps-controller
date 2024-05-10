@@ -4,13 +4,12 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
-import org.springframework.core.annotation.Order;
 
 /*
  * This cleaner is heavy because it scans for deleted space events for every configuration subscription.
@@ -26,8 +25,9 @@ public class ConfigurationSubscriptionCleaner extends OrphanedDataCleaner<Config
     @Inject
     public ConfigurationSubscriptionCleaner(ApplicationConfiguration applicationConfiguration,
                                             ConfigurationSubscriptionService configurationSubscriptionService,
-                                            OAuthClientFactory oAuthClientFactory) {
-        super(applicationConfiguration, oAuthClientFactory);
+                                            OAuthClientFactory oAuthClientFactory,
+                                            MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog) {
+        super(applicationConfiguration, oAuthClientFactory, mtaConfigurationPurgerAuditLog);
         this.configurationSubscriptionService = configurationSubscriptionService;
     }
 
@@ -54,6 +54,7 @@ public class ConfigurationSubscriptionCleaner extends OrphanedDataCleaner<Config
 
     @Override
     protected int deleteConfigurationDataBySpaceId(String spaceId) {
+        getMtaConfigurationPurgerAuditLog().logDeleteSubscription(spaceId);
         return configurationSubscriptionService.createQuery()
                                                .deleteAll(spaceId);
     }

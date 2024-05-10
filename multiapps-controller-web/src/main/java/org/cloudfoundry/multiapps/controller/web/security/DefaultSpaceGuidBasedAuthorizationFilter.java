@@ -8,6 +8,7 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.LoginAttemptAuditLog;
 import org.cloudfoundry.multiapps.controller.web.util.ServletUtil;
 
 @Named
@@ -17,8 +18,8 @@ public class DefaultSpaceGuidBasedAuthorizationFilter extends SpaceGuidBasedAuth
     private static final Pattern DEFAULT_URI_PATTERN = Pattern.compile(SPACE_GUID_CAPTURING_REGEX);
 
     @Inject
-    public DefaultSpaceGuidBasedAuthorizationFilter(AuthorizationChecker authorizationChecker) {
-        super(authorizationChecker);
+    public DefaultSpaceGuidBasedAuthorizationFilter(AuthorizationChecker authorizationChecker, LoginAttemptAuditLog loginAttemptAuditLog) {
+        super(authorizationChecker, loginAttemptAuditLog);
     }
 
     @Override

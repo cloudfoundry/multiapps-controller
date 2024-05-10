@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cloudfoundry.multiapps.controller.core.auditlogging.LoginAttemptAuditLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -23,14 +24,16 @@ class SpaceGuidBasedAuthorizationFilterTest {
     private HttpServletResponse response;
     @Mock
     private AuthorizationChecker authorizationChecker;
-    private DummyUriAuthorizationFilter dummyUriAuthorizationFilter;
+    @Mock
+    private LoginAttemptAuditLog loginAttemptAuditLog;
 
+    private DummyUriAuthorizationFilter dummyUriAuthorizationFilter;
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         Mockito.when(request.getRequestURI())
                .thenReturn("");
-        dummyUriAuthorizationFilter = new DummyUriAuthorizationFilter(authorizationChecker);
+        dummyUriAuthorizationFilter = new DummyUriAuthorizationFilter(authorizationChecker, loginAttemptAuditLog);
     }
 
     @Test
@@ -55,8 +58,8 @@ class SpaceGuidBasedAuthorizationFilterTest {
 
     private static class DummyUriAuthorizationFilter extends SpaceGuidBasedAuthorizationFilter {
 
-        public DummyUriAuthorizationFilter(AuthorizationChecker authorizationChecker) {
-            super(authorizationChecker);
+        public DummyUriAuthorizationFilter(AuthorizationChecker authorizationChecker, LoginAttemptAuditLog loginAttemptAuditLog) {
+            super(authorizationChecker, loginAttemptAuditLog);
         }
 
         @Override

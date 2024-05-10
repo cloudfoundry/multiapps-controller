@@ -6,9 +6,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataValidator;
 import org.cloudfoundry.multiapps.controller.core.util.ConfigurationEntriesUtil;
@@ -31,9 +29,10 @@ import org.mockito.MockitoAnnotations;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableLifecycle;
+import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
+import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 
 class MtaConfigurationPurgerTest {
 
@@ -44,13 +43,13 @@ class MtaConfigurationPurgerTest {
     private static final int SUBSCRIPTION_ID_TO_KEEP = 3;
     private static final String APPLICATION_NAME_TO_KEEP = "app-to-keep";
     private static final String APPLICATION_NAME_TO_REMOVE = "app-to-remove";
+    private final static String TARGET_SPACE = "space";
+    private final static String TARGET_ORG = "org";
     private final ConfigurationEntry ENTRY_TO_DELETE = createEntry(ENTRY_ID_TO_REMOVE, "remove:true");
     private final ConfigurationSubscription SUBSCRIPTION_TO_DELETE = createSubscription(SUBSCRIPTION_ID_TO_REMOVE,
                                                                                         APPLICATION_NAME_TO_REMOVE);
-
-    private final static String TARGET_SPACE = "space";
-    private final static String TARGET_ORG = "org";
-
+    private final List<Query<?, ?>> queriesToVerifyDeleteCallOn = new ArrayList<>();
+    private final List<Query<?, ?>> queriesToVerifyNoDeleteCallOn = new ArrayList<>();
     @Mock
     CloudControllerClient client;
     @Mock
@@ -64,16 +63,12 @@ class MtaConfigurationPurgerTest {
     @Mock(answer = Answers.RETURNS_SELF)
     ConfigurationSubscriptionQuery configurationSubscriptionQuery;
     @Mock
-    AuditLoggingFacadeSLImpl auditLoggingFacade;
-
-    private final List<Query<?, ?>> queriesToVerifyDeleteCallOn = new ArrayList<>();
-    private final List<Query<?, ?>> queriesToVerifyNoDeleteCallOn = new ArrayList<>();
+    MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
 
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        AuditLoggingProvider.setFacade(auditLoggingFacade);
         initApplicationsMock();
         initConfigurationEntriesMock();
         initConfigurationSubscriptionsMock();
@@ -81,17 +76,15 @@ class MtaConfigurationPurgerTest {
 
     @Test
     void testPurge() {
-        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, spaceClient,
+        MtaConfigurationPurger purger = new MtaConfigurationPurger(client,
+                                                                   spaceClient,
                                                                    configurationEntryService,
                                                                    configurationSubscriptionService,
-                                                                   new MtaMetadataParser(new MtaMetadataValidator()));
+                                                                   new MtaMetadataParser(new MtaMetadataValidator()),
+                                                                   mtaConfigurationPurgerAuditLog);
         purger.purge("org", "space");
         verifyConfigurationEntriesDeleted();
         verifyConfigurationEntriesNotDeleted();
-        Mockito.verify(auditLoggingFacade)
-               .logConfigDelete(ENTRY_TO_DELETE);
-        Mockito.verify(auditLoggingFacade)
-               .logConfigDelete(SUBSCRIPTION_TO_DELETE);
     }
 
     private void verifyConfigurationEntriesDeleted() {

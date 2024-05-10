@@ -17,6 +17,7 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.api.model.Metadata;
 import org.cloudfoundry.multiapps.controller.api.model.Module;
 import org.cloudfoundry.multiapps.controller.api.model.Mta;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.MtasApiServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaRequiredDataOnlyDetector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
@@ -57,8 +58,11 @@ class MtasApiServiceImplTest {
     @Mock
     private DeployedMtaRequiredDataOnlyDetector deployedMtaDetector;
 
+    @Mock
+    private MtasApiServiceAuditLog mtasApiServiceAuditLog;
+
     @InjectMocks
-    private MtasApiServiceImpl testedClass;
+    private MtasApiServiceImpl testedClass = new MtasApiServiceImpl();
 
     private List<Mta> mtas;
 

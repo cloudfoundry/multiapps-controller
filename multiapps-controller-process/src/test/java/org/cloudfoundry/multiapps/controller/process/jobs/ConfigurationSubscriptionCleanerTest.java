@@ -10,8 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
@@ -33,8 +32,6 @@ class ConfigurationSubscriptionCleanerTest {
     private static final UUID NON_EXISTING_SPACE = UUID.randomUUID();
 
     @Mock
-    private AuditLoggingFacade auditLoggingFacade;
-    @Mock
     private ApplicationConfiguration configuration;
     @Mock
     private CloudSpaceClient clientMock;
@@ -44,6 +41,8 @@ class ConfigurationSubscriptionCleanerTest {
     private OAuthClientFactory oAuthClientFactory;
     @Mock
     private ConfigurationSubscriptionQuery query;
+    @Mock
+    private MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
 
     private ConfigurationSubscriptionCleaner cleaner;
 
@@ -51,13 +50,15 @@ class ConfigurationSubscriptionCleanerTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        cleaner = new ConfigurationSubscriptionCleaner(configuration, configurationSubscriptionService, oAuthClientFactory) {
+        cleaner = new ConfigurationSubscriptionCleaner(configuration,
+                                                       configurationSubscriptionService,
+                                                       oAuthClientFactory,
+                                                       mtaConfigurationPurgerAuditLog) {
             @Override
             protected void initSpaceClient() {
                 super.spaceClient = clientMock;
             }
         };
-        AuditLoggingProvider.setFacade(auditLoggingFacade);
     }
 
     @Test

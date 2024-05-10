@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
@@ -23,9 +24,9 @@ public class ConfigurationEntriesCleaner extends OrphanedDataCleaner<Configurati
 
     @Inject
     public ConfigurationEntriesCleaner(ApplicationConfiguration applicationConfiguration,
-                                       ConfigurationEntryService configurationEntryService,
-                                       OAuthClientFactory oAuthClientFactory) {
-        super(applicationConfiguration, oAuthClientFactory);
+                                       ConfigurationEntryService configurationEntryService, OAuthClientFactory oAuthClientFactory,
+                                       MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog) {
+        super(applicationConfiguration, oAuthClientFactory, mtaConfigurationPurgerAuditLog);
         this.configurationEntryService = configurationEntryService;
     }
 
@@ -52,6 +53,7 @@ public class ConfigurationEntriesCleaner extends OrphanedDataCleaner<Configurati
 
     @Override
     protected int deleteConfigurationDataBySpaceId(String spaceId) {
+        getMtaConfigurationPurgerAuditLog().logDeleteEntry(spaceId);
         return configurationEntryService.createQuery()
                                         .deleteAll(spaceId);
     }

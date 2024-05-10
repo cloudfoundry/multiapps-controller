@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.LoginAttemptAuditLog;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,13 +26,15 @@ class AdminApiAuthorizationFilterTest {
     private HttpServletRequest request;
     @Mock
     private ApplicationConfiguration applicationConfiguration;
+    @Mock
+    private LoginAttemptAuditLog loginAttemptAuditLog;
     private AdminApiAuthorizationFilter adminApiAuthorizationFilter;
 
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        adminApiAuthorizationFilter = new AdminApiAuthorizationFilter(applicationConfiguration, null);
+        adminApiAuthorizationFilter = new AdminApiAuthorizationFilter(applicationConfiguration, null, loginAttemptAuditLog);
     }
 
     @ParameterizedTest

@@ -14,8 +14,6 @@ import java.util.UUID;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CfRolesGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
@@ -145,8 +143,6 @@ class AuthorizationCheckerTest {
     @Test
     void testCheckPermissionsWithNonUUIDSpaceIDString() {
         setUpMocks(EnumSet.of(UserRole.SPACE_DEVELOPER), null);
-        AuditLoggingFacade mockAuditLoggingFacade = Mockito.mock(AuditLoggingFacade.class);
-        AuditLoggingProvider.setFacade(mockAuditLoggingFacade);
         UserInfo userInfo = getUserInfo();
         ResponseStatusException resultException = assertThrows(ResponseStatusException.class,
                                                                () -> authorizationChecker.checkPermissions(userInfo, "non-uuid-spaceId",

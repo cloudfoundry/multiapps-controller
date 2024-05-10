@@ -33,7 +33,7 @@ import org.cloudfoundry.multiapps.controller.api.model.MessageType;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ParameterMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.parameters.ParameterConversion;
-import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.OperationsApiServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
@@ -70,6 +70,7 @@ import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 @Named
 public class OperationsApiServiceImpl implements OperationsApiService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsApiServiceImpl.class);
     @Inject
     private CloudControllerClientFactory clientFactory;
     @Inject
@@ -88,11 +89,12 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private ProgressMessageService progressMessageService;
     @Inject
     private ProcessActionRegistry processActionRegistry;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsApiServiceImpl.class);
+    @Inject
+    private OperationsApiServiceAuditLog operationsApiServiceAuditLog;
 
     @Override
     public ResponseEntity<List<Operation>> getOperations(String spaceGuid, String mtaId, List<String> stateStrings, Integer last) {
+        operationsApiServiceAuditLog.logGetOperations(SecurityContextUtil.getUsername(), spaceGuid, mtaId);
         List<Operation.State> states = getStates(stateStrings);
         List<Operation> operations = filterByQueryParameters(last, states, spaceGuid, mtaId);
         return ResponseEntity.ok()
@@ -101,6 +103,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<Void> executeOperationAction(HttpServletRequest request, String spaceGuid, String operationId, String actionId) {
+        operationsApiServiceAuditLog.logExecuteOperationAction(SecurityContextUtil.getUsername(), spaceGuid, operationId, actionId);
         Operation operation = getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
         List<String> availableOperations = getAvailableActions(operation);
         if (!availableOperations.contains(actionId)) {
@@ -109,8 +112,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         }
         ProcessAction action = processActionRegistry.getAction(Action.fromString(actionId));
         action.execute(getAuthenticatedUser(request), operationId);
-        AuditLoggingProvider.getFacade()
-                            .logAboutToStart(MessageFormat.format("{0} over operation with id {1}", action, operation.getProcessId()));
         return ResponseEntity.accepted()
                              .header("Location", getLocationHeader(operationId, spaceGuid))
                              .build();
@@ -119,6 +120,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Override
     public ResponseEntity<List<Log>> getOperationLogs(String spaceGuid, String operationId) {
         try {
+            operationsApiServiceAuditLog.logGetOperationLogs(SecurityContextUtil.getUsername(), spaceGuid, operationId);
             getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
             List<String> logIds = logsService.getLogNames(spaceGuid, operationId);
             List<Log> logs = logIds.stream()
@@ -136,6 +138,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Override
     public ResponseEntity<String> getOperationLogContent(String spaceGuid, String operationId, String logId) {
         try {
+            operationsApiServiceAuditLog.logGetOperationLogContent(SecurityContextUtil.getUsername(), spaceGuid, operationId, logId);
             String content = logsService.getLogContent(spaceGuid, operationId, logId);
             return ResponseEntity.ok()
                                  .body(content);
@@ -146,6 +149,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<Operation> startOperation(HttpServletRequest request, String spaceGuid, Operation operation) {
+        operationsApiServiceAuditLog.logStartOperation(SecurityContextUtil.getUsername(), spaceGuid, operation);
         String user = getAuthenticatedUser(request);
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
@@ -154,8 +158,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         operation = addParameterValues(operation, predefinedParameters);
         ensureRequiredParametersSet(operation, predefinedParameters);
         ProcessInstance processInstance = flowableFacade.startProcess(processDefinitionKey, operation.getParameters());
-        AuditLoggingProvider.getFacade()
-                            .logConfigCreate(operation);
+
         return ResponseEntity.accepted()
                              .header("Location", getLocationHeader(processInstance.getProcessInstanceId(), spaceGuid))
                              .build();
@@ -163,6 +166,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<Operation> getOperation(String spaceGuid, String operationId, String embed) {
+        operationsApiServiceAuditLog.logGetOperation(SecurityContextUtil.getUsername(), spaceGuid, operationId, embed);
         Operation operation = getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
         if (!operation.getSpaceId()
                       .equals(spaceGuid)) {
@@ -208,6 +212,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<List<String>> getOperationActions(String spaceGuid, String operationId) {
+        operationsApiServiceAuditLog.logGetOperationActions(spaceGuid, SecurityContextUtil.getUsername(), operationId);
         Operation operation = getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
         return ResponseEntity.ok()
                              .body(getAvailableActions(operation));

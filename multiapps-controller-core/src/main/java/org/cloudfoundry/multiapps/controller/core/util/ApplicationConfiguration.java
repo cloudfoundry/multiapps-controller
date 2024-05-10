@@ -118,9 +118,9 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_DURATION = 1; // 1 minute(s)
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
     public static final Integer DEFAULT_HEALTH_CHECK_TIME_RANGE = (int) TimeUnit.MINUTES.toSeconds(5);
-    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS = 2;
-    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS = 8;
-    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = 8;
+    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS = 32;
+    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS = 64;
+    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = 32767;
     public static final Integer DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE = 60;
     public static final Integer DEFAULT_FLOWABLE_JOB_EXECUTOR_CORE_THREADS = 8;
     public static final Integer DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS = 32;

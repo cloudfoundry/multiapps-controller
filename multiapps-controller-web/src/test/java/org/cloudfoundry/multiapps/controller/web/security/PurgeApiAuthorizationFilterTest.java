@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.LoginAttemptAuditLog;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.web.resources.ConfigurationEntriesResource;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,13 +26,15 @@ class PurgeApiAuthorizationFilterTest {
 
     @Mock
     private HttpServletRequest request;
+    @Mock
+    private LoginAttemptAuditLog loginAttemptAuditLog;
     private PurgeApiAuthorizationFilter purgeApiAuthorizationFilter;
 
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        purgeApiAuthorizationFilter = new PurgeApiAuthorizationFilter(null);
+        purgeApiAuthorizationFilter = new PurgeApiAuthorizationFilter(null, loginAttemptAuditLog);
     }
 
     @Test
