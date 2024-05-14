@@ -12,12 +12,13 @@ import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class CollectServicesInProgressStateStep extends AsyncFlowableStep {
+public abstract class CollectServicesInProgressStateStep extends TimeoutAsyncFlowableStep {
 
     protected ServiceOperationGetter serviceOperationGetter;
     protected ServiceProgressReporter serviceProgressReporter;
@@ -26,7 +27,6 @@ public abstract class CollectServicesInProgressStateStep extends AsyncFlowableSt
         this.serviceOperationGetter = serviceOperationGetter;
         this.serviceProgressReporter = serviceProgressReporter;
     }
-
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
@@ -79,6 +79,11 @@ public abstract class CollectServicesInProgressStateStep extends AsyncFlowableSt
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_MONITORING_OPERATIONS_OVER_SERVICES;
+    }
+
+    @Override
+    public Duration getTimeout(ProcessContext context) {
+        return context.getVariable(Variables.SERVICE_IN_PROGRESS_TIMEOUT);
     }
 
 }
