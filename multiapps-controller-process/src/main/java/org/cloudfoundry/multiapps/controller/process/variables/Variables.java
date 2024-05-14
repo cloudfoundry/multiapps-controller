@@ -762,4 +762,9 @@ public interface Variables {
                                                                                                    .type(new TypeReference<>() {
                                                                                                    })
                                                                                                    .build();
+
+    Variable<Duration> SERVICE_IN_PROGRESS_TIMEOUT = ImmutableSimpleVariable.<Duration> builder()
+                                                                            .name("serviceInProgressTimeout")
+                                                                            .defaultValue(Duration.ofHours(1))
+                                                                            .build();
 }
