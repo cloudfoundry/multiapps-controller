@@ -118,8 +118,4 @@ public class BootstrapServlet extends HttpServlet {
         // Do nothing
     }
 
-    @Bean
-    public UserInfoProvider buildUserInfoProvider() {
-        return SecurityContextUtil::getUserInfo;
-    }
 }
