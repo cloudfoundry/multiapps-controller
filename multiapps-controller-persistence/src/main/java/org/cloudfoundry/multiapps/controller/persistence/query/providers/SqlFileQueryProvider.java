@@ -40,8 +40,8 @@ public abstract class SqlFileQueryProvider {
     private static final String SELECT_FILES_WITHOUT_OPERATION_CREATED_AFTER_TIME1_AND_BEFORE_TIME2 = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE MODIFIED > ? AND MODIFIED < ? AND OPERATION_ID ISNULL";
     private static final String SELECT_ALL_FILES = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s";
     private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE NAMESPACE=? AND SPACE=?";
-    private static final String SELECT_FILES_BY_SPACE_ID_AND_OPERATION_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND (NAMESPACE=? OR OPERATION_ID=?)";
-    private static final String SELECT_FILES_BY_SPACE_ID_OPERATION_ID_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND (NAMESPACE=? OR OPERATION_ID=?) AND FILE_NAME=? ORDER BY MODIFIED ASC";
+    private static final String SELECT_FILES_BY_SPACE_ID_AND_OPERATION_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND OPERATION_ID=?";
+    private static final String SELECT_FILES_BY_SPACE_ID_OPERATION_ID_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND OPERATION_ID=? AND FILE_NAME=? ORDER BY MODIFIED ASC";
     private static final String SELECT_FILES_BY_SPACE_ID_WITH_NO_NAMESPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND NAMESPACE IS NULL";
     private static final String SELECT_FILES_BY_SPACE_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=?";
     private static final String SELECT_FILE_BY_ID_AND_SPACE_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE FILE_ID=? AND SPACE=?";
@@ -181,9 +181,7 @@ public abstract class SqlFileQueryProvider {
                 List<FileEntry> files = new ArrayList<>();
                 statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE_ID_AND_OPERATION_ID));
                 statement.setString(1, space);
-                // TODO: The namespace is currently used as operation ID, and will be set for backwards compatibility for 1 tact
                 statement.setString(2, operationId);
-                statement.setString(3, operationId);
                 resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     files.add(getFileEntry(resultSet));
@@ -204,10 +202,8 @@ public abstract class SqlFileQueryProvider {
                 List<FileEntry> files = new ArrayList<>();
                 statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE_ID_OPERATION_ID_AND_NAME));
                 statement.setString(1, space);
-                // TODO: The namespace is currently used as operation ID, and will be set for backwards compatibility for 1 tact
                 statement.setString(2, operationId);
-                statement.setString(3, operationId);
-                statement.setString(4, fileName);
+                statement.setString(3, fileName);
                 resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     files.add(getFileEntry(resultSet));
