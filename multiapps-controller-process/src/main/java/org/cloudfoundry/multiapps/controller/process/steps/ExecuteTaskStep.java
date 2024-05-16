@@ -57,7 +57,9 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return context.getVariable(Variables.START_TIMEOUT);
+        // TODO: This is a temporary solution because there are clients that have very long running tasks
+        // timeouts should be more granular for the different types of steps: LMCROSSITXSADEPLOY-2424, LMCROSSITXSADEPLOY-2425
+        return Duration.ofHours(12);
     }
 
 }
