@@ -143,10 +143,19 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
                                                          .namespace(context.getVariable(Variables.MTA_NAMESPACE))
                                                          .operationId(context.getExecution()
                                                                              .getProcessInstanceId())
+                            .size(getSizeOfInputStream(archivePath))
                                                          .build(),
                                        archivePath);
         } catch (FileStorageException e) {
             throw new SLException(e, e.getMessage());
+        }
+    }
+
+    private BigInteger getSizeOfInputStream(SequenceInputStream archivePath) {
+        try {
+            return BigInteger.valueOf(archivePath.readAllBytes().length);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

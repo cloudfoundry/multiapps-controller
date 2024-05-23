@@ -46,6 +46,6 @@ public class FilePartsMerger implements Closeable {
 
     @Override
     public void close() {
-        cleanUp();
+        //cleanUp();
     }
 }
