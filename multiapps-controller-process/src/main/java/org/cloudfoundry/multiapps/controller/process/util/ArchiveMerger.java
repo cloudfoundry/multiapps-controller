@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import java.io.SequenceInputStream;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
@@ -29,12 +30,12 @@ public class ArchiveMerger {
         this.execution = execution;
     }
 
-    public Path createArchiveFromParts(List<FileEntry> archiveParts) {
+    public SequenceInputStream createArchiveFromParts(List<FileEntry> archiveParts) {
         List<FileEntry> sortedArchiveParts = sort(archiveParts);
         String archiveName = getArchiveName(sortedArchiveParts.get(0));
         try (FilePartsMerger filePartsMerger = new FilePartsMerger(archiveName)) {
             mergeArchiveParts(sortedArchiveParts, filePartsMerger);
-            return filePartsMerger.getMergedFilePath();
+            return filePartsMerger.getMergedInputStream();
         }
     }
 

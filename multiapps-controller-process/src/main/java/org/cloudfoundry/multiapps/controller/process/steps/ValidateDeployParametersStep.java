@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.io.IOException;
+import java.io.SequenceInputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -97,7 +98,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
             // here, if the user wants us to verify the archive's signature.
             return;
         }
-        Path archive = null;
+        SequenceInputStream archive = null;
         try {
             archive = mergeArchiveParts(context, archivePartIds);
             persistMergedArchive(context, archive);
@@ -111,12 +112,12 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         return archiveId.split(",");
     }
 
-    private Path mergeArchiveParts(ProcessContext context, String[] archivePartIds) {
+    private SequenceInputStream mergeArchiveParts(ProcessContext context, String[] archivePartIds) {
         List<FileEntry> archivePartEntries = getArchivePartEntries(context, archivePartIds);
         context.setVariable(Variables.FILE_ENTRIES, archivePartEntries);
         getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
         var archiveMerger = new ArchiveMerger(fileService, getStepLogger(), context.getExecution());
-        return resilientOperationExecutor.execute((Supplier<Path>) () -> archiveMerger.createArchiveFromParts(archivePartEntries));
+        return resilientOperationExecutor.execute((Supplier<SequenceInputStream>) () -> archiveMerger.createArchiveFromParts(archivePartEntries));
     }
 
     private List<FileEntry> getArchivePartEntries(ProcessContext context, String[] appArchivePartsId) {
@@ -125,41 +126,40 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
                      .collect(Collectors.toList());
     }
 
-    private void persistMergedArchive(ProcessContext context, Path archiveFilePath) {
+    private void persistMergedArchive(ProcessContext context, SequenceInputStream archiveFilePath) {
         resilientOperationExecutor.execute(() -> persistMergedArchive(archiveFilePath, context));
     }
 
-    private void persistMergedArchive(Path archivePath, ProcessContext context) {
+    private void persistMergedArchive(SequenceInputStream archivePath, ProcessContext context) {
         FileEntry uploadedArchive = persistArchive(archivePath, context);
         context.setVariable(Variables.APP_ARCHIVE_ID, uploadedArchive.getId());
     }
 
-    private FileEntry persistArchive(Path archivePath, ProcessContext context) {
+    private FileEntry persistArchive(SequenceInputStream archivePath, ProcessContext context) {
         try {
             return fileService.addFile(ImmutableFileEntry.builder()
-                                                         .name(archivePath.getFileName()
-                                                                          .toString())
+                                                         .name("test")
                                                          .space(context.getVariable(Variables.SPACE_GUID))
                                                          .namespace(context.getVariable(Variables.MTA_NAMESPACE))
                                                          .operationId(context.getExecution()
                                                                              .getProcessInstanceId())
                                                          .build(),
-                                       archivePath.toFile());
+                                       archivePath);
         } catch (FileStorageException e) {
             throw new SLException(e, e.getMessage());
         }
     }
 
-    private void deleteArchive(Path archiveFilePath) {
+    private void deleteArchive(SequenceInputStream archiveFilePath) {
         if (archiveFilePath == null) {
             return;
         }
         tryDeleteArchiveFile(archiveFilePath);
     }
 
-    private void tryDeleteArchiveFile(Path archiveFilePath) {
+    private void tryDeleteArchiveFile(SequenceInputStream archiveFilePath) {
         try {
-            Files.deleteIfExists(archiveFilePath);
+            archiveFilePath.close();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             logger.warn(Messages.MERGED_FILE_NOT_DELETED);

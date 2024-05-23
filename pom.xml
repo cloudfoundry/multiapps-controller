@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.cloudfoundry.multiapps</groupId>
     <artifactId>multiapps-controller-parent</artifactId>
@@ -49,7 +49,7 @@
         <aliyun-sdk-oss.version>3.17.4</aliyun-sdk-oss.version>
         <auto-service.version>1.1.1</auto-service.version>
         <commons-codec.version>1.16.1</commons-codec.version>
-        <multiapps.version>2.21.0</multiapps.version>
+        <multiapps.version>2.22.0-SNAPSHOT</multiapps.version>
         <java-cfenv.version>3.1.5</java-cfenv.version>
         <jaxb-api.version>2.3.3</jaxb-api.version>
         <jaxb-core.version>2.3.0.1</jaxb-core.version>
@@ -155,7 +155,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.2.5</version>
                     <configuration>
-                        <!-- Surefire excludes nested classes by default, so we need to explicitly specify that nothing should 
+                        <!-- Surefire excludes nested classes by default, so we need to explicitly specify that nothing should
                             be excluded. -->
                         <excludes>
                             <exclude/>
@@ -237,7 +237,7 @@
                     <version>0.8.10</version>
                 </plugin>
             </plugins>
-        </pluginManagement>     
+        </pluginManagement>
     </build>
     <dependencies>
         <dependency>
@@ -338,7 +338,7 @@
                 <artifactId>jaxb-impl</artifactId>
                 <version>${jaxb-impl.version}</version>
             </dependency>
-            <!-- Transitive dependency from multiapps-common and liquibase. Pin the version to make sure we're always using 
+            <!-- Transitive dependency from multiapps-common and liquibase. Pin the version to make sure we're always using
                 the correct one. -->
             <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
             <dependency>
@@ -659,7 +659,7 @@
                 <version>${liquibase.version}</version>
                 <exclusions>
                     <exclusion>
-                        <!-- We're using https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api, which 
+                        <!-- We're using https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api, which
                             brings the same packages. -->
                         <groupId>javax.xml.bind</groupId>
                         <artifactId>jaxb-api</artifactId>
@@ -747,7 +747,7 @@
                 <artifactId>auto-service-annotations</artifactId>
                 <version>${auto-service.version}</version>
             </dependency>
-            <!-- Transitive dependency from aliyun-sdk-oss. It is not included by default and fails during runtime with ClassNotFoundException. 
+            <!-- Transitive dependency from aliyun-sdk-oss. It is not included by default and fails during runtime with ClassNotFoundException.
              In order to enable alicloud objectstore implementation, we need to maintain it manually. -->
             <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
             <dependency>
@@ -963,18 +963,18 @@
             <id>coverage</id>
             <build>
                 <plugins>
-                  <plugin>
-                      <groupId>org.jacoco</groupId>
-                      <artifactId>jacoco-maven-plugin</artifactId>
-                      <executions>
-                          <execution>
-                              <id>prepare-agent</id>
-                              <goals>
-                                  <goal>prepare-agent</goal>
-                              </goals>
-                          </execution>
-                      </executions>
-                  </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -982,22 +982,22 @@
             <id>sonar</id>
             <build>
                 <plugins>
-                  <plugin>
-                      <groupId>org.sonarsource.scanner.maven</groupId>
-                      <artifactId>sonar-maven-plugin</artifactId>
-                  </plugin>
-                  <plugin>
-                      <groupId>org.jacoco</groupId>
-                      <artifactId>jacoco-maven-plugin</artifactId>
-                      <executions>
-                          <execution>
-                              <id>prepare-agent</id>
-                              <goals>
-                                  <goal>prepare-agent</goal>
-                              </goals>
-                          </execution>
-                      </executions>
-                  </plugin>
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>

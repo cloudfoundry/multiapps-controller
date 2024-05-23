@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;

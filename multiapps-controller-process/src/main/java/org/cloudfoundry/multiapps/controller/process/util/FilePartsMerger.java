@@ -5,9 +5,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.SequenceInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -15,44 +20,32 @@ import org.cloudfoundry.multiapps.common.SLException;
 
 public class FilePartsMerger implements Closeable {
 
-    private Path mergedFilePath;
-    private OutputStream fileOutputStream;
+    private List<InputStream> fileContentInputStreams;
 
     public FilePartsMerger(String fileName) {
-        try {
-            Path tempDir = Files.createTempDirectory("merge");
-            mergedFilePath = Paths.get(tempDir.toString(), fileName);
-            fileOutputStream = Files.newOutputStream(mergedFilePath);
-        } catch (IOException e) {
-            cleanUp();
-            throw new SLException(e, e.getMessage());
-        }
+        fileContentInputStreams = new ArrayList<>();
     }
 
     public void merge(InputStream filePartInputStream) throws IOException {
-        IOUtils.copy(filePartInputStream, fileOutputStream);
+        fileContentInputStreams.add(filePartInputStream);
     }
 
-    public Path getMergedFilePath() {
-        return mergedFilePath;
+    public SequenceInputStream getMergedInputStream() {
+        return new SequenceInputStream(Collections.enumeration(fileContentInputStreams));
+    }
+
+    public void cleanUp() {
+        fileContentInputStreams.forEach(fileContentInputStream -> {
+            try {
+                fileContentInputStream.close();
+            } catch (IOException e) {
+                //ignore
+            }
+        });
     }
 
     @Override
     public void close() {
-        try {
-            if (fileOutputStream != null) {
-                fileOutputStream.close();
-            }
-        } catch (IOException ioe) {
-            // ignore
-        }
-    }
-
-    public void cleanUp() {
-        FileUtils.deleteQuietly(toFile(mergedFilePath));
-    }
-
-    private File toFile(Path path) {
-        return path != null ? path.toFile() : null;
+        cleanUp();
     }
 }

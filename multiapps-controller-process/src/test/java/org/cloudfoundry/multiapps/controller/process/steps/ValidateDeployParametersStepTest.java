@@ -130,8 +130,8 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
 
     private void prepareArchiveMerger() {
         FilePartsMerger merger = Mockito.mock(FilePartsMerger.class);
-        Mockito.when(merger.getMergedFilePath())
-               .thenReturn(Paths.get(MERGED_ARCHIVE_TEST_MTAR));
+//        Mockito.when(merger.getMergedFilePath())
+//               .thenReturn(Paths.get(MERGED_ARCHIVE_TEST_MTAR));
     }
 
     private void prepareConfiguration() {
