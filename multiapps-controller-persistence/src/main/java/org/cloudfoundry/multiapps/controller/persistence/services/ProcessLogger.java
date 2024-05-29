@@ -1,6 +1,9 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.AbstractLifeCycle;
+import org.apache.logging.log4j.core.LifeCycle;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
@@ -92,7 +95,22 @@ public class ProcessLogger {
 
     public void closeLoggerContext() {
         try {
-            loggerContext.close();
+            loggerContext.stop();
+            loggerContext.getConfiguration().getAppenders().values().forEach(appender -> {
+                loggerContext.getRootLogger().removeAppender(appender);
+                appender.stop();
+            });
+            loggerContext.getConfiguration().getWatchManager().getConfigurationWatchers().keySet().forEach(key -> {
+                loggerContext.getConfiguration().getWatchManager().unwatch(key);
+            });
+            loggerContext.getConfiguration().getWatchManager().reset();
+            loggerContext.getConfiguration().getLoggers().values().forEach(AbstractLifeCycle::stop);
+            loggerContext.getConfiguration().getLoggers().values().forEach(loggerConfig -> {
+                loggerConfig.getAppenderRefs().clear();
+            });
+            loggerContext.getConfiguration().getWatchManager().stop();
+            loggerContext.getConfiguration().getWatchManager().getConfigurationWatchers().clear();
+            LogManager.shutdown();
         } catch (Exception exception) {
             logger.error(Messages.COULD_NOT_CLOSE_LOGGER_CONTEXT, exception);
         }
