@@ -26,6 +26,8 @@ import org.mockito.Mockito;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication.State;
 
+import javax.sql.DataSource;
+
 class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
 
     private SimpleApplicationWithState application;

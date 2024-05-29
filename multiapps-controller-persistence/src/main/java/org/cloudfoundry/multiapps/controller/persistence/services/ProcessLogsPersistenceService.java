@@ -11,12 +11,12 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
 import org.apache.commons.io.IOUtils;
-import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
@@ -25,18 +25,22 @@ import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileInfo;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileInfo;
+import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.ByteArraySqlFileQueryProvider;
+import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlOperationLogQueryProvider;
 
 @Named("processLogsPersistenceService")
 public class ProcessLogsPersistenceService extends DatabaseFileService {
 
     public static final String TABLE_NAME = "process_log";
+    private final SqlOperationLogQueryProvider sqlOperationLogQueryProvider;
 
     public ProcessLogsPersistenceService(DataSourceWithDialect dataSourceWithDialect) {
         super(dataSourceWithDialect, new ByteArraySqlFileQueryProvider(TABLE_NAME, dataSourceWithDialect.getDataSourceDialect()));
+        sqlOperationLogQueryProvider = new SqlOperationLogQueryProvider(TABLE_NAME);
     }
 
-    public List<String> getLogNames(String space, String operationId) throws FileStorageException {
+    public List<String> getLogNamesBackwardsCompatible(String space, String operationId) throws FileStorageException {
         List<FileEntry> logFiles = listFilesBySpaceAndOperationId(space, operationId);
         return logFiles.stream()
                        .map(FileEntry::getName)
@@ -44,16 +48,42 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
                        .collect(Collectors.toList());
     }
 
+    public List<String> getLogNames(String space, String operationId) throws FileStorageException {
+        List<OperationLogEntry> operationLogEntries = listOperationLogsBySpaceAndOperationId(space, operationId);
+        return operationLogEntries.stream()
+                                  .map(OperationLogEntry::getOperationLogName)
+                                  .distinct()
+                                  .filter(Objects::nonNull)
+                                  .collect(Collectors.toList());
+    }
+
+    public List<OperationLogEntry> listOperationLogsBySpaceAndOperationId(String space, String operationId) throws FileStorageException {
+        try {
+            return getSqlQueryExecutor().execute(sqlOperationLogQueryProvider.getListFilesQueryBySpaceAndOperationId(space, operationId));
+        } catch (SQLException e) {
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_LOGS_WITH_SPACE_AND_OPERATION_ID, space,
+                                                                operationId),
+                                           e);
+        }
+    }
+
     public String getLogContent(String space, String operationId, String logName) throws FileStorageException {
         List<FileEntry> logFiles = listFiles(space, operationId, logName);
-        if (logFiles.isEmpty()) {
-            throw new NotFoundException(MessageFormat.format(Messages.ERROR_LOG_FILE_NOT_FOUND, logName, operationId, space));
-        }
 
         StringBuilder builder = new StringBuilder();
         for (FileEntry file : logFiles) {
             String content = processFileContent(space, file.getId(), inputStream -> IOUtils.toString(inputStream, StandardCharsets.UTF_8));
             builder.append(content);
+        }
+        return builder.toString();
+    }
+
+    public String getOperationLog(String space, String operationId, String logId) throws FileStorageException {
+        List<OperationLogEntry> operationLogs = listOperationLogs(space, operationId, logId);
+
+        StringBuilder builder = new StringBuilder();
+        for (OperationLogEntry operationLog : operationLogs) {
+            builder.append(operationLog.getOperationLog());
         }
         return builder.toString();
     }
@@ -70,43 +100,24 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         }
     }
 
-    public void persistLog(String space, String operationId, File localLog, String remoteLogName) {
-        try {
-            storeLogFile(space, operationId, remoteLogName, localLog);
-        } catch (FileStorageException e) {
-            logger.warn(MessageFormat.format(Messages.COULD_NOT_PERSIST_LOGS_FILE, localLog.getName()), e);
-        }
-    }
-
-    private void storeLogFile(final String space, final String operationId, final String remoteLogName, File localLog)
+    private List<OperationLogEntry> listOperationLogs(final String space, final String operationId, String logId)
         throws FileStorageException {
-        try (InputStream inputStream = new FileInputStream(localLog)) {
-            FileEntry localLogFileEntry = createFileEntry(space, operationId, remoteLogName, localLog);
-            getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileQuery(localLogFileEntry, inputStream));
-        } catch (SQLException | IOException | NoSuchAlgorithmException e) {
-            throw new FileStorageException(MessageFormat.format(Messages.ERROR_STORING_LOG_FILE, localLog.getName()), e);
+        try {
+            return getSqlQueryExecutor().execute(sqlOperationLogQueryProvider.getListFilesQueryBySpaceOperationIdAndLogId(space,
+                                                                                                                          operationId,
+                                                                                                                          logId));
+        } catch (SQLException e) {
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_LOGS_WITH_SPACE_OPERATION_ID_AND_NAME, space,
+                                                                operationId, logId),
+                                           e);
         }
     }
 
-    private FileEntry createFileEntry(final String space, final String operationId, final String remoteLogName, File localLog)
-        throws NoSuchAlgorithmException, IOException {
-        FileInfo localLogFileInfo = ImmutableFileInfo.builder()
-                                                     .file(localLog)
-                                                     .size(BigInteger.valueOf(localLog.length()))
-                                                     .digest(DigestHelper.computeFileChecksum(localLog.toPath(),
-                                                                                              Constants.DIGEST_ALGORITHM))
-                                                     .digestAlgorithm(Constants.DIGEST_ALGORITHM)
-                                                     .build();
-        return ImmutableFileEntry.builder()
-                                 .id(generateRandomId())
-                                 .space(space)
-                                 .name(remoteLogName)
-                                 .size(localLogFileInfo.getSize())
-                                 .digest(localLogFileInfo.getDigest())
-                                 .digestAlgorithm(localLogFileInfo.getDigestAlgorithm())
-                                 .modified(LocalDateTime.now())
-                                 .operationId(operationId)
-                                 .build();
+    public void persistLog(OperationLogEntry operationLogEntry) {
+        try {
+            getSqlQueryExecutor().execute(sqlOperationLogQueryProvider.getStoreLogQuery(operationLogEntry));
+        } catch (SQLException e) {
+            throw new OperationLogStorageException(Messages.FAILED_TO_SAVE_OPERATION_LOG_IN_DATABASE, e);
+        }
     }
-
 }
