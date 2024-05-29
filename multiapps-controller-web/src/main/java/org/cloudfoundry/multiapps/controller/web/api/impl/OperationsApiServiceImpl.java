@@ -122,6 +122,10 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             operationsApiServiceAuditLog.logGetOperationLogs(SecurityContextUtil.getUsername(), spaceGuid, operationId);
             getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
             List<String> logIds = logsService.getLogNames(spaceGuid, operationId);
+            if (logIds.isEmpty() || logIds.get(0) == null) {
+
+                logIds = logsService.getLogNamesBackwardsCompatible(spaceGuid, operationId);
+            }
             List<Log> logs = logIds.stream()
                                    .map(id -> ImmutableLog.builder()
                                                           .id(id)
@@ -138,7 +142,12 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     public ResponseEntity<String> getOperationLogContent(String spaceGuid, String operationId, String logId) {
         try {
             operationsApiServiceAuditLog.logGetOperationLogContent(SecurityContextUtil.getUsername(), spaceGuid, operationId, logId);
-            String content = logsService.getLogContent(spaceGuid, operationId, logId);
+            String content = logsService.getOperationLog(spaceGuid, operationId, logId);
+
+            if (content == null || content.isEmpty() || content.isBlank()) {
+                content = logsService.getLogContent(spaceGuid, operationId, logId);
+            }
+
             return ResponseEntity.ok()
                                  .body(content);
         } catch (FileStorageException e) {

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="add_columns_to_process_log">
+        <preConditions>
+            <tableExists tableName="process_log"/>
+        </preConditions>
+        <addColumn tableName="process_log">
+            <column name="operation_log_name" type="VARCHAR(255)"/>
+        </addColumn>
+        <addColumn tableName="process_log">
+            <column name="id" type="VARCHAR(255)"/>
+        </addColumn>
+        <dropPrimaryKey tableName="process_log"/>
+        <addColumn tableName="process_log">
+            <column name="operation_log" type="TEXT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="sap.com" id="drop_constraints">
+        <dropNotNullConstraint tableName="process_log" columnName="file_id"/>
+        <dropNotNullConstraint tableName="process_log" columnName="content"/>
+        <dropNotNullConstraint tableName="process_log" columnName="content_bytea"/>
+        <dropNotNullConstraint tableName="process_log" columnName="digest"/>
+        <dropNotNullConstraint tableName="process_log" columnName="digest_algorithm"/>
+        <dropNotNullConstraint tableName="process_log" columnName="file_name"/>
+        <dropNotNullConstraint tableName="process_log" columnName="file_size"/>
+    </changeSet>
+</databaseChangeLog>

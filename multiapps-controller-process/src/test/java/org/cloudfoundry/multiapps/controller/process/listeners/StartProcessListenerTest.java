@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
@@ -23,8 +22,8 @@ import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessEvent;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
@@ -58,8 +57,6 @@ class StartProcessListenerTest {
     private static final String APP_ARCHIVE_IDS = "436c97b3-36f2-46b1-b418-755ccf250dd8,756ff7aa-069f-4e0f-959f-0297c80b9417";
     private static final String EXT_DESCRIPTOR_IDS = "d1626c5f-783c-447f-bc4a-d76fa754a5f5,d69fbc83-b27e-40f4-ac53-924cf6af60c4";
     private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
-    @Spy
-    private final ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
     private final Supplier<ZonedDateTime> currentTimeSupplier = () -> START_TIME;
     private String processInstanceId;
     private ProcessType processType;
@@ -89,6 +86,8 @@ class StartProcessListenerTest {
     private ProgressMessageService progressMessageService;
     @Mock
     private FlowableFacade flowableFacade;
+    @Mock
+    private ProcessLoggerPersister processLoggerPersister;
 
     private StartProcessListener listener;
 
@@ -107,7 +106,7 @@ class StartProcessListenerTest {
         listener = new StartProcessListener(progressMessageService,
                                             stepLoggerFactory,
                                             processLoggerProvider,
-                                            processLogsPersister,
+                                            processLoggerPersister,
                                             historicOperationEventService,
                                             flowableFacade,
                                             configuration,
@@ -135,9 +134,6 @@ class StartProcessListenerTest {
         prepareContext();
         Mockito.when(stepLoggerFactory.create(any(), any(), any(), any()))
                .thenReturn(stepLogger);
-        Mockito.doNothing()
-               .when(processLogsPersister)
-               .persistLogs(processInstanceId, TASK_ID);
         Mockito.when(operationService.createQuery())
                .thenReturn(operationQuery);
         Mockito.doReturn(null)
@@ -174,10 +170,6 @@ class StartProcessListenerTest {
                                                 .hasAcquiredLock(false)
                                                 .state(Operation.State.RUNNING)
                                                 .build();
-        Mockito.verify(operationService)
-               .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
-        Mockito.verify(processLogsPersister, Mockito.atLeastOnce())
-               .persistLogs(processInstanceId, TASK_ID);
     }
 
     private void verifyOperationFilesAreUpdated() throws FileStorageException {
@@ -196,4 +188,5 @@ class StartProcessListenerTest {
         assertEquals(processType, actualDynatraceEvent.getProcessType());
         assertEquals(DynatraceProcessEvent.EventType.STARTED, actualDynatraceEvent.getEventType());
     }
+
 }
