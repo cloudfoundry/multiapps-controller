@@ -1,11 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.SequenceInputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -137,26 +139,24 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private FileEntry persistArchive(SequenceInputStream archivePath, ProcessContext context) {
         try {
+            byte[] b = archivePath.readAllBytes();
+            BigInteger a = getSizeOfInputStream(b);
             return fileService.addFile(ImmutableFileEntry.builder()
                                                          .name("test")
                                                          .space(context.getVariable(Variables.SPACE_GUID))
                                                          .namespace(context.getVariable(Variables.MTA_NAMESPACE))
                                                          .operationId(context.getExecution()
                                                                              .getProcessInstanceId())
-                            .size(getSizeOfInputStream(archivePath))
+                            .size(a)
                                                          .build(),
-                                       archivePath);
-        } catch (FileStorageException e) {
+                    new SequenceInputStream(Collections.enumeration(List.of(new ByteArrayInputStream(b)))));
+        } catch (FileStorageException | IOException e) {
             throw new SLException(e, e.getMessage());
         }
     }
 
-    private BigInteger getSizeOfInputStream(SequenceInputStream archivePath) {
-        try {
-            return BigInteger.valueOf(archivePath.readAllBytes().length);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private BigInteger getSizeOfInputStream(byte[] a) {
+            return BigInteger.valueOf(a.length);
     }
 
     private void deleteArchive(SequenceInputStream archiveFilePath) {
