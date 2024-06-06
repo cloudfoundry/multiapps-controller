@@ -72,14 +72,15 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public Optional<String> bindServiceInstance(String applicationName, String serviceInstanceName) {
-        return executeWithRetry(() -> delegate.bindServiceInstance(applicationName, serviceInstanceName));
+    public Optional<String> bindServiceInstance(String bindingName, String applicationName, String serviceInstanceName) {
+        return executeWithRetry(() -> delegate.bindServiceInstance(bindingName, applicationName, serviceInstanceName));
     }
 
     @Override
-    public Optional<String> bindServiceInstance(String applicationName, String serviceInstanceName, Map<String, Object> parameters,
+    public Optional<String> bindServiceInstance(String bindingName, String applicationName, String serviceInstanceName,
+                                                Map<String, Object> parameters,
                                                 ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
-        return executeWithRetry(() -> delegate.bindServiceInstance(applicationName, serviceInstanceName, parameters,
+        return executeWithRetry(() -> delegate.bindServiceInstance(bindingName, applicationName, serviceInstanceName, parameters,
                                                                    applicationServicesUpdateCallback));
     }
 

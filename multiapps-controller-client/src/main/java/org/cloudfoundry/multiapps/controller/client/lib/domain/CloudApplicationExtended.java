@@ -52,7 +52,7 @@ public abstract class CloudApplicationExtended extends CloudApplication {
 
     public abstract Set<CloudRoute> getIdleRoutes();
 
-    public abstract Map<String, Map<String, Object>> getBindingParameters();
+    public abstract Map<String, BindingDetails> getBindingParameters();
 
     public abstract List<CloudTask> getTasks();
 

@@ -56,6 +56,10 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         CloudApplication existingApp = client.getApplication(appToProcess.getName());
 
         ServiceBindingParametersGetter serviceBindingParametersGetter = getServiceBindingParametersGetter(context);
+
+        String bindingName = serviceBindingParametersGetter.getDescriptorProvidedBindingName(appToProcess, serviceInstanceToUnbindBind);
+        context.setVariable(Variables.BINDING_NAME, bindingName);
+
         Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromMta(appToProcess,
                                                                                                                   serviceInstanceToUnbindBind);
         if (!doesServiceBindingExist(serviceInstanceToUnbindBind, existingApp.getGuid(), context)) {
