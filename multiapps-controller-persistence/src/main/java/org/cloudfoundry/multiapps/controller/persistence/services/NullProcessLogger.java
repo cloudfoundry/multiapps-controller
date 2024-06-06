@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,7 @@ public class NullProcessLogger extends ProcessLogger {
     private static final String NULL_LOGGER_NAME = "NULL_LOGGER";
 
     public NullProcessLogger(String spaceId, String processId, String activityId) {
-        super(LoggerContext.getContext(false), spaceId, processId, activityId);
+        super(LoggerContext.getContext(false), spaceId, processId, activityId, FileAppender.newBuilder().build());
     }
 
     @Override

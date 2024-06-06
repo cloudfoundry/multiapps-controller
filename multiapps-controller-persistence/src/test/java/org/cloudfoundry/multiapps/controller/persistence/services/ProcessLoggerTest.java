@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,13 +33,15 @@ class ProcessLoggerTest {
     private Logger logger;
     private File log;
     private ProcessLogsPersistenceService processLogsPersistenceService;
+    private FileAppender fileAppender;
 
     @BeforeEach
     void setUp() {
         loggerContext = Mockito.mock(LoggerContext.class);
         logger = Mockito.mock(Logger.class);
         log = Mockito.mock(File.class);
-        processLogger = new ProcessLogger(loggerContext, logger, log, TEST_FILE_NAME, SPACE_ID, CORRELATION_ID, TASK_ID);
+        fileAppender = FileAppender.newBuilder().build();
+        processLogger = new ProcessLogger(loggerContext, logger, log, TEST_FILE_NAME, SPACE_ID, CORRELATION_ID, TASK_ID, fileAppender);
         processLogsPersistenceService = Mockito.mock(ProcessLogsPersistenceService.class);
 
     }
@@ -46,7 +49,7 @@ class ProcessLoggerTest {
     @Test
     void testProcessLogger() {
         prepareContextForProtectedConstructor();
-        processLogger = new ProcessLogger(loggerContext, SPACE_ID, CORRELATION_ID, TASK_ID);
+        processLogger = new ProcessLogger(loggerContext, SPACE_ID, CORRELATION_ID, TASK_ID, fileAppender);
         processLogger.info(INFO_MESSAGE);
         processLogger.debug(DEBUG_MESSAGE);
         processLogger.trace(TRACE_MESSAGE);

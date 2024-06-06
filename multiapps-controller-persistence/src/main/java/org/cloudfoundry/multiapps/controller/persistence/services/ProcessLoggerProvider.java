@@ -35,6 +35,7 @@ public class ProcessLoggerProvider {
     private static final String LOG_FILE_EXTENSION = ".log";
 
     private final Map<String, ProcessLogger> loggersCache = new ConcurrentHashMap<>();
+    private final LoggerContext loggerContext = new LoggerContext(DEFAULT_LOG_NAME);
 
     public ProcessLogger getLogger(DelegateExecution execution) {
         return getLogger(execution, DEFAULT_LOG_NAME);
@@ -77,9 +78,10 @@ public class ProcessLoggerProvider {
     private ProcessLogger createProcessLogger(String spaceId, String correlationId, String activityId, String loggerName, String logName,
                                               Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction) {
         File logFile = getLocalFileByLoggerName(loggerName);
-        LoggerContext loggerContext = initializeLoggerContext(loggerName, logFile, layoutCreatorFunction);
+        FileAppender fileAppender = createFileAppender(loggerName, logFile, layoutCreatorFunction, loggerContext);
+        LoggerContext loggerContext = initializeLoggerContext(loggerName, logFile, layoutCreatorFunction, fileAppender);
         Logger logger = loggerContext.getLogger(loggerName);
-        return new ProcessLogger(loggerContext, logger, logFile, logName, spaceId, correlationId, activityId);
+        return new ProcessLogger(loggerContext, logger, logFile, logName, spaceId, correlationId, activityId, fileAppender);
     }
 
     protected File getLocalFileByLoggerName(String loggerName) {
@@ -88,10 +90,9 @@ public class ProcessLoggerProvider {
     }
 
     private LoggerContext initializeLoggerContext(String loggerName, File logFile,
-                                                  Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction) {
-        LoggerContext loggerContext = new LoggerContext(loggerName);
+                                                  Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction, FileAppender fileAppender) {
         try {
-            attachFileAppender(loggerName, logFile, layoutCreatorFunction, loggerContext);
+            attachFileAppender(loggerName, logFile, layoutCreatorFunction, loggerContext, fileAppender);
         } catch (Exception e) {
             loggerContext.close();
             throw new SLException(e, e.getMessage());
@@ -100,8 +101,7 @@ public class ProcessLoggerProvider {
     }
 
     private void attachFileAppender(String loggerName, File logFile, Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction,
-                                    LoggerContext loggerContext) {
-        FileAppender fileAppender = createFileAppender(loggerName, logFile, layoutCreatorFunction, loggerContext);
+                                    LoggerContext loggerContext, FileAppender fileAppender) {
         fileAppender.start();
         loggerContext.getConfiguration()
                      .addAppender(fileAppender);

@@ -1,11 +1,14 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.AbstractLifeCycle;
 import org.apache.logging.log4j.core.LifeCycle;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.util.WatchManager;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 
 import java.io.File;
@@ -19,9 +22,10 @@ public class ProcessLogger {
     protected final String processId;
     protected final String activityId;
     private LoggerContext loggerContext;
+    private FileAppender fileAppender;
 
     public ProcessLogger(LoggerContext loggerContext, Logger logger, File log, String logName, String spaceId, String processId,
-                         String activityId) {
+                         String activityId, FileAppender fileAppender) {
         this.logger = logger;
         this.log = log;
         this.logName = logName;
@@ -29,14 +33,16 @@ public class ProcessLogger {
         this.processId = processId;
         this.activityId = activityId;
         this.loggerContext = loggerContext;
+        this.fileAppender = fileAppender;
     }
 
-    protected ProcessLogger(LoggerContext loggerContext, String spaceId, String processId, String activityId) {
+    protected ProcessLogger(LoggerContext loggerContext, String spaceId, String processId, String activityId, FileAppender fileAppender) {
         this.loggerContext = loggerContext;
         this.logger = loggerContext.getRootLogger();
         this.spaceId = spaceId;
         this.processId = processId;
         this.activityId = activityId;
+        this.fileAppender = fileAppender;
     }
 
     public void info(Object message) {
@@ -95,22 +101,9 @@ public class ProcessLogger {
 
     public void closeLoggerContext() {
         try {
-            loggerContext.stop();
-            loggerContext.getConfiguration().getAppenders().values().forEach(appender -> {
-                loggerContext.getRootLogger().removeAppender(appender);
-                appender.stop();
-            });
-            loggerContext.getConfiguration().getWatchManager().getConfigurationWatchers().keySet().forEach(key -> {
-                loggerContext.getConfiguration().getWatchManager().unwatch(key);
-            });
-            loggerContext.getConfiguration().getWatchManager().reset();
-            loggerContext.getConfiguration().getLoggers().values().forEach(AbstractLifeCycle::stop);
-            loggerContext.getConfiguration().getLoggers().values().forEach(loggerConfig -> {
-                loggerConfig.getAppenderRefs().clear();
-            });
-            loggerContext.getConfiguration().getWatchManager().stop();
-            loggerContext.getConfiguration().getWatchManager().getConfigurationWatchers().clear();
-            LogManager.shutdown();
+            fileAppender.stop();
+            loggerContext.getConfiguration().getAppenders().remove(fileAppender.getName());
+            //loggerContext.stop();
         } catch (Exception exception) {
             logger.error(Messages.COULD_NOT_CLOSE_LOGGER_CONTEXT, exception);
         }
