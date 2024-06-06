@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.web.security;
 import java.io.IOException;
 import java.text.MessageFormat;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.server.ResponseStatusException;
 
-public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizationFilter {
+public abstract class SpaceNameBasedAuthorizationFilter extends AbstractUriAuthorizationFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SpaceNameBasedAuthorizationFilter.class);
 
@@ -58,11 +57,9 @@ public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizat
     }
 
     private void logUnauthorizedRequest(HttpServletRequest request, ResponseStatusException e) {
-        if (LOGGER.isDebugEnabled()) {
-            String userName = SecurityContextUtil.getUsername();
-            LOGGER.debug(String.format("User \"%s\" is not authorized for request to \"%s\".", userName, ServletUtil.decodeUri(request)),
-                         e);
-        }
+        LOGGER.error(String.format("User with guid \"%s\" is not authorized for request to \"%s\".", extractUserGuid(),
+                                   ServletUtil.decodeUri(request)),
+                     e);
     }
 
     protected abstract CloudTarget extractTarget(HttpServletRequest request);

@@ -36,7 +36,7 @@ public class OAuthClientExtended extends OAuthClient {
                                   .plus(120, ChronoUnit.SECONDS))) {
             TokenProperties tokenProperties = TokenProperties.fromToken(token);
             token = tokenService.getToken(tokenProperties.getUserName());
-            LOGGER.info(MessageFormat.format(Messages.RETRIEVED_TOKEN_FOR_USER_0_WITH_EXPIRATION_TIME_1, tokenProperties.getUserName(),
+            LOGGER.info(MessageFormat.format(Messages.RETRIEVED_TOKEN_FOR_USER_WITH_GUID_0_WITH_EXPIRATION_TIME_1, tokenProperties.getUserId(),
                                              token.getOAuth2AccessToken()
                                                   .getExpiresAt()));
         }

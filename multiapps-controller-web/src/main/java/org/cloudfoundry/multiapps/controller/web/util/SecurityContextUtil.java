@@ -4,6 +4,7 @@ import static org.cloudfoundry.multiapps.controller.core.util.SecurityUtil.USER_
 
 import java.security.Principal;
 
+import org.cloudfoundry.multiapps.controller.client.util.TokenProperties;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,6 +30,14 @@ public class SecurityContextUtil {
     public static String getUsername() {
         UserInfo userInfo = getUserInfo();
         return userInfo == null ? null : userInfo.getName();
+    }
+
+    public static String getUserGuid() {
+        UserInfo userInfo = getUserInfo();
+        return userInfo == null ? null
+            : (String) userInfo.getToken()
+                               .getAdditionalInfo()
+                               .get(TokenProperties.USER_ID_KEY);
     }
 
     public static String getUsername(Principal principal) {

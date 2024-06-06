@@ -63,7 +63,7 @@ public final class Messages {
 
     // INFO log messages
     public static final String ALM_SERVICE_ENV_INITIALIZED = "Deploy service environment initialized";
-    public static final String STORING_TOKEN_FOR_USER_0_WHICH_EXPIRES_AT_1 = "Storing token for user \"{0}\" which expires at: {1}";
+    public static final String STORING_TOKEN_FOR_USER_WITH_GUID_0_WHICH_EXPIRES_AT_1 = "Storing token for user with GUID \"{0}\" which expires at: {1}";
     public static final String FILE_SERVICE_DELETING_FILES = "FileService: Deleting files without content.";
     public static final String FILE_SERVICE_DELETED_FILES = "FileService: Deleted {0} files without content.";
     public static final String DATABASE_FOR_BINARIES_STORAGE = "Database will be used for binaries storage";

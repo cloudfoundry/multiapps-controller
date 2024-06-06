@@ -42,7 +42,6 @@ import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
@@ -309,13 +308,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private String getAuthenticatedUser(HttpServletRequest request) {
-        if (request.getUserPrincipal() == null) {
+        Principal principal = request.getUserPrincipal();
+        if (principal == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
-        Principal principal = request.getUserPrincipal();
-        String username = SecurityContextUtil.getUsername(principal);
-        LOGGER.debug(MessageFormat.format("Authenticated user is: {0}", username));
-        return username;
+        return SecurityContextUtil.getUsername(principal);
     }
 
     private CloudSpaceClient getSpaceClient() {

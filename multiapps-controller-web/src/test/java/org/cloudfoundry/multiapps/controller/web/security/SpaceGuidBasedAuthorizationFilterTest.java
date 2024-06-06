@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 class SpaceGuidBasedAuthorizationFilterTest {
 
     private static final String SPACE_GUID = "e99278b1-d8a9-4b30-af52-2dfa3ea8404e";
+    private static final String USER_GUID = "e7be114f-ef94-4d2c-ab6e-613956258a32";
 
     @Mock
     private HttpServletRequest request;
@@ -28,6 +29,7 @@ class SpaceGuidBasedAuthorizationFilterTest {
     private LoginAttemptAuditLog loginAttemptAuditLog;
 
     private DummyUriAuthorizationFilter dummyUriAuthorizationFilter;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -65,6 +67,11 @@ class SpaceGuidBasedAuthorizationFilterTest {
         @Override
         public String getUriRegex() {
             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected String extractUserGuid() {
+            return USER_GUID;
         }
 
         @Override

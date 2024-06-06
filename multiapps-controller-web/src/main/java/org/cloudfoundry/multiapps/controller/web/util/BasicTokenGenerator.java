@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
 
+import org.cloudfoundry.multiapps.controller.client.util.TokenProperties;
 import org.cloudfoundry.multiapps.controller.core.security.token.parsers.TokenParserChain;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.AccessToken;
@@ -50,7 +51,7 @@ public class BasicTokenGenerator extends TokenGenerator {
                                                      StandardCharsets.UTF_8));
         }
         OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo = oauthClient.getToken();
-        storeAccessToken(buildAccessToken(oAuth2AccessTokenWithAdditionalInfo));
+        storeAccessToken(buildAccessToken(oAuth2AccessTokenWithAdditionalInfo), extractUserGuid(oAuth2AccessTokenWithAdditionalInfo));
         return oAuth2AccessTokenWithAdditionalInfo;
     }
 

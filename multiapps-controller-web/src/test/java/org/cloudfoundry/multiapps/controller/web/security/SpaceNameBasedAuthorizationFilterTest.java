@@ -19,6 +19,7 @@ class SpaceNameBasedAuthorizationFilterTest {
 
     private static final String ORGANIZATION_NAME = "foo";
     private static final String SPACE_NAME = "bar";
+    private static final String USER_GUID = "e7be114f-ef94-4d2c-ab6e-613956258a32";
 
     @Mock
     private HttpServletRequest request;
@@ -70,6 +71,11 @@ class SpaceNameBasedAuthorizationFilterTest {
         @Override
         public String getUriRegex() {
             throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        protected String extractUserGuid() {
+            return USER_GUID;
         }
 
         @Override
