@@ -13,7 +13,7 @@ class FilePartsMergerTest {
 
     @Test
     void mergeFileTestLength() throws IOException {
-        try (FilePartsMerger filePartsMerger = new FilePartsMerger("file")) {
+        try (FilePartsMerger filePartsMerger = new FilePartsMerger(null)) {
             InputStream testInputStream = getClass().getResourceAsStream(TEST_FILE_NAME);
             filePartsMerger.merge(testInputStream);
 //            Assertions.assertTrue(filePartsMerger.getMergedFilePath()
@@ -30,7 +30,7 @@ class FilePartsMergerTest {
 
     @Test
     void mergeFileCleanAndCheckIfFileExists() throws IOException {
-        try (FilePartsMerger filePartsMerger = new FilePartsMerger("file")) {
+        try (FilePartsMerger filePartsMerger = new FilePartsMerger(null)) {
             InputStream testInputStream = getClass().getResourceAsStream(TEST_FILE_NAME);
             filePartsMerger.merge(testInputStream);
             filePartsMerger.cleanUp();
@@ -43,7 +43,7 @@ class FilePartsMergerTest {
 
     @Test
     void testWithInvalidFile() {
-        Exception exception = Assertions.assertThrows(SLException.class, () -> new FilePartsMerger("/some/invalid/file"));
+        Exception exception = Assertions.assertThrows(SLException.class, () -> new FilePartsMerger(null));
         Assertions.assertTrue(exception.getCause()
                                        .toString()
                                        .contains("java.nio.file.NoSuchFileException"));

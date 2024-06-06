@@ -1,13 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.SequenceInputStream;
+import java.io.InputStream;
 import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -30,6 +26,7 @@ import org.springframework.context.annotation.Scope;
 public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private final ResilientOperationExecutor resilientOperationExecutor = new ResilientOperationExecutor();
+    private ArchiveMerger archiveMerger;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -100,7 +97,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
             // here, if the user wants us to verify the archive's signature.
             return;
         }
-        SequenceInputStream archive = null;
+        InputStream archive = null;
         try {
             archive = mergeArchiveParts(context, archivePartIds);
             persistMergedArchive(context, archive);
@@ -114,12 +111,12 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         return archiveId.split(",");
     }
 
-    private SequenceInputStream mergeArchiveParts(ProcessContext context, String[] archivePartIds) {
+    private InputStream mergeArchiveParts(ProcessContext context, String[] archivePartIds) {
         List<FileEntry> archivePartEntries = getArchivePartEntries(context, archivePartIds);
         context.setVariable(Variables.FILE_ENTRIES, archivePartEntries);
         getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
-        var archiveMerger = new ArchiveMerger(fileService, getStepLogger(), context.getExecution());
-        return resilientOperationExecutor.execute((Supplier<SequenceInputStream>) () -> archiveMerger.createArchiveFromParts(archivePartEntries));
+        archiveMerger = new ArchiveMerger(fileService, getStepLogger(), context.getExecution());
+        return resilientOperationExecutor.execute((Supplier<InputStream>) () -> archiveMerger.createArchiveFromParts(archivePartEntries));
     }
 
     private List<FileEntry> getArchivePartEntries(ProcessContext context, String[] appArchivePartsId) {
@@ -128,45 +125,65 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
                      .collect(Collectors.toList());
     }
 
-    private void persistMergedArchive(ProcessContext context, SequenceInputStream archiveFilePath) {
+    private void persistMergedArchive(ProcessContext context, InputStream archiveFilePath) {
         resilientOperationExecutor.execute(() -> persistMergedArchive(archiveFilePath, context));
     }
 
-    private void persistMergedArchive(SequenceInputStream archivePath, ProcessContext context) {
+    private void persistMergedArchive(InputStream archivePath, ProcessContext context) {
+        getStepLogger().info("DOING THINGS");
         FileEntry uploadedArchive = persistArchive(archivePath, context);
         context.setVariable(Variables.APP_ARCHIVE_ID, uploadedArchive.getId());
     }
 
-    private FileEntry persistArchive(SequenceInputStream archivePath, ProcessContext context) {
+    // private FileEntry persistArchive(InputStream archivePath, ProcessContext context) {
+    // try {
+    // byte[] b = archivePath.readAllBytes();
+    // BigInteger a = getSizeOfInputStream(b);
+    //
+    // getStepLogger().info("Old: " + a + " New: " + archiveMerger.getArchivesSize());
+    // return fileService.addFile(ImmutableFileEntry.builder()
+    // .name("test")
+    // .space(context.getVariable(Variables.SPACE_GUID))
+    // .namespace(context.getVariable(Variables.MTA_NAMESPACE))
+    // .operationId(context.getExecution()
+    // .getProcessInstanceId())
+    // .size(a)
+    // .build(),
+    // archivePath);
+    // } catch (FileStorageException | IOException e) {
+    // throw new SLException(e, e.getMessage());
+    // }
+    // }
+
+    private FileEntry persistArchive(InputStream archivePath, ProcessContext context) {
         try {
-            byte[] b = archivePath.readAllBytes();
-            BigInteger a = getSizeOfInputStream(b);
+            getStepLogger().info("WILL SAVEEE");
             return fileService.addFile(ImmutableFileEntry.builder()
                                                          .name("test")
                                                          .space(context.getVariable(Variables.SPACE_GUID))
                                                          .namespace(context.getVariable(Variables.MTA_NAMESPACE))
                                                          .operationId(context.getExecution()
                                                                              .getProcessInstanceId())
-                            .size(a)
+                                                         .size(archiveMerger.getArchivesSize())
                                                          .build(),
-                    new SequenceInputStream(Collections.enumeration(List.of(new ByteArrayInputStream(b)))));
-        } catch (FileStorageException | IOException e) {
+                                       archivePath);
+        } catch (FileStorageException e) {
             throw new SLException(e, e.getMessage());
         }
     }
 
     private BigInteger getSizeOfInputStream(byte[] a) {
-            return BigInteger.valueOf(a.length);
+        return BigInteger.valueOf(a.length);
     }
 
-    private void deleteArchive(SequenceInputStream archiveFilePath) {
+    private void deleteArchive(InputStream archiveFilePath) {
         if (archiveFilePath == null) {
             return;
         }
         tryDeleteArchiveFile(archiveFilePath);
     }
 
-    private void tryDeleteArchiveFile(SequenceInputStream archiveFilePath) {
+    private void tryDeleteArchiveFile(InputStream archiveFilePath) {
         try {
             archiveFilePath.close();
         } catch (IOException e) {

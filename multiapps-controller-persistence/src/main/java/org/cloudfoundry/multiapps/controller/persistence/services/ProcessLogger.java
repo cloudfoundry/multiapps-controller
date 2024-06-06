@@ -82,6 +82,10 @@ public class ProcessLogger {
         }
     }
 
+    public LoggerContext getLoggerContext() {
+        return loggerContext;
+    }
+
     public synchronized void deleteLogFile() {
         FileUtils.deleteQuietly(log);
     }

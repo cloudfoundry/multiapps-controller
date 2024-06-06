@@ -1,7 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import java.io.SequenceInputStream;
-import java.nio.file.Path;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ public class ArchiveMerger {
     private final FileService fileService;
     private final StepLogger stepLogger;
     private final DelegateExecution execution;
+    private BigInteger archivesSize = BigInteger.ZERO;
 
     public ArchiveMerger(FileService fileService, StepLogger stepLogger, DelegateExecution execution) {
         this.fileService = fileService;
@@ -30,12 +32,19 @@ public class ArchiveMerger {
         this.execution = execution;
     }
 
-    public SequenceInputStream createArchiveFromParts(List<FileEntry> archiveParts) {
+    public BigInteger getArchivesSize() {
+        return archivesSize;
+    }
+
+    public InputStream createArchiveFromParts(List<FileEntry> archiveParts) {
         List<FileEntry> sortedArchiveParts = sort(archiveParts);
         String archiveName = getArchiveName(sortedArchiveParts.get(0));
-        try (FilePartsMerger filePartsMerger = new FilePartsMerger(archiveName)) {
+        try (FilePartsMerger filePartsMerger = new FilePartsMerger(stepLogger)) {
             mergeArchiveParts(sortedArchiveParts, filePartsMerger);
-            return filePartsMerger.getMergedInputStream();
+            stepLogger.info("PRE MERGED!!!");
+            InputStream a = filePartsMerger.getMergedInputStream();
+            stepLogger.info("MERGED!!!");
+            return a;
         }
     }
 
@@ -78,6 +87,7 @@ public class ArchiveMerger {
         for (FileEntry archivePart : sortedArchiveParts) {
             stepLogger.debug(Messages.MERGING_ARCHIVE_PART, archivePart.getId(), archivePart.getName());
             fileService.consumeFileContent(VariableHandling.get(execution, Variables.SPACE_GUID), archivePart.getId(), archivePartConsumer);
+            archivesSize = archivesSize.add(archivePart.getSize());
         }
     }
 

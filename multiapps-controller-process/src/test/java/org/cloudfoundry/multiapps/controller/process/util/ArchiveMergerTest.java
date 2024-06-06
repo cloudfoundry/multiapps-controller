@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import static org.mockito.ArgumentMatchers.any;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 

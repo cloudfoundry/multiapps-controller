@@ -57,9 +57,11 @@ public class FileService {
     }
 
     public FileEntry addFile(FileEntry baseEntry, InputStream content) throws FileStorageException {
+        logger.info("PREPARING TO SAVE");
         FileEntry entryWithoutDigest = ImmutableFileEntry.copyOf(baseEntry)
                                                          .withId(generateRandomId())
                                                          .withModified(LocalDateTime.now());
+        logger.info("PREPARATION READY");
         FileEntry fileEntry = storeFile(entryWithoutDigest, content);
         logger.debug(MessageFormat.format(Messages.STORED_FILE_0, fileEntry));
         return fileEntry;
@@ -172,20 +174,40 @@ public class FileService {
     }
 
     protected FileEntry storeFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
+        logger.info("PREPARING TO CREATE DigestInputStream");
         try (DigestInputStream dis = new DigestInputStream(content, MessageDigest.getInstance(Constants.DIGEST_ALGORITHM))) {
+            logger.info("Size is: " + fileEntry.getSize() + " Size of new way: " + getDigestInputStreamLength(content));
+            logger.info("CREATED DigestInputStream");
             fileStorage.addFile(fileEntry, dis);
+            logger.info("ADDING DigestInputStream");
             FileEntry completeFileEntry = ImmutableFileEntry.copyOf(fileEntry)
                                                             .withDigest(DatatypeConverter.printHexBinary(dis.getMessageDigest()
                                                                                                             .digest()))
                                                             .withDigestAlgorithm(Constants.DIGEST_ALGORITHM);
             storeFileAttributes(completeFileEntry);
+            content.close();
             return completeFileEntry;
         } catch (NoSuchAlgorithmException | IOException e) {
             throw new FileStorageException(e);
         }
     }
 
-    protected boolean deleteFileAttribute(String space, String id) throws FileStorageException {
+    private static int getDigestInputStreamLength(InputStream digestInputStream) throws IOException {
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        int length = 0;
+
+        // Read through the entire stream to calculate its length
+        while ((bytesRead = digestInputStream.read(buffer)) != -1) {
+            length += bytesRead;
+        }
+
+        // Note: Do not close the stream here if you need to use it again
+
+        return length;
+    }
+
+        protected boolean deleteFileAttribute(String space, String id) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteFileEntryQuery(space, id));
         } catch (SQLException e) {

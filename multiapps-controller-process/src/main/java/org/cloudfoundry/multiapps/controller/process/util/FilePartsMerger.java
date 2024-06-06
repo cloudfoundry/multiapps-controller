@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -13,13 +14,16 @@ import java.util.List;
 public class FilePartsMerger implements Closeable {
 
     private final List<InputStream> fileContentInputStreams;
+    private StepLogger stepLogger;
 
-    public FilePartsMerger(String fileName) {
+    public FilePartsMerger(StepLogger stepLogger) {
+        this.stepLogger = stepLogger;
         fileContentInputStreams = new ArrayList<>();
     }
 
     public void merge(InputStream filePartInputStream) throws IOException {
-        fileContentInputStreams.add(new ByteArrayInputStream(filePartInputStream.readAllBytes()));
+        //fileContentInputStreams.add(new BufferedInputStream(filePartInputStream));
+        fileContentInputStreams.add(filePartInputStream);
     }
 
     public SequenceInputStream getMergedInputStream() {

@@ -132,7 +132,8 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     private <T> T processContent(FileContentProcessor<T> fileContentProcessor, Payload payload) throws FileStorageException {
-        try (InputStream fileContentStream = payload.openStream()) {
+        try {
+            InputStream fileContentStream = payload.openStream();
             return fileContentProcessor.process(fileContentStream);
         } catch (Exception e) {
             throw new FileStorageException(e);
