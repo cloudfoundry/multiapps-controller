@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.server.ResponseStatusException;
 
-public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizationFilter {
+public abstract class SpaceGuidBasedAuthorizationFilter extends AbstractUriAuthorizationFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SpaceGuidBasedAuthorizationFilter.class);
 
@@ -56,11 +56,9 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
     }
 
     private void logUnauthorizedRequest(HttpServletRequest request, ResponseStatusException e) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("User \"%s\" is not authorized for request to \"%s\".", SecurityContextUtil.getUsername(),
-                                       ServletUtil.decodeUri(request)),
-                         e);
-        }
+        LOGGER.error(String.format("User with GUID \"%s\" is not authorized for request to \"%s\".", extractUserGuid(),
+                                   ServletUtil.decodeUri(request)),
+                     e);
     }
 
     protected abstract String extractSpaceGuid(HttpServletRequest request);

@@ -39,7 +39,7 @@ public class OauthTokenGenerator extends TokenGenerator {
                                                                 .getValue(),
                                                      StandardCharsets.UTF_8));
         }
-        storeAccessToken(buildAccessToken(oAuth2AccessTokenWithAdditionalInfo));
+        storeAccessToken(buildAccessToken(oAuth2AccessTokenWithAdditionalInfo), extractUserGuid(oAuth2AccessTokenWithAdditionalInfo));
         return oAuth2AccessTokenWithAdditionalInfo;
     }
 

@@ -790,7 +790,6 @@ public class ApplicationConfiguration {
 
     private String getGlobalAuditorUserFromEnvironment() {
         String value = environment.getString(CFG_GLOBAL_AUDITOR_USER);
-        LOGGER.info(format(Messages.GLOBAL_AUDITOR_USERNAME, value));
         return value;
     }
 
@@ -859,7 +858,6 @@ public class ApplicationConfiguration {
                                                                                                             .userName(getHealthCheckUserFromEnvironment())
                                                                                                             .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
                                                                                                             .build();
-        LOGGER.info(format(Messages.HEALTH_CHECK_CONFIGURATION, JsonUtil.toJson(healthCheckConfigurationFromEnvironment, true)));
         return healthCheckConfigurationFromEnvironment;
     }
 

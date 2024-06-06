@@ -28,8 +28,8 @@ public abstract class TokenGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenGenerator.class);
 
-    public void storeAccessToken(AccessToken accessToken) {
-        LOGGER.info(MessageFormat.format(Messages.STORING_TOKEN_FOR_USER_0_WHICH_EXPIRES_AT_1, accessToken.getUsername(),
+    public void storeAccessToken(AccessToken accessToken, String userGuid) {
+        LOGGER.info(MessageFormat.format(Messages.STORING_TOKEN_FOR_USER_WITH_GUID_0_WHICH_EXPIRES_AT_1, userGuid,
                                          accessToken.getExpiresAt()));
         accessTokenService.add(accessToken);
     }
@@ -49,6 +49,11 @@ public abstract class TokenGenerator {
     protected String extractUsername(OAuth2AccessTokenWithAdditionalInfo token) {
         return (String) token.getAdditionalInfo()
                              .get(TokenProperties.USER_NAME_KEY);
+    }
+
+    protected String extractUserGuid(OAuth2AccessTokenWithAdditionalInfo token) {
+        return (String) token.getAdditionalInfo()
+                                                     .get(TokenProperties.USER_ID_KEY);
     }
 
     private LocalDateTime calculateAccessTokenExpirationDate(OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo) {

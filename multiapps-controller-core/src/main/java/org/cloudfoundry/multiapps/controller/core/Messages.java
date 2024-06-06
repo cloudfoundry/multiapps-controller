@@ -112,7 +112,6 @@ public final class Messages {
     public static final String SPACE_GUID = "Space GUID: {0}";
     public static final String ORG_NAME = "Org name: {0}";
     public static final String BASIC_AUTH_ENABLED = "Basic authentication enabled: {0}";
-    public static final String GLOBAL_AUDITOR_USERNAME = "Global Auditor username: {0}";
     public static final String USE_XS_AUDIT_LOGGING = "Use XSA audit logging: {0}";
     public static final String DB_CONNECTION_THREADS = "Database connection thread pool size: {0}";
     public static final String STEP_POLLING_INTERVAL_IN_SECONDS = "Step polling interval in seconds: {0}";
@@ -122,7 +121,6 @@ public final class Messages {
     public static final String CHANGE_LOG_LOCK_DURATION = "Change log lock duration: {0}";
     public static final String CHANGE_LOG_LOCK_ATTEMPTS = "Change log lock attempts: {0}";
     public static final String GLOBAL_CONFIG_SPACE = "Global config space: {0}";
-    public static final String HEALTH_CHECK_CONFIGURATION = "Health check configuration: {0}";
     public static final String APPLICATION_GUID = "Application GUID: {0}";
     public static final String APPLICATION_INSTANCE_INDEX = "Application instance index: {0}";
     public static final String AUDIT_LOG_CLIENT_CORE_THREADS = "Audit log client core threads: {0}";
@@ -149,7 +147,7 @@ public final class Messages {
     public static final String PURGING_ENTRIES = "Purging entries for target: {0}";
     public static final String PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES = "All delete request spaces after date: {0} will be deleted from configuration tables.";
     public static final String RECENT_DELETE_SPACE_REQUEST_EVENTS = "Recent delete space request events: {0}";
-    public static final String RETRIEVED_TOKEN_FOR_USER_0_WITH_EXPIRATION_TIME_1 = "Retrieved token for user \"{0}\" with expiration time: {1} seconds";
+    public static final String RETRIEVED_TOKEN_FOR_USER_WITH_GUID_0_WITH_EXPIRATION_TIME_1 = "Retrieved token for user with GUID \"{0}\" with expiration time: {1} seconds";
     public static final String FSS_CACHE_UPDATE_TIMEOUT = "Fss cache update timeout: {0} minutes";
     public static final String THREAD_MONITOR_CACHE_TIMEOUT = "Flowable thread monitor cache timeout: {0} seconds";
     public static final String SPACE_DEVELOPERS_CACHE_TIME_IN_SECONDS = "Cache for list of space developers per SpaceGUID: {0} seconds";
