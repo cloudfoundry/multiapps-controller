@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
@@ -92,8 +93,23 @@ public class ServiceBindingParametersGetter {
     }
 
     private Map<String, Object> getDescriptorProvidedBindingParameters(CloudApplicationExtended app, CloudServiceInstanceExtended service) {
+        BindingDetails bindingDetails = getDescriptorProvidedBindingParametersAndBindingName(app, service);
+        return (bindingDetails != null && bindingDetails.getConfig() != null) ? bindingDetails.getConfig() : Collections.emptyMap();
+    }
+
+    private BindingDetails getDescriptorProvidedBindingParametersAndBindingName(CloudApplicationExtended app,
+                                                                                CloudServiceInstanceExtended service) {
         return app.getBindingParameters()
-                  .getOrDefault(service.getResourceName(), Collections.emptyMap());
+                  .get(service.getResourceName());
+    }
+
+    public String getDescriptorProvidedBindingName(CloudApplicationExtended app, String serviceName) {
+        Optional<CloudServiceInstanceExtended> service = getService(context.getVariable(Variables.SERVICES_TO_BIND), serviceName);
+        if (service.isEmpty()) {
+            return null;
+        }
+        BindingDetails bindingDetails = getDescriptorProvidedBindingParametersAndBindingName(app, service.get());
+        return (bindingDetails != null && bindingDetails.getBindingName() != null) ? bindingDetails.getBindingName() : null;
     }
 
     public Map<String, Object> getServiceBindingParametersFromExistingInstance(CloudApplication application, String serviceName) {

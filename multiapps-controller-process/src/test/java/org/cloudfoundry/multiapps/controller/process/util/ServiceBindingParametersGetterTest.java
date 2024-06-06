@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableBindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
@@ -171,8 +172,12 @@ class ServiceBindingParametersGetterTest {
                                                                                                                                         .guid(RANDOM_GUID)
                                                                                                                                         .build());
         if (descriptorParameters != null) {
-            applicationBuilder.bindingParameters(Map.of(SERVICE_NAME, descriptorParameters));
+            applicationBuilder.bindingParameters(Map.of(SERVICE_NAME, ImmutableBindingDetails.builder()
+                                                                                             .bindingName(null)
+                                                                                             .config(descriptorParameters)
+                                                                                             .build()));
         }
+
         return applicationBuilder.build();
     }
 

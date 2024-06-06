@@ -13,11 +13,12 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableBindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.DeploymentMode;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
@@ -191,23 +192,32 @@ public class ApplicationCloudModelBuilder {
         return new TaskParametersParser(SupportedParameters.TASKS);
     }
 
-    protected Map<String, Map<String, Object>> getBindingParameters(Module module) {
-        Map<String, Map<String, Object>> result = new HashMap<>();
+    protected Map<String, BindingDetails> getBindingParameters(Module module) {
+        Map<String, BindingDetails> result = new HashMap<>();
         for (RequiredDependency dependency : module.getRequiredDependencies()) {
             addBindingParameters(result, dependency, module);
         }
         return result;
     }
 
-    protected void addBindingParameters(Map<String, Map<String, Object>> result, RequiredDependency dependency, Module module) {
+    protected void addBindingParameters(Map<String, BindingDetails> result, RequiredDependency dependency, Module module) {
         Resource resource = getResource(dependency.getName());
         if (resource != null) {
-            MapUtil.addNonNull(result, resource.getName(), getBindingParameters(dependency, module.getName()));
+            Map<String, Object> bindingConfigParameters = getBindingConfigParameters(dependency, module.getName());
+            String bindingName = getBindingNameParameters(dependency);
+            if (bindingName == null && bindingConfigParameters == null) {
+                return;
+            }
+            BindingDetails bindingDetails = ImmutableBindingDetails.builder()
+                                                                   .bindingName(bindingName)
+                                                                   .config(bindingConfigParameters)
+                                                                   .build();
+            result.put(resource.getName(), bindingDetails);
         }
     }
 
     @SuppressWarnings("unchecked")
-    protected Map<String, Object> getBindingParameters(RequiredDependency dependency, String moduleName) {
+    protected Map<String, Object> getBindingConfigParameters(RequiredDependency dependency, String moduleName) {
         Object bindingParameters = dependency.getParameters()
                                              .get(SupportedParameters.SERVICE_BINDING_CONFIG);
         if (bindingParameters == null) {
@@ -217,6 +227,11 @@ public class ApplicationCloudModelBuilder {
             throw new ContentException(getInvalidServiceBindingConfigTypeErrorMessage(moduleName, dependency.getName(), bindingParameters));
         }
         return (Map<String, Object>) bindingParameters;
+    }
+
+    protected String getBindingNameParameters(RequiredDependency dependency) {
+        return (String) dependency.getParameters()
+                                  .get(SupportedParameters.BINDING_NAME);
     }
 
     protected String getInvalidServiceBindingConfigTypeErrorMessage(String moduleName, String dependencyName, Object bindingParameters) {

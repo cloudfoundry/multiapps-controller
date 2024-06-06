@@ -9,8 +9,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableBindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
@@ -76,11 +78,15 @@ class StepsUtilTest {
 
     @Test
     void testGetAppsToDeployWithBindingParameters() {
-        Map<String, Map<String, Object>> bindingParameters = new HashMap<>();
-        Map<String, Object> serviceBindingParameters = new HashMap<>();
-        serviceBindingParameters.put("integer-value", 1);
-        serviceBindingParameters.put("double-value", 1.4);
-        serviceBindingParameters.put("string-value", "1");
+        Map<String, Object> configParameters = new HashMap<>();
+        configParameters.put("integer-value", 1);
+        configParameters.put("double-value", 1.4);
+        configParameters.put("string-value", "1");
+        BindingDetails serviceBindingParameters = ImmutableBindingDetails.builder()
+                                                                         .bindingName("service-1")
+                                                                         .config(configParameters)
+                                                                         .build();
+        Map<String, BindingDetails> bindingParameters = new HashMap<>();
         bindingParameters.put("service-1", serviceBindingParameters);
 
         CloudApplicationExtended application = ImmutableCloudApplicationExtended.builder()
@@ -95,17 +101,21 @@ class StepsUtilTest {
                                      .isEmpty());
         assertFalse(actualAppToDeploy.getBindingParameters()
                                      .get("service-1")
+                                     .getConfig()
                                      .isEmpty());
         assertEquals(Integer.class, actualAppToDeploy.getBindingParameters()
                                                      .get("service-1")
+                                                     .getConfig()
                                                      .get("integer-value")
                                                      .getClass());
         assertEquals(Double.class, actualAppToDeploy.getBindingParameters()
                                                     .get("service-1")
+                                                    .getConfig()
                                                     .get("double-value")
                                                     .getClass());
         assertEquals(String.class, actualAppToDeploy.getBindingParameters()
                                                     .get("service-1")
+                                                    .getConfig()
                                                     .get("string-value")
                                                     .getClass());
     }
