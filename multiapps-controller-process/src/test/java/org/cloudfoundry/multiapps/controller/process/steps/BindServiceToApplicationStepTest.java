@@ -35,6 +35,7 @@ import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperati
 class BindServiceToApplicationStepTest extends SyncFlowableStepTest<BindServiceToApplicationStep> {
 
     private static final String JOB_ID = "123";
+    private static final String BINDING_NAME = "test_binding_name";
     private static final String APPLICATION_NAME = "test_application";
     private static final String SERVICE_NAME = "test_service";
     private static final UUID SERVICE_INSTANCE_GUID = UUID.randomUUID();
@@ -44,11 +45,11 @@ class BindServiceToApplicationStepTest extends SyncFlowableStepTest<BindServiceT
     @Test
     void testAsyncServiceBinding() {
         prepareContext();
-        when(client.bindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME), eq(BINDING_PARAMETERS),
+        when(client.bindServiceInstance(eq(BINDING_NAME), eq(APPLICATION_NAME), eq(SERVICE_NAME), eq(BINDING_PARAMETERS),
                                         any(ApplicationServicesUpdateCallback.class))).thenReturn(Optional.of(JOB_ID));
         step.execute(execution);
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
-        verify(client).bindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME), eq(BINDING_PARAMETERS),
+        verify(client).bindServiceInstance(eq(BINDING_NAME), eq(APPLICATION_NAME), eq(SERVICE_NAME), eq(BINDING_PARAMETERS),
                                            any(ApplicationServicesUpdateCallback.class));
         assertEquals(JOB_ID, context.getVariable(Variables.SERVICE_BINDING_JOB_ID));
     }
@@ -58,14 +59,14 @@ class BindServiceToApplicationStepTest extends SyncFlowableStepTest<BindServiceT
         prepareContext();
         step.execute(execution);
         assertStepFinishedSuccessfully();
-        verify(client).bindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME), eq(BINDING_PARAMETERS),
+        verify(client).bindServiceInstance(eq(BINDING_NAME), eq(APPLICATION_NAME), eq(SERVICE_NAME), eq(BINDING_PARAMETERS),
                                            any(ApplicationServicesUpdateCallback.class));
     }
 
     @Test
     void testAsyncServiceBindingWithPollingByLastOperation() {
         prepareContext();
-        when(client.bindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME), eq(BINDING_PARAMETERS),
+        when(client.bindServiceInstance(eq(BINDING_NAME), eq(APPLICATION_NAME), eq(SERVICE_NAME), eq(BINDING_PARAMETERS),
                                         any(ApplicationServicesUpdateCallback.class))).then(answer -> {
                                             context.setVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_CREATION, true);
                                             return Optional.empty();
@@ -82,6 +83,7 @@ class BindServiceToApplicationStepTest extends SyncFlowableStepTest<BindServiceT
         context.setVariable(Variables.APP_TO_PROCESS, application);
         context.setVariable(Variables.SERVICE_TO_UNBIND_BIND, SERVICE_NAME);
         context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, BINDING_PARAMETERS);
+        context.setVariable(Variables.BINDING_NAME, BINDING_NAME);
     }
 
     @Test

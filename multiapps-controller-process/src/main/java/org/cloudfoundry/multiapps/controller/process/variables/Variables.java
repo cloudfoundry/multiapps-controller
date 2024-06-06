@@ -286,6 +286,11 @@ public interface Variables {
                                                                                    .name("appToProcess")
                                                                                    .type(Variable.typeReference(CloudApplicationExtended.class))
                                                                                    .build();
+    Variable<String> BINDING_NAME = ImmutableSimpleVariable.<String> builder()
+                                                           .name("bindingName")
+                                                           .defaultValue(null)
+                                                           .build();
+
     Variable<MtaArchiveElements> MTA_ARCHIVE_ELEMENTS = ImmutableJsonStringVariable.<MtaArchiveElements> builder()
                                                                                    .name("mtaArchiveElements")
                                                                                    .type(Variable.typeReference(MtaArchiveElements.class))
@@ -589,9 +594,9 @@ public interface Variables {
                                                                                             .build();
 
     Variable<Boolean> WAS_SERVICE_BINDING_KEY_OPERATION_ALREADY_DONE = ImmutableSimpleVariable.<Boolean> builder()
-                                                                                             .name("wasServiceBindingKeyOperationAlreadyDone")
-                                                                                             .defaultValue(false)
-                                                                                             .build();
+                                                                                              .name("wasServiceBindingKeyOperationAlreadyDone")
+                                                                                              .defaultValue(false)
+                                                                                              .build();
 
     Variable<String> SERVICE_WITH_BIND_IN_PROGRESS = ImmutableSimpleVariable.<String> builder()
                                                                             .name("serviceWithBindInProgress")

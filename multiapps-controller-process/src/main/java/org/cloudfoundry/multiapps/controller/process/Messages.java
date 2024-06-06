@@ -529,6 +529,7 @@ public class Messages {
     public static final String SHUTTING_DOWN_FLOWABLE_JOB_EXECUTOR = "Shutting down Flowable job executor...";
     public static final String ADDING_DOMAIN_0 = "Adding domain \"{0}\"...";
     public static final String ADDING_ROUTE_WITH_HOST_0_DOMAIN_1_AND_PATH_2 = "Adding route with host \"{0}\", domain \"{1}\" and path \"{2}\"...";
+    public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_WITH_BINDING_NAME_2 = "Binding service instance \"{0}\" to application \"{1}\" with binding name \"{2}\"...";
     public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1 = "Binding service instance \"{0}\" to application \"{1}\"...";
     public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_FINISHED = "Binding service instance \"{0}\" to application \"{1}\" finished";
     public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_WITH_PARAMETERS_2 = "Binding service instance \"{0}\" to application \"{1}\" with parameters: {2}";

@@ -27,10 +27,16 @@ public class BindServiceToApplicationStep extends AsyncFlowableStep {
     protected StepPhase executeAsyncStep(ProcessContext context) throws Exception {
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
         String service = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
+        String bingingName = context.getVariable(Variables.BINDING_NAME);
+        if (bingingName == null) {
+            getStepLogger().info(Messages.BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1, service, app.getName());
+        } else {
+            getStepLogger().info(Messages.BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_WITH_BINDING_NAME_2, service, app.getName(),
+                                 bingingName);
+        }
         Map<String, Object> serviceBindingParameters = context.getVariable(Variables.SERVICE_BINDING_PARAMETERS);
-        getStepLogger().info(Messages.BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1, service, app.getName());
         CloudControllerClient controllerClient = context.getControllerClient();
-        Optional<String> jobId = controllerClient.bindServiceInstance(app.getName(), service, serviceBindingParameters,
+        Optional<String> jobId = controllerClient.bindServiceInstance(bingingName, app.getName(), service, serviceBindingParameters,
                                                                       getApplicationServicesUpdateCallback(context, controllerClient));
         if (context.getVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_CREATION)) {
             return StepPhase.POLL;
