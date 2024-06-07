@@ -101,9 +101,10 @@ public class ProcessLogger {
 
     public void closeLoggerContext() {
         try {
-            fileAppender.stop();
+            loggerContext.getRootLogger().removeAppender(fileAppender);
             loggerContext.getConfiguration().getAppenders().remove(fileAppender.getName());
-            //loggerContext.stop();
+            fileAppender.stop();
+            loggerContext.stop();
         } catch (Exception exception) {
             logger.error(Messages.COULD_NOT_CLOSE_LOGGER_CONTEXT, exception);
         }

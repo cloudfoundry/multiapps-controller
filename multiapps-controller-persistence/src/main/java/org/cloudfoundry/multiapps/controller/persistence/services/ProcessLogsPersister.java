@@ -29,7 +29,7 @@ public class ProcessLogsPersister {
         } finally {
             processLoggerProvider.removeLoggersCache(processLogger);
             processLogger.deleteLogFile();
-            //processLogger.closeLoggerContext();
+            processLogger.closeLoggerContext();
         }
     }
 }
