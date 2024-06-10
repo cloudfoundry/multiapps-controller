@@ -31,16 +31,18 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     protected final ProcessTypeParser processTypeParser;
 
     @Inject
-    public EndProcessListener(ProgressMessageService progressMessageService,
-                              StepLogger.Factory stepLoggerFactory,
-                              ProcessLoggerProvider processLoggerProvider,
-                              ProcessLogsPersister processLogsPersister,
-                              HistoricOperationEventService historicOperationEventService,
-                              FlowableFacade flowableFacade, ApplicationConfiguration configuration,
-                              OperationInFinalStateHandler eventHandler,
-                              DynatracePublisher dynatracePublisher,
-                              ProcessTypeParser processTypeParser) {
-        super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
+    public EndProcessListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
+                              ProcessLoggerProvider processLoggerProvider, ProcessLogsPersister processLogsPersister,
+                              HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
+                              ApplicationConfiguration configuration, OperationInFinalStateHandler eventHandler,
+                              DynatracePublisher dynatracePublisher, ProcessTypeParser processTypeParser) {
+        super(progressMessageService,
+              stepLoggerFactory,
+              processLoggerProvider,
+              processLogsPersister,
+              historicOperationEventService,
+              flowableFacade,
+              configuration);
         this.eventHandler = eventHandler;
         this.dynatracePublisher = dynatracePublisher;
         this.processTypeParser = processTypeParser;
@@ -56,13 +58,13 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
 
     private void publishDynatraceEvent(DelegateExecution execution, ProcessType processType) {
         DynatraceProcessEvent finishedEvent = ImmutableDynatraceProcessEvent.builder()
-                .processId(VariableHandling.get(execution,
-                        Variables.CORRELATION_ID))
-                .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
-                .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
-                .eventType(DynatraceProcessEvent.EventType.FINISHED)
-                .processType(processType)
-                .build();
+                                                                            .processId(VariableHandling.get(execution,
+                                                                                                            Variables.CORRELATION_ID))
+                                                                            .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
+                                                                            .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
+                                                                            .eventType(DynatraceProcessEvent.EventType.FINISHED)
+                                                                            .processType(processType)
+                                                                            .build();
         dynatracePublisher.publishProcessEvent(finishedEvent, getLogger());
     }
 }

@@ -39,19 +39,14 @@ class EndProcessListenerTest {
     private ProgressMessageService progressMessageService;
     @Mock
     private StepLogger.Factory stepLoggerFactory;
-    // needed because of @InjectMocks
     @Mock
     private ProcessLoggerProvider processLoggerProvider;
-    // needed because of @InjectMocks
     @Mock
     private ProcessLogsPersister processLogsPersister;
-    // needed because of @InjectMocks
     @Mock
     private HistoricOperationEventService historicOperationEventService;
-    // needed because of @InjectMocks
     @Mock
     private FlowableFacade flowableFacade;
-    // needed because of @InjectMocks
     @Mock
     private ApplicationConfiguration configuration;
 
@@ -60,20 +55,28 @@ class EndProcessListenerTest {
 
     @Test
     void testNotifyInternal() {
-        EndProcessListener endProcessListener = new EndProcessListener(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration,
-                eventHandler, dynatracePublisher, processTypeParser);
+        EndProcessListener endProcessListener = new EndProcessListener(progressMessageService,
+                                                                       stepLoggerFactory,
+                                                                       processLoggerProvider,
+                                                                       processLogsPersister,
+                                                                       historicOperationEventService,
+                                                                       flowableFacade,
+                                                                       configuration,
+                                                                       eventHandler,
+                                                                       dynatracePublisher,
+                                                                       processTypeParser);
         // set the process as root process
         VariableHandling.set(execution, Variables.CORRELATION_ID, execution.getProcessInstanceId());
         VariableHandling.set(execution, Variables.SPACE_GUID, SPACE_ID);
         VariableHandling.set(execution, Variables.MTA_ID, MTA_ID);
         Mockito.when(processTypeParser.getProcessType(execution, false))
-                .thenReturn(PROCESS_TYPE);
+               .thenReturn(PROCESS_TYPE);
         endProcessListener.notifyInternal(execution);
         Mockito.verify(eventHandler)
-                .handle(execution, ProcessType.DEPLOY, Operation.State.FINISHED);
+               .handle(execution, ProcessType.DEPLOY, Operation.State.FINISHED);
         ArgumentCaptor<DynatraceProcessEvent> argumentCaptor = ArgumentCaptor.forClass(DynatraceProcessEvent.class);
         Mockito.verify(dynatracePublisher)
-                .publishProcessEvent(argumentCaptor.capture(), Mockito.any());
+               .publishProcessEvent(argumentCaptor.capture(), Mockito.any());
         DynatraceProcessEvent actualDynatraceEvent = argumentCaptor.getValue();
         assertEquals(MTA_ID, actualDynatraceEvent.getMtaId());
         assertEquals(SPACE_ID, actualDynatraceEvent.getSpaceId());

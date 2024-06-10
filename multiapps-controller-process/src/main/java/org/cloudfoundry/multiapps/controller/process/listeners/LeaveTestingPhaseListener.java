@@ -19,14 +19,17 @@ public class LeaveTestingPhaseListener extends AbstractProcessExecutionListener 
     private static final long serialVersionUID = 1L;
 
     @Inject
-    protected LeaveTestingPhaseListener(ProgressMessageService progressMessageService,
-                                        StepLogger.Factory stepLoggerFactory,
-                                        ProcessLoggerProvider processLoggerProvider,
-                                        ProcessLogsPersister processLogsPersister,
-                                        HistoricOperationEventService historicOperationEventService,
-                                        FlowableFacade flowableFacade,
+    protected LeaveTestingPhaseListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
+                                        ProcessLoggerProvider processLoggerProvider, ProcessLogsPersister processLogsPersister,
+                                        HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                                         ApplicationConfiguration configuration) {
-        super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
+        super(progressMessageService,
+              stepLoggerFactory,
+              processLoggerProvider,
+              processLogsPersister,
+              historicOperationEventService,
+              flowableFacade,
+              configuration);
     }
 
     @Override
