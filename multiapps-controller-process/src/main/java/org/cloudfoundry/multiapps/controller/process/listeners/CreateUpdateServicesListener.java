@@ -31,14 +31,17 @@ public class CreateUpdateServicesListener extends AbstractProcessExecutionListen
     private static final long serialVersionUID = 1L;
 
     @Inject
-    protected CreateUpdateServicesListener(ProgressMessageService progressMessageService,
-                                           StepLogger.Factory stepLoggerFactory,
-                                           ProcessLoggerProvider processLoggerProvider,
-                                           ProcessLogsPersister processLogsPersister,
-                                           HistoricOperationEventService historicOperationEventService,
-                                           FlowableFacade flowableFacade,
+    protected CreateUpdateServicesListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
+                                           ProcessLoggerProvider processLoggerProvider, ProcessLogsPersister processLogsPersister,
+                                           HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                                            ApplicationConfiguration configuration) {
-        super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
+        super(progressMessageService,
+              stepLoggerFactory,
+              processLoggerProvider,
+              processLogsPersister,
+              historicOperationEventService,
+              flowableFacade,
+              configuration);
     }
 
     @Override
@@ -57,30 +60,30 @@ public class CreateUpdateServicesListener extends AbstractProcessExecutionListen
 
     private void setDynamicResolvableParametersInParentProcess(DelegateExecution execution, List<CloudServiceInstanceExtended> services) {
         Set<DynamicResolvableParameter> dynamicResolvableParametersFromSubProcesses = getDynamicResolvableParametersFromSubProcesses(execution,
-                services);
+                                                                                                                                     services);
 
         Set<DynamicResolvableParameter> resolvedParameters = new HashSet<>(VariableHandling.get(execution,
-                Variables.DYNAMIC_RESOLVABLE_PARAMETERS));
+                                                                                                Variables.DYNAMIC_RESOLVABLE_PARAMETERS));
 
         setValueInDynamicResolvableParameters(execution, dynamicResolvableParametersFromSubProcesses, resolvedParameters);
 
         setVariableInParentProcess(execution, Variables.DYNAMIC_RESOLVABLE_PARAMETERS.getName(),
-                Variables.DYNAMIC_RESOLVABLE_PARAMETERS.getSerializer()
-                        .serialize(resolvedParameters));
+                                   Variables.DYNAMIC_RESOLVABLE_PARAMETERS.getSerializer()
+                                                                          .serialize(resolvedParameters));
         execution.setVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS.getName(), Variables.DYNAMIC_RESOLVABLE_PARAMETERS.getSerializer()
-                .serialize(resolvedParameters));
+                                                                                                                        .serialize(resolvedParameters));
     }
 
     private Set<DynamicResolvableParameter> getDynamicResolvableParametersFromSubProcesses(DelegateExecution execution,
                                                                                            List<CloudServiceInstanceExtended> services) {
         return services.stream()
-                .map(CloudServiceInstanceExtended::getName)
-                .map(serviceName -> Constants.VAR_SERVICE_INSTANCE_GUID_PREFIX + serviceName)
-                .map(serviceGuidConstant -> StepsUtil.getObject(execution, serviceGuidConstant))
-                .filter(Objects::nonNull)
-                .map(dynamicResolvableParameterObject -> Variables.DYNAMIC_RESOLVABLE_PARAMETER.getSerializer()
-                        .deserialize(dynamicResolvableParameterObject))
-                .collect(Collectors.toSet());
+                       .map(CloudServiceInstanceExtended::getName)
+                       .map(serviceName -> Constants.VAR_SERVICE_INSTANCE_GUID_PREFIX + serviceName)
+                       .map(serviceGuidConstant -> StepsUtil.getObject(execution, serviceGuidConstant))
+                       .filter(Objects::nonNull)
+                       .map(dynamicResolvableParameterObject -> Variables.DYNAMIC_RESOLVABLE_PARAMETER.getSerializer()
+                                                                                                      .deserialize(dynamicResolvableParameterObject))
+                       .collect(Collectors.toSet());
     }
 
     private void setValueInDynamicResolvableParameters(DelegateExecution execution,
@@ -89,7 +92,7 @@ public class CreateUpdateServicesListener extends AbstractProcessExecutionListen
         DynamicResolvableParametersHelper helper = new DynamicResolvableParametersHelper(dynamicResolvableParametersFromSubProcesses);
         for (DynamicResolvableParameter parameter : VariableHandling.get(execution, Variables.DYNAMIC_RESOLVABLE_PARAMETERS)) {
             DynamicResolvableParameter resolvedParameter = helper.findDynamicResolvableParameter(parameter.getParameterName(),
-                    parameter.getRelationshipEntityName());
+                                                                                                 parameter.getRelationshipEntityName());
             if (resolvedParameter != null) {
                 resolvedParameters.remove(parameter);
                 resolvedParameters.add(resolvedParameter);

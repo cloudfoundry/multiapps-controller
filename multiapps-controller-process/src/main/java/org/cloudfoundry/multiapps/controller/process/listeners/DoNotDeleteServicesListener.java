@@ -17,14 +17,17 @@ public class DoNotDeleteServicesListener extends AbstractProcessExecutionListene
 
     private static final long serialVersionUID = 1L;
 
-    protected DoNotDeleteServicesListener(ProgressMessageService progressMessageService,
-                                          StepLogger.Factory stepLoggerFactory,
-                                          ProcessLoggerProvider processLoggerProvider,
-                                          ProcessLogsPersister processLogsPersister,
-                                          HistoricOperationEventService historicOperationEventService,
-                                          FlowableFacade flowableFacade,
+    protected DoNotDeleteServicesListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
+                                          ProcessLoggerProvider processLoggerProvider, ProcessLogsPersister processLogsPersister,
+                                          HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                                           ApplicationConfiguration configuration) {
-        super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
+        super(progressMessageService,
+              stepLoggerFactory,
+              processLoggerProvider,
+              processLogsPersister,
+              historicOperationEventService,
+              flowableFacade,
+              configuration);
     }
 
     @Override

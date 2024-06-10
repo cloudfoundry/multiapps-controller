@@ -26,15 +26,17 @@ public class ManageAppServiceBindingEndListener extends AbstractProcessExecution
     private final ProcessTypeParser processTypeParser;
 
     @Inject
-    protected ManageAppServiceBindingEndListener(ProgressMessageService progressMessageService,
-                                                 StepLogger.Factory stepLoggerFactory,
-                                                 ProcessLoggerProvider processLoggerProvider,
-                                                 ProcessLogsPersister processLogsPersister,
-                                                 HistoricOperationEventService historicOperationEventService,
-                                                 FlowableFacade flowableFacade,
-                                                 ApplicationConfiguration configuration,
-                                                 ProcessTypeParser processTypeParser) {
-        super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
+    protected ManageAppServiceBindingEndListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
+                                                 ProcessLoggerProvider processLoggerProvider, ProcessLogsPersister processLogsPersister,
+                                                 HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
+                                                 ApplicationConfiguration configuration, ProcessTypeParser processTypeParser) {
+        super(progressMessageService,
+              stepLoggerFactory,
+              processLoggerProvider,
+              processLogsPersister,
+              historicOperationEventService,
+              flowableFacade,
+              configuration);
         this.processTypeParser = processTypeParser;
     }
 

@@ -26,15 +26,17 @@ public class EnterTestingPhaseListener extends AbstractProcessExecutionListener 
     private final OperationService operationService;
 
     @Inject
-    protected EnterTestingPhaseListener(ProgressMessageService progressMessageService,
-                                        StepLogger.Factory stepLoggerFactory,
-                                        ProcessLoggerProvider processLoggerProvider,
-                                        ProcessLogsPersister processLogsPersister,
-                                        HistoricOperationEventService historicOperationEventService,
-                                        FlowableFacade flowableFacade,
-                                        ApplicationConfiguration configuration,
-                                        OperationService operationService) {
-        super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
+    protected EnterTestingPhaseListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
+                                        ProcessLoggerProvider processLoggerProvider, ProcessLogsPersister processLogsPersister,
+                                        HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
+                                        ApplicationConfiguration configuration, OperationService operationService) {
+        super(progressMessageService,
+              stepLoggerFactory,
+              processLoggerProvider,
+              processLogsPersister,
+              historicOperationEventService,
+              flowableFacade,
+              configuration);
         this.operationService = operationService;
     }
 
@@ -47,12 +49,12 @@ public class EnterTestingPhaseListener extends AbstractProcessExecutionListener 
 
     private void setStateToActionRequired(String processId) {
         Operation operation = operationService.createQuery()
-                .processId(processId)
-                .singleResult();
+                                              .processId(processId)
+                                              .singleResult();
         operation = ImmutableOperation.builder()
-                .from(operation)
-                .state(Operation.State.ACTION_REQUIRED)
-                .build();
+                                      .from(operation)
+                                      .state(Operation.State.ACTION_REQUIRED)
+                                      .build();
         operationService.update(operation, operation);
     }
 

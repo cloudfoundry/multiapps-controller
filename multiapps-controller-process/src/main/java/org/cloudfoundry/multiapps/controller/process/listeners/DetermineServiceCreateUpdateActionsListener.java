@@ -26,13 +26,17 @@ public class DetermineServiceCreateUpdateActionsListener extends AbstractProcess
 
     @Inject
     protected DetermineServiceCreateUpdateActionsListener(ProgressMessageService progressMessageService,
-                                                          StepLogger.Factory stepLoggerFactory,
-                                                          ProcessLoggerProvider processLoggerProvider,
+                                                          StepLogger.Factory stepLoggerFactory, ProcessLoggerProvider processLoggerProvider,
                                                           ProcessLogsPersister processLogsPersister,
                                                           HistoricOperationEventService historicOperationEventService,
-                                                          FlowableFacade flowableFacade,
-                                                          ApplicationConfiguration configuration) {
-        super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
+                                                          FlowableFacade flowableFacade, ApplicationConfiguration configuration) {
+        super(progressMessageService,
+              stepLoggerFactory,
+              processLoggerProvider,
+              processLogsPersister,
+              historicOperationEventService,
+              flowableFacade,
+              configuration);
     }
 
     @Override

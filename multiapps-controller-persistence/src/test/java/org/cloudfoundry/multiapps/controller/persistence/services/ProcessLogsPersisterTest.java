@@ -35,7 +35,7 @@ class ProcessLogsPersisterTest {
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
-                .close();
+                          .close();
         processLogger = mock(ProcessLogger.class);
     }
 
@@ -46,16 +46,16 @@ class ProcessLogsPersisterTest {
     @Test
     void persistLogs() {
         prepareContext();
-        processLogsPersister.persistLogs(CORRELATION_ID,TASK_ID);
-        verify(processLogger,times(1)).persistLogFile(processLogsPersistenceService);
-        verify(processLoggerProvider,times(1)).removeLoggersCache(processLogger);
-        verify(processLogger,times(1)).closeLoggerContext();
-        verify(processLogger,times(1)).deleteLogFile();
+        processLogsPersister.persistLogs(CORRELATION_ID, TASK_ID);
+        verify(processLogger, times(1)).persistLogFile(processLogsPersistenceService);
+        verify(processLoggerProvider, times(1)).removeLoggersCache(processLogger);
+        verify(processLogger, times(1)).closeLoggerContext();
+        verify(processLogger, times(1)).deleteLogFile();
     }
 
     private void prepareContext() {
         List<ProcessLogger> processLoggerList = new ArrayList<>();
         processLoggerList.add(processLogger);
-        when(processLoggerProvider.getExistingLoggers(CORRELATION_ID,TASK_ID)).thenReturn(processLoggerList);
+        when(processLoggerProvider.getExistingLoggers(CORRELATION_ID, TASK_ID)).thenReturn(processLoggerList);
     }
 }

@@ -26,14 +26,17 @@ public class DeployAppSubProcessEndListener extends AbstractProcessExecutionList
     private static final long serialVersionUID = 1L;
 
     @Inject
-    protected DeployAppSubProcessEndListener(ProgressMessageService progressMessageService,
-                                             StepLogger.Factory stepLoggerFactory,
-                                             ProcessLoggerProvider processLoggerProvider,
-                                             ProcessLogsPersister processLogsPersister,
-                                             HistoricOperationEventService historicOperationEventService,
-                                             FlowableFacade flowableFacade,
+    protected DeployAppSubProcessEndListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
+                                             ProcessLoggerProvider processLoggerProvider, ProcessLogsPersister processLogsPersister,
+                                             HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                                              ApplicationConfiguration configuration) {
-        super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
+        super(progressMessageService,
+              stepLoggerFactory,
+              processLoggerProvider,
+              processLogsPersister,
+              historicOperationEventService,
+              flowableFacade,
+              configuration);
     }
 
     @Override

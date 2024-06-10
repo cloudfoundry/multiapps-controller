@@ -59,8 +59,15 @@ class ManageAppServiceBindingEndListenerTest {
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
-                .close();
-        manageAppServiceBindingEndListener = new ManageAppServiceBindingEndListener(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration, processTypeParser);
+                          .close();
+        manageAppServiceBindingEndListener = new ManageAppServiceBindingEndListener(progressMessageService,
+                                                                                    stepLoggerFactory,
+                                                                                    processLoggerProvider,
+                                                                                    processLogsPersister,
+                                                                                    historicOperationEventService,
+                                                                                    flowableFacade,
+                                                                                    configuration,
+                                                                                    processTypeParser);
     }
 
     // @formatter:off
@@ -80,15 +87,15 @@ class ManageAppServiceBindingEndListenerTest {
         manageAppServiceBindingEndListener.notifyInternal(execution);
 
         verify(flowableFacade).setVariableInParentProcess(execution,
-                ManageAppServiceBindingEndListener.buildExportedVariableName(APPLICATION_NAME,
-                        SERVICE_NAME),
-                expectedBooleanValue);
+                                                          ManageAppServiceBindingEndListener.buildExportedVariableName(APPLICATION_NAME,
+                                                                                                                       SERVICE_NAME),
+                                                          expectedBooleanValue);
     }
 
     private void prepareExecution(boolean shouldUnbind, boolean shouldBind) {
         CloudApplication application = ImmutableCloudApplication.builder()
-                .name(APPLICATION_NAME)
-                .build();
+                                                                .name(APPLICATION_NAME)
+                                                                .build();
         when(execution.getVariable(Variables.APP_TO_PROCESS.getName())).thenReturn(JsonUtil.toJson(application));
         when(execution.getVariable(Variables.SERVICE_TO_UNBIND_BIND.getName())).thenReturn(SERVICE_NAME);
         when(execution.getVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP.getName())).thenReturn(shouldUnbind);

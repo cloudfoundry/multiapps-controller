@@ -58,19 +58,19 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     private final FileService fileService;
 
     @Inject
-    public StartProcessListener(ProgressMessageService progressMessageService,
-                                StepLogger.Factory stepLoggerFactory,
-                                ProcessLoggerProvider processLoggerProvider,
-                                ProcessLogsPersister processLogsPersister,
-                                HistoricOperationEventService historicOperationEventService,
-                                FlowableFacade flowableFacade,
-                                ApplicationConfiguration configuration,
-                                ProcessTypeParser processTypeParser,
-                                OperationService operationService,
-                                ProcessTypeToOperationMetadataMapper operationMetadataMapper,
-                                DynatracePublisher dynatracePublisher,
-                                FileService fileService) {
-        super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLogsPersister, historicOperationEventService, flowableFacade, configuration);
+    public StartProcessListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
+                                ProcessLoggerProvider processLoggerProvider, ProcessLogsPersister processLogsPersister,
+                                HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
+                                ApplicationConfiguration configuration, ProcessTypeParser processTypeParser,
+                                OperationService operationService, ProcessTypeToOperationMetadataMapper operationMetadataMapper,
+                                DynatracePublisher dynatracePublisher, FileService fileService) {
+        super(progressMessageService,
+              stepLoggerFactory,
+              processLoggerProvider,
+              processLogsPersister,
+              historicOperationEventService,
+              flowableFacade,
+              configuration);
         this.processTypeParser = processTypeParser;
         this.operationService = operationService;
         this.operationMetadataMapper = operationMetadataMapper;
@@ -100,23 +100,23 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private boolean operationDoesNotExist(String correlationId) {
         return operationService.createQuery()
-                .processId(correlationId)
-                .list()
-                .isEmpty();
+                               .processId(correlationId)
+                               .list()
+                               .isEmpty();
     }
 
     private void addOperation(DelegateExecution execution, String correlationId, ProcessType processType) {
         Operation operation = ImmutableOperation.builder()
-                .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
-                .processId(correlationId)
-                .processType(processType)
-                .startedAt(currentTimeSupplier.get())
-                .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
-                .user(StepsUtil.determineCurrentUser(execution))
-                .hasAcquiredLock(false)
-                .namespace(VariableHandling.get(execution, Variables.MTA_NAMESPACE))
-                .state(Operation.State.RUNNING)
-                .build();
+                                                .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
+                                                .processId(correlationId)
+                                                .processType(processType)
+                                                .startedAt(currentTimeSupplier.get())
+                                                .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
+                                                .user(StepsUtil.determineCurrentUser(execution))
+                                                .hasAcquiredLock(false)
+                                                .namespace(VariableHandling.get(execution, Variables.MTA_NAMESPACE))
+                                                .state(Operation.State.RUNNING)
+                                                .build();
         operationService.add(operation);
     }
 
@@ -131,8 +131,8 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         getStepLogger().debug(Messages.CLIENT_ORGANIZATION, VariableHandling.get(execution, Variables.ORGANIZATION_NAME));
         Map<String, Object> processVariables = findProcessVariables(execution, processType);
         LoggingUtil.logWithCorrelationId(correlationId,
-                () -> getStepLogger().infoWithoutProgressMessage(Messages.PROCESS_VARIABLES,
-                        JsonUtil.toJson(processVariables, true)));
+                                         () -> getStepLogger().infoWithoutProgressMessage(Messages.PROCESS_VARIABLES,
+                                                                                          JsonUtil.toJson(processVariables, true)));
     }
 
     private Map<String, Object> findProcessVariables(DelegateExecution execution, ProcessType processType) {
@@ -151,7 +151,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         List<String> operationFileIds = OperationFileIdsUtil.getOperationFileIds(execution);
         try {
             LOGGER.info(MessageFormat.format(Messages.FILES_FOR_OPERATION_0_WERE_UPDATED_1, correlationId,
-                    fileService.updateFilesOperationId(operationFileIds, correlationId)));
+                                             fileService.updateFilesOperationId(operationFileIds, correlationId)));
         } catch (FileStorageException e) {
             LOGGER.error(e.getMessage(), e);
             throw new SLException(MessageFormat.format(Messages.FAILED_TO_UPDATE_FILES_OF_OPERATION_0, correlationId));
@@ -160,12 +160,12 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private void publishDynatraceEvent(DelegateExecution execution, ProcessType processType, String correlationId) {
         DynatraceProcessEvent startEvent = ImmutableDynatraceProcessEvent.builder()
-                .processId(correlationId)
-                .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
-                .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
-                .eventType(DynatraceProcessEvent.EventType.STARTED)
-                .processType(processType)
-                .build();
+                                                                         .processId(correlationId)
+                                                                         .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
+                                                                         .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
+                                                                         .eventType(DynatraceProcessEvent.EventType.STARTED)
+                                                                         .processType(processType)
+                                                                         .build();
         dynatracePublisher.publishProcessEvent(startEvent, getLogger());
     }
 
