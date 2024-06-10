@@ -42,9 +42,9 @@ public class ProcessLoggerProvider {
     }
 
     public ProcessLogger getLogger(DelegateExecution context, String logName) {
-        return getLogger(context, logName, loggerContext -> PatternLayout.newBuilder()
+        return getLogger(context, DEFAULT_LOG_NAME, loggerContextDel -> PatternLayout.newBuilder()
                                                                          .withPattern(LOG_LAYOUT)
-                                                                         .withConfiguration(loggerContext.getConfiguration())
+                                                                         .withConfiguration(loggerContextDel.getConfiguration())
                                                                          .build());
     }
 
@@ -75,11 +75,11 @@ public class ProcessLoggerProvider {
         return taskId != null ? taskId : execution.getCurrentActivityId();
     }
 
-    private ProcessLogger createProcessLogger(String spaceId, String correlationId, String activityId, String loggerName, String logName,
+    private synchronized ProcessLogger createProcessLogger(String spaceId, String correlationId, String activityId, String loggerName, String logName,
                                               Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction) {
         File logFile = getLocalFileByLoggerName(loggerName);
-        FileAppender fileAppender = createFileAppender(loggerName, logFile, layoutCreatorFunction, loggerContext);
-        LoggerContext loggerContext = initializeLoggerContext(loggerName, logFile, layoutCreatorFunction, fileAppender);
+        FileAppender fileAppender = createFileAppender(loggerName, layoutCreatorFunction, loggerContext);
+        initializeLoggerContext(loggerName, fileAppender);
         Logger logger = loggerContext.getLogger(loggerName);
         return new ProcessLogger(loggerContext, logger, logFile, logName, spaceId, correlationId, activityId, fileAppender);
     }
@@ -89,18 +89,15 @@ public class ProcessLoggerProvider {
         return new File(DEFAULT_LOG_DIR, fileName);
     }
 
-    private LoggerContext initializeLoggerContext(String loggerName, File logFile,
-                                                  Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction, FileAppender fileAppender) {
+    private synchronized void initializeLoggerContext(String loggerName, FileAppender fileAppender) {
         try {
-            attachFileAppender(loggerName, logFile, layoutCreatorFunction, loggerContext, fileAppender);
+            attachFileAppender(loggerName, loggerContext, fileAppender);
         } catch (Exception e) {
-            loggerContext.close();
             throw new SLException(e, e.getMessage());
         }
-        return loggerContext;
     }
 
-    private void attachFileAppender(String loggerName, File logFile, Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction,
+    private synchronized void attachFileAppender(String loggerName,
                                     LoggerContext loggerContext, FileAppender fileAppender) {
         fileAppender.start();
         loggerContext.getConfiguration()
@@ -113,11 +110,11 @@ public class ProcessLoggerProvider {
         loggerContext.updateLoggers();
     }
 
-    private FileAppender createFileAppender(String loggerName, File logFile,
+    private FileAppender createFileAppender(String loggerName,
                                             Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction, LoggerContext context) {
         return FileAppender.newBuilder()
                            .setName(loggerName)
-                           .withFileName(logFile.toString())
+                           .withFileName(loggerName)
                            .setLayout(layoutCreatorFunction.apply(context))
                            .setConfiguration(context.getConfiguration())
                            .build();
