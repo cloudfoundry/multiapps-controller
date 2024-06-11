@@ -6,6 +6,7 @@ import javax.inject.Named;
 import javax.sql.DataSource;
 
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
+import org.postgresql.Driver;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -32,6 +33,7 @@ public class DataSourceFactory {
         hikariConfig.setIdleTimeout(60000);
         hikariConfig.setMinimumIdle(10);
         hikariConfig.addDataSourceProperty("tcpKeepAlive", true);
+        hikariConfig.setDriverClassName(Driver.class.getName());
 
         configureSSLClientKeyIfExists(service, hikariConfig);
 
