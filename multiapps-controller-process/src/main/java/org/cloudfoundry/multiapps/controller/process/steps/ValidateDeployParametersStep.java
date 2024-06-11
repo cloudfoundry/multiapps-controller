@@ -135,29 +135,8 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         context.setVariable(Variables.APP_ARCHIVE_ID, uploadedArchive.getId());
     }
 
-    // private FileEntry persistArchive(InputStream archivePath, ProcessContext context) {
-    // try {
-    // byte[] b = archivePath.readAllBytes();
-    // BigInteger a = getSizeOfInputStream(b);
-    //
-    // getStepLogger().info("Old: " + a + " New: " + archiveMerger.getArchivesSize());
-    // return fileService.addFile(ImmutableFileEntry.builder()
-    // .name("test")
-    // .space(context.getVariable(Variables.SPACE_GUID))
-    // .namespace(context.getVariable(Variables.MTA_NAMESPACE))
-    // .operationId(context.getExecution()
-    // .getProcessInstanceId())
-    // .size(a)
-    // .build(),
-    // archivePath);
-    // } catch (FileStorageException | IOException e) {
-    // throw new SLException(e, e.getMessage());
-    // }
-    // }
-
     private FileEntry persistArchive(InputStream archivePath, ProcessContext context) {
         try {
-            getStepLogger().info("WILL SAVEEE");
             return fileService.addFile(ImmutableFileEntry.builder()
                                                          .name("test")
                                                          .space(context.getVariable(Variables.SPACE_GUID))
@@ -170,10 +149,6 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         } catch (FileStorageException e) {
             throw new SLException(e, e.getMessage());
         }
-    }
-
-    private BigInteger getSizeOfInputStream(byte[] a) {
-        return BigInteger.valueOf(a.length);
     }
 
     private void deleteArchive(InputStream archiveFilePath) {

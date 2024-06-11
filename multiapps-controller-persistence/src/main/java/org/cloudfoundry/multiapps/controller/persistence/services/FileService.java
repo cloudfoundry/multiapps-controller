@@ -176,7 +176,6 @@ public class FileService {
     protected FileEntry storeFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
         logger.info("PREPARING TO CREATE DigestInputStream");
         try (DigestInputStream dis = new DigestInputStream(content, MessageDigest.getInstance(Constants.DIGEST_ALGORITHM))) {
-            logger.info("Size is: " + fileEntry.getSize() + " Size of new way: " + getDigestInputStreamLength(content));
             logger.info("CREATED DigestInputStream");
             fileStorage.addFile(fileEntry, dis);
             logger.info("ADDING DigestInputStream");
@@ -185,26 +184,10 @@ public class FileService {
                                                                                                             .digest()))
                                                             .withDigestAlgorithm(Constants.DIGEST_ALGORITHM);
             storeFileAttributes(completeFileEntry);
-            content.close();
             return completeFileEntry;
         } catch (NoSuchAlgorithmException | IOException e) {
             throw new FileStorageException(e);
         }
-    }
-
-    private static int getDigestInputStreamLength(InputStream digestInputStream) throws IOException {
-        byte[] buffer = new byte[1024];
-        int bytesRead;
-        int length = 0;
-
-        // Read through the entire stream to calculate its length
-        while ((bytesRead = digestInputStream.read(buffer)) != -1) {
-            length += bytesRead;
-        }
-
-        // Note: Do not close the stream here if you need to use it again
-
-        return length;
     }
 
         protected boolean deleteFileAttribute(String space, String id) throws FileStorageException {
