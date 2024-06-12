@@ -67,6 +67,7 @@ public class Messages {
     public static final String APPLICATION_0_WAS_NOT_FOUND = "Application \"{0}\" was not found";
     public static final String FAILED_TO_UPDATE_FILES_OF_OPERATION_0 = "Failed to update files of operation: {0}";
     public static final String COULD_NOT_DELETE_ORPHANED_FILES_MODIFIED_AFTER_0_AND_BEFORE_1 = "Could not delete orphaned files modified after {0} and before {1}";
+    public static final String ERROR_WHILE_STARTING_ASYNC_UPLOAD_OF_APP_WITH_NAME_0 = "Error while starting async upload of app with name {0}";
 
     // Audit log messages
 
@@ -294,6 +295,7 @@ public class Messages {
     public static final String BATCH_OF_PROCESSES_DELETED = "Batch of processes deleted: {0}";
     public static final String DELETING_THE_FOLLOWING_FILE_ENTRIES_WITHOUT_CONTENT_0 = "Deleting the following file entries without content: {0}";
     public static final String DELETED_FILE_ENTRIES_0 = "Deleted file entries: {0}";
+    public static final String APPLICATION_WITH_NAME_0_SAVED_TO_1 = "Application with name \"{0}\" saved to \"{1}\"";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
