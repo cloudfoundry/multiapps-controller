@@ -4,13 +4,14 @@ import static java.text.MessageFormat.format;
 
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -106,8 +107,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             return StepPhase.POLL;
         }
 
-        if (isPackageInValidState(latestPackage) && (context.getVariable(Variables.APP_NEEDS_RESTAGE) ||
-                                                     !packagesMatch(currentPackage.get(), latestPackage))) {
+        if (isPackageInValidState(latestPackage)
+            && (context.getVariable(Variables.APP_NEEDS_RESTAGE) || !packagesMatch(currentPackage.get(), latestPackage))) {
             return useLatestPackage(context, latestPackage);
         }
 
@@ -187,18 +188,16 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     private CloudPackage asyncUploadFiles(ProcessContext context, CloudApplication app, String appArchiveId, String fileName)
         throws FileStorageException {
+        Path extractedAppPath = extractApplicationFromArchive(context, appArchiveId, fileName);
+        LOGGER.debug(MessageFormat.format(Messages.APPLICATION_WITH_NAME_0_SAVED_TO_1, app.getName(), extractedAppPath));
+        return upload(context, app, extractedAppPath);
+    }
 
+    private Path extractApplicationFromArchive(ProcessContext context, String appArchiveId, String fileName) throws FileStorageException {
         return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId, appArchiveStream -> {
-            Path filePath = null;
             long maxSize = configuration.getMaxResourceFileSize();
-            try {
-                ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(appArchiveStream, fileName, maxSize);
-                filePath = extractFromMtar(applicationArchiveContext);
-                return upload(context, app, filePath);
-            } catch (Exception e) {
-                FileUtils.cleanUp(filePath, LOGGER);
-                throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, fileName);
-            }
+            ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(appArchiveStream, fileName, maxSize);
+            return extractFromMtar(applicationArchiveContext);
         });
     }
 
@@ -207,8 +206,13 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     private CloudPackage upload(ProcessContext context, CloudApplication app, Path filePath) {
-        return context.getControllerClient()
-                      .asyncUploadApplication(app.getName(), filePath, getMonitorUploadStatusCallback(context, app, filePath));
+        try {
+            return context.getControllerClient()
+                          .asyncUploadApplication(app.getName(), filePath, getMonitorUploadStatusCallback(context, app, filePath));
+        } catch (Exception e) {
+            FileUtils.cleanUp(filePath, LOGGER);
+            throw new SLException(e, Messages.ERROR_WHILE_STARTING_ASYNC_UPLOAD_OF_APP_WITH_NAME_0, app.getName());
+        }
     }
 
     private void attemptToUpdateApplicationDigest(CloudControllerClient client, CloudApplication app, Map<String, String> appEnv,

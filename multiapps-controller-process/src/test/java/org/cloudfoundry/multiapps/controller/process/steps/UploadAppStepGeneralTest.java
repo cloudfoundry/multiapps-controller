@@ -8,7 +8,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -185,6 +187,17 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     }
 
     @Test
+    void testExtractionOfAppFails() {
+        prepareClients(NEW_MODULE_DIGEST);
+        doThrow(new SLException("Error while reading blob input stream")).when(step.applicationZipBuilder)
+                                                                         .extractApplicationInNewArchive(any());
+        Exception exception = assertThrows(SLException.class, () -> step.execute(execution));
+        assertEquals("Error uploading application \"sample-app-backend\": Error while reading blob input stream ",
+                     exception.getMessage());
+        assertEquals(StepPhase.RETRY.toString(), getExecutionStatus());
+    }
+
+    @Test
     void testWithAvailableValidCloudPackage() {
         prepareClients(CURRENT_MODULE_DIGEST);
         mockCloudPackagesGetter(createCloudPackage(Status.PROCESSING_UPLOAD));
@@ -280,13 +293,8 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
 
         public UploadAppStepMock() {
             applicationArchiveReader = getApplicationArchiveReader();
-            applicationZipBuilder = getApplicationZipBuilder(applicationArchiveReader);
+            applicationZipBuilder = spy(getApplicationZipBuilder(applicationArchiveReader));
             cloudPackagesGetter = UploadAppStepGeneralTest.this.cloudPackagesGetter;
-        }
-
-        @Override
-        protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName, long maxSize) {
-            return super.createApplicationArchiveContext(getClass().getResourceAsStream(APP_ARCHIVE), fileName, maxSize);
         }
 
         private ApplicationArchiveReader getApplicationArchiveReader() {
@@ -300,6 +308,11 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
                     return appFile;
                 }
             };
+        }
+
+        @Override
+        protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName, long maxSize) {
+            return super.createApplicationArchiveContext(getClass().getResourceAsStream(APP_ARCHIVE), fileName, maxSize);
         }
 
     }
