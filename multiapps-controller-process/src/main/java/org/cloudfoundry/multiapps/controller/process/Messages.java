@@ -689,6 +689,9 @@ public class Messages {
     public static final String WAITING_FOR_SERVICE_OPERATION_TO_FINISH = "Waiting for service operation to finish";
     public static final String ERROR_WAITING_FOR_OPERATION_TO_FINISH = "Error waiting for operation to finish";
     public static final String OPERATION_OF_SERVICE_BINDING_OR_KEY_IS_IN_PROGRESS = "Operation of service binding or key is in progress";
+    public static final String ARCHIVE_WAS_NOT_SPLIT_TOTAL_SIZE_IN_BYTES_0 = "Archive was not split! Total size in bytes: {0}";
+    public static final String ARCHIVE_WAS_SPLIT_TO_0_PARTS_TOTAL_SIZE_IN_BYTES_1 = "Archive was split to: {0} parts. Total size in bytes: {1}";
+    public static final String SIZE_OF_APP_0_IS_1_BYTES = "Size of app {0} is {1} bytes";
 
     protected Messages() {
     }
