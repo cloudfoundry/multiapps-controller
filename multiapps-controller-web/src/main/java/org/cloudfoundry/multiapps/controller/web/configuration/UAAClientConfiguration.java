@@ -5,15 +5,21 @@ import java.text.MessageFormat;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.net.ssl.SSLException;
 
 import com.sap.cloudfoundry.client.facade.util.RestUtil;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SSLUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 
 @Configuration
 public class UAAClientConfiguration {
@@ -41,13 +47,18 @@ public class UAAClientConfiguration {
             }
             return new URL(endpoint.toString());
         } catch (Exception e) {
-            throw new IllegalStateException("Could not read token endpoint", e);
+            throw new IllegalStateException("Could not read token endpoint " + targetURL, e);
         }
     }
 
-    protected Map<String, Object> getControllerInfo(URL targetURL) {
-        String infoResponse = WebClient.create()
-                                       .get()
+    protected Map<String, Object> getControllerInfo(URL targetURL) throws SSLException {
+        SslContext sslContext = SslContextBuilder
+                .forClient()
+                .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                .build();
+        HttpClient httpClient = HttpClient.create().secure(t -> t.sslContext(sslContext));
+        WebClient webClient = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        String infoResponse = webClient.get()
                                        .uri(targetURL.toString())
                                        .retrieve()
                                        .bodyToMono(String.class)
