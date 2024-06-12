@@ -15,6 +15,7 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SSLUtil;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -30,14 +31,14 @@ public class UAAClientConfiguration {
         if (configuration.shouldSkipSslValidation()) {
             SSLUtil.disableSSLValidation();
         }
-        return new UAAClient(readTokenEndpoint(configuration.getControllerUrl()),
+        return new UAAClient UAAClient(readTokenEndpoint(configuration.getControllerUrl(), configuration.shouldSkipSslValidation()),
                              new RestUtil().createWebClient(false));
     }
 
     @SuppressWarnings("unchecked")
-    private URL readTokenEndpoint(URL targetURL) {
+    private URL readTokenEndpoint(URL targetURL, Boolean shouldSkipSslValidation) {
         try {
-            Map<String, Object> infoMap = getControllerInfo(targetURL);
+            Map<String, Object> infoMap = getControllerInfo(targetURL, shouldSkipSslValidation);
             var links = (Map<String, Object>) infoMap.get("links");
             var uaa = (Map<String, Object>) links.get("uaa");
             Object endpoint = uaa.get("href");
@@ -51,13 +52,8 @@ public class UAAClientConfiguration {
         }
     }
 
-    protected Map<String, Object> getControllerInfo(URL targetURL) throws SSLException {
-        SslContext sslContext = SslContextBuilder
-                .forClient()
-                .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                .build();
-        HttpClient httpClient = HttpClient.create().secure(t -> t.sslContext(sslContext));
-        WebClient webClient = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+    protected Map<String, Object> getControllerInfo(URL targetURL, Boolean shouldSkipSslValidation) throws SSLException {
+        WebClient webClient = buildWebClientWith(shouldSkipSslValidation);
         String infoResponse = webClient.get()
                                        .uri(targetURL.toString())
                                        .retrieve()
@@ -67,6 +63,24 @@ public class UAAClientConfiguration {
             throw new IllegalStateException(MessageFormat.format("Invalid response returned from {0}", targetURL.toString()));
         }
         return JsonUtil.convertJsonToMap(infoResponse);
+    }
+
+    @NotNull
+    private static WebClient buildWebClientWith(Boolean shouldSkipSslValidation){
+        if (!shouldSkipSslValidation){
+             return WebClient.create();
+        }
+        final SslContext sslContext;
+        try {
+            sslContext = SslContextBuilder
+                    .forClient()
+                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                    .build();
+        } catch (SSLException e) {
+            throw new IllegalStateException("Failed to create insecure SSL context", e);
+        }
+        HttpClient httpClient = HttpClient.create().secure(t -> t.sslContext(sslContext));
+        return WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient)).build();
     }
 
 }
