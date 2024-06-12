@@ -190,6 +190,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         throws FileStorageException {
         Path extractedAppPath = extractApplicationFromArchive(context, appArchiveId, fileName);
         LOGGER.debug(MessageFormat.format(Messages.APPLICATION_WITH_NAME_0_SAVED_TO_1, app.getName(), extractedAppPath));
+        getStepLogger().infoWithoutProgressMessage(Messages.SIZE_OF_APP_0_IS_1_BYTES, app.getName(), extractedAppPath.toFile()
+                                                                                                                     .length());
         return upload(context, app, extractedAppPath);
     }
 

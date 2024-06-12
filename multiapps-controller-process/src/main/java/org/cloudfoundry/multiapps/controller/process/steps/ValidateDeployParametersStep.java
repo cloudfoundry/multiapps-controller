@@ -92,15 +92,18 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     private void validateArchive(ProcessContext context) {
         String[] archivePartIds = getArchivePartIds(context);
         if (archivePartIds.length == 1) {
-            // The archive doesn't need "validation", i.e. merging or signature verification.
-            // TODO The merging of chunks should be done prior to this step, since it's not really a validation, but we may need the result
-            // here, if the user wants us to verify the archive's signature.
+            // TODO The merging of chunks should be done prior to this step
+            FileEntry archiveFileEntry = findFile(context, archivePartIds[0]);
+            getStepLogger().infoWithoutProgressMessage(Messages.ARCHIVE_WAS_NOT_SPLIT_TOTAL_SIZE_IN_BYTES_0, archiveFileEntry.getSize());
             return;
         }
         Path archive = null;
         try {
             archive = mergeArchiveParts(context, archivePartIds);
             persistMergedArchive(context, archive);
+            getStepLogger().infoWithoutProgressMessage(Messages.ARCHIVE_WAS_SPLIT_TO_0_PARTS_TOTAL_SIZE_IN_BYTES_1, archivePartIds.length,
+                                                       archive.toFile()
+                                                              .length());
         } finally {
             deleteArchive(archive);
         }
