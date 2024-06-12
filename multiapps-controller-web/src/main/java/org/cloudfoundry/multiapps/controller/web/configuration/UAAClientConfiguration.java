@@ -5,15 +5,22 @@ import java.text.MessageFormat;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.net.ssl.SSLException;
 
 import com.sap.cloudfoundry.client.facade.util.RestUtil;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SSLUtil;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 
 @Configuration
 public class UAAClientConfiguration {
@@ -24,14 +31,14 @@ public class UAAClientConfiguration {
         if (configuration.shouldSkipSslValidation()) {
             SSLUtil.disableSSLValidation();
         }
-        return new UAAClient(readTokenEndpoint(configuration.getControllerUrl()),
+        return new UAAClient(readTokenEndpoint(configuration.getControllerUrl(), configuration.shouldSkipSslValidation()),
                              new RestUtil().createWebClient(false));
     }
 
     @SuppressWarnings("unchecked")
-    private URL readTokenEndpoint(URL targetURL) {
+    private URL readTokenEndpoint(URL targetURL, Boolean shouldSkipSslValidation) {
         try {
-            Map<String, Object> infoMap = getControllerInfo(targetURL);
+            Map<String, Object> infoMap = getControllerInfo(targetURL, shouldSkipSslValidation);
             var links = (Map<String, Object>) infoMap.get("links");
             var uaa = (Map<String, Object>) links.get("uaa");
             Object endpoint = uaa.get("href");
@@ -41,13 +48,13 @@ public class UAAClientConfiguration {
             }
             return new URL(endpoint.toString());
         } catch (Exception e) {
-            throw new IllegalStateException("Could not read token endpoint", e);
+            throw new IllegalStateException("Could not read token endpoint " + targetURL, e);
         }
     }
 
-    protected Map<String, Object> getControllerInfo(URL targetURL) {
-        String infoResponse = WebClient.create()
-                                       .get()
+    protected Map<String, Object> getControllerInfo(URL targetURL, Boolean shouldSkipSslValidation) throws SSLException {
+        WebClient webClient = buildWebClientWith(shouldSkipSslValidation);
+        String infoResponse = webClient.get()
                                        .uri(targetURL.toString())
                                        .retrieve()
                                        .bodyToMono(String.class)
@@ -56,6 +63,24 @@ public class UAAClientConfiguration {
             throw new IllegalStateException(MessageFormat.format("Invalid response returned from {0}", targetURL.toString()));
         }
         return JsonUtil.convertJsonToMap(infoResponse);
+    }
+
+    @NotNull
+    private static WebClient buildWebClientWith(Boolean shouldSkipSslValidation){
+        if (!shouldSkipSslValidation){
+             return WebClient.create();
+        }
+        final SslContext sslContext;
+        try {
+            sslContext = SslContextBuilder
+                    .forClient()
+                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                    .build();
+        } catch (SSLException e) {
+            throw new IllegalStateException("Failed to create insecure SSL context", e);
+        }
+        HttpClient httpClient = HttpClient.create().secure(t -> t.sslContext(sslContext));
+        return WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient)).build();
     }
 
 }
