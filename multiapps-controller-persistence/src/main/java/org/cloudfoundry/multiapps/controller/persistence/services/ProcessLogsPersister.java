@@ -28,8 +28,8 @@ public class ProcessLogsPersister {
             throw new SLException(e, e.getMessage());
         } finally {
             processLoggerProvider.removeLoggersCache(processLogger);
-            processLogger.deleteLogFile();
             processLogger.closeLoggerContext();
+            processLogger.deleteLogFile();
         }
     }
 }

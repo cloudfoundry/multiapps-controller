@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 import javax.inject.Named;
 
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -35,17 +37,18 @@ public class ProcessLoggerProvider {
     private static final String LOG_FILE_EXTENSION = ".log";
 
     private final Map<String, ProcessLogger> loggersCache = new ConcurrentHashMap<>();
-    private final LoggerContext loggerContext = new LoggerContext(DEFAULT_LOG_NAME);
+    private final LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
 
     public ProcessLogger getLogger(DelegateExecution execution) {
+
         return getLogger(execution, DEFAULT_LOG_NAME);
     }
 
     public ProcessLogger getLogger(DelegateExecution context, String logName) {
         return getLogger(context, DEFAULT_LOG_NAME, loggerContextDel -> PatternLayout.newBuilder()
-                                                                         .withPattern(LOG_LAYOUT)
-                                                                         .withConfiguration(loggerContextDel.getConfiguration())
-                                                                         .build());
+                                                                                                         .withPattern(LOG_LAYOUT)
+                                                                                                         .withConfiguration(loggerContextDel.getConfiguration())
+                                                                                                         .build());
     }
 
     public ProcessLogger getLogger(DelegateExecution execution, String logName,
@@ -75,10 +78,11 @@ public class ProcessLoggerProvider {
         return taskId != null ? taskId : execution.getCurrentActivityId();
     }
 
-    private synchronized ProcessLogger createProcessLogger(String spaceId, String correlationId, String activityId, String loggerName, String logName,
-                                              Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction) {
+    private synchronized ProcessLogger createProcessLogger(String spaceId, String correlationId, String activityId, String loggerName,
+                                                           String logName,
+                                                           Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction) {
         File logFile = getLocalFileByLoggerName(loggerName);
-        FileAppender fileAppender = createFileAppender(loggerName, layoutCreatorFunction, loggerContext);
+        FileAppender fileAppender = createFileAppender(loggerName, logFile, layoutCreatorFunction, loggerContext);
         initializeLoggerContext(loggerName, fileAppender);
         Logger logger = loggerContext.getLogger(loggerName);
         return new ProcessLogger(loggerContext, logger, logFile, logName, spaceId, correlationId, activityId, fileAppender);
@@ -89,7 +93,7 @@ public class ProcessLoggerProvider {
         return new File(DEFAULT_LOG_DIR, fileName);
     }
 
-    private synchronized void initializeLoggerContext(String loggerName, FileAppender fileAppender) {
+    private void initializeLoggerContext(String loggerName, FileAppender fileAppender) {
         try {
             attachFileAppender(loggerName, loggerContext, fileAppender);
         } catch (Exception e) {
@@ -97,8 +101,7 @@ public class ProcessLoggerProvider {
         }
     }
 
-    private synchronized void attachFileAppender(String loggerName,
-                                    LoggerContext loggerContext, FileAppender fileAppender) {
+    private void attachFileAppender(String loggerName, LoggerContext loggerContext, FileAppender fileAppender) {
         fileAppender.start();
         loggerContext.getConfiguration()
                      .addAppender(fileAppender);
@@ -110,19 +113,22 @@ public class ProcessLoggerProvider {
         loggerContext.updateLoggers();
     }
 
-    private FileAppender createFileAppender(String loggerName,
-                                            Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction, LoggerContext context) {
+    private FileAppender createFileAppender(String loggerName, File logFile,
+                                            Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction,
+                                            LoggerContext context) {
         return FileAppender.newBuilder()
                            .setName(loggerName)
-                           .withFileName(loggerName)
+                           .withFileName(logFile.toString())
                            .setLayout(layoutCreatorFunction.apply(context))
                            .setConfiguration(context.getConfiguration())
                            .build();
     }
 
     private LoggerConfig getLoggerConfig(LoggerContext loggerContext, String loggerName) {
-        return loggerContext.getConfiguration()
-                            .getLoggerConfig(loggerName);
+        return LoggerConfig.newBuilder()
+                           .withConfig(loggerContext.getConfiguration())
+                           .withLoggerName(loggerName)
+                           .build();
     }
 
     private void setLoggerConfigLoggingLevel(LoggerConfig loggerConfig, Level level) {
