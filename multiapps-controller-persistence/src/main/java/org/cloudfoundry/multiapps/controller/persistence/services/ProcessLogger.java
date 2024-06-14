@@ -1,48 +1,37 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.AbstractLifeCycle;
-import org.apache.logging.log4j.core.LifeCycle;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.FileAppender;
-import org.apache.logging.log4j.core.util.WatchManager;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
-
-import java.io.File;
 
 public class ProcessLogger {
 
-    private Logger logger;
-    private File log;
-    private String logName;
     protected final String spaceId;
     protected final String processId;
     protected final String activityId;
+    private Logger logger;
+    private String logName;
     private LoggerContext loggerContext;
-    private FileAppender fileAppender;
+    private ProcessLoggerProvider.LogDbAppender logDbAppender;
 
-    public ProcessLogger(LoggerContext loggerContext, Logger logger, File log, String logName, String spaceId, String processId,
-                         String activityId, FileAppender fileAppender) {
+    public ProcessLogger(LoggerContext loggerContext, Logger logger, String logName, String spaceId, String processId, String activityId,
+                         ProcessLoggerProvider.LogDbAppender logDbAppender) {
         this.logger = logger;
-        this.log = log;
         this.logName = logName;
         this.spaceId = spaceId;
         this.processId = processId;
         this.activityId = activityId;
         this.loggerContext = loggerContext;
-        this.fileAppender = fileAppender;
+        this.logDbAppender = logDbAppender;
     }
 
-    protected ProcessLogger(LoggerContext loggerContext, String spaceId, String processId, String activityId, FileAppender fileAppender) {
+    protected ProcessLogger(LoggerContext loggerContext, String spaceId, String processId, String activityId, ProcessLoggerProvider.LogDbAppender logDbAppender) {
         this.loggerContext = loggerContext;
         this.logger = loggerContext.getRootLogger();
         this.spaceId = spaceId;
         this.processId = processId;
         this.activityId = activityId;
-        this.fileAppender = fileAppender;
+        this.logDbAppender = logDbAppender;
     }
 
     public void info(Object message) {
@@ -86,13 +75,7 @@ public class ProcessLogger {
     }
 
     public synchronized void persistLogFile(ProcessLogsPersistenceService processLogsPersistenceService) {
-        if (log.exists()) {
-            processLogsPersistenceService.persistLog(spaceId, processId, log, logName);
-        }
-    }
-
-    public synchronized void deleteLogFile() {
-        FileUtils.deleteQuietly(log);
+        //processLogsPersistenceService.persistLog(spaceId, processId, log, logName);
     }
 
     public String getLoggerName() {
@@ -101,10 +84,12 @@ public class ProcessLogger {
 
     public void closeLoggerContext() {
         try {
-            loggerContext.getRootLogger().removeAppender(fileAppender);
-            loggerContext.getConfiguration().getAppenders().remove(fileAppender.getName());
-            fileAppender.getManager().close();
-            fileAppender.stop();
+            loggerContext.getRootLogger()
+                         .removeAppender(logDbAppender);
+            loggerContext.getConfiguration()
+                         .getAppenders()
+                         .remove(logDbAppender.getName());
+            logDbAppender.stop();
             loggerContext.updateLoggers();
         } catch (Exception exception) {
             logger.error(Messages.COULD_NOT_CLOSE_LOGGER_CONTEXT, exception);

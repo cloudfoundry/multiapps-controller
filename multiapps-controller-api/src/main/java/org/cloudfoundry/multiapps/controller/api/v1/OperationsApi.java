@@ -83,7 +83,7 @@ public class OperationsApi {
     public ResponseEntity<String> getOperationLogContent(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                                                          @PathVariable(PathVariables.OPERATION_ID) String operationId,
                                                          @PathVariable(PathVariables.LOG_ID) String logId) {
-        return delegate.getOperationLogContent(spaceGuid, operationId, logId);
+        return delegate.getOperationLog(spaceGuid, operationId, logId);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)

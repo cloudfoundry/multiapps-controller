@@ -55,7 +55,7 @@ class ProcessLogsPersisterTest {
         verify(processLogger,times(1)).persistLogFile(processLogsPersistenceService);
         verify(processLoggerProvider,times(1)).removeLoggersCache(processLogger);
         verify(processLogger,times(1)).closeLoggerContext();
-        verify(processLogger,times(1)).deleteLogFile();
+        //verify(processLogger,times(1)).deleteLogFile();
     }
 
     private void prepareContext() {

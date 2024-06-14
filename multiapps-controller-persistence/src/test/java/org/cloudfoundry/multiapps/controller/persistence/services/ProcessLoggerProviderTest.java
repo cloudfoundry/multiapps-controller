@@ -38,7 +38,7 @@ class ProcessLoggerProviderTest {
         MockitoAnnotations.openMocks(this)
                           .close();
         temporaryLogFile = Files.createTempFile(TEST_FILE_NAME, null);
-        processLoggerProvider = new ProcessLoggerProvider();
+        processLoggerProvider = new ProcessLoggerProvider(null);
     }
 
     @AfterEach
@@ -102,11 +102,7 @@ class ProcessLoggerProviderTest {
         prepareContext();
 
         processLogger = processLoggerProvider.getLogger(execution, temporaryLogFile.getFileName()
-                                                                                   .toString(),
-                                                        loggerContext -> PatternLayout.newBuilder()
-                                                                                      .withPattern(LOG_LAYOUT)
-                                                                                      .withConfiguration(loggerContext.getConfiguration())
-                                                                                      .build());
+                                                                                   .toString());
 
         assertEquals(CORRELATION_ID, processLogger.getProcessId());
         assertEquals(TASK_ID, processLogger.getActivityId());

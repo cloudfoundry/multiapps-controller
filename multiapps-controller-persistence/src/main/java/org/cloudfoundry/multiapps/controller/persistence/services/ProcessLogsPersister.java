@@ -23,13 +23,12 @@ public class ProcessLogsPersister {
 
     private void persistLogsInDatabase(ProcessLogger processLogger) {
         try {
-            processLogger.persistLogFile(processLogsPersistenceService);
+            //processLogger.persistLogFile(processLogsPersistenceService);
         } catch (Exception e) {
             throw new SLException(e, e.getMessage());
         } finally {
             processLoggerProvider.removeLoggersCache(processLogger);
             processLogger.closeLoggerContext();
-            processLogger.deleteLogFile();
         }
     }
 }

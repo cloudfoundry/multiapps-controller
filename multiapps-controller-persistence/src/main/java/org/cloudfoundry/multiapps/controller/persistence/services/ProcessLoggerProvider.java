@@ -1,6 +1,10 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.io.File;
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -10,34 +14,56 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.inject.Named;
+import javax.sql.DataSource;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.filter.LevelMatchFilter;
+import org.apache.logging.log4j.core.filter.ThresholdFilter;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.apache.logging.log4j.core.layout.PatternLayout;
-import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperationLogEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
+import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlOperationLogQueryProvider;
 import org.flowable.engine.delegate.DelegateExecution;
 
 @Named("processLoggerProvider")
 public class ProcessLoggerProvider {
 
     static final String LOG_LAYOUT = "#2.0#%d{yyyy MM dd HH:mm:ss.SSS}#%d{XXX}#%p#%c#%n%X{MsgCode}#%X{CSNComponent}#%X{DCComponent}##%X{DSRCorrelationId}#%X{Application}#%C#%X{User}#%X{Session}#%X{Transaction}#%X{DSRRootContextId}#%X{DSRTransaction}#%X{DSRConnection}#%X{DSRCounter}#%t##%X{ResourceBundle}#%n%m#%n%n";
-
+    private static final ThresholdFilter FILTER = ThresholdFilter.createFilter(Level.ALL, Filter.Result.ACCEPT, Filter.Result.ACCEPT);
+    LevelMatchFilter DEBUG_FILTER = LevelMatchFilter.newBuilder().setLevel(Level.DEBUG).setOnMatch(Filter.Result.ACCEPT).setOnMismatch(Filter.Result.ACCEPT).build();
+    LevelMatchFilter ERROR_FILTER = LevelMatchFilter.newBuilder().setLevel(Level.ERROR).setOnMatch(Filter.Result.ACCEPT).setOnMismatch(Filter.Result.ACCEPT).build();
+    LevelMatchFilter INFO_FILTER = LevelMatchFilter.newBuilder().setLevel(Level.INFO).setOnMatch(Filter.Result.ACCEPT).setOnMismatch(Filter.Result.ACCEPT).build();
+    LevelMatchFilter WARN_FILTER = LevelMatchFilter.newBuilder().setLevel(Level.WARN).setOnMatch(Filter.Result.ACCEPT).setOnMismatch(Filter.Result.ACCEPT).build();
+    LevelMatchFilter ALL_FILTER = LevelMatchFilter.newBuilder().setLevel(Level.DEBUG).setOnMatch(Filter.Result.ACCEPT).setOnMismatch(Filter.Result.ACCEPT).build();
     private static final String PARENT_LOGGER = "com.sap.cloud.lm.sl.xs2";
     private static final String DEFAULT_LOG_NAME = "OPERATION";
     private static final String DEFAULT_LOG_DIR = "logs";
     private static final String LOG_FILE_EXTENSION = ".log";
+    private final DataSource dataSource;
+    private final SqlOperationLogQueryProvider sqlOperationLogQueryProvider;
 
     private final Map<String, ProcessLogger> loggersCache = new ConcurrentHashMap<>();
     private final LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+
+    @Inject
+    public ProcessLoggerProvider(DataSource dataSource) {
+        this.dataSource = dataSource;
+        sqlOperationLogQueryProvider = new SqlOperationLogQueryProvider();
+    }
 
     public ProcessLogger getLogger(DelegateExecution execution) {
 
@@ -45,10 +71,10 @@ public class ProcessLoggerProvider {
     }
 
     public ProcessLogger getLogger(DelegateExecution context, String logName) {
-        return getLogger(context, DEFAULT_LOG_NAME, loggerContextDel -> PatternLayout.newBuilder()
-                                                                                                         .withPattern(LOG_LAYOUT)
-                                                                                                         .withConfiguration(loggerContextDel.getConfiguration())
-                                                                                                         .build());
+        return getLogger(context, logName, loggerContextDel -> PatternLayout.newBuilder()
+                                                                            .withPattern(LOG_LAYOUT)
+                                                                            .withConfiguration(loggerContextDel.getConfiguration())
+                                                                            .build());
     }
 
     public ProcessLogger getLogger(DelegateExecution execution, String logName,
@@ -63,6 +89,14 @@ public class ProcessLoggerProvider {
         }
         return loggersCache.computeIfAbsent(name, (String loggerName) -> createProcessLogger(spaceId, correlationId, activityId, loggerName,
                                                                                              logNameWithExtension, layoutCreatorFunction));
+    }
+
+    private OperationLogEntry createOperationLogEntry(String operationId, String space, String operationLogName) {
+        return ImmutableOperationLogEntry.builder()
+                                         .operationId(operationId)
+                                         .space(space)
+                                         .operationLogName(operationLogName)
+                                         .build();
     }
 
     private String getLoggerName(DelegateExecution execution, String logName) {
@@ -81,47 +115,30 @@ public class ProcessLoggerProvider {
     private synchronized ProcessLogger createProcessLogger(String spaceId, String correlationId, String activityId, String loggerName,
                                                            String logName,
                                                            Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction) {
-        File logFile = getLocalFileByLoggerName(loggerName);
-        FileAppender fileAppender = createFileAppender(loggerName, logFile, layoutCreatorFunction, loggerContext);
-        initializeLoggerContext(loggerName, fileAppender);
+        OperationLogEntry operationLogEntry = createOperationLogEntry(correlationId, spaceId, logName);
+
+        LogDbAppender logDbAppender = createLogDbAppender(operationLogEntry, loggerName, layoutCreatorFunction.apply(loggerContext));
+        attachFileAppender(loggerName, logDbAppender);
+
         Logger logger = loggerContext.getLogger(loggerName);
-        return new ProcessLogger(loggerContext, logger, logFile, logName, spaceId, correlationId, activityId, fileAppender);
+        return new ProcessLogger(loggerContext, logger, logName, spaceId, correlationId, activityId, logDbAppender);
     }
 
-    protected File getLocalFileByLoggerName(String loggerName) {
-        String fileName = loggerName + LOG_FILE_EXTENSION;
-        return new File(DEFAULT_LOG_DIR, fileName);
-    }
-
-    private void initializeLoggerContext(String loggerName, FileAppender fileAppender) {
-        try {
-            attachFileAppender(loggerName, loggerContext, fileAppender);
-        } catch (Exception e) {
-            throw new SLException(e, e.getMessage());
-        }
-    }
-
-    private void attachFileAppender(String loggerName, LoggerContext loggerContext, FileAppender fileAppender) {
-        fileAppender.start();
+    private void attachFileAppender(String loggerName, LogDbAppender logDbAppender) {
+        logDbAppender.start();
         loggerContext.getConfiguration()
-                     .addAppender(fileAppender);
+                     .addAppender(logDbAppender);
         LoggerConfig loggerConfig = getLoggerConfig(loggerContext, loggerName);
+        //logDbAppender.addFilter(A);loggerConfig.addFilter(A);
         setLoggerConfigLoggingLevel(loggerConfig, Level.DEBUG);
-        addAppenderToLoggerConfig(loggerConfig, fileAppender, Level.DEBUG);
-        addFileAppenderToRootLogger(loggerContext, fileAppender);
+        addAppenderToLoggerConfig(loggerConfig, logDbAppender, Level.DEBUG);
+        addFileAppenderToRootLogger(loggerContext, logDbAppender);
         disableConsoleLogging(loggerContext);
         loggerContext.updateLoggers();
     }
 
-    private FileAppender createFileAppender(String loggerName, File logFile,
-                                            Function<LoggerContext, AbstractStringLayout> layoutCreatorFunction,
-                                            LoggerContext context) {
-        return FileAppender.newBuilder()
-                           .setName(loggerName)
-                           .withFileName(logFile.toString())
-                           .setLayout(layoutCreatorFunction.apply(context))
-                           .setConfiguration(context.getConfiguration())
-                           .build();
+    private LogDbAppender createLogDbAppender(OperationLogEntry operationLogEntry, String name, Layout<? extends Serializable> layout) {
+        return new LogDbAppender(operationLogEntry, name, layout);
     }
 
     private LoggerConfig getLoggerConfig(LoggerContext loggerContext, String loggerName) {
@@ -135,13 +152,16 @@ public class ProcessLoggerProvider {
         loggerConfig.setLevel(level != null ? level : Level.DEBUG);
     }
 
-    private void addAppenderToLoggerConfig(LoggerConfig loggerConfig, FileAppender fileAppender, Level level) {
-        loggerConfig.addAppender(fileAppender, level != null ? level : Level.DEBUG, null);
+    private void addAppenderToLoggerConfig(LoggerConfig loggerConfig, LogDbAppender logDbAppender, Level level) {
+        loggerConfig.addAppender(logDbAppender, level != null ? level : Level.DEBUG, ALL_FILTER);
     }
 
-    private void addFileAppenderToRootLogger(LoggerContext loggerContext, FileAppender fileAppender) {
+    private void addFileAppenderToRootLogger(LoggerContext loggerContext, LogDbAppender logDbAppender) {
         loggerContext.getRootLogger()
-                     .addAppender(fileAppender);
+                     .addAppender(logDbAppender);
+        loggerContext
+                .addFilter(DEBUG_FILTER);
+
     }
 
     private void disableConsoleLogging(LoggerContext loggerContext) {
@@ -177,5 +197,47 @@ public class ProcessLoggerProvider {
 
     public void removeLoggersCache(ProcessLogger processLogger) {
         loggersCache.remove(processLogger.getLoggerName());
+    }
+
+    public class LogDbAppender extends AbstractAppender {
+
+        private static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT = "INSERT INTO process_log (ID, SPACE, NAMESPACE, MODIFIED, OPERATION_ID, OPERATION_LOG, OPERATION_LOG_NAME) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        private OperationLogEntry operationLogEntry;
+
+        public LogDbAppender(OperationLogEntry operationLogEntry, String name, Layout<? extends Serializable> layout) {
+            super(name, ALL_FILTER, layout, Boolean.FALSE, null);
+            this.operationLogEntry = operationLogEntry;
+        }
+
+        @Override
+        public void append(LogEvent event) {
+            try (Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(INSERT_FILE_ATTRIBUTES_AND_CONTENT)) {
+                StringBuilder builder = new StringBuilder();
+                String test = loggerContext.getConfiguration().getAppenders().values().stream().findFirst().get().getLayout().toSerializable(event).toString();
+                builder.append(test);
+                if (event.getSource().getClassName().contains("springframework")) {
+                    return;
+                }
+                System.out.println("TEEEEEE");
+                if (event.getLevel().equals(Level.ERROR)) {
+//                    for (int i = 0; i < event.getThrown().getStackTrace().length; i++) {
+//                        builder.append(event.getThrown().getStackTrace()[i].toString());
+//                        builder.append("\n");
+//                    }
+                }
+
+                OperationLogEntry enhancedWithMessageOperationLogEntry = ImmutableOperationLogEntry.copyOf(operationLogEntry)
+                                                                                                   .withId(UUID.randomUUID()
+                                                                                                               .toString())
+                                                                                                   .withModified(LocalDateTime.now())
+                                                                                                   .withOperationLog(builder.toString());
+
+                sqlOperationLogQueryProvider.enhanceInsertOperationLogQuery(enhancedWithMessageOperationLogEntry, statement);
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

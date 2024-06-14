@@ -22,6 +22,8 @@ public interface OperationsApiService {
 
     ResponseEntity<String> getOperationLogContent(String spaceGuid, String operationId, String logId);
 
+    ResponseEntity<String> getOperationLog(String spaceGuid, String operationId, String logId);
+
     ResponseEntity<Operation> startOperation(HttpServletRequest request, String spaceGuid, Operation operation);
 
 }
