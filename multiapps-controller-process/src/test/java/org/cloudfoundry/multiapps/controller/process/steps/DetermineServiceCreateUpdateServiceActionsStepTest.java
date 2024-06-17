@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -15,7 +14,6 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
-import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
@@ -91,22 +89,29 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
         context.setVariable(Variables.SERVICE_TO_PROCESS, service);
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Map.of());
 
-        Mockito.when(client.getServiceInstanceParameters(Mockito.any(UUID.class)))
-               .thenThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR));
         Mockito.when(client.getServiceInstance(SERVICE_NAME, false))
                .thenReturn(service);
 
-        if (isOptionalService) {
-            step.execute(execution);
-            assertStepFinishedSuccessfully();
-            List<ServiceAction> serviceActionsToExecute = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
-            assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_CREDENTIALS),
-                       "Actions should contain " + ServiceAction.UPDATE_CREDENTIALS);
-            return;
-        }
-        SLException exception = assertThrows(SLException.class, () -> step.execute(execution));
-        assertTrue(exception.getCause() instanceof CloudOperationException);
-        assertSame(((CloudOperationException) exception.getCause()).getStatusCode(), HttpStatus.INTERNAL_SERVER_ERROR);
+        step.execute(execution);
+        assertStepFinishedSuccessfully();
+        List<ServiceAction> serviceActionsToExecute = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
+        assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_CREDENTIALS),
+                   "Actions should contain " + ServiceAction.UPDATE_CREDENTIALS);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    void testShouldSkipParametersUpdate(boolean isOptional) {
+        CloudServiceInstanceExtended service = createMockServiceInstance(isOptional);
+
+        context.setVariable(Variables.SERVICE_TO_PROCESS, service);
+        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Collections.emptyMap());
+
+        step.execute(execution);
+        assertStepFinishedSuccessfully();
+        List<ServiceAction> serviceActionsToExecute = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
+        assertFalse(serviceActionsToExecute.contains(ServiceAction.UPDATE_CREDENTIALS),
+                    "Actions should not contain " + ServiceAction.UPDATE_CREDENTIALS);
     }
 
     @ParameterizedTest
