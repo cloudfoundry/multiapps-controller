@@ -141,18 +141,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     public ResponseEntity<String> getOperationLogContent(String spaceGuid, String operationId, String logId) {
         try {
             operationsApiServiceAuditLog.logGetOperationLogContent(SecurityContextUtil.getUsername(), spaceGuid, operationId, logId);
-            String content = logsService.getLogContent(spaceGuid, operationId, logId);
-            return ResponseEntity.ok()
-                                 .body(content);
-        } catch (FileStorageException e) {
-            throw new ContentException(e, e.getMessage());
-        }
-    }
-
-    @Override
-    public ResponseEntity<String> getOperationLog(String spaceGuid, String operationId, String logId) {
-        try {
-            operationsApiServiceAuditLog.logGetOperationLogContent(SecurityContextUtil.getUsername(), spaceGuid, operationId, logId);
             String content = logsService.getOperationLog(spaceGuid, operationId, logId);
 
             if (content == null || content.isEmpty() ||  content.isBlank()) {

@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.FileAppender;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperationLogEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,11 +50,6 @@ public class NullProcessLogger extends ProcessLogger {
 
     @Override
     public void warn(Object message, Throwable t) {
-        logNullCorrelationId();
-    }
-
-    @Override
-    public synchronized void persistLogFile(ProcessLogsPersistenceService processLogsPersistenceService) {
         logNullCorrelationId();
     }
 

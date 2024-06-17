@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.sql.DataSource;
+
 class ProcessLoggerProviderTest {
 
     private static final String CORRELATION_ID = "1234";
@@ -28,6 +30,8 @@ class ProcessLoggerProviderTest {
 
     @Mock
     private DelegateExecution execution;
+    @Mock
+    private DataSource dataSource;
 
     private Path temporaryLogFile;
     private ProcessLoggerProvider processLoggerProvider;
@@ -38,7 +42,7 @@ class ProcessLoggerProviderTest {
         MockitoAnnotations.openMocks(this)
                           .close();
         temporaryLogFile = Files.createTempFile(TEST_FILE_NAME, null);
-        processLoggerProvider = new ProcessLoggerProvider(null);
+        processLoggerProvider = new ProcessLoggerProvider(dataSource);
     }
 
     @AfterEach

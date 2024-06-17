@@ -12,7 +12,6 @@ import java.util.UUID;
 @Value.Immutable
 @JsonSerialize(as = ImmutableOperationLogEntry.class)
 @JsonDeserialize(as = ImmutableOperationLogEntry.class)
-
 public interface OperationLogEntry {
 
     @Nullable

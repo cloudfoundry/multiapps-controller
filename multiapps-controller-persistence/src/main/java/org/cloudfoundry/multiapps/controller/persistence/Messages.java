@@ -8,6 +8,7 @@ public final class Messages {
     // Exception messages:
     public static final String FILE_UPLOAD_FAILED = "Upload of file \"{0}\" to \"{1}\" failed";
     public static final String FILE_NOT_FOUND = "File \"{0}\" not found";
+    public static final String FAILED_TO_UPDATE_SQL_QUERY = "Failed to update SQL query";
     public static final String ERROR_FINDING_FILE_TO_UPLOAD = "Error finding file to upload with name {0}: {1}";
     public static final String ERROR_READING_FILE_CONTENT = "Error reading content of file {0}: {1}";
     public static final String FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST = "File with ID \"{0}\" and space \"{1}\" does not exist.";
@@ -67,6 +68,7 @@ public final class Messages {
     public static final String DELETED_0_FILES_MODIFIED_BEFORE_1 = "Deleted {0} files modified before \"{1}\".";
     public static final String DELETED_0_FILES_WITH_ID_1_AND_SPACE_2 = "Deleted {0} files with ID \"{1}\" and space \"{2}\".";
     public static final String DELETED_0_FILES_WITHOUT_CONTENT = "Deleted {0} files without content.";
+    public static final String FAILED_TO_SAVE_OPERATION_LOG_IN_DATABASE = "Failed to save operation log in database.";
 
     protected Messages() {
     }

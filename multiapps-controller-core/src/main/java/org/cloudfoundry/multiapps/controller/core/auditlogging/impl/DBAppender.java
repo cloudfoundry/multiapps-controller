@@ -2,16 +2,13 @@ package org.cloudfoundry.multiapps.controller.core.auditlogging.impl;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Filter;
-import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
-import org.apache.logging.log4j.core.config.Property;
 import org.apache.logging.log4j.core.filter.ThresholdFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.UserInfoProvider;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

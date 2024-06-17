@@ -10,14 +10,12 @@ public class ProcessLogger {
     protected final String processId;
     protected final String activityId;
     private Logger logger;
-    private String logName;
     private LoggerContext loggerContext;
     private ProcessLoggerProvider.LogDbAppender logDbAppender;
 
-    public ProcessLogger(LoggerContext loggerContext, Logger logger, String logName, String spaceId, String processId, String activityId,
+    public ProcessLogger(LoggerContext loggerContext, Logger logger, String spaceId, String processId, String activityId,
                          ProcessLoggerProvider.LogDbAppender logDbAppender) {
         this.logger = logger;
-        this.logName = logName;
         this.spaceId = spaceId;
         this.processId = processId;
         this.activityId = activityId;
@@ -72,10 +70,6 @@ public class ProcessLogger {
 
     public String getActivityId() {
         return this.activityId;
-    }
-
-    public synchronized void persistLogFile(ProcessLogsPersistenceService processLogsPersistenceService) {
-        //processLogsPersistenceService.persistLog(spaceId, processId, log, logName);
     }
 
     public String getLoggerName() {
