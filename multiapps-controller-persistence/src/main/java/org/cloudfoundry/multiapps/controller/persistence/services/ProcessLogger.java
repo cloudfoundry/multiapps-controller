@@ -78,12 +78,12 @@ public class ProcessLogger {
 
     public void closeLoggerContext() {
         try {
+            //logDbAppender.stop();
             loggerContext.getRootLogger()
                          .removeAppender(logDbAppender);
             loggerContext.getConfiguration()
                          .getAppenders()
                          .remove(logDbAppender.getName());
-            logDbAppender.stop();
             loggerContext.updateLoggers();
         } catch (Exception exception) {
             logger.error(Messages.COULD_NOT_CLOSE_LOGGER_CONTEXT, exception);

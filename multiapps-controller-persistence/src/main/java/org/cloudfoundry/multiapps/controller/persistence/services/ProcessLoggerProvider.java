@@ -123,20 +123,20 @@ public class ProcessLoggerProvider {
         attachFileAppender(loggerName, logDbAppender);
 
         Logger logger = loggerContext.getLogger(loggerName);
+        //logger.addAppender(logDbAppender);
+        logDbAppender.start();
+        loggerContext.getConfiguration().addLoggerAppender(logger, logDbAppender);
+        loggerContext.updateLoggers();
         return new ProcessLogger(loggerContext, logger, spaceId, correlationId, activityId, logDbAppender);
     }
 
     private void attachFileAppender(String loggerName, LogDbAppender logDbAppender) {
-        logDbAppender.start();
-        loggerContext.getConfiguration()
-                     .addAppender(logDbAppender);
         loggerContext.addFilter(DEBUG_FILTER);
         LoggerConfig loggerConfig = getLoggerConfig(loggerContext, loggerName);
         setLoggerConfigLoggingLevel(loggerConfig, Level.DEBUG);
         addAppenderToLoggerConfig(loggerConfig, logDbAppender, Level.DEBUG);
         addFileAppenderToRootLogger(loggerContext, logDbAppender);
         disableConsoleLogging(loggerContext);
-        loggerContext.updateLoggers();
     }
 
     private LogDbAppender createLogDbAppender(OperationLogEntry operationLogEntry, String name, Layout<? extends Serializable> layout) {
@@ -159,8 +159,8 @@ public class ProcessLoggerProvider {
     }
 
     private void addFileAppenderToRootLogger(LoggerContext loggerContext, LogDbAppender logDbAppender) {
-        loggerContext.getRootLogger()
-                     .addAppender(logDbAppender);
+//        loggerContext.getRootLogger()
+//                     .addAppender(logDbAppender);
     }
 
     private void disableConsoleLogging(LoggerContext loggerContext) {
@@ -206,6 +206,7 @@ public class ProcessLoggerProvider {
         public LogDbAppender(OperationLogEntry operationLogEntry, String name, Layout<? extends Serializable> layout) {
             super(name, ALL_FILTER, layout, Boolean.FALSE, null);
             this.operationLogEntry = operationLogEntry;
+            start();
         }
 
         @Override

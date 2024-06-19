@@ -14,10 +14,13 @@ public final class Messages {
     public static final String FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST = "File with ID \"{0}\" and space \"{1}\" does not exist.";
     public static final String ERROR_GETTING_FILES_WITH_SPACE_AND_NAMESPACE = "Error getting files with space {0} and namespace {1}";
     public static final String ERROR_GETTING_FILES_WITH_SPACE_AND_OPERATION_ID = "Error getting files with space {0} and operation id {1}";
+    public static final String ERROR_GETTING_LOGS_WITH_SPACE_AND_OPERATION_ID = "Error getting logs with space {0} and operation id {1}";
     public static final String ERROR_GETTING_FILES_WITH_SPACE_OPERATION_ID_AND_NAME = "Error getting files with space {0} operation id {1} and file name {2}";
+    public static final String ERROR_GETTING_LOGS_WITH_SPACE_OPERATION_ID_AND_NAME = "Error getting logs with space {0} operation id {1} and file name {2}";
     public static final String ERROR_GETTING_ALL_FILES = "Error getting all files";
     public static final String ERROR_STORING_LOG_FILE = "Error storing log file \"{0}\"";
     public static final String ERROR_LOG_FILE_NOT_FOUND = "Log file with name \"{0}\" for operation \"{1}\" in space \"{2}\" was not found";
+    public static final String ERROR_LOG_NOT_FOUND = "Log with name \"{0}\" for operation \"{1}\" in space \"{2}\" was not found";
     public static final String ERROR_CORRELATION_ID_OR_ACTIVITY_ID_NULL = "Unable to retrieve correlation id or activity id for process \"{0}\" at activity \"{1}\" and space \"{2}\"";
     public static final String COLUMN_VALUE_SHOULD_NOT_BE_NULL = "Configuration subscription''s \"{0}\" column value should not be null";
     public static final String ERROR_WHILE_EXECUTING_TRANSACTION = "Error while executing database transaction \"{0}\"";

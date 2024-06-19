@@ -61,7 +61,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
             return getSqlQueryExecutor().execute(sqlOperationLogQueryProvider.getListFilesQueryBySpaceOperationIdAndFileName(space,
                                                                                                                              operationId));
         } catch (SQLException e) {
-            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_WITH_SPACE_AND_OPERATION_ID, space,
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_LOGS_WITH_SPACE_AND_OPERATION_ID, space,
                                                                 operationId),
                                            e);
         }
@@ -84,7 +84,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     public String getOperationLog(String space, String operationId, String logId) throws FileStorageException {
         List<OperationLogEntry> operationLogs = listOperationLogs(space, operationId, logId);
         if (operationLogs.isEmpty()) {
-            throw new NotFoundException(MessageFormat.format(Messages.ERROR_LOG_FILE_NOT_FOUND, "", operationId, space));
+            throw new NotFoundException(MessageFormat.format(Messages.ERROR_LOG_NOT_FOUND, logId, operationId, space));
         }
 
         StringBuilder builder = new StringBuilder();
@@ -113,8 +113,8 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
                                                                                                                              operationId,
                                                                                                                              logId));
         } catch (SQLException e) {
-            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_WITH_SPACE_OPERATION_ID_AND_NAME, space,
-                                                                operationId, ""),
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_LOGS_WITH_SPACE_OPERATION_ID_AND_NAME, space,
+                                                                operationId, logId),
                                            e);
         }
     }
