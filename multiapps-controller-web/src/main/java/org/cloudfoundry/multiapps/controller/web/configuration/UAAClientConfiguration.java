@@ -1,18 +1,11 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
-import java.net.URL;
-import java.text.MessageFormat;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.net.ssl.SSLException;
-
-import com.sap.cloudfoundry.client.facade.util.RestUtil;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
+import org.cloudfoundry.multiapps.controller.client.uaa.UAAClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SSLUtil;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +14,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
+
+import javax.inject.Inject;
+import javax.net.ssl.SSLException;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.Map;
 
 @Configuration
 public class UAAClientConfiguration {
@@ -31,8 +30,8 @@ public class UAAClientConfiguration {
         if (configuration.shouldSkipSslValidation()) {
             SSLUtil.disableSSLValidation();
         }
-        return new UAAClient(readTokenEndpoint(configuration.getControllerUrl(), configuration.shouldSkipSslValidation()),
-                             new RestUtil().createWebClient(false));
+        return new UAAClientFactory().createClient(
+                readTokenEndpoint(configuration.getControllerUrl(),configuration.shouldSkipSslValidation()));
     }
 
     @SuppressWarnings("unchecked")
@@ -44,7 +43,7 @@ public class UAAClientConfiguration {
             Object endpoint = uaa.get("href");
             if (endpoint == null) {
                 throw new IllegalStateException(MessageFormat.format("Response from {0} does not contain a valid token endpoint",
-                                                                     targetURL.toString()));
+                        targetURL.toString()));
             }
             return new URL(endpoint.toString());
         } catch (Exception e) {
@@ -55,10 +54,10 @@ public class UAAClientConfiguration {
     protected Map<String, Object> getControllerInfo(URL targetURL, Boolean shouldSkipSslValidation) throws SSLException {
         WebClient webClient = buildWebClientWith(shouldSkipSslValidation);
         String infoResponse = webClient.get()
-                                       .uri(targetURL.toString())
-                                       .retrieve()
-                                       .bodyToMono(String.class)
-                                       .block();
+                .uri(targetURL.toString())
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
         if (infoResponse == null) {
             throw new IllegalStateException(MessageFormat.format("Invalid response returned from {0}", targetURL.toString()));
         }
@@ -66,9 +65,9 @@ public class UAAClientConfiguration {
     }
 
     @NotNull
-    private static WebClient buildWebClientWith(Boolean shouldSkipSslValidation){
-        if (!shouldSkipSslValidation){
-             return WebClient.create();
+    private static WebClient buildWebClientWith(Boolean shouldSkipSslValidation) {
+        if (!shouldSkipSslValidation) {
+            return WebClient.create();
         }
         final SslContext sslContext;
         try {
