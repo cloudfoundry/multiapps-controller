@@ -45,3 +45,18 @@ applications:
         ]
       }
     SKIP_SSL_VALIDATION: true
+    SET_LOGGING_LEVEL: |-
+      {
+        org.cloudfoundry.multiapps: DEBUG,
+        liquibase: INFO,
+        org.flowable: INFO,
+        org.apache.http: INFO,
+        org.apache.ibatis: INFO,
+        com.sap.cloudfoundry.client.facade: DEBUG,
+        org.springframework: INFO,
+        com.zaxxer.hikari: INFO,
+        org.cloudfoundry.multiapps.controller.web.api.impl.FilesApiServiceImpl: TRACE,
+        com.sap.cloud.lm.sl.cf.sap.process.steps: DEBUG,
+        org.cloudfoundry.multiapps.controller.process.steps: DEBUG
+      }
+
