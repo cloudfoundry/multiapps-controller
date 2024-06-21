@@ -83,7 +83,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         var user = context.getVariable(Variables.USER);
         var correlationId = context.getVariable(Variables.CORRELATION_ID);
         var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(user), correlationId);
-
+        LOGGER.info("====before getApplicationGuid====");
         UUID appGuid = client.getApplicationGuid(app.getName());
         List<ApplicationLog> recentLogs = logCacheClient.getRecentLogs(appGuid, logsOffset);
         setLogsOffset(context, recentLogs);
