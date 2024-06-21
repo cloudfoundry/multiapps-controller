@@ -35,7 +35,6 @@ public class DeployMetadataTest extends MetadataBaseTest {
                 Variables.DELETE_SERVICES.getName(),
                 Variables.DELETE_SERVICE_KEYS.getName(),
                 Variables.DELETE_SERVICE_BROKERS.getName(),
-                Variables.FAIL_ON_CRASHED.getName(),
                 Variables.MTA_ID.getName(),
                 Variables.KEEP_FILES.getName(),
                 Variables.NO_RESTART_SUBSCRIBED_APPS.getName(),
