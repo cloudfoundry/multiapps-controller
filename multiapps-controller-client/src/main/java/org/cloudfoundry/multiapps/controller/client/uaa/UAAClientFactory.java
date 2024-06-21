@@ -15,7 +15,7 @@ public class UAAClientFactory {
        return new UAAClient(uaaUrl, buildWebClientWith(true));
     }
 
-    private WebClient buildWebClientWith(Boolean shouldSkipSslValidation) {
+    public WebClient buildWebClientWith(Boolean shouldSkipSslValidation) {
         if (!shouldSkipSslValidation) {
             return WebClient.create();
         }
