@@ -82,7 +82,7 @@
     <sequenceFlow id="doNotExecuteOneOffTasksFlow" sourceRef="shouldExecuteTasks" targetRef="shouldUpdateConfigurations">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(not executeOneOffTasks)}]]></conditionExpression>
     </sequenceFlow>
-    <callActivity id="executeTasksCallActivity" name="Execute Tasks Call Activity" flowable:async="true" calledElement="executeTasksSubProcess" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="executeTasksCallActivity" name="Execute Tasks Call Activity" flowable:async="true" calledElement="executeTasksSubProcess" flowable:calledElementType="key"  flowable:fallbackToDefaultTenant="false">
       <extensionElements>
           <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
           <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
@@ -90,6 +90,8 @@
           <flowable:in source="user" target="user"></flowable:in>
           <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
           <flowable:in source="correlationId" target="correlationId"></flowable:in>
+          <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
+          <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
       </extensionElements>
     </callActivity>
     <sequenceFlow id="sid-26C87D1E-88D5-47E3-907B-0F8EBBCD2C36" sourceRef="executeTasksCallActivity" targetRef="publishProvidedDependenciesTask"></sequenceFlow>
@@ -102,6 +104,8 @@
           <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
           <flowable:in source="correlationId" target="correlationId"></flowable:in>
           <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
+          <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
+          <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -121,6 +125,8 @@
           <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
           <flowable:in source="correlationId" target="correlationId"></flowable:in>
           <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
+          <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
+          <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
     </callActivity>
