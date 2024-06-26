@@ -27,5 +27,7 @@ open module org.cloudfoundry.multiapps.controller.client {
     requires static java.compiler;
     requires static javax.inject;
     requires static org.immutables.value;
+    requires reactor.netty.http;
+    requires reactor.netty.core;
 
 }

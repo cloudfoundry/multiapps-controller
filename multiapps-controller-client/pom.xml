@@ -30,8 +30,8 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.lm.sl</groupId>
-            <artifactId>cloudfoundry-client-facade</artifactId>
+            <groupId>custom.com.sap.cloud.lm.sl</groupId>
+            <artifactId>custom.cloudfoundry-client-facade</artifactId>
         </dependency>
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>

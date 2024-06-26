@@ -1,11 +1,11 @@
 package org.cloudfoundry.multiapps.controller.client.uaa;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Map;
-
-import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.springframework.web.reactive.function.client.WebClient;
 
 public class UAAClient {
 
@@ -22,10 +22,10 @@ public class UAAClient {
     public Map<String, Object> readTokenKey() {
         String tokenKeyURL = uaaUrl.toString() + TOKEN_KEY_ENDPOINT;
         String tokenKeyResponse = webClient.get()
-                                           .uri(tokenKeyURL)
-                                           .retrieve()
-                                           .bodyToMono(String.class)
-                                           .block();
+                .uri(tokenKeyURL)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
         if (tokenKeyResponse == null) {
             throw new IllegalStateException(MessageFormat.format("Invalid response returned from {0}", tokenKeyURL));
         }
@@ -35,5 +35,4 @@ public class UAAClient {
     public URL getUaaUrl() {
         return this.uaaUrl;
     }
-
 }

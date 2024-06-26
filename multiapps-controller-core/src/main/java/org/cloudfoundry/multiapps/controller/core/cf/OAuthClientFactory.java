@@ -4,10 +4,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
+import org.cloudfoundry.multiapps.controller.client.uaa.UAAClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 
 import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
 import com.sap.cloudfoundry.client.facade.util.RestUtil;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Named
 public class OAuthClientFactory {
@@ -19,8 +21,10 @@ public class OAuthClientFactory {
     @Inject
     private UAAClient uaaClient;
 
+
     public OAuthClient createOAuthClient() {
-        return new OAuthClientExtended(uaaClient.getUaaUrl(), tokenService, restUtil.createWebClient(true));
+        WebClient webClient = new UAAClientFactory().buildWebClientWith(true);
+        return new OAuthClientExtended(uaaClient.getUaaUrl(), tokenService, webClient);
     }
 
 }

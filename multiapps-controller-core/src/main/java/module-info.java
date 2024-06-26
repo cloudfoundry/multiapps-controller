@@ -80,5 +80,7 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires static java.compiler;
     requires static org.immutables.value;
     requires spring.security.oauth2.client;
+    requires reactor.netty.http;
+    requires reactor.netty.core;
 
 }
