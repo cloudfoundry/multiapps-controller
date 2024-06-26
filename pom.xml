@@ -39,7 +39,7 @@
         <jackson.databind.version>2.17.0</jackson.databind.version>
         <liquibase.version>4.27.0</liquibase.version>
         <liquibase-slf4j.version>5.0.0</liquibase-slf4j.version>
-        <cloudfoundry-client.version>2.44.0</cloudfoundry-client.version>
+        <cloudfoundry-client.version>2.45.0-SNAPSHOT</cloudfoundry-client.version>
         <swagger.version>1.6.14</swagger.version>
         <jclouds.version>2.6.0</jclouds.version>
         <guava.version>33.1.0-jre</guava.version>
@@ -793,10 +793,10 @@
                 <artifactId>java-cfenv-jdbc</artifactId>
                 <version>${java-cfenv.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/com.sap.cloud.lm.sl/cloudfoundry-client-facade -->
+            <!--&lt;!&ndash; https://mvnrepository.com/artifact/com.sap.cloud.lm.sl/cloudfoundry-client-facade &ndash;&gt; -->
             <dependency>
-                <groupId>com.sap.cloud.lm.sl</groupId>
-                <artifactId>cloudfoundry-client-facade</artifactId>
+                <groupId>custom.com.sap.cloud.lm.sl</groupId>
+                <artifactId>custom.cloudfoundry-client-facade</artifactId>
                 <version>${cloudfoundry-client.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.cloudfoundry.multiapps/multiapps-common -->
