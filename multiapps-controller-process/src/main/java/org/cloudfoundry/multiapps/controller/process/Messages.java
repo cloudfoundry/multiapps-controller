@@ -180,7 +180,6 @@ public class Messages {
     public static final String ERROR_WHILE_POLLING_SERVICE_KEY_OPERATION_0 = "Error while polling service key operation \"{0}\"";
 
     // WARN log messages
-    public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_PARAMETERS = "Cannot retrieve service instance parameters of service \"{0}\"";
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service \"{0}\"";
     public static final String CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1 = "Cannot retrieve parameters of binding between application \"{0}\" and service instance \"{1}\"";
     public static final String CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1_FIX = "Cannot retrieve parameters of binding between application \"{0}\" and service instance \"{1}\". Got 502.";
@@ -692,6 +691,26 @@ public class Messages {
     public static final String ARCHIVE_WAS_NOT_SPLIT_TOTAL_SIZE_IN_BYTES_0 = "Archive was not split! Total size in bytes: {0}";
     public static final String ARCHIVE_WAS_SPLIT_TO_0_PARTS_TOTAL_SIZE_IN_BYTES_1 = "Archive was split to: {0} parts. Total size in bytes: {1}";
     public static final String SIZE_OF_APP_0_IS_1_BYTES = "Size of app {0} is {1} bytes";
+    public static final String SHOULD_UPDATE_SERVICE_KEY = "Service keys should be updated";
+    public static final String SHOULD_CREATE_SERVICE = "Service should be created";
+    public static final String EXISTING_SERVICE = "Existing service: {0}";
+    public static final String SHOULD_RECREATE_SERVICE = "Service should be recreated";
+    public static final String SHOULD_UPDATE_SERVICE_PLAN = "Service plan should be updated";
+    public static final String NEW_SERVICE_PLAN = "New service plan: {0}";
+    public static final String EXISTING_SERVICE_PLAN = "Existing service plan: {0}";
+    public static final String WILL_UPDATE_SERVICE_PARAMETERS = "Service parameters will be updated";
+    public static final String NEW_SERVICE_PARAMETERS = "New parameters: {0}";
+    public static final String SHOULD_UPDATE_SERVICE_TAGS = "Service tags should be updated";
+    public static final String NEW_SERVICE_TAGS = "New service tags: {0}";
+    public static final String EXISTING_SERVICE_TAGS = "Existing service tags: {0}";
+    public static final String SHOULD_UPDATE_SYSLOG_DRAIN_URL = "Syslog drain url should be updated";
+    public static final String NEW_SYSLOG_DRAIN_URL = "New syslog drain url: {0}";
+    public static final String EXISTING_SYSLOG_DRAIN_URL = "Existing syslog drain url: {0}";
+    public static final String SHOULD_UPDATE_METADATA = "Service metadata should be updated";
+    public static final String NEW_METADATA = "New metadata: {0}";
+
+    // Not log messages
+    public static final String SERVICE_TYPE = "{0}/{1}";
 
     protected Messages() {
     }

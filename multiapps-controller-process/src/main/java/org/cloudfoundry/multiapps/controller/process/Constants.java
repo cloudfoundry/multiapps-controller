@@ -20,6 +20,8 @@ public class Constants {
     public static final String VAR_SERVICE_ACTIONS_TO_EXECUTE = "SERVICE_ACTIONS_TO_EXECUTE_";
     public static final String VAR_WAIT_AFTER_APP_STOP = "MTA_WAIT_AFTER_APP_STOP";
     public static final String VAR_SERVICE_INSTANCE_GUID_PREFIX = "SERVICE_INSTANCE_GUID_";
+    public static final String UNKNOWN_LABEL = "unknown label";
+    public static final String UNKNOWN_PLAN = "unknown plan";
 
     protected Constants() {
     }

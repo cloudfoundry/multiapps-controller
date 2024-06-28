@@ -13,7 +13,6 @@ import java.util.Objects;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -24,6 +23,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
+import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.DynamicResolvableParametersContextUpdater;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
@@ -32,7 +32,6 @@ import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpStatus;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
@@ -89,17 +88,17 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                                                  CloudServiceInstance existingService) {
         List<ServiceAction> actions = new ArrayList<>();
         if (shouldUpdateKeys(service, existingService, context)) {
-            getStepLogger().debug("Service keys should be updated");
+            getStepLogger().debug(Messages.SHOULD_UPDATE_SERVICE_KEY);
             actions.add(ServiceAction.UPDATE_KEYS);
         }
 
         if (existingService == null) {
-            getStepLogger().debug("Service should be created");
+            getStepLogger().debug(Messages.SHOULD_CREATE_SERVICE);
             actions.add(ServiceAction.CREATE);
             context.setVariable(Variables.SERVICES_TO_CREATE, Collections.singletonList(service));
             return actions;
         }
-        getStepLogger().debug("Existing service: " + SecureSerialization.toJson(existingService));
+        getStepLogger().debug(Messages.EXISTING_SERVICE, SecureSerialization.toJson(existingService));
 
         boolean shouldRecreate = false;
         if (haveDifferentTypesOrLabels(service, existingService)) {
@@ -120,45 +119,46 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
 
         if (shouldRecreate) {
-            getStepLogger().debug("Service should be recreated");
+            getStepLogger().debug(Messages.SHOULD_RECREATE_SERVICE);
             context.setVariable(Variables.SERVICE_TO_DELETE, service.getName());
             actions.add(ServiceAction.RECREATE);
             return actions;
         }
 
         if (shouldUpdatePlan(service, existingService)) {
-            getStepLogger().debug("Service plan should be updated");
-            getStepLogger().debug(MessageFormat.format("New service plan: {0}", service.getPlan()));
-            getStepLogger().debug(MessageFormat.format("Existing service plan: {0}", existingService.getPlan()));
+            getStepLogger().debug(Messages.SHOULD_UPDATE_SERVICE_PLAN);
+            getStepLogger().debug(Messages.NEW_SERVICE_PLAN, service.getPlan());
+            getStepLogger().debug(Messages.EXISTING_SERVICE_PLAN, existingService.getPlan());
             actions.add(ServiceAction.UPDATE_PLAN);
+        }
+
+        if (service.shouldSkipParametersUpdate()) {
+            getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_PARAMS, service.getName());
+        } else {
+            getStepLogger().debug(Messages.WILL_UPDATE_SERVICE_PARAMETERS);
+            getStepLogger().debug(Messages.NEW_SERVICE_PARAMETERS, SecureSerialization.toJson(service.getCredentials()));
+            actions.add(ServiceAction.UPDATE_CREDENTIALS);
         }
 
         List<String> existingServiceTags = existingService.getTags();
         if (shouldUpdateTags(service, existingServiceTags)) {
-            getStepLogger().debug("Service tags should be updated");
-            getStepLogger().debug("New service tags: " + JsonUtil.toJson(service.getTags()));
-            getStepLogger().debug("Existing service tags: " + JsonUtil.toJson(existingServiceTags));
+            getStepLogger().debug(Messages.SHOULD_UPDATE_SERVICE_TAGS);
+            getStepLogger().debug(Messages.NEW_SERVICE_TAGS, JsonUtil.toJson(service.getTags()));
+            getStepLogger().debug(Messages.EXISTING_SERVICE_TAGS, JsonUtil.toJson(existingServiceTags));
             actions.add(ServiceAction.UPDATE_TAGS);
         }
 
         String existingSyslogDrainUrl = existingService.getSyslogDrainUrl();
         if (shouldUpdateSyslogUrl(service, existingSyslogDrainUrl)) {
-            getStepLogger().debug("Syslog drain url should be updated");
-            getStepLogger().debug("New syslog drain url: " + service.getSyslogDrainUrl());
-            getStepLogger().debug("Existing syslog drain url: " + existingService.getSyslogDrainUrl());
+            getStepLogger().debug(Messages.SHOULD_UPDATE_SYSLOG_DRAIN_URL);
+            getStepLogger().debug(Messages.NEW_SYSLOG_DRAIN_URL, service.getSyslogDrainUrl());
+            getStepLogger().debug(Messages.EXISTING_SYSLOG_DRAIN_URL, existingService.getSyslogDrainUrl());
             actions.add(ServiceAction.UPDATE_SYSLOG_URL);
         }
 
-        CloudControllerClient client = context.getControllerClient();
-        if (shouldUpdateCredentials(service, existingService, client)) {
-            getStepLogger().debug("Service parameters should be updated");
-            getStepLogger().debug("New parameters: " + SecureSerialization.toJson(service.getCredentials()));
-            actions.add(ServiceAction.UPDATE_CREDENTIALS);
-        }
-
         if (shouldUpdateMetadata(service, existingService)) {
-            getStepLogger().debug("Service metadata should be updated");
-            getStepLogger().debug("New metadata: " + SecureSerialization.toJson(service.getV3Metadata()));
+            getStepLogger().debug(Messages.SHOULD_UPDATE_METADATA);
+            getStepLogger().debug(Messages.NEW_METADATA, SecureSerialization.toJson(service.getV3Metadata()));
             actions.add(ServiceAction.UPDATE_METADATA);
         }
 
@@ -178,9 +178,9 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             return ResourceType.USER_PROVIDED_SERVICE.toString();
         }
 
-        String label = ObjectUtils.isEmpty(service.getLabel()) ? "unknown label" : service.getLabel();
-        String plan = ObjectUtils.isEmpty(service.getPlan()) ? "unknown plan" : service.getPlan();
-        return label + "/" + plan;
+        String label = ObjectUtils.isEmpty(service.getLabel()) ? Constants.UNKNOWN_LABEL : service.getLabel();
+        String plan = ObjectUtils.isEmpty(service.getPlan()) ? Constants.UNKNOWN_PLAN : service.getPlan();
+        return MessageFormat.format(Messages.SERVICE_TYPE, label, plan);
     }
 
     private boolean shouldUpdateMetadata(CloudServiceInstanceExtended service, CloudServiceInstance existingService) {
@@ -276,31 +276,6 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     private boolean shouldUpdateTags(CloudServiceInstanceExtended service, List<String> existingServiceTags) {
         existingServiceTags = ObjectUtils.defaultIfNull(existingServiceTags, Collections.emptyList());
         return !existingServiceTags.equals(service.getTags());
-    }
-
-    private boolean shouldUpdateCredentials(CloudServiceInstanceExtended service, CloudServiceInstance existingService,
-                                            CloudControllerClient client) {
-        try {
-            Map<String, Object> serviceParameters = getServiceInstanceParameters(client, existingService);
-            getStepLogger().debug("Existing service parameters: " + SecureSerialization.toJson(serviceParameters));
-            return !Objects.equals(service.getCredentials(), serviceParameters);
-        } catch (CloudOperationException e) {
-            if (e.getStatusCode() == HttpStatus.BAD_REQUEST || service.isOptional()) {
-                getStepLogger().warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_SERVICE_INSTANCE_PARAMETERS, service.getName());
-                // TODO: Optimization (Hack) that should be deprecated at some point. So here is a todo for that.
-                return !MapUtils.isEmpty(service.getCredentials());
-            }
-            throw e;
-        }
-    }
-
-    private Map<String, Object> getServiceInstanceParameters(CloudControllerClient client, CloudServiceInstance existingService) {
-        if (existingService.isUserProvided()) {
-            return client.getUserProvidedServiceInstanceParameters(existingService.getMetadata()
-                                                                                  .getGuid());
-        }
-        return client.getServiceInstanceParameters(existingService.getMetadata()
-                                                                  .getGuid());
     }
 
     private boolean shouldUpdateSyslogUrl(CloudServiceInstance service, String existingSyslogUrl) {
