@@ -108,6 +108,7 @@ public class SupportedParameters {
     public static final String SERVICE_BINDING_CONFIG_PATH = "config-path";
     public static final String MANAGED = "managed";
     public static final String ENV_VAR_NAME = "env-var-name";
+    public static final String BINDING_NAME = "binding-name";
 
     // Resource / resource type parameters:
     public static final String SERVICE_NAME = "service-name";

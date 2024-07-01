@@ -11,6 +11,7 @@ modules:
           config:
             baz: baz
             qux: qux
+          binding-name: binding-name
     parameters:
       route-path: /test
 

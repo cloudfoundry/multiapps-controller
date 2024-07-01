@@ -26,7 +26,7 @@
           "name": "cfapps.neo.ondemand.com"
         },
         "host": "foo",
-        "path" : "/test",
+        "path": "/test",
         "url": "foo.cfapps.neo.ondemand.com/test"
       }
     ],
@@ -38,8 +38,11 @@
     "idleRoutes": [],
     "bindingParameters": {
       "bar": {
-        "baz": "baz",
-        "qux": "qux"
+        "bindingName": "binding-name",
+        "config": {
+          "baz": "baz",
+          "qux": "qux"
+        }
       }
     },
     "tasks": [],
