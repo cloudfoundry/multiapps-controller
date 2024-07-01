@@ -1,6 +1,8 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-public class OperationLogStorageException extends RuntimeException {
+import org.cloudfoundry.multiapps.common.SLException;
+
+public class OperationLogStorageException extends SLException {
 
     private static final long serialVersionUID = -4798385554251279267L;
 

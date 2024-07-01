@@ -58,8 +58,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
 
     public List<OperationLogEntry> listOperationLogsBySpaceAndOperationId(String space, String operationId) throws FileStorageException {
         try {
-            return getSqlQueryExecutor().execute(sqlOperationLogQueryProvider.getListFilesQueryBySpaceOperationIdAndFileName(space,
-                                                                                                                             operationId));
+            return getSqlQueryExecutor().execute(sqlOperationLogQueryProvider.getListFilesQueryBySpaceAndOperationId(space, operationId));
         } catch (SQLException e) {
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_LOGS_WITH_SPACE_AND_OPERATION_ID, space,
                                                                 operationId),
@@ -109,9 +108,9 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     private List<OperationLogEntry> listOperationLogs(final String space, final String operationId, String logId)
         throws FileStorageException {
         try {
-            return getSqlQueryExecutor().execute(sqlOperationLogQueryProvider.getListFilesQueryBySpaceOperationIdAndFileName(space,
-                                                                                                                             operationId,
-                                                                                                                             logId));
+            return getSqlQueryExecutor().execute(sqlOperationLogQueryProvider.getListFilesQueryBySpaceOperationIdAndLogId(space,
+                                                                                                                          operationId,
+                                                                                                                          logId));
         } catch (SQLException e) {
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_LOGS_WITH_SPACE_OPERATION_ID_AND_NAME, space,
                                                                 operationId, logId),

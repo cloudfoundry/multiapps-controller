@@ -25,7 +25,7 @@ public class SqlOperationLogQueryProvider {
     private static final String SELECT_LOGS_BY_SPACE_ID_AND_NAME = "SELECT ID, OPERATION_LOG, OPERATION_LOG_NAME FROM process_log WHERE SPACE=? AND OPERATION_ID=? ORDER BY MODIFIED ASC";
     public static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT = "INSERT INTO process_log (ID, SPACE, NAMESPACE, MODIFIED, OPERATION_ID, OPERATION_LOG, OPERATION_LOG_NAME) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-    public SqlQuery<List<OperationLogEntry>> getListFilesQueryBySpaceOperationIdAndFileName(String space, String operationId) {
+    public SqlQuery<List<OperationLogEntry>> getListFilesQueryBySpaceAndOperationId(String space, String operationId) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
@@ -46,7 +46,7 @@ public class SqlOperationLogQueryProvider {
         };
     }
 
-    public SqlQuery<List<OperationLogEntry>> getListFilesQueryBySpaceOperationIdAndFileName(String space, String operationId,
+    public SqlQuery<List<OperationLogEntry>> getListFilesQueryBySpaceOperationIdAndLogId(String space, String operationId,
                                                                                             String logId) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
