@@ -44,9 +44,14 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     public List<ParameterValidator> getValidatorsList() {
-        return List.of(new HostValidator(), new DomainValidator(), new RoutesValidator(context.getNamespace(), context.applyNamespace()),
-                       new IdleRoutesValidator(context.getNamespace(), context.applyNamespace()), new TasksValidator(),
-                       new VisibilityValidator(), new RestartOnEnvChangeValidator());
+        return List.of(new HostValidator(), new DomainValidator(),
+                       new RoutesValidator(context.getNamespace(),
+                                           context.applyNamespaceAppRoutesGlobalLevel(),
+                                           context.applyNamespaceAppRoutesProcessVariable()),
+                       new IdleRoutesValidator(context.getNamespace(),
+                                               context.applyNamespaceAppRoutesGlobalLevel(),
+                                               context.applyNamespaceAppRoutesProcessVariable()),
+                       new TasksValidator(), new VisibilityValidator(), new RestartOnEnvChangeValidator());
     }
 
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {
@@ -113,8 +118,12 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     private DeploymentDescriptor correctEntityNames(DeploymentDescriptor descriptor) {
-        List<ParameterValidator> correctors = Arrays.asList(new ApplicationNameValidator(context.getNamespace(), context.applyNamespace()),
-                                                            new ServiceNameValidator(context.getNamespace(), context.applyNamespace()));
+        List<ParameterValidator> correctors = Arrays.asList(new ApplicationNameValidator(context.getNamespace(),
+                                                                                         context.applyNamespaceAppNamesGlobalLevel(),
+                                                                                         context.applyNamespaceAppNamesProcessVariable()),
+                                                            new ServiceNameValidator(context.getNamespace(),
+                                                                                     context.applyNamespaceServiceNamesGlobalLevel(),
+                                                                                     context.applyNamespaceServiceNamesProcessVariable()));
         return context.getHandlerFactory()
                       .getDescriptorParametersValidator(descriptor, correctors)
                       .validate();
@@ -128,7 +137,7 @@ public class MtaDescriptorPropertiesResolver {
 
             for (Map<String, Object> routeMap : routes) {
                 Object routeValue = routeMap.get(SupportedParameters.ROUTE);
-                boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
+                Boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
                 String protocol = (String) routeMap.get(SupportedParameters.ROUTE_PROTOCOL);
                 if (routeValue instanceof String) {
                     routeMap.put(SupportedParameters.ROUTE, replacePartsWithIdlePlaceholders((String) routeValue, noHostname, protocol));

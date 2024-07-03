@@ -70,7 +70,7 @@ public class Messages {
     public static final String NOT_INTEGER_PARAMETER_VALUE = "Value \"{0}\" of parameter \"{1}\" is not integer";
     public static final String ERROR_OCURRED_DURING_VALIDATION_OF_FILES_0 = "Error occurred during validation of files \"{0}\"";
     public static final String SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1 = "Size of all operation files \"{0}\" exceeds max upload size limit \"{1}\"";
-
+    public static final String NOT_BOOLEAN_PARAMETER_VALUE = "Value \"{0}\" of parameter \"{1}\" is not boolean";
     // Audit log messages
 
     // ERROR log messages
@@ -733,6 +733,8 @@ public class Messages {
 
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";
+    public static final String PARSE_NULL_STRING_ERROR = "Cannot parse null string";
+    public static final String INVALID_BOOLEAN_VALUE = "Invalid boolean value: must be 'true' or 'false'";
 
     protected Messages() {
     }

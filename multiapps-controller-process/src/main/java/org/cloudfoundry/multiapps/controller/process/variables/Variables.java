@@ -90,10 +90,20 @@ public interface Variables {
     Variable<String> MTA_NAMESPACE = ImmutableSimpleVariable.<String> builder()
                                                             .name("namespace")
                                                             .build();
-    Variable<Boolean> APPLY_NAMESPACE = ImmutableSimpleVariable.<Boolean> builder()
-                                                               .name("applyNamespace")
-                                                               .defaultValue(false)
-                                                               .build();
+    Variable<Boolean> APPLY_NAMESPACE_APP_NAMES = ImmutableSimpleVariable.<Boolean> builder()
+                                                                         .name("applyNamespaceAppNames")
+                                                                         .defaultValue(null)
+                                                                         .build();
+
+    Variable<Boolean> APPLY_NAMESPACE_SERVICE_NAMES = ImmutableSimpleVariable.<Boolean> builder()
+                                                                             .name("applyNamespaceServiceNames")
+                                                                             .defaultValue(null)
+                                                                             .build();
+
+    Variable<Boolean> APPLY_NAMESPACE_APP_ROUTES = ImmutableSimpleVariable.<Boolean> builder()
+                                                                          .name("applyNamespaceAppRoutes")
+                                                                          .defaultValue(null)
+                                                                          .build();
     Variable<String> CTS_PROCESS_ID = ImmutableSimpleVariable.<String> builder()
                                                              .name("ctsProcessId")
                                                              .build();

@@ -17,6 +17,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class HostValidatorTest {
+    private static final Map<String, Object> CONTEXT_APPLY_NAMESPACE = Map.of(SupportedParameters.APPLY_NAMESPACE, new Boolean(true));
+
+    private static final Map<String, Object> CONTEXT_DO_NOT_APPLY_NAMESPACE = Map.of(SupportedParameters.APPLY_NAMESPACE,
+                                                                                     new Boolean(false));
 
     private final Tester tester = Tester.forClass(getClass());
 
@@ -70,39 +74,98 @@ class HostValidatorTest {
     }
 
     static Stream<Arguments> testValidateHostWithNamespace() {
-        return Stream.of(Arguments.of("test", Collections.emptyMap(), true, "dev", false),
-                         Arguments.of("dev-test", Collections.emptyMap(), true, "dev", true),
-                         Arguments.of("prod-test-application", Map.of(SupportedParameters.APPLY_NAMESPACE, true), true, "prod", true),
-                         Arguments.of("test-application", Map.of(SupportedParameters.APPLY_NAMESPACE, false), true, "prod", true),
-                         Arguments.of(false, Collections.emptyMap(), true, "dev", false),
-                         Arguments.of("test", Collections.emptyMap(), false, "dev", true));
+        return Stream.of(
+                         // Operational parameter set to True
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, true, true, "dev", false),
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, true, false, "dev", false),
+                         Arguments.of("test", CONTEXT_DO_NOT_APPLY_NAMESPACE, true, true, "dev", false),
+                         Arguments.of("test", CONTEXT_DO_NOT_APPLY_NAMESPACE, true, false, "dev", false),
+                         Arguments.of("test", Collections.emptyMap(), true, true, "dev", false),
+                         Arguments.of("test", Collections.emptyMap(), true, false, "dev", false),
+                         // Operational parameter set to False
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, false, true, "dev", true),
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, false, false, "dev", true),
+                         Arguments.of("test", CONTEXT_DO_NOT_APPLY_NAMESPACE, false, true, "dev", true),
+                         Arguments.of("test", CONTEXT_DO_NOT_APPLY_NAMESPACE, false, false, "dev", true),
+                         Arguments.of("test", Collections.emptyMap(), false, true, "dev", true),
+                         Arguments.of("test", Collections.emptyMap(), false, false, "dev", true),
+                         // Operational parameter set to null -> Check route parameter -> Check global parameter
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, null, true, "dev", false),
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, null, false, "dev", false),
+                         Arguments.of("test", CONTEXT_DO_NOT_APPLY_NAMESPACE, null, true, "dev", true),
+                         Arguments.of("test", CONTEXT_DO_NOT_APPLY_NAMESPACE, null, false, "dev", true),
+                         Arguments.of("test", Collections.emptyMap(), null, true, "dev", false),
+                         Arguments.of("test", Collections.emptyMap(), null, false, "dev", true),
+                         // Other cases
+                         Arguments.of("dev-test", CONTEXT_APPLY_NAMESPACE, true, true, "dev", true),
+                         Arguments.of("dev-test", CONTEXT_APPLY_NAMESPACE, true, false, "dev", true),
+                         Arguments.of("dev-test", CONTEXT_DO_NOT_APPLY_NAMESPACE, true, true, "dev", true),
+                         Arguments.of("dev-test", CONTEXT_DO_NOT_APPLY_NAMESPACE, true, false, "dev", true),
+                         Arguments.of("dev-test", Collections.emptyMap(), true, true, "dev", true),
+                         Arguments.of("dev-test", Collections.emptyMap(), true, false, "dev", true),
+                         Arguments.of("dev-test", CONTEXT_APPLY_NAMESPACE, null, true, "dev", true),
+                         Arguments.of("dev-test", CONTEXT_APPLY_NAMESPACE, null, false, "dev", true),
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, true, true, "", true),
+                         // Error in host
+                         Arguments.of(false, Collections.emptyMap(), true, false, "dev", false),
+                         Arguments.of(false, Collections.emptyMap(), true, true, "dev", false),
+                         Arguments.of(false, Collections.emptyMap(), true, false, "dev", false));
     }
 
     @ParameterizedTest
     @MethodSource
-    void testValidateHostWithNamespace(Object host, Map<String, Object> context, boolean applyNamespaceGlobal, String namespace,
-                                       boolean expectedValidHost) {
-        HostValidator hostValidator = new HostValidator(namespace, applyNamespaceGlobal);
+    void testValidateHostWithNamespace(Object host, Map<String, Object> context, Boolean applyNamespaceProcessVariable,
+                                       boolean applyNamespaceGlobalLevel, String namespace, boolean expectedValidHost) {
+        HostValidator hostValidator = new HostValidator(namespace, applyNamespaceGlobalLevel, applyNamespaceProcessVariable);
         boolean result = hostValidator.isValid(host, context);
         assertEquals(expectedValidHost, result);
     }
 
     static Stream<Arguments> testAttemptToCorrectHostWithNamespace() {
-        return Stream.of(Arguments.of("test", Collections.emptyMap(), true, "dev", new Expectation("dev-test")),
-                         Arguments.of("test_application", Map.of(SupportedParameters.APPLY_NAMESPACE, false), true, "prod",
+        return Stream.of(
+                         // Operational parameter set to True
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, true, true, "dev", new Expectation("dev-test")),
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, true, false, "dev", new Expectation("dev-test")),
+                         Arguments.of("test", CONTEXT_DO_NOT_APPLY_NAMESPACE, true, true, "dev", new Expectation("dev-test")),
+                         Arguments.of("test", CONTEXT_DO_NOT_APPLY_NAMESPACE, true, false, "dev", new Expectation("dev-test")),
+                         Arguments.of("test", Collections.emptyMap(), true, true, "dev", new Expectation("dev-test")),
+                         Arguments.of("test", Collections.emptyMap(), true, false, "dev", new Expectation("dev-test")),
+                         // Operational parameter set to False
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, false, true, "dev", new Expectation("test")),
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, false, false, "dev", new Expectation("test")),
+                         Arguments.of("test", CONTEXT_DO_NOT_APPLY_NAMESPACE, false, true, "dev", new Expectation("test")),
+                         Arguments.of("test", CONTEXT_DO_NOT_APPLY_NAMESPACE, false, false, "dev", new Expectation("test")),
+                         Arguments.of("test", Collections.emptyMap(), false, true, "dev", new Expectation("test")),
+                         Arguments.of("test", Collections.emptyMap(), false, false, "dev", new Expectation("test")),
+                         // Operational parameter set to null -> Check route parameter -> Check global parameter
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, null, true, "dev", new Expectation("dev-test")),
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, null, false, "dev", new Expectation("dev-test")),
+                         Arguments.of("test", CONTEXT_DO_NOT_APPLY_NAMESPACE, null, true, "dev", new Expectation("test")),
+                         Arguments.of("test", CONTEXT_DO_NOT_APPLY_NAMESPACE, null, false, "dev", new Expectation("test")),
+                         Arguments.of("test", Collections.emptyMap(), null, true, "dev", new Expectation("dev-test")),
+                         Arguments.of("test", Collections.emptyMap(), null, false, "dev", new Expectation("test")),
+                         Arguments.of("test", Collections.emptyMap(), null, true, "dev", new Expectation("dev-test")),
+                         // Other cases
+                         Arguments.of("test", Collections.emptyMap(), true, false, "", new Expectation("test")),
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, false, false, "", new Expectation("test")),
+                         Arguments.of("test", Collections.emptyMap(), false, true, "", new Expectation("test")),
+                         Arguments.of("test", CONTEXT_APPLY_NAMESPACE, true, true, "", new Expectation("test")),
+
+                         Arguments.of("test_application", CONTEXT_DO_NOT_APPLY_NAMESPACE, false, true, "prod",
                                       new Expectation("test-application")),
-                         Arguments.of("test-application", Map.of(SupportedParameters.APPLY_NAMESPACE, true), true, "prod",
+                         Arguments.of("test_application", CONTEXT_DO_NOT_APPLY_NAMESPACE, true, false, "prod",
                                       new Expectation("prod-test-application")),
-                         Arguments.of(false, Collections.emptyMap(), true, "dev",
+                         Arguments.of(false, Collections.emptyMap(), true, true, "dev",
                                       new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid host from \"false\"")),
-                         Arguments.of("test", Collections.emptyMap(), false, "dev", new Expectation("test")));
+                         Arguments.of(false, Collections.emptyMap(), true, false, "dev",
+                                      new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid host from \"false\"")));
     }
 
     @ParameterizedTest
     @MethodSource
-    void testAttemptToCorrectHostWithNamespace(Object host, Map<String, Object> context, boolean applyNamespaceGlobal, String namespace,
-                                               Expectation expectation) {
-        HostValidator hostValidator = new HostValidator(namespace, applyNamespaceGlobal);
+    void testAttemptToCorrectHostWithNamespace(Object host, Map<String, Object> context, Boolean applyNamespaceProcessVariable,
+                                               boolean applyNamespaceGlobalLevel, String namespace, Expectation expectation) {
+        HostValidator hostValidator = new HostValidator(namespace, applyNamespaceGlobalLevel, applyNamespaceProcessVariable);
         tester.test(() -> hostValidator.attemptToCorrect(host, context), expectation);
     }
 

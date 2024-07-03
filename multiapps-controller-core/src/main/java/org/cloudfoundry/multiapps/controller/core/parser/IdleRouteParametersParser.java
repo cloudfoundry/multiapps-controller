@@ -58,7 +58,7 @@ public class IdleRouteParametersParser extends RouteParametersParser {
         if (routeString == null) {
             return null;
         }
-        boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
+        Boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
         String protocol = (String) routeMap.get(SupportedParameters.ROUTE_PROTOCOL);
         return new ApplicationURI(routeString, noHostname, protocol).toCloudRoute();
     }

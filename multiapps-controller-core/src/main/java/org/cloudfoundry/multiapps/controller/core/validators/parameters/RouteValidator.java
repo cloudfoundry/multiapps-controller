@@ -16,8 +16,9 @@ public class RouteValidator implements ParameterValidator {
 
     private final List<ParameterValidator> validators;
 
-    public RouteValidator(String namespace, boolean applyNamespaceGlobal) {
-        this.validators = List.of(new HostValidator(namespace, applyNamespaceGlobal), new DomainValidator());
+    public RouteValidator(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable) {
+        this.validators = List.of(new HostValidator(namespace, applyNamespaceGlobalLevel, applyNamespaceProcessVariable),
+                                  new DomainValidator());
     }
 
     @Override
@@ -26,7 +27,7 @@ public class RouteValidator implements ParameterValidator {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_ROUTE, route);
         }
         String routeString = (String) route;
-        boolean noHostname = MapUtil.parseBooleanFlag(context, SupportedParameters.NO_HOSTNAME, false);
+        Boolean noHostname = MapUtil.parseBooleanFlag(context, SupportedParameters.NO_HOSTNAME, false);
         String protocol = (String) context.get(SupportedParameters.ROUTE_PROTOCOL);
         ApplicationURI uri = new ApplicationURI(routeString, noHostname, protocol);
         try {
@@ -71,7 +72,7 @@ public class RouteValidator implements ParameterValidator {
             return false;
         }
 
-        boolean noHostname = MapUtil.parseBooleanFlag(context, SupportedParameters.NO_HOSTNAME, false);
+        Boolean noHostname = MapUtil.parseBooleanFlag(context, SupportedParameters.NO_HOSTNAME, false);
         String protocol = (String) context.get(SupportedParameters.ROUTE_PROTOCOL);
         ApplicationURI uri = new ApplicationURI(routeString, noHostname, protocol);
         Map<String, Object> uriParts = uri.getURIParts();

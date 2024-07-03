@@ -28,7 +28,20 @@ public interface MtaDescriptorPropertiesResolverContext {
     @Nullable
     String getNamespace();
 
-    boolean applyNamespace();
+    boolean applyNamespaceAppNamesGlobalLevel();
+
+    boolean applyNamespaceServiceNamesGlobalLevel();
+
+    boolean applyNamespaceAppRoutesGlobalLevel();
+
+    @Nullable
+    Boolean applyNamespaceAppNamesProcessVariable();
+
+    @Nullable
+    Boolean applyNamespaceServiceNamesProcessVariable();
+
+    @Nullable
+    Boolean applyNamespaceAppRoutesProcessVariable();
 
     boolean shouldReserveTemporaryRoute();
 }

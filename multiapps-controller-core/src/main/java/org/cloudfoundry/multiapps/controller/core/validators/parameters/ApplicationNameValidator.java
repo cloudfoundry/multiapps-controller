@@ -5,20 +5,16 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cloudfoundry.multiapps.common.ContentException;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
+import org.cloudfoundry.multiapps.controller.core.util.NamespaceValidationUtil;
 import org.cloudfoundry.multiapps.mta.model.Module;
 
-public class ApplicationNameValidator implements ParameterValidator {
+public class ApplicationNameValidator extends NamespaceValidationUtil implements ParameterValidator {
 
-    private final String namespace;
-    private final boolean applyNamespaceGlobal;
-
-    public ApplicationNameValidator(String namespace, boolean applyNamespace) {
-        this.namespace = namespace;
-        this.applyNamespaceGlobal = applyNamespace;
+    public ApplicationNameValidator(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable) {
+        super(namespace, applyNamespaceGlobalLevel, applyNamespaceProcessVariable);
     }
 
     @Override
@@ -47,11 +43,8 @@ public class ApplicationNameValidator implements ParameterValidator {
         if (!(applicationName instanceof String)) {
             throw new ContentException(Messages.COULD_NOT_CREATE_VALID_APPLICATION_NAME_FROM_0, applicationName);
         }
-
-        boolean applyNamespaceLocal = MapUtil.parseBooleanFlag(relatedParameters, SupportedParameters.APPLY_NAMESPACE, true);
-        boolean applyNamespace = applyNamespaceGlobal && applyNamespaceLocal;
-
-        return NameUtil.computeValidApplicationName((String) applicationName, namespace, applyNamespace);
+        boolean applyNamespaceResult = shouldApplyNamespaceResultValue(relatedParameters);
+        return NameUtil.computeValidApplicationName((String) applicationName, getNamespace(), applyNamespaceResult);
     }
 
     @Override

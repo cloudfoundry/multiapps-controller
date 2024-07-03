@@ -16,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureS
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.HostValidator;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
 import org.cloudfoundry.multiapps.controller.process.util.ReadOnlyParametersChecker;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -96,13 +97,15 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.NO_READ_ONLY_PARAMETERS_ARE_OVERWRITTEN);
     }
 
-    private SystemParameters createSystemParameters(ProcessContext context, String defaultDomain,
-                                                    boolean reserveTemporaryRoutes, DeploymentDescriptor descriptor) {
+    private SystemParameters createSystemParameters(ProcessContext context, String defaultDomain, boolean reserveTemporaryRoutes,
+                                                    DeploymentDescriptor descriptor) {
         String authorizationEndpoint = getAuthorizationEndpointGetter(context).getAuthorizationEndpoint();
         String user = context.getVariable(Variables.USER);
         String namespace = context.getVariable(Variables.MTA_NAMESPACE);
         String timestamp = context.getVariable(Variables.TIMESTAMP);
-        boolean applyNamespace = context.getVariable(Variables.APPLY_NAMESPACE);
+        Boolean applyNamespaceProcessVariable = context.getVariable(Variables.APPLY_NAMESPACE_APP_ROUTES);
+        NamespaceGlobalParameters namespaceGlobalParameters = new NamespaceGlobalParameters(descriptor);
+        boolean applyNamespaceGlobalLevel = namespaceGlobalParameters.getApplyNamespaceAppRoutesParameter();
 
         URL controllerUrl = configuration.getControllerUrl();
         String deployServiceUrl = configuration.getDeployServiceUrl();
@@ -121,7 +124,9 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                                              .timestamp(timestamp)
                                              .mtaId(descriptor.getId())
                                              .mtaVersion(descriptor.getVersion())
-                                             .hostValidator(new HostValidator(namespace, applyNamespace))
+                                             .hostValidator(new HostValidator(namespace,
+                                                                              applyNamespaceGlobalLevel,
+                                                                              applyNamespaceProcessVariable))
                                              .build();
     }
 

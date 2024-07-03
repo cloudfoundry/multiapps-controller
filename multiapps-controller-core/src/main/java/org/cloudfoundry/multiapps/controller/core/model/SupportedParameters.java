@@ -33,6 +33,9 @@ public class SupportedParameters {
     public static final String APPLY_NAMESPACE = "apply-namespace";
     public static final String MTA_VERSION = "mta-version";
     public static final String MTA_ID = "mta-id";
+    public static final String APPLY_NAMESPACE_APPS = "app-names";
+    public static final String APPLY_NAMESPACE_SERVICES = "service-names";
+    public static final String APPLY_NAMESPACE_ROUTES = "app-routes";
 
     // Module / module type parameters:
     public static final String APP_NAME = "app-name";

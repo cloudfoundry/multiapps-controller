@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.web;
 
-import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
-
 /**
  * A collection of string constants used for exception and logging messages.
  */
