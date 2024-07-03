@@ -275,7 +275,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         String namespace = operation.getNamespace();
         if (namespace != null) {
             parameters.put(Variables.MTA_NAMESPACE.getName(), namespace);
-            parameters.put(Variables.APPLY_NAMESPACE.getName(), true);
         }
 
         return ImmutableOperation.copyOf(operation)

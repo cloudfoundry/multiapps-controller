@@ -240,21 +240,19 @@ class CollectSystemParametersStepTest extends CollectSystemParametersStepBaseTes
     }
 
     private static Stream<Arguments> testVersionRuleWithBuildSuffix() {
-        //the build suffix does not affect the version (2 versions are considered identical when performing semver
+        // the build suffix does not affect the version (2 versions are considered identical when performing semver
         // comparison, even if one has a build suffix)
-        return Stream.of(
-                Arguments.of("1.0.0-pre.rel+build123", "1.0.0-pre.rel+build123", VersionRule.HIGHER, true), //reject
-                Arguments.of("1.0.0-pre.rel+build123", "1.0.0", VersionRule.HIGHER, false), //allow
-                Arguments.of("1.0.0", "1.0.0-pre.rel", VersionRule.SAME_HIGHER, true), //reject
-                Arguments.of("1.0.0-pre.rel", "1.0.0-pre.rel+build123", VersionRule.SAME_HIGHER, false), //allow
-                Arguments.of("1.0.0", "1.0.0-pre.rel+build123", VersionRule.ALL, false) //allow
+        return Stream.of(Arguments.of("1.0.0-pre.rel+build123", "1.0.0-pre.rel+build123", VersionRule.HIGHER, true), // reject
+                         Arguments.of("1.0.0-pre.rel+build123", "1.0.0", VersionRule.HIGHER, false), // allow
+                         Arguments.of("1.0.0", "1.0.0-pre.rel", VersionRule.SAME_HIGHER, true), // reject
+                         Arguments.of("1.0.0-pre.rel", "1.0.0-pre.rel+build123", VersionRule.SAME_HIGHER, false), // allow
+                         Arguments.of("1.0.0", "1.0.0-pre.rel+build123", VersionRule.ALL, false) // allow
         );
     }
 
     @ParameterizedTest
     @MethodSource
-    void testVersionRuleWithBuildSuffix(String oldMtaVersion, String newMtaVersion, VersionRule versionRule,
-                                        boolean shouldThrow) {
+    void testVersionRuleWithBuildSuffix(String oldMtaVersion, String newMtaVersion, VersionRule versionRule, boolean shouldThrow) {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
         context.setVariable(Variables.VERSION_RULE, versionRule);

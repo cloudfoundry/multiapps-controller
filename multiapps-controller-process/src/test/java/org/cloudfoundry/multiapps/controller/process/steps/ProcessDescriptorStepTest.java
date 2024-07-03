@@ -33,7 +33,8 @@ class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorSt
     private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
 
         @Override
-        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(ProcessContext context) {
+        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(ProcessContext context,
+                                                                                     DeploymentDescriptor descriptor) {
             return resolver;
         }
 
@@ -52,7 +53,6 @@ class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorSt
 
         context.setVariable(Variables.SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
         context.setVariable(Variables.MTA_NAMESPACE, null);
-        context.setVariable(Variables.APPLY_NAMESPACE, false);
 
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
     }

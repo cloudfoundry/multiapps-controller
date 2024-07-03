@@ -4,24 +4,17 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 
 public class HostValidator extends RoutePartValidator {
-
-    private final String namespace;
-    private final boolean applyNamespaceGlobal;
-
     public HostValidator() {
-        this.namespace = null;
-        this.applyNamespaceGlobal = false;
+        super(null, false, false);
     }
 
-    public HostValidator(String namespace, boolean applyNamespaceGlobal) {
-        this.namespace = namespace;
-        this.applyNamespaceGlobal = applyNamespaceGlobal;
+    public HostValidator(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable) {
+        super(namespace, applyNamespaceGlobalLevel, applyNamespaceProcessVariable);
     }
 
     @Override
@@ -29,8 +22,8 @@ public class HostValidator extends RoutePartValidator {
         if (!super.isValid(routePart, context)) {
             return false;
         }
-        if (shouldApplyNamespace(context)) {
-            return ((String) routePart).startsWith(namespace);
+        if (shouldApplyNamespace(context) && getNamespace() != null) {
+            return ((String) routePart).startsWith(getNamespace());
         }
         return true;
     }
@@ -62,12 +55,11 @@ public class HostValidator extends RoutePartValidator {
 
     @Override
     protected String modifyAndShortenRoutePart(String routePart, Map<String, Object> context) {
-        return NameUtil.computeNamespacedNameWithLength(routePart, namespace, shouldApplyNamespace(context), getRoutePartMaxLength());
+        return NameUtil.computeNamespacedNameWithLength(routePart, getNamespace(), shouldApplyNamespace(context), getRoutePartMaxLength());
     }
 
     private boolean shouldApplyNamespace(Map<String, Object> context) {
-        boolean applyNamespaceLocal = MapUtil.parseBooleanFlag(context, SupportedParameters.APPLY_NAMESPACE, true);
-        return applyNamespaceGlobal && applyNamespaceLocal;
+        return shouldApplyNamespaceResultValue(context);
     }
 
     @Override
