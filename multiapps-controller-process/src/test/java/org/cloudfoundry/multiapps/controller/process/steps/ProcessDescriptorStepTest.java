@@ -33,7 +33,8 @@ class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorSt
     private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
 
         @Override
-        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(ProcessContext context) {
+        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(ProcessContext context,
+                                                                                     DeploymentDescriptor descriptor) {
             return resolver;
         }
 

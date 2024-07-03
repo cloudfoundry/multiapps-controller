@@ -37,7 +37,7 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
     protected static final UUID DEFAULT_DOMAIN_GUID = UUID.fromString("7b5987e9-4325-4bb6-93e2-a0b1c562e60c");
     protected static final VersionRule VERSION_RULE = VersionRule.SAME_HIGHER;
 
-    protected static final String DEFAULT_NAMESPACE = null;
+    protected static final String DEFAULT_NAMESPACE = "";
     protected static final boolean DEFAULT_APPLY_NAMESPACE = Variables.APPLY_NAMESPACE.getDefaultValue();
 
     @Mock

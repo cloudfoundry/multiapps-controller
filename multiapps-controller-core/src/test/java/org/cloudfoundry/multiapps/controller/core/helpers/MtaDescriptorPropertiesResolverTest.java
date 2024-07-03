@@ -66,7 +66,9 @@ class MtaDescriptorPropertiesResolverTest {
                                                               .currentSpaceId("")
                                                               .applicationConfiguration(configuration)
                                                               .namespace(null)
-                                                              .applyNamespace(false)
+                                                              .applyNamespaceAppNamesGlobal(false)
+                                                              .applyNamespaceServiceNamesGlobal(false)
+                                                              .applyNamespaceAppRoutesGlobal(false)
                                                               .shouldReserveTemporaryRoute(false)
                                                               .build();
     }

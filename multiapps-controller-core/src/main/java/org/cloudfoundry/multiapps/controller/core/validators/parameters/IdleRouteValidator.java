@@ -4,8 +4,8 @@ import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 
 public class IdleRouteValidator extends RouteValidator {
 
-    public IdleRouteValidator(String namespace, boolean applyNamespaceGlobal) {
-        super(namespace, applyNamespaceGlobal);
+    public IdleRouteValidator(String namespace, boolean applyNamespaceGlobal, Boolean applyNamespaceOperational) {
+        super(namespace, applyNamespaceGlobal, applyNamespaceOperational);
     }
 
     @Override

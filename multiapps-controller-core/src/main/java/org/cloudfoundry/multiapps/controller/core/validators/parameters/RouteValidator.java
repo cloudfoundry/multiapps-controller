@@ -16,8 +16,8 @@ public class RouteValidator implements ParameterValidator {
 
     private final List<ParameterValidator> validators;
 
-    public RouteValidator(String namespace, boolean applyNamespaceGlobal) {
-        this.validators = List.of(new HostValidator(namespace, applyNamespaceGlobal), new DomainValidator());
+    public RouteValidator(String namespace, boolean applyNamespaceGlobal, Boolean applyNamespaceOperational) {
+        this.validators = List.of(new HostValidator(namespace, applyNamespaceGlobal, applyNamespaceOperational), new DomainValidator());
     }
 
     @Override

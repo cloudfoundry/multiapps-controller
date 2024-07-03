@@ -88,6 +88,15 @@ public abstract class Operation implements AuditableConfiguration {
     public abstract String getNamespace();
 
     @Nullable
+    public abstract Boolean getApplyNamespaceAppNames();
+
+    @Nullable
+    public abstract Boolean getApplyNamespaceServiceNames();
+
+    @Nullable
+    public abstract Boolean getApplyNamespaceAppRoutes();
+
+    @Nullable
     public abstract String getUser();
 
     @Nullable

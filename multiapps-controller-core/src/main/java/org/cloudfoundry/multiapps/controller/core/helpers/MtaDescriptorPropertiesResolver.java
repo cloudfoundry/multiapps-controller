@@ -44,9 +44,14 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     public List<ParameterValidator> getValidatorsList() {
-        return List.of(new HostValidator(), new DomainValidator(), new RoutesValidator(context.getNamespace(), context.applyNamespace()),
-                       new IdleRoutesValidator(context.getNamespace(), context.applyNamespace()), new TasksValidator(),
-                       new VisibilityValidator(), new RestartOnEnvChangeValidator());
+        return List.of(new HostValidator(), new DomainValidator(),
+                       new RoutesValidator(context.getNamespace(),
+                                           context.applyNamespaceAppRoutesGlobal(),
+                                           context.applyNamespaceAppRoutesOperational()),
+                       new IdleRoutesValidator(context.getNamespace(),
+                                               context.applyNamespaceAppRoutesGlobal(),
+                                               context.applyNamespaceAppRoutesOperational()),
+                       new TasksValidator(), new VisibilityValidator(), new RestartOnEnvChangeValidator());
     }
 
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {
@@ -113,8 +118,12 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     private DeploymentDescriptor correctEntityNames(DeploymentDescriptor descriptor) {
-        List<ParameterValidator> correctors = Arrays.asList(new ApplicationNameValidator(context.getNamespace(), context.applyNamespace()),
-                                                            new ServiceNameValidator(context.getNamespace(), context.applyNamespace()));
+        List<ParameterValidator> correctors = Arrays.asList(new ApplicationNameValidator(context.getNamespace(),
+                                                                                         context.applyNamespaceAppNamesGlobal(),
+                                                                                         context.applyNamespaceAppNamesOperational()),
+                                                            new ServiceNameValidator(context.getNamespace(),
+                                                                                     context.applyNamespaceServiceNamesGlobal(),
+                                                                                     context.applyNamespaceServiceNamesOperational()));
         return context.getHandlerFactory()
                       .getDescriptorParametersValidator(descriptor, correctors)
                       .validate();

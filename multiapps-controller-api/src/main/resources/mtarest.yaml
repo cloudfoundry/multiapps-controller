@@ -606,6 +606,15 @@ definitions:
       namespace:
         type: "string"
         readOnly: true
+      applyNamespaceAppNames:
+        type: "boolean"
+        readOnly: true
+      applyNamespaceServiceNames:
+        type: "boolean"
+        readOnly: true
+      applyNamespaceAppRoutes:
+        type: "boolean"
+        readOnly: true
       user:
         type: "string"
         readOnly: true

@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.validators.parameters;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.cloudfoundry.multiapps.common.util.MapUtil;
@@ -13,15 +14,18 @@ public class HostValidator extends RoutePartValidator {
 
     private final String namespace;
     private final boolean applyNamespaceGlobal;
+    private final Boolean applyNamespaceOperational;
 
     public HostValidator() {
         this.namespace = null;
         this.applyNamespaceGlobal = false;
+        this.applyNamespaceOperational = false;
     }
 
-    public HostValidator(String namespace, boolean applyNamespaceGlobal) {
+    public HostValidator(String namespace, boolean applyNamespaceGlobal, Boolean applyNamespaceOperational) {
         this.namespace = namespace;
         this.applyNamespaceGlobal = applyNamespaceGlobal;
+        this.applyNamespaceOperational = applyNamespaceOperational;
     }
 
     @Override
@@ -66,8 +70,9 @@ public class HostValidator extends RoutePartValidator {
     }
 
     private boolean shouldApplyNamespace(Map<String, Object> context) {
-        boolean applyNamespaceLocal = MapUtil.parseBooleanFlag(context, SupportedParameters.APPLY_NAMESPACE, true);
-        return applyNamespaceGlobal && applyNamespaceLocal;
+        Boolean applyNamespaceLocal = MapUtil.parseBooleanFlag(context, SupportedParameters.APPLY_NAMESPACE, null);
+        return Objects.requireNonNullElseGet(applyNamespaceOperational,
+                                             () -> Objects.requireNonNullElse(applyNamespaceLocal, applyNamespaceGlobal));
     }
 
     @Override

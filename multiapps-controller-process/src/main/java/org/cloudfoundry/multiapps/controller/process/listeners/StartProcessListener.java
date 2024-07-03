@@ -115,6 +115,12 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
                                                 .user(StepsUtil.determineCurrentUser(execution))
                                                 .hasAcquiredLock(false)
                                                 .namespace(VariableHandling.get(execution, Variables.MTA_NAMESPACE))
+                                                .applyNamespaceAppNames(VariableHandling.get(execution,
+                                                                                             Variables.APPLY_NAMESPACE_APP_NAMES))
+                                                .applyNamespaceServiceNames(VariableHandling.get(execution,
+                                                                                                 Variables.APPLY_NAMESPACE_SERVICE_NAMES))
+                                                .applyNamespaceAppRoutes(VariableHandling.get(execution,
+                                                                                              Variables.APPLY_NAMESPACE_APP_ROUTES))
                                                 .state(Operation.State.RUNNING)
                                                 .build();
         operationService.add(operation);
