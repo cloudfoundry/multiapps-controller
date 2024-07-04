@@ -146,7 +146,7 @@ class OperationInFinalStateHandlerTest {
         }
         for (String fileId : fileIds.split(",")) {
             FileEntry entry = ImmutableFileEntry.builder()
-                                                .name(fileId)
+                                                .id(fileId)
                                                 .operationId(fileOwnershipProcessId)
                                                 .build();
             Mockito.when(fileService.getFile(SPACE_ID, fileId))

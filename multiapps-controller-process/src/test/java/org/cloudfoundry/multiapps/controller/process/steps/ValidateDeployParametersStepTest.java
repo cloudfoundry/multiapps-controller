@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.SLException;
@@ -18,7 +19,6 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
-import org.cloudfoundry.multiapps.controller.persistence.util.Configuration;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.FilePartsMerger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -35,6 +35,7 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
     private static final String EXISTING_BIGGER_FILE_ID = "existingBiggerFileId";
     private static final String NOT_EXISTING_FILE_ID = "notExistingFileId";
     private static final String MERGED_ARCHIVE_NAME = "test-merged";
+    private static final String EXCEEDING_FILE_SIZE_ID = "exceedingFileSizeId";
     private static final String EXCEPTION_START_MESSAGE = "Error validating parameters: ";
 
     private StepInput stepInput;
@@ -63,7 +64,15 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
 
                          // [4] Process chunked file
                          Arguments.of(new StepInput(MERGED_ARCHIVE_NAME + ".part.0," + MERGED_ARCHIVE_NAME + ".part.1,"
-                             + MERGED_ARCHIVE_NAME + ".part.2", null, 1, VersionRule.HIGHER.toString()), null, true, ""));
+                             + MERGED_ARCHIVE_NAME + ".part.2", null, 1, VersionRule.HIGHER.toString()), null, true, ""),
+
+                         // [5] Max size of entries exceeded
+                         Arguments.of(new StepInput(EXCEEDING_FILE_SIZE_ID + ".part.0," + EXCEEDING_FILE_SIZE_ID + ".part.1,"
+                             + EXCEEDING_FILE_SIZE_ID + ".part.2," + EXCEEDING_FILE_SIZE_ID + ".part.3," + EXCEEDING_FILE_SIZE_ID
+                             + ".part.4", null, 1, VersionRule.HIGHER.toString()),
+                                      MessageFormat.format(Messages.SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1, 5368709120L,
+                                                           4294967296L),
+                                      true, ""));
     }
 
     private static FileEntry createFileEntry(String id, String name, long size) {
@@ -71,6 +80,7 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
                                  .id(id)
                                  .name(name)
                                  .size(BigInteger.valueOf(size))
+                                 .operationId("test")
                                  .build();
     }
 
@@ -93,7 +103,7 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
         this.stepInput = stepInput;
         this.isArchiveChunked = isArchiveChunked;
         prepareContext();
-        prepareFileService();
+        prepareFileService(stepInput.appArchiveId);
         prepareArchiveMerger();
         prepareConfiguration();
     }
@@ -108,7 +118,7 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
         context.setVariable(Variables.MTA_NAMESPACE, "namespace");
     }
 
-    private void prepareFileService() throws FileStorageException {
+    private void prepareFileService(String appArchiveId) throws FileStorageException {
         Mockito.when(fileService.getFile("space-id", EXISTING_FILE_ID))
                .thenReturn(createFileEntry(EXISTING_FILE_ID, "some-file-entry-name", 1024 * 1024L));
         Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.0"))
@@ -126,6 +136,20 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
                .thenReturn(null);
         Mockito.when(fileService.addFile(Mockito.any(FileEntry.class), Mockito.any(InputStream.class)))
                .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024L));
+        if (appArchiveId.contains(EXCEEDING_FILE_SIZE_ID)) {
+            List<FileEntry> fileEntries = List.of(createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.0", EXCEEDING_FILE_SIZE_ID + ".part.0",
+                                                                  1024 * 1024 * 1024),
+                                                  createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.1", EXCEEDING_FILE_SIZE_ID + ".part.1",
+                                                                  1024 * 1024 * 1024),
+                                                  createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.2", EXCEEDING_FILE_SIZE_ID + ".part.2",
+                                                                  1024 * 1024 * 1024),
+                                                  createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.3", EXCEEDING_FILE_SIZE_ID + ".part.3",
+                                                                  1024 * 1024 * 1024),
+                                                  createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.4", EXCEEDING_FILE_SIZE_ID + ".part.4",
+                                                                  1024 * 1024 * 1024));
+            Mockito.when(fileService.listFilesBySpaceAndOperationId(Mockito.anyString(), Mockito.anyString()))
+                   .thenReturn(fileEntries);
+        }
     }
 
     private void prepareArchiveMerger() {
@@ -137,8 +161,8 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
     private void prepareConfiguration() {
         Mockito.when(configuration.getMaxMtaDescriptorSize())
                .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
-        Mockito.when(configuration.getFileConfiguration())
-               .thenReturn(new Configuration(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE));
+        Mockito.when(configuration.getMaxUploadSize())
+               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE);
     }
 
     private void validate() {

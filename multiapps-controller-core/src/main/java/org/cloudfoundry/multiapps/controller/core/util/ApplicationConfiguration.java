@@ -24,7 +24,6 @@ import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.configuration.Environment;
 import org.cloudfoundry.multiapps.controller.core.health.model.HealthCheckConfiguration;
 import org.cloudfoundry.multiapps.controller.core.health.model.ImmutableHealthCheckConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.util.Configuration;
 import org.cloudfoundry.multiapps.mta.handlers.ConfigurationParser;
 import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.slf4j.Logger;
@@ -268,10 +267,6 @@ public class ApplicationConfiguration {
                       CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
                       CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, CFG_CONTROLLER_CLIENT_RESPONSE_TIMEOUT, CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS,
                       CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS, CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS);
-    }
-
-    public Configuration getFileConfiguration() {
-        return new Configuration(getMaxUploadSize());
     }
 
     public URL getControllerUrl() {
