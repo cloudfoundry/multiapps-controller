@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -29,11 +32,12 @@ class FileServiceTest extends DatabaseFileServiceTest {
     private FileStorage fileStorage;
 
     @BeforeEach
+    @Override
     public void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
         super.setUp();
-        Mockito.doAnswer(invocationOnMock -> IOUtils.consume((InputStream)invocationOnMock.getArgument(1)))
+        Mockito.doAnswer(invocationOnMock -> IOUtils.consume((InputStream) invocationOnMock.getArgument(1)))
                .when(fileStorage)
                .addFile(Mockito.any(), Mockito.any());
     }
@@ -66,12 +70,13 @@ class FileServiceTest extends DatabaseFileServiceTest {
 
     @Test
     void consumeFileContentTest() throws Exception {
-        fileService.consumeFileContent(SPACE_1, "1111-2222-3333-4444", Mockito.mock(FileContentConsumer.class));
+        fileService.consumeFileContent(SPACE_1, "1111-2222-3333-4444", mock(FileContentConsumer.class));
         Mockito.verify(fileStorage)
                .processFileContent(Mockito.eq(SPACE_1), Mockito.eq("1111-2222-3333-4444"), Mockito.any());
     }
 
     @Test
+    @Override
     void deleteBySpaceAndNamespaceTest() throws Exception {
         super.deleteBySpaceAndNamespaceTest();
         Mockito.verify(fileStorage)
@@ -79,6 +84,7 @@ class FileServiceTest extends DatabaseFileServiceTest {
     }
 
     @Test
+    @Override
     void deleteBySpaceAndNamespaceWithTwoNamespacesTest() throws Exception {
         super.deleteBySpaceAndNamespaceWithTwoNamespacesTest();
         Mockito.verify(fileStorage)
@@ -86,6 +92,7 @@ class FileServiceTest extends DatabaseFileServiceTest {
     }
 
     @Test
+    @Override
     void deleteBySpaceTest() throws Exception {
         super.deleteBySpaceTest();
         Mockito.verify(fileStorage)
@@ -93,6 +100,7 @@ class FileServiceTest extends DatabaseFileServiceTest {
     }
 
     @Test
+    @Override
     void deleteFileTest() throws Exception {
         FileEntry fileEntry = addTestFile(SPACE_1, NAMESPACE_1);
 
@@ -127,10 +135,21 @@ class FileServiceTest extends DatabaseFileServiceTest {
     }
 
     @Test
+    @Override
     void deleteByModificationTimeTest() throws Exception {
         super.deleteByModificationTimeTest();
         Mockito.verify(fileStorage)
                .deleteFilesModifiedBefore(Mockito.any());
+    }
+
+    @Test
+    @Override
+    void testOpenInputStream() throws Exception {
+        when(fileStorage.openInputStream(anyString(), anyString()))
+                .thenReturn(getResource(PIC_RESOURCE_NAME));
+        super.testOpenInputStream();
+        Mockito.verify(fileStorage)
+               .openInputStream(anyString(), anyString());
     }
 
     @Test
@@ -139,8 +158,7 @@ class FileServiceTest extends DatabaseFileServiceTest {
         FileEntry noContent2 = addTestFile(SPACE_2, NAMESPACE_1);
         addTestFile(SPACE_1, NAMESPACE_2);
         addTestFile(SPACE_2, NAMESPACE_2);
-        Mockito.when(fileStorage.getFileEntriesWithoutContent(Mockito.anyList()))
-               .thenReturn(List.of(noContent, noContent2));
+        when(fileStorage.getFileEntriesWithoutContent(Mockito.anyList())).thenReturn(List.of(noContent, noContent2));
         int deleteWithoutContent = fileService.deleteFilesEntriesWithoutContent();
         assertEquals(2, deleteWithoutContent);
         assertNull(fileService.getFile(SPACE_1, noContent.getId()));

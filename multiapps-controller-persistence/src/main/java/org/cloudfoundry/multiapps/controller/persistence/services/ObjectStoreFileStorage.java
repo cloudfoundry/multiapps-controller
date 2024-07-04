@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -101,14 +102,33 @@ public class ObjectStoreFileStorage implements FileStorage {
     public <T> T processFileContent(String space, String id, FileContentProcessor<T> fileContentProcessor) throws FileStorageException {
         FileEntry fileEntry = createFileEntry(space, id);
         try {
-            Blob blob = getBlobWithRetries(fileEntry, 3);
-            if (blob == null) {
-                throw new FileStorageException(MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(),
-                                                                    fileEntry.getSpace()));
-            }
-            Payload payload = blob.getPayload();
+            Payload payload = getBlobPayload(fileEntry);
             return processContent(fileContentProcessor, payload);
         } catch (Exception e) {
+            throw new FileStorageException(e);
+        }
+    }
+
+    private Payload getBlobPayload(FileEntry fileEntry) throws FileStorageException {
+        Blob blob = getBlobWithRetries(fileEntry, 3);
+        if (blob == null) {
+            throw new FileStorageException(MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(),
+                                                                fileEntry.getSpace()));
+        }
+        return blob.getPayload();
+    }
+
+    @Override
+    public InputStream openInputStream(String space, String id) throws FileStorageException {
+        FileEntry fileEntry = createFileEntry(space, id);
+        Payload payload = getBlobPayload(fileEntry);
+        return openPayloadInputStream(payload);
+    }
+
+    private InputStream openPayloadInputStream(Payload payload) throws FileStorageException {
+        try {
+            return payload.openStream();
+        } catch (IOException e) {
             throw new FileStorageException(e);
         }
     }

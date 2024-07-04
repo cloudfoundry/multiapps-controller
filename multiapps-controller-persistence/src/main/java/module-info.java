@@ -15,6 +15,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     exports org.cloudfoundry.multiapps.controller.persistence.query.providers;
     exports org.cloudfoundry.multiapps.controller.persistence.services;
     exports org.cloudfoundry.multiapps.controller.persistence.util;
+    exports org.cloudfoundry.multiapps.controller.persistence.stream;
 
     requires transitive io.pivotal.cfenv.core;
     requires transitive io.pivotal.cfenv.jdbc;

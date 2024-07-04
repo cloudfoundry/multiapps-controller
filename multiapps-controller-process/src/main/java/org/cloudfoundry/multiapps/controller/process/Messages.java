@@ -24,8 +24,6 @@ public class Messages {
     public static final String MISSING_SERVICE_BROKER_USERNAME = "Missing service broker username for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_PASSWORD = "Missing service broker password for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_URL = "Missing service broker url for application \"{0}\"";
-    public static final String ERROR_MERGING_ARCHIVE_PARTS = "Error merging archive parts: {0}";
-    public static final String BUILDING_ARCHIVE_FROM_PARTS = "Building archive from parts...";
     public static final String ERROR_DELETING_ARCHIVE_PARTS_CONTENT = "Error deleting archive parts content";
     public static final String UNSUPPORTED_PROCESS_TYPE = "Process type \"{0}\" is not supported";
     public static final String FAILED_SERVICE_UPDATE = "Updating service \"{0}\" failed: {1}";
@@ -47,7 +45,6 @@ public class Messages {
     public static final String CANNOT_DETERMINE_MODULE_NAME = "Cannot determine module name";
     public static final String CANNOT_DETERMINE_CURRENT_APPLICATION = "Cannot determine current application";
     public static final String INVALID_FILE_ENTRY_NAME = "Invalid file entry name: \"{0}\"";
-    public static final String MERGED_FILE_NOT_DELETED = "Merged file not deleted";
     public static final String FAILED_TO_RETRIEVE_FILE_WITH_ID_0 = "Failed to retrieve file with id \"{0}\"";
     public static final String PARAMETERS_HAVE_READ_ONLY_ELEMENTS = "\"{0}\" parameters have read-only elements \"{1}\"";
     public static final String ABORT_OPERATION_TIMED_OUT = "Abort operation timed out";
@@ -150,7 +147,6 @@ public class Messages {
     public static final String SERVICE_IS_ALREADY_DELETED = "Service \"{0}\" is already deleted";
     public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE = "Error determining actions to execute on service \"{0}\"";
     public static final String ERROR_POLLING_OF_SERVICE = "Error polling last operation of service \"{0}\": {1}";
-    public static final String ERROR_MERGING_ARCHIVE = "Error merging archive. Retrying...";
     public static final String ERROR_DELETING_OPERATION_WITH_ID = "Error deleting operation with ID \"{0}\"";
     public static final String ERROR_DELETING_FLOWABLE_PROCESS_WITH_ID = "Error deleting Flowable process with ID \"{0}\"";
     public static final String ERROR_MISSING_DEFAULT_DOMAIN = "Missing default domain in current org";
@@ -174,7 +170,6 @@ public class Messages {
     public static final String ERROR_WHILE_CALCULATING_SERVICE_BINDINGS_TO_DELETE_0 = "Error while calculating service bindings to delete \"{0}\"";
     public static final String ERROR_WHILE_CREATING_SERVICE_KEY_0 = "Error while creating service key \"{0}\"";
     public static final String ERROR_WHILE_DETERMINING_SERVICE_BINDINGS_TO_DELETE = "Error while determining service bindings to delete";
-    public static final String ERROR_WHILE_DETERMINING_SERVICE_KEYS_TO_DELETE = "Error while determining service keys to delete";
     public static final String ERROR_WHILE_DETERMINING_SERVICE_KEYS_TO_RECREATE = "Error while determining service keys to recreate";
     public static final String ERROR_WHILE_UPDATING_SERVICE_KEYS_METADATA = "Error while updating service keys metadata";
     public static final String ERROR_WHILE_POLLING_SERVICE_KEY_OPERATION_0 = "Error while polling service key operation \"{0}\"";
@@ -259,7 +254,6 @@ public class Messages {
     public static final String DELETED_FILES_0 = "Deleted files: {0}";
     public static final String DELETED_FILE_UPLOAD_JOBS_0 = "Deleted file upload jobs: {0}";
     public static final String FILES_FOR_OPERATION_0_WERE_UPDATED_1 = "Files for operation {0} were updated: {1}";
-
     public static final String ABORTED_OPERATIONS_0 = "Aborted operations: {0}";
     public static final String DELETED_OPERATIONS_0 = "Deleted operations: {0}";
     public static final String DELETED_PROCESS_LOGS_0 = "Deleted process logs: {0}";
@@ -295,6 +289,9 @@ public class Messages {
     public static final String DELETING_THE_FOLLOWING_FILE_ENTRIES_WITHOUT_CONTENT_0 = "Deleting the following file entries without content: {0}";
     public static final String DELETED_FILE_ENTRIES_0 = "Deleted file entries: {0}";
     public static final String APPLICATION_WITH_NAME_0_SAVED_TO_1 = "Application with name \"{0}\" saved to \"{1}\"";
+    public static final String CLOSING_STREAM_FOR_PART_0 = "Closing stream for part: {0}";
+    public static final String CLOSING_STREAM_FOR_PART_STREAM_FINISHED_0 = "Closing stream for part, stream finished: {0}";
+    public static final String CLOSING_LAST_STREAM_FOR_PART_0 = "Closing the last stream, part: {0}";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
@@ -396,8 +393,6 @@ public class Messages {
     public static final String ADDING_DOMAINS = "Adding domains...";
     public static final String DOMAINS_ADDED = "Domains added";
     public static final String DELETING_DISCONTINUED_SERVICE_0 = "Deleting discontinued service \"{0}\"...";
-    public static final String DELETING_OLD_SERVICE_KEYS = "Mapping service keys for deletion to adaptor parameter...";
-    public static final String DELETING_OLD_SERVICE_KEYS_FOR_SERVICE = "Old unused service keys mapped \"{0}\"...";
     public static final String SERVICES_TO_CREATE = "Services to create: {0}";
     public static final String CREATED_SERVICE_KEY = "Service key \"{0}\" created";
     public static final String DELETED_SERVICE_KEY = "Service key \"{0}\" deleted";
@@ -482,7 +477,6 @@ public class Messages {
     public static final String LAST_OPERATION_FOR_SERVICE = "Last operation for service \"{0}\": {1}";
     public static final String DELETING_ERROR_TYPE_O_FOR_PROCESS_1 = "Deleting error type \"{0}\" for process \"{1}\"";
     public static final String UPLOAD_APP_TIMEOUT = "Upload app timeout in seconds: {0}";
-    public static final String MERGING_ARCHIVE_PART = "Merging archive part with ID \"{0}\", name \"{1}\"";
     public static final String PROVIDED_EXTENSION_DESCRIPTORS = "Provided extension descriptors: {0}";
     public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";
@@ -690,7 +684,7 @@ public class Messages {
     public static final String ERROR_WAITING_FOR_OPERATION_TO_FINISH = "Error waiting for operation to finish";
     public static final String OPERATION_OF_SERVICE_BINDING_OR_KEY_IS_IN_PROGRESS = "Operation of service binding or key is in progress";
     public static final String ARCHIVE_WAS_NOT_SPLIT_TOTAL_SIZE_IN_BYTES_0 = "Archive was not split! Total size in bytes: {0}";
-    public static final String ARCHIVE_WAS_SPLIT_TO_0_PARTS_TOTAL_SIZE_IN_BYTES_1 = "Archive was split to: {0} parts. Total size in bytes: {1}";
+    public static final String ARCHIVE_IS_SPLIT_TO_0_PARTS_TOTAL_SIZE_IN_BYTES_1_UPLOADING = "Archive was split to: {0} parts. Total size in bytes: {1}. Uploading started...";
     public static final String SIZE_OF_APP_0_IS_1_BYTES = "Size of app {0} is {1} bytes";
     public static final String SHOULD_UPDATE_SERVICE_KEY = "Service keys should be updated";
     public static final String SHOULD_CREATE_SERVICE = "Service should be created";
@@ -709,6 +703,8 @@ public class Messages {
     public static final String EXISTING_SYSLOG_DRAIN_URL = "Existing syslog drain url: {0}";
     public static final String SHOULD_UPDATE_METADATA = "Service metadata should be updated";
     public static final String NEW_METADATA = "New metadata: {0}";
+    public static final String OPENING_A_NEW_INPUT_STREAM_FOR_FILE_WITH_ID_0_AND_NAME_1 = "Opening a new input stream for file with ID: {0} and name: {1}";
+    public static final String ARCHIVE_WITH_ID_0_AND_NAME_1_WAS_STORED = "Archive with ID: {0} and name: {1} was stored";
 
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";

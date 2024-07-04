@@ -79,4 +79,10 @@ public class JdbcUtil {
         }
     }
 
+    public static void setAutoCommitSafely(Connection connection) throws SQLException {
+        if (connection != null) {
+            connection.setAutoCommit(true);
+        }
+    }
+
 }
