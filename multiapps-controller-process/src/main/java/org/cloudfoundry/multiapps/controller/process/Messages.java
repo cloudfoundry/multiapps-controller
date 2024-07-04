@@ -68,6 +68,9 @@ public class Messages {
     public static final String ERROR_WHILE_STARTING_ASYNC_UPLOAD_OF_APP_WITH_NAME_0 = "Error while starting async upload of app with name {0}";
     public static final String REQUIRED_APPLICATION_TO_POLL_0_NOT_FOUND = "Required application to poll: \"{0}\" not found";
     public static final String NOT_INTEGER_PARAMETER_VALUE = "Value \"{0}\" of parameter \"{1}\" is not integer";
+    public static final String ERROR_OCURRED_DURING_VALIDATION_OF_FILES_0 = "Error occurred during validation of files \"{0}\"";
+    public static final String SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1 = "Size of all operation files \"{0}\" exceeds max upload size limit \"{1}\"";
+
     // Audit log messages
 
     // ERROR log messages

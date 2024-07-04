@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.text.MessageFormat;
+import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
@@ -31,14 +32,24 @@ public class FileSweeper {
         }
     }
 
+    public void sweep(List<FileEntry> fileEntries) throws FileStorageException {
+        for (FileEntry fileEntry : fileEntries) {
+            sweepFileEntry(fileEntry);
+        }
+    }
+
     private void sweepSingle(String fileId) throws FileStorageException {
         FileEntry fileEntry = fileService.getFile(spaceId, fileId);
+        sweepFileEntry(fileEntry);
+    }
+
+    private void sweepFileEntry(FileEntry fileEntry) throws FileStorageException {
         if (operationId.equals(fileEntry.getOperationId())) {
-            fileService.deleteFile(spaceId, fileId);
-            LOGGER.info(MessageFormat.format(Messages.FILE_WITH_ID_0_WAS_DELETED, fileId));
+            fileService.deleteFile(spaceId, fileEntry.getId());
+            LOGGER.info(MessageFormat.format(Messages.FILE_WITH_ID_0_WAS_DELETED, fileEntry.getId()));
             return;
         }
-        LOGGER.warn(MessageFormat.format(Messages.FILE_WITH_ID_0_OPERATION_OWNERSHIP_CHANGED_FROM_0_TO_1, fileId, operationId,
+        LOGGER.warn(MessageFormat.format(Messages.FILE_WITH_ID_0_OPERATION_OWNERSHIP_CHANGED_FROM_0_TO_1, fileEntry.getId(), operationId,
                                          fileEntry.getOperationId()));
     }
 
