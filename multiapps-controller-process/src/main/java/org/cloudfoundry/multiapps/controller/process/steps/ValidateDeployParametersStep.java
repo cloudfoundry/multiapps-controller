@@ -1,23 +1,21 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
+import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.util.ArchiveMerger;
+import org.cloudfoundry.multiapps.controller.process.stream.ArchiveStreamWithName;
+import org.cloudfoundry.multiapps.controller.process.util.MergedArchiveStreamCreator;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -97,15 +95,24 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
             getStepLogger().infoWithoutProgressMessage(Messages.ARCHIVE_WAS_NOT_SPLIT_TOTAL_SIZE_IN_BYTES_0, archiveFileEntry.getSize());
             return;
         }
-        Path archive = null;
+        List<FileEntry> archivePartEntries = getArchivePartEntries(context, archivePartIds);
+        context.setVariable(Variables.FILE_ENTRIES, archivePartEntries);
+        BigInteger archiveSize = calculateArchiveSize(archivePartEntries);
+        resilientOperationExecutor.execute(() -> mergeArchive(context, archivePartEntries, archiveSize));
+    }
+
+    private void mergeArchive(ProcessContext context, List<FileEntry> archivePartEntries, BigInteger archiveSize) {
+        ArchiveStreamWithName archiveStreamWithName = getMergedArchiveStreamCreator(archivePartEntries, archiveSize).createArchiveStream();
         try {
-            archive = mergeArchiveParts(context, archivePartIds);
-            persistMergedArchive(context, archive);
-            getStepLogger().infoWithoutProgressMessage(Messages.ARCHIVE_WAS_SPLIT_TO_0_PARTS_TOTAL_SIZE_IN_BYTES_1, archivePartIds.length,
-                                                       archive.toFile()
-                                                              .length());
+            getStepLogger().infoWithoutProgressMessage(Messages.ARCHIVE_IS_SPLIT_TO_0_PARTS_TOTAL_SIZE_IN_BYTES_1_UPLOADING,
+                                                       archivePartEntries.size(), archiveSize);
+            FileEntry uploadedArchive = persistArchive(archiveStreamWithName, context, archiveSize);
+            context.setVariable(Variables.APP_ARCHIVE_ID, uploadedArchive.getId());
+            getStepLogger().infoWithoutProgressMessage(MessageFormat.format(Messages.ARCHIVE_WITH_ID_0_AND_NAME_1_WAS_STORED,
+                                                                            uploadedArchive.getId(),
+                                                                            archiveStreamWithName.getArchiveName()));
         } finally {
-            deleteArchive(archive);
+            IOUtils.closeQuietly(archiveStreamWithName.getArchiveStream());
         }
     }
 
@@ -114,58 +121,36 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         return archiveId.split(",");
     }
 
-    private Path mergeArchiveParts(ProcessContext context, String[] archivePartIds) {
-        List<FileEntry> archivePartEntries = getArchivePartEntries(context, archivePartIds);
-        context.setVariable(Variables.FILE_ENTRIES, archivePartEntries);
-        getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
-        var archiveMerger = new ArchiveMerger(fileService, getStepLogger(), context.getExecution());
-        return resilientOperationExecutor.execute((Supplier<Path>) () -> archiveMerger.createArchiveFromParts(archivePartEntries));
-    }
-
     private List<FileEntry> getArchivePartEntries(ProcessContext context, String[] appArchivePartsId) {
         return Arrays.stream(appArchivePartsId)
                      .map(appArchivePartId -> findFile(context, appArchivePartId))
-                     .collect(Collectors.toList());
+                     .toList();
     }
 
-    private void persistMergedArchive(ProcessContext context, Path archiveFilePath) {
-        resilientOperationExecutor.execute(() -> persistMergedArchive(archiveFilePath, context));
+    private BigInteger calculateArchiveSize(List<FileEntry> archivePartEntries) {
+        return archivePartEntries.stream()
+                                 .map(FileEntry::getSize)
+                                 .reduce(BigInteger.ZERO, BigInteger::add);
     }
 
-    private void persistMergedArchive(Path archivePath, ProcessContext context) {
-        FileEntry uploadedArchive = persistArchive(archivePath, context);
-        context.setVariable(Variables.APP_ARCHIVE_ID, uploadedArchive.getId());
+    private MergedArchiveStreamCreator getMergedArchiveStreamCreator(List<FileEntry> archivePartEntries, BigInteger archiveSize) {
+        return new MergedArchiveStreamCreator(fileService, getStepLogger(), archivePartEntries, Integer.parseInt(archiveSize.toString()));
     }
 
-    private FileEntry persistArchive(Path archivePath, ProcessContext context) {
+    private FileEntry persistArchive(ArchiveStreamWithName archiveStreamWithName, ProcessContext context, BigInteger size) {
         try {
             return fileService.addFile(ImmutableFileEntry.builder()
-                                                         .name(archivePath.getFileName()
-                                                                          .toString())
+                                                         .name(archiveStreamWithName.getArchiveName())
                                                          .space(context.getVariable(Variables.SPACE_GUID))
                                                          .namespace(context.getVariable(Variables.MTA_NAMESPACE))
                                                          .operationId(context.getExecution()
                                                                              .getProcessInstanceId())
+                                                         .size(size)
                                                          .build(),
-                                       archivePath.toFile());
+                                       archiveStreamWithName.getArchiveStream());
         } catch (FileStorageException e) {
             throw new SLException(e, e.getMessage());
         }
     }
 
-    private void deleteArchive(Path archiveFilePath) {
-        if (archiveFilePath == null) {
-            return;
-        }
-        tryDeleteArchiveFile(archiveFilePath);
-    }
-
-    private void tryDeleteArchiveFile(Path archiveFilePath) {
-        try {
-            Files.deleteIfExists(archiveFilePath);
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            logger.warn(Messages.MERGED_FILE_NOT_DELETED);
-        }
-    }
 }

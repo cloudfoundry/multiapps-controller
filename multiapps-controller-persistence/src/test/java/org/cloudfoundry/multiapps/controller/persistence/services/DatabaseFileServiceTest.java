@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,6 +28,7 @@ import java.util.UUID;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -185,6 +187,24 @@ class DatabaseFileServiceTest {
         assertEquals(2, deletedFiles);
         assertNull(fileService.getFile(SPACE_1, fileEntryToDelete1.getId()));
         assertNull(fileService.getFile(SPACE_2, fileEntryToDelete2.getId()));
+    }
+
+    @Test
+    void testOpenInputStream() throws Exception {
+        FileEntry fileEntry = addFile(SPACE_1, NAMESPACE_1, PIC_STORAGE_NAME, PIC_RESOURCE_NAME, FILE_OPERATION_ID);
+        verifyFileIsStored(fileEntry);
+        InputStream inputStream = null;
+        InputStream existingFileStream = null;
+           try {
+            inputStream = fileService.openInputStream(SPACE_1, fileEntry.getId());
+            existingFileStream = getResource(PIC_RESOURCE_NAME);
+            byte[] fileContent = IOUtils.toByteArray(inputStream);
+            byte[] existingFileContent = IOUtils.toByteArray(existingFileStream);
+            assertArrayEquals(existingFileContent, fileContent);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(existingFileStream);
+        }
     }
 
     protected FileService createFileService(DataSourceWithDialect dataSource) {

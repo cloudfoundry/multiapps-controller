@@ -27,6 +27,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.SqlQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
+import org.cloudfoundry.multiapps.controller.persistence.stream.DBInputStream;
 import org.cloudfoundry.multiapps.controller.persistence.util.JdbcUtil;
 import org.slf4j.Logger;
 
@@ -276,6 +277,32 @@ public abstract class SqlFileQueryProvider {
             } finally {
                 JdbcUtil.closeQuietly(resultSet);
                 JdbcUtil.closeQuietly(statement);
+            }
+        };
+    }
+
+    public SqlQuery<DBInputStream> openFileWithContentQuery(String space, String id) {
+        return (Connection connection) -> {
+            PreparedStatement statement = null;
+            ResultSet resultSet = null;
+            try {
+                statement = connection.prepareStatement(getSelectWithContentQuery());
+                statement.setString(1, id);
+                statement.setString(2, space);
+                resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    return new DBInputStream(getContentBinaryStream(resultSet, getContentColumnName()),
+                                                       statement,
+                                                       resultSet,
+                                                       connection);
+                } else {
+                    throw new SQLException(MessageFormat.format(Messages.FILE_NOT_FOUND, id));
+                }
+            } catch (Exception e) {
+                JdbcUtil.closeQuietly(statement);
+                JdbcUtil.closeQuietly(resultSet);
+                JdbcUtil.closeQuietly(connection);
+                throw new SQLException(e.getMessage(), e);
             }
         };
     }

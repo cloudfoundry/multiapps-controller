@@ -22,6 +22,8 @@ public interface FileStorage {
 
     <T> T processFileContent(String space, String id, FileContentProcessor<T> fileContentProcessor) throws FileStorageException;
 
+    InputStream openInputStream(String space, String id) throws FileStorageException;
+
     /**
      * Executes a simple call to Object Store to validate it operates properly, otherwise throws runtime exception
      */

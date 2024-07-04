@@ -36,6 +36,15 @@ public class DatabaseFileService extends FileService {
     }
 
     @Override
+    public InputStream openInputStream(String space, String id) throws FileStorageException {
+        try {
+            return getSqlQueryExecutor().executeWithoutCommit(getSqlFileQueryProvider().openFileWithContentQuery(space, id));
+        } catch (SQLException e) {
+            throw new FileStorageException(e.getMessage(), e);
+        }
+    }
+
+    @Override
     public int deleteBySpaceAndNamespace(String space, String namespace) throws FileStorageException {
         return deleteFileAttributesBySpaceAndNamespace(space, namespace);
     }

@@ -41,14 +41,22 @@ public class SqlQueryExecutor {
             JdbcUtil.rollback(connection);
             throw e;
         } finally {
-            setAutocommitSafely(connection);
+            JdbcUtil.setAutoCommitSafely(connection);
             JdbcUtil.closeQuietly(connection);
         }
     }
 
-    private void setAutocommitSafely(Connection connection) throws SQLException {
-        if (connection != null) {
-            connection.setAutoCommit(true);
+    public <R> R executeWithoutCommit(SqlQuery<R> sqlQuery) throws SQLException {
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            connection.setAutoCommit(false);
+            return sqlQuery.execute(connection);
+        } catch (SQLException e) {
+            JdbcUtil.rollback(connection);
+            JdbcUtil.setAutoCommitSafely(connection);
+            JdbcUtil.closeQuietly(connection);
+            throw e;
         }
     }
 

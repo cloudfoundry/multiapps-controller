@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.File;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -124,7 +124,7 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
                .thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024L + 1));
         Mockito.when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID))
                .thenReturn(null);
-        Mockito.when(fileService.addFile(Mockito.any(FileEntry.class), Mockito.any(File.class)))
+        Mockito.when(fileService.addFile(Mockito.any(FileEntry.class), Mockito.any(InputStream.class)))
                .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024L));
     }
 

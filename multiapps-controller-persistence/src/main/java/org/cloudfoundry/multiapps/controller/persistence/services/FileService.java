@@ -133,6 +133,10 @@ public class FileService {
         return fileStorage.processFileContent(space, id, fileContentProcessor);
     }
 
+    public InputStream openInputStream(String space, String id) throws FileStorageException {
+        return fileStorage.openInputStream(space, id);
+    }
+
     public int deleteBySpaceAndNamespace(String space, String namespace) throws FileStorageException {
         fileStorage.deleteFilesBySpaceAndNamespace(space, namespace);
         return deleteFileAttributesBySpaceAndNamespace(space, namespace);
