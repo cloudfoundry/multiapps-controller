@@ -54,7 +54,6 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntr
 import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
-import org.cloudfoundry.multiapps.controller.persistence.util.Configuration;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
@@ -372,7 +371,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                                 .firstValueAsLong(Constants.CONTENT_LENGTH)
                                 .orElseThrow(() -> new SLException(Messages.FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH));
 
-        long maxUploadSize = new Configuration().getMaxUploadSize();
+        long maxUploadSize = configuration.getMaxUploadSize();
         if (fileSize > maxUploadSize) {
             throw new SLException(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED, maxUploadSize));
         }

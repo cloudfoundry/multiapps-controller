@@ -68,6 +68,8 @@ public class Messages {
     public static final String FAILED_TO_UPDATE_FILES_OF_OPERATION_0 = "Failed to update files of operation: {0}";
     public static final String COULD_NOT_DELETE_ORPHANED_FILES_MODIFIED_AFTER_0_AND_BEFORE_1 = "Could not delete orphaned files modified after {0} and before {1}";
     public static final String ERROR_WHILE_STARTING_ASYNC_UPLOAD_OF_APP_WITH_NAME_0 = "Error while starting async upload of app with name {0}";
+    public static final String ERROR_OCURRED_DURING_VALIDATION_OF_FILES_0 = "Error occurred during validation of files \"{0}\"";
+    public static final String SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1 = "Size of all operation files \"{0}\" exceeds max upload size limit \"{1}\"";
 
     // Audit log messages
 

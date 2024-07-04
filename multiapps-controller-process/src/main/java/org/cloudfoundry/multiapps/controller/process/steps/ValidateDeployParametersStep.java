@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -48,6 +50,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private void validateParameters(ProcessContext context) {
         validateExtensionDescriptorFileIds(context);
+        validateFilesSizeLimit(context);
         validateArchive(context);
     }
 
@@ -86,6 +89,26 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
                                       .toString(),
                                   file.getName(),
                                   String.valueOf(maxSizeLimit.longValue()));
+        }
+    }
+
+    private void validateFilesSizeLimit(ProcessContext context) {
+        long maxFileSizeLimit = configuration.getMaxUploadSize();
+        long sizeOfAllFiles = 0L;
+        try {
+            List<FileEntry> fileEntries = fileService.listFilesBySpaceAndOperationId(context.getVariable(Variables.SPACE_GUID),
+                                                                                     context.getVariable(Variables.CORRELATION_ID));
+            sizeOfAllFiles = fileEntries.stream()
+                                        .mapToLong(fileEntry -> fileEntry.getSize()
+                                                                         .longValue())
+                                        .sum();
+        } catch (FileStorageException e) {
+            logger.error(e.getMessage(), e);
+            throw new SLException(e, MessageFormat.format(Messages.ERROR_OCURRED_DURING_VALIDATION_OF_FILES_0, e.getMessage()));
+        }
+
+        if (sizeOfAllFiles >= maxFileSizeLimit) {
+            throw new ContentException(Messages.SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1, sizeOfAllFiles, maxFileSizeLimit);
         }
     }
 
