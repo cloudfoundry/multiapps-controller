@@ -18,8 +18,8 @@ import org.springframework.core.annotation.Order;
  * Annotations are commented because this cleaner is not necessary to be executed.
  * Uncomment these annotations in case it exists garbage and cleaner should be executed.
  */
-@Named()
-@Order(40)
+//@Named()
+//@Order(40)
 public class ConfigurationEntriesCleaner extends OrphanedDataCleaner<ConfigurationEntry> {
 
     private final ConfigurationEntryService configurationEntryService;
