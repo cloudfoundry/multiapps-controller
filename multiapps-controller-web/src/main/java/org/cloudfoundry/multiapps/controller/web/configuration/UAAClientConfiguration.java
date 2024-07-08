@@ -6,9 +6,12 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClientFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientExtended;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SSLUtil;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -23,6 +26,9 @@ import java.util.Map;
 
 @Configuration
 public class UAAClientConfiguration {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UAAClientConfiguration.class);
+
 
     @Inject
     @Bean
@@ -78,7 +84,10 @@ public class UAAClientConfiguration {
         } catch (SSLException e) {
             throw new IllegalStateException("Failed to create insecure SSL context", e);
         }
-        HttpClient httpClient = HttpClient.create().secure(t -> t.sslContext(sslContext));
+
+        LOGGER.info("=====Disabling SSL validation for UAA client");
+        SSLUtil.disableSSLValidation();
+        HttpClient httpClient = HttpClient.create().secure(t ->  t.sslContext(sslContext));
         return WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient)).build();
     }
 
