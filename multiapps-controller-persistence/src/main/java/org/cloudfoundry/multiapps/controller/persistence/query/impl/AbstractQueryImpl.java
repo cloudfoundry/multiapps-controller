@@ -2,13 +2,13 @@ package org.cloudfoundry.multiapps.controller.persistence.query.impl;
 
 import java.util.function.Function;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.TransactionalExecutor;
@@ -77,7 +77,7 @@ public abstract class AbstractQueryImpl<R, T extends Query<R, T>> implements Que
         return typedQuery;
     }
 
-    protected <E> javax.persistence.Query createDeleteQuery(EntityManager entityManager, QueryCriteria criteria, Class<E> dtoClass) {
+    protected <E> jakarta.persistence.Query createDeleteQuery(EntityManager entityManager, QueryCriteria criteria, Class<E> dtoClass) {
         CriteriaDelete<E> deleteQuery = criteriaBuilder.createCriteriaDelete(dtoClass);
         Root<E> root = deleteQuery.from(dtoClass);
         deleteQuery.where(criteria.toQueryPredicates(root)
