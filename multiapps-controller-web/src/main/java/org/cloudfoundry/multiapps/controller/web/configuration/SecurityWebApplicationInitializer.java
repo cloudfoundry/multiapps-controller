@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.web.multipart.support.MultipartFilter;
