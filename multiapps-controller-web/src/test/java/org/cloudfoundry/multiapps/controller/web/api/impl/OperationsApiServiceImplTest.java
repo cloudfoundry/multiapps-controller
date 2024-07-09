@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.persistence.NoResultException;
+import jakarta.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.multiapps.common.ContentException;

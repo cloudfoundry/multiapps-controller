@@ -11,7 +11,7 @@ import org.cloudfoundry.multiapps.controller.persistence.query.impl.LockOwnersQu
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 import java.time.LocalDateTime;
 
 @Named
