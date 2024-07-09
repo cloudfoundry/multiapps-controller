@@ -6,7 +6,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.multiapps.common.ConflictException;

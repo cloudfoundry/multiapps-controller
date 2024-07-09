@@ -22,7 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import javax.persistence.NoResultException;
+import jakarta.persistence.NoResultException;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cloudfoundry.multiapps.common.SLException;

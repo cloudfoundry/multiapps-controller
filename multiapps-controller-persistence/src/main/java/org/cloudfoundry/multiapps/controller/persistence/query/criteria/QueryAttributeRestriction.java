@@ -1,8 +1,8 @@
 package org.cloudfoundry.multiapps.controller.persistence.query.criteria;
 
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
