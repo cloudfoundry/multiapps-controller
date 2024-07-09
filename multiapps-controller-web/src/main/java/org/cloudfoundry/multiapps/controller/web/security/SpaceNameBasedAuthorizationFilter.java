@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.web.security;
 import java.io.IOException;
 import java.text.MessageFormat;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.cloudfoundry.multiapps.controller.core.auditlogging.LoginAttemptAuditLog;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
@@ -42,7 +42,7 @@ public abstract class SpaceNameBasedAuthorizationFilter extends AbstractUriAutho
             loginAttemptAuditLog.logLoginAttempt(SecurityContextUtil.getUsername(), target.getSpaceName(),
                                                  Messages.USER_FAILED_TO_LOG_IN_AUDIT_LOG_MESSAGE, Messages.LOGIN_ATTEMPT_AUDIT_LOG_CONFIG);
             logUnauthorizedRequest(request, e);
-            response.sendError(e.getStatus()
+            response.sendError(e.getStatusCode()
                                 .value(),
                                MessageFormat.format(Messages.NOT_AUTHORIZED_TO_OPERATE_IN_ORGANIZATION_0_AND_SPACE_1,
                                                     target.getOrganizationName(), target.getSpaceName()));

@@ -80,7 +80,7 @@ class OauthTokenGeneratorTest {
         mockTokenParserChain(mockedToken);
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                                                          () -> oauthTokenParsingStrategy.generate(TOKEN_STRING));
-        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
+        assertEquals(HttpStatus.UNAUTHORIZED,  exception.getStatusCode());
     }
 
     @Test

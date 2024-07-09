@@ -1,11 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.util.Date;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 import jakarta.persistence.EntityManagerFactory;
-
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
@@ -17,6 +12,10 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.P
 import org.cloudfoundry.multiapps.controller.persistence.query.ProgressMessageQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.ProgressMessageQueryImpl;
 import org.springframework.context.annotation.Primary;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.Date;
 
 @Named
 public class ProgressMessageService extends PersistenceService<ProgressMessage, ProgressMessageDto, Long> {
@@ -55,9 +54,7 @@ public class ProgressMessageService extends PersistenceService<ProgressMessage, 
 
     @Override
     protected void onEntityConflict(ProgressMessageDto progressMessage, Throwable t) {
-        throw new ConflictException(t,
-                                    Messages.PROGRESS_MESSAGE_ALREADY_EXISTS,
-                                    progressMessage.getProcessId(),
+        throw new ConflictException(t, Messages.PROGRESS_MESSAGE_ALREADY_EXISTS, progressMessage.getProcessId(),
                                     progressMessage.getPrimaryKey());
     }
 
@@ -92,8 +89,7 @@ public class ProgressMessageService extends PersistenceService<ProgressMessage, 
             String processId = progressMessage.getProcessId();
             String taskId = progressMessage.getTaskId();
             String type = progressMessage.getType() != null ? progressMessage.getType()
-                                                                             .name()
-                : null;
+                                                                             .name() : null;
             String text = progressMessage.getText();
             Date timestamp = progressMessage.getTimestamp();
             return new ProgressMessageDto(id, processId, taskId, type, text, timestamp);

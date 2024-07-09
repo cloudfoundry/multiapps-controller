@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.api.v1;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.multiapps.controller.api.Constants.Endpoints;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
