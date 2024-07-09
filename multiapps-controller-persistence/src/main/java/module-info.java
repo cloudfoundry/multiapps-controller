@@ -19,7 +19,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
 
     requires transitive io.pivotal.cfenv.core;
     requires transitive io.pivotal.cfenv.jdbc;
-    requires transitive java.persistence;
+    requires transitive jakarta.persistence;
     requires transitive java.sql;
     requires transitive jclouds.blobstore;
     requires transitive jclouds.core;

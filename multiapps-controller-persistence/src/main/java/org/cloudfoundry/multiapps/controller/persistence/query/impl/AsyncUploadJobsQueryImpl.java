@@ -5,10 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.criteria.Expression;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.NonUniqueResultException;
+import jakarta.persistence.criteria.Expression;
 
 import org.cloudfoundry.multiapps.controller.persistence.dto.AsyncUploadJobDto;
 import org.cloudfoundry.multiapps.controller.persistence.dto.AsyncUploadJobDto.AttributeNames;

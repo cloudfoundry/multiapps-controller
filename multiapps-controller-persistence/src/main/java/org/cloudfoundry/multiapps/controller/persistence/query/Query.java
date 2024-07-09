@@ -2,8 +2,8 @@ package org.cloudfoundry.multiapps.controller.persistence.query;
 
 import java.util.List;
 
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.NonUniqueResultException;
 
 public interface Query<R, T extends Query<?, ?>> {
 
