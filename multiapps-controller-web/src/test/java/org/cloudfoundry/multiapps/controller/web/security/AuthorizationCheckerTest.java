@@ -147,7 +147,7 @@ class AuthorizationCheckerTest {
         ResponseStatusException resultException = assertThrows(ResponseStatusException.class,
                                                                () -> authorizationChecker.checkPermissions(userInfo, "non-uuid-spaceId",
                                                                                                            true));
-        assertEquals(HttpStatus.NOT_FOUND, resultException.getStatus());
+        assertEquals(HttpStatus.NOT_FOUND, resultException.getStatusCode());
     }
 
     private void setUpMocks(Set<UserRole> spaceRoles, Exception exception) {

@@ -3,10 +3,10 @@ package org.cloudfoundry.multiapps.controller.web.security;
 import java.io.IOException;
 
 import javax.inject.Named;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (ResponseStatusException e) {
             LOGGER.error(e.getMessage(), e);
-            response.setStatus(e.getStatus()
+            response.setStatus(e.getStatusCode()
                                 .value());
             response.getWriter()
                     .write(e.getMessage());

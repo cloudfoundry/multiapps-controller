@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 import jakarta.persistence.NoResultException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.common.ContentException;

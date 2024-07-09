@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.web.resources;
 
 import java.sql.SQLException;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.cloudfoundry.multiapps.common.ConflictException;
@@ -43,7 +43,8 @@ public class CFExceptionMapper {
         }
         if (e instanceof ResponseStatusException) {
             ResponseStatusException rse = (ResponseStatusException) e;
-            status = rse.getStatus();
+            HttpStatus httpStatus =  HttpStatus.valueOf(rse.getStatusCode().value());
+            status = httpStatus;
             message = rse.getReason();
         }
         if (e instanceof SQLException || e instanceof PersistenceException) {
