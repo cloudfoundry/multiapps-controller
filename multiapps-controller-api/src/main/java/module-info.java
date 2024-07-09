@@ -6,7 +6,6 @@ open module org.cloudfoundry.multiapps.controller.api {
     exports org.cloudfoundry.multiapps.controller.api.v1;
     exports org.cloudfoundry.multiapps.controller.api.v2;
 
-    requires transitive java.servlet;
     requires transitive org.cloudfoundry.multiapps.mta;
     requires transitive spring.web;
 
@@ -17,5 +16,6 @@ open module org.cloudfoundry.multiapps.controller.api {
     requires static javax.inject;
     requires static org.immutables.value;
     requires static io.swagger.annotations;
+    requires jakarta.servlet;
 
 }

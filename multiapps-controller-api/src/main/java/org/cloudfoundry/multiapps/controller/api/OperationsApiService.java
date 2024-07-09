@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.api;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.multiapps.controller.api.model.Log;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
