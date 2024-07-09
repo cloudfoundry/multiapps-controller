@@ -49,13 +49,13 @@ public class SecurityConfiguration {
                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                    .and()
                    .authorizeRequests()
-                   .antMatchers(HttpMethod.GET, "/**")
+                   .requestMatchers(HttpMethod.GET, "/**")
                    .hasAnyAuthority(TokenFactory.SCOPE_CC_READ, TokenFactory.SCOPE_CC_ADMIN)
-                   .antMatchers(HttpMethod.POST, "/**")
+                   .requestMatchers(HttpMethod.POST, "/**")
                    .hasAnyAuthority(TokenFactory.SCOPE_CC_WRITE, TokenFactory.SCOPE_CC_ADMIN)
-                   .antMatchers(HttpMethod.PUT, "/**")
+                   .requestMatchers(HttpMethod.PUT, "/**")
                    .hasAnyAuthority(TokenFactory.SCOPE_CC_WRITE, TokenFactory.SCOPE_CC_ADMIN)
-                   .antMatchers(HttpMethod.DELETE, "/**")
+                   .requestMatchers(HttpMethod.DELETE, "/**")
                    .hasAnyAuthority(TokenFactory.SCOPE_CC_WRITE, TokenFactory.SCOPE_CC_ADMIN)
                    .and()
                    .addFilterBefore(authenticationLoaderFilter, AbstractPreAuthenticatedProcessingFilter.class)
@@ -72,7 +72,7 @@ public class SecurityConfiguration {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
-                         .antMatchers("/public/**");
+                         .requestMatchers("/public/**");
     }
 
     @Bean
