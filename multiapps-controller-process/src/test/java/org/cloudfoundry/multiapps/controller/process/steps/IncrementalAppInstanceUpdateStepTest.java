@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,9 +18,13 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.IncrementalAppInstanceUpdateConfiguration;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
@@ -40,6 +45,11 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
 
     private CloudControllerClientFactory clientFactory;
     private TokenService tokenService;
+
+    @BeforeEach
+    public void setUp() {
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
+    }
 
     @Test
     void executeStepWithMissingOldApplication() {
@@ -191,6 +201,27 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
                                               .moduleName(MODULE_NAME)
                                               .name(name)
                                               .build();
+    }
+
+    @ParameterizedTest
+    @MethodSource("testValidatePriority")
+    void testGetTimeout(Integer timeoutCommandLineLevel, Integer timeoutModuleLevel, Integer timeoutGlobalLevel, int expectedTimeout) {
+        step.initializeStepLogger(execution);
+        setUpContext(timeoutCommandLineLevel, timeoutModuleLevel, timeoutGlobalLevel, Variables.APPS_START_TIMEOUT_COMMAND_LINE_LEVEL,
+                     SupportedParameters.START_TIMEOUT, SupportedParameters.APPS_START_TIMEOUT);
+
+        Duration actualTimeout = step.getTimeout(context);
+        assertEquals(Duration.ofSeconds(expectedTimeout * 9L), actualTimeout);
+    }
+
+    @Test
+    void testGetTimeout() {
+        step.initializeStepLogger(execution);
+        setUpContext(null, null, 3*3600, Variables.APPS_START_TIMEOUT_COMMAND_LINE_LEVEL,
+                SupportedParameters.START_TIMEOUT, SupportedParameters.APPS_START_TIMEOUT);
+
+        Duration actualTimeout = step.getTimeout(context);
+        assertEquals(Duration.ofSeconds(24*3600), actualTimeout);
     }
 
     @Override

@@ -4,16 +4,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.test.Tester;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
@@ -24,7 +32,10 @@ import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
+import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.flowable.engine.ManagementService;
 import org.flowable.engine.ProcessEngineConfiguration;
@@ -34,6 +45,7 @@ import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ExecutionQuery;
 import org.flowable.job.api.DeadLetterJobQuery;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.provider.Arguments;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -59,10 +71,14 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     private static final String METADATA_LABEL = "test-label";
     private static final String METADATA_LABEL_VALUE = "test-label-value";
     private static final String SYSLOG_DRAIN_URL = "test-syslog-url";
+    private static final String APP_NAME = "sample-app-backend";
 
     protected final Tester tester = Tester.forClass(getClass());
 
     protected final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
+    protected final DeploymentDescriptor descriptor = DeploymentDescriptor.createV3();
+    @Mock
+    private TimeoutType timeoutType;
     @Mock
     protected StepLogger.Factory stepLoggerFactory;
     protected StepLogger stepLogger;
@@ -188,6 +204,43 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
 
     private String getTaskId() {
         return TEST_TASK_ID;
+    }
+
+    protected void setUpContext(Integer timeoutCommandLineLevel, Integer timeoutModuleLevel, Integer timeoutGlobalLevel,
+                                Variable<Duration> appTimeout, String timeoutModuleParameter, String timeoutGlobalParameter) {
+        if (timeoutCommandLineLevel != null) {
+            context.setVariable(appTimeout, Duration.ofSeconds(timeoutCommandLineLevel));
+        }
+
+        CloudApplicationExtended app;
+        if (timeoutModuleLevel != null) {
+            app = ImmutableCloudApplicationExtended.builder()
+                                                   .name(APP_NAME)
+                                                   .instances(9)
+                                                   .env(Map.of(Constants.ENV_DEPLOY_ATTRIBUTES,
+                                                               "{\"" + timeoutModuleParameter + "\":" + timeoutModuleLevel + "}"))
+                                                   .build();
+        } else {
+            app = ImmutableCloudApplicationExtended.builder()
+                                                   .name(APP_NAME)
+                                                   .instances(9)
+                                                   .build();
+        }
+        context.setVariable(Variables.APP_TO_PROCESS, app);
+
+        when(timeoutType.getCommandLineAndGlobalLevelParamName()).thenReturn(SupportedParameters.APPS_UPLOAD_TIMEOUT);
+
+        Map<String, Object> timeoutGlobalLevelParameters = new HashMap<>();
+        timeoutGlobalLevelParameters.put(timeoutGlobalParameter, timeoutGlobalLevel);
+        descriptor.setParameters(timeoutGlobalLevelParameters);
+
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
+    }
+
+    static Stream<Arguments> testValidatePriority() {
+        return Stream.of(Arguments.of(100, 200, 300, 100), Arguments.of(100, 200, null, 100), Arguments.of(100, null, null, 100),
+                         Arguments.of(100, null, 300, 100), Arguments.of(null, 200, 300, 200), Arguments.of(null, 200, null, 200),
+                         Arguments.of(null, null, 300, 300), Arguments.of(null, null, null, 3600));
     }
 
 }

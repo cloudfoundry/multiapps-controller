@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -57,9 +58,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        // TODO: This is a temporary solution because there are clients that have very long running tasks
-        // timeouts should be more granular for the different types of steps: LMCROSSITXSADEPLOY-2424, LMCROSSITXSADEPLOY-2425
-        return Duration.ofHours(12);
+        return calculateTimeout(context, TimeoutType.TASK);
     }
 
 }

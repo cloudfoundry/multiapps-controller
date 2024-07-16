@@ -14,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableIncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,8 +170,9 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        // TODO: align with new timeout parameters
-        return context.getVariable(Variables.START_TIMEOUT);
+        CloudApplicationExtended application = context.getVariable(Variables.APP_TO_PROCESS);
+        Duration timeout = calculateTimeout(context, TimeoutType.START);
+        return Duration.ofSeconds(Math.min(timeout.getSeconds() * application.getInstances(), 24 * 3600));
     }
 
 }

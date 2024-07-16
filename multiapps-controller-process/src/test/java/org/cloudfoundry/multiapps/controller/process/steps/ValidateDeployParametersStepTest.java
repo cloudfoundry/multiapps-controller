@@ -101,7 +101,7 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
     private void prepareContext() {
         context.setVariable(Variables.APP_ARCHIVE_ID, stepInput.appArchiveId);
         context.setVariable(Variables.EXT_DESCRIPTOR_FILE_ID, stepInput.extDescriptorId);
-        context.setVariable(Variables.START_TIMEOUT, stepInput.startTimeout);
+        context.setVariable(Variables.APPS_START_TIMEOUT_COMMAND_LINE_LEVEL, stepInput.startTimeout);
         execution.setVariable(Variables.VERSION_RULE.getName(), stepInput.versionRule);
         context.setVariable(Variables.SPACE_GUID, "space-id");
         context.setVariable(Variables.SERVICE_ID, "service-id");

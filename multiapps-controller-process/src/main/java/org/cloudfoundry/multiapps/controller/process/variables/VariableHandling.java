@@ -26,6 +26,15 @@ public final class VariableHandling {
         return serializer.deserialize(serializedValue);
     }
 
+    public static <T> T getIfSet(VariableContainer container, Variable<T> variable) {
+        Object serializedValue = container.getVariable(variable.getName());
+        if (serializedValue == null) {
+            return null;
+        }
+        Serializer<T> serializer = variable.getSerializer();
+        return serializer.deserialize(serializedValue);
+    }
+
     public static <T> T getBackwardsCompatible(VariableContainer container, Variable<T> variable) {
         Object serializedValue = container.getVariable(variable.getName());
         if (serializedValue == null) {
