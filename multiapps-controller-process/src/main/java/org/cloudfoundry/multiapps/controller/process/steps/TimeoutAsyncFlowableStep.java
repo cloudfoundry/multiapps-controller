@@ -4,6 +4,8 @@ import java.text.MessageFormat;
 import java.time.Duration;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -50,4 +52,14 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
     }
 
     public abstract Duration getTimeout(ProcessContext context);
+
+    protected Integer extractUploadTimeoutFromAppAttributes(CloudApplicationExtended app, String supportedParameter) {
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app, app.getEnv());
+        Number taskExecutionTimeout = appAttributes.get(supportedParameter, Number.class);
+        return taskExecutionTimeout != null ? taskExecutionTimeout.intValue() : null;
+    }
+
+    protected void logTimeout(String message, Number timeout) {
+        getStepLogger().debug(message, timeout);
+    }
 }

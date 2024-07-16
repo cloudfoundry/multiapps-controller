@@ -10,6 +10,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -57,9 +58,23 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        // TODO: This is a temporary solution because there are clients that have very long running tasks
-        // timeouts should be more granular for the different types of steps: LMCROSSITXSADEPLOY-2424, LMCROSSITXSADEPLOY-2425
-        return Duration.ofHours(12);
+        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
+        Integer taskExecutionTimeout = extractUploadTimeoutFromAppAttributes(app, SupportedParameters.TASK_EXECUTION_TIMEOUT);
+        Duration taskExecutionTimeoutOperational = context.getVariable(Variables.TASK_EXECUTION_TIMEOUT);
+
+        Duration resultTimeout;
+        if (taskExecutionTimeoutOperational != null) {
+            resultTimeout = taskExecutionTimeoutOperational;
+        } else if (taskExecutionTimeout != null) {
+            resultTimeout = Duration.ofSeconds(taskExecutionTimeout);
+        } else {
+            int taskExecutionTimeoutGlobal = (int) context.getVariable(Variables.TASK_EXECUTION_TIMEOUT_GLOBAL)
+                                                          .toSeconds();
+            resultTimeout = Duration.ofSeconds(taskExecutionTimeoutGlobal);
+        }
+
+        logTimeout(Messages.TASK_EXECUTION_TIMEOUT, resultTimeout.toSeconds());
+        return resultTimeout;
     }
 
 }

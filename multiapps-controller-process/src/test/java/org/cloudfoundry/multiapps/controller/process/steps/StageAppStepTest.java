@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.text.MessageFormat;
@@ -8,10 +9,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
@@ -78,16 +82,15 @@ class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
         Assertions.assertTrue(asyncStepExecutions.get(0) instanceof PollStageAppStatusExecution);
     }
 
-    @Test
-    void testGetTimeoutDefaultValue() {
-        Assertions.assertEquals(Variables.START_TIMEOUT.getDefaultValue(), step.getTimeout(context));
-    }
+    @ParameterizedTest
+    @MethodSource("testValidatePriority")
+    void testGetTimeout(Integer timeoutOperational, Integer timeoutModule, Integer timeoutGlobal, int expectedTimeout) {
+        step.initializeStepLogger(execution);
+        setUpContext(timeoutOperational, timeoutModule, timeoutGlobal, Variables.STAGE_APP_TIMEOUT, Variables.STAGE_APP_TIMEOUT_GLOBAL,
+                     SupportedParameters.STAGE_TIMEOUT);
 
-    @Test
-    void testGetTimeoutCustomValue() {
-        var timeout = Duration.ofSeconds(10);
-        context.setVariable(Variables.START_TIMEOUT, timeout);
-        Assertions.assertEquals(timeout, step.getTimeout(context));
+        Duration actualTimeout = step.getTimeout(context);
+        assertEquals(Duration.ofSeconds(expectedTimeout), actualTimeout);
     }
 
     @Override

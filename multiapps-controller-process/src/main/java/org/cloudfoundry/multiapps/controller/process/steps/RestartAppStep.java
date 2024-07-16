@@ -7,8 +7,10 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -95,7 +97,22 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return context.getVariable(Variables.START_TIMEOUT);
-    }
+        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
+        Integer startTimeout = extractUploadTimeoutFromAppAttributes(app, SupportedParameters.START_TIMEOUT);
+        Duration startTimeoutOperational = context.getVariable(Variables.START_APP_TIMEOUT);
 
+        Duration resultTimeout;
+        if (startTimeoutOperational != null) {
+            resultTimeout = startTimeoutOperational;
+        } else if (startTimeout != null) {
+            resultTimeout = Duration.ofSeconds(startTimeout);
+        } else {
+            int startTimeoutGlobal = (int) context.getVariable(Variables.START_APP_TIMEOUT_GLOBAL)
+                                                  .toSeconds();
+            resultTimeout = Duration.ofSeconds(startTimeoutGlobal);
+        }
+
+        logTimeout(Messages.START_APP_TIMEOUT, resultTimeout.toSeconds());
+        return resultTimeout;
+    }
 }

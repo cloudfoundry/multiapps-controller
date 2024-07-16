@@ -5,7 +5,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableParameterMetadat
 import org.cloudfoundry.multiapps.controller.api.model.OperationMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ParameterType;
 import org.cloudfoundry.multiapps.controller.process.Constants;
-import org.cloudfoundry.multiapps.controller.process.metadata.parameters.StartTimeoutParameterConverter;
+import org.cloudfoundry.multiapps.controller.process.metadata.parameters.TimeoutParameterConverter;
 import org.cloudfoundry.multiapps.controller.process.metadata.parameters.VersionRuleParameterConverter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
@@ -29,11 +29,6 @@ public class BlueGreenDeployMetadata {
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.NO_START.getName())
                                                                                  .type(ParameterType.BOOLEAN)
-                                                                                 .build())
-                                         .addParameter(ImmutableParameterMetadata.builder()
-                                                                                 .id(Variables.START_TIMEOUT.getName())
-                                                                                 .type(ParameterType.INTEGER)
-                                                                                 .customConverter(new StartTimeoutParameterConverter())
                                                                                  .build())
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.MTA_NAMESPACE.getName())
@@ -91,6 +86,26 @@ public class BlueGreenDeployMetadata {
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.RESOURCES_FOR_DEPLOYMENT.getName())
                                                                                  .type(ParameterType.STRING)
+                                                                                 .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.START_APP_TIMEOUT.getName())
+                                                                                 .type(ParameterType.INTEGER)
+                                                                                 .customConverter(new TimeoutParameterConverter(Variables.START_APP_TIMEOUT.getName()))
+                                                                                 .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.STAGE_APP_TIMEOUT.getName())
+                                                                                 .type(ParameterType.INTEGER)
+                                                                                 .customConverter(new TimeoutParameterConverter(Variables.STAGE_APP_TIMEOUT.getName()))
+                                                                                 .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.UPLOAD_APP_TIMEOUT.getName())
+                                                                                 .type(ParameterType.INTEGER)
+                                                                                 .customConverter(new TimeoutParameterConverter(Variables.UPLOAD_APP_TIMEOUT.getName()))
+                                                                                 .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.TASK_EXECUTION_TIMEOUT.getName())
+                                                                                 .type(ParameterType.INTEGER)
+                                                                                 .customConverter(new TimeoutParameterConverter(Variables.TASK_EXECUTION_TIMEOUT.getName()))
                                                                                  .build())
                                          // Special blue green deploy parameters:
                                          .addParameter(ImmutableParameterMetadata.builder()

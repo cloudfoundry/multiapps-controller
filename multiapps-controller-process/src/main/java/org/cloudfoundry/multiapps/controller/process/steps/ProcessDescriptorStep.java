@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutGlobalParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -42,6 +44,8 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(context);
 
         descriptor = resolver.resolve(descriptor);
+
+        setTimeoutGlobalParameters(context, descriptor);
 
         List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
         getStepLogger().debug(Messages.SUBSCRIPTIONS, SecureSerialization.toJson(subscriptions));
@@ -94,6 +98,14 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                               .configurationEntryService(configurationEntryService)
                                                               .applicationConfiguration(configuration)
                                                               .build();
+    }
+
+    private void setTimeoutGlobalParameters(ProcessContext context, DeploymentDescriptor descriptor) {
+        TimeoutGlobalParameters timeoutGlobalParameters = new TimeoutGlobalParameters(descriptor);
+        context.setVariable(Variables.START_APP_TIMEOUT_GLOBAL, Duration.ofSeconds(timeoutGlobalParameters.getStartTimeout()));
+        context.setVariable(Variables.STAGE_APP_TIMEOUT_GLOBAL, Duration.ofSeconds(timeoutGlobalParameters.getStageTimeout()));
+        context.setVariable(Variables.UPLOAD_APP_TIMEOUT_GLOBAL, Duration.ofSeconds(timeoutGlobalParameters.getUploadTimeout()));
+        context.setVariable(Variables.TASK_EXECUTION_TIMEOUT_GLOBAL, Duration.ofSeconds(timeoutGlobalParameters.getTaskExecutionTimeout()));
     }
 
     private void setDynamicResolvableParametersIfAbsent(ProcessContext context, MtaDescriptorPropertiesResolver resolver) {

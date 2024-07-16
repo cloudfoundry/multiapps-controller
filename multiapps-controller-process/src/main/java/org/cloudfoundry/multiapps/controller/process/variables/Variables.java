@@ -131,13 +131,45 @@ public interface Variables {
                                                           .name("startApps")
                                                           .defaultValue(true)
                                                           .build();
+
     Variable<Integer> MTA_MAJOR_SCHEMA_VERSION = ImmutableSimpleVariable.<Integer> builder()
                                                                         .name("mtaMajorSchemaVersion")
                                                                         .build();
-    Variable<Duration> START_TIMEOUT = ImmutableSimpleVariable.<Duration> builder()
-                                                              .name("startTimeout")
-                                                              .defaultValue(Duration.ofHours(1))
-                                                              .build();
+
+    Variable<Duration> START_APP_TIMEOUT = ImmutableSimpleVariable.<Duration> builder()
+                                                                  .name("startAppTimeout")
+                                                                  .defaultValue(null)
+                                                                  .build();
+    Variable<Duration> STAGE_APP_TIMEOUT = ImmutableSimpleVariable.<Duration> builder()
+                                                                  .name("stageAppTimeout")
+                                                                  .defaultValue(null)
+                                                                  .build();
+
+    Variable<Duration> TASK_EXECUTION_TIMEOUT = ImmutableSimpleVariable.<Duration> builder()
+                                                                       .name("taskExecutionTimeout")
+                                                                       .defaultValue(null)
+                                                                       .build();
+    Variable<Duration> UPLOAD_APP_TIMEOUT = ImmutableSimpleVariable.<Duration> builder()
+                                                                   .name("uploadAppTimeout")
+                                                                   .defaultValue(null)
+                                                                   .build();
+
+    Variable<Duration> START_APP_TIMEOUT_GLOBAL = ImmutableSimpleVariable.<Duration> builder()
+                                                                         .name("startAppTimeoutGlobal")
+                                                                         .defaultValue(Duration.ofHours(1))
+                                                                         .build();
+    Variable<Duration> STAGE_APP_TIMEOUT_GLOBAL = ImmutableSimpleVariable.<Duration> builder()
+                                                                         .name("stageAppTimeoutGlobal")
+                                                                         .defaultValue(Duration.ofHours(1))
+                                                                         .build();
+    Variable<Duration> TASK_EXECUTION_TIMEOUT_GLOBAL = ImmutableSimpleVariable.<Duration> builder()
+                                                                              .name("taskExecutionTimeoutGlobal")
+                                                                              .defaultValue(Duration.ofHours(1))
+                                                                              .build();
+    Variable<Duration> UPLOAD_APP_TIMEOUT_GLOBAL = ImmutableSimpleVariable.<Duration> builder()
+                                                                          .name("uploadAppTimeoutGlobal")
+                                                                          .defaultValue(Duration.ofHours(1))
+                                                                          .build();
     Variable<Integer> UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = ImmutableSimpleVariable.<Integer> builder()
                                                                                         .name("updatedServiceBrokerSubscribersCount")
                                                                                         .build();

@@ -13,7 +13,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -22,7 +21,6 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.UploadStatusCallbackExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
-import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationEnvironmentUpdater;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
@@ -51,8 +49,6 @@ import com.sap.cloudfoundry.client.facade.domain.Status;
 @Named("uploadAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UploadAppStep extends TimeoutAsyncFlowableStep {
-
-    static final int DEFAULT_APP_UPLOAD_TIMEOUT = (int) TimeUnit.HOURS.toSeconds(1);
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadAppStep.class);
     @Inject
     protected ApplicationArchiveReader applicationArchiveReader;
@@ -236,15 +232,22 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     @Override
     public Duration getTimeout(ProcessContext context) {
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
-        int uploadTimeout = extractUploadTimeoutFromAppAttributes(app, DEFAULT_APP_UPLOAD_TIMEOUT);
-        getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadTimeout);
-        return Duration.ofSeconds(uploadTimeout);
-    }
+        Integer uploadTimeout = extractUploadTimeoutFromAppAttributes(app, SupportedParameters.UPLOAD_TIMEOUT);
+        Duration uploadTimeoutOperational = context.getVariable(Variables.UPLOAD_APP_TIMEOUT);
 
-    private int extractUploadTimeoutFromAppAttributes(CloudApplicationExtended app, int defaultAppUploadTimeout) {
-        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app, app.getEnv());
-        Number uploadTimeout = appAttributes.get(SupportedParameters.UPLOAD_TIMEOUT, Number.class, defaultAppUploadTimeout);
-        return uploadTimeout.intValue();
+        Duration resultTimeout;
+        if (uploadTimeoutOperational != null) {
+            resultTimeout = uploadTimeoutOperational;
+        } else if (uploadTimeout != null) {
+            resultTimeout = Duration.ofSeconds(uploadTimeout);
+        } else {
+            int uploadTimeoutGlobal = (int) context.getVariable(Variables.UPLOAD_APP_TIMEOUT_GLOBAL)
+                                                   .toSeconds();
+            resultTimeout = Duration.ofSeconds(uploadTimeoutGlobal);
+        }
+
+        logTimeout(Messages.UPLOAD_APP_TIMEOUT, resultTimeout.toSeconds());
+        return resultTimeout;
     }
 
     class MonitorUploadStatusCallback implements UploadStatusCallbackExtended {

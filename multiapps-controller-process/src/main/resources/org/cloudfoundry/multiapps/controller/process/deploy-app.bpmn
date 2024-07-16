@@ -92,6 +92,7 @@
           <flowable:in source="correlationId" target="correlationId"></flowable:in>
           <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
           <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+          <flowable:in source="taskExecutionTimeoutGlobal" target="taskExecutionTimeoutGlobal"></flowable:in>
       </extensionElements>
     </callActivity>
     <sequenceFlow id="sid-26C87D1E-88D5-47E3-907B-0F8EBBCD2C36" sourceRef="executeTasksCallActivity" targetRef="publishProvidedDependenciesTask"></sequenceFlow>

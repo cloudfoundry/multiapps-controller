@@ -28,7 +28,6 @@ public class DeployMetadataTest extends MetadataBaseTest {
                 Variables.APP_ARCHIVE_ID.getName(),
                 Variables.EXT_DESCRIPTOR_FILE_ID.getName(),
                 Variables.NO_START.getName(),
-                Variables.START_TIMEOUT.getName(),
                 Variables.MTA_NAMESPACE.getName(),
                 Variables.APPLY_NAMESPACE.getName(),
                 Variables.VERSION_RULE.getName(),
@@ -43,6 +42,10 @@ public class DeployMetadataTest extends MetadataBaseTest {
                 Variables.ABORT_ON_ERROR.getName(),
                 Variables.MODULES_FOR_DEPLOYMENT.getName(),
                 Variables.RESOURCES_FOR_DEPLOYMENT.getName(),
+                Variables.START_APP_TIMEOUT.getName(),
+                Variables.STAGE_APP_TIMEOUT.getName(),
+                Variables.UPLOAD_APP_TIMEOUT.getName(),
+                Variables.TASK_EXECUTION_TIMEOUT.getName()
             // @formatter:on
         };
     }

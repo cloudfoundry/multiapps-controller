@@ -28,7 +28,6 @@ public class CtsDeployMetadataTest extends MetadataBaseTest {
                 Variables.APP_ARCHIVE_ID.getName(),
                 Variables.EXT_DESCRIPTOR_FILE_ID.getName(),
                 Variables.NO_START.getName(),
-                Variables.START_TIMEOUT.getName(),
                 Variables.MTA_NAMESPACE.getName(),
                 Variables.APPLY_NAMESPACE.getName(),
                 Variables.VERSION_RULE.getName(),
@@ -50,7 +49,11 @@ public class CtsDeployMetadataTest extends MetadataBaseTest {
                 Variables.CTS_PASSWORD.getName(),
                 Variables.APPLICATION_TYPE.getName(),
                 Variables.TRANSFER_TYPE.getName(),
-                Variables.DEPLOY_STRATEGY.getName()
+                Variables.DEPLOY_STRATEGY.getName(),
+                Variables.START_APP_TIMEOUT.getName(),
+                Variables.STAGE_APP_TIMEOUT.getName(),
+                Variables.UPLOAD_APP_TIMEOUT.getName(),
+                Variables.TASK_EXECUTION_TIMEOUT.getName()
             // @formatter:on
         };
     }

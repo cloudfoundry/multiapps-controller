@@ -8,22 +8,22 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
-class StartTimeoutParameterConverterTest {
+class TimeoutParameterConverterTest {
 
     @Test
     void testConvertWithInvalidValueType() {
-        assertThrows(SLException.class, () -> new StartTimeoutParameterConverter().convert(false));
+        assertThrows(SLException.class, () -> new TimeoutParameterConverter("").convert(false));
     }
 
     @Test
     void testConvertWithInvalidValue() {
-        assertThrows(SLException.class, () -> new StartTimeoutParameterConverter().convert(-1000));
+        assertThrows(SLException.class, () -> new TimeoutParameterConverter("").convert(-1000));
     }
 
     @Test
     void testConvert() {
         var expectedStartTimeout = Duration.ofSeconds(1000);
-        var actualStartTimeout = new StartTimeoutParameterConverter().convert("1000");
+        var actualStartTimeout = new TimeoutParameterConverter("").convert("1000");
         assertEquals(expectedStartTimeout, actualStartTimeout);
     }
 
