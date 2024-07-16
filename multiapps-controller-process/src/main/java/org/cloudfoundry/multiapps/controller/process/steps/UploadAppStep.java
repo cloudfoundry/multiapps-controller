@@ -13,7 +13,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -22,11 +21,9 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.UploadStatusCallbackExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
-import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationEnvironmentUpdater;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
-import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
@@ -37,6 +34,7 @@ import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveRead
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationZipBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.CloudPackagesGetter;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +49,6 @@ import com.sap.cloudfoundry.client.facade.domain.Status;
 @Named("uploadAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UploadAppStep extends TimeoutAsyncFlowableStep {
-
-    static final int DEFAULT_APP_UPLOAD_TIMEOUT = (int) TimeUnit.HOURS.toSeconds(1);
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadAppStep.class);
     @Inject
     protected ApplicationArchiveReader applicationArchiveReader;
@@ -235,16 +231,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
-        int uploadTimeout = extractUploadTimeoutFromAppAttributes(app, DEFAULT_APP_UPLOAD_TIMEOUT);
-        getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadTimeout);
-        return Duration.ofSeconds(uploadTimeout);
-    }
-
-    private int extractUploadTimeoutFromAppAttributes(CloudApplicationExtended app, int defaultAppUploadTimeout) {
-        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app, app.getEnv());
-        Number uploadTimeout = appAttributes.get(SupportedParameters.UPLOAD_TIMEOUT, Number.class, defaultAppUploadTimeout);
-        return uploadTimeout.intValue();
+        return calculateTimeout(context, TimeoutType.UPLOAD);
     }
 
     class MonitorUploadStatusCallback implements UploadStatusCallbackExtended {

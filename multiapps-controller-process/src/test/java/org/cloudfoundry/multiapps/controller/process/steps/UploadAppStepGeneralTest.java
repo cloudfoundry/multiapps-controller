@@ -159,6 +159,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         context.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
         context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, false);
         when(configuration.getMaxResourceFileSize()).thenReturn(ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE);
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
     }
 
     @AfterEach
@@ -192,8 +193,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         doThrow(new SLException("Error while reading blob input stream")).when(step.applicationZipBuilder)
                                                                          .extractApplicationInNewArchive(any());
         Exception exception = assertThrows(SLException.class, () -> step.execute(execution));
-        assertEquals("Error uploading application \"sample-app-backend\": Error while reading blob input stream ",
-                     exception.getMessage());
+        assertEquals("Error uploading application \"sample-app-backend\": Error while reading blob input stream ", exception.getMessage());
         assertEquals(StepPhase.RETRY.toString(), getExecutionStatus());
     }
 

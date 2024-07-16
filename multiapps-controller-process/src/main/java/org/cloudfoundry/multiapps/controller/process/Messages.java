@@ -16,6 +16,7 @@ public class Messages {
     public static final String SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT = "The size of the application exceeds max size limit \"{0}\"";
     public static final String ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT = "Unable to retrieve required service key element \"{0}\" for service \"{1}\"";
     public static final String ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE = "Value \"{0}\" of parameter \"{1}\" must not be negative";
+    public static final String ERROR_PARAMETER_1_MUST_BE_LESS_THAN_2 = "Value \"{0}\" of parameter \"{1}\" must be less than {2}";
     public static final String INVALID_VALUE_0_FOR_PARAMETER_1_VALID_VALUES_ARE_2 = "Invalid value \"{0}\" for parameter \"{1}\". Valid values are: {2}";
     public static final String ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1 = "There is no file associated with the specified file id \"{0}\" in space \"{1}\"";
     public static final String UNKNOWN_SERVICE_ID = "Unknown service id \"{0}\"";
@@ -66,7 +67,7 @@ public class Messages {
     public static final String COULD_NOT_DELETE_ORPHANED_FILES_MODIFIED_AFTER_0_AND_BEFORE_1 = "Could not delete orphaned files modified after {0} and before {1}";
     public static final String ERROR_WHILE_STARTING_ASYNC_UPLOAD_OF_APP_WITH_NAME_0 = "Error while starting async upload of app with name {0}";
     public static final String REQUIRED_APPLICATION_TO_POLL_0_NOT_FOUND = "Required application to poll: \"{0}\" not found";
-
+    public static final String NOT_INTEGER_PARAMETER_VALUE = "Value \"{0}\" of parameter \"{1}\" is not integer";
     // Audit log messages
 
     // ERROR log messages
@@ -490,7 +491,7 @@ public class Messages {
     public static final String REMAINING_SERVICES_TO_POLL = "Remaining services to poll: {0}";
     public static final String LAST_OPERATION_FOR_SERVICE = "Last operation for service \"{0}\": {1}";
     public static final String DELETING_ERROR_TYPE_O_FOR_PROCESS_1 = "Deleting error type \"{0}\" for process \"{1}\"";
-    public static final String UPLOAD_APP_TIMEOUT = "Upload app timeout in seconds: {0}";
+    public static final String TIMEOUT_MESSAGE = "Application {0} timeout is set by \"{1}\" parameter to {2} seconds";
     public static final String PROVIDED_EXTENSION_DESCRIPTORS = "Provided extension descriptors: {0}";
     public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";
@@ -724,6 +725,7 @@ public class Messages {
     public static final String DESIRED_APPLICATION_0_INSTANCES_1_AND_NOW_SCALED_TO_2 = "Desired application \"{0}\" instances {1} and now scaled to {2}";
     public static final String DOWNSCALING_APPLICATION_0_TO_1_INSTANCES = "Downscaling application \"{0}\" to {1} instances";
     public static final String UPSCALING_APPLICATION_0_TO_1_INSTANCES = "Upscaling application \"{0}\" to {1} instances";
+    public static final String ATTRIBUTE_0_IS_NOT_NEGATIVE_WITH_MAX_VALUE_2 = "Attribute \"{0}\" must be in the range 0 to {1}!";
 
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";

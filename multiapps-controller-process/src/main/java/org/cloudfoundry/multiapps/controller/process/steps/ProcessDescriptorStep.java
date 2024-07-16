@@ -57,7 +57,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                                  String.join(", ", invalidModulesSpecifiedForDeployment)));
         }
         Set<String> mtaModules = getModuleNames(descriptor, modulesForDeployment);
-        getStepLogger().debug("MTA Modules: {0}", mtaModules);
+        getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
         context.setVariable(Variables.MTA_MODULES, mtaModules);
 
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(descriptor));

@@ -3,23 +3,22 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
-import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class UploadAppStepTest {
 
     @Nested
     class UploadAppStepTimeoutTest extends SyncFlowableStepTest<UploadAppStep> {
-
-        private static final String APP_NAME = "sample-app-backend";
 
         @BeforeEach
         public void prepareContext() {
@@ -27,32 +26,14 @@ public class UploadAppStepTest {
             step.initializeStepLogger(execution);
         }
 
-        @Test
-        void testGetTimeoutWithoutAppParameter() {
-            CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
-                                                                            .name(APP_NAME)
-                                                                            .build();
+        @ParameterizedTest
+        @MethodSource("testValidatePriority")
+        void testGetTimeout(Integer timeoutCommandLineLevel, Integer timeoutModuleLevel, Integer timeoutGlobalLevel, int expectedTimeout) {
+            setUpContext(timeoutCommandLineLevel, timeoutModuleLevel, timeoutGlobalLevel, Variables.APPS_UPLOAD_TIMEOUT_COMMAND_LINE_LEVEL,
+                         SupportedParameters.UPLOAD_TIMEOUT, SupportedParameters.APPS_UPLOAD_TIMEOUT);
 
-            testGetTimeout(app, UploadAppStep.DEFAULT_APP_UPLOAD_TIMEOUT);
-        }
-
-        @Test
-        void testGetTimeoutWithAppParameter() {
-            CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
-                                                                            .name(APP_NAME)
-                                                                            .env(Map.of(Constants.ENV_DEPLOY_ATTRIBUTES,
-                                                                                        "{\"upload-timeout\":1800}"))
-                                                                            .build();
-
-            testGetTimeout(app, 1800);
-        }
-
-        private void testGetTimeout(CloudApplicationExtended app, int expectedUploadTimeout) {
-            context.setVariable(Variables.APP_TO_PROCESS, app);
-
-            var expectedTimeout = Duration.ofSeconds(expectedUploadTimeout);
-            var actualTimeout = step.getTimeout(context);
-            assertEquals(expectedTimeout, actualTimeout);
+            Duration actualTimeout = step.getTimeout(context);
+            assertEquals(Duration.ofSeconds(expectedTimeout), actualTimeout);
         }
 
         @Override
@@ -85,6 +66,7 @@ public class UploadAppStepTest {
             MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
             mtaArchiveElements.addModuleFileName(APP_NAME, APP_NAME);
             context.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
+            context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
         }
 
         @Test

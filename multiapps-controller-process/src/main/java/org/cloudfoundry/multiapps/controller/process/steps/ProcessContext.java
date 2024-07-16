@@ -59,6 +59,10 @@ public class ProcessContext {
         return VariableHandling.get(execution, variable);
     }
 
+    public <T> T getVariableIfSet(Variable<T> variable) {
+        return VariableHandling.getIfSet(execution, variable);
+    }
+
     public <T> T getVariableBackwardsCompatible(Variable<T> variable) {
         return VariableHandling.getBackwardsCompatible(execution, variable);
     }

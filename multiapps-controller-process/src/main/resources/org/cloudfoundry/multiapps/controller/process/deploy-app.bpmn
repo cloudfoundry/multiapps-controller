@@ -88,6 +88,9 @@
           <flowable:in source="correlationId" target="correlationId"></flowable:in>
           <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
           <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+          <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
+          <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
+          <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
       </extensionElements>
     </callActivity>
     <sequenceFlow id="sid-26C87D1E-88D5-47E3-907B-0F8EBBCD2C36" sourceRef="executeTasksCallActivity" targetRef="publishProvidedDependenciesTask"></sequenceFlow>
@@ -102,6 +105,9 @@
           <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
           <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
           <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+          <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
+          <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
+          <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -123,6 +129,9 @@
           <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
           <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
           <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+          <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
+          <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
+          <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
     </callActivity>
