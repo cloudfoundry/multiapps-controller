@@ -19,5 +19,6 @@ open module org.cloudfoundry.multiapps.controller.database.migration {
 
     requires static java.compiler;
     requires static org.immutables.value;
+    requires jakarta.xml.bind;
 
 }

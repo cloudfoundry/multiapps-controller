@@ -11,8 +11,8 @@ import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;

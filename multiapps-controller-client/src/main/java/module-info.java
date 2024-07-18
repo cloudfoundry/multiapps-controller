@@ -25,7 +25,7 @@ open module org.cloudfoundry.multiapps.controller.client {
 
     requires static com.fasterxml.jackson.annotation;
     requires static java.compiler;
-    requires static javax.inject;
+    requires static jakarta.inject;
     requires static org.immutables.value;
 
 }

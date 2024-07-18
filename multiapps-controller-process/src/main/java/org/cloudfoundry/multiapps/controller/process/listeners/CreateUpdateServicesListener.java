@@ -6,8 +6,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.DynamicResolvableParametersHelper;

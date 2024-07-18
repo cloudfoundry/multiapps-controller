@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.metadata;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.OperationMetadata;

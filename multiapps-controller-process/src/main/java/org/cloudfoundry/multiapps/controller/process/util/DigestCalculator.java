@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.security.MessageDigest;
 
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 
 public class DigestCalculator {
     private final MessageDigest messageDigest;

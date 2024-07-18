@@ -5,8 +5,8 @@ import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.multiapps.common.SLException;

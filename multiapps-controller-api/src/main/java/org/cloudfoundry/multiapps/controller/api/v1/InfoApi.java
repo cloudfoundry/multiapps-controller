@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.api.v1;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.api.InfoApiService;
 import org.cloudfoundry.multiapps.controller.api.Constants.Resources;

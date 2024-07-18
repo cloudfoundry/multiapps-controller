@@ -8,8 +8,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.SLException;

@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
+import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.configuration.bean.factory.ObjectStoreFileStorageFactoryBean;
@@ -8,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
-import javax.inject.Inject;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;

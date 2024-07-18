@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;

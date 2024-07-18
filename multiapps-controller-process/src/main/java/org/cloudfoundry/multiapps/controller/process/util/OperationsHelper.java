@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.api.model.ErrorType;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
