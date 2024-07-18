@@ -218,7 +218,8 @@ public class Messages {
     public static final String SERVICE_0_IS_IN_STATE_1_AND_MAY_NOT_BE_OPERATIONAL = "Service \"{0}\" is in state \"{1}\" and may not be operational. Actions like update of credentials and binding may fail! Consider recreating it by specifying the --delete-services option.";
     public static final String SERVICE_NOT_BE_DELETED_DUE_TO_SERVICE_BINDINGS_AND_SERVICE_KEYS = "Service \"{0}\" won''t be deleted due to existing service bindings and/or service keys";
     public static final String RETRYING_PROCESS_ABORT = "Abort of process \"{0}\" failed due to an optimistic locking exception. Retrying abort...";
-    public static final String WILL_NOT_UPDATE_SERVICE_PARAMS = "Service parameters for service \"{0}\" will not be updated, as the option for skipping service parameter updates is enabled.";
+    public static final String WILL_NOT_UPDATE_SERVICE_PARAMS_BECAUSE_PARAMETER_SKIP_SERVICE_UPDATES = "Service parameters for service \"{0}\" will not be updated, as the option for skipping service parameter updates is enabled.";
+    public static final String WILL_NOT_UPDATE_SERVICE_PARAMS_BECAUSE_UNDEFINED_OR_EMPTY = "Service parameters for service \"{0}\" will not be updated, as the parameters are not defined or empty.";
     public static final String WILL_NOT_UPDATE_SERVICE_PLAN = "Service plan for service \"{0}\" will not be updated, as the option for skipping service plan updates is enabled.";
     public static final String WILL_NOT_UPDATE_SERVICE_TAGS = "Service tags for service \"{0}\" will not be updated, as the option for skipping service tags updates is enabled.";
     public static final String WILL_NOT_UPDATE_SYSLOG_URL = "Skipping update of log streaming URL for service \"{0}\", as the option to skip log streaming URL updates is enabled.";
