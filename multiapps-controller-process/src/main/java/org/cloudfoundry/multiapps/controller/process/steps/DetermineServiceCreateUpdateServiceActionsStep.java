@@ -13,6 +13,7 @@ import java.util.Objects;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -133,7 +134,9 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
 
         if (service.shouldSkipParametersUpdate()) {
-            getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_PARAMS, service.getName());
+            getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_PARAMS_BECAUSE_PARAMETER_SKIP_SERVICE_UPDATES, service.getName());
+        } else if (MapUtils.isEmpty(service.getCredentials())) {
+            getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_PARAMS_BECAUSE_UNDEFINED_OR_EMPTY, service.getName());
         } else {
             getStepLogger().debug(Messages.WILL_UPDATE_SERVICE_PARAMETERS);
             getStepLogger().debug(Messages.NEW_SERVICE_PARAMETERS, SecureSerialization.toJson(service.getCredentials()));
