@@ -13,7 +13,7 @@ import org.cloudfoundry.multiapps.controller.web.configuration.bean.factory.Obje
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 @Configuration
 public class FileStorageConfiguration {
@@ -29,10 +29,11 @@ public class FileStorageConfiguration {
 
     @Bean(name = "filterMultipartResolver")
     public MultipartResolver multipartResolver() {
-        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
-        resolver.setMaxUploadSize(MAX_UPLOAD_SIZE);
-        resolver.setMaxUploadSizePerFile(MAX_UPLOAD_SIZE);
-        return resolver;
+       // CommonsMultipartResolver resolver = new CommonsMultipartResolver();
+       /// resolver.setMaxUploadSize(MAX_UPLOAD_SIZE);
+       // resolver.setMaxUploadSizePerFile(MAX_UPLOAD_SIZE);
+       // return resolver;
+        return new StandardServletMultipartResolver();
     }
 
     @Inject

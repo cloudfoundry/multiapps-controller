@@ -49,11 +49,11 @@
         <aliyun-sdk-oss.version>3.17.4</aliyun-sdk-oss.version>
         <auto-service.version>1.1.1</auto-service.version>
         <commons-codec.version>1.16.1</commons-codec.version>
-        <multiapps.version>2.21.0</multiapps.version>
+        <multiapps.version>2.22.0-SNAPSHOT</multiapps.version>
         <java-cfenv.version>3.1.5</java-cfenv.version>
-        <jaxb-api.version>2.3.3</jaxb-api.version>
-        <jaxb-core.version>2.3.0.1</jaxb-core.version>
-        <jaxb-impl.version>2.3.4</jaxb-impl.version>
+        <jaxb-api.version>4.0.2</jaxb-api.version>
+        <jaxb-core.version>4.0.5</jaxb-core.version>
+        <jaxb-impl.version>4.0.5</jaxb-impl.version>
         <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
         <javax.inject.version>1</javax.inject.version>
         <bouncycastle.version>1.78</bouncycastle.version>
@@ -329,14 +329,14 @@
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-core -->
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
+                <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-core</artifactId>
                 <version>${jaxb-core.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl -->
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
                 <version>${jaxb-impl.version}</version>
             </dependency>
             <!-- Transitive dependency from multiapps-common and liquibase. Pin the version to make sure we're always using 
@@ -660,7 +660,7 @@
                 <version>${liquibase.version}</version>
                 <exclusions>
                     <exclusion>
-                        <!-- We're using https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api, which 
+                        <!-- We're using https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api, which
                             brings the same packages. -->
                         <groupId>javax.xml.bind</groupId>
                         <artifactId>jaxb-api</artifactId>
@@ -859,6 +859,17 @@
                 <groupId>org.cloudfoundry.multiapps</groupId>
                 <artifactId>multiapps-controller-shutdown-client</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime -->
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>4.0.5</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.3.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
