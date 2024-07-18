@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.model.TypedServiceOperationState;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;

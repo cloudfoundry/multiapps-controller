@@ -4,7 +4,7 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLogging
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.sql.DataSource;
 
 @Configuration

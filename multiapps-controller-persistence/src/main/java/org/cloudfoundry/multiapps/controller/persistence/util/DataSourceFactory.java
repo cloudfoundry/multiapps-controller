@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.persistence.util;
 
 import java.nio.file.Path;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 import javax.sql.DataSource;
 
 import org.cloudfoundry.multiapps.controller.persistence.Constants;

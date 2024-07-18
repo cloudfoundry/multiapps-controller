@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.multiapps.common.SLException;

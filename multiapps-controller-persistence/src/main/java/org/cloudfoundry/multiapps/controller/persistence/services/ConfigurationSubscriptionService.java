@@ -4,8 +4,8 @@ import static java.text.MessageFormat.format;
 
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.persistence.EntityManagerFactory;
 
 import org.apache.commons.lang3.ObjectUtils;

@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.cf.metadata.entity.processor;
 
 import java.util.List;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.criteria.MtaMetadataCriteria;
 

@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.persistence.EntityManagerFactory;
 
 import org.cloudfoundry.multiapps.common.ConflictException;

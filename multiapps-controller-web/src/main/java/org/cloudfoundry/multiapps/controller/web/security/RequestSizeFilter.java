@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.web.security;
 
 import java.io.IOException;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;

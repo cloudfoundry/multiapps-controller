@@ -5,7 +5,7 @@ import static java.text.MessageFormat.format;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEntityEvent;

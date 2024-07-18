@@ -1,17 +1,16 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperationLogEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
+import org.springframework.scheduling.annotation.Async;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperationLogEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
-import org.springframework.scheduling.annotation.Async;
 
 @Named("processLoggerPersister")
 public class ProcessLoggerPersister {
@@ -45,8 +44,7 @@ public class ProcessLoggerPersister {
                 StringBuilder logMessage = new StringBuilder();
                 logMessage.append(processLogger.getLogMessage());
                 processLogsMessages.put(processLogger.getOperationLogEntry()
-                                                     .getOperationLogName(),
-                                        logMessage);
+                                                     .getOperationLogName(), logMessage);
             }
 
             processLoggerProvider.removeProcessLoggerFromCache(processLogger);
