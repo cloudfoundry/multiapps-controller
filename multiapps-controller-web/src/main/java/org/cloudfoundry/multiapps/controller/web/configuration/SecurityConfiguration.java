@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
 import com.sap.cloudfoundry.client.facade.oauth2.TokenFactory;
+import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.controller.web.security.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -14,8 +15,6 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
-
-import javax.inject.Inject;
 
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 

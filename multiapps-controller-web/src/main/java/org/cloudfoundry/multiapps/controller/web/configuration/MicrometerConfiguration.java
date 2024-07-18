@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.web.configuration;
 import java.text.MessageFormat;
 import java.time.Duration;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;

@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.persistence.EntityManagerFactory;
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.multiapps.common.ConflictException;
@@ -13,8 +15,6 @@ import org.cloudfoundry.multiapps.controller.persistence.query.ProgressMessageQu
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.ProgressMessageQueryImpl;
 import org.springframework.context.annotation.Primary;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.Date;
 
 @Named

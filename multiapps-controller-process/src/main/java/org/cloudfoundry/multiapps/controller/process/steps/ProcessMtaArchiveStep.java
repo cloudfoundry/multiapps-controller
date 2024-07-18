@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.jar.Manifest;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;

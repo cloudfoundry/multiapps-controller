@@ -2,8 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.text.MessageFormat;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;

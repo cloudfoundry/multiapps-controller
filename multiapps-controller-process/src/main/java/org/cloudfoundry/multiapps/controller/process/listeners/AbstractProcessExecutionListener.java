@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;

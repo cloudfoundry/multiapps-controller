@@ -1,12 +1,12 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.ByteArraySqlFileQueryProvider;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlOperationLogQueryProvider;
 
-import javax.inject.Named;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.List;

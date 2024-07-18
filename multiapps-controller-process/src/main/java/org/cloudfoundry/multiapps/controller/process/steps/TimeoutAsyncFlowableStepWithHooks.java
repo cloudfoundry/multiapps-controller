@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.process.util.HooksCalculator;

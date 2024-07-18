@@ -12,10 +12,10 @@ open module org.cloudfoundry.multiapps.controller.api {
     requires org.cloudfoundry.multiapps.common;
 
     requires static java.compiler;
-    requires static java.xml.bind;
-    requires static javax.inject;
+    requires static jakarta.inject;
     requires static org.immutables.value;
     requires static io.swagger.annotations;
     requires jakarta.servlet;
+    requires jakarta.xml.bind;
 
 }

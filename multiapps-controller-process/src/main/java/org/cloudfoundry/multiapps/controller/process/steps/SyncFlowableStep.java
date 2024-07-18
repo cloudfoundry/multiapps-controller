@@ -2,8 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.function.BiFunction;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
