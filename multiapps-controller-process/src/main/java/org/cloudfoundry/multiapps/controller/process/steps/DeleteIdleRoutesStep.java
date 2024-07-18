@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;

@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.dynatrace;
 
 import java.text.MessageFormat;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.util.LoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;

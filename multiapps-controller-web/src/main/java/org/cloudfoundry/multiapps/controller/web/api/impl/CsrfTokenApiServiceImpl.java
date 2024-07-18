@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.api.CsrfTokenApiService;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.CsrfTokenApiServiceAuditLog;

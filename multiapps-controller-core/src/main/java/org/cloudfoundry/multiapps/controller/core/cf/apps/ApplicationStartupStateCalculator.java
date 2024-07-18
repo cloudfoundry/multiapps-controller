@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.cf.apps;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;

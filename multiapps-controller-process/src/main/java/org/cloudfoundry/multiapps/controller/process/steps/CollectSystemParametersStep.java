@@ -4,8 +4,8 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
