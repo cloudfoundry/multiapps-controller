@@ -132,7 +132,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             actions.add(ServiceAction.UPDATE_PLAN);
         }
 
-        if (service.shouldSkipParametersUpdate()) {
+        if (service.shouldSkipParametersUpdate() || MapUtils.isEmpty(service.getCredentials()) {
             getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_PARAMS, service.getName());
         } else {
             getStepLogger().debug(Messages.WILL_UPDATE_SERVICE_PARAMETERS);
