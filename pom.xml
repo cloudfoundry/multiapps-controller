@@ -118,7 +118,7 @@
                         <target>17</target>
                         <annotationProcessorPaths>
                             <!-- Necessary to generate immutable classes and xml configuration to recognize alicloud implementation in jclouds
-                            generated file should be inside multiapps-controller-persistence/target/classes/META-INF/services -->
+                            generated file should be inside multiapps-controller-persistence/target/classes/META-INF/services  -->
                             <path>
                                 <groupId>org.immutables</groupId>
                                 <artifactId>value</artifactId>
