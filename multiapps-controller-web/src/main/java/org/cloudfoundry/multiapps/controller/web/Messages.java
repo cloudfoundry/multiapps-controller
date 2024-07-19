@@ -84,6 +84,7 @@ public final class Messages {
     public static final String ASYNC_UPLOAD_JOB_FINISHED = "Async upload job {} finished";
     public static final String UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT = "Uploading MTAR stream from remote endpoint: {}";
     public static final String CALLING_REMOTE_MTAR_ENDPOINT = "Calling remote MTAR endpoint {}";
+    public static final String IGNORING_NAMESPACE_PARAMETERS = "Ignoring parameter \"{0}\" , as the MTA is not deployed with namespace!";
 
     private Messages() {
     }

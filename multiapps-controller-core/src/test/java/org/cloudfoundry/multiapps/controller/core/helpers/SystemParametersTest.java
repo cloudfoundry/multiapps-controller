@@ -24,7 +24,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 class SystemParametersTest {
@@ -240,7 +239,7 @@ class SystemParametersTest {
                                              .timestamp(TIMESTAMP)
                                              .reserveTemporaryRoutes(reserveTemporaryRoutes)
                                              .user(USER_NAME)
-                                             .hostValidator(new HostValidator(applyNamespace ? NAMESPACE : null, applyNamespace))
+                                             .hostValidator(new HostValidator(applyNamespace ? NAMESPACE : null, true, applyNamespace))
                                              .build();
     }
 

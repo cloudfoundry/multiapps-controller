@@ -35,6 +35,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ParameterMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.parameters.ParameterConversion;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.OperationsApiServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
@@ -266,7 +267,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         String namespace = operation.getNamespace();
         if (namespace != null) {
             parameters.put(Variables.MTA_NAMESPACE.getName(), namespace);
-            parameters.put(Variables.APPLY_NAMESPACE.getName(), true);
+        }
+        else {
+            LOGGER.warn(Messages.IGNORING_NAMESPACE_PARAMETERS, SupportedParameters.NAMESPACE);
         }
 
         return ImmutableOperation.copyOf(operation)

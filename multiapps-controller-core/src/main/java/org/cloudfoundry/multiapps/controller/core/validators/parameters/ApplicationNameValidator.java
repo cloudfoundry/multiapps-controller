@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.validators.parameters;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.cloudfoundry.multiapps.common.ContentException;
@@ -15,10 +16,12 @@ public class ApplicationNameValidator implements ParameterValidator {
 
     private final String namespace;
     private final boolean applyNamespaceGlobal;
+    private final Boolean applyNamespaceOperational;
 
-    public ApplicationNameValidator(String namespace, boolean applyNamespace) {
+    public ApplicationNameValidator(String namespace, boolean applyNamespaceGlobal, Boolean applyNamespaceOperational) {
         this.namespace = namespace;
-        this.applyNamespaceGlobal = applyNamespace;
+        this.applyNamespaceGlobal = applyNamespaceGlobal;
+        this.applyNamespaceOperational = applyNamespaceOperational;
     }
 
     @Override
@@ -48,10 +51,11 @@ public class ApplicationNameValidator implements ParameterValidator {
             throw new ContentException(Messages.COULD_NOT_CREATE_VALID_APPLICATION_NAME_FROM_0, applicationName);
         }
 
-        boolean applyNamespaceLocal = MapUtil.parseBooleanFlag(relatedParameters, SupportedParameters.APPLY_NAMESPACE, true);
-        boolean applyNamespace = applyNamespaceGlobal && applyNamespaceLocal;
-
-        return NameUtil.computeValidApplicationName((String) applicationName, namespace, applyNamespace);
+        Boolean applyNamespaceLocal = MapUtil.parseBooleanFlag(relatedParameters, SupportedParameters.APPLY_NAMESPACE, null);
+        boolean applyNamespaceResult = Objects.requireNonNullElseGet(applyNamespaceOperational,
+                                                                     () -> Objects.requireNonNullElse(applyNamespaceLocal,
+                                                                                                      applyNamespaceGlobal));
+        return NameUtil.computeValidApplicationName((String) applicationName, namespace, applyNamespaceResult);
     }
 
     @Override

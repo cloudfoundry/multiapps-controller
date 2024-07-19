@@ -20,12 +20,12 @@ public class RoutesValidator implements ParameterValidator {
 
     protected Map<String, ParameterValidator> validators;
 
-    public RoutesValidator(String namespace, boolean applyNamespaceGlobal) {
-        initRoutesValidators(namespace, applyNamespaceGlobal);
+    public RoutesValidator(String namespace, boolean applyNamespaceGlobal, Boolean applyNamespaceOperational) {
+        initRoutesValidators(namespace, applyNamespaceGlobal, applyNamespaceOperational);
     }
 
-    protected void initRoutesValidators(String namespace, boolean applyNamespaceGlobal) {
-        ParameterValidator routeValidator = new RouteValidator(namespace, applyNamespaceGlobal);
+    protected void initRoutesValidators(String namespace, boolean applyNamespaceGlobal, Boolean applyNamespaceOperational) {
+        ParameterValidator routeValidator = new RouteValidator(namespace, applyNamespaceGlobal, applyNamespaceOperational);
         this.validators = Map.of(routeValidator.getParameterName(), routeValidator);
     }
 
