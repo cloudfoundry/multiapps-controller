@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.web.resources;
 import java.text.MessageFormat;
 import java.util.concurrent.CompletableFuture;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationShutdown;

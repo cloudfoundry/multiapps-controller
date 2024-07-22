@@ -5,7 +5,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.SLException;

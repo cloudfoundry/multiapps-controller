@@ -4,8 +4,8 @@ import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import javax.naming.NamingException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;

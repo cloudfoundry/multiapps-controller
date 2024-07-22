@@ -5,8 +5,8 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 
 import java.nio.file.Paths;
 import java.time.Duration;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 public class Metrics implements MetricsMBean {

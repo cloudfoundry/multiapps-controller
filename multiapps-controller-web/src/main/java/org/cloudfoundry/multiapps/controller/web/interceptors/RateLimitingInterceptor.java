@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.web.interceptors;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 

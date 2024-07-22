@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.NotFoundException;

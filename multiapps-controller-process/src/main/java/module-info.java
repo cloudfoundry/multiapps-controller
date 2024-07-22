@@ -33,7 +33,7 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires jakarta.persistence;
     requires java.sql;
     requires jakarta.xml.bind;
-    requires javax.inject;
+    requires jakarta.inject;
     requires org.apache.logging.log4j.core;
     requires org.apache.logging.log4j;
     requires org.apache.commons.collections4;
