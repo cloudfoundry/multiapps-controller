@@ -19,6 +19,7 @@ import org.cloudfoundry.multiapps.controller.persistence.query.impl.ProgressMess
 import org.springframework.context.annotation.Primary;
 
 @Named
+@Primary
 public class ProgressMessageService extends PersistenceService<ProgressMessage, ProgressMessageDto, Long> {
 
     @Inject

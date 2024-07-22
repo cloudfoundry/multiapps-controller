@@ -26,8 +26,10 @@ import org.cloudfoundry.multiapps.controller.persistence.model.FileInfo;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileInfo;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.ByteArraySqlFileQueryProvider;
+import org.springframework.context.annotation.Primary;
 
 @Named("processLogsPersistenceService")
+@Primary
 public class ProcessLogsPersistenceService extends DatabaseFileService {
 
     public static final String TABLE_NAME = "process_log";
