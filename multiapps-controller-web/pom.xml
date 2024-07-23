@@ -194,5 +194,11 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-jmx</artifactId>
         </dependency>
+        <!-- Dependency required by jclouds during unit testing.-->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -865,10 +865,12 @@
                 <artifactId>jaxb-runtime</artifactId>
                 <version>4.0.5</version>
             </dependency>
+            <!-- Dependency required by jclouds during unit testing.-->
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>2.3.1</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
