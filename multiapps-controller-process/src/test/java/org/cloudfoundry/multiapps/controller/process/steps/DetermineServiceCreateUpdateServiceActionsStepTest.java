@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -39,6 +41,8 @@ import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
 class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableStepTest<DetermineServiceCreateUpdateServiceActionsStep> {
 
+    private static final String SERVICE_NAME = "service";
+
     public static Stream<Arguments> testExecute() {
         return Stream.of(
 // @formatter:off
@@ -59,7 +63,45 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
         );
     }
 
-    private static final String SERVICE_NAME = "service";
+    static Stream<Arguments> testSetServiceGuidIfPresent() {
+        return Stream.of(Arguments.of(
+                                      // (1) Test resolve service guid
+                                      "determine-actions-create-or-update-services-step-input-15-dynamic-parameter-relationship-match.json",
+                                      Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("service-guid")
+                                                                                .relationshipEntityName("service-1")
+                                                                                .build(),
+                                             ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("service-guid")
+                                                                                .relationshipEntityName("service-2")
+                                                                                .build()),
+                                      ImmutableDynamicResolvableParameter.builder()
+                                                                         .parameterName("service-guid")
+                                                                         .relationshipEntityName("service-1")
+                                                                         .value("beeb5e8d-4ab9-46ee-9205-455a278743f0")
+                                                                         .build()),
+                         // (2) Test skip resolve of unrelated parameter
+                         Arguments.of("determine-actions-create-or-update-services-step-input-15-dynamic-parameter-relationship-match.json",
+                                      Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("service-guid")
+                                                                                .relationshipEntityName("service-2")
+                                                                                .build()),
+                                      null),
+                         // (3) Test skip resolve of service marked for recreation
+                         Arguments.of("determine-actions-create-or-update-services-step-input-3-recreate-service.json",
+                                      Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("service-guid")
+                                                                                .relationshipEntityName("service-1")
+                                                                                .build()),
+                                      null),
+                         // (4) Test skip resolve of unrelated parameter due to different parameter type
+                         Arguments.of("determine-actions-create-or-update-services-step-input-15-dynamic-parameter-relationship-match.json",
+                                      Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                .parameterName("metadata-key")
+                                                                                .relationshipEntityName("service-1")
+                                                                                .build()),
+                                      null));
+    }
 
     @ParameterizedTest
     @MethodSource
@@ -102,7 +144,32 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
     @ParameterizedTest
     @ValueSource(booleans = { false, true })
     void testShouldSkipParametersUpdate(boolean isOptional) {
+        CloudServiceInstanceExtended existingService = createMockServiceInstanceWithoutCredentials(isOptional);
         CloudServiceInstanceExtended service = createMockServiceInstance(isOptional);
+
+        Mockito.when(client.getServiceInstance(any(), anyBoolean()))
+               .thenReturn(existingService);
+
+        context.setVariable(Variables.SERVICE_TO_PROCESS, service);
+        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Collections.emptyMap());
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        List<ServiceAction> serviceActionsToExecute = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
+        assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_CREDENTIALS),
+                   "Actions should contain " + ServiceAction.UPDATE_CREDENTIALS);
+        assertFalse(serviceActionsToExecute.contains(ServiceAction.CREATE), "Actions should not contain " + ServiceAction.CREATE);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    void testShouldSkipParametersUpdateWithoutCredentials(boolean isOptional) {
+        CloudServiceInstanceExtended existingService = createMockServiceInstanceWithoutCredentials(isOptional);
+        CloudServiceInstanceExtended service = createMockServiceInstanceWithoutCredentials(isOptional);
+
+        Mockito.when(client.getServiceInstance(any(), anyBoolean()))
+               .thenReturn(existingService);
 
         context.setVariable(Variables.SERVICE_TO_PROCESS, service);
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Collections.emptyMap());
@@ -112,6 +179,7 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
         List<ServiceAction> serviceActionsToExecute = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
         assertFalse(serviceActionsToExecute.contains(ServiceAction.UPDATE_CREDENTIALS),
                     "Actions should not contain " + ServiceAction.UPDATE_CREDENTIALS);
+        assertFalse(serviceActionsToExecute.contains(ServiceAction.CREATE), "Actions should not contain " + ServiceAction.CREATE);
     }
 
     @ParameterizedTest
@@ -153,46 +221,6 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
 
         List<ServiceAction> serviceActionsToExecute = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
         assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_TAGS), "Actions should contain " + ServiceAction.UPDATE_TAGS);
-    }
-
-    static Stream<Arguments> testSetServiceGuidIfPresent() {
-        return Stream.of(Arguments.of(
-                                      // (1) Test resolve service guid
-                                      "determine-actions-create-or-update-services-step-input-15-dynamic-parameter-relationship-match.json",
-                                      Set.of(ImmutableDynamicResolvableParameter.builder()
-                                                                                .parameterName("service-guid")
-                                                                                .relationshipEntityName("service-1")
-                                                                                .build(),
-                                             ImmutableDynamicResolvableParameter.builder()
-                                                                                .parameterName("service-guid")
-                                                                                .relationshipEntityName("service-2")
-                                                                                .build()),
-                                      ImmutableDynamicResolvableParameter.builder()
-                                                                         .parameterName("service-guid")
-                                                                         .relationshipEntityName("service-1")
-                                                                         .value("beeb5e8d-4ab9-46ee-9205-455a278743f0")
-                                                                         .build()),
-                         // (2) Test skip resolve of unrelated parameter
-                         Arguments.of("determine-actions-create-or-update-services-step-input-15-dynamic-parameter-relationship-match.json",
-                                      Set.of(ImmutableDynamicResolvableParameter.builder()
-                                                                                .parameterName("service-guid")
-                                                                                .relationshipEntityName("service-2")
-                                                                                .build()),
-                                      null),
-                         // (3) Test skip resolve of service marked for recreation
-                         Arguments.of("determine-actions-create-or-update-services-step-input-3-recreate-service.json",
-                                      Set.of(ImmutableDynamicResolvableParameter.builder()
-                                                                                .parameterName("service-guid")
-                                                                                .relationshipEntityName("service-1")
-                                                                                .build()),
-                                      null),
-                         // (4) Test skip resolve of unrelated parameter due to different parameter type
-                         Arguments.of("determine-actions-create-or-update-services-step-input-15-dynamic-parameter-relationship-match.json",
-                                      Set.of(ImmutableDynamicResolvableParameter.builder()
-                                                                                .parameterName("metadata-key")
-                                                                                .relationshipEntityName("service-1")
-                                                                                .build()),
-                                      null));
     }
 
     @ParameterizedTest
@@ -280,6 +308,16 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
                                                     .build();
     }
 
+    private CloudServiceInstanceExtended createMockServiceInstanceWithoutCredentials(boolean optional) {
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .name(SERVICE_NAME)
+                                                    .resourceName(SERVICE_NAME)
+                                                    .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
+                                                    .isOptional(optional)
+                                                    .tags(List.of())
+                                                    .build();
+    }
+
     private CloudServiceInstanceExtended createMockUserProvidedServiceInstance(CloudMetadata metadata, List<String> tags) {
         return ImmutableCloudServiceInstanceExtended.builder()
                                                     .name(SERVICE_NAME)
@@ -290,13 +328,19 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
                                                     .build();
     }
 
+    @Override
+    protected DetermineServiceCreateUpdateServiceActionsStep createStep() {
+        return new DetermineServiceCreateUpdateServiceActionsStep();
+    }
+
     private static class StepInput {
 
+        // ServiceKeys - Input
+        final List<CloudServiceKey> serviceKeysToCreate = Collections.emptyList();
         // ServiceData - Input
         CloudServiceInstanceExtended service;
         CloudServiceInstanceExtended existingService;
         ServiceOperation lastOperationForExistingService;
-
         // ServiceData - Expectation
         boolean shouldCreateService;
         boolean shouldDeleteServices;
@@ -307,19 +351,11 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
         boolean shouldUpdateServiceParameters;
         boolean shouldUpdateSyslogDrainUrl;
 
-        // ServiceKeys - Input
-        final List<CloudServiceKey> serviceKeysToCreate = Collections.emptyList();
-
         // ServiceKeys - Expectation
         public Map<String, List<CloudServiceKey>> getServiceKeysToCreate() {
             return Map.of(service.getName(), serviceKeysToCreate);
         }
 
-    }
-
-    @Override
-    protected DetermineServiceCreateUpdateServiceActionsStep createStep() {
-        return new DetermineServiceCreateUpdateServiceActionsStep();
     }
 
 }
