@@ -18,6 +18,9 @@ public interface IncrementalAppInstanceUpdateConfiguration {
     @Nullable
     Integer getOldApplicationInstanceCount();
 
+    @Nullable
+    Integer getOldApplicationInitialInstanceCount();
+
     CloudApplication getNewApplication();
 
     Integer getNewApplicationInstanceCount();

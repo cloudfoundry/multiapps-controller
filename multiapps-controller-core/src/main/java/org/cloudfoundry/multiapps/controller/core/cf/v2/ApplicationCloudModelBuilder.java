@@ -13,12 +13,12 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableBindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.DeploymentMode;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;

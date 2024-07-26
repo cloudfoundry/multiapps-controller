@@ -5,6 +5,7 @@ import java.text.MessageFormat;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableIncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.IncrementalAppInstanceUpdateConfiguration;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
@@ -14,44 +15,65 @@ public class PollIncrementalAppInstanceUpdateExecution implements AsyncExecution
 
     @Override
     public AsyncExecutionState execute(ProcessContext context) {
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         CloudApplicationExtended appToProcess = context.getVariable(Variables.APP_TO_PROCESS);
+        CloudControllerClient client = context.getControllerClient();
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         context.getStepLogger()
-               .info("Desired application \"{0}\" instances {1} and now configured to {2}", appToProcess.getName(),
-                     appToProcess.getInstances(), incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
-        if (appToProcess.getInstances() == incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount()) {
+               .debug(Messages.DESIRED_APPLICATION_0_INSTANCES_1_AND_NOW_SCALED_TO_2, appToProcess.getName(), appToProcess.getInstances(),
+                      incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
+        if (incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount() >= appToProcess.getInstances()) {
             return AsyncExecutionState.FINISHED;
         }
+        return rescaleApplications(context, incrementalAppInstanceUpdateConfiguration, client);
+    }
 
+    private AsyncExecutionState rescaleApplications(ProcessContext context,
+                                                    IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration,
+                                                    CloudControllerClient client) {
+        var updatedIncrementalAppInstanceUpdateConfiguration = downscaleOldApplication(context, incrementalAppInstanceUpdateConfiguration,
+                                                                                       client);
+        updatedIncrementalAppInstanceUpdateConfiguration = scaleUpNewApplication(context, updatedIncrementalAppInstanceUpdateConfiguration,
+                                                                                 client);
+        context.setVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION, updatedIncrementalAppInstanceUpdateConfiguration);
+        context.setVariable(Variables.ASYNC_STEP_EXECUTION_INDEX, 1);
+        return AsyncExecutionState.RUNNING;
+    }
+
+    private IncrementalAppInstanceUpdateConfiguration
+            downscaleOldApplication(ProcessContext context,
+                                    IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration,
+                                    CloudControllerClient client) {
+        var incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
+                                                                                                                 .from(incrementalAppInstanceUpdateConfiguration);
         CloudApplication oldApplication = incrementalAppInstanceUpdateConfiguration.getOldApplication();
-        CloudControllerClient client = context.getControllerClient();
-
-        ImmutableIncrementalAppInstanceUpdateConfiguration.Builder incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
-                                                                                                                                                                        .from(incrementalAppInstanceUpdateConfiguration);
         if (oldApplication != null && incrementalAppInstanceUpdateConfiguration.getOldApplicationInstanceCount() > 1) {
             int oldApplicationInstancesCount = incrementalAppInstanceUpdateConfiguration.getOldApplicationInstanceCount() - 1;
             context.getStepLogger()
-                   .info("Downscale application \"{0}\" to {1} instances", oldApplication.getName(), oldApplicationInstancesCount);
+                   .debug(Messages.DOWNSCALING_APPLICATION_0_TO_1_INSTANCES, oldApplication.getName(), oldApplicationInstancesCount);
             client.updateApplicationInstances(oldApplication.getName(), oldApplicationInstancesCount);
             incrementalAppInstanceUpdateConfigurationBuilder.oldApplicationInstanceCount(oldApplicationInstancesCount);
         }
+        return incrementalAppInstanceUpdateConfigurationBuilder.build();
+    }
 
+    private IncrementalAppInstanceUpdateConfiguration
+            scaleUpNewApplication(ProcessContext context,
+                                  IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration,
+                                  CloudControllerClient client) {
+        var incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
+                                                                                                                 .from(incrementalAppInstanceUpdateConfiguration);
         CloudApplication newApplication = context.getVariable(Variables.EXISTING_APP_TO_POLL);
         int newApplicationInstancesCount = incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount() + 1;
         context.getStepLogger()
-               .info("Upscale application \"{0}\" to {1} instances", newApplication.getName(), newApplicationInstancesCount);
+               .debug(Messages.UPSCALING_APPLICATION_0_TO_1_INSTANCES, newApplication.getName(), newApplicationInstancesCount);
         client.updateApplicationInstances(newApplication.getName(), newApplicationInstancesCount);
         incrementalAppInstanceUpdateConfigurationBuilder.newApplicationInstanceCount(newApplicationInstancesCount);
-        context.setVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION,
-                            incrementalAppInstanceUpdateConfigurationBuilder.build());
-
-        context.setVariable(Variables.ASYNC_STEP_EXECUTION_INDEX, 0);
-        return AsyncExecutionState.RUNNING;
+        return incrementalAppInstanceUpdateConfigurationBuilder.build();
     }
 
     @Override
     public String getPollingErrorMessage(ProcessContext context) {
-        return MessageFormat.format("Error during poll of incremental instance update of module \"{0}\"",
+        return MessageFormat.format(Messages.ERROR_DURING_POLL_OF_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0,
                                     context.getVariable(Variables.APP_TO_PROCESS)
                                            .getModuleName());
     }

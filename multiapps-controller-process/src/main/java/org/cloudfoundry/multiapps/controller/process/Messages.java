@@ -65,6 +65,7 @@ public class Messages {
     public static final String FAILED_TO_UPDATE_FILES_OF_OPERATION_0 = "Failed to update files of operation: {0}";
     public static final String COULD_NOT_DELETE_ORPHANED_FILES_MODIFIED_AFTER_0_AND_BEFORE_1 = "Could not delete orphaned files modified after {0} and before {1}";
     public static final String ERROR_WHILE_STARTING_ASYNC_UPLOAD_OF_APP_WITH_NAME_0 = "Error while starting async upload of app with name {0}";
+    public static final String REQUIRED_APPLICATION_TO_POLL_0_NOT_FOUND = "Required application to poll: \"{0}\" not found";
 
     // Audit log messages
 
@@ -78,6 +79,8 @@ public class Messages {
     public static final String ERROR_WHILE_DELETING_SERVICE_KEY_0 = "Error while deleting service key \"{0}\"";
     public static final String ERROR_WHILE_CALCULATING_SERVICE_KEYS_FOR_WAITING = "Error while calculating service keys for waiting";
     public static final String COULD_NOT_GET_APP_LOGS = "Could not get application recent logs: {0}";
+    public static final String ERROR_DURING_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during incremental instance update of module \"{0}\"";
+    public static final String ERROR_DURING_POLL_OF_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during poll of incremental instance update of module \"{0}\"";
 
     // Process step errors
     public static final String ERROR_VALIDATING_PARAMS = "Error validating parameters";
@@ -205,6 +208,7 @@ public class Messages {
     public static final String COULD_NOT_UPDATE_PARAMETERS_SERVICE = "Could not update parameters of service \"{0}\" : {1}";
     public static final String COULD_NOT_UPDATE_PLAN_SERVICE = "Could not update plan of service \"{0}\" : {1}";
     public static final String COULD_NOT_UPDATE_SYSLOG_DRAIN_URL_SERVICE = "Could not update syslog drain url of service \"{0}\" : {1}";
+    public static final String SCALING_DOWN_NEW_APPLICATION_0_TO_1_INSTANCES = "Scaling down new application: \"{0}\" to 1 instances";
 
     public static final String COULD_NOT_GET_SERVICE_KEYS_FOR_OPTIONAL_SERVICE = "Could not get service keys for optional service \"{0}\"";
     public static final String DEFAULT_FAILED_OPERATION_DESCRIPTION = "The service broker returned an error with no description!";
@@ -293,6 +297,7 @@ public class Messages {
     public static final String CLOSING_STREAM_FOR_PART_0 = "Closing stream for part: {0}";
     public static final String CLOSING_STREAM_FOR_PART_STREAM_FINISHED_0 = "Closing stream for part, stream finished: {0}";
     public static final String CLOSING_LAST_STREAM_FOR_PART_0 = "Closing the last stream, part: {0}";
+    public static final String SCALING_UP_OLD_APPLICATION_0_TO_1_INSTANCES = "Scaling up old application: \"{0}\" to {1} instances";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
@@ -357,6 +362,12 @@ public class Messages {
     public static final String EXECUTING_HOOK_0 = "Executing hook \"{0}\"";
     public static final String WAITING_PREVIOUS_OPERATIONS_TO_FINISH = "Waiting for previous service operations to finish...";
     public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FINISHED = "Async operation for service broker \"{0}\" has finished";
+    public static final String STARTING_INCREMENTAL_APPLICATION_INSTANCE_UPDATE_FOR_0 = "Starting incremental application instance update for \"{0}\"...";
+    public static final String DUE_TO_MISSING_PRODUCTIVE_DEPLOYED_APPLICATION_OF_MODULE_0_THE_NEW_APPLICATION_WILL_BE_SCALED_IN_STANDARD_WAY = "Due to missing productive deployed application of module \"{0}\", the new application will be scaled in standard way";
+    public static final String APPLICATION_0_ALREADY_SCALED_TO_THE_DESIRED_1_INSTANCES = "Application {0} already scaled to the desired {1} instances";
+    public static final String NO_DETECTED_APPLICATION_IN_THE_DEPLOYED_MTA = "No detected application in the deployed MTA";
+    public static final String NOT_DEPLOYED_MTA_DETECTED = "Not deployed MTA detected";
+    public static final String THE_REQUIRED_APPLICATION_NOT_FOUND_IN_THE_DETECTED_MTA = "The required application not found in the detected MTA";
 
     // DEBUG log messages
     public static final String ENTERING_TESTING_PHASE = "Entering testing phase";
@@ -706,6 +717,11 @@ public class Messages {
     public static final String NEW_METADATA = "New metadata: {0}";
     public static final String OPENING_A_NEW_INPUT_STREAM_FOR_FILE_WITH_ID_0_AND_NAME_1 = "Opening a new input stream for file with ID: {0} and name: {1}";
     public static final String ARCHIVE_WITH_ID_0_AND_NAME_1_WAS_STORED = "Archive with ID: {0} and name: {1} was stored";
+    public static final String NOT_ALL_OF_THE_APPLICATION_0_INSTANCES_ARE_RUNNING_WAITING_FOR_ALL_INSTANCES_TO_START = "Not all of the application {0} instances are running. Waiting for all instances to start";
+    public static final String THE_DETECTED_APPLICATION_HAS_THE_SAME_NAME_AS_THE_NEW_ONE = "The detected application has the same name as the new one";
+    public static final String DESIRED_APPLICATION_0_INSTANCES_1_AND_NOW_SCALED_TO_2 = "Desired application \"{0}\" instances {1} and now scaled to {2}";
+    public static final String DOWNSCALING_APPLICATION_0_TO_1_INSTANCES = "Downscaling application \"{0}\" to {1} instances";
+    public static final String UPSCALING_APPLICATION_0_TO_1_INSTANCES = "Upscaling application \"{0}\" to {1} instances";
 
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";
