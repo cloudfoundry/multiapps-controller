@@ -798,7 +798,7 @@ public interface Variables {
                                                                                          .build();
 
     Variable<IncrementalAppInstanceUpdateConfiguration> INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION = ImmutableJsonStringVariable.<IncrementalAppInstanceUpdateConfiguration> builder()
-                                                                                                                                   .name("IncrementalAppInstanceUpdateConfiguration")
+                                                                                                                                   .name("incrementalAppInstanceUpdateConfiguration")
                                                                                                                                    .type(new TypeReference<>() {
                                                                                                                                    })
                                                                                                                                    .build();

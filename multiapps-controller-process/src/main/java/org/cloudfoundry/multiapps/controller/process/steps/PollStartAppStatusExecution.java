@@ -4,7 +4,6 @@ import static java.text.MessageFormat.format;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
@@ -25,11 +24,6 @@ import com.sap.cloudfoundry.client.facade.domain.InstanceState;
 public class PollStartAppStatusExecution implements AsyncExecution {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PollStartAppStatusExecution.class);
-
-    enum StartupStatus {
-        STARTING, STARTED, CRASHED, DOWN
-    }
-
     private final CloudControllerClientFactory clientFactory;
     private final TokenService tokenService;
 
@@ -70,7 +64,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         return context.getVariable(Variables.APP_TO_PROCESS);
     }
 
-    private CloudApplication getApplication(ProcessContext context, String appToPoll, CloudControllerClient client) {
+    protected CloudApplication getApplication(ProcessContext context, String appToPoll, CloudControllerClient client) {
         CloudApplication application = context.getVariable(Variables.EXISTING_APP_TO_POLL);
         if (application == null) {
             application = client.getApplication(appToPoll);
@@ -119,11 +113,9 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             List<CloudRoute> routes = context.getControllerClient()
                                              .getApplicationRoutes(app.getGuid());
             if (routes.isEmpty()) {
-                context.getStepLogger()
-                       .info(Messages.APP_STARTED, app.getName());
+                onSuccess(context, Messages.APP_STARTED, app.getName());
             } else {
-                context.getStepLogger()
-                       .info(Messages.APP_STARTED_URLS, app.getName(), UriUtil.prettyPrintRoutes(routes));
+                onSuccess(context, Messages.APP_STARTED_URLS, app.getName(), UriUtil.prettyPrintRoutes(routes));
             }
             return AsyncExecutionState.FINISHED;
         }
@@ -133,6 +125,11 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     protected void onError(ProcessContext context, String message, Object... arguments) {
         context.getStepLogger()
                .error(message, arguments);
+    }
+
+    protected void onSuccess(ProcessContext context, String message, Object... arguments) {
+        context.getStepLogger()
+               .info(message, arguments);
     }
 
     private String composeStatesMessage(List<InstanceInfo> instances) {
@@ -161,5 +158,9 @@ public class PollStartAppStatusExecution implements AsyncExecution {
                         .filter(instance -> instance.getState()
                                                     .equals(state))
                         .count();
+    }
+
+    enum StartupStatus {
+        STARTING, STARTED, CRASHED, DOWN
     }
 }

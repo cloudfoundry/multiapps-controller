@@ -202,7 +202,7 @@ public class StepsUtil {
         return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, namespace,
                                                               context.getStepLogger(), getAppSuffixDeterminer(context),
                                                               context.getControllerClient(),
-                                                              shouldApplyincrementalInstancesUpdate(context));
+                                                              shouldApplyIncrementalInstancesUpdate(context));
     }
 
     static AppSuffixDeterminer getAppSuffixDeterminer(ProcessContext context) {
@@ -211,7 +211,7 @@ public class StepsUtil {
         return new AppSuffixDeterminer(keepOriginalNamesAfterDeploy, isAfterResumePhase);
     }
 
-    private static boolean shouldApplyincrementalInstancesUpdate(ProcessContext context) {
+    private static boolean shouldApplyIncrementalInstancesUpdate(ProcessContext context) {
         boolean shouldApplyIncrementalInstancesUpdate = context.getVariable(Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE);
         Phase deploymentPhase = context.getVariable(Variables.PHASE);
         return shouldApplyIncrementalInstancesUpdate && !Phase.AFTER_RESUME.equals(deploymentPhase);
