@@ -231,23 +231,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
-        Integer uploadTimeout = extractUploadTimeoutFromAppAttributes(app, SupportedParameters.UPLOAD_TIMEOUT);
-        Duration uploadTimeoutOperational = context.getVariable(Variables.UPLOAD_APP_TIMEOUT);
-
-        Duration resultTimeout;
-        if (uploadTimeoutOperational != null) {
-            resultTimeout = uploadTimeoutOperational;
-        } else if (uploadTimeout != null) {
-            resultTimeout = Duration.ofSeconds(uploadTimeout);
-        } else {
-            int uploadTimeoutGlobal = (int) context.getVariable(Variables.UPLOAD_APP_TIMEOUT_GLOBAL)
-                                                   .toSeconds();
-            resultTimeout = Duration.ofSeconds(uploadTimeoutGlobal);
-        }
-
-        logTimeout(Messages.UPLOAD_APP_TIMEOUT, resultTimeout.toSeconds());
-        return resultTimeout;
+        return getGivenTimeout(context, SupportedParameters.UPLOAD_TIMEOUT, Variables.UPLOAD_APP_TIMEOUT,
+                               Variables.UPLOAD_APP_TIMEOUT_GLOBAL, Messages.UPLOAD_APP_TIMEOUT);
     }
 
     class MonitorUploadStatusCallback implements UploadStatusCallbackExtended {

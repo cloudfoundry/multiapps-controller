@@ -225,8 +225,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     static Stream<Arguments> testValidatePriority() {
         return Stream.of(Arguments.of(100, 200, 300, 100), Arguments.of(100, 200, null, 100), Arguments.of(100, null, null, 100),
                          Arguments.of(100, null, 300, 100), Arguments.of(null, 200, 300, 200), Arguments.of(null, 200, null, 200),
-                         Arguments.of(null, null, 300, 300), Arguments.of(null, null, null, 3600), Arguments.of(null, null, 300, 300),
-                         Arguments.of(null, null, null, 3600));
+                         Arguments.of(null, null, 300, 300), Arguments.of(null, null, null, 3600));
     }
 
 }

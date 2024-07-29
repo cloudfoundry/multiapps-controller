@@ -58,23 +58,8 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
-        Integer taskExecutionTimeout = extractUploadTimeoutFromAppAttributes(app, SupportedParameters.TASK_EXECUTION_TIMEOUT);
-        Duration taskExecutionTimeoutOperational = context.getVariable(Variables.TASK_EXECUTION_TIMEOUT);
-
-        Duration resultTimeout;
-        if (taskExecutionTimeoutOperational != null) {
-            resultTimeout = taskExecutionTimeoutOperational;
-        } else if (taskExecutionTimeout != null) {
-            resultTimeout = Duration.ofSeconds(taskExecutionTimeout);
-        } else {
-            int taskExecutionTimeoutGlobal = (int) context.getVariable(Variables.TASK_EXECUTION_TIMEOUT_GLOBAL)
-                                                          .toSeconds();
-            resultTimeout = Duration.ofSeconds(taskExecutionTimeoutGlobal);
-        }
-
-        logTimeout(Messages.TASK_EXECUTION_TIMEOUT, resultTimeout.toSeconds());
-        return resultTimeout;
+        return getGivenTimeout(context, SupportedParameters.TASK_EXECUTION_TIMEOUT, Variables.TASK_EXECUTION_TIMEOUT,
+                               Variables.TASK_EXECUTION_TIMEOUT_GLOBAL, Messages.TASK_EXECUTION_TIMEOUT);
     }
 
 }

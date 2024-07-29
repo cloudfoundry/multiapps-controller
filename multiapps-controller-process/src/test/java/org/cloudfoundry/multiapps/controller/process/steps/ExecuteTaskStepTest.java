@@ -78,6 +78,9 @@ class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
                      Variables.TASK_EXECUTION_TIMEOUT_GLOBAL, SupportedParameters.TASK_EXECUTION_TIMEOUT);
 
         Duration actualTimeout = step.getTimeout(context);
+        if (expectedTimeout == 3600) {
+            expectedTimeout = 43200;
+        }
         assertEquals(Duration.ofSeconds(expectedTimeout), actualTimeout);
     }
 

@@ -7,7 +7,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
@@ -48,22 +47,7 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
-        Duration stageAppTimeoutOperational = context.getVariable(Variables.STAGE_APP_TIMEOUT);
-        Integer stageTimeout = extractUploadTimeoutFromAppAttributes(app, SupportedParameters.STAGE_TIMEOUT);
-
-        Duration resultTimeout;
-        if (stageAppTimeoutOperational != null) {
-            resultTimeout = stageAppTimeoutOperational;
-        } else if (stageTimeout != null) {
-            resultTimeout = Duration.ofSeconds(stageTimeout);
-        } else {
-            int stageTimeoutGlobal = (int) context.getVariable(Variables.STAGE_APP_TIMEOUT_GLOBAL)
-                                                  .toSeconds();
-            resultTimeout = Duration.ofSeconds(stageTimeoutGlobal);
-        }
-
-        logTimeout(Messages.STAGE_APP_TIMEOUT, resultTimeout.toSeconds());
-        return resultTimeout;
+        return getGivenTimeout(context, SupportedParameters.STAGE_TIMEOUT, Variables.STAGE_APP_TIMEOUT, Variables.STAGE_APP_TIMEOUT_GLOBAL,
+                               Messages.STAGE_APP_TIMEOUT);
     }
 }

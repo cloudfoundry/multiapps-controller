@@ -164,7 +164,7 @@ public interface Variables {
                                                                          .build();
     Variable<Duration> TASK_EXECUTION_TIMEOUT_GLOBAL = ImmutableSimpleVariable.<Duration> builder()
                                                                               .name("taskExecutionTimeoutGlobal")
-                                                                              .defaultValue(Duration.ofHours(1))
+                                                                              .defaultValue(Duration.ofHours(12))
                                                                               .build();
     Variable<Duration> UPLOAD_APP_TIMEOUT_GLOBAL = ImmutableSimpleVariable.<Duration> builder()
                                                                           .name("uploadAppTimeoutGlobal")
