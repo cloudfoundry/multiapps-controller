@@ -61,6 +61,8 @@ applications:
         com.sap.cloud.lm.sl.cf.sap.process.steps: DEBUG,
         org.cloudfoundry.multiapps.controller.process.steps: DEBUG,
         org.cloudfoundry.multiapps.controller.core: DEBUG,
-        com.sap.cloudfoundry.client.facade: DEBUG
+        com.sap.cloudfoundry.client.facade: DEBUG,
+        org.cloudfoundry.reactor: DEBUG,
+        cloudfoundry-client.wire: TRACE
       }
 
