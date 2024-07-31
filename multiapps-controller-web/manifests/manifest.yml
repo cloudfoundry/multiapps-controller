@@ -2,7 +2,7 @@
 applications:
 - name: deploy-service
   host: deploy-service
-  memory: 1024M
+  memory: 2048M
   instances: 1
   path: ../${project.build.finalName}.war
   buildpack: java_buildpack
