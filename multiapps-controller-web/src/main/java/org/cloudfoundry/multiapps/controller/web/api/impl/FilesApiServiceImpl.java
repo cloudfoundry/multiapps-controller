@@ -127,8 +127,8 @@ public class FilesApiServiceImpl implements FilesApiService {
             FileMetadata file = parseFileEntry(fileEntry);
             filesApiServiceAuditLog.logUploadFile(SecurityContextUtil.getUsername(), spaceGuid, file);
             var endTime = LocalDateTime.now();
-            LOGGER.trace(Messages.UPLOADED_FILE, file.getId(), file.getName(), file.getSize(), file.getDigest(), file.getDigestAlgorithm(),
-                         ChronoUnit.MILLIS.between(startTime, endTime));
+            LOGGER.trace(Messages.UPLOADED_FILE, file.getId(), file.getName(), file.getSize(), file.getSpace(), file.getDigest(),
+                         file.getDigestAlgorithm(), ChronoUnit.MILLIS.between(startTime, endTime));
             return ResponseEntity.status(HttpStatus.CREATED)
                                  .body(file);
         } catch (Exception e) {
