@@ -75,7 +75,7 @@ public final class Messages {
     // DEBUG log messages
     public static final String RECEIVED_UPLOAD_REQUEST = "Received upload request on URI: {}";
     public static final String RECEIVED_UPLOAD_FROM_URL_REQUEST = "Received upload from URL {} request";
-    public static final String UPLOADED_FILE = "Uploaded file \"{}\" with name {}, size {} and digest {} (algorithm {}) for {} ms.";
+    public static final String UPLOADED_FILE = "Uploaded file \"{}\" with name {}, size {}, space {}, and digest {} (algorithm {}) for {} ms.";
     public static final String ASYNC_UPLOAD_JOB_EXISTS = "Async upload job for URL {} exists: {}";
     public static final String CREATING_ASYNC_UPLOAD_JOB = "Creating async upload job for URL {} with ID: {}";
     public static final String ASYNC_UPLOAD_JOB_REJECTED = "Async upload job {} rejected. Deleting entry";
