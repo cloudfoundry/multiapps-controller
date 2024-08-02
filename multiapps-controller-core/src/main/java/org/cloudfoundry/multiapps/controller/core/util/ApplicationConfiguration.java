@@ -5,7 +5,6 @@ import static java.text.MessageFormat.format;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -93,15 +92,15 @@ public class ApplicationConfiguration {
     static final String CFG_ABORTED_OPERATIONS_TTL_IN_MINUTES = "ABORTED_OPERATIONS_TTL_IN_SECONDS";
     static final String CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = "SPRING_SCHEDULER_TASK_EXECUTOR_THREADS";
     static final String CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = "FILES_ASYNC_UPLOAD_EXECUTOR_THREADS";
+    static final String CFG_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER = "ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER";
 
-    private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
+    private static final List<String> VCAP_APPLICATION_URIS_KEYS = List.of("full_application_uris", "application_uris", "uris");
 
     // Default values:
     public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024L; // 4 GB(s)
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024L; // 1 MB(s)
     public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024L; // 1MB
     public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024L; // 1GB
-
     public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
     public static final String DEFAULT_SPACE_GUID = "";
     public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
@@ -148,6 +147,7 @@ public class ApplicationConfiguration {
     public static final String DEFAULT_GLOBAL_AUDITOR_ORIGIN = "uaa";
     public static final int DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = 3;
     public static final int DEFAULT_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = 50;
+    public static final boolean DEFAULT_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER = false;
 
     protected final Environment environment;
 
@@ -204,6 +204,7 @@ public class ApplicationConfiguration {
     private Integer abortedOperationsTtlInSeconds;
     private Integer springSchedulerTaskExecutorThreads;
     private Integer filesAsyncUploadExecutorThreads;
+    private Boolean isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -630,6 +631,13 @@ public class ApplicationConfiguration {
         return abortedOperationsTtlInSeconds;
     }
 
+    public boolean isOnStartFilesWithoutContentCleanerEnabled() {
+        if (isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment == null) {
+            isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment = isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment();
+        }
+        return isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment;
+    }
+
     private URL getControllerUrlFromEnvironment() {
         String controllerUrlString = environment.getString("CF_API");
         if (StringUtils.isEmpty(controllerUrlString)) {
@@ -783,7 +791,8 @@ public class ApplicationConfiguration {
     }
 
     private Integer getFilesAsyncUploadExecutorMaxThreadsFromEnvironment() {
-        Integer value = environment.getInteger(CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS, DEFAULT_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS);
+        Integer value = environment.getInteger(CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS,
+                                               DEFAULT_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS);
         LOGGER.info(format(Messages.FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS, value));
         return value;
     }
@@ -1028,6 +1037,13 @@ public class ApplicationConfiguration {
                                                                                DEFAULT_ABORTED_OPERATIONS_TTL_IN_SECONDS);
         LOGGER.info(format(Messages.ABORTED_OPERATIONS_TTL_IN_SECONDS, abortedOperationsTtlInSeconds));
         return abortedOperationsTtlInSeconds;
+    }
+
+    private Boolean isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment() {
+        Boolean isOnStartFilesCleanerWithoutContentEnabled = environment.getBoolean(CFG_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER,
+                                                                                    DEFAULT_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER);
+        LOGGER.info(format(Messages.ON_START_FILES_CLEANER_WITHOUT_CONTENT_ENABLED_0, isOnStartFilesCleanerWithoutContentEnabled));
+        return isOnStartFilesCleanerWithoutContentEnabled;
     }
 
     public Boolean isInternalEnvironment() {

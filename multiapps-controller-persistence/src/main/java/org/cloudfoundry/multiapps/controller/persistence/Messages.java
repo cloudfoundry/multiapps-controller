@@ -58,6 +58,7 @@ public final class Messages {
 
     // INFO log messages:
     public static final String DEFAULT_CONSOLE = "DefaultConsole";
+    public static final String DELETING_FILES_WITHOUT_CONTENT_WITH_IDS_0 = "Deleting files without content with ids: {0}";
 
     // DEBUG log messages:
     public static final String STORED_FILE_0 = "Stored file: \"{0}\"";

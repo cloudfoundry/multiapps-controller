@@ -1,7 +1,9 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.net.URL;
@@ -112,8 +114,8 @@ class ApplicationConfigurationTest {
                                        .isEmpty());
         Assertions.assertFalse(platform.getModuleTypes()
                                        .isEmpty());
-        Assertions.assertTrue(platform.getParameters()
-                                      .isEmpty());
+        assertTrue(platform.getParameters()
+                           .isEmpty());
     }
 
     @Test
@@ -460,7 +462,7 @@ class ApplicationConfigurationTest {
         Mockito.when(environment.getBoolean(ApplicationConfiguration.SAP_INTERNAL_DELIVERY,
                                             ApplicationConfiguration.DEFAULT_SAP_INTERNAL_DELIVERY))
                .thenReturn(true);
-        Assertions.assertTrue(configuration.isInternalEnvironment());
+        assertTrue(configuration.isInternalEnvironment());
     }
 
     @Test
@@ -510,7 +512,20 @@ class ApplicationConfigurationTest {
         Mockito.when(environment.getAllVariables())
                .thenReturn(filteredEnvironment);
         Map<String, String> filteredEnv = configuration.getNotSensitiveVariables();
-        Assertions.assertTrue(filteredEnv.containsKey(ApplicationConfiguration.CFG_MAX_MTA_DESCRIPTOR_SIZE));
+        assertTrue(filteredEnv.containsKey(ApplicationConfiguration.CFG_MAX_MTA_DESCRIPTOR_SIZE));
+    }
+
+    @Test
+    void testIsOnStartFilesWithoutContentCleanerEnabledThroughEnvironment() {
+        assertFalse(configuration.isOnStartFilesWithoutContentCleanerEnabled());
+    }
+
+    @Test
+    void testIsOnStartFilesWithoutContentCleanerEnabledThroughEnvironmentWithEnv() {
+        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER,
+                                            ApplicationConfiguration.DEFAULT_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER))
+               .thenReturn(true);
+        assertTrue(configuration.isOnStartFilesWithoutContentCleanerEnabled());
     }
 
     @Test

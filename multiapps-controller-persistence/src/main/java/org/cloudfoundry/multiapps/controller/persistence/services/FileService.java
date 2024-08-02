@@ -15,7 +15,6 @@ import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -166,9 +165,11 @@ public class FileService {
         try {
             List<FileEntry> entries = getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListAllFilesQuery());
             List<FileEntry> missing = fileStorage.getFileEntriesWithoutContent(entries);
-            return deleteFilesAttributesByIds(missing.stream()
-                                                     .map(FileEntry::getId)
-                                                     .collect(Collectors.toList()));
+            List<String> missingFilesIds = missing.stream()
+                                                  .map(FileEntry::getId)
+                                                  .toList();
+            logger.info(MessageFormat.format(Messages.DELETING_FILES_WITHOUT_CONTENT_WITH_IDS_0, missingFilesIds));
+            return deleteFilesAttributesByIds(missingFilesIds);
         } catch (SQLException e) {
             throw new FileStorageException(Messages.ERROR_GETTING_ALL_FILES, e);
         }
