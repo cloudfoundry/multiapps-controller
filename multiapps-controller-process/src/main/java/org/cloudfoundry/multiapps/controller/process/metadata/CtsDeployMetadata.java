@@ -99,6 +99,11 @@ public class CtsDeployMetadata {
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .defaultValue(true)
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE.getName())
+                                                                                 .type(ParameterType.BOOLEAN)
+                                                                                 .defaultValue(false)
+                                                                                 .build())
                                          // Special CTS+ parameters:
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.CTS_PROCESS_ID.getName())

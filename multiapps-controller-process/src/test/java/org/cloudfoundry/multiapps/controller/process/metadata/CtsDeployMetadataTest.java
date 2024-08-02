@@ -50,7 +50,8 @@ public class CtsDeployMetadataTest extends MetadataBaseTest {
                 Variables.CTS_PASSWORD.getName(),
                 Variables.APPLICATION_TYPE.getName(),
                 Variables.TRANSFER_TYPE.getName(),
-                Variables.DEPLOY_STRATEGY.getName()
+                Variables.DEPLOY_STRATEGY.getName(),
+                Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE.getName()
             // @formatter:on
         };
     }

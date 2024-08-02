@@ -208,7 +208,7 @@ public class Messages {
     public static final String COULD_NOT_UPDATE_PARAMETERS_SERVICE = "Could not update parameters of service \"{0}\" : {1}";
     public static final String COULD_NOT_UPDATE_PLAN_SERVICE = "Could not update plan of service \"{0}\" : {1}";
     public static final String COULD_NOT_UPDATE_SYSLOG_DRAIN_URL_SERVICE = "Could not update syslog drain url of service \"{0}\" : {1}";
-    public static final String SCALING_DOWN_NEW_APPLICATION_0_TO_1_INSTANCES = "Scaling down new application: \"{0}\" to 1 instances";
+    public static final String SCALING_DOWN_NEW_APPLICATION_TO_ONE_INSTANCE = "Scaling down new application: \"{0}\" to one instance";
 
     public static final String COULD_NOT_GET_SERVICE_KEYS_FOR_OPTIONAL_SERVICE = "Could not get service keys for optional service \"{0}\"";
     public static final String DEFAULT_FAILED_OPERATION_DESCRIPTION = "The service broker returned an error with no description!";
@@ -297,7 +297,7 @@ public class Messages {
     public static final String CLOSING_STREAM_FOR_PART_0 = "Closing stream for part: {0}";
     public static final String CLOSING_STREAM_FOR_PART_STREAM_FINISHED_0 = "Closing stream for part, stream finished: {0}";
     public static final String CLOSING_LAST_STREAM_FOR_PART_0 = "Closing the last stream, part: {0}";
-    public static final String SCALING_UP_OLD_APPLICATION_0_TO_1_INSTANCES = "Scaling up old application: \"{0}\" to {1} instances";
+    public static final String SCALING_UP_OLD_APPLICATION = "Scaling up old application: \"{0}\" to {1} instances";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
@@ -364,9 +364,9 @@ public class Messages {
     public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FINISHED = "Async operation for service broker \"{0}\" has finished";
     public static final String STARTING_INCREMENTAL_APPLICATION_INSTANCE_UPDATE_FOR_0 = "Starting incremental application instance update for \"{0}\"...";
     public static final String DUE_TO_MISSING_PRODUCTIVE_DEPLOYED_APPLICATION_OF_MODULE_0_THE_NEW_APPLICATION_WILL_BE_SCALED_IN_STANDARD_WAY = "Due to missing productive deployed application of module \"{0}\", the new application will be scaled in standard way";
-    public static final String APPLICATION_0_ALREADY_SCALED_TO_THE_DESIRED_1_INSTANCES = "Application {0} already scaled to the desired {1} instances";
-    public static final String NO_DETECTED_APPLICATION_IN_THE_DEPLOYED_MTA = "No detected application in the deployed MTA";
-    public static final String NOT_DEPLOYED_MTA_DETECTED = "Not deployed MTA detected";
+    public static final String APPLICATION_0_ALREADY_SCALED_TO_THE_DESIRED_1_INSTANCES = "Application \"{0}\" already scaled to the desired {1} instances";
+    public static final String LIVE_APPLICATION_NOT_DETECTED_DURING_ROLLING_INSTANCE_UPDATE = "Live application not detected during rolling instance update";
+    public static final String NO_DEPLOYED_MTA_DETECTED_DURING_ROLLING_INSTANCE_UPDATE = "No deployed MTA detected during rolling instance update";
     public static final String THE_REQUIRED_APPLICATION_NOT_FOUND_IN_THE_DETECTED_MTA = "The required application not found in the detected MTA";
 
     // DEBUG log messages
