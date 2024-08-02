@@ -45,7 +45,7 @@ public class CloudControllerClientFactory {
                                                         .connectionPoolSize(configuration.getControllerClientConnectionPoolSize())
                                                         .threadPoolSize(configuration.getControllerClientThreadPoolSize())
                                                         .responseTimeout(configuration.getControllerClientResponseTimeout())
-                                                        .shouldTrustSelfSignedCertificates(configuration.shouldSkipSslValidation())
+                                                        .shouldTrustSelfSignedCertificates(true)
                                                         .build();
     }
 
