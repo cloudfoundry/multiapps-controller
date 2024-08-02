@@ -12,18 +12,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.sql.DataSource;
 
-import org.cloudfoundry.multiapps.controller.core.auditlogging.UserInfoProvider;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.LockOwnerService;
 import org.cloudfoundry.multiapps.controller.process.util.LockOwnerReleaser;
 import org.cloudfoundry.multiapps.controller.web.Messages;
-import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.flowable.engine.ProcessEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 public class BootstrapServlet extends HttpServlet {
@@ -77,6 +74,9 @@ public class BootstrapServlet extends HttpServlet {
     }
 
     protected void initializeFileService() {
+        if (!configuration.isOnStartFilesWithoutContentCleanerEnabled()) {
+            return;
+        }
         new Thread(() -> {
             try {
                 LOGGER.info(Messages.FILE_SERVICE_DELETING_FILES);
