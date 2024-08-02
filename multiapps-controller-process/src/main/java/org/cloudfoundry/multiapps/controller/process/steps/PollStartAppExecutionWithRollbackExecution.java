@@ -10,9 +10,9 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
-public class PollStartAppExecutionWithRollback extends PollStartAppStatusExecution {
+public class PollStartAppExecutionWithRollbackExecution extends PollStartAppStatusExecution {
 
-    public PollStartAppExecutionWithRollback(CloudControllerClientFactory clientFactory, TokenService tokenService) {
+    public PollStartAppExecutionWithRollbackExecution(CloudControllerClientFactory clientFactory, TokenService tokenService) {
         super(clientFactory, tokenService);
     }
 
@@ -30,8 +30,8 @@ public class PollStartAppExecutionWithRollback extends PollStartAppStatusExecuti
         CloudApplication oldApplication = incrementalAppInstanceUpdateConfiguration.getOldApplication();
         CloudControllerClient client = context.getControllerClient();
         context.getStepLogger()
-               .warn(Messages.SCALING_DOWN_NEW_APPLICATION_0_TO_1_INSTANCES, incrementalAppInstanceUpdateConfiguration.getNewApplication()
-                                                                                                                      .getName());
+               .warn(Messages.SCALING_DOWN_NEW_APPLICATION_TO_ONE_INSTANCE, incrementalAppInstanceUpdateConfiguration.getNewApplication()
+                                                                                                                     .getName());
         client.updateApplicationInstances(incrementalAppInstanceUpdateConfiguration.getNewApplication()
                                                                                    .getName(),
                                           1);
@@ -39,7 +39,7 @@ public class PollStartAppExecutionWithRollback extends PollStartAppStatusExecuti
             return;
         }
         context.getStepLogger()
-               .info(Messages.SCALING_UP_OLD_APPLICATION_0_TO_1_INSTANCES, oldApplication.getName(),
+               .info(Messages.SCALING_UP_OLD_APPLICATION, oldApplication.getName(),
                      incrementalAppInstanceUpdateConfiguration.getOldApplicationInitialInstanceCount());
         client.updateApplicationInstances(oldApplication.getName(),
                                           incrementalAppInstanceUpdateConfiguration.getOldApplicationInitialInstanceCount());

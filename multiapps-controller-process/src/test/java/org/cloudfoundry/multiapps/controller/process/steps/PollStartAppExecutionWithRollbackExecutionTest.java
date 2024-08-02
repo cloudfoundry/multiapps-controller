@@ -29,7 +29,7 @@ import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
 import com.sap.cloudfoundry.client.facade.domain.InstanceState;
 import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
 
-class PollStartAppExecutionWithRollbackTest extends AsyncStepOperationTest<IncrementalAppInstancesUpdateStep> {
+class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationTest<IncrementalAppInstancesUpdateStep> {
 
     private static final String LIVE_APP_NAME = "app-to-process-live";
     private static final UUID LIVE_APP_GUID = UUID.randomUUID();
@@ -133,7 +133,7 @@ class PollStartAppExecutionWithRollbackTest extends AsyncStepOperationTest<Incre
         context.setVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION, updateConfig);
         step.initializeStepLogger(execution);
         ProcessContext wrapper = step.createProcessContext(execution);
-        PollStartAppExecutionWithRollback asyncExecution = (PollStartAppExecutionWithRollback) getAsyncOperations(wrapper).get(0);
+        PollStartAppExecutionWithRollbackExecution asyncExecution = (PollStartAppExecutionWithRollbackExecution) getAsyncOperations(wrapper).get(0);
         asyncExecution.onSuccess(wrapper, "App started");
     }
 
@@ -147,7 +147,7 @@ class PollStartAppExecutionWithRollbackTest extends AsyncStepOperationTest<Incre
 
     @Override
     protected List<AsyncExecution> getAsyncOperations(ProcessContext wrapper) {
-        return List.of(new PollStartAppExecutionWithRollback(clientFactory, tokenService));
+        return List.of(new PollStartAppExecutionWithRollbackExecution(clientFactory, tokenService));
     }
 
     @Override

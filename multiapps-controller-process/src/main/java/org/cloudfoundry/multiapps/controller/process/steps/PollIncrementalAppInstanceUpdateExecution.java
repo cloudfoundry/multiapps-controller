@@ -35,8 +35,12 @@ public class PollIncrementalAppInstanceUpdateExecution implements AsyncExecution
         updatedIncrementalAppInstanceUpdateConfiguration = scaleUpNewApplication(context, updatedIncrementalAppInstanceUpdateConfiguration,
                                                                                  client);
         context.setVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION, updatedIncrementalAppInstanceUpdateConfiguration);
-        context.setVariable(Variables.ASYNC_STEP_EXECUTION_INDEX, 1);
+        setExecutionIndexForPollingNewAppInstances(context);
         return AsyncExecutionState.RUNNING;
+    }
+
+    private void setExecutionIndexForPollingNewAppInstances(ProcessContext context) {
+        context.setVariable(Variables.ASYNC_STEP_EXECUTION_INDEX, 1);
     }
 
     private IncrementalAppInstanceUpdateConfiguration
