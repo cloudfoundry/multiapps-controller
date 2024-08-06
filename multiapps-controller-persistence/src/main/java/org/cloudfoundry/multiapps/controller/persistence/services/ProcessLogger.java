@@ -1,100 +1,91 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.core.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.cloudfoundry.multiapps.controller.persistence.Messages;
-
-import java.io.File;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.impl.Log4jLogEvent;
+import org.apache.logging.log4j.core.layout.AbstractStringLayout;
+import org.apache.logging.log4j.message.Message;
+import org.apache.logging.log4j.message.ObjectMessage;
+import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
 
 public class ProcessLogger {
 
-    private Logger logger;
-    private File log;
-    private String logName;
-    protected final String spaceId;
-    protected final String processId;
-    protected final String activityId;
-    private LoggerContext loggerContext;
+    private final AbstractStringLayout layout;
+    private final String activityId;
+    private final String logName;
+    private OperationLogEntry operationLogEntry;
+    private String logMessage;
 
-    public ProcessLogger(LoggerContext loggerContext, Logger logger, File log, String logName, String spaceId, String processId,
-                         String activityId) {
-        this.logger = logger;
-        this.log = log;
+    public ProcessLogger(OperationLogEntry operationLogEntry, String logName, AbstractStringLayout layout, String activityId) {
+        this.operationLogEntry = operationLogEntry;
+        this.layout = layout;
+        this.activityId = activityId;
         this.logName = logName;
-        this.spaceId = spaceId;
-        this.processId = processId;
-        this.activityId = activityId;
-        this.loggerContext = loggerContext;
-    }
-
-    protected ProcessLogger(LoggerContext loggerContext, String spaceId, String processId, String activityId) {
-        this.loggerContext = loggerContext;
-        this.logger = loggerContext.getRootLogger();
-        this.spaceId = spaceId;
-        this.processId = processId;
-        this.activityId = activityId;
     }
 
     public void info(Object message) {
-        logger.info(message);
+        addMessageAndLogTimeToOperationLogEntry(message, ProcessLoggerMethodNamesEnum.INFO.getName());
     }
 
     public void debug(Object message) {
-        logger.debug(message);
+        addMessageAndLogTimeToOperationLogEntry(message, ProcessLoggerMethodNamesEnum.DEBUG.getName());
     }
 
     public void debug(Object message, Throwable throwable) {
-        logger.debug(message, throwable);
+        addMessageAndLogTimeToOperationLogEntry(message, ProcessLoggerMethodNamesEnum.DEBUG.getName(), throwable);
     }
 
     public void error(Object message) {
-        logger.error(message);
+        addMessageAndLogTimeToOperationLogEntry(message, ProcessLoggerMethodNamesEnum.ERROR.getName());
     }
 
     public void error(Object message, Throwable t) {
-        logger.error(message, t);
+        addMessageAndLogTimeToOperationLogEntry(message, ProcessLoggerMethodNamesEnum.ERROR.getName(), t);
     }
 
     public void trace(Object message) {
-        logger.trace(message);
+        addMessageAndLogTimeToOperationLogEntry(message, ProcessLoggerMethodNamesEnum.TRACE.getName());
     }
 
     public void warn(Object message) {
-        logger.warn(message);
+        addMessageAndLogTimeToOperationLogEntry(message, ProcessLoggerMethodNamesEnum.WARN.getName());
     }
 
     public void warn(Object message, Throwable t) {
-        logger.warn(message, t);
+        addMessageAndLogTimeToOperationLogEntry(message, ProcessLoggerMethodNamesEnum.WARN.getName(), t);
     }
 
-    public String getProcessId() {
-        return this.processId;
+    public String getLogMessage() {
+        return logMessage;
+    }
+
+    public AbstractStringLayout getLayout() {
+        return layout;
     }
 
     public String getActivityId() {
-        return this.activityId;
+        return activityId;
     }
 
-    public synchronized void persistLogFile(ProcessLogsPersistenceService processLogsPersistenceService) {
-        if (log.exists()) {
-            processLogsPersistenceService.persistLog(spaceId, processId, log, logName);
-        }
+    public OperationLogEntry getOperationLogEntry() {
+        return operationLogEntry;
     }
 
-    public synchronized void deleteLogFile() {
-        FileUtils.deleteQuietly(log);
+    private void addMessageAndLogTimeToOperationLogEntry(Object message, String methodName) {
+        logMessage = layout.toSerializable(createEvent(message, methodName));
     }
 
-    public String getLoggerName() {
-        return this.logger.getName();
+    private void addMessageAndLogTimeToOperationLogEntry(Object message, String methodName, Throwable t) {
+        logMessage = layout.toSerializable(createEvent(message, methodName, t));
     }
 
-    public void closeLoggerContext() {
-        try {
-            loggerContext.close();
-        } catch (Exception exception) {
-            logger.error(Messages.COULD_NOT_CLOSE_LOGGER_CONTEXT, exception);
-        }
+    private LogEvent createEvent(Object message, String methodName) {
+        return createEvent(message, methodName, null);
+    }
+
+    private LogEvent createEvent(Object message, String methodName, Throwable t) {
+        Message logMessage = new ObjectMessage(message);
+        StackTraceElement stackTrace = new StackTraceElement(null, null, null, ProcessLoggerProvider.class.getName(), methodName, null, 48);
+        return new Log4jLogEvent(logName, null, null, stackTrace, Level.INFO, logMessage, null, t);
     }
 }

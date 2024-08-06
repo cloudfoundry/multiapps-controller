@@ -6,8 +6,8 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.OperationQueryImpl;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
@@ -31,9 +31,6 @@ class EnterTestingPhaseListenerTest {
     private ProcessLoggerProvider processLoggerProvider;
     // needed because of @InjectMocks
     @Mock
-    private ProcessLogsPersister processLogsPersister;
-    // needed because of @InjectMocks
-    @Mock
     private HistoricOperationEventService historicOperationEventService;
     // needed because of @InjectMocks
     @Mock
@@ -50,6 +47,8 @@ class EnterTestingPhaseListenerTest {
     private StepLogger.Factory stepLoggerFactory;
     @Mock
     private StepLogger stepLogger;
+    @Mock
+    private ProcessLoggerPersister processLoggerPersister;
 
     @InjectMocks
     private EnterTestingPhaseListener listener;

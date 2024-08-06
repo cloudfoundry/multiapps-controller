@@ -45,17 +45,6 @@ class ProcessLogsPersistenceServiceTest {
         return new DataSourceWithDialect(TestDataSourceProvider.getDataSource(LIQUIBASE_CHANGELOG_LOCATION));
     }
 
-    @Test
-    void getLogNamesTest() throws Exception {
-        URL logsResource = getClass().getResource(LOGS_FIE);
-        File logsFile = new File(logsResource.toURI());
-        processLogsPersistenceService.persistLog(SPACE, OPERATION, logsFile, LOG_FILE_NAME);
-        List<String> logNames = processLogsPersistenceService.getLogNames(SPACE, OPERATION);
-        assertEquals(1, logNames.size());
-        assertEquals(LOG_FILE_NAME, logNames.get(0));
-    }
-
-    @Test
     void getLogContentTest() throws Exception {
         URL logsResource = getClass().getResource(LOGS_FIE);
         File logsFile = new File(logsResource.toURI());

@@ -14,8 +14,8 @@ import org.cloudfoundry.multiapps.controller.core.helpers.DynamicResolvableParam
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
@@ -32,13 +32,13 @@ public class CreateUpdateServicesListener extends AbstractProcessExecutionListen
 
     @Inject
     protected CreateUpdateServicesListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
-                                           ProcessLoggerProvider processLoggerProvider, ProcessLogsPersister processLogsPersister,
+                                           ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                                            HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                                            ApplicationConfiguration configuration) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
-              processLogsPersister,
+              processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
               configuration);

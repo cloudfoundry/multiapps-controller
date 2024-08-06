@@ -11,10 +11,14 @@ import org.cloudfoundry.multiapps.controller.process.util.ApplicationWaitAfterSt
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseGetter;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import org.mockito.Spy;
+
+import javax.sql.DataSource;
 
 class StopApplicationUndeploymentStepTest extends UndeployAppStepTest {
 

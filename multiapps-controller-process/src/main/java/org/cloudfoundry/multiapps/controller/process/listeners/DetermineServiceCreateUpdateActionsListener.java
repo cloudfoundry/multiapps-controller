@@ -8,8 +8,8 @@ import javax.inject.Named;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
@@ -27,16 +27,23 @@ public class DetermineServiceCreateUpdateActionsListener extends AbstractProcess
     @Inject
     protected DetermineServiceCreateUpdateActionsListener(ProgressMessageService progressMessageService,
                                                           StepLogger.Factory stepLoggerFactory, ProcessLoggerProvider processLoggerProvider,
-                                                          ProcessLogsPersister processLogsPersister,
+                                                          ProcessLoggerPersister processLoggerPersister,
                                                           HistoricOperationEventService historicOperationEventService,
                                                           FlowableFacade flowableFacade, ApplicationConfiguration configuration) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
-              processLogsPersister,
+              processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
               configuration);
+    }
+
+    public static String buildExportedVariableName(String serviceName) {
+        StringBuilder variableNameBuilder = new StringBuilder();
+        variableNameBuilder.append(Constants.VAR_SERVICE_ACTIONS_TO_EXECUTE);
+        variableNameBuilder.append(serviceName);
+        return variableNameBuilder.toString();
     }
 
     @Override
@@ -47,13 +54,6 @@ public class DetermineServiceCreateUpdateActionsListener extends AbstractProcess
         String exportedVariableName = buildExportedVariableName(serviceToProcess.getName());
 
         setVariableInParentProcess(execution, exportedVariableName, serviceActions);
-    }
-
-    public static String buildExportedVariableName(String serviceName) {
-        StringBuilder variableNameBuilder = new StringBuilder();
-        variableNameBuilder.append(Constants.VAR_SERVICE_ACTIONS_TO_EXECUTE);
-        variableNameBuilder.append(serviceName);
-        return variableNameBuilder.toString();
     }
 
 }

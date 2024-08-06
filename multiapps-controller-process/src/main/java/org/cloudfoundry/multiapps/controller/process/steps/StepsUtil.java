@@ -160,10 +160,9 @@ public class StepsUtil {
         if (context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY)) {
             appName = BlueGreenApplicationNameSuffix.removeSuffix(appName);
         }
-        ProcessLogger processLogger = processLoggerProvider.getLogger(context.getExecution(), appName);
         var loggerPrefix = getLoggerPrefix(logger);
         for (ApplicationLog log : recentLogs) {
-            processLogger.debug(loggerPrefix + "[" + appName + "] " + log.toString());
+            processLoggerProvider.getLogger(context.getExecution(), appName).debug(loggerPrefix + "[" + appName + "] " + log.toString());
         }
 
         var lastLog = recentLogs.get(recentLogs.size() - 1);
