@@ -19,8 +19,8 @@ public class MergedArchiveStreamCreator {
     private final StepLogger stepLogger;
     private final List<FileEntry> archiveParts;
     private final int archiveSize;
-
-    public MergedArchiveStreamCreator(FileService fileService, StepLogger stepLogger, List<FileEntry> archiveParts, int archiveSize) {
+// i guess that int type for archiveSize is preventing us to deploy application with size bigger than int max value, can we have this data type changed to sth bigger?
+    public MergedArchiveStreamCreator(FileService fileService, StepLogger stepLogger, List<FileEntry> archiveParts, int archiveSize) { 
         this.fileService = fileService;
         this.stepLogger = stepLogger;
         this.archiveParts = archiveParts;
