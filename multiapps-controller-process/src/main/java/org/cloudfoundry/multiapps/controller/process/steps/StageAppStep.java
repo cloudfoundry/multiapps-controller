@@ -8,10 +8,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
-import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -47,7 +47,7 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return getGivenTimeout(context, SupportedParameters.STAGE_TIMEOUT, Variables.STAGE_APP_TIMEOUT, Variables.STAGE_APP_TIMEOUT_GLOBAL,
-                               Messages.STAGE_APP_TIMEOUT);
+        return calculateTimeout(context, TimeoutType.STAGE, Variables.APPS_STAGE_TIMEOUT_COMMAND_LINE_LEVEL,
+                                Variables.APPS_STAGE_TIMEOUT_GLOBAL_LEVEL);
     }
 }

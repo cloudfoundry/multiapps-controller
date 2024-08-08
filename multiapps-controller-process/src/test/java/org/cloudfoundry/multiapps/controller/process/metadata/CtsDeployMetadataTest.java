@@ -50,10 +50,10 @@ public class CtsDeployMetadataTest extends MetadataBaseTest {
                 Variables.APPLICATION_TYPE.getName(),
                 Variables.TRANSFER_TYPE.getName(),
                 Variables.DEPLOY_STRATEGY.getName(),
-                Variables.START_APP_TIMEOUT.getName(),
-                Variables.STAGE_APP_TIMEOUT.getName(),
-                Variables.UPLOAD_APP_TIMEOUT.getName(),
-                Variables.TASK_EXECUTION_TIMEOUT.getName()
+                Variables.APPS_START_TIMEOUT_COMMAND_LINE_LEVEL.getName(),
+                Variables.APPS_STAGE_TIMEOUT_COMMAND_LINE_LEVEL.getName(),
+                Variables.APPS_UPLOAD_TIMEOUT_COMMAND_LINE_LEVEL.getName(),
+                Variables.TASK_EXECUTION_TIMEOUT_COMMAND_LINE_LEVEL.getName()
             // @formatter:on
         };
     }

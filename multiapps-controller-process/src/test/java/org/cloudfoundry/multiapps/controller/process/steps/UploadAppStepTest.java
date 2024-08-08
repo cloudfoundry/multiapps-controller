@@ -28,9 +28,9 @@ public class UploadAppStepTest {
 
         @ParameterizedTest
         @MethodSource("testValidatePriority")
-        void testGetTimeout(Integer timeoutOperational, Integer timeoutModule, Integer timeoutGlobal, int expectedTimeout) {
-            setUpContext(timeoutOperational, timeoutModule, timeoutGlobal, Variables.UPLOAD_APP_TIMEOUT,
-                         Variables.UPLOAD_APP_TIMEOUT_GLOBAL, SupportedParameters.UPLOAD_TIMEOUT);
+        void testGetTimeout(Integer timeoutCommandLineLevel, Integer timeoutModuleLevel, Integer timeoutGlobalLevel, int expectedTimeout) {
+            setUpContext(timeoutCommandLineLevel, timeoutModuleLevel, timeoutGlobalLevel, Variables.APPS_UPLOAD_TIMEOUT_COMMAND_LINE_LEVEL,
+                         Variables.APPS_UPLOAD_TIMEOUT_GLOBAL_LEVEL, SupportedParameters.UPLOAD_TIMEOUT);
 
             Duration actualTimeout = step.getTimeout(context);
             assertEquals(Duration.ofSeconds(expectedTimeout), actualTimeout);

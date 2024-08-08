@@ -97,10 +97,10 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     @ParameterizedTest
     @MethodSource("testValidatePriority")
-    void testGetTimeout(Integer timeoutOperational, Integer timeoutModule, Integer timeoutGlobal, int expectedTimeout) {
+    void testGetTimeout(Integer timeoutCommandLineLevel, Integer timeoutModuleLevel, Integer timeoutGlobalLevel, int expectedTimeout) {
         step.initializeStepLogger(execution);
-        setUpContext(timeoutOperational, timeoutModule, timeoutGlobal, Variables.START_APP_TIMEOUT, Variables.START_APP_TIMEOUT_GLOBAL,
-                     SupportedParameters.START_TIMEOUT);
+        setUpContext(timeoutCommandLineLevel, timeoutModuleLevel, timeoutGlobalLevel, Variables.APPS_START_TIMEOUT_COMMAND_LINE_LEVEL,
+                     Variables.APPS_START_TIMEOUT_GLOBAL_LEVEL, SupportedParameters.START_TIMEOUT);
 
         Duration actualTimeout = step.getTimeout(context);
         assertEquals(Duration.ofSeconds(expectedTimeout), actualTimeout);

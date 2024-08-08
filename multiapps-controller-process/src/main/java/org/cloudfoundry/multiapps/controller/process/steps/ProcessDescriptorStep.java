@@ -61,7 +61,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                                  String.join(", ", invalidModulesSpecifiedForDeployment)));
         }
         Set<String> mtaModules = getModuleNames(descriptor, modulesForDeployment);
-        getStepLogger().debug("MTA Modules: {0}", mtaModules);
+        getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
         context.setVariable(Variables.MTA_MODULES, mtaModules);
 
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(descriptor));
@@ -102,10 +102,11 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
     private void setTimeoutGlobalParameters(ProcessContext context, DeploymentDescriptor descriptor) {
         TimeoutGlobalParameters timeoutGlobalParameters = new TimeoutGlobalParameters(descriptor);
-        context.setVariable(Variables.START_APP_TIMEOUT_GLOBAL, Duration.ofSeconds(timeoutGlobalParameters.getStartTimeout()));
-        context.setVariable(Variables.STAGE_APP_TIMEOUT_GLOBAL, Duration.ofSeconds(timeoutGlobalParameters.getStageTimeout()));
-        context.setVariable(Variables.UPLOAD_APP_TIMEOUT_GLOBAL, Duration.ofSeconds(timeoutGlobalParameters.getUploadTimeout()));
-        context.setVariable(Variables.TASK_EXECUTION_TIMEOUT_GLOBAL, Duration.ofSeconds(timeoutGlobalParameters.getTaskExecutionTimeout()));
+        context.setVariable(Variables.APPS_START_TIMEOUT_GLOBAL_LEVEL, Duration.ofSeconds(timeoutGlobalParameters.getStartTimeout()));
+        context.setVariable(Variables.APPS_STAGE_TIMEOUT_GLOBAL_LEVEL, Duration.ofSeconds(timeoutGlobalParameters.getStageTimeout()));
+        context.setVariable(Variables.APPS_UPLOAD_TIMEOUT_GLOBAL_LEVEL, Duration.ofSeconds(timeoutGlobalParameters.getUploadTimeout()));
+        context.setVariable(Variables.TASK_EXECUTION_TIMEOUT_GLOBAL_LEVEL,
+                            Duration.ofSeconds(timeoutGlobalParameters.getTaskExecutionTimeout()));
     }
 
     private void setDynamicResolvableParametersIfAbsent(ProcessContext context, MtaDescriptorPropertiesResolver resolver) {

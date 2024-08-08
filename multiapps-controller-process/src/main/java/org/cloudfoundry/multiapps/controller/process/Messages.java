@@ -476,10 +476,7 @@ public class Messages {
     public static final String REMAINING_SERVICES_TO_POLL = "Remaining services to poll: {0}";
     public static final String LAST_OPERATION_FOR_SERVICE = "Last operation for service \"{0}\": {1}";
     public static final String DELETING_ERROR_TYPE_O_FOR_PROCESS_1 = "Deleting error type \"{0}\" for process \"{1}\"";
-    public static final String UPLOAD_APP_TIMEOUT = "Upload app timeout in seconds: {0}";
-    public static final String STAGE_APP_TIMEOUT = "Stage app timeout in seconds: {0}";
-    public static final String START_APP_TIMEOUT = "Start/Restart app timeout in seconds: {0}";
-    public static final String TASK_EXECUTION_TIMEOUT = "Task execution timeout in seconds: {0}";
+    public static final String TIMEOUT_MESSAGE = "Timeout for \"{0}\" parameter in seconds: {1}";
     public static final String PROVIDED_EXTENSION_DESCRIPTORS = "Provided extension descriptors: {0}";
     public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";

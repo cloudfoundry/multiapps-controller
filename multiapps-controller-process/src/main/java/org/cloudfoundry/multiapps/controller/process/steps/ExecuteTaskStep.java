@@ -10,9 +10,9 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
-import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -58,8 +58,8 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return getGivenTimeout(context, SupportedParameters.TASK_EXECUTION_TIMEOUT, Variables.TASK_EXECUTION_TIMEOUT,
-                               Variables.TASK_EXECUTION_TIMEOUT_GLOBAL, Messages.TASK_EXECUTION_TIMEOUT);
+        return calculateTimeout(context, TimeoutType.TASK, Variables.TASK_EXECUTION_TIMEOUT_COMMAND_LINE_LEVEL,
+                                Variables.TASK_EXECUTION_TIMEOUT_GLOBAL_LEVEL);
     }
 
 }

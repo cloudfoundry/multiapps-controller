@@ -72,10 +72,10 @@ class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
 
     @ParameterizedTest
     @MethodSource("testValidatePriority")
-    void testGetTimeout(Integer timeoutOperational, Integer timeoutModule, Integer timeoutGlobal, int expectedTimeout) {
+    void testGetTimeout(Integer timeoutCommandLineLevel, Integer timeoutModuleLevel, Integer timeoutGlobalLevel, int expectedTimeout) {
         step.initializeStepLogger(execution);
-        setUpContext(timeoutOperational, timeoutModule, timeoutGlobal, Variables.TASK_EXECUTION_TIMEOUT,
-                     Variables.TASK_EXECUTION_TIMEOUT_GLOBAL, SupportedParameters.TASK_EXECUTION_TIMEOUT);
+        setUpContext(timeoutCommandLineLevel, timeoutModuleLevel, timeoutGlobalLevel, Variables.TASK_EXECUTION_TIMEOUT_COMMAND_LINE_LEVEL,
+                     Variables.TASK_EXECUTION_TIMEOUT_GLOBAL_LEVEL, SupportedParameters.TASK_EXECUTION_TIMEOUT);
 
         Duration actualTimeout = step.getTimeout(context);
         if (expectedTimeout == 3600) {

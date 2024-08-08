@@ -9,9 +9,9 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
-import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -96,7 +96,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return getGivenTimeout(context, SupportedParameters.START_TIMEOUT, Variables.START_APP_TIMEOUT, Variables.START_APP_TIMEOUT_GLOBAL,
-                               Messages.START_APP_TIMEOUT);
+        return calculateTimeout(context, TimeoutType.START, Variables.APPS_START_TIMEOUT_COMMAND_LINE_LEVEL,
+                                Variables.APPS_START_TIMEOUT_GLOBAL_LEVEL);
     }
 }

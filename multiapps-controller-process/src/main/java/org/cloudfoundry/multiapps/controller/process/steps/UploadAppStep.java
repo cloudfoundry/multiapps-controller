@@ -24,7 +24,6 @@ import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationEnvironmentUpdater;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
-import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
@@ -35,6 +34,7 @@ import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveRead
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationZipBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.CloudPackagesGetter;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -231,8 +231,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return getGivenTimeout(context, SupportedParameters.UPLOAD_TIMEOUT, Variables.UPLOAD_APP_TIMEOUT,
-                               Variables.UPLOAD_APP_TIMEOUT_GLOBAL, Messages.UPLOAD_APP_TIMEOUT);
+        return calculateTimeout(context, TimeoutType.UPLOAD, Variables.APPS_UPLOAD_TIMEOUT_COMMAND_LINE_LEVEL,
+                                Variables.APPS_UPLOAD_TIMEOUT_GLOBAL_LEVEL);
     }
 
     class MonitorUploadStatusCallback implements UploadStatusCallbackExtended {

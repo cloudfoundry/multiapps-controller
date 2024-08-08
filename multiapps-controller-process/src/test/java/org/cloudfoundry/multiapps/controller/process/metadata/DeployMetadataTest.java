@@ -42,10 +42,10 @@ public class DeployMetadataTest extends MetadataBaseTest {
                 Variables.ABORT_ON_ERROR.getName(),
                 Variables.MODULES_FOR_DEPLOYMENT.getName(),
                 Variables.RESOURCES_FOR_DEPLOYMENT.getName(),
-                Variables.START_APP_TIMEOUT.getName(),
-                Variables.STAGE_APP_TIMEOUT.getName(),
-                Variables.UPLOAD_APP_TIMEOUT.getName(),
-                Variables.TASK_EXECUTION_TIMEOUT.getName()
+                Variables.APPS_START_TIMEOUT_COMMAND_LINE_LEVEL.getName(),
+                Variables.APPS_STAGE_TIMEOUT_COMMAND_LINE_LEVEL.getName(),
+                Variables.APPS_UPLOAD_TIMEOUT_COMMAND_LINE_LEVEL.getName(),
+                Variables.TASK_EXECUTION_TIMEOUT_COMMAND_LINE_LEVEL.getName()
             // @formatter:on
         };
     }
