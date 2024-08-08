@@ -16,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStartupStat
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ChangedApplicationActionCalculator;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.UnchangedApplicationActionCalculator;
+import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -50,6 +51,11 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
         boolean appHasUnstagedContent = cloudPackage != null;
         Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(context).determineActionsToExecute(currentState, desiredState,
                                                                                                                !appHasUnstagedContent);
+        if (context.getVariable(Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE)
+            && context.getVariable(Variables.PHASE) == Phase.AFTER_RESUME) {
+            actionsToExecute.add(ApplicationStateAction.GRADUAL_INSTANCE_UPDATE);
+        }
+
         getStepLogger().debug(Messages.ACTIONS_TO_EXECUTE, appName, actionsToExecute);
 
         context.setVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE, new ArrayList<>(actionsToExecute));

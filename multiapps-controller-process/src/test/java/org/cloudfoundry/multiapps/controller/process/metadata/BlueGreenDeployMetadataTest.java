@@ -46,6 +46,7 @@ public class BlueGreenDeployMetadataTest extends MetadataBaseTest {
                 Variables.NO_CONFIRM.getName(),
                 Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY.getName(),
                 Variables.SKIP_IDLE_START.getName(),
+                Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE.getName(),
             // @formatter:on
         };
     }

@@ -56,5 +56,6 @@ open module org.cloudfoundry.multiapps.controller.process {
 
     requires static java.compiler;
     requires static org.immutables.value;
+    requires com.google.errorprone.annotations;
 
 }

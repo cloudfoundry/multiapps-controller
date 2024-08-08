@@ -13,12 +13,12 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableBindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.DeploymentMode;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
@@ -63,6 +63,7 @@ public class ApplicationCloudModelBuilder {
     protected final UserMessageLogger stepLogger;
     protected final AppSuffixDeterminer appSuffixDeterminer;
     protected final CloudControllerClient client;
+    protected final boolean incrementalInstancesUpdate;
 
     protected final ParametersChainBuilder parametersChainBuilder;
 
@@ -81,6 +82,7 @@ public class ApplicationCloudModelBuilder {
         this.stepLogger = builder.userMessageLogger;
         this.appSuffixDeterminer = builder.appSuffixDeterminer;
         this.client = builder.client;
+        this.incrementalInstancesUpdate = builder.incrementalInstancesUpdate;
     }
 
     protected CloudHandlerFactory createCloudHandlerFactory() {
@@ -107,8 +109,7 @@ public class ApplicationCloudModelBuilder {
                                                                            new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0")))
                                                 .memory(parseParameters(parametersList,
                                                                         new MemoryParametersParser(SupportedParameters.MEMORY, "0")))
-                                                .instances((Integer) PropertiesUtil.getPropertyValue(parametersList,
-                                                                                                     SupportedParameters.INSTANCES, 0))
+                                                .instances(getInstances(parametersList))
                                                 .routes(routes)
                                                 .idleRoutes(idleRoutes)
                                                 .services(getAllApplicationServices(module))
@@ -158,6 +159,13 @@ public class ApplicationCloudModelBuilder {
             applicationName += BlueGreenApplicationNameSuffix.IDLE.asSuffix();
         }
         return applicationName;
+    }
+
+    private int getInstances(List<Map<String, Object>> parametersList) {
+        if (incrementalInstancesUpdate) {
+            return 1;
+        }
+        return (Integer) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0);
     }
 
     protected <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
@@ -305,6 +313,7 @@ public class ApplicationCloudModelBuilder {
         private UserMessageLogger userMessageLogger;
         private AppSuffixDeterminer appSuffixDeterminer;
         private CloudControllerClient client;
+        private boolean incrementalInstancesUpdate;
 
         public T deploymentDescriptor(DeploymentDescriptor deploymentDescriptor) {
             this.deploymentDescriptor = deploymentDescriptor;
@@ -343,6 +352,11 @@ public class ApplicationCloudModelBuilder {
 
         public T client(CloudControllerClient client) {
             this.client = client;
+            return self();
+        }
+
+        public T incrementalInstancesUpdate(boolean incrementalInstancesUpdate) {
+            this.incrementalInstancesUpdate = incrementalInstancesUpdate;
             return self();
         }
 

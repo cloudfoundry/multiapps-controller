@@ -31,10 +31,11 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 public class CloudHandlerFactoryV3 extends HandlerFactoryV3 implements CloudHandlerFactory {
 
     @Override
-    public ApplicationCloudModelBuilder
-           getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
-                                           String deployId, String namespace, UserMessageLogger stepLogger,
-                                           AppSuffixDeterminer appSuffixDeterminer, CloudControllerClient client) {
+    public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting,
+                                                                        DeployedMta deployedMta, String deployId, String namespace,
+                                                                        UserMessageLogger stepLogger,
+                                                                        AppSuffixDeterminer appSuffixDeterminer,
+                                                                        CloudControllerClient client, boolean incrementalInstancesUpdate) {
         return new ApplicationCloudModelBuilder.Builder().deploymentDescriptor(deploymentDescriptor)
                                                          .prettyPrinting(prettyPrinting)
                                                          .deployedMta(deployedMta)
@@ -43,6 +44,7 @@ public class CloudHandlerFactoryV3 extends HandlerFactoryV3 implements CloudHand
                                                          .userMessageLogger(stepLogger)
                                                          .appSuffixDeterminer(appSuffixDeterminer)
                                                          .client(client)
+                                                         .incrementalInstancesUpdate(incrementalInstancesUpdate)
                                                          .build();
     }
 
