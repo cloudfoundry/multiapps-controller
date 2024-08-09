@@ -131,13 +131,45 @@ public interface Variables {
                                                           .name("startApps")
                                                           .defaultValue(true)
                                                           .build();
+
     Variable<Integer> MTA_MAJOR_SCHEMA_VERSION = ImmutableSimpleVariable.<Integer> builder()
                                                                         .name("mtaMajorSchemaVersion")
                                                                         .build();
-    Variable<Duration> START_TIMEOUT = ImmutableSimpleVariable.<Duration> builder()
-                                                              .name("startTimeout")
-                                                              .defaultValue(Duration.ofHours(1))
-                                                              .build();
+
+    Variable<Duration> APPS_START_TIMEOUT_COMMAND_LINE_LEVEL = ImmutableSimpleVariable.<Duration> builder()
+                                                                                      .name("appsStartTimeout")
+                                                                                      .defaultValue(null)
+                                                                                      .build();
+    Variable<Duration> APPS_STAGE_TIMEOUT_COMMAND_LINE_LEVEL = ImmutableSimpleVariable.<Duration> builder()
+                                                                                      .name("appsStageTimeout")
+                                                                                      .defaultValue(null)
+                                                                                      .build();
+
+    Variable<Duration> TASK_EXECUTION_TIMEOUT_COMMAND_LINE_LEVEL = ImmutableSimpleVariable.<Duration> builder()
+                                                                                          .name("taskExecutionTimeout")
+                                                                                          .defaultValue(null)
+                                                                                          .build();
+    Variable<Duration> APPS_UPLOAD_TIMEOUT_COMMAND_LINE_LEVEL = ImmutableSimpleVariable.<Duration> builder()
+                                                                                       .name("appsUploadTimeout")
+                                                                                       .defaultValue(null)
+                                                                                       .build();
+
+    Variable<Duration> APPS_START_TIMEOUT_GLOBAL_LEVEL = ImmutableSimpleVariable.<Duration> builder()
+                                                                                .name("appsStartTimeoutGlobal")
+                                                                                .defaultValue(Duration.ofHours(1))
+                                                                                .build();
+    Variable<Duration> APPS_STAGE_TIMEOUT_GLOBAL_LEVEL = ImmutableSimpleVariable.<Duration> builder()
+                                                                                .name("appsStageTimeoutGlobal")
+                                                                                .defaultValue(Duration.ofHours(1))
+                                                                                .build();
+    Variable<Duration> TASK_EXECUTION_TIMEOUT_GLOBAL_LEVEL = ImmutableSimpleVariable.<Duration> builder()
+                                                                                    .name("taskExecutionTimeoutGlobal")
+                                                                                    .defaultValue(Duration.ofHours(12))
+                                                                                    .build();
+    Variable<Duration> APPS_UPLOAD_TIMEOUT_GLOBAL_LEVEL = ImmutableSimpleVariable.<Duration> builder()
+                                                                                 .name("appsUploadTimeoutGlobal")
+                                                                                 .defaultValue(Duration.ofHours(1))
+                                                                                 .build();
     Variable<Integer> UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = ImmutableSimpleVariable.<Integer> builder()
                                                                                         .name("updatedServiceBrokerSubscribersCount")
                                                                                         .build();

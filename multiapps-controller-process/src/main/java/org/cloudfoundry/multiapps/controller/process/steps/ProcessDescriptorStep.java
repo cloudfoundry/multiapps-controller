@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutGlobalParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -43,6 +45,8 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
         descriptor = resolver.resolve(descriptor);
 
+        setTimeoutGlobalParameters(context, descriptor);
+
         List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
         getStepLogger().debug(Messages.SUBSCRIPTIONS, SecureSerialization.toJson(subscriptions));
         context.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptions);
@@ -57,7 +61,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                                  String.join(", ", invalidModulesSpecifiedForDeployment)));
         }
         Set<String> mtaModules = getModuleNames(descriptor, modulesForDeployment);
-        getStepLogger().debug("MTA Modules: {0}", mtaModules);
+        getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
         context.setVariable(Variables.MTA_MODULES, mtaModules);
 
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(descriptor));
@@ -94,6 +98,15 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                               .configurationEntryService(configurationEntryService)
                                                               .applicationConfiguration(configuration)
                                                               .build();
+    }
+
+    private void setTimeoutGlobalParameters(ProcessContext context, DeploymentDescriptor descriptor) {
+        TimeoutGlobalParameters timeoutGlobalParameters = new TimeoutGlobalParameters(descriptor);
+        context.setVariable(Variables.APPS_START_TIMEOUT_GLOBAL_LEVEL, Duration.ofSeconds(timeoutGlobalParameters.getStartTimeout()));
+        context.setVariable(Variables.APPS_STAGE_TIMEOUT_GLOBAL_LEVEL, Duration.ofSeconds(timeoutGlobalParameters.getStageTimeout()));
+        context.setVariable(Variables.APPS_UPLOAD_TIMEOUT_GLOBAL_LEVEL, Duration.ofSeconds(timeoutGlobalParameters.getUploadTimeout()));
+        context.setVariable(Variables.TASK_EXECUTION_TIMEOUT_GLOBAL_LEVEL,
+                            Duration.ofSeconds(timeoutGlobalParameters.getTaskExecutionTimeout()));
     }
 
     private void setDynamicResolvableParametersIfAbsent(ProcessContext context, MtaDescriptorPropertiesResolver resolver) {

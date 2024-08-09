@@ -6,17 +6,21 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudTask;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudTask;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
 
@@ -64,6 +68,20 @@ class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
         CloudTask startedTask = context.getVariable(Variables.STARTED_TASK);
         assertEquals(task.getName(), startedTask.getName());
         assertEquals(task.getCommand(), startedTask.getCommand());
+    }
+
+    @ParameterizedTest
+    @MethodSource("testValidatePriority")
+    void testGetTimeout(Integer timeoutCommandLineLevel, Integer timeoutModuleLevel, Integer timeoutGlobalLevel, int expectedTimeout) {
+        step.initializeStepLogger(execution);
+        setUpContext(timeoutCommandLineLevel, timeoutModuleLevel, timeoutGlobalLevel, Variables.TASK_EXECUTION_TIMEOUT_COMMAND_LINE_LEVEL,
+                     Variables.TASK_EXECUTION_TIMEOUT_GLOBAL_LEVEL, SupportedParameters.TASK_EXECUTION_TIMEOUT);
+
+        Duration actualTimeout = step.getTimeout(context);
+        if (expectedTimeout == 3600) {
+            expectedTimeout = 43200;
+        }
+        assertEquals(Duration.ofSeconds(expectedTimeout), actualTimeout);
     }
 
     @Override
