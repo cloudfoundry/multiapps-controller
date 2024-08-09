@@ -57,5 +57,9 @@
             <artifactId>spring-security-oauth2-client</artifactId>
             <version>${spring-security.version}</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

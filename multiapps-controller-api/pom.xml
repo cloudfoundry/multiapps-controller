@@ -66,6 +66,10 @@
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -74,7 +78,7 @@
                 <groupId>com.github.kongchen</groupId>
                 <artifactId>swagger-maven-plugin</artifactId>
                 <configuration>
-                    <skipSwaggerGeneration>true</skipSwaggerGeneration>
+                    <skipSwaggerGeneration>false</skipSwaggerGeneration>
                     <apiSources>
                         <apiSource>
                             <springmvc>true</springmvc>
