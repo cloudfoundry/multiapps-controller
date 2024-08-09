@@ -21,11 +21,11 @@ public class PartialPropertiesResolver extends PropertiesResolver {
     }
 
     @Override
-    protected Object resolveReferenceInContext(String key, Reference reference) {
+    protected Object resolveReferenceInContext(String key, Reference reference, boolean shouldBackupContext) {
         if (reference.getDependencyName() != null && dependenciesToIgnore.contains(reference.getDependencyName())) {
             return reference.getMatchedPattern();
         }
-        return super.resolveReferenceInContext(key, reference);
+        return super.resolveReferenceInContext(key, reference, shouldBackupContext);
     }
 
 }
