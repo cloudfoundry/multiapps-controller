@@ -134,7 +134,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private MergedArchiveStreamCreator getMergedArchiveStreamCreator(List<FileEntry> archivePartEntries, BigInteger archiveSize) {
-        return new MergedArchiveStreamCreator(fileService, getStepLogger(), archivePartEntries, Integer.parseInt(archiveSize.toString()));
+        return new MergedArchiveStreamCreator(fileService, getStepLogger(), archivePartEntries, Long.parseLong(archiveSize.toString()));
     }
 
     private FileEntry persistArchive(ArchiveStreamWithName archiveStreamWithName, ProcessContext context, BigInteger size) {
