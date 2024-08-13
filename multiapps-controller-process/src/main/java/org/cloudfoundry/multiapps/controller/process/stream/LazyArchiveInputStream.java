@@ -25,13 +25,13 @@ public class LazyArchiveInputStream extends InputStream {
     private final FileService fileService;
     private final List<FileEntry> archiveFileEntries;
     private final StepLogger stepLogger;
-    private final int archiveSize;
+    private final long archiveSize;
     private final AtomicInteger totalBytesRead;
     private final AtomicInteger partIndex;
 
     private InputStream currentInputStream;
 
-    public LazyArchiveInputStream(FileService fileService, List<FileEntry> archiveFileEntries, StepLogger stepLogger, int archiveSize) {
+    public LazyArchiveInputStream(FileService fileService, List<FileEntry> archiveFileEntries, StepLogger stepLogger, long archiveSize) {
         this.fileService = fileService;
         this.archiveFileEntries = archiveFileEntries;
         this.stepLogger = stepLogger;
@@ -84,7 +84,17 @@ public class LazyArchiveInputStream extends InputStream {
 
     @Override
     public synchronized int available() throws IOException {
-        return archiveSize - totalBytesRead.get();
+        // The return value of this method must be anything except 0
+        // because this way jclouds will use it to skip these bytes
+        // but the skip method actually does not skip anything intentionally
+        // (jclouds creates a new stream and overrides skip and close and makes them do nothing)...
+        // If this method returns 0 jclouds will try to skip the stream by reading it
+        // thus making it invalid as skip is not required
+        long remainingBytes = archiveSize - totalBytesRead.get();
+        if (remainingBytes > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return (int) remainingBytes;
     }
 
     @Override
