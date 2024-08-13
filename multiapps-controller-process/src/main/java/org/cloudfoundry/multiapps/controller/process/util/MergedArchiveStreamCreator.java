@@ -18,9 +18,9 @@ public class MergedArchiveStreamCreator {
     private final FileService fileService;
     private final StepLogger stepLogger;
     private final List<FileEntry> archiveParts;
-    private final int archiveSize;
+    private final long archiveSize;
 
-    public MergedArchiveStreamCreator(FileService fileService, StepLogger stepLogger, List<FileEntry> archiveParts, int archiveSize) {
+    public MergedArchiveStreamCreator(FileService fileService, StepLogger stepLogger, List<FileEntry> archiveParts, long archiveSize) {
         this.fileService = fileService;
         this.stepLogger = stepLogger;
         this.archiveParts = archiveParts;
