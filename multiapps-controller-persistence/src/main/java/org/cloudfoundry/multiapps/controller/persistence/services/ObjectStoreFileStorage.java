@@ -226,6 +226,7 @@ public class ObjectStoreFileStorage implements FileStorage {
         Map<String, String> userMetadata = blobMetadata.getUserMetadata();
         // Clean up any blobStore entries that don't have any metadata as we can't check their creation date
         if (CollectionUtils.isEmpty(userMetadata)) {
+            LOGGER.warn(MessageFormat.format(Messages.USER_METADATA_OF_BLOB_0_EMPTY_AND_WILL_BE_DELETED, blobMetadata.getName()));
             return true;
         }
         String longString = userMetadata.get(Constants.FILE_ENTRY_MODIFIED.toLowerCase());
@@ -235,6 +236,9 @@ public class ObjectStoreFileStorage implements FileStorage {
             return date.isBefore(modificationTime);
         } catch (NumberFormatException e) {
             // Clean up any blobStore entries that have invalid timestamp
+            LOGGER.warn(MessageFormat.format(Messages.DATE_METADATA_OF_BLOB_0_IS_NOT_IN_PROPER_FORMAT_AND_WILL_BE_DELETED,
+                                             blobMetadata.getName()),
+                        e);
             return true;
         }
     }
