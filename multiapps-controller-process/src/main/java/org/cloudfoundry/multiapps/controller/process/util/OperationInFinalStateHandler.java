@@ -52,18 +52,19 @@ public class OperationInFinalStateHandler {
     private final SafeExecutor safeExecutor = new SafeExecutor();
 
     public void handle(DelegateExecution execution, ProcessType processType, Operation.State state) {
-        LoggingUtil.logWithCorrelationId(VariableHandling.get(execution, Variables.CORRELATION_ID), () -> handleInternal(execution, processType, state));
+        LoggingUtil.logWithCorrelationId(VariableHandling.get(execution, Variables.CORRELATION_ID),
+                                         () -> handleInternal(execution, processType, state));
     }
 
     private void handleInternal(DelegateExecution execution, ProcessType processType, Operation.State state) {
         String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
-        safeExecutor.execute(() -> deleteDeploymentFiles(execution));
+        safeExecutor.execute(() -> deleteDeploymentFiles(correlationId, execution));
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(execution));
         safeExecutor.execute(() -> setOperationState(correlationId, state));
         safeExecutor.execute(() -> trackOperationDuration(correlationId, execution, processType, state));
     }
 
-    protected void deleteDeploymentFiles(DelegateExecution execution) throws FileStorageException {
+    protected void deleteDeploymentFiles(String correlationId, DelegateExecution execution) throws FileStorageException {
         if (VariableHandling.get(execution, Variables.KEEP_FILES)) {
             return;
         }
@@ -71,7 +72,7 @@ public class OperationInFinalStateHandler {
         String extensionDescriptorFileIds = VariableHandling.get(execution, Variables.EXT_DESCRIPTOR_FILE_ID);
         String appArchiveFileIds = VariableHandling.get(execution, Variables.APP_ARCHIVE_ID);
 
-        FileSweeper fileSweeper = new FileSweeper(VariableHandling.get(execution, Variables.SPACE_GUID), fileService);
+        FileSweeper fileSweeper = new FileSweeper(VariableHandling.get(execution, Variables.SPACE_GUID), fileService, correlationId);
         fileSweeper.sweep(extensionDescriptorFileIds);
         fileSweeper.sweep(appArchiveFileIds);
     }
@@ -105,7 +106,8 @@ public class OperationInFinalStateHandler {
 
     private boolean isOperationAlreadyFinal(Operation operation) {
         return operation.getState()
-                        .isFinal() && !operation.hasAcquiredLock() && operation.getEndedAt() != null;
+                        .isFinal()
+            && !operation.hasAcquiredLock() && operation.getEndedAt() != null;
     }
 
     private HistoricOperationEvent.EventType toEventType(State state) {
@@ -118,17 +120,19 @@ public class OperationInFinalStateHandler {
         processTimes.forEach((processId, processTime) -> logProcessTime(correlationId, processId, processTime));
 
         ProcessTime overallProcessTime = operationTimeAggregator.computeOverallProcessTime(correlationId, processTimes);
-        
+
         DynatraceProcessDuration dynatraceProcessDuration = ImmutableDynatraceProcessDuration.builder()
                                                                                              .processId(correlationId)
-                                                                                             .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
-                                                                                             .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
+                                                                                             .mtaId(VariableHandling.get(execution,
+                                                                                                                         Variables.MTA_ID))
+                                                                                             .spaceId(VariableHandling.get(execution,
+                                                                                                                           Variables.SPACE_GUID))
                                                                                              .operationState(state)
                                                                                              .processType(processType)
                                                                                              .processDuration(overallProcessTime.getProcessDuration())
                                                                                              .build();
         dynatracePublisher.publishProcessDuration(dynatraceProcessDuration, LOGGER);
-        
+
         LOGGER.info(format(Messages.TIME_STATISTICS_FOR_OPERATION_0_DURATION_1_DELAY_2, correlationId,
                            overallProcessTime.getProcessDuration(), overallProcessTime.getDelayBetweenSteps()));
     }
@@ -137,5 +141,5 @@ public class OperationInFinalStateHandler {
         LOGGER.debug(format(Messages.TIME_STATISTICS_FOR_PROCESS_0_OPERATION_1_DURATION_2_DELAY_3, processId, correlationId,
                             processTime.getProcessDuration(), processTime.getDelayBetweenSteps()));
     }
-    
+
 }
