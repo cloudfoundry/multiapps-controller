@@ -798,7 +798,7 @@
             <dependency>
                 <groupId>com.sap.cloud.lm.sl</groupId>
                 <artifactId>cloudfoundry-client-facade</artifactId>
-                <version>${cloudfoundry-client.version}</version>
+                <version>${cloudfoundry-client.version}</version> 
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.cloudfoundry.multiapps/multiapps-common -->
             <dependency>
