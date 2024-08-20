@@ -239,6 +239,7 @@ public class Messages {
     public static final String ERROR_WHILE_CREATING_SERVICE_KEY_0_FOR_OPTIONAL_SERVICE_1 = "Error while creating service key \"{0}\" for optional service \"{1}\"";
     public static final String ERROR_WHILE_DELETING_SERVICE_KEY_0_FOR_OPTIONAL_SERVICE_1 = "Error while deleting service key \"{0}\" for optional service \"{1}\"";
     public static final String SERVICE_KEY_0_IS_ALREADY_DELETED = "Service key \"{0}\" is already deleted";
+    public static final String FILE_WITH_ID_0_OPERATION_OWNERSHIP_CHANGED_FROM_0_TO_1 = "File with id \"{0}\" operation ownership was changed from \"{1}\" to \"{2}\" and won't be deleted";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
@@ -298,6 +299,7 @@ public class Messages {
     public static final String CLOSING_STREAM_FOR_PART_STREAM_FINISHED_0 = "Closing stream for part, stream finished: {0}";
     public static final String CLOSING_LAST_STREAM_FOR_PART_0 = "Closing the last stream, part: {0}";
     public static final String SCALING_UP_OLD_APPLICATION = "Scaling up old application: \"{0}\" to {1} instances";
+    public static final String FILE_WITH_ID_0_WAS_DELETED = "File with id \"{0}\" was deleted";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";

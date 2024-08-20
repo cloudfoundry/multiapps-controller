@@ -10,6 +10,8 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.OperationQueryImpl;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
@@ -36,6 +38,7 @@ class OperationInFinalStateHandlerTest {
     private static final String SPACE_ID = "space-id";
     private static final String MTA_ID = "my-mta";
     private static final String PROCESS_ID = "xxx-yyy-zzz";
+    private static final String PROCESS_ID_2 = "zzz-xxx-yyy";
     private static final long PROCESS_DURATION = 1000;
 
     private static final Operation OPERATION = createOperation("1", ProcessType.DEPLOY, "spaceId", "mtaId", "user", true,
@@ -65,16 +68,17 @@ class OperationInFinalStateHandlerTest {
     public static Stream<Arguments> testHandle() {
         return Stream.of(
 //@formatter:off
-          Arguments.of("10", "20", true, new String[] { }),
-          Arguments.of("10", null, true, new String[] { }),
-          Arguments.of(null, "20", true, new String[] { }),
-          Arguments.of(null, null, true, new String[] { }),
-          Arguments.of("10", "20", false, new String[] { "10", "20", }),
-          Arguments.of(null, "20", false, new String[] { "20", }),
-          Arguments.of("10", null, false, new String[] { "10", }),
-          Arguments.of(null, null, false, new String[] { }),
-          Arguments.of("10,20,30", null, false, new String[] { "10", "20", "30", }),
-          Arguments.of(null, "10,20,30", false, new String[] { "10", "20", "30", })
+          Arguments.of("10", "20", PROCESS_ID, true, new String[] { }),
+          Arguments.of("10", null, PROCESS_ID, true, new String[] { }),
+          Arguments.of(null, "20", PROCESS_ID, true, new String[] { }),
+          Arguments.of(null, null, PROCESS_ID, true, new String[] { }),
+          Arguments.of("10", "20", PROCESS_ID, false, new String[] { "10", "20", }),
+          Arguments.of(null, "20", PROCESS_ID, false, new String[] { "20", }),
+          Arguments.of("10", null, PROCESS_ID, false, new String[] { "10", }),
+          Arguments.of(null, null, PROCESS_ID, false, new String[] { }),
+          Arguments.of("10,20,30", null, PROCESS_ID, false, new String[] { "10", "20", "30", }),
+          Arguments.of(null, "10,20,30", PROCESS_ID, false, new String[] { "10", "20", "30", }),
+          Arguments.of("10,20,30", "40,50", PROCESS_ID_2, false, new String[] {})
 //@formatter:on
         );
     }
@@ -89,10 +93,13 @@ class OperationInFinalStateHandlerTest {
 
     @ParameterizedTest
     @MethodSource
-    void testHandle(String archiveIds, String extensionDescriptorIds, boolean keepFiles, String[] expectedFileIdsToSweep) throws Exception {
+    void testHandle(String archiveIds, String extensionDescriptorIds, String fileOwnershipProcessId, boolean keepFiles,
+                    String[] expectedFileIdsToSweep)
+        throws Exception {
         prepareContext(archiveIds, extensionDescriptorIds, keepFiles);
         prepareOperationTimeAggregator();
         prepareOperationService();
+        prepareFileService(archiveIds, extensionDescriptorIds, fileOwnershipProcessId);
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
@@ -125,6 +132,26 @@ class OperationInFinalStateHandlerTest {
                .thenReturn(operationQuery);
         Mockito.when(operationQuery.singleResult())
                .thenReturn(OPERATION);
+    }
+
+    private void prepareFileService(String archiveIds, String extensionDescriptorIds, String fileOwnershipProcessId)
+        throws FileStorageException {
+        prepareFileService(archiveIds, fileOwnershipProcessId);
+        prepareFileService(extensionDescriptorIds, fileOwnershipProcessId);
+    }
+
+    private void prepareFileService(String fileIds, String fileOwnershipProcessId) throws FileStorageException {
+        if (fileIds == null) {
+            return;
+        }
+        for (String fileId : fileIds.split(",")) {
+            FileEntry entry = ImmutableFileEntry.builder()
+                                                .name(fileId)
+                                                .operationId(fileOwnershipProcessId)
+                                                .build();
+            Mockito.when(fileService.getFile(SPACE_ID, fileId))
+                   .thenReturn(entry);
+        }
     }
 
     private void verifyDeleteDeploymentFiles(String[] expectedFileIdsToSweep) throws FileStorageException {
