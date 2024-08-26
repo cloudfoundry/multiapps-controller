@@ -46,10 +46,10 @@ public class BlueGreenDeployMetadataTest extends MetadataBaseTest {
                 Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY.getName(),
                 Variables.SKIP_IDLE_START.getName(),
                 Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE.getName(),
-                Variables.APPS_START_TIMEOUT_COMMAND_LINE_LEVEL.getName(),
-                Variables.APPS_STAGE_TIMEOUT_COMMAND_LINE_LEVEL.getName(),
-                Variables.APPS_UPLOAD_TIMEOUT_COMMAND_LINE_LEVEL.getName(),
-                Variables.APPS_TASK_EXECUTION_TIMEOUT_COMMAND_LINE_LEVEL.getName()
+                Variables.APPS_START_TIMEOUT_PROCESS_VARIABLE.getName(),
+                Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE.getName(),
+                Variables.APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE.getName(),
+                Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE.getName()
             // @formatter:on
         };
     }

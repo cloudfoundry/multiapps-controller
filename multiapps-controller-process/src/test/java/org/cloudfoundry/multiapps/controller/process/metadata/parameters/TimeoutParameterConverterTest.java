@@ -14,19 +14,19 @@ class TimeoutParameterConverterTest {
     @Test
     void testConvertWithInvalidValueType() {
         assertThrows(SLException.class,
-                     () -> new TimeoutParameterConverter(Variables.APPS_STAGE_TIMEOUT_COMMAND_LINE_LEVEL).convert(false));
+                     () -> new TimeoutParameterConverter(Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE).convert(false));
     }
 
     @Test
     void testConvertWithInvalidValue() {
         assertThrows(SLException.class,
-                     () -> new TimeoutParameterConverter(Variables.APPS_STAGE_TIMEOUT_COMMAND_LINE_LEVEL).convert(-1000));
+                     () -> new TimeoutParameterConverter(Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE).convert(-1000));
     }
 
     @Test
     void testConvert() {
         var expectedStartTimeout = Duration.ofSeconds(1000);
-        var actualStartTimeout = new TimeoutParameterConverter(Variables.APPS_STAGE_TIMEOUT_COMMAND_LINE_LEVEL).convert("1000");
+        var actualStartTimeout = new TimeoutParameterConverter(Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE).convert("1000");
         assertEquals(expectedStartTimeout, actualStartTimeout);
     }
 

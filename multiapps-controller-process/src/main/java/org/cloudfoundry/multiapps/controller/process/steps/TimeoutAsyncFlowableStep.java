@@ -58,8 +58,8 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
     public abstract Duration getTimeout(ProcessContext context);
 
     protected Duration calculateTimeout(ProcessContext context, TimeoutType timeoutType) {
-        Duration timeoutFinal = context.getVariableIfSet(timeoutType.getCommandLineLevelVariable());
-        String timeoutParameterName = timeoutType.getCommandLineAndGlobalLevelParamName();
+        Duration timeoutFinal = context.getVariableIfSet(timeoutType.getProcessVariable());
+        String timeoutParameterName = timeoutType.getProcessVariableAndGlobalLevelParamName();
 
         if (timeoutFinal == null) {
             timeoutFinal = extractTimeoutFromAppAttributes(context, timeoutType);
@@ -73,7 +73,7 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
         }
 
         if (timeoutFinal == null) {
-            timeoutFinal = Duration.ofSeconds(timeoutType.getCommandLineLevelVariable()
+            timeoutFinal = Duration.ofSeconds(timeoutType.getProcessVariable()
                                                          .getDefaultValue()
                                                          .getSeconds());
             timeoutParameterName = DEFAULT_TIMEOUT;
@@ -88,7 +88,7 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app, app.getEnv());
         Number timeout = appAttributes.get(timeoutType.getModuleLevelParamName(), Number.class);
         if (timeout != null && (timeout.intValue() < 0 || timeout.intValue() > timeoutType.getMaxAllowedValue())) {
-            throw new ContentException(Messages.ATTRIBUTE_0_IS_NOT_NEGATIVE_WITH_MAX_VALUE_2,
+            throw new ContentException(Messages.PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1,
                                        timeoutType.getModuleLevelParamName(),
                                        timeoutType.getMaxAllowedValue());
         }
@@ -98,7 +98,7 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
     private Duration extractTimeoutFromDescriptorParameters(ProcessContext context, TimeoutType timeoutType) {
         DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         Object timeoutGlobalLevelValue = descriptor.getParameters()
-                                                   .get(timeoutType.getCommandLineAndGlobalLevelParamName());
+                                                   .get(timeoutType.getProcessVariableAndGlobalLevelParamName());
         validateTimeoutGlobalValue(timeoutGlobalLevelValue, timeoutType);
         return timeoutGlobalLevelValue != null ? Duration.ofSeconds((Integer) timeoutGlobalLevelValue) : null;
     }
@@ -106,15 +106,19 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
     private void validateTimeoutGlobalValue(Object timeout, TimeoutType timeoutType) {
         if (timeout != null && (timeout instanceof String || ((Number) timeout).intValue() < 0
             || ((Number) timeout).intValue() > timeoutType.getMaxAllowedValue())) {
-            throw new ContentException(Messages.ATTRIBUTE_0_IS_NOT_NEGATIVE_WITH_MAX_VALUE_2,
-                                       timeoutType.getCommandLineAndGlobalLevelParamName(),
+            throw new ContentException(Messages.PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1,
+                                       timeoutType.getProcessVariableAndGlobalLevelParamName(),
                                        timeoutType.getMaxAllowedValue());
         }
     }
 
     private void logTimeout(String moduleLevelParameterName, String timeoutParameterName, Number timeout) {
         String timeoutTypeName = processString(moduleLevelParameterName);
-        getStepLogger().debug(Messages.TIMEOUT_MESSAGE, timeoutTypeName, timeoutParameterName, timeout);
+        if (timeoutParameterName.equals(DEFAULT_TIMEOUT)) {
+            getStepLogger().debug(Messages.TIMEOUT_DEFAULT_VALUE_MESSAGE, timeoutTypeName, timeout);
+        } else {
+            getStepLogger().debug(Messages.TIMEOUT_MESSAGE, timeoutTypeName, timeoutParameterName, timeout);
+        }
     }
 
     private String processString(String input) {

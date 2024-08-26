@@ -492,6 +492,7 @@ public class Messages {
     public static final String LAST_OPERATION_FOR_SERVICE = "Last operation for service \"{0}\": {1}";
     public static final String DELETING_ERROR_TYPE_O_FOR_PROCESS_1 = "Deleting error type \"{0}\" for process \"{1}\"";
     public static final String TIMEOUT_MESSAGE = "Application {0} timeout is set by \"{1}\" parameter to {2} seconds";
+    public static final String TIMEOUT_DEFAULT_VALUE_MESSAGE = "Application {0} timeout is default one: {1} seconds";
     public static final String PROVIDED_EXTENSION_DESCRIPTORS = "Provided extension descriptors: {0}";
     public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";
@@ -725,7 +726,7 @@ public class Messages {
     public static final String DESIRED_APPLICATION_0_INSTANCES_1_AND_NOW_SCALED_TO_2 = "Desired application \"{0}\" instances {1} and now scaled to {2}";
     public static final String DOWNSCALING_APPLICATION_0_TO_1_INSTANCES = "Downscaling application \"{0}\" to {1} instances";
     public static final String UPSCALING_APPLICATION_0_TO_1_INSTANCES = "Upscaling application \"{0}\" to {1} instances";
-    public static final String ATTRIBUTE_0_IS_NOT_NEGATIVE_WITH_MAX_VALUE_2 = "Attribute \"{0}\" must be in the range 0 to {1}!";
+    public static final String PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1 = "Parameter \"{0}\" must be positive integer value up to {1}!";
 
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";
