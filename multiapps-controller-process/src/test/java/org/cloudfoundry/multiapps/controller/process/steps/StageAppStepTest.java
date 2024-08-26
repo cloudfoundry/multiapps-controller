@@ -85,9 +85,9 @@ class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
 
     @ParameterizedTest
     @MethodSource("testValidatePriority")
-    void testGetTimeout(Integer timeoutCommandLineLevel, Integer timeoutModuleLevel, Integer timeoutGlobalLevel, int expectedTimeout) {
+    void testGetTimeout(Integer timeoutProcessVariable, Integer timeoutModuleLevel, Integer timeoutGlobalLevel, int expectedTimeout) {
         step.initializeStepLogger(execution);
-        setUpContext(timeoutCommandLineLevel, timeoutModuleLevel, timeoutGlobalLevel, Variables.APPS_STAGE_TIMEOUT_COMMAND_LINE_LEVEL,
+        setUpContext(timeoutProcessVariable, timeoutModuleLevel, timeoutGlobalLevel, Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE,
                      SupportedParameters.STAGE_TIMEOUT, SupportedParameters.APPS_STAGE_TIMEOUT);
 
         Duration actualTimeout = step.getTimeout(context);

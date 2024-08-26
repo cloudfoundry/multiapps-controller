@@ -206,10 +206,10 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         return TEST_TASK_ID;
     }
 
-    protected void setUpContext(Integer timeoutCommandLineLevel, Integer timeoutModuleLevel, Integer timeoutGlobalLevel,
+    protected void setUpContext(Integer timeoutProcessVariable, Integer timeoutModuleLevel, Integer timeoutGlobalLevel,
                                 Variable<Duration> appTimeout, String timeoutModuleParameter, String timeoutGlobalParameter) {
-        if (timeoutCommandLineLevel != null) {
-            context.setVariable(appTimeout, Duration.ofSeconds(timeoutCommandLineLevel));
+        if (timeoutProcessVariable != null) {
+            context.setVariable(appTimeout, Duration.ofSeconds(timeoutProcessVariable));
         }
 
         CloudApplicationExtended app;
@@ -228,7 +228,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         }
         context.setVariable(Variables.APP_TO_PROCESS, app);
 
-        when(timeoutType.getCommandLineAndGlobalLevelParamName()).thenReturn(SupportedParameters.APPS_UPLOAD_TIMEOUT);
+        when(timeoutType.getProcessVariableAndGlobalLevelParamName()).thenReturn(SupportedParameters.APPS_UPLOAD_TIMEOUT);
 
         Map<String, Object> timeoutGlobalLevelParameters = new HashMap<>();
         timeoutGlobalLevelParameters.put(timeoutGlobalParameter, timeoutGlobalLevel);

@@ -205,9 +205,9 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
 
     @ParameterizedTest
     @MethodSource("testValidatePriority")
-    void testGetTimeout(Integer timeoutCommandLineLevel, Integer timeoutModuleLevel, Integer timeoutGlobalLevel, int expectedTimeout) {
+    void testGetTimeout(Integer timeoutProcessVariable, Integer timeoutModuleLevel, Integer timeoutGlobalLevel, int expectedTimeout) {
         step.initializeStepLogger(execution);
-        setUpContext(timeoutCommandLineLevel, timeoutModuleLevel, timeoutGlobalLevel, Variables.APPS_START_TIMEOUT_COMMAND_LINE_LEVEL,
+        setUpContext(timeoutProcessVariable, timeoutModuleLevel, timeoutGlobalLevel, Variables.APPS_START_TIMEOUT_PROCESS_VARIABLE,
                      SupportedParameters.START_TIMEOUT, SupportedParameters.APPS_START_TIMEOUT);
 
         Duration actualTimeout = step.getTimeout(context);
@@ -217,11 +217,11 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
     @Test
     void testGetTimeout() {
         step.initializeStepLogger(execution);
-        setUpContext(null, null, 3*3600, Variables.APPS_START_TIMEOUT_COMMAND_LINE_LEVEL,
-                SupportedParameters.START_TIMEOUT, SupportedParameters.APPS_START_TIMEOUT);
+        setUpContext(null, null, 3 * 3600, Variables.APPS_START_TIMEOUT_PROCESS_VARIABLE, SupportedParameters.START_TIMEOUT,
+                     SupportedParameters.APPS_START_TIMEOUT);
 
         Duration actualTimeout = step.getTimeout(context);
-        assertEquals(Duration.ofSeconds(24*3600), actualTimeout);
+        assertEquals(Duration.ofSeconds(24 * 3600), actualTimeout);
     }
 
     @Override

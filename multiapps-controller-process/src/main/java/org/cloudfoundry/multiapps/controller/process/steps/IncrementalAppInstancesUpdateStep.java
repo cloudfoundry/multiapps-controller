@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -31,6 +32,7 @@ import com.sap.cloudfoundry.client.facade.domain.InstanceState;
 public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IncrementalAppInstancesUpdateStep.class);
+    private static final int MAX_TIMEOUT = (int) TimeUnit.HOURS.toSeconds(24);
 
     private final CloudControllerClientFactory clientFactory;
     private final TokenService tokenService;
@@ -172,7 +174,7 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
     public Duration getTimeout(ProcessContext context) {
         CloudApplicationExtended application = context.getVariable(Variables.APP_TO_PROCESS);
         Duration timeout = calculateTimeout(context, TimeoutType.START);
-        return Duration.ofSeconds(Math.min(timeout.getSeconds() * application.getInstances(), 24 * 3600));
+        return Duration.ofSeconds(Math.min(timeout.getSeconds() * application.getInstances(), MAX_TIMEOUT));
     }
 
 }

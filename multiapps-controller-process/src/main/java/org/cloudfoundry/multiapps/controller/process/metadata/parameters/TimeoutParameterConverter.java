@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.metadata.parameters;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.api.model.parameters.ParameterConverter;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
@@ -11,6 +12,8 @@ import java.time.Duration;
 
 public class TimeoutParameterConverter implements ParameterConverter {
 
+    private static final int MAX_TIMEOUT = TimeoutType.START.getMaxAllowedValue();
+    private static final int MAX_TASK_EXECUTION_TIMEOUT = TimeoutType.TASK.getMaxAllowedValue();
     private final Variable<Duration> timeoutVariable;
 
     public TimeoutParameterConverter(Variable<Duration> timeoutVariable) {
@@ -19,9 +22,9 @@ public class TimeoutParameterConverter implements ParameterConverter {
 
     @Override
     public Duration convert(Object value) {
-        int startTimeoutInSeconds = parseToInt(value);
-        validateTimeout(startTimeoutInSeconds);
-        return Duration.ofSeconds(startTimeoutInSeconds);
+        int timeoutInSeconds = parseToInt(value);
+        validateTimeout(timeoutInSeconds);
+        return Duration.ofSeconds(timeoutInSeconds);
     }
 
     private int parseToInt(Object value) {
@@ -32,18 +35,17 @@ public class TimeoutParameterConverter implements ParameterConverter {
         }
     }
 
-    private void validateTimeout(int startTimeoutInSeconds) {
-        if (startTimeoutInSeconds < 0) {
-            throw new ContentException(Messages.ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE, startTimeoutInSeconds, timeoutVariable.getName());
+    private void validateTimeout(int timeoutInSeconds) {
+        if (timeoutInSeconds < 0) {
+            throw new ContentException(Messages.ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE, timeoutInSeconds, timeoutVariable.getName());
         }
 
-        int maxAllowedTimeout = timeoutVariable.equals(Variables.APPS_TASK_EXECUTION_TIMEOUT_COMMAND_LINE_LEVEL) ? 86400 // 24h for task
-                                                                                                                         // execution
-            : 10800; // 3h for other timeouts
+        int maxAllowedTimeout = timeoutVariable.equals(Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE) ? MAX_TASK_EXECUTION_TIMEOUT
+            : MAX_TIMEOUT;
 
-        if (startTimeoutInSeconds > maxAllowedTimeout) {
+        if (timeoutInSeconds > maxAllowedTimeout) {
             throw new ContentException(Messages.ERROR_PARAMETER_1_MUST_BE_LESS_THAN_2,
-                                       startTimeoutInSeconds,
+                                       timeoutInSeconds,
                                        timeoutVariable.getName(),
                                        maxAllowedTimeout);
         }

@@ -137,23 +137,23 @@ public interface Variables {
                                                                         .name("mtaMajorSchemaVersion")
                                                                         .build();
 
-    Variable<Duration> APPS_START_TIMEOUT_COMMAND_LINE_LEVEL = ImmutableSimpleVariable.<Duration> builder()
-                                                                                      .name("appsStartTimeout")
-                                                                                      .defaultValue(Duration.ofHours(1))
-                                                                                      .build();
-    Variable<Duration> APPS_STAGE_TIMEOUT_COMMAND_LINE_LEVEL = ImmutableSimpleVariable.<Duration> builder()
-                                                                                      .name("appsStageTimeout")
-                                                                                      .defaultValue(Duration.ofHours(1))
-                                                                                      .build();
+    Variable<Duration> APPS_START_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                    .name("startTimeout")
+                                                                                    .defaultValue(Duration.ofHours(1))
+                                                                                    .build();
+    Variable<Duration> APPS_STAGE_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                    .name("appsStageTimeout")
+                                                                                    .defaultValue(Duration.ofHours(1))
+                                                                                    .build();
 
-    Variable<Duration> APPS_TASK_EXECUTION_TIMEOUT_COMMAND_LINE_LEVEL = ImmutableSimpleVariable.<Duration> builder()
-                                                                                               .name("appsTaskExecutionTimeout")
-                                                                                               .defaultValue(Duration.ofHours(12))
-                                                                                               .build();
-    Variable<Duration> APPS_UPLOAD_TIMEOUT_COMMAND_LINE_LEVEL = ImmutableSimpleVariable.<Duration> builder()
-                                                                                       .name("appsUploadTimeout")
-                                                                                       .defaultValue(Duration.ofHours(1))
-                                                                                       .build();
+    Variable<Duration> APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                             .name("appsTaskExecutionTimeout")
+                                                                                             .defaultValue(Duration.ofHours(12))
+                                                                                             .build();
+    Variable<Duration> APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                     .name("appsUploadTimeout")
+                                                                                     .defaultValue(Duration.ofHours(1))
+                                                                                     .build();
     Variable<Integer> UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = ImmutableSimpleVariable.<Integer> builder()
                                                                                         .name("updatedServiceBrokerSubscribersCount")
                                                                                         .build();
