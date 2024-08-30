@@ -17,6 +17,8 @@ public class SystemParameters {
 
     public static final int GENERATED_CREDENTIALS_LENGTH = 16;
     public static final String IDLE_HOST_SUFFIX = "-idle";
+    public static final String GREEN_HOST_SUFFIX = "-green";
+    public static final String BLUE_HOST_SUFFIX = "-blue";
     public static final String ROUTE_PATH_PLACEHOLDER = "${route-path}";
     public static final String DEFAULT_HOST_BASED_IDLE_URI = "${idle-host}.${idle-domain}";
     public static final String DEFAULT_HOST_BASED_URI = "${host}.${domain}";

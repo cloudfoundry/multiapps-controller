@@ -104,6 +104,12 @@ public interface Variables {
                                                                           .name("applyNamespaceAppRoutes")
                                                                           .defaultValue(null)
                                                                           .build();
+
+    Variable<Boolean> APPLY_NAMESPACE_AS_SUFFIX = ImmutableSimpleVariable.<Boolean> builder()
+                                                                         .name("applyNamespaceAsSuffix")
+                                                                         .defaultValue(null)
+                                                                         .build();
+
     Variable<String> CTS_PROCESS_ID = ImmutableSimpleVariable.<String> builder()
                                                              .name("ctsProcessId")
                                                              .build();

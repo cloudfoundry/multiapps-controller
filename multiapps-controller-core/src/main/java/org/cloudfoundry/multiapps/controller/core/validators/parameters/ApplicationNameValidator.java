@@ -13,8 +13,13 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 
 public class ApplicationNameValidator extends NamespaceValidationUtil implements ParameterValidator {
 
-    public ApplicationNameValidator(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable) {
-        super(namespace, applyNamespaceGlobalLevel, applyNamespaceProcessVariable);
+    public ApplicationNameValidator(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable,
+                                    boolean applyNamespaceAsSuffixGlobalLevel, Boolean applyNamespaceAsSuffixProcessVariable) {
+        super(namespace,
+              applyNamespaceGlobalLevel,
+              applyNamespaceProcessVariable,
+              applyNamespaceAsSuffixGlobalLevel,
+              applyNamespaceAsSuffixProcessVariable);
     }
 
     @Override
@@ -43,8 +48,11 @@ public class ApplicationNameValidator extends NamespaceValidationUtil implements
         if (!(applicationName instanceof String)) {
             throw new ContentException(Messages.COULD_NOT_CREATE_VALID_APPLICATION_NAME_FROM_0, applicationName);
         }
+
         boolean applyNamespaceResult = shouldApplyNamespaceResultValue(relatedParameters);
-        return NameUtil.computeValidApplicationName((String) applicationName, getNamespace(), applyNamespaceResult);
+
+        return NameUtil.computeValidApplicationName((String) applicationName, getNamespace(), applyNamespaceResult,
+                                                    shouldApplyNamespaceAsSuffix(relatedParameters));
     }
 
     @Override

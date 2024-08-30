@@ -23,7 +23,7 @@ class DescriptorParametersValidatorTest {
 
     protected static final List<ParameterValidator> PARAMETER_VALIDATORS = List.of(new HostValidator(), new DomainValidator(),
                                                                                    new TestValidator(),
-                                                                                   new RouteValidator(null, false, false));
+                                                                                   new RouteValidator(null, false, false, false, false));
 
     private final Tester tester = Tester.forClass(getClass());
 

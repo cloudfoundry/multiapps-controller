@@ -12,8 +12,13 @@ public abstract class RoutePartValidator extends NamespaceValidationUtil impleme
     protected RoutePartValidator() {
     }
 
-    protected RoutePartValidator(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable) {
-        super(namespace, applyNamespaceGlobalLevel, applyNamespaceProcessVariable);
+    protected RoutePartValidator(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable,
+                                 boolean applyNamespaceAsSuffixGlobalLevel, Boolean applyNamespaceAsSuffixProcessVariable) {
+        super(namespace,
+              applyNamespaceGlobalLevel,
+              applyNamespaceProcessVariable,
+              applyNamespaceAsSuffixGlobalLevel,
+              applyNamespaceAsSuffixProcessVariable);
     }
 
     @Override

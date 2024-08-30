@@ -31,6 +31,7 @@ public class SupportedParameters {
     public static final String SPACE_GUID = "space-guid";
     public static final String NAMESPACE = "namespace";
     public static final String APPLY_NAMESPACE = "apply-namespace";
+    public static final String APPLY_NAMESPACE_AS_SUFFIX = "as-suffix";
     public static final String MTA_VERSION = "mta-version";
     public static final String MTA_ID = "mta-id";
     public static final String APPLY_NAMESPACE_APPS = "app-names";

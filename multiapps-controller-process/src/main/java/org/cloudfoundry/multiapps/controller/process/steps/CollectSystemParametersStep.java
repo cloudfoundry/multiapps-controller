@@ -27,8 +27,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
 
@@ -37,15 +37,13 @@ import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
 public class CollectSystemParametersStep extends SyncFlowableStep {
 
     private static final String DEFAULT_DOMAIN_PLACEHOLDER = "apps.internal";
-
+    protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
     @Inject
     private ReadOnlyParametersChecker readOnlyParametersChecker;
     @Inject
     private TokenService tokenService;
     @Inject
     private WebClientFactory webClientFactory;
-
-    protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -104,8 +102,10 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         String namespace = context.getVariable(Variables.MTA_NAMESPACE);
         String timestamp = context.getVariable(Variables.TIMESTAMP);
         Boolean applyNamespaceProcessVariable = context.getVariable(Variables.APPLY_NAMESPACE_APP_ROUTES);
+        Boolean applyNamespaceAsSuffixProcessVariable = context.getVariable(Variables.APPLY_NAMESPACE_AS_SUFFIX);
         NamespaceGlobalParameters namespaceGlobalParameters = new NamespaceGlobalParameters(descriptor);
         boolean applyNamespaceGlobalLevel = namespaceGlobalParameters.getApplyNamespaceAppRoutesParameter();
+        boolean applyNamespaceAsSuffixGlobalLevel = namespaceGlobalParameters.getApplyNamespaceAsSuffix();
 
         URL controllerUrl = configuration.getControllerUrl();
         String deployServiceUrl = configuration.getDeployServiceUrl();
@@ -126,7 +126,9 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                                              .mtaVersion(descriptor.getVersion())
                                              .hostValidator(new HostValidator(namespace,
                                                                               applyNamespaceGlobalLevel,
-                                                                              applyNamespaceProcessVariable))
+                                                                              applyNamespaceProcessVariable,
+                                                                              applyNamespaceAsSuffixGlobalLevel,
+                                                                              applyNamespaceAsSuffixProcessVariable))
                                              .build();
     }
 

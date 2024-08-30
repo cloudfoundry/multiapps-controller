@@ -32,6 +32,7 @@ public class CtsDeployMetadataTest extends MetadataBaseTest {
                 Variables.APPLY_NAMESPACE_APP_NAMES.getName(),
                 Variables.APPLY_NAMESPACE_SERVICE_NAMES.getName(),
                 Variables.APPLY_NAMESPACE_APP_ROUTES.getName(),
+                Variables.APPLY_NAMESPACE_AS_SUFFIX.getName(),
                 Variables.VERSION_RULE.getName(),
                 Variables.DELETE_SERVICES.getName(),
                 Variables.DELETE_SERVICE_KEYS.getName(),

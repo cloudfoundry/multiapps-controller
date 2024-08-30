@@ -27,55 +27,16 @@ class ServiceNameValidatorTest {
                                                                                      new Boolean(false));
 
     public static Stream<Arguments> getParameters() {
-        return Stream.of(Arguments.of(true, CONTEXT_APPLY_NAMESPACE, true), Arguments.of(true, CONTEXT_APPLY_NAMESPACE, false),
-                         Arguments.of(true, CONTEXT_DO_NOT_APPLY_NAMESPACE, true),
-                         Arguments.of(true, CONTEXT_DO_NOT_APPLY_NAMESPACE, false), Arguments.of(true, Collections.emptyMap(), true),
-                         Arguments.of(true, Collections.emptyMap(), false), Arguments.of(false, CONTEXT_APPLY_NAMESPACE, true),
-                         Arguments.of(false, CONTEXT_APPLY_NAMESPACE, false), Arguments.of(false, CONTEXT_DO_NOT_APPLY_NAMESPACE, true),
-                         Arguments.of(false, CONTEXT_DO_NOT_APPLY_NAMESPACE, false), Arguments.of(false, Collections.emptyMap(), true),
-                         Arguments.of(false, Collections.emptyMap(), false), Arguments.of(null, CONTEXT_APPLY_NAMESPACE, true),
-                         Arguments.of(null, CONTEXT_APPLY_NAMESPACE, false), Arguments.of(null, CONTEXT_DO_NOT_APPLY_NAMESPACE, true),
-                         Arguments.of(null, CONTEXT_DO_NOT_APPLY_NAMESPACE, false), Arguments.of(null, Collections.emptyMap(), true),
-                         Arguments.of(null, Collections.emptyMap(), false));
-    }
-
-    @ParameterizedTest
-    @MethodSource("getParameters")
-    void testCorrectionWithNoNamespaces(Boolean applyNamespaceProcessVariable, Map<String, Object> context,
-                                        boolean applyNamespaceGlobalLevel) {
-        ServiceNameValidator serviceNameValidator = new ServiceNameValidator(null,
-                                                                             applyNamespaceGlobalLevel,
-                                                                             applyNamespaceProcessVariable);
-        String result = (String) serviceNameValidator.attemptToCorrect(SERVICE_NAME, context);
-        assertEquals(SERVICE_NAME, result);
-    }
-
-    @ParameterizedTest
-    @ValueSource(booleans = { true, false })
-    void testCorrectionWithModuleLevelNamespaceParameterSetToTrue(boolean applyNamespaceGlobalLevel) {
-        ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, applyNamespaceGlobalLevel, null);
-        String result = (String) serviceNameValidator.attemptToCorrect(SERVICE_NAME, CONTEXT_APPLY_NAMESPACE);
-        assertEquals(String.format("%s" + Constants.NAMESPACE_SEPARATOR + "%s", NAMESPACE, SERVICE_NAME), result);
-    }
-
-    @ParameterizedTest
-    @ValueSource(booleans = { true, false })
-    void testCorrectionWithModuleLevelNamespaceParameterSetToFalse(boolean applyNamespaceGlobalLevel) {
-        ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, applyNamespaceGlobalLevel, null);
-        String result = (String) serviceNameValidator.attemptToCorrect(SERVICE_NAME, CONTEXT_DO_NOT_APPLY_NAMESPACE);
-        assertEquals(SERVICE_NAME, result);
-    }
-
-    @ParameterizedTest
-    @ValueSource(booleans = { true, false })
-    void testCorrectionWithGlobalLevelNamespaceParameter(boolean applyNamespaceGlobalLevel) {
-        ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, applyNamespaceGlobalLevel, null);
-        String result = (String) serviceNameValidator.attemptToCorrect(SERVICE_NAME, Collections.emptyMap());
-        if (applyNamespaceGlobalLevel) {
-            assertEquals(String.format("%s" + Constants.NAMESPACE_SEPARATOR + "%s", NAMESPACE, SERVICE_NAME), result);
-        } else {
-            assertEquals(SERVICE_NAME, result);
-        }
+        return Stream.of(Arguments.of(true, CONTEXT_APPLY_NAMESPACE, true, false, false), Arguments.of(true, CONTEXT_APPLY_NAMESPACE, false, false, false),
+                         Arguments.of(true, CONTEXT_DO_NOT_APPLY_NAMESPACE, true, false, false),
+                         Arguments.of(true, CONTEXT_DO_NOT_APPLY_NAMESPACE, false, false, false), Arguments.of(true, Collections.emptyMap(), true, false, false),
+                         Arguments.of(true, Collections.emptyMap(), false, false, false), Arguments.of(false, CONTEXT_APPLY_NAMESPACE, true, false, false),
+                         Arguments.of(false, CONTEXT_APPLY_NAMESPACE, false, false, false), Arguments.of(false, CONTEXT_DO_NOT_APPLY_NAMESPACE, true, false, false),
+                         Arguments.of(false, CONTEXT_DO_NOT_APPLY_NAMESPACE, false, false, false), Arguments.of(false, Collections.emptyMap(), true, false, false),
+                         Arguments.of(false, Collections.emptyMap(), false, false, false), Arguments.of(null, CONTEXT_APPLY_NAMESPACE, true, false, false),
+                         Arguments.of(null, CONTEXT_APPLY_NAMESPACE, false, false, false), Arguments.of(null, CONTEXT_DO_NOT_APPLY_NAMESPACE, true, false, false),
+                         Arguments.of(null, CONTEXT_DO_NOT_APPLY_NAMESPACE, false, false, false), Arguments.of(null, Collections.emptyMap(), true, false, false),
+                         Arguments.of(null, Collections.emptyMap(), false, false, false));
     }
 
     public static Stream<Arguments> getGlobalAndModuleLevelNamespaceParameters() {
@@ -84,10 +45,57 @@ class ServiceNameValidatorTest {
                          Arguments.of(false, CONTEXT_DO_NOT_APPLY_NAMESPACE), Arguments.of(false, Collections.emptyMap()));
     }
 
+    public static Stream<Arguments> getGlobalLevelParametersAndProcessVariables() {
+        return Stream.of(Arguments.of(true, true, false, false), Arguments.of(true, false, false, false), Arguments.of(false, true, false, false), Arguments.of(false, false, false, false),
+                         Arguments.of(null, true, false, false), Arguments.of(null, false, false, false));
+    }
+
+    @ParameterizedTest
+    @MethodSource("getParameters")
+    void testCorrectionWithNoNamespaces(Boolean applyNamespaceProcessVariable, Map<String, Object> context,
+                                        boolean applyNamespaceGlobalLevel, boolean applyNamespaceAsSuffixGlobalLevel,
+                                        Boolean applyNamespaceAsSuffixProcessVariable) {
+        ServiceNameValidator serviceNameValidator = new ServiceNameValidator(null,
+                                                                             applyNamespaceGlobalLevel,
+                                                                             applyNamespaceProcessVariable,
+                                                                             applyNamespaceAsSuffixGlobalLevel,
+                                                                             applyNamespaceAsSuffixProcessVariable);
+        String result = (String) serviceNameValidator.attemptToCorrect(SERVICE_NAME, context);
+        assertEquals(SERVICE_NAME, result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { true, false })
+    void testCorrectionWithModuleLevelNamespaceParameterSetToTrue(boolean applyNamespaceGlobalLevel) {
+        ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, applyNamespaceGlobalLevel, null, false, null);
+        String result = (String) serviceNameValidator.attemptToCorrect(SERVICE_NAME, CONTEXT_APPLY_NAMESPACE);
+        assertEquals(String.format("%s" + Constants.NAMESPACE_SEPARATOR + "%s", NAMESPACE, SERVICE_NAME), result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { true, false })
+    void testCorrectionWithModuleLevelNamespaceParameterSetToFalse(boolean applyNamespaceGlobalLevel) {
+        ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, applyNamespaceGlobalLevel, null, false, null);
+        String result = (String) serviceNameValidator.attemptToCorrect(SERVICE_NAME, CONTEXT_DO_NOT_APPLY_NAMESPACE);
+        assertEquals(SERVICE_NAME, result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { true, false })
+    void testCorrectionWithGlobalLevelNamespaceParameter(boolean applyNamespaceGlobalLevel) {
+        ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, applyNamespaceGlobalLevel, null, false, null);
+        String result = (String) serviceNameValidator.attemptToCorrect(SERVICE_NAME, Collections.emptyMap());
+        if (applyNamespaceGlobalLevel) {
+            assertEquals(String.format("%s" + Constants.NAMESPACE_SEPARATOR + "%s", NAMESPACE, SERVICE_NAME), result);
+        } else {
+            assertEquals(SERVICE_NAME, result);
+        }
+    }
+
     @ParameterizedTest
     @MethodSource("getGlobalAndModuleLevelNamespaceParameters")
     void testCorrectionWithNamespaceProcessVariableSetToTrue(boolean applyNamespaceGlobalLevel, Map<String, Object> relatedParameters) {
-        ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, applyNamespaceGlobalLevel, true);
+        ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, applyNamespaceGlobalLevel, true, false, null);
         String result = (String) serviceNameValidator.attemptToCorrect(SERVICE_NAME, relatedParameters);
         assertEquals(String.format("%s" + Constants.NAMESPACE_SEPARATOR + "%s", NAMESPACE, SERVICE_NAME), result);
     }
@@ -95,7 +103,7 @@ class ServiceNameValidatorTest {
     @ParameterizedTest
     @MethodSource("getGlobalAndModuleLevelNamespaceParameters")
     void testCorrectionWithNamespaceProcessVariableSetToFalse(boolean applyNamespaceGlobalLevel, Map<String, Object> relatedParameters) {
-        ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, applyNamespaceGlobalLevel, false);
+        ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, applyNamespaceGlobalLevel, false, false, null);
         String result = (String) serviceNameValidator.attemptToCorrect(SERVICE_NAME, relatedParameters);
         assertEquals(SERVICE_NAME, result);
     }
@@ -103,7 +111,7 @@ class ServiceNameValidatorTest {
     @ParameterizedTest
     @MethodSource("getGlobalAndModuleLevelNamespaceParameters")
     void testCorrectionWithEmptyNamespaceParameter(boolean applyNamespaceGlobalLevel, Map<String, Object> relatedParameters) {
-        ServiceNameValidator serviceNameValidator = new ServiceNameValidator("", applyNamespaceGlobalLevel, true);
+        ServiceNameValidator serviceNameValidator = new ServiceNameValidator("", applyNamespaceGlobalLevel, true, false, null);
         String result = (String) serviceNameValidator.attemptToCorrect(SERVICE_NAME, relatedParameters);
         assertEquals(SERVICE_NAME, result);
     }
@@ -111,51 +119,61 @@ class ServiceNameValidatorTest {
     @ParameterizedTest
     @MethodSource("getParameters")
     void testCorrectionWithInvalidServiceName(Boolean applyNamespaceProcessVariable, Map<String, Object> context,
-                                              boolean applyNamespaceGlobalLevel) {
+                                              boolean applyNamespaceGlobalLevel, boolean applyNamespaceAsSuffixGlobalLevel,
+                                              Boolean applyNamespaceAsSuffixProcessVariable) {
         ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE,
                                                                              applyNamespaceGlobalLevel,
-                                                                             applyNamespaceProcessVariable);
+                                                                             applyNamespaceProcessVariable,
+                                                                             applyNamespaceAsSuffixGlobalLevel,
+                                                                             applyNamespaceAsSuffixProcessVariable);
         assertThrows(ContentException.class, () -> serviceNameValidator.attemptToCorrect(Collections.emptyList(), context));
     }
 
     @ParameterizedTest
     @MethodSource("getParameters")
-    void testValidation(Boolean applyNamespaceProcessVariable, Map<String, Object> context, boolean applyNamespaceGlobalLevel) {
+    void testValidation(Boolean applyNamespaceProcessVariable, Map<String, Object> context, boolean applyNamespaceGlobalLevel,
+                        boolean applyNamespaceAsSuffixGlobalLevel, Boolean applyNamespaceAsSuffixProcessVariable) {
         ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE,
                                                                              applyNamespaceGlobalLevel,
-                                                                             applyNamespaceProcessVariable);
+                                                                             applyNamespaceProcessVariable,
+                                                                             applyNamespaceAsSuffixGlobalLevel,
+                                                                             applyNamespaceAsSuffixProcessVariable);
         assertFalse(serviceNameValidator.isValid(SERVICE_NAME, context));
-    }
-
-    public static Stream<Arguments> getGlobalLevelParametersAndProcessVariables() {
-        return Stream.of(Arguments.of(true, true), Arguments.of(true, false), Arguments.of(false, true), Arguments.of(false, false),
-                         Arguments.of(null, true), Arguments.of(null, false));
     }
 
     @ParameterizedTest
     @MethodSource("getGlobalLevelParametersAndProcessVariables")
-    void testGetContainerType(Boolean applyNamespaceProcessVariable, boolean applyNamespaceGlobalLevel) {
+    void testGetContainerType(Boolean applyNamespaceProcessVariable, boolean applyNamespaceGlobalLevel,
+                              boolean applyNamespaceAsSuffixGlobalLevel, Boolean applyNamespaceAsSuffixProcessVariable) {
         ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE,
                                                                              applyNamespaceGlobalLevel,
-                                                                             applyNamespaceProcessVariable);
+                                                                             applyNamespaceProcessVariable,
+                                                                             applyNamespaceAsSuffixGlobalLevel,
+                                                                             applyNamespaceAsSuffixProcessVariable);
         assertEquals(Resource.class, serviceNameValidator.getContainerType());
     }
 
     @ParameterizedTest
     @MethodSource("getGlobalLevelParametersAndProcessVariables")
-    void testGetParameterName(Boolean applyNamespaceProcessVariable, boolean applyNamespaceGlobalLevel) {
+    void testGetParameterName(Boolean applyNamespaceProcessVariable, boolean applyNamespaceGlobalLevel,
+                              boolean applyNamespaceAsSuffixGlobalLevel, Boolean applyNamespaceAsSuffixProcessVariable) {
         ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE,
                                                                              applyNamespaceGlobalLevel,
-                                                                             applyNamespaceProcessVariable);
+                                                                             applyNamespaceProcessVariable,
+                                                                             applyNamespaceAsSuffixGlobalLevel,
+                                                                             applyNamespaceAsSuffixProcessVariable);
         assertEquals(SupportedParameters.SERVICE_NAME, serviceNameValidator.getParameterName());
     }
 
     @ParameterizedTest
     @MethodSource("getGlobalLevelParametersAndProcessVariables")
-    void testCanCorrect(Boolean applyNamespaceProcessVariable, boolean applyNamespaceGlobalLevel) {
+    void testCanCorrect(Boolean applyNamespaceProcessVariable, boolean applyNamespaceGlobalLevel, boolean applyNamespaceAsSuffixGlobalLevel,
+                        Boolean applyNamespaceAsSuffixProcessVariable) {
         ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE,
                                                                              applyNamespaceGlobalLevel,
-                                                                             applyNamespaceProcessVariable);
+                                                                             applyNamespaceProcessVariable,
+                                                                             applyNamespaceAsSuffixGlobalLevel,
+                                                                             applyNamespaceAsSuffixProcessVariable);
         assertTrue(serviceNameValidator.canCorrect());
     }
 

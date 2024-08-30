@@ -1,0 +1,10 @@
+_schema-version: "3.1"
+ID: com.sap.mta.sample.util
+version: 2.4.0
+
+parameters:
+  apply-namespace:
+    app-names: aaa
+    service-names: aaa
+    app-routes: aaa
+    as-suffix: aaa

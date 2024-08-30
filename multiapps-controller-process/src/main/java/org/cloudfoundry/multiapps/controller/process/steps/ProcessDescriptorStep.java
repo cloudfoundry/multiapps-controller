@@ -86,6 +86,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         Boolean applyNamespaceAppNamesProcessVariable = context.getVariable(Variables.APPLY_NAMESPACE_APP_NAMES);
         Boolean applyNamespaceServiceNamesProcessVariable = context.getVariable(Variables.APPLY_NAMESPACE_SERVICE_NAMES);
         Boolean applyNamespaceAppRoutesProcessVariable = context.getVariable(Variables.APPLY_NAMESPACE_APP_ROUTES);
+        Boolean applyNamespaceAsSuffixProcessVariable = context.getVariable(Variables.APPLY_NAMESPACE_AS_SUFFIX);
 
         boolean setIdleRoutes = context.getVariable(Variables.USE_IDLE_URIS);
 
@@ -99,6 +100,8 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                               .applyNamespaceAppNamesGlobalLevel(namespaceGlobalParameters.getApplyNamespaceAppNamesParameter())
                                                               .applyNamespaceServiceNamesGlobalLevel(namespaceGlobalParameters.getApplyNamespaceServiceNamesParameter())
                                                               .applyNamespaceAppRoutesGlobalLevel(namespaceGlobalParameters.getApplyNamespaceAppRoutesParameter())
+                                                              .applyNamespaceAsSuffixGlobalLevel(namespaceGlobalParameters.getApplyNamespaceAsSuffix())
+                                                              .applyNamespaceAsSuffixProcessVariable(applyNamespaceAsSuffixProcessVariable)
                                                               .applyNamespaceAppNamesProcessVariable(applyNamespaceAppNamesProcessVariable)
                                                               .applyNamespaceServiceNamesProcessVariable(applyNamespaceServiceNamesProcessVariable)
                                                               .applyNamespaceAppRoutesProcessVariable(applyNamespaceAppRoutesProcessVariable)
