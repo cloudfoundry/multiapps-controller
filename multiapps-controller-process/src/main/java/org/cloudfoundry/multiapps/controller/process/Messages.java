@@ -18,6 +18,7 @@ public class Messages {
     public static final String ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE = "Value \"{0}\" of parameter \"{1}\" must not be negative";
     public static final String ERROR_PARAMETER_1_MUST_BE_LESS_THAN_2 = "Value \"{0}\" of parameter \"{1}\" must be less than {2}";
     public static final String INVALID_VALUE_0_FOR_PARAMETER_1_VALID_VALUES_ARE_2 = "Invalid value \"{0}\" for parameter \"{1}\". Valid values are: {2}";
+    public static final String INVALID_NAMESPACE_LENGTH = "Invalid value for parameter namespace. The namespace cannot be more than {0} symbols.";
     public static final String ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1 = "There is no file associated with the specified file id \"{0}\" in space \"{1}\"";
     public static final String UNKNOWN_SERVICE_ID = "Unknown service id \"{0}\"";
     public static final String UNKNOWN_SERVICE_ID_FOR_PROCESS_0 = "Unknown service id for process \"{0}\"";

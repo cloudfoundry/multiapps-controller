@@ -8,40 +8,26 @@ import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.Messages;
+import org.cloudfoundry.multiapps.controller.core.helpers.SystemParameters;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 
 public class NameUtil {
 
-    public static class NameRequirements {
-
-        private NameRequirements() {
-        }
-
-        public static final String XS_APP_NAME_PATTERN = "(?!sap_system)[a-zA-Z0-9\\._\\-\\\\/]{1,240}";
-        public static final String CONTAINER_NAME_PATTERN = "[A-Z0-9][_A-Z0-9]{0,63}";
-
-        public static final int XS_APP_NAME_MAX_LENGTH = 240;
-        public static final int APP_NAME_MAX_LENGTH = 1024;
-        public static final int SERVICE_NAME_MAX_LENGTH = 50; // TODO: Make this configurable.
-        public static final int CONTAINER_NAME_MAX_LENGTH = 64;
-
-        public static final String ENVIRONMENT_NAME_ILLEGAL_CHARACTERS = "[^_a-zA-Z0-9]";
-        public static final String XS_APP_NAME_ILLEGAL_CHARACTERS = "[^a-zA-Z0-9._\\-\\\\/]";
-        public static final String CONTAINER_NAME_ILLEGAL_CHARACTERS = "[^_A-Z0-9]";
-
-    }
-
     private NameUtil() {
     }
 
-    public static String computeValidApplicationName(String applicationName, String namespace, boolean applyNamespace) {
-        return computeNamespacedNameWithLength(applicationName, namespace, applyNamespace, NameRequirements.APP_NAME_MAX_LENGTH);
+    public static String computeValidApplicationName(String applicationName, String namespace, boolean applyNamespace,
+                                                     boolean applyNamespaceAsSuffix) {
+        return computeNamespacedNameWithLength(applicationName, namespace, applyNamespace, applyNamespaceAsSuffix,
+                                               NameRequirements.APP_NAME_MAX_LENGTH);
     }
 
-    public static String computeValidServiceName(String serviceName, String namespace, boolean applyNamespace) {
-        return computeNamespacedNameWithLength(serviceName, namespace, applyNamespace, NameRequirements.SERVICE_NAME_MAX_LENGTH);
+    public static String computeValidServiceName(String serviceName, String namespace, boolean applyNamespace,
+                                                 boolean applyNamespaceAsSuffix) {
+        return computeNamespacedNameWithLength(serviceName, namespace, applyNamespace, applyNamespaceAsSuffix,
+                                               NameRequirements.SERVICE_NAME_MAX_LENGTH);
     }
 
     public static String computeValidContainerName(String organization, String space, String serviceName) {
@@ -73,17 +59,59 @@ public class NameUtil {
         return name;
     }
 
-    public static String computeNamespacedNameWithLength(String name, String namespace, boolean applyNamespace, int maxLength) {
-        String prefix = "";
+    public static String computeNamespacedNameWithLength(String name, String namespace, boolean applyNamespace,
+                                                         boolean applyNamespaceAsSuffix, int maxLength) {
         if (StringUtils.isNotEmpty(namespace) && applyNamespace) {
-            prefix = getNamespacePrefix(namespace);
+            if (applyNamespaceAsSuffix) {
+                name = getNameWithNamespaceSuffix(name, namespace, maxLength);
+            } else {
+                name = getNamespacePrefix(namespace) + name;
+            }
+        }
+        return getNameWithProperLength(name, maxLength);
+    }
+
+    private static String getNameWithNamespaceSuffix(String name, String namespace, int maxLength) {
+        String namespaceSuffix = getNamespaceSuffix(namespace);
+        String shortenedName = getNameWithProperLength(name, calculateNameLengthWithoutNamespaceAndBlueGreenSuffix(namespaceSuffix, maxLength));
+
+        return correctNameSuffix(shortenedName, name, namespaceSuffix);
+    }
+
+    private static int calculateNameLengthWithoutNamespaceAndBlueGreenSuffix(String namespaceSuffix, int maxLengthWithSuffix) {
+        //Here we use the "green" suffix because it is the longest out of all
+        return maxLengthWithSuffix - (namespaceSuffix.length() + SystemParameters.GREEN_HOST_SUFFIX.length());
+    }
+
+    private static String correctNameSuffix(String name, String nameWithoutShortening, String namespaceSuffix) {
+        if (nameWithoutShortening.endsWith(SystemParameters.IDLE_HOST_SUFFIX)) {
+            name = placeNamespaceBeforeBlueGreenSuffix(name, namespaceSuffix, SystemParameters.IDLE_HOST_SUFFIX);
+        } else if (nameWithoutShortening.endsWith(SystemParameters.BLUE_HOST_SUFFIX)) {
+            name = placeNamespaceBeforeBlueGreenSuffix(name, namespaceSuffix, SystemParameters.BLUE_HOST_SUFFIX);
+        } else if (nameWithoutShortening.endsWith(SystemParameters.GREEN_HOST_SUFFIX)) {
+            name = placeNamespaceBeforeBlueGreenSuffix(name, namespaceSuffix, SystemParameters.GREEN_HOST_SUFFIX);
+        } else {
+            name += namespaceSuffix;
         }
 
-        return getNameWithProperLength(prefix + name, maxLength);
+        return name;
+    }
+
+    private static String placeNamespaceBeforeBlueGreenSuffix(String name, String namespaceSuffix, String blueGreenSuffix) {
+        int lastOccurrenceOfBlueGreenSuffix = name.lastIndexOf(blueGreenSuffix);
+        if (lastOccurrenceOfBlueGreenSuffix > -1) {
+            name = name.substring(0, lastOccurrenceOfBlueGreenSuffix);
+        }
+        name += namespaceSuffix + blueGreenSuffix;
+        return name;
     }
 
     public static String getNamespacePrefix(String namespace) {
         return namespace + Constants.NAMESPACE_SEPARATOR;
+    }
+
+    public static String getNamespaceSuffix(String namespace) {
+        return Constants.NAMESPACE_SEPARATOR + namespace;
     }
 
     private static String getShortenedName(String name, int maxLength) {
@@ -121,6 +149,23 @@ public class NameUtil {
     public static String getServiceName(Resource resource) {
         return (String) resource.getParameters()
                                 .get(SupportedParameters.SERVICE_NAME);
+    }
+
+    public static class NameRequirements {
+
+        public static final String XS_APP_NAME_PATTERN = "(?!sap_system)[a-zA-Z0-9\\._\\-\\\\/]{1,240}";
+        public static final String CONTAINER_NAME_PATTERN = "[A-Z0-9][_A-Z0-9]{0,63}";
+        public static final int XS_APP_NAME_MAX_LENGTH = 240;
+        public static final int APP_NAME_MAX_LENGTH = 1024;
+        public static final int SERVICE_NAME_MAX_LENGTH = 50; // TODO: Make this configurable.
+        public static final int CONTAINER_NAME_MAX_LENGTH = 64;
+        public static final String ENVIRONMENT_NAME_ILLEGAL_CHARACTERS = "[^_a-zA-Z0-9]";
+        public static final String XS_APP_NAME_ILLEGAL_CHARACTERS = "[^a-zA-Z0-9._\\-\\\\/]";
+        public static final String CONTAINER_NAME_ILLEGAL_CHARACTERS = "[^_A-Z0-9]";
+
+        private NameRequirements() {
+        }
+
     }
 
 }

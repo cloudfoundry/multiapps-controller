@@ -25,6 +25,15 @@ import org.mockito.MockitoAnnotations;
 
 class MtaDescriptorPropertiesResolverTest {
 
+    private final Tester tester = Tester.forClass(getClass());
+    private MtaDescriptorPropertiesResolver resolver;
+    @Mock
+    private BiFunction<String, String, String> spaceIdSupplier;
+    @Mock
+    private ApplicationConfiguration configuration;
+    @Mock
+    private ConfigurationEntryService configurationEntryService;
+
     static Stream<Arguments> testResolve() {
         return Stream.of(Arguments.of("mtad-properties-resolver-test/mtad-with-route.yaml",
                                       new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-route-result.json")),
@@ -37,17 +46,6 @@ class MtaDescriptorPropertiesResolverTest {
                                       new Expectation(Expectation.Type.JSON,
                                                       "mtad-properties-resolver-test/mtad-with-service-guid-result.json")));
     }
-
-    private final Tester tester = Tester.forClass(getClass());
-
-    private MtaDescriptorPropertiesResolver resolver;
-
-    @Mock
-    private BiFunction<String, String, String> spaceIdSupplier;
-    @Mock
-    private ApplicationConfiguration configuration;
-    @Mock
-    private ConfigurationEntryService configurationEntryService;
 
     @BeforeEach
     void init() throws Exception {
@@ -68,6 +66,7 @@ class MtaDescriptorPropertiesResolverTest {
                                                               .namespace(null)
                                                               .applyNamespaceAppNamesGlobalLevel(false)
                                                               .applyNamespaceServiceNamesGlobalLevel(false)
+                                                              .applyNamespaceAsSuffixGlobalLevel(false)
                                                               .applyNamespaceAppRoutesGlobalLevel(false)
                                                               .shouldReserveTemporaryRoute(false)
                                                               .build();

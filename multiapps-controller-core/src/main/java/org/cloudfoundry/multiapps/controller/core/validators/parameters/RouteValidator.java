@@ -16,8 +16,13 @@ public class RouteValidator implements ParameterValidator {
 
     private final List<ParameterValidator> validators;
 
-    public RouteValidator(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable) {
-        this.validators = List.of(new HostValidator(namespace, applyNamespaceGlobalLevel, applyNamespaceProcessVariable),
+    public RouteValidator(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable,
+                          boolean applyNamespaceAsSuffixGlobalLevel, Boolean applyNamespaceAsSuffixProcessVariable) {
+        this.validators = List.of(new HostValidator(namespace,
+                                                    applyNamespaceGlobalLevel,
+                                                    applyNamespaceProcessVariable,
+                                                    applyNamespaceAsSuffixGlobalLevel,
+                                                    applyNamespaceAsSuffixProcessVariable),
                                   new DomainValidator());
     }
 

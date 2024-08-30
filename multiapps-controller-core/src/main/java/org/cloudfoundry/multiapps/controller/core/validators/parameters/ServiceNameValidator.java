@@ -12,8 +12,13 @@ import org.cloudfoundry.multiapps.controller.core.util.NamespaceValidationUtil;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 
 public class ServiceNameValidator extends NamespaceValidationUtil implements ParameterValidator {
-    public ServiceNameValidator(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable) {
-        super(namespace, applyNamespaceGlobalLevel, applyNamespaceProcessVariable);
+    public ServiceNameValidator(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable,
+                                boolean applyNamespaceAsSuffixGlobalLevel, Boolean applyNamespaceAsSuffixProcessVariable) {
+        super(namespace,
+              applyNamespaceGlobalLevel,
+              applyNamespaceProcessVariable,
+              applyNamespaceAsSuffixGlobalLevel,
+              applyNamespaceAsSuffixProcessVariable);
     }
 
     @Override
@@ -42,8 +47,11 @@ public class ServiceNameValidator extends NamespaceValidationUtil implements Par
         if (!(serviceName instanceof String)) {
             throw new ContentException(Messages.COULD_NOT_CREATE_VALID_SERVICE_NAME_FROM_0, serviceName);
         }
+
         boolean applyNamespaceResult = shouldApplyNamespaceResultValue(relatedParameters);
-        return NameUtil.computeValidServiceName((String) serviceName, getNamespace(), applyNamespaceResult);
+
+        return NameUtil.computeValidServiceName((String) serviceName, getNamespace(), applyNamespaceResult,
+                                                shouldApplyNamespaceAsSuffix(relatedParameters));
     }
 
     @Override

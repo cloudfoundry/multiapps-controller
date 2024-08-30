@@ -34,6 +34,11 @@ public interface MtaDescriptorPropertiesResolverContext {
 
     boolean applyNamespaceAppRoutesGlobalLevel();
 
+    boolean applyNamespaceAsSuffixGlobalLevel();
+
+    @Nullable
+    Boolean applyNamespaceAsSuffixProcessVariable();
+
     @Nullable
     Boolean applyNamespaceAppNamesProcessVariable();
 

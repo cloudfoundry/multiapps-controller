@@ -6,6 +6,7 @@ import org.cloudfoundry.multiapps.controller.api.model.OperationMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ParameterType;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.metadata.parameters.ApplyNamespaceParameterConverter;
+import org.cloudfoundry.multiapps.controller.process.metadata.parameters.NamespaceConverter;
 import org.cloudfoundry.multiapps.controller.process.metadata.parameters.TimeoutParameterConverter;
 import org.cloudfoundry.multiapps.controller.process.metadata.parameters.VersionRuleParameterConverter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -34,6 +35,7 @@ public class BlueGreenDeployMetadata {
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.MTA_NAMESPACE.getName())
                                                                                  .type(ParameterType.STRING)
+                                                                                 .customConverter(new NamespaceConverter())
                                                                                  .build())
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.APPLY_NAMESPACE_APP_NAMES.getName())
@@ -49,6 +51,11 @@ public class BlueGreenDeployMetadata {
                                                                                  .id(Variables.APPLY_NAMESPACE_APP_ROUTES.getName())
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .customConverter(new ApplyNamespaceParameterConverter(Variables.APPLY_NAMESPACE_APP_ROUTES))
+                                                                                 .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.APPLY_NAMESPACE_AS_SUFFIX.getName())
+                                                                                 .type(ParameterType.BOOLEAN)
+                                                                                 .customConverter(new ApplyNamespaceParameterConverter(Variables.APPLY_NAMESPACE_AS_SUFFIX))
                                                                                  .build())
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.VERSION_RULE.getName())

@@ -239,7 +239,7 @@ class SystemParametersTest {
                                              .timestamp(TIMESTAMP)
                                              .reserveTemporaryRoutes(reserveTemporaryRoutes)
                                              .user(USER_NAME)
-                                             .hostValidator(new HostValidator(applyNamespace ? NAMESPACE : null, true, applyNamespace))
+                                             .hostValidator(new HostValidator(applyNamespace ? NAMESPACE : null, true, applyNamespace, false, false))
                                              .build();
     }
 

@@ -63,12 +63,12 @@ public class CloudModelBuilderTest {
     protected String deployedMtaLocation;
     protected String namespace;
     protected boolean applyNamespace;
-    private ModulesCloudModelBuilderContentCalculator modulesCalculator;
+    protected boolean applyNamespaceAsSuffix;
     protected ModuleToDeployHelper moduleToDeployHelper;
     protected ResourcesCloudModelBuilderContentCalculator resourcesCalculator;
-
     protected ApplicationCloudModelBuilder appBuilder;
     protected ServicesCloudModelBuilder servicesBuilder;
+    private ModulesCloudModelBuilderContentCalculator modulesCalculator;
 
     private static Stream<Arguments> getParameters() {
         return Stream.of(
@@ -529,13 +529,13 @@ public class CloudModelBuilderTest {
     private String computeAppName(Module module) {
         String appName = NameUtil.getApplicationName(module);
         appName = appName != null ? appName : module.getName();
-        return NameUtil.computeValidApplicationName(appName, namespace, applyNamespace);
+        return NameUtil.computeValidApplicationName(appName, namespace, applyNamespace, applyNamespaceAsSuffix);
     }
 
     private String computeServiceName(Resource resource) {
         String serviceName = NameUtil.getServiceName(resource);
         serviceName = serviceName != null ? serviceName : resource.getName();
-        return NameUtil.computeValidServiceName(serviceName, namespace, applyNamespace);
+        return NameUtil.computeValidServiceName(serviceName, namespace, applyNamespace, applyNamespaceAsSuffix);
     }
 
     protected String getDefaultDomain(String targetName) {
