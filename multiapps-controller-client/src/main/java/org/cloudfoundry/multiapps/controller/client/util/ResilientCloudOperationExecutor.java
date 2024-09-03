@@ -1,12 +1,15 @@
 package org.cloudfoundry.multiapps.controller.client.util;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.commons.collections4.SetUtils;
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,6 +23,8 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
     private static final Set<HttpStatus> DEFAULT_STATUSES_TO_IGNORE = Set.of(HttpStatus.GATEWAY_TIMEOUT, HttpStatus.REQUEST_TIMEOUT,
                                                                              HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.BAD_GATEWAY,
                                                                              HttpStatus.SERVICE_UNAVAILABLE);
+
+    private static final int DEFAULT_TIMEOUT_RETRY_WAIT_TIME_IN_MILLIS = 30 * 1000; // 30 seconds
 
     private Set<HttpStatus> additionalStatusesToIgnore = Collections.emptySet();
 
@@ -36,6 +41,27 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
     public ResilientCloudOperationExecutor withStatusesToIgnore(HttpStatus... statusesToIgnore) {
         this.additionalStatusesToIgnore = new HashSet<>(Arrays.asList(statusesToIgnore));
         return this;
+    }
+
+    public <T> T executeWithExponentialTimeout(Function<Duration, T> operation, Duration requestTimeout) {
+        int waitTimeBetweenRetriesInMillis = DEFAULT_TIMEOUT_RETRY_WAIT_TIME_IN_MILLIS;
+        Duration calculatedRequestTimeout = requestTimeout;
+        for (int i = 1; i < retryCount; i++) {
+            try {
+                return operation.apply(calculatedRequestTimeout);
+            } catch (RuntimeException e) {
+                handle(e);
+                if (e.getCause() instanceof java.util.concurrent.TimeoutException
+                    || e instanceof io.netty.handler.timeout.TimeoutException) {
+                    MiscUtil.sleep(waitTimeBetweenRetriesInMillis);
+                    calculatedRequestTimeout = calculatedRequestTimeout.multipliedBy(2);
+                    LOGGER.info("Waiting: {} millis before retrying with timeout of: {} millis", waitTimeBetweenRetriesInMillis,
+                                calculatedRequestTimeout.toMillis());
+                    waitTimeBetweenRetriesInMillis *= 2;
+                }
+            }
+        }
+        return operation.apply(calculatedRequestTimeout);
     }
 
     @Override
