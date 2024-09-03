@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.client;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -584,15 +585,16 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudPackage asyncUploadApplication(String applicationName, Path file) {
+    public CloudPackage asyncUploadApplication(String applicationName, Path file, Duration initialRequestTimeout) {
         logger.debug(Messages.ASYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
-        return delegate.asyncUploadApplication(applicationName, file);
+        return delegate.asyncUploadApplication(applicationName, file, initialRequestTimeout);
     }
 
     @Override
-    public CloudPackage asyncUploadApplication(String applicationName, Path file, UploadStatusCallback callback) {
+    public CloudPackage asyncUploadApplication(String applicationName, Path file, UploadStatusCallback callback,
+                                               Duration initialRequestTimeout) {
         logger.debug(Messages.ASYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
-        return delegate.asyncUploadApplication(applicationName, file, callback);
+        return delegate.asyncUploadApplication(applicationName, file, callback, initialRequestTimeout);
     }
 
     @Override

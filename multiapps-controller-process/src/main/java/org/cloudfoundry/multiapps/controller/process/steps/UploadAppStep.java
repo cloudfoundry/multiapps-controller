@@ -214,7 +214,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     private CloudPackage upload(ProcessContext context, CloudApplication app, Path filePath) {
         try {
             return context.getControllerClient()
-                          .asyncUploadApplication(app.getName(), filePath, getMonitorUploadStatusCallback(context, app, filePath));
+                          .asyncUploadApplication(app.getName(), filePath, getMonitorUploadStatusCallback(context, app, filePath),
+                                                  Duration.ofMinutes(4));
         } catch (Exception e) {
             FileUtils.cleanUp(filePath, LOGGER);
             throw new SLException(e, Messages.ERROR_WHILE_STARTING_ASYNC_UPLOAD_OF_APP_WITH_NAME_0, app.getName());
