@@ -231,7 +231,7 @@ class OperationsApiServiceImplTest {
         String processId = FINISHED_PROCESS;
         String logName = "OPERATION.log";
         String expectedLogContent = "somelogcontentstring\n1234";
-        Mockito.when(logsService.getLogContent(Mockito.eq(SPACE_GUID), Mockito.eq(processId), Mockito.eq(logName)))
+        Mockito.when(logsService.getOperationLog(Mockito.eq(SPACE_GUID), Mockito.eq(processId), Mockito.eq(logName)))
                .thenReturn(expectedLogContent);
         ResponseEntity<String> response = operationsApiService.getOperationLogContent(SPACE_GUID, processId, logName);
         String logContent = response.getBody();
@@ -242,7 +242,7 @@ class OperationsApiServiceImplTest {
     void testGetOperationLogContentNotFound() throws Exception {
         String processId = FINISHED_PROCESS;
         String logName = "OPERATION.log";
-        Mockito.when(logsService.getLogContent(Mockito.eq(SPACE_GUID), Mockito.eq(processId), Mockito.eq(logName)))
+        Mockito.when(logsService.getOperationLog(Mockito.eq(SPACE_GUID), Mockito.eq(processId), Mockito.eq(logName)))
                .thenThrow(new NoResultException("log file not found"));
         Assertions.assertThrows(NoResultException.class, () -> operationsApiService.getOperationLogContent(SPACE_GUID, processId, logName));
     }
