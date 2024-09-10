@@ -56,7 +56,8 @@ public class ProcessLoggerPersister {
                                                                             .withId(UUID.randomUUID()
                                                                                         .toString())
                                                                             .withOperationLogName(processLogsMessage.getKey())
-                                                                            .withOperationLog(processLogsMessage.toString())
+                                                                            .withOperationLog(processLogsMessage.getValue()
+                                                                                                                .toString())
                                                                             .withModified(LocalDateTime.now());
             processLogsPersistenceService.persistLog(operationLogEntry);
         }
