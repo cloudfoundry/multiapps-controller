@@ -72,6 +72,8 @@ public class Messages {
     public static final String ERROR_OCURRED_DURING_VALIDATION_OF_FILES_0 = "Error occurred during validation of files \"{0}\"";
     public static final String SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1 = "Size of all operation files \"{0}\" exceeds max upload size limit \"{1}\"";
     public static final String NOT_BOOLEAN_PARAMETER_VALUE = "Value \"{0}\" of parameter \"{1}\" is not boolean";
+    public static final String ERROR_OCCURRED_DURING_APPLICATION_UPLOAD_0 = "Error occurred during application upload: {0}";
+
     // Audit log messages
 
     // ERROR log messages
@@ -214,6 +216,7 @@ public class Messages {
     public static final String COULD_NOT_UPDATE_PLAN_SERVICE = "Could not update plan of service \"{0}\" : {1}";
     public static final String COULD_NOT_UPDATE_SYSLOG_DRAIN_URL_SERVICE = "Could not update syslog drain url of service \"{0}\" : {1}";
     public static final String SCALING_DOWN_NEW_APPLICATION_TO_ONE_INSTANCE = "Scaling down new application: \"{0}\" to one instance";
+    public static final String UPLOAD_OF_APPLICATION_0_WAS_NOT_ACCEPTED_BY_INSTANCE_1 = "Upload of application: {0} was not accepted by instance: {1}";
 
     public static final String COULD_NOT_GET_SERVICE_KEYS_FOR_OPTIONAL_SERVICE = "Could not get service keys for optional service \"{0}\"";
     public static final String DEFAULT_FAILED_OPERATION_DESCRIPTION = "The service broker returned an error with no description!";
@@ -307,6 +310,8 @@ public class Messages {
     public static final String FILE_WITH_ID_0_WAS_DELETED = "File with id \"{0}\" was deleted";
     public static final String CALCULATING_APPLICATION_DIGEST_0 = "Calculating application digest: \"{0}\"";
     public static final String SKIPPING_APPLICATION_0_DIGEST_CALCULATION = "Skipping application: \"{0}\" digest calculation";
+    public static final String TIME_ELAPSED_FOR_UPLOAD_0_IN_MILLIS = "Time elapsed for upload: {0} in millis";
+    public static final String TIME_ELAPSED_FOR_APP_BINARY_DOWNLOAD_0_IN_MILLIS = "Time elapsed for app binary download: {0} in millis";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
@@ -733,6 +738,8 @@ public class Messages {
     public static final String DOWNSCALING_APPLICATION_0_TO_1_INSTANCES = "Downscaling application \"{0}\" to {1} instances";
     public static final String UPSCALING_APPLICATION_0_TO_1_INSTANCES = "Upscaling application \"{0}\" to {1} instances";
     public static final String PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1 = "Parameter \"{0}\" must be positive integer value up to {1}!";
+    public static final String SKIPPING_UPLOAD_OF_APPLICATION_0 = "Skipping upload of application: {0}";
+    public static final String UPLOAD_OF_APPLICATION_0_STARTED_ON_INSTANCE_1 = "Upload of application: {0} started on instance: {1}";
 
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";

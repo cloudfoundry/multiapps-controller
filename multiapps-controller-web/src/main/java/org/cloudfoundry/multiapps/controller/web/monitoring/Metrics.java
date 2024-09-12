@@ -1,12 +1,13 @@
 package org.cloudfoundry.multiapps.controller.web.monitoring;
 
-import org.cloudfoundry.multiapps.controller.core.model.CachedObject;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-
 import java.nio.file.Paths;
 import java.time.Duration;
+
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.cloudfoundry.multiapps.controller.core.model.CachedObject;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 
 @Named
 public class Metrics implements MetricsMBean {
@@ -15,14 +16,17 @@ public class Metrics implements MetricsMBean {
     private final CachedObject<FlowableThreadInformation> cachedFlowableThreadMonitor;
     private final CachedObject<CloudFoundryClientThreadInformation> cachedCloudFoundryClientThreadMonitor;
     private final FlowableJobExecutorInformation flowableJobExecutorInformation;
+    private final FileUploadThreadPoolInformation fileUploadThreadPoolInformation;
 
     @Inject
     public Metrics(ApplicationConfiguration appConfigurations, FssMonitor fssMonitor,
-                   FlowableJobExecutorInformation flowableJobExecutorInformation) {
+                   FlowableJobExecutorInformation flowableJobExecutorInformation,
+                   FileUploadThreadPoolInformation fileUploadThreadPoolInformation) {
         this.fssMonitor = fssMonitor;
         this.cachedFlowableThreadMonitor = new CachedObject<>(Duration.ofSeconds(appConfigurations.getThreadMonitorCacheUpdateInSeconds()));
         this.cachedCloudFoundryClientThreadMonitor = new CachedObject<>(Duration.ofSeconds(appConfigurations.getThreadMonitorCacheUpdateInSeconds()));
         this.flowableJobExecutorInformation = flowableJobExecutorInformation;
+        this.fileUploadThreadPoolInformation = fileUploadThreadPoolInformation;
     }
 
     @Override
@@ -77,4 +81,8 @@ public class Metrics implements MetricsMBean {
         return flowableJobExecutorInformation.getCurrentJobExecutorQueueSize();
     }
 
+    @Override
+    public int getFileToUploadQueueSize() {
+        return fileUploadThreadPoolInformation.getFileUploadPriorityBlockingQueueSize();
+    }
 }

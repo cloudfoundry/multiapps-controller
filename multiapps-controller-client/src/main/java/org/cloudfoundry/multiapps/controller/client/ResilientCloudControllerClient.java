@@ -397,10 +397,14 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudPackage asyncUploadApplication(String applicationName, Path file, UploadStatusCallback callback,
-                                               Duration initialRequestTimeout) {
-        return executeWithExponentialRetry(timeout -> delegate.asyncUploadApplication(applicationName, file, callback, timeout),
-                                           initialRequestTimeout);
+    public CloudPackage asyncUploadApplicationWithExponentialBackoff(String applicationName, Path file, UploadStatusCallback callback,
+                                                                     Duration overrideTimeout) {
+        if (overrideTimeout != null) {
+            return executeWithRetry(() -> delegate.asyncUploadApplicationWithExponentialBackoff(applicationName, file, callback,
+                                                                                                overrideTimeout));
+        }
+        return executeWithExponentialBackoff(timeout -> delegate.asyncUploadApplicationWithExponentialBackoff(applicationName, file,
+                                                                                                              callback, timeout));
     }
 
     @Override
@@ -496,12 +500,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public List<CloudStack> getStacks() {
         return executeWithRetry(delegate::getStacks, HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public CloudPackage asyncUploadApplication(String applicationName, Path file, Duration initialRequestTimeout) {
-        return executeWithExponentialRetry(timeout -> delegate.asyncUploadApplication(applicationName, file, timeout),
-                                           initialRequestTimeout);
     }
 
     @Override
@@ -633,10 +631,9 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
         return executor.execute(operation);
     }
 
-    private <T> T executeWithExponentialRetry(Function<Duration, T> operation, Duration initialRequestTimeout,
-                                              HttpStatus... statusesToIgnore) {
+    private <T> T executeWithExponentialBackoff(Function<Duration, T> operation, HttpStatus... statusesToIgnore) {
         ResilientCloudOperationExecutor executor = new ResilientCloudOperationExecutor().withStatusesToIgnore(statusesToIgnore);
-        return executor.executeWithExponentialTimeout(operation, initialRequestTimeout);
+        return executor.executeWithExponentialBackoff(operation);
     }
 
 }
