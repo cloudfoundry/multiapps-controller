@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import javax.persistence.NoResultException;
 
@@ -95,8 +97,10 @@ class FilesApiServiceImplTest {
     };
     @Mock
     private HttpResponse<InputStream> fileUrlResponse;
-    @Mock
+    @Mock(name = "deployFromUrlExecutor")
     private ExecutorService asyncFileUploadExecutor;
+    @Mock(name = "fileStorageThreadPool")
+    private ExecutorService fileStorageThreadPool;
     @Mock
     private ApplicationConfiguration configuration;
     @Spy
@@ -118,6 +122,7 @@ class FilesApiServiceImplTest {
                           .close();
         Mockito.when(request.getRequestURI())
                .thenReturn("");
+        prepareFileStorageThreadPool();
     }
 
     @Test
@@ -255,6 +260,15 @@ class FilesApiServiceImplTest {
         var status = responseBody.getStatus();
         assertEquals(mtaId, MTA_ID);
         assertEquals(status, AsyncUploadResult.JobStatus.FINISHED);
+    }
+
+    private void prepareFileStorageThreadPool() {
+        when(fileStorageThreadPool.submit(any(Callable.class))).thenAnswer(invocation -> {
+            Callable<?> callable = invocation.getArgument(0);
+            FutureTask<?> futureTask = new FutureTask<>(callable);
+            futureTask.run();
+            return futureTask;
+        });
     }
 
     private void prepareAsyncExecutor(Future<?> future) {

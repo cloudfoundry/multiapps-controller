@@ -106,7 +106,7 @@ class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<UploadAppS
 
     @Override
     protected UploadAppStep createStep() {
-        return new UploadAppStep();
+        return new UploadAppStepMock();
     }
 
     @Override
@@ -117,6 +117,14 @@ class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<UploadAppS
     @Override
     protected void validateOperationExecutionResult(AsyncExecutionState result) {
         assertEquals(expectedStatus.toString(), result.toString());
+    }
+
+    private static class UploadAppStepMock extends UploadAppStep {
+
+        @Override
+        protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
+            return List.of(new PollUploadAppStatusExecution());
+        }
     }
 
 }

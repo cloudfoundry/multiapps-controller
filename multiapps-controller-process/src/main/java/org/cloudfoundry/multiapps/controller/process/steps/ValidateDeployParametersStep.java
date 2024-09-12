@@ -4,7 +4,10 @@ import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.io.IOUtils;
@@ -18,6 +21,8 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.stream.ArchiveStreamWithName;
 import org.cloudfoundry.multiapps.controller.process.util.FileSweeper;
 import org.cloudfoundry.multiapps.controller.process.util.MergedArchiveStreamCreator;
+import org.cloudfoundry.multiapps.controller.process.util.PriorityCallable;
+import org.cloudfoundry.multiapps.controller.process.util.PriorityFuture;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -27,6 +32,12 @@ import org.springframework.context.annotation.Scope;
 public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private final ResilientOperationExecutor resilientOperationExecutor = new ResilientOperationExecutor();
+    private final ExecutorService fileStorageThreadPool;
+
+    @Inject
+    public ValidateDeployParametersStep(ExecutorService fileStorageThreadPool) {
+        this.fileStorageThreadPool = fileStorageThreadPool;
+    }
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -176,18 +187,25 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private FileEntry persistArchive(ArchiveStreamWithName archiveStreamWithName, ProcessContext context, BigInteger size) {
         try {
-            return fileService.addFile(ImmutableFileEntry.builder()
-                                                         .name(archiveStreamWithName.getArchiveName())
-                                                         .space(context.getVariable(Variables.SPACE_GUID))
-                                                         .namespace(context.getVariable(Variables.MTA_NAMESPACE))
-                                                         .operationId(context.getExecution()
-                                                                             .getProcessInstanceId())
-                                                         .size(size)
-                                                         .build(),
-                                       archiveStreamWithName.getArchiveStream());
-        } catch (FileStorageException e) {
-            throw new SLException(e, e.getMessage());
+            return fileStorageThreadPool.submit(new PriorityCallable<>(PriorityFuture.Priority.HIGHEST,
+                                                                       () -> doPersistArchive(archiveStreamWithName, context, size)))
+                                        .get();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new SLException(e.getMessage(), e);
         }
+    }
+
+    private FileEntry doPersistArchive(ArchiveStreamWithName archiveStreamWithName, ProcessContext context, BigInteger size)
+        throws FileStorageException {
+        return fileService.addFile(ImmutableFileEntry.builder()
+                                                     .name(archiveStreamWithName.getArchiveName())
+                                                     .space(context.getVariable(Variables.SPACE_GUID))
+                                                     .namespace(context.getVariable(Variables.MTA_NAMESPACE))
+                                                     .operationId(context.getExecution()
+                                                                         .getProcessInstanceId())
+                                                     .size(size)
+                                                     .build(),
+                                   archiveStreamWithName.getArchiveStream());
     }
 
 }
