@@ -3,6 +3,8 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -12,6 +14,9 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.FutureTask;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.SLException;
@@ -119,22 +124,22 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
     }
 
     private void prepareFileService(String appArchiveId) throws FileStorageException {
-        Mockito.when(fileService.getFile("space-id", EXISTING_FILE_ID))
+        when(fileService.getFile("space-id", EXISTING_FILE_ID))
                .thenReturn(createFileEntry(EXISTING_FILE_ID, "some-file-entry-name", 1024 * 1024L));
-        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.0"))
+        when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.0"))
                .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.0", MERGED_ARCHIVE_NAME + ".part.0", 1024 * 1024L));
 
-        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.1"))
+        when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.1"))
                .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.1", MERGED_ARCHIVE_NAME + ".part.1", 1024 * 1024L));
 
-        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.2"))
+        when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.2"))
                .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.2", MERGED_ARCHIVE_NAME + ".part.2", 1024 * 1024L));
 
-        Mockito.when(fileService.getFile("space-id", EXISTING_BIGGER_FILE_ID))
+        when(fileService.getFile("space-id", EXISTING_BIGGER_FILE_ID))
                .thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024L + 1));
-        Mockito.when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID))
+        when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID))
                .thenReturn(null);
-        Mockito.when(fileService.addFile(Mockito.any(FileEntry.class), Mockito.any(InputStream.class)))
+        when(fileService.addFile(any(FileEntry.class), any(InputStream.class)))
                .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024L));
         if (appArchiveId.contains(EXCEEDING_FILE_SIZE_ID)) {
             List<FileEntry> fileEntries = List.of(createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.0", EXCEEDING_FILE_SIZE_ID + ".part.0",
@@ -147,21 +152,20 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
                                                                   1024 * 1024 * 1024),
                                                   createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.4", EXCEEDING_FILE_SIZE_ID + ".part.4",
                                                                   1024 * 1024 * 1024));
-            Mockito.when(fileService.listFilesBySpaceAndOperationId(Mockito.anyString(), Mockito.anyString()))
+            when(fileService.listFilesBySpaceAndOperationId(Mockito.anyString(), Mockito.anyString()))
                    .thenReturn(fileEntries);
         }
     }
 
     private void prepareArchiveMerger() {
         FilePartsMerger merger = Mockito.mock(FilePartsMerger.class);
-        Mockito.when(merger.getMergedFilePath())
-               .thenReturn(Paths.get(MERGED_ARCHIVE_TEST_MTAR));
+        when(merger.getMergedFilePath()).thenReturn(Paths.get(MERGED_ARCHIVE_TEST_MTAR));
     }
 
     private void prepareConfiguration() {
-        Mockito.when(configuration.getMaxMtaDescriptorSize())
+        when(configuration.getMaxMtaDescriptorSize())
                .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
-        Mockito.when(configuration.getMaxUploadSize())
+        when(configuration.getMaxUploadSize())
                .thenReturn(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE);
     }
 
@@ -178,7 +182,14 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
 
     @Override
     protected ValidateDeployParametersStep createStep() {
-        return new ValidateDeployParametersStep();
+        ExecutorService executorService = Mockito.mock(ExecutorService.class);
+        when(executorService.submit(any(Callable.class))).thenAnswer(invocation -> {
+            Callable<?> callable = invocation.getArgument(0);
+            FutureTask<?> futureTask = new FutureTask<>(callable);
+            futureTask.run();
+            return futureTask;
+        });
+        return new ValidateDeployParametersStep(executorService);
     }
 
     private static class StepInput {

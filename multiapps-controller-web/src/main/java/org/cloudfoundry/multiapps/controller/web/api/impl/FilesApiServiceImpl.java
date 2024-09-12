@@ -54,6 +54,8 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntr
 import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
+import org.cloudfoundry.multiapps.controller.process.util.PriorityCallable;
+import org.cloudfoundry.multiapps.controller.process.util.PriorityFuture;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
@@ -94,6 +96,8 @@ public class FilesApiServiceImpl implements FilesApiService {
     private ExecutorService deployFromUrlExecutor;
     @Inject
     private FilesApiServiceAuditLog filesApiServiceAuditLog;
+    @Inject
+    private ExecutorService fileStorageThreadPool;
 
     @Override
     public ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid, String namespace) {
@@ -116,13 +120,8 @@ public class FilesApiServiceImpl implements FilesApiService {
         var multipartFile = getFileFromRequest(request);
         try (InputStream in = new BufferedInputStream(multipartFile.getInputStream(), INPUT_STREAM_BUFFER_SIZE)) {
             var startTime = LocalDateTime.now();
-            FileEntry fileEntry = fileService.addFile(ImmutableFileEntry.builder()
-                                                                        .space(spaceGuid)
-                                                                        .namespace(namespace)
-                                                                        .name(multipartFile.getOriginalFilename())
-                                                                        .size(BigInteger.valueOf(multipartFile.getSize()))
-                                                                        .build(),
-                                                      in);
+            FileEntry fileEntry = fileStorageThreadPool.submit(createUploadFileTask(spaceGuid, namespace, multipartFile, in))
+                                                       .get();
             FileMetadata file = parseFileEntry(fileEntry);
             filesApiServiceAuditLog.logUploadFile(SecurityContextUtil.getUsername(), spaceGuid, file);
             var endTime = LocalDateTime.now();
@@ -231,6 +230,22 @@ public class FilesApiServiceImpl implements FilesApiService {
             throw new SLException(Messages.NO_FILES_TO_UPLOAD);
         }
         return it.next();
+    }
+
+    private PriorityCallable<FileEntry> createUploadFileTask(String spaceGuid, String namespace, MultipartFile multipartFile,
+                                                             InputStream in) {
+        return new PriorityCallable<>(PriorityFuture.Priority.LOWEST, () -> doUploadFile(spaceGuid, namespace, multipartFile, in));
+    }
+
+    private FileEntry doUploadFile(String spaceGuid, String namespace, MultipartFile multipartFile, InputStream in)
+        throws FileStorageException {
+        return fileService.addFile(ImmutableFileEntry.builder()
+                                                     .space(spaceGuid)
+                                                     .namespace(namespace)
+                                                     .name(multipartFile.getOriginalFilename())
+                                                     .size(BigInteger.valueOf(multipartFile.getSize()))
+                                                     .build(),
+                                   in);
     }
 
     protected ResilientOperationExecutor getResilientOperationExecutor() {

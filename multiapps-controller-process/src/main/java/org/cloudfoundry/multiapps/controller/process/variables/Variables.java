@@ -634,6 +634,9 @@ public interface Variables {
                                                                           .name("waitBindServiceTimeout")
                                                                           .defaultValue(Duration.ofHours(1))
                                                                           .build();
+    Variable<LocalDateTime> UPLOAD_START_TIME = ImmutableSimpleVariable.<LocalDateTime> builder()
+                                                                       .name("uploadStartTime")
+                                                                       .build();
 
     // TODO: keep custom serializers only for one release, delete after
     // Variable<List<List<CloudServiceInstanceExtended>>> BATCHES_TO_PROCESS =
@@ -833,4 +836,15 @@ public interface Variables {
                                                                            .name("skipAppDigestCalculation")
                                                                            .defaultValue(false)
                                                                            .build();
+    Variable<String> CALCULATED_APPLICATION_DIGEST = ImmutableSimpleVariable.<String> builder()
+                                                                            .name("calculatedApplicationDigest")
+                                                                            .build();
+    Variable<Boolean> SHOULD_UPDATE_APPLICATION_DIGEST = ImmutableSimpleVariable.<Boolean> builder()
+                                                                                .name("shouldUpdateApplicationDigest")
+                                                                                .defaultValue(false)
+                                                                                .build();
+    Variable<Boolean> SHOULD_SKIP_APPLICATION_UPLOAD = ImmutableSimpleVariable.<Boolean> builder()
+                                                                              .name("shouldSkipApplicationUpload")
+                                                                              .defaultValue(false)
+                                                                              .build();
 }
