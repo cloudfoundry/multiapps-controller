@@ -1,19 +1,18 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.configuration.bean.factory.ObjectStoreFileStorageFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+
+import javax.inject.Inject;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class FileStorageConfiguration {
@@ -29,19 +28,13 @@ public class FileStorageConfiguration {
 
     @Bean(name = "filterMultipartResolver")
     public MultipartResolver multipartResolver() {
-        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
-        resolver.setMaxUploadSize(MAX_UPLOAD_SIZE);
-        resolver.setMaxUploadSizePerFile(MAX_UPLOAD_SIZE);
-        return resolver;
+        return new StandardServletMultipartResolver();
     }
 
     @Inject
     @Bean(name = "asyncFileUploadExecutor")
     public ExecutorService asyncFileUploadExecutor(ApplicationConfiguration configuration) {
-        return new ThreadPoolExecutor(5,
-                                      configuration.getFilesAsyncUploadExecutorMaxThreads(),
-                                      30,
-                                      TimeUnit.SECONDS,
+        return new ThreadPoolExecutor(5, configuration.getFilesAsyncUploadExecutorMaxThreads(), 30, TimeUnit.SECONDS,
                                       new LinkedBlockingQueue<>());
     }
 }
