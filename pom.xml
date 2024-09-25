@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.cloudfoundry.multiapps</groupId>
     <artifactId>multiapps-controller-parent</artifactId>
@@ -13,7 +13,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>cloudfoundry</sonar.organization>
-        <sonar.coverage.jacoco.xmlReportPaths>../multiapps-controller-coverage/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>../multiapps-controller-coverage/target/site/jacoco-aggregate/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
         <junit.version>5.10.2</junit.version>
         <junit-platform.version>1.10.2</junit-platform.version>
         <mockito.version>5.12.0</mockito.version>
@@ -23,7 +24,6 @@
         <log4j.version>2.23.1</log4j.version>
         <slf4j.version>2.0.12</slf4j.version>
         <commons-io.version>2.16.1</commons-io.version>
-        <commons-fileupload.version>1.5</commons-fileupload.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <httpclient.version>4.5.14</httpclient.version>
@@ -88,7 +88,8 @@
 
     <scm>
         <connection>scm:git:https://github.com/cloudfoundry-incubator/multiapps-controller.git</connection>
-        <developerConnection>scm:git:https://github.com/cloudfoundry-incubator/multiapps-controller.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/cloudfoundry-incubator/multiapps-controller.git
+        </developerConnection>
         <url>https://github.com/cloudfoundry-incubator/multiapps-controller.git</url>
         <tag>HEAD</tag>
     </scm>
@@ -238,7 +239,7 @@
                     <version>0.8.10</version>
                 </plugin>
             </plugins>
-        </pluginManagement>     
+        </pluginManagement>
     </build>
     <dependencies>
         <dependency>
@@ -450,12 +451,6 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
-            <dependency>
-                <groupId>commons-fileupload</groupId>
-                <artifactId>commons-fileupload</artifactId>
-                <version>${commons-fileupload.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
             <dependency>
@@ -798,7 +793,7 @@
             <dependency>
                 <groupId>com.sap.cloud.lm.sl</groupId>
                 <artifactId>cloudfoundry-client-facade</artifactId>
-                <version>${cloudfoundry-client.version}</version> 
+                <version>${cloudfoundry-client.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.cloudfoundry.multiapps/multiapps-common -->
             <dependency>
@@ -970,18 +965,18 @@
             <id>coverage</id>
             <build>
                 <plugins>
-                  <plugin>
-                      <groupId>org.jacoco</groupId>
-                      <artifactId>jacoco-maven-plugin</artifactId>
-                      <executions>
-                          <execution>
-                              <id>prepare-agent</id>
-                              <goals>
-                                  <goal>prepare-agent</goal>
-                              </goals>
-                          </execution>
-                      </executions>
-                  </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -989,22 +984,22 @@
             <id>sonar</id>
             <build>
                 <plugins>
-                  <plugin>
-                      <groupId>org.sonarsource.scanner.maven</groupId>
-                      <artifactId>sonar-maven-plugin</artifactId>
-                  </plugin>
-                  <plugin>
-                      <groupId>org.jacoco</groupId>
-                      <artifactId>jacoco-maven-plugin</artifactId>
-                      <executions>
-                          <execution>
-                              <id>prepare-agent</id>
-                              <goals>
-                                  <goal>prepare-agent</goal>
-                              </goals>
-                          </execution>
-                      </executions>
-                  </plugin>
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
