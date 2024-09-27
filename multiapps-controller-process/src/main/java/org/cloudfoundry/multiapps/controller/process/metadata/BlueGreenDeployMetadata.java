@@ -140,6 +140,11 @@ public class BlueGreenDeployMetadata {
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .defaultValue(false)
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.SKIP_APP_DIGEST_CALCULATION.getName())
+                                                                                 .type(ParameterType.BOOLEAN)
+                                                                                 .defaultValue(true)
+                                                                                 .build())
                                          .build();
     }
 

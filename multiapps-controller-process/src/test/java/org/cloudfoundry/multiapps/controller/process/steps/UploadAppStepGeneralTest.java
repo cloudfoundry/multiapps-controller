@@ -11,6 +11,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -212,6 +213,22 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         prepareClients(CURRENT_MODULE_DIGEST);
         mockCloudPackagesGetter(createCloudPackage(Status.FAILED));
         step.execute(execution);
+        assertEquals(CLOUD_PACKAGE, context.getVariable(Variables.CLOUD_PACKAGE));
+        assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
+    }
+
+    @Test
+    void testSkippingDigestCalculation() {
+        prepareClients(CURRENT_MODULE_DIGEST);
+        context.setVariable(Variables.SKIP_APP_DIGEST_CALCULATION, true);
+        Map<String, String> deployAttributes = Map.of(Constants.ATTR_APP_CONTENT_DIGEST, CURRENT_MODULE_DIGEST);
+        when(client.getApplicationEnvironment(APP_GUID)).thenReturn(Map.of(Constants.ENV_DEPLOY_ATTRIBUTES,
+                                                                           JsonUtil.toJson(deployAttributes)));
+        step.execute(execution);
+        Map<String, String> expectedDeployAttributes = new HashMap<>();
+        expectedDeployAttributes.put(Constants.ENV_DEPLOY_ATTRIBUTES, null);
+        verify(client).updateApplicationEnv(APP_NAME,
+                                            Map.of(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(expectedDeployAttributes, true)));
         assertEquals(CLOUD_PACKAGE, context.getVariable(Variables.CLOUD_PACKAGE));
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
     }

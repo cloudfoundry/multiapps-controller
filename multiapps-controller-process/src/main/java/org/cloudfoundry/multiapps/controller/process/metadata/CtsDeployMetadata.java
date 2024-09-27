@@ -168,6 +168,11 @@ public class CtsDeployMetadata {
                                                                                  .type(ParameterType.STRING)
                                                                                  .customConverter(new DeployStrategyParameterConverter())
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.SKIP_APP_DIGEST_CALCULATION.getName())
+                                                                                 .type(ParameterType.BOOLEAN)
+                                                                                 .defaultValue(false)
+                                                                                 .build())
                                          .build();
     }
 

@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.UploadStatusCallbackExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
@@ -41,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
@@ -74,16 +76,22 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             return StepPhase.DONE;
         }
 
-        String newApplicationDigest = getNewApplicationDigest(context, moduleFileName);
         CloudApplication cloudApp = client.getApplication(applicationToProcess.getName());
-
         var appEnv = client.getApplicationEnvironment(cloudApp.getGuid());
-
-        boolean contentChanged = detectApplicationFileDigestChanges(appEnv, newApplicationDigest);
-        if (contentChanged) {
+        if (context.getVariable(Variables.SKIP_APP_DIGEST_CALCULATION)) {
+            getStepLogger().infoWithoutProgressMessage(Messages.SKIPPING_APPLICATION_0_DIGEST_CALCULATION, applicationToProcess.getName());
+            removeApplicationDigestIfSet(context, appEnv, cloudApp);
             proceedWithUpload(context, applicationToProcess, moduleFileName);
-            attemptToUpdateApplicationDigest(context.getControllerClient(), cloudApp, appEnv, newApplicationDigest);
             return StepPhase.POLL;
+        } else {
+            getStepLogger().infoWithoutProgressMessage(Messages.CALCULATING_APPLICATION_DIGEST_0, applicationToProcess.getName());
+            String newApplicationDigest = getNewApplicationDigest(context, moduleFileName);
+            boolean contentChanged = detectApplicationFileDigestChanges(appEnv, newApplicationDigest);
+            if (contentChanged) {
+                proceedWithUpload(context, applicationToProcess, moduleFileName);
+                attemptToUpdateApplicationDigest(context.getControllerClient(), cloudApp, appEnv, newApplicationDigest);
+                return StepPhase.POLL;
+            }
         }
 
         Optional<CloudPackage> mostRecentPackage = cloudPackagesGetter.getMostRecentAppPackage(client, cloudApp.getGuid());
@@ -218,6 +226,18 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         new ApplicationEnvironmentUpdater(app, appEnv, client).updateApplicationEnvironment(Constants.ENV_DEPLOY_ATTRIBUTES,
                                                                                             Constants.ATTR_APP_CONTENT_DIGEST,
                                                                                             newApplicationDigest);
+    }
+
+    private void removeApplicationDigestIfSet(ProcessContext context, Map<String, String> appEnv, CloudApplication cloudApp) {
+        String deployAttributesJsonValue = appEnv.get(Constants.ENV_DEPLOY_ATTRIBUTES);
+        if (deployAttributesJsonValue == null) {
+            return;
+        }
+        Map<String, Object> deployAttributes = JsonUtil.fromJson(deployAttributesJsonValue, new TypeReference<>() {
+        });
+        if (deployAttributes.containsKey(Constants.ATTR_APP_CONTENT_DIGEST)) {
+            attemptToUpdateApplicationDigest(context.getControllerClient(), cloudApp, appEnv, null);
+        }
     }
 
     MonitorUploadStatusCallback getMonitorUploadStatusCallback(ProcessContext context, CloudApplication app, Path file) {
