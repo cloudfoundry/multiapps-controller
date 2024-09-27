@@ -829,4 +829,8 @@ public interface Variables {
                                                                                                                                    .type(new TypeReference<>() {
                                                                                                                                    })
                                                                                                                                    .build();
+    Variable<Boolean> SKIP_APP_DIGEST_CALCULATION = ImmutableSimpleVariable.<Boolean> builder()
+                                                                           .name("skipAppDigestCalculation")
+                                                                           .defaultValue(false)
+                                                                           .build();
 }

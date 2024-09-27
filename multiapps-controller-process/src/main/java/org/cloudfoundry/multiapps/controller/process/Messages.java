@@ -305,6 +305,8 @@ public class Messages {
     public static final String CLOSING_LAST_STREAM_FOR_PART_0 = "Closing the last stream, part: {0}";
     public static final String SCALING_UP_OLD_APPLICATION = "Scaling up old application: \"{0}\" to {1} instances";
     public static final String FILE_WITH_ID_0_WAS_DELETED = "File with id \"{0}\" was deleted";
+    public static final String CALCULATING_APPLICATION_DIGEST_0 = "Calculating application digest: \"{0}\"";
+    public static final String SKIPPING_APPLICATION_0_DIGEST_CALCULATION = "Skipping application: \"{0}\" digest calculation";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";

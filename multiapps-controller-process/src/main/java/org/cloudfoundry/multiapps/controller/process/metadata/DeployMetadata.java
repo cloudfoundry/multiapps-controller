@@ -122,6 +122,11 @@ public class DeployMetadata {
                                                                                  .type(ParameterType.INTEGER)
                                                                                  .customConverter(new TimeoutParameterConverter(Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE))
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.SKIP_APP_DIGEST_CALCULATION.getName())
+                                                                                 .type(ParameterType.BOOLEAN)
+                                                                                 .defaultValue(false)
+                                                                                 .build())
                                          .build();
     }
 
