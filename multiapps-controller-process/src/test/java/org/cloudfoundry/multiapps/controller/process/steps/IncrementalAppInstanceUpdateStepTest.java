@@ -75,6 +75,9 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
                                                 .name(APP_TO_PROCESS_NAME)
                                                 .instances(instancesCount)
                                                 .moduleName(MODULE_NAME)
+                                                .metadata(ImmutableCloudMetadata.builder()
+                                                                                .guid(APP_TO_PROCESS_GUID)
+                                                                                .build())
                                                 .build();
     }
 
