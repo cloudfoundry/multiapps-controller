@@ -11,6 +11,8 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.enableAutoscaling;
+
 public class PollIncrementalAppInstanceUpdateExecution implements AsyncExecution {
 
     @Override
@@ -22,6 +24,7 @@ public class PollIncrementalAppInstanceUpdateExecution implements AsyncExecution
                .debug(Messages.DESIRED_APPLICATION_0_INSTANCES_1_AND_NOW_SCALED_TO_2, appToProcess.getName(), appToProcess.getInstances(),
                       incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         if (incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount() >= appToProcess.getInstances()) {
+            enableAutoscaling(client, appToProcess);
             return AsyncExecutionState.FINISHED;
         }
         return rescaleApplications(context, incrementalAppInstanceUpdateConfiguration, client);
