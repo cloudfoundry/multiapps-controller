@@ -1,8 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.util.UUID;
 
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableIncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.IncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -22,9 +25,18 @@ public class PollIncrementalAppInstanceUpdateExecution implements AsyncExecution
                .debug(Messages.DESIRED_APPLICATION_0_INSTANCES_1_AND_NOW_SCALED_TO_2, appToProcess.getName(), appToProcess.getInstances(),
                       incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         if (incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount() >= appToProcess.getInstances()) {
+            enableAutoscaling(client, appToProcess);
             return AsyncExecutionState.FINISHED;
         }
         return rescaleApplications(context, incrementalAppInstanceUpdateConfiguration, client);
+    }
+
+    private void enableAutoscaling(CloudControllerClient client, CloudApplicationExtended appToProcess) {
+        UUID applicationId = client.getApplicationGuid(appToProcess.getName());
+        Metadata metadata = Metadata.builder()
+                                    .label(MtaMetadataLabels.AUTOSCALER_LABEL, null)
+                                    .build();
+        client.updateApplicationMetadata(applicationId, metadata);
     }
 
     private AsyncExecutionState rescaleApplications(ProcessContext context,

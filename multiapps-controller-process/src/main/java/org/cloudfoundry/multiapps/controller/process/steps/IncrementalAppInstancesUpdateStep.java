@@ -3,13 +3,16 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableIncrementalAppInstanceUpdateConfiguration;
@@ -48,10 +51,12 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
         CloudApplicationExtended application = context.getVariable(Variables.APP_TO_PROCESS);
         DeployedMtaApplication oldApplication = getOldApplication(context, application);
         CloudControllerClient client = context.getControllerClient();
+        UUID applicationId = client.getApplicationGuid(application.getName());
+        disableAutoscaling(client, applicationId);
         checkWhetherLiveAppNeedsPolling(context, client, oldApplication);
         context.getStepLogger()
                .info(Messages.STARTING_INCREMENTAL_APPLICATION_INSTANCE_UPDATE_FOR_0, application.getName());
-        List<InstanceInfo> idleApplicationInstances = client.getApplicationInstances(client.getApplicationGuid(application.getName()))
+        List<InstanceInfo> idleApplicationInstances = client.getApplicationInstances(applicationId)
                                                             .getInstances();
         var incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
                                                                                                                  .newApplication(application)
@@ -59,6 +64,10 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
         if (oldApplication == null) {
             return scaleUpNewAppToTheRequiredInstances(context, application, client);
         }
+
+        UUID oldApplicationGuid = client.getApplicationGuid(oldApplication.getName());
+        disableAutoscaling(client, oldApplicationGuid);
+
         int oldApplicationInstanceCount = client.getApplicationInstances(oldApplication)
                                                 .getInstances()
                                                 .size();
@@ -68,6 +77,13 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
         context.setVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION,
                             incrementalAppInstanceUpdateConfigurationBuilder.build());
         return checkWhetherNewAppIsAlreadyScaled(context, idleApplicationInstances, application);
+    }
+
+    private void disableAutoscaling(CloudControllerClient client, UUID uuid) {
+        Metadata metadata = Metadata.builder()
+                                    .label(MtaMetadataLabels.AUTOSCALER_LABEL, String.valueOf(true))
+                                    .build();
+        client.updateApplicationMetadata(uuid, metadata);
     }
 
     private StepPhase scaleUpNewAppToTheRequiredInstances(ProcessContext context, CloudApplicationExtended application,
