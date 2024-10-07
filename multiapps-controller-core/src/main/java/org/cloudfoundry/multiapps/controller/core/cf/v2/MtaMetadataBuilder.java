@@ -14,6 +14,7 @@ public class MtaMetadataBuilder {
         String hashedMtaId = MtaMetadataUtil.getHashedLabel(deploymentDescriptor.getId());
         Builder builder = Metadata.builder()
                                   .label(MtaMetadataLabels.MTA_ID, hashedMtaId)
+                                  .label(MtaMetadataLabels.AUTOSCALER_LABEL, String.valueOf(true))
                                   .annotation(MtaMetadataAnnotations.MTA_ID, deploymentDescriptor.getId())
                                   .annotation(MtaMetadataAnnotations.MTA_VERSION, deploymentDescriptor.getVersion());
 
@@ -24,6 +25,11 @@ public class MtaMetadataBuilder {
         }
 
         return builder;
+    }
+
+    public static Builder enableAutoscaling() {
+        return Metadata.builder()
+                       .label(MtaMetadataLabels.AUTOSCALER_LABEL, null);
     }
 
     private MtaMetadataBuilder() {

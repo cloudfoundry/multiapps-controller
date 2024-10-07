@@ -14,12 +14,14 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.v2.MtaMetadataBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
@@ -126,6 +128,14 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             return serviceKeys;
         }
 
+        protected void enableAutoscaling() {
+            Metadata.Builder builder = MtaMetadataBuilder.enableAutoscaling();
+            app = ImmutableCloudApplicationExtended.copyOf(app)
+                    .withV3Metadata(builder.build());
+
+            context.setVariable(Variables.APP_TO_PROCESS, app);
+        }
+
         public abstract void printStepStartMessage();
 
         public abstract void handleApplicationAttributes();
@@ -133,6 +143,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         public abstract void handleApplicationServices();
 
         public abstract void printStepEndMessage();
+
+        public abstract void updateAutoscalingLabel();
+
     }
 
     private class CreateAppFlowHandler extends StepFlowHandler {
@@ -162,6 +175,13 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             client.createApplication(applicationToCreateDto);
             context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, true);
             context.setVariable(Variables.USER_PROPERTIES_CHANGED, true);
+            updateAutoscalingLabel();
+        }
+
+        public void updateAutoscalingLabel() {
+            enableAutoscaling();
+            CloudApplication application = client.getApplication(app.getName());
+            client.updateApplicationMetadata(application.getGuid(), app.getV3Metadata());
         }
 
         @Override
@@ -204,6 +224,12 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             reportApplicationUpdateStatus(app, arePropertiesChanged);
             context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, arePropertiesChanged);
             updateApplicationEnvironment();
+            updateAutoscalingLabel();
+        }
+
+        public void updateAutoscalingLabel() {
+            enableAutoscaling();
+            client.updateApplicationMetadata(existingApp.getGuid(), app.getV3Metadata());
         }
 
         private void updateApplicationEnvironment() {
