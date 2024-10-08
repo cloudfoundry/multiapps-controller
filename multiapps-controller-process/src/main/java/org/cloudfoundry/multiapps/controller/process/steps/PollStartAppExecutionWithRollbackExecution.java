@@ -1,9 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.core.model.IncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -12,7 +10,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
-import java.util.UUID;
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.enableAutoscaling;
 
 public class PollStartAppExecutionWithRollbackExecution extends PollStartAppStatusExecution {
 
@@ -48,14 +46,6 @@ public class PollStartAppExecutionWithRollbackExecution extends PollStartAppStat
         client.updateApplicationInstances(oldApplication.getName(),
                                           incrementalAppInstanceUpdateConfiguration.getOldApplicationInitialInstanceCount());
         enableAutoscaling(client, oldApplication);
-    }
-
-    private void enableAutoscaling(CloudControllerClient client, CloudApplication application) {
-        UUID applicationId = client.getApplicationGuid(application.getName());
-        Metadata metadata = Metadata.builder()
-                                    .label(MtaMetadataLabels.AUTOSCALER_LABEL, null)
-                                    .build();
-        client.updateApplicationMetadata(applicationId, metadata);
     }
 
     @Override

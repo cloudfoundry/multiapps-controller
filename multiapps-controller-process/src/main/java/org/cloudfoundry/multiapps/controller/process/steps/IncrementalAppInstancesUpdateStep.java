@@ -9,10 +9,9 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.client.v3.Metadata;
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableIncrementalAppInstanceUpdateConfiguration;
@@ -29,6 +28,9 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
 import com.sap.cloudfoundry.client.facade.domain.InstanceState;
+
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.disableAutoscaling;
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.enableAutoscaling;
 
 @Named("incrementalAppInstancesUpdateStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -52,7 +54,6 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
         DeployedMtaApplication oldApplication = getOldApplication(context, application);
         CloudControllerClient client = context.getControllerClient();
         UUID applicationId = client.getApplicationGuid(application.getName());
-        disableAutoscaling(client, applicationId);
         checkWhetherLiveAppNeedsPolling(context, client, oldApplication);
         context.getStepLogger()
                .info(Messages.STARTING_INCREMENTAL_APPLICATION_INSTANCE_UPDATE_FOR_0, application.getName());
@@ -65,25 +66,24 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
             return scaleUpNewAppToTheRequiredInstances(context, application, client);
         }
 
-        UUID oldApplicationGuid = client.getApplicationGuid(oldApplication.getName());
-        disableAutoscaling(client, oldApplicationGuid);
+        try {
+            UUID oldApplicationGuid = client.getApplicationGuid(oldApplication.getName());
+            disableAutoscaling(client, oldApplicationGuid);
 
-        int oldApplicationInstanceCount = client.getApplicationInstances(oldApplication)
-                                                .getInstances()
-                                                .size();
-        incrementalAppInstanceUpdateConfigurationBuilder.oldApplication(oldApplication)
-                                                        .oldApplicationInitialInstanceCount(oldApplicationInstanceCount)
-                                                        .oldApplicationInstanceCount(oldApplicationInstanceCount);
-        context.setVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION,
-                            incrementalAppInstanceUpdateConfigurationBuilder.build());
-        return checkWhetherNewAppIsAlreadyScaled(context, idleApplicationInstances, application);
-    }
-
-    private void disableAutoscaling(CloudControllerClient client, UUID uuid) {
-        Metadata metadata = Metadata.builder()
-                                    .label(MtaMetadataLabels.AUTOSCALER_LABEL, String.valueOf(true))
-                                    .build();
-        client.updateApplicationMetadata(uuid, metadata);
+            int oldApplicationInstanceCount = client.getApplicationInstances(oldApplication)
+                                                    .getInstances()
+                                                    .size();
+            incrementalAppInstanceUpdateConfigurationBuilder.oldApplication(oldApplication)
+                                                            .oldApplicationInitialInstanceCount(oldApplicationInstanceCount)
+                                                            .oldApplicationInstanceCount(oldApplicationInstanceCount);
+            context.setVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION,
+                                incrementalAppInstanceUpdateConfigurationBuilder.build());
+            return checkWhetherNewAppIsAlreadyScaled(context, idleApplicationInstances, application);
+        } catch (Exception e) {
+            enableAutoscaling(client, oldApplication);
+            processException(e, getStepErrorMessage(context), StringUtils.EMPTY);
+            throw e;
+        }
     }
 
     private StepPhase scaleUpNewAppToTheRequiredInstances(ProcessContext context, CloudApplicationExtended application,

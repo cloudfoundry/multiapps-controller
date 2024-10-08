@@ -12,18 +12,20 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import org.apache.commons.lang3.StringUtils;
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
-import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -162,7 +164,8 @@ public class StepsUtil {
         }
         var loggerPrefix = getLoggerPrefix(logger);
         for (ApplicationLog log : recentLogs) {
-            processLoggerProvider.getLogger(context.getExecution(), appName).debug(loggerPrefix + "[" + appName + "] " + log.toString());
+            processLoggerProvider.getLogger(context.getExecution(), appName)
+                                 .debug(loggerPrefix + "[" + appName + "] " + log.toString());
         }
 
         var lastLog = recentLogs.get(recentLogs.size() - 1);
@@ -210,7 +213,7 @@ public class StepsUtil {
         return new AppSuffixDeterminer(keepOriginalNamesAfterDeploy, isAfterResumePhase);
     }
 
-    private static boolean shouldApplyIncrementalInstancesUpdate(ProcessContext context) {
+    public static boolean shouldApplyIncrementalInstancesUpdate(ProcessContext context) {
         boolean shouldApplyIncrementalInstancesUpdate = context.getVariable(Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE);
         Phase deploymentPhase = context.getVariable(Variables.PHASE);
         return shouldApplyIncrementalInstancesUpdate && !Phase.AFTER_RESUME.equals(deploymentPhase);
@@ -272,6 +275,21 @@ public class StepsUtil {
         }
         byte[] jsonBinary = JsonUtil.toJsonBinary(value);
         scope.setVariable(name, jsonBinary);
+    }
+
+    public static void disableAutoscaling(CloudControllerClient client, UUID uuid) {
+        Metadata metadata = Metadata.builder()
+                                    .label(MtaMetadataLabels.AUTOSCALER_LABEL, String.valueOf(true))
+                                    .build();
+        client.updateApplicationMetadata(uuid, metadata);
+    }
+
+    public static void enableAutoscaling(CloudControllerClient client, CloudApplication application) {
+        UUID applicationId = client.getApplicationGuid(application.getName());
+        Metadata metadata = Metadata.builder()
+                                    .label(MtaMetadataLabels.AUTOSCALER_LABEL, null)
+                                    .build();
+        client.updateApplicationMetadata(applicationId, metadata);
     }
 
 }
