@@ -2,8 +2,13 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static java.text.MessageFormat.format;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLOutput;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -13,7 +18,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 
+import org.apache.commons.io.FilenameUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.UploadStatusCallbackExtended;
@@ -28,6 +36,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.context.ApplicationToUploadContext;
 import org.cloudfoundry.multiapps.controller.process.context.ImmutableApplicationToUploadContext;
+import org.cloudfoundry.multiapps.controller.process.stream.ArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveContext;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationZipBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
@@ -74,12 +83,13 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         ApplicationToUploadContext applicationToUploadContext = buildApplicationToUploadContext(context, applicationToProcess);
         CloudControllerClient client = context.getControllerClient();
         Future<CloudPackage> runningUpload;
+        context.getStepLogger().info("Should start");
         try {
             runningUpload = appUploaderThreadPool.submit(() -> doUpload(context, applicationToProcess, applicationToUploadContext));
         } catch (RejectedExecutionException rejectedExecutionException) {
             LOGGER.error(rejectedExecutionException.getMessage());
             context.getStepLogger()
-                   .warnWithoutProgressMessage(Messages.UPLOAD_OF_APPLICATION_0_WAS_NOT_ACCEPTED_BY_INSTANCE_1,
+                   .warn(Messages.UPLOAD_OF_APPLICATION_0_WAS_NOT_ACCEPTED_BY_INSTANCE_1,
                                                applicationToProcess.getName(), applicationConfiguration.getApplicationInstanceIndex());
             return AsyncExecutionState.RUNNING;
         }
@@ -108,13 +118,14 @@ public class UploadAppAsyncExecution implements AsyncExecution {
                                                   .taskId(context.getVariable(Variables.TASK_ID))
                                                   .appArchiveId(context.getRequiredVariable(Variables.APP_ARCHIVE_ID))
                                                   .stepLogger(context.getStepLogger())
+                                                  .archiveEntries(context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS))
                                                   .build();
     }
 
     private CloudPackage doUpload(ProcessContext context, CloudApplicationExtended applicationToProcess,
                                   ApplicationToUploadContext applicationToUploadContext) {
         context.getStepLogger()
-               .infoWithoutProgressMessage(Messages.UPLOAD_OF_APPLICATION_0_STARTED_ON_INSTANCE_1, applicationToProcess.getName(),
+               .info(Messages.UPLOAD_OF_APPLICATION_0_STARTED_ON_INSTANCE_1, applicationToProcess.getName(),
                                            applicationConfiguration.getApplicationInstanceIndex());
         try {
             return proceedWithUpload(context.getControllerClient(), applicationToUploadContext);
@@ -154,10 +165,16 @@ public class UploadAppAsyncExecution implements AsyncExecution {
     private Path extractApplicationFromArchive(ApplicationToUploadContext applicationToUploadContext) throws FileStorageException {
         LocalDateTime startTime = LocalDateTime.now();
         Path extractedAppPath = fileService.processFileContent(applicationToUploadContext.getSpaceGuid(),
-                                                               applicationToUploadContext.getAppArchiveId(),
-                                                               appArchiveStream -> extractFromMtar(createApplicationArchiveContext(appArchiveStream,
-                                                                                                                                   applicationToUploadContext.getModuleFileName(),
-                                                                                                                                   applicationConfiguration.getMaxResourceFileSize())));
+                                                               applicationToUploadContext.getAppArchiveId(), appArchiveStream -> {
+                                                                   try {
+                                                                       return extractFromMtar(createApplicationArchiveContext(appArchiveStream,
+                                                                                                                              applicationToUploadContext.getModuleFileName(),
+                                                                                                                              applicationConfiguration.getMaxResourceFileSize()),
+                                                                                              applicationToUploadContext);
+                                                                   } catch (FileStorageException e) {
+                                                                       throw new RuntimeException(e);
+                                                                   }
+                                                               });
         long timeElapsedForUpload = Duration.between(startTime, LocalDateTime.now())
                                             .toMillis();
         applicationToUploadContext.getStepLogger()
@@ -170,8 +187,80 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         return new ApplicationArchiveContext(appArchiveStream, fileName, maxSize);
     }
 
-    protected Path extractFromMtar(ApplicationArchiveContext applicationArchiveContext) {
-        return applicationZipBuilder.extractApplicationInNewArchive(applicationArchiveContext);
+    protected Path extractFromMtar(ApplicationArchiveContext applicationArchiveContext,
+                                   ApplicationToUploadContext applicationToUploadContext)
+        throws FileStorageException {
+        ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = applicationToUploadContext.getArchiveEntries()
+                                                                                                    .stream()
+                                                                                                    .filter(e -> e.getName()
+                                                                                                                  .equals(applicationArchiveContext.getModuleFileName()))
+                                                                                                    .findFirst()
+                                                                                                    .orElseThrow(() -> new SLException(format("Entry with module name: {0} not found",
+                                                                                                                                              applicationArchiveContext.getModuleFileName())));
+        Path moduleContent = createTempFile();
+
+        fileService.processFileContentWithOffset(applicationToUploadContext.getSpaceGuid(), applicationToUploadContext.getAppArchiveId(),
+                                                 archiveStream -> {
+                                                     try (
+                                                         FileOutputStream fileOutputStream = new FileOutputStream(moduleContent.toFile())) {
+                                                         byte[] buffer = new byte[16 * 1024]; // Buffer to hold chunks of decompressed data
+                                                         int bytesRead;
+                                                         if (archiveEntryWithStreamPositions.getCompressionMethod() == 0) {
+                                                             while ((bytesRead = archiveStream.read(buffer)) != -1) {
+                                                                 fileOutputStream.write(buffer, 0, bytesRead);
+                                                             }
+                                                         } else {
+                                                             inflate(archiveStream, fileOutputStream);
+                                                         }
+                                                     }
+                                                     return null;
+                                                 }, archiveEntryWithStreamPositions.getStartPosition(),
+                                                 archiveEntryWithStreamPositions.getEndPosition());
+        return moduleContent;
+    }
+
+    public static void inflate(InputStream compressedStream, OutputStream outputStream) throws DataFormatException, IOException {
+        Inflater inflater = new Inflater(true);
+        byte[] buffer = new byte[16 * 1024]; // Buffer to hold chunks of decompressed data
+        byte[] compressedBytes = new byte[16 * 1024];
+        int bytesRead;
+
+        try {
+            System.out.println("DGE STARTING");
+            while ((bytesRead = compressedStream.read(compressedBytes)) != -1) {
+                inflater.setInput(compressedBytes, 0, bytesRead);
+                System.out.println("DGE READING");
+                while (!inflater.finished()) {
+                    System.out.println("IS IS GEEFE");
+                    int count = inflater.inflate(buffer);
+                    System.out.println("PROTNMON");
+                    outputStream.write(buffer, 0, count);
+                    if (count == 0) {
+                        break;
+                    }
+                }
+                System.out.println("DGE ENDING");
+            }
+        } catch (DataFormatException e) {
+            throw new DataFormatException("Data format error while inflating: " + e.getMessage());
+        } finally {
+            System.out.println("DGE MAYBEEE");
+            inflater.end();
+            compressedStream.close();
+            outputStream.close();
+        }
+    }
+
+    protected Path createTempFile() {
+        try {
+            return Files.createTempFile(null, getFileExtension());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String getFileExtension() {
+        return FilenameUtils.EXTENSION_SEPARATOR_STR + "zip";
     }
 
     private CloudPackage upload(CloudControllerClient client, ApplicationToUploadContext applicationToUploadContext,
