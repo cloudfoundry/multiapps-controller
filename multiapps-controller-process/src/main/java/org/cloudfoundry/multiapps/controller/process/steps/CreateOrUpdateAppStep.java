@@ -45,7 +45,6 @@ import com.sap.cloudfoundry.client.facade.dto.ApplicationToCreateDto;
 import com.sap.cloudfoundry.client.facade.dto.ImmutableApplicationToCreateDto;
 
 import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.disableAutoscaling;
-import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.shouldApplyIncrementalInstancesUpdate;
 
 @Named("createOrUpdateAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -185,7 +184,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         private void addMetadataAutoscalerLabel() {
-            if (shouldApplyIncrementalInstancesUpdate(context)) {
+            boolean shouldApplyIncrementalInstancesUpdate = context.getVariable(Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE);
+            if (shouldApplyIncrementalInstancesUpdate) {
                 UUID applicationId = client.getApplicationGuid(app.getName());
                 disableAutoscaling(client, applicationId);
             }

@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -53,22 +52,23 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
         CloudApplicationExtended application = context.getVariable(Variables.APP_TO_PROCESS);
         DeployedMtaApplication oldApplication = getOldApplication(context, application);
         CloudControllerClient client = context.getControllerClient();
-        UUID applicationId = client.getApplicationGuid(application.getName());
-        checkWhetherLiveAppNeedsPolling(context, client, oldApplication);
-        context.getStepLogger()
-               .info(Messages.STARTING_INCREMENTAL_APPLICATION_INSTANCE_UPDATE_FOR_0, application.getName());
-        List<InstanceInfo> idleApplicationInstances = client.getApplicationInstances(applicationId)
-                                                            .getInstances();
-        var incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
-                                                                                                                 .newApplication(application)
-                                                                                                                 .newApplicationInstanceCount(idleApplicationInstances.size());
-        if (oldApplication == null) {
-            return scaleUpNewAppToTheRequiredInstances(context, application, client);
-        }
-
         try {
-            UUID oldApplicationGuid = client.getApplicationGuid(oldApplication.getName());
-            disableAutoscaling(client, oldApplicationGuid);
+            if (oldApplication != null) {
+                UUID oldApplicationGuid = client.getApplicationGuid(oldApplication.getName());
+                disableAutoscaling(client, oldApplicationGuid);
+            }
+            UUID applicationId = client.getApplicationGuid(application.getName());
+            checkWhetherLiveAppNeedsPolling(context, client, oldApplication);
+            context.getStepLogger()
+                   .info(Messages.STARTING_INCREMENTAL_APPLICATION_INSTANCE_UPDATE_FOR_0, application.getName());
+            List<InstanceInfo> idleApplicationInstances = client.getApplicationInstances(applicationId)
+                                                                .getInstances();
+            var incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
+                                                                                                                     .newApplication(application)
+                                                                                                                     .newApplicationInstanceCount(idleApplicationInstances.size());
+            if (oldApplication == null) {
+                return scaleUpNewAppToTheRequiredInstances(context, application, client);
+            }
 
             int oldApplicationInstanceCount = client.getApplicationInstances(oldApplication)
                                                     .getInstances()
@@ -80,8 +80,9 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
                                 incrementalAppInstanceUpdateConfigurationBuilder.build());
             return checkWhetherNewAppIsAlreadyScaled(context, idleApplicationInstances, application);
         } catch (Exception e) {
-            enableAutoscaling(client, oldApplication);
-            processException(e, getStepErrorMessage(context), StringUtils.EMPTY);
+            if (oldApplication != null) {
+                enableAutoscaling(client, oldApplication);
+            }
             throw e;
         }
     }
