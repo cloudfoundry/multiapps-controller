@@ -128,6 +128,10 @@ public class FileService {
         });
     }
 
+    public <T> T processFileContentWithOffset(String space, String id, FileContentProcessor<T> fileContentProcessor, long startOffset, long endOffset) throws FileStorageException {
+        return fileStorage.processFileContentWithOffset(space, id, fileContentProcessor, startOffset, endOffset);
+    }
+
     public <T> T processFileContent(String space, String id, FileContentProcessor<T> fileContentProcessor) throws FileStorageException {
         return fileStorage.processFileContent(space, id, fileContentProcessor);
     }
