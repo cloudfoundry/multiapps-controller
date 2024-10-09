@@ -53,10 +53,12 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
         DeployedMtaApplication oldApplication = getOldApplication(context, application);
         CloudControllerClient client = context.getControllerClient();
         try {
-            if (oldApplication != null) {
-                UUID oldApplicationGuid = client.getApplicationGuid(oldApplication.getName());
-                disableAutoscaling(client, oldApplicationGuid);
+            if (oldApplication == null) {
+                return scaleUpNewAppToTheRequiredInstances(context, application, client);
             }
+            UUID oldApplicationGuid = client.getApplicationGuid(oldApplication.getName());
+            disableAutoscaling(client, oldApplicationGuid);
+
             UUID applicationId = client.getApplicationGuid(application.getName());
             checkWhetherLiveAppNeedsPolling(context, client, oldApplication);
             context.getStepLogger()
@@ -66,9 +68,6 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
             var incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
                                                                                                                      .newApplication(application)
                                                                                                                      .newApplicationInstanceCount(idleApplicationInstances.size());
-            if (oldApplication == null) {
-                return scaleUpNewAppToTheRequiredInstances(context, application, client);
-            }
 
             int oldApplicationInstanceCount = client.getApplicationInstances(oldApplication)
                                                     .getInstances()
@@ -134,9 +133,6 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
 
     private void checkWhetherLiveAppNeedsPolling(ProcessContext context, CloudControllerClient client, CloudApplication cloudApplication) {
         setExecutionIndexToTriggerNewApplicationRollingUpdate(context);
-        if (cloudApplication == null) {
-            return;
-        }
         List<InstanceInfo> appInstances = client.getApplicationInstances(cloudApplication)
                                                 .getInstances();
         if (!appInstances.stream()
