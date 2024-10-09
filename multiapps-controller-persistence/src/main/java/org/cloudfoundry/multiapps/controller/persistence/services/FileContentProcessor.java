@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.zip.DataFormatException;
 
 /**
  * An interface for processing the content of a file.
@@ -16,6 +17,6 @@ public interface FileContentProcessor<T> {
      * @return the result from the processing
      * @throws IOException in case of read/write error
      */
-    T process(InputStream inputStream) throws IOException;
+    T process(InputStream inputStream) throws IOException, DataFormatException;
 
 }

@@ -284,6 +284,11 @@
     </dependencies>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.27.1</version> <!-- Use the latest version -->
+            </dependency>
             <!-- https://mvnrepository.com/artifact/org.immutables/value -->
             <dependency>
                 <groupId>org.immutables</groupId>

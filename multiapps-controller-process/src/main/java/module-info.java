@@ -56,5 +56,7 @@ open module org.cloudfoundry.multiapps.controller.process {
 
     requires static java.compiler;
     requires static org.immutables.value;
+    requires org.apache.commons.compress;
+    requires org.checkerframework.checker.qual;
 
 }

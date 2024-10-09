@@ -25,6 +25,7 @@ import org.jclouds.blobstore.ContainerNotFoundException;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
+import org.jclouds.blobstore.options.GetOptions;
 import org.jclouds.blobstore.options.ListContainerOptions;
 import org.jclouds.blobstore.options.PutOptions;
 import org.jclouds.http.HttpResponseException;
@@ -108,6 +109,44 @@ public class ObjectStoreFileStorage implements FileStorage {
         } catch (Exception e) {
             throw new FileStorageException(e);
         }
+    }
+
+    @Override
+    public <T> T processFileContentWithOffset(String space, String id, FileContentProcessor<T> fileContentProcessor, long startOffset,
+                                              long endOffset)
+        throws FileStorageException {
+        FileEntry fileEntry = createFileEntry(space, id);
+        try {
+            Payload payload = getBlobPayloadWithOffset(fileEntry, startOffset, endOffset);
+            return processContent(fileContentProcessor, payload);
+        } catch (Exception e) {
+            throw new FileStorageException(e);
+        }
+    }
+
+    private Payload getBlobPayloadWithOffset(FileEntry fileEntry, long startOffset, long endOffset) throws FileStorageException {
+        Blob blob = getBlobWithRetriesWithOffset(fileEntry, 3, startOffset, endOffset);
+        if (blob == null) {
+            throw new FileStorageException(MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(),
+                                                                fileEntry.getSpace()));
+        }
+        return blob.getPayload();
+    }
+
+    private Blob getBlobWithRetriesWithOffset(FileEntry fileEntry, int retries, long startOffset, long endOffset) {
+        GetOptions getOptions = new GetOptions().range(startOffset, endOffset);
+        for (int i = 1; i <= retries; i++) {
+            Blob blob = blobStore.getBlob(container, fileEntry.getId(), getOptions);
+            if (blob != null) {
+                return blob;
+            }
+            LOGGER.warn(MessageFormat.format(Messages.ATTEMPT_TO_DOWNLOAD_MISSING_BLOB, i, retries, fileEntry.getId()));
+            if (i == retries) {
+                break;
+            }
+            MiscUtil.sleep(i * getRetryWaitTime());
+        }
+        return null;
     }
 
     private Payload getBlobPayload(FileEntry fileEntry) throws FileStorageException {
