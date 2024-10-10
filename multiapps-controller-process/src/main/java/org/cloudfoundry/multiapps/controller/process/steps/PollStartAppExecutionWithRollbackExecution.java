@@ -10,6 +10,8 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.enableAutoscaling;
+
 public class PollStartAppExecutionWithRollbackExecution extends PollStartAppStatusExecution {
 
     public PollStartAppExecutionWithRollbackExecution(CloudControllerClientFactory clientFactory, TokenService tokenService) {
@@ -43,6 +45,7 @@ public class PollStartAppExecutionWithRollbackExecution extends PollStartAppStat
                      incrementalAppInstanceUpdateConfiguration.getOldApplicationInitialInstanceCount());
         client.updateApplicationInstances(oldApplication.getName(),
                                           incrementalAppInstanceUpdateConfiguration.getOldApplicationInitialInstanceCount());
+        enableAutoscaling(client, oldApplication);
     }
 
     @Override

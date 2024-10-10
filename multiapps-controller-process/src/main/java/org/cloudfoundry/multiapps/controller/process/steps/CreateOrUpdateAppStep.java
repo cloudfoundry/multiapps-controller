@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,6 +43,8 @@ import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.dto.ApplicationToCreateDto;
 import com.sap.cloudfoundry.client.facade.dto.ImmutableApplicationToCreateDto;
+
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.disableAutoscaling;
 
 @Named("createOrUpdateAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -160,6 +163,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                                            .env(app.getEnv())
                                                                                            .build();
             client.createApplication(applicationToCreateDto);
+            addMetadataAutoscalerLabel();
             context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, true);
             context.setVariable(Variables.USER_PROPERTIES_CHANGED, true);
         }
@@ -177,6 +181,14 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         @Override
         public void printStepEndMessage() {
             getStepLogger().debug(Messages.APP_CREATED, app.getName());
+        }
+
+        private void addMetadataAutoscalerLabel() {
+            boolean shouldApplyIncrementalInstancesUpdate = context.getVariable(Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE);
+            if (shouldApplyIncrementalInstancesUpdate) {
+                UUID applicationId = client.getApplicationGuid(app.getName());
+                disableAutoscaling(client, applicationId);
+            }
         }
 
     }
