@@ -1,47 +1,47 @@
 ---
 applications:
-- name: deploy-service
-  host: deploy-service
-  memory: 1024M
-  instances: 1
-  path: ../${project.build.finalName}.war
-  buildpack: java_buildpack
-  timeout: 180 # If the landscape and/or our Liquibase changes are very slow, the application may take longer than 60 seconds to start up.
-  health-check-type: http
-  health-check-http-endpoint: /public/ping
-  services:
-    - deploy-service-database
-  env:
-    VERSION: ${project.version}
-    XS_TYPE: CF
-    DB_TYPE: POSTGRESQL
-    CATALINA_OPTS: "-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
-    JBP_CONFIG_OPEN_JDK_JRE: "{ jre: { version: 17.+ } }"
-    PLATFORM: >
-      {
-        "name": "CLOUD-FOUNDRY",
-        "module-types": [
-          { "name": "custom" },
-          { "name": "javascript.nodejs" },
-          { "name": "java", "parameters": { "buildpack": "java_buildpack" }},
-          { "name": "java.tomcat", "parameters": { "buildpack": "java_buildpack" }},
-          { "name": "java.tomee",  "parameters": { "buildpack": "java_buildpack" }},
-          { "name": "staticfile", "parameters": { "buildpack": "staticfile_buildpack" }},
-          { "name": "ruby", "parameters": { "buildpack": "ruby_buildpack" }},
-          { "name": "nodejs", "parameters": { "buildpack": "nodejs_buildpack" }},
-          { "name": "go", "parameters": { "buildpack": "go_buildpack" }},
-          { "name": "python", "parameters": { "buildpack": "python_buildpack" }},
-          { "name": "php", "parameters": { "buildpack": "php_buildpack" }},
-          { "name": "binary", "parameters": { "buildpack": "binary_buildpack" }},
-          { "name": "dotnet_core", "parameters": { "buildpack": "dotnet_core_buildpack" }},
-          { "name": "application" }
-        ],
-        "resource-types": [
-          { "name": "org.cloudfoundry.user-provided-service", "parameters": { "type": "user-provided-service" }},
-          { "name": "org.cloudfoundry.managed-service", "parameters": { "type": "managed-service" }},
-          { "name": "org.cloudfoundry.existing-service", "parameters": { "type": "existing-service" }},
-          { "name": "org.cloudfoundry.existing-service-key", "parameters": { "type": "existing-service-key" }},
-          { "name": "configuration", "parameters": { "type": "configuration" }}
-        ]
-      }
-    SKIP_SSL_VALIDATION: true
+  - name: deploy-service
+    host: deploy-service
+    memory: 1024M
+    instances: 1
+    path: ../${project.build.finalName}.war
+    buildpack: sap_java_buildpack_jakarta
+    timeout: 180 # If the landscape and/or our Liquibase changes are very slow, the application may take longer than 60 seconds to start up.
+    health-check-type: http
+    health-check-http-endpoint: /public/ping
+    services:
+      - deploy-service-database
+    env:
+      VERSION: ${project.version}
+      XS_TYPE: CF
+      DB_TYPE: POSTGRESQL
+      CATALINA_OPTS: "-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
+      JBP_CONFIG_OPEN_JDK_JRE: "{ jre: { version: 17.+ } }"
+      PLATFORM: >
+        {
+          "name": "CLOUD-FOUNDRY",
+          "module-types": [
+            { "name": "custom" },
+            { "name": "javascript.nodejs" },
+            { "name": "java", "parameters": { "buildpack": "java_buildpack" }},
+            { "name": "java.tomcat", "parameters": { "buildpack": "java_buildpack" }},
+            { "name": "java.tomee",  "parameters": { "buildpack": "java_buildpack" }},
+            { "name": "staticfile", "parameters": { "buildpack": "staticfile_buildpack" }},
+            { "name": "ruby", "parameters": { "buildpack": "ruby_buildpack" }},
+            { "name": "nodejs", "parameters": { "buildpack": "nodejs_buildpack" }},
+            { "name": "go", "parameters": { "buildpack": "go_buildpack" }},
+            { "name": "python", "parameters": { "buildpack": "python_buildpack" }},
+            { "name": "php", "parameters": { "buildpack": "php_buildpack" }},
+            { "name": "binary", "parameters": { "buildpack": "binary_buildpack" }},
+            { "name": "dotnet_core", "parameters": { "buildpack": "dotnet_core_buildpack" }},
+            { "name": "application" }
+          ],
+          "resource-types": [
+            { "name": "org.cloudfoundry.user-provided-service", "parameters": { "type": "user-provided-service" }},
+            { "name": "org.cloudfoundry.managed-service", "parameters": { "type": "managed-service" }},
+            { "name": "org.cloudfoundry.existing-service", "parameters": { "type": "existing-service" }},
+            { "name": "org.cloudfoundry.existing-service-key", "parameters": { "type": "existing-service-key" }},
+            { "name": "configuration", "parameters": { "type": "configuration" }}
+          ]
+        }
+      SKIP_SSL_VALIDATION: true

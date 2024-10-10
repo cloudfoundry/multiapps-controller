@@ -2,8 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.controller.process.flowable.commands.ClearJobLockOwnersCmd;

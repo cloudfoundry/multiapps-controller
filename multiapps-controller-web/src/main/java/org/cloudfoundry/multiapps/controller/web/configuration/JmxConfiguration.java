@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.web.configuration;
 
 import java.util.Map;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.web.monitoring.Metrics;
 import org.springframework.context.annotation.Bean;

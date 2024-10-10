@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,8 +46,9 @@ class ExceptionHandlerFilterTest {
 
     @Test
     void testDoInternalFilterThrowingResponseStatusException() throws IOException, ServletException {
+
         ResponseStatusException responseStatusException = Mockito.mock(ResponseStatusException.class);
-        Mockito.when(responseStatusException.getStatus())
+        Mockito.when(responseStatusException.getStatusCode())
                .thenReturn(HttpStatus.UNAUTHORIZED);
         Mockito.when(responseStatusException.getMessage())
                .thenReturn("Error");

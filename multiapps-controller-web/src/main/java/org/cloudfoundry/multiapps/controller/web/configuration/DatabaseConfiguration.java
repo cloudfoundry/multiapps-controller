@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.sql.DataSource;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;

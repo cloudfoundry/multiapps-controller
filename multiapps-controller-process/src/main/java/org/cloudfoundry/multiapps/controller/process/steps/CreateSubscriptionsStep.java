@@ -3,9 +3,9 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.persistence.NoResultException;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.persistence.NoResultException;
 
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription.ResourceDto;

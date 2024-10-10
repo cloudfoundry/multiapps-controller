@@ -14,10 +14,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.web.util.TokenGenerator;
@@ -67,7 +67,7 @@ class AuthenticationLoaderFilterTest {
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class,
                                                                        () -> authenticationLoaderFilter.doFilterInternal(request, response,
                                                                                                                          filterChain));
-        assertEquals(HttpStatus.UNAUTHORIZED, responseStatusException.getStatus());
+        assertEquals(HttpStatus.UNAUTHORIZED,  HttpStatus.valueOf(responseStatusException.getStatusCode().value()));
     }
 
     @Test
@@ -98,7 +98,7 @@ class AuthenticationLoaderFilterTest {
                 .thenReturn(bearerToken);
         mockTokenParsingStrategyFactory(mockedToken);
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> authenticationLoaderFilter.doFilterInternal(request, response, filterChain));
-        assertEquals(HttpStatus.UNAUTHORIZED, responseStatusException.getStatus());
+        assertEquals(HttpStatus.UNAUTHORIZED,  HttpStatus.valueOf(responseStatusException.getStatusCode().value()));
     }
 
     private OAuth2AccessTokenWithAdditionalInfo getMockedOAuth2AccessTokenWithAdditionalInfo() {

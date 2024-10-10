@@ -4,7 +4,7 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Map;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import com.sap.cloudfoundry.client.facade.util.RestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
