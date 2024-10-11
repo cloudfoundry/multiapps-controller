@@ -78,4 +78,12 @@ class ProcessLoggerPersisterTest {
 
         Assertions.assertEquals(processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID).size(), 0);
     }
+
+    @Test
+    void testPersistLogWithoutLogs() {
+        processLoggerPersister.persistLogs(TEST_CORRELATION_ID, TEST_TASK_ID);
+
+        Mockito.verify(processLoggerProvider).getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
+        Mockito.verify(processLogsPersistenceService, times(0)).persistLog(any());
+    }
 }
