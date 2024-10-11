@@ -19,9 +19,9 @@ import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 
 public class CustomServiceKeysClient extends CustomControllerClient {
 
-    private static final String serviceKeysResourceBaseUri = "/v3/service_credential_bindings";
-    private static final String serviceKeysByMetadataSelectorUri = serviceKeysResourceBaseUri + "?type=key&label_selector={value}";
-    private static final String includeServiceInstanceResourcesParam = "&include=service_instance";
+    private static final String SERVICE_KEYS_RESOURCE_BASE_URI = "/v3/service_credential_bindings";
+    private static final String SERVICE_KEYS_BY_METADATA_SELECTOR_URI = SERVICE_KEYS_RESOURCE_BASE_URI + "?type=key&label_selector={value}";
+    private static final String INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM = "&include=service_instance";
 
     private final CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
 
@@ -49,7 +49,7 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     }
 
     private List<DeployedMtaServiceKey> getServiceKeysByMetadataInternal(String labelSelector, List<DeployedMtaService> services) {
-        String uriSuffix = includeServiceInstanceResourcesParam;
+        String uriSuffix = INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM;
         List<DeployedMtaService> managedServices = getManagedServices(services);
         if (managedServices != null) {
             uriSuffix += "&service_instance_guids=" + managedServices.stream()
@@ -57,7 +57,7 @@ public class CustomServiceKeysClient extends CustomControllerClient {
                                                                                             .toString())
                                                                      .collect(Collectors.joining(","));
         }
-        return getListOfResources(new ServiceKeysResponseMapper(managedServices), serviceKeysByMetadataSelectorUri + uriSuffix,
+        return getListOfResources(new ServiceKeysResponseMapper(managedServices), SERVICE_KEYS_BY_METADATA_SELECTOR_URI + uriSuffix,
                                   labelSelector);
     }
 
