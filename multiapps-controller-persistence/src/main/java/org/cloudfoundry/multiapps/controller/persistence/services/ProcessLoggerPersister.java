@@ -31,6 +31,10 @@ public class ProcessLoggerPersister {
         List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(correlationId, taskId);
         Map<String, StringBuilder> processLogsMessages = new HashMap<>();
 
+        if (processLoggers.isEmpty()) {
+            return;
+        }
+
         for (ProcessLogger processLogger : processLoggers) {
             if (processLogsMessages.containsKey(processLogger.getOperationLogEntry()
                                                              .getOperationLogName())) {
