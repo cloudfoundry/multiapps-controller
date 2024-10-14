@@ -1,13 +1,12 @@
 package org.cloudfoundry.multiapps.controller.web.monitoring;
 
-import java.nio.file.Paths;
-import java.time.Duration;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.core.model.CachedObject;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+
+import java.nio.file.Paths;
+import java.time.Duration;
 
 @Named
 public class Metrics implements MetricsMBean {
@@ -24,7 +23,8 @@ public class Metrics implements MetricsMBean {
                    FileUploadThreadPoolInformation fileUploadThreadPoolInformation) {
         this.fssMonitor = fssMonitor;
         this.cachedFlowableThreadMonitor = new CachedObject<>(Duration.ofSeconds(appConfigurations.getThreadMonitorCacheUpdateInSeconds()));
-        this.cachedCloudFoundryClientThreadMonitor = new CachedObject<>(Duration.ofSeconds(appConfigurations.getThreadMonitorCacheUpdateInSeconds()));
+        this.cachedCloudFoundryClientThreadMonitor = new CachedObject<>(
+            Duration.ofSeconds(appConfigurations.getThreadMonitorCacheUpdateInSeconds()));
         this.flowableJobExecutorInformation = flowableJobExecutorInformation;
         this.fileUploadThreadPoolInformation = fileUploadThreadPoolInformation;
     }

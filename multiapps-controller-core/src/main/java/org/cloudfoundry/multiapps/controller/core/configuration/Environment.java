@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.core.configuration;
 import java.util.Map;
 import java.util.function.Function;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 

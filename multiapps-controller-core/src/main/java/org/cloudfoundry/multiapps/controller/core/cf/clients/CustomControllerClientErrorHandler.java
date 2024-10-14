@@ -48,7 +48,8 @@ public class CustomControllerClientErrorHandler {
 
     private CloudOperationException asCloudOperationException(HttpStatusCodeException exception) {
         String description = getDescriptionFromResponseBody(exception.getResponseBodyAsString());
-        return new CloudOperationException(exception.getStatusCode(), exception.getStatusText(), description);
+        HttpStatus httpStatus =  HttpStatus.valueOf(exception.getStatusCode().value());
+        return new CloudOperationException(httpStatus, exception.getStatusText(), description);
     }
 
     private String getDescriptionFromResponseBody(String responseBody) {

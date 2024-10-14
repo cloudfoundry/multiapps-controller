@@ -4,8 +4,8 @@ import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.Date;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;

@@ -8,10 +8,10 @@ import org.cloudfoundry.multiapps.controller.persistence.query.criteria.Immutabl
 import org.cloudfoundry.multiapps.controller.persistence.query.criteria.QueryCriteria;
 import org.cloudfoundry.multiapps.controller.persistence.services.LockOwnerService.LockOwnersMapper;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.criteria.Expression;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.NonUniqueResultException;
+import jakarta.persistence.criteria.Expression;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;

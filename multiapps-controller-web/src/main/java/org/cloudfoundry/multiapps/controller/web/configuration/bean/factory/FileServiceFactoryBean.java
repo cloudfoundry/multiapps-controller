@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.services.DatabaseFileService;

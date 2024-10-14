@@ -12,8 +12,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +29,7 @@ import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.support.CronSequenceGenerator;
+import org.springframework.scheduling.support.CronExpression;
 
 @Named
 @Lazy(false)
@@ -959,7 +959,7 @@ public class ApplicationConfiguration {
 
     private String getCronExpression(String name, String defaultValue) {
         String value = environment.getString(name);
-        if (CronSequenceGenerator.isValidExpression(value)) {
+        if (CronExpression.isValidExpression(value)) {
             return value;
         }
         LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));

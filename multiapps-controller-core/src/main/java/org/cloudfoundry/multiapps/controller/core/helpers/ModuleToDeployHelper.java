@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.mta.model.Module;
 
