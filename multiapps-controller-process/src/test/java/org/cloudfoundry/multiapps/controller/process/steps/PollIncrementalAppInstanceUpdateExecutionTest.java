@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +18,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 
 class PollIncrementalAppInstanceUpdateExecutionTest extends AsyncStepOperationTest<IncrementalAppInstancesUpdateStep> {
@@ -34,21 +36,23 @@ class PollIncrementalAppInstanceUpdateExecutionTest extends AsyncStepOperationTe
 
     @Test
     void executeStepWhenTheApplicationIsAlreadyScaled() {
-        prepareAppToProcess(3);
+        prepareAppToProcess(3, CloudApplication.State.STARTED);
         prepareIncrementalAppInstanceUpdateConfiguration(3, 3);
         expectedAsyncExecutionState = AsyncExecutionState.FINISHED;
         testExecuteOperations();
     }
 
-    private void prepareAppToProcess(int instances) {
-        CloudApplicationExtended cloudApplicationExtended = buildCloudApplicationToProcess(instances);
+    private void prepareAppToProcess(int instances, CloudApplication.State state) {
+        CloudApplicationExtended cloudApplicationExtended = buildCloudApplicationToProcess(instances, state);
         context.setVariable(Variables.APP_TO_PROCESS, cloudApplicationExtended);
+        when(client.getApplication(cloudApplicationExtended.getName())).thenReturn(cloudApplicationExtended);
     }
 
-    private CloudApplicationExtended buildCloudApplicationToProcess(int instances) {
+    private CloudApplicationExtended buildCloudApplicationToProcess(int instances, CloudApplication.State state) {
         return ImmutableCloudApplicationExtended.builder()
                                                 .name(APP_TO_PROCESS_NAME)
                                                 .instances(instances)
+                                                .state(state)
                                                 .metadata(ImmutableCloudMetadata.builder()
                                                                                 .guid(APP_TO_PROCESS_GUID)
                                                                                 .build())
@@ -57,7 +61,8 @@ class PollIncrementalAppInstanceUpdateExecutionTest extends AsyncStepOperationTe
 
     private void prepareIncrementalAppInstanceUpdateConfiguration(int newAppInstances, int oldApplicationInstances) {
         var updateConfig = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
-                                                                             .newApplication(buildCloudApplicationToProcess(newAppInstances))
+                                                                             .newApplication(buildCloudApplicationToProcess(newAppInstances,
+                                                                                                                            CloudApplication.State.STARTED))
                                                                              .newApplicationInstanceCount(newAppInstances)
                                                                              .oldApplicationInitialInstanceCount(4)
                                                                              .oldApplicationInstanceCount(oldApplicationInstances)
@@ -78,27 +83,33 @@ class PollIncrementalAppInstanceUpdateExecutionTest extends AsyncStepOperationTe
 
     @Test
     void executeStepWhenBothApplicationsNeedRescaling() {
-        prepareAppToProcess(6);
+        prepareAppToProcess(6, CloudApplication.State.STARTED);
         prepareIncrementalAppInstanceUpdateConfiguration(3, 3);
-        context.setVariable(Variables.EXISTING_APP_TO_POLL, ImmutableCloudApplicationExtended.builder()
-                                                                                             .name(APP_TO_PROCESS_NAME)
-                                                                                             .build());
         expectedAsyncExecutionState = AsyncExecutionState.RUNNING;
         testExecuteOperations();
         verify(client).updateApplicationInstances(APP_TO_PROCESS_NAME, 4);
         verify(client).updateApplicationInstances(DEPLOYED_APP_NAME, 2);
+        assertEquals(1, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
     }
 
     @Test
     void executeStepWhenOnlyNewApplicationNeedsRescaling() {
-        prepareAppToProcess(6);
+        prepareAppToProcess(6, CloudApplication.State.STARTED);
         prepareIncrementalAppInstanceUpdateConfiguration(3, 1);
-        context.setVariable(Variables.EXISTING_APP_TO_POLL, ImmutableCloudApplicationExtended.builder()
-                                                                                             .name(APP_TO_PROCESS_NAME)
-                                                                                             .build());
         expectedAsyncExecutionState = AsyncExecutionState.RUNNING;
         testExecuteOperations();
         verify(client).updateApplicationInstances(APP_TO_PROCESS_NAME, 4);
+        assertEquals(1, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
+    }
+
+    @Test
+    void executeStepWhenOnlyNewApplicationNeedsRescalingAndStateIsStopped() {
+        prepareAppToProcess(6, CloudApplication.State.STOPPED);
+        prepareIncrementalAppInstanceUpdateConfiguration(3, 1);
+        expectedAsyncExecutionState = AsyncExecutionState.RUNNING;
+        testExecuteOperations();
+        verify(client).updateApplicationInstances(APP_TO_PROCESS_NAME, 4);
+        assertEquals(2, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
     }
 
     @Override
