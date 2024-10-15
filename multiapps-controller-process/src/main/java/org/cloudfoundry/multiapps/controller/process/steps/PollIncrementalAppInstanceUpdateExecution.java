@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.enableAutoscaling;
+
 import java.text.MessageFormat;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -10,8 +12,6 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-
-import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.enableAutoscaling;
 
 public class PollIncrementalAppInstanceUpdateExecution implements AsyncExecution {
 
@@ -38,11 +38,31 @@ public class PollIncrementalAppInstanceUpdateExecution implements AsyncExecution
         updatedIncrementalAppInstanceUpdateConfiguration = scaleUpNewApplication(context, updatedIncrementalAppInstanceUpdateConfiguration,
                                                                                  client);
         context.setVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION, updatedIncrementalAppInstanceUpdateConfiguration);
-        setExecutionIndexForPollingNewAppInstances(context);
+        updateAsyncExecutionIndexes(context);
         return AsyncExecutionState.RUNNING;
     }
 
-    private void setExecutionIndexForPollingNewAppInstances(ProcessContext context) {
+    private void updateAsyncExecutionIndexes(ProcessContext context) {
+        CloudApplication existingAppToPoll = context.getVariable(Variables.EXISTING_APP_TO_POLL);
+        if (existingAppToPoll == null) {
+            existingAppToPoll = context.getControllerClient()
+                                       .getApplication(context.getVariable(Variables.APP_TO_PROCESS)
+                                                              .getName());
+            context.setVariable(Variables.EXISTING_APP_TO_POLL, existingAppToPoll);
+        }
+        if (existingAppToPoll.getState()
+                             .equals(CloudApplication.State.STOPPED)) {
+            continueWithIncrementalScaling(context);
+        } else {
+            pollApplicationIndexesBeforeContinueingWithIncrementalScaling(context);
+        }
+    }
+
+    private void continueWithIncrementalScaling(ProcessContext context) {
+        context.setVariable(Variables.ASYNC_STEP_EXECUTION_INDEX, 2);
+    }
+
+    private void pollApplicationIndexesBeforeContinueingWithIncrementalScaling(ProcessContext context) {
         context.setVariable(Variables.ASYNC_STEP_EXECUTION_INDEX, 1);
     }
 
@@ -69,7 +89,7 @@ public class PollIncrementalAppInstanceUpdateExecution implements AsyncExecution
                                   CloudControllerClient client) {
         var incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
                                                                                                                  .from(incrementalAppInstanceUpdateConfiguration);
-        CloudApplication newApplication = context.getVariable(Variables.EXISTING_APP_TO_POLL);
+        CloudApplication newApplication = context.getVariable(Variables.APP_TO_PROCESS);
         int newApplicationInstancesCount = incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount() + 1;
         context.getStepLogger()
                .debug(Messages.UPSCALING_APPLICATION_0_TO_1_INSTANCES, newApplication.getName(), newApplicationInstancesCount);
