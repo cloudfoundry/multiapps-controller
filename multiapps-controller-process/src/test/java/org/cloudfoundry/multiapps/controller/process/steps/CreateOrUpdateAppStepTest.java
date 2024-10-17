@@ -1,15 +1,19 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.prepareDisablingAutoscaler;
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.SLException;
@@ -45,26 +49,37 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
     private static final String SERVICE_KEY_ENV_NAME = "test-service-key-env";
     private static final Staging DEFAULT_STAGING = ImmutableStaging.builder()
                                                                    .build();
+    private static final UUID APP_TO_PROCESS_GUID = UUID.randomUUID();
 
     static Stream<Arguments> testHandleApplicationAttributes() {
         return Stream.of(
 //@formatter:off
-                         // (1) Everything is specified properly:
+                         // (1) Everything is specified properly and should apply incremental instances update:
                          Arguments.of(ImmutableStaging.builder().command("command1").healthCheckType("none").addBuildpack("buildpackUrl").build(),
-                                      128, 256, TestData.routeSet("example.com", "foo-bar.xyz"), Map.of("env-key", "env-value")),
-                         // (2) Disk quota is 0:
-                         Arguments.of(DEFAULT_STAGING, 0, 256, Collections.emptySet(), Collections.emptyMap()),
-                         // (3) Memory is 0:
-                         Arguments.of(DEFAULT_STAGING, 1024, 0, Collections.emptySet(), Collections.emptyMap())
+                                      128, 256, TestData.routeSet("example.com", "foo-bar.xyz"), Map.of("env-key", "env-value"), true),
+                         // (2) Disk quota is 0 and should apply incremental instances update:
+                         Arguments.of(DEFAULT_STAGING, 0, 256, Collections.emptySet(), Collections.emptyMap(), true),
+                         // (3) Memory is 0 and should apply incremental instances update:
+                         Arguments.of(DEFAULT_STAGING, 1024, 0, Collections.emptySet(), Collections.emptyMap(), true),
+                // (4) Everything is specified properly and should not apply incremental instances update:
+                Arguments.of(ImmutableStaging.builder().command("command1").healthCheckType("none").addBuildpack("buildpackUrl").build(),
+                        128, 256, TestData.routeSet("example.com", "foo-bar.xyz"), Map.of("env-key", "env-value"), false),
+                // (5) Disk quota is 0 and should not apply incremental instances update:
+                Arguments.of(DEFAULT_STAGING, 0, 256, Collections.emptySet(), Collections.emptyMap(), false),
+                // (6) Memory is 0 and should not apply incremental instances update:
+                Arguments.of(DEFAULT_STAGING, 1024, 0, Collections.emptySet(), Collections.emptyMap(), false)
 //@formatter:on             
         );
     }
 
     @ParameterizedTest
     @MethodSource
-    void testHandleApplicationAttributes(Staging staging, int diskQuota, int memory, Set<CloudRoute> routes, Map<String, String> env) {
+    void testHandleApplicationAttributes(Staging staging, int diskQuota, int memory, Set<CloudRoute> routes, Map<String, String> env,
+                                         boolean shouldApplyIncrementalInstancesUpdate) {
         CloudApplicationExtended application = buildApplication(staging, diskQuota, memory, routes, env);
         context.setVariable(Variables.APP_TO_PROCESS, application);
+        context.setVariable(Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE, shouldApplyIncrementalInstancesUpdate);
+        prepareDisablingAutoscaler(context, client, application, APP_TO_PROCESS_GUID);
 
         step.execute(execution);
 
@@ -80,6 +95,12 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
                                                                                        .env(env)
                                                                                        .build();
         verify(client).createApplication(applicationToCreateDto);
+
+        if (shouldApplyIncrementalInstancesUpdate) {
+            testIfEnabledOrDisabledAutoscaler(client, MessageFormat.format(Messages.DISABLE_AUTOSCALER_LABEL_CONTENT, ""),
+                                              APP_TO_PROCESS_GUID);
+        }
+
         assertTrue(context.getVariable(Variables.VCAP_APP_PROPERTIES_CHANGED));
     }
 
