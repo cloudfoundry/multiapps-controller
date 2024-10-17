@@ -57,7 +57,7 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
                 return scaleUpNewAppToTheRequiredInstances(context, application, client);
             }
             UUID oldApplicationGuid = client.getApplicationGuid(oldApplication.getName());
-            disableAutoscaling(client, oldApplicationGuid);
+            disableAutoscaling(context, client, oldApplicationGuid);
 
             UUID applicationId = client.getApplicationGuid(application.getName());
             checkWhetherLiveAppNeedsPolling(context, client, oldApplication);
