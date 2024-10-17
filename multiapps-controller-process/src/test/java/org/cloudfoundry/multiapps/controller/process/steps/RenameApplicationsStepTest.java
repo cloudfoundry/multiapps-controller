@@ -10,6 +10,7 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
@@ -17,6 +18,7 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationColorDetector;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.junit.jupiter.api.Assertions;
@@ -31,6 +33,8 @@ class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameApplications
 
     @Mock
     private ApplicationColorDetector applicationColorDetector;
+    @Mock
+    private ProcessTypeParser processTypeParser;
 
     @BeforeEach
     void setUp() {
@@ -46,6 +50,7 @@ class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameApplications
 
         DeploymentDescriptor descriptor = DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass());
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
+        when(processTypeParser.getProcessType(execution)).thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
     }
 
     @Test

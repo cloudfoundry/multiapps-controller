@@ -20,14 +20,15 @@ import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
 import org.cloudfoundry.multiapps.controller.core.util.SecurityUtil;
+import org.cloudfoundry.multiapps.controller.persistence.dto.PreservedDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
+import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorPreserverService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
-import org.cloudfoundry.multiapps.mta.model.AuditableConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +59,8 @@ public class DataTerminationService {
     private WebClientFactory webClientFactory;
     @Inject
     private MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
+    @Inject
+    private DescriptorPreserverService descriptorPreserverService;
 
     private static void log(Exception e) {
         LOGGER.error(format(Messages.ERROR_DURING_DATA_TERMINATION_0, e.getMessage()), e);
@@ -70,6 +73,7 @@ public class DataTerminationService {
             SAFE_EXECUTOR.execute(() -> deleteConfigurationSubscriptionOrphanData(spaceId));
             SAFE_EXECUTOR.execute(() -> deleteConfigurationEntryOrphanData(spaceId));
             SAFE_EXECUTOR.execute(() -> deleteUserOperationsOrphanData(spaceId));
+            SAFE_EXECUTOR.execute(() -> deletedMtaDescriptorsOrphanData(spaceId));
         }
         if (!spaceEventsToBeDeleted.isEmpty()) {
             SAFE_EXECUTOR.execute(() -> deleteSpaceIdsLeftovers(spaceEventsToBeDeleted));
@@ -140,6 +144,16 @@ public class DataTerminationService {
         operationService.createQuery()
                         .spaceId(deleteEventSpaceId)
                         .delete();
+    }
+
+    private void deletedMtaDescriptorsOrphanData(String spaceId) {
+        List<PreservedDescriptor> preservedDescriptors = descriptorPreserverService.createQuery()
+                                                                                   .spaceId(spaceId)
+                                                                                   .list();
+        preservedDescriptors.forEach(descriptor -> mtaConfigurationPurgerAuditLog.logDeleteMtaPreservedDescriptor(spaceId, descriptor));
+        descriptorPreserverService.createQuery()
+                                  .spaceId(spaceId)
+                                  .delete();
     }
 
     private void deleteSpaceIdsLeftovers(List<String> spaceIds) {

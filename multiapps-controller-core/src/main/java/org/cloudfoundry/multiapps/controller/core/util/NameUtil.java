@@ -114,6 +114,12 @@ public class NameUtil {
         return Constants.NAMESPACE_SEPARATOR + namespace;
     }
 
+    public static String computeUserNamespaceWithSystemNamespace(String systemNamespace, String userNamespace) {
+        if (StringUtils.isNotEmpty(userNamespace)) {
+            return systemNamespace + Constants.NAMESPACE_SEPARATOR + userNamespace;
+        }
+        return systemNamespace;
+    }
     private static String getShortenedName(String name, int maxLength) {
         String nameHashCode = getHashCodeAsHexString(name);
         if (maxLength < nameHashCode.length()) {

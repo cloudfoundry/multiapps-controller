@@ -15,6 +15,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.util.CloudModelBuilderContentCalculator;
@@ -34,6 +35,7 @@ import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureS
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
 import org.cloudfoundry.multiapps.mta.handlers.HandlerFactory;
@@ -58,6 +60,8 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
     @Inject
     private ModuleToDeployHelper moduleToDeployHelper;
+    @Inject
+    private ProcessTypeParser processTypeParser;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -188,7 +192,8 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
                                                                      List<String> filteredResourceNames,
                                                                      ServicesCloudModelBuilder servicesCloudModelBuilder) {
         CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(filteredResourceNames,
-                                                                                                                                                   getStepLogger());
+                                                                                                                                                   getStepLogger(),
+                                                                                                                                                   false);
         // this always filters the 'isActive', 'isResourceSpecifiedForDeployment' and 'isService' resources
         List<Resource> calculatedFilteredResources = resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());
 
@@ -231,8 +236,14 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     private List<Resource> calculateResourcesForDeployment(ProcessContext context, DeploymentDescriptor deploymentDescriptor) {
         List<String> resourcesSpecifiedForDeployment = context.getVariable(Variables.RESOURCES_FOR_DEPLOYMENT);
         CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(resourcesSpecifiedForDeployment,
-                                                                                                                                                   getStepLogger());
+                                                                                                                                                   getStepLogger(),
+                                                                                                                                                   shouldProcessOnlyUserProvidedServices(context));
         return resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());
+    }
+
+    private boolean shouldProcessOnlyUserProvidedServices(ProcessContext context) {
+        return processTypeParser.getProcessType(context.getExecution()) == ProcessType.REVERT_DEPLOY
+            && context.getVariable(Variables.PROCESS_USER_PROVIDED_SERVICES);
     }
 
     protected ModulesCloudModelBuilderContentCalculator
