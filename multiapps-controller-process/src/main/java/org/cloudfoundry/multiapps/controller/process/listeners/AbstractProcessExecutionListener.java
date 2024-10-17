@@ -6,8 +6,8 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
@@ -28,22 +28,22 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     private final ProgressMessageService progressMessageService;
     private final StepLogger.Factory stepLoggerFactory;
     private final ProcessLoggerProvider processLoggerProvider;
-    private final ProcessLogsPersister processLogsPersister;
     private final HistoricOperationEventService historicOperationEventService;
     private final FlowableFacade flowableFacade;
     protected final ApplicationConfiguration configuration;
+    private final ProcessLoggerPersister processLoggerPersister;
 
     private StepLogger stepLogger;
 
     @Inject
     protected AbstractProcessExecutionListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
-                                               ProcessLoggerProvider processLoggerProvider, ProcessLogsPersister processLogsPersister,
+                                               ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                                                HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                                                ApplicationConfiguration configuration) {
         this.progressMessageService = progressMessageService;
         this.stepLoggerFactory = stepLoggerFactory;
         this.processLoggerProvider = processLoggerProvider;
-        this.processLogsPersister = processLogsPersister;
+        this.processLoggerPersister = processLoggerPersister;
         this.historicOperationEventService = historicOperationEventService;
         this.flowableFacade = flowableFacade;
         this.configuration = configuration;
@@ -61,6 +61,12 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         } finally {
             finalizeLogs(execution);
         }
+    }
+
+    protected void finalizeLogs(DelegateExecution execution) {
+        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
+        String taskId = VariableHandling.get(execution, Variables.TASK_ID);
+        processLoggerPersister.persistLogs(correlationId, taskId);
     }
 
     private void initializeMustHaveVariables(DelegateExecution execution) {
@@ -94,12 +100,6 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
 
     protected ProcessLogger getProcessLogger() {
         return getStepLogger().getProcessLogger();
-    }
-
-    protected void finalizeLogs(DelegateExecution execution) {
-        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
-        String taskId = VariableHandling.get(execution, Variables.TASK_ID);
-        processLogsPersister.persistLogs(correlationId, taskId);
     }
 
     protected StepLogger getStepLogger() {

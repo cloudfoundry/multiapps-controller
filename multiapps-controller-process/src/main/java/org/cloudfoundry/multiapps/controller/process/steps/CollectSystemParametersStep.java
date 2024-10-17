@@ -16,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureS
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.HostValidator;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
 import org.cloudfoundry.multiapps.controller.process.util.ReadOnlyParametersChecker;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -26,8 +27,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
 
@@ -36,15 +37,13 @@ import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
 public class CollectSystemParametersStep extends SyncFlowableStep {
 
     private static final String DEFAULT_DOMAIN_PLACEHOLDER = "apps.internal";
-
+    protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
     @Inject
     private ReadOnlyParametersChecker readOnlyParametersChecker;
     @Inject
     private TokenService tokenService;
     @Inject
     private WebClientFactory webClientFactory;
-
-    protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -96,13 +95,17 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.NO_READ_ONLY_PARAMETERS_ARE_OVERWRITTEN);
     }
 
-    private SystemParameters createSystemParameters(ProcessContext context, String defaultDomain,
-                                                    boolean reserveTemporaryRoutes, DeploymentDescriptor descriptor) {
+    private SystemParameters createSystemParameters(ProcessContext context, String defaultDomain, boolean reserveTemporaryRoutes,
+                                                    DeploymentDescriptor descriptor) {
         String authorizationEndpoint = getAuthorizationEndpointGetter(context).getAuthorizationEndpoint();
         String user = context.getVariable(Variables.USER);
         String namespace = context.getVariable(Variables.MTA_NAMESPACE);
         String timestamp = context.getVariable(Variables.TIMESTAMP);
-        boolean applyNamespace = context.getVariable(Variables.APPLY_NAMESPACE);
+        Boolean applyNamespaceProcessVariable = context.getVariable(Variables.APPLY_NAMESPACE_APP_ROUTES);
+        Boolean applyNamespaceAsSuffixProcessVariable = context.getVariable(Variables.APPLY_NAMESPACE_AS_SUFFIX);
+        NamespaceGlobalParameters namespaceGlobalParameters = new NamespaceGlobalParameters(descriptor);
+        boolean applyNamespaceGlobalLevel = namespaceGlobalParameters.getApplyNamespaceAppRoutesParameter();
+        boolean applyNamespaceAsSuffixGlobalLevel = namespaceGlobalParameters.getApplyNamespaceAsSuffix();
 
         URL controllerUrl = configuration.getControllerUrl();
         String deployServiceUrl = configuration.getDeployServiceUrl();
@@ -121,7 +124,11 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                                              .timestamp(timestamp)
                                              .mtaId(descriptor.getId())
                                              .mtaVersion(descriptor.getVersion())
-                                             .hostValidator(new HostValidator(namespace, applyNamespace))
+                                             .hostValidator(new HostValidator(namespace,
+                                                                              applyNamespaceGlobalLevel,
+                                                                              applyNamespaceProcessVariable,
+                                                                              applyNamespaceAsSuffixGlobalLevel,
+                                                                              applyNamespaceAsSuffixProcessVariable))
                                              .build();
     }
 

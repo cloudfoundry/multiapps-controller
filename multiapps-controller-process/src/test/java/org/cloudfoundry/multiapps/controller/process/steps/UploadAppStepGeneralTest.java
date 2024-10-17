@@ -1,14 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -27,7 +24,6 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
-import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
@@ -47,9 +43,8 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.UploadStatusCallback;
 import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.DropletInfo;
@@ -69,7 +64,6 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     private static final String CURRENT_MODULE_DIGEST = "439B99DFFD0583200D5D21F4CD1BF035";
     private static final String NEW_MODULE_DIGEST = "539B99DFFD0583200D5D21F4CD1BF035";
     private static final UUID APP_GUID = UUID.randomUUID();
-    private static final CloudOperationException CO_EXCEPTION = new CloudOperationException(HttpStatus.BAD_REQUEST);
     private static final UUID PACKAGE_GUID = UUID.randomUUID();
     private static final UUID DROPLET_GUID = UUID.randomUUID();
     private static final CloudPackage CLOUD_PACKAGE = ImmutableCloudPackage.builder()
@@ -159,6 +153,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         context.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
         context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, false);
         when(configuration.getMaxResourceFileSize()).thenReturn(ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE);
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
     }
 
     @AfterEach
@@ -171,30 +166,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     void testSuccessfulUpload() {
         prepareClients(NEW_MODULE_DIGEST);
         step.execute(execution);
-        assertEquals(CLOUD_PACKAGE, context.getVariable(Variables.CLOUD_PACKAGE));
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
-    }
-
-    @Test
-    void testFailedUploadWithException() {
-        prepareClients(NEW_MODULE_DIGEST);
-        when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(CO_EXCEPTION);
-        assertThrows(SLException.class, () -> step.execute(execution));
-        assertFalse(appFile.toFile()
-                           .exists());
-        assertNull(context.getVariable(Variables.CLOUD_PACKAGE));
-        assertEquals(StepPhase.RETRY.toString(), getExecutionStatus());
-    }
-
-    @Test
-    void testExtractionOfAppFails() {
-        prepareClients(NEW_MODULE_DIGEST);
-        doThrow(new SLException("Error while reading blob input stream")).when(step.applicationZipBuilder)
-                                                                         .extractApplicationInNewArchive(any());
-        Exception exception = assertThrows(SLException.class, () -> step.execute(execution));
-        assertEquals("Error uploading application \"sample-app-backend\": Error while reading blob input stream ",
-                     exception.getMessage());
-        assertEquals(StepPhase.RETRY.toString(), getExecutionStatus());
     }
 
     @Test
@@ -202,8 +174,6 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         prepareClients(CURRENT_MODULE_DIGEST);
         mockCloudPackagesGetter(createCloudPackage(Status.PROCESSING_UPLOAD));
         step.execute(execution);
-        CloudPackage cloudPackage = context.getVariable(Variables.CLOUD_PACKAGE);
-        assertEquals(PACKAGE_GUID, cloudPackage.getGuid());
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
     }
 
@@ -212,8 +182,19 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         prepareClients(CURRENT_MODULE_DIGEST);
         mockCloudPackagesGetter(createCloudPackage(Status.FAILED));
         step.execute(execution);
-        assertEquals(CLOUD_PACKAGE, context.getVariable(Variables.CLOUD_PACKAGE));
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
+    }
+
+    @Test
+    void testSkippingDigestCalculation() {
+        prepareClients(CURRENT_MODULE_DIGEST);
+        context.setVariable(Variables.SKIP_APP_DIGEST_CALCULATION, true);
+        Map<String, String> deployAttributes = Map.of(Constants.ATTR_APP_CONTENT_DIGEST, CURRENT_MODULE_DIGEST);
+        when(client.getApplicationEnvironment(APP_GUID)).thenReturn(Map.of(Constants.ENV_DEPLOY_ATTRIBUTES,
+                                                                           JsonUtil.toJson(deployAttributes)));
+        step.execute(execution);
+        assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
+        assertTrue(context.getVariable(Variables.SHOULD_UPDATE_APPLICATION_DIGEST));
     }
 
     @MethodSource
@@ -222,7 +203,6 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         prepareClients(moduleDigest);
         mockCloudPackagesGetter(createCloudPackage(Status.EXPIRED));
         step.execute(execution);
-        assertEquals(CLOUD_PACKAGE, context.getVariable(Variables.CLOUD_PACKAGE));
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
     }
 
@@ -240,7 +220,6 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         when(client.getBuildsForApplication(any())).thenReturn(builds);
         prepareClients(CURRENT_MODULE_DIGEST);
         step.execute(execution);
-        assertEquals(cloudPackage, context.getVariable(Variables.CLOUD_PACKAGE));
         assertEquals(stepPhase.toString(), getExecutionStatus());
     }
 
@@ -263,11 +242,14 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
 
     private void mockCloudPackagesGetter(CloudPackage cloudPackage) {
         when(cloudPackagesGetter.getAppPackage(any(), any())).thenReturn(Optional.of(cloudPackage));
+        when(cloudPackagesGetter.getMostRecentAppPackage(any(), any())).thenReturn(Optional.of(cloudPackage));
     }
 
     private void prepareClients(String applicationDigest) {
-        when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenReturn(CLOUD_PACKAGE);
+        when(client.asyncUploadApplicationWithExponentialBackoff(eq(APP_NAME), eq(appFile), any(UploadStatusCallback.class),
+                                                                 any())).thenReturn(CLOUD_PACKAGE);
         CloudApplicationExtended application = createApplication(applicationDigest);
+        when(client.getApplicationEnvironment(APP_GUID)).thenReturn(application.getEnv());
         when(client.getApplication(APP_NAME)).thenReturn(application);
     }
 

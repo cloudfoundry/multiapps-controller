@@ -20,12 +20,40 @@ public class RoutesValidator implements ParameterValidator {
 
     protected Map<String, ParameterValidator> validators;
 
-    public RoutesValidator(String namespace, boolean applyNamespaceGlobal) {
-        initRoutesValidators(namespace, applyNamespaceGlobal);
+    public RoutesValidator(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable,
+                           boolean applyNamespaceAsSuffixGlobalLevel, Boolean applyNamespaceAsSuffixProcessVariable) {
+        initRoutesValidators(namespace, applyNamespaceGlobalLevel, applyNamespaceProcessVariable, applyNamespaceAsSuffixGlobalLevel,
+                             applyNamespaceAsSuffixProcessVariable);
     }
 
-    protected void initRoutesValidators(String namespace, boolean applyNamespaceGlobal) {
-        ParameterValidator routeValidator = new RouteValidator(namespace, applyNamespaceGlobal);
+    @SuppressWarnings("unchecked")
+    public static List<Map<String, Object>> applyRoutesType(Object routes) {
+        if (routes instanceof List) {
+            List<Object> routesList = (List<Object>) routes;
+            if (CollectionUtils.isEmpty(routesList)) {
+                return Collections.emptyList();
+            }
+
+            if (routesList.stream()
+                          .anyMatch(route -> !(route instanceof Map))) {
+                return Collections.emptyList();
+            }
+            return routesList.stream()
+                             .map(route -> (Map<String, Object>) route)
+                             .collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
+
+    }
+
+    protected void initRoutesValidators(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable,
+                                        boolean applyNamespaceAsSuffixGlobalLevel, Boolean applyNamespaceAsSuffixProcessVariable) {
+        ParameterValidator routeValidator = new RouteValidator(namespace,
+                                                               applyNamespaceGlobalLevel,
+                                                               applyNamespaceProcessVariable,
+                                                               applyNamespaceAsSuffixGlobalLevel,
+                                                               applyNamespaceAsSuffixProcessVariable);
         this.validators = Map.of(routeValidator.getParameterName(), routeValidator);
     }
 
@@ -124,27 +152,6 @@ public class RoutesValidator implements ParameterValidator {
         }
 
         throw new SLException(Messages.COULD_NOT_CREATE_VALID_ROUTE, parameter);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static List<Map<String, Object>> applyRoutesType(Object routes) {
-        if (routes instanceof List) {
-            List<Object> routesList = (List<Object>) routes;
-            if (CollectionUtils.isEmpty(routesList)) {
-                return Collections.emptyList();
-            }
-
-            if (routesList.stream()
-                          .anyMatch(route -> !(route instanceof Map))) {
-                return Collections.emptyList();
-            }
-            return routesList.stream()
-                             .map(route -> (Map<String, Object>) route)
-                             .collect(Collectors.toList());
-        }
-
-        return Collections.emptyList();
-
     }
 
     @Override

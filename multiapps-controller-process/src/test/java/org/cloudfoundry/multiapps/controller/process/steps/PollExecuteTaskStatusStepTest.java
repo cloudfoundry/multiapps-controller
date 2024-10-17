@@ -96,7 +96,7 @@ class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskSt
         context.setVariable(Variables.STARTED_TASK, task);
         context.setVariable(Variables.TASKS_INDEX, 0);
         context.setVariable(Variables.START_TIME, 0L);
-        context.setVariable(Variables.START_TIMEOUT, START_TIMEOUT);
+        context.setVariable(Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE, START_TIMEOUT);
         StepsTestUtil.mockApplicationsToDeploy(List.of(APPLICATION), execution);
     }
 

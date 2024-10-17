@@ -5,9 +5,21 @@ import java.util.Map;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
+import org.cloudfoundry.multiapps.controller.core.util.NamespaceValidationUtil;
 import org.cloudfoundry.multiapps.mta.model.Module;
 
-public abstract class RoutePartValidator implements ParameterValidator {
+public abstract class RoutePartValidator extends NamespaceValidationUtil implements ParameterValidator {
+    protected RoutePartValidator() {
+    }
+
+    protected RoutePartValidator(String namespace, boolean applyNamespaceGlobalLevel, Boolean applyNamespaceProcessVariable,
+                                 boolean applyNamespaceAsSuffixGlobalLevel, Boolean applyNamespaceAsSuffixProcessVariable) {
+        super(namespace,
+              applyNamespaceGlobalLevel,
+              applyNamespaceProcessVariable,
+              applyNamespaceAsSuffixGlobalLevel,
+              applyNamespaceAsSuffixProcessVariable);
+    }
 
     @Override
     public String attemptToCorrect(Object routePart, final Map<String, Object> context) {

@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import javax.persistence.NoResultException;
 
@@ -42,7 +44,6 @@ import org.cloudfoundry.multiapps.controller.persistence.query.AsyncUploadJobsQu
 import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
-import org.cloudfoundry.multiapps.controller.persistence.util.Configuration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,7 +66,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 class FilesApiServiceImplTest {
 
-    private static final long MAX_PERMITTED_SIZE = new Configuration().getMaxUploadSize();
     private static final String MTA_ID = "anatz";
     private static final String FILE_URL = Base64.getUrlEncoder()
                                                  .encodeToString("https://host.domain/test.mtar?query=true".getBytes(StandardCharsets.UTF_8));
@@ -97,10 +97,12 @@ class FilesApiServiceImplTest {
     };
     @Mock
     private HttpResponse<InputStream> fileUrlResponse;
-    @Mock
+    @Mock(name = "deployFromUrlExecutor")
     private ExecutorService asyncFileUploadExecutor;
+    @Mock(name = "fileStorageThreadPool")
+    private ExecutorService fileStorageThreadPool;
     @Mock
-    private ApplicationConfiguration configuration = new ApplicationConfiguration();
+    private ApplicationConfiguration configuration;
     @Spy
     private DescriptorParserFacadeFactory descriptorParserFactory = new DescriptorParserFacadeFactory(configuration);
     @Mock
@@ -120,6 +122,7 @@ class FilesApiServiceImplTest {
                           .close();
         Mockito.when(request.getRequestURI())
                .thenReturn("");
+        prepareFileStorageThreadPool();
     }
 
     @Test
@@ -222,6 +225,8 @@ class FilesApiServiceImplTest {
                .thenReturn(fileEntry);
         Mockito.when(fileService.getFile(Mockito.eq(SPACE_GUID), Mockito.eq(fileEntry.getId())))
                .thenReturn(fileEntry);
+        Mockito.when(configuration.getMaxUploadSize())
+               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE);
         Future<?> future = Mockito.mock(Future.class);
         when(future.isDone()).thenReturn(true);
         prepareAsyncExecutor(future);
@@ -255,6 +260,15 @@ class FilesApiServiceImplTest {
         var status = responseBody.getStatus();
         assertEquals(mtaId, MTA_ID);
         assertEquals(status, AsyncUploadResult.JobStatus.FINISHED);
+    }
+
+    private void prepareFileStorageThreadPool() {
+        when(fileStorageThreadPool.submit(any(Callable.class))).thenAnswer(invocation -> {
+            Callable<?> callable = invocation.getArgument(0);
+            FutureTask<?> futureTask = new FutureTask<>(callable);
+            futureTask.run();
+            return futureTask;
+        });
     }
 
     private void prepareAsyncExecutor(Future<?> future) {
@@ -345,7 +359,7 @@ class FilesApiServiceImplTest {
 
     @Test
     void testFileUrlReturnsContentLengthAboveMaxUploadSize() throws Exception {
-        long invalidFileSize = MAX_PERMITTED_SIZE + 1024;
+        long invalidFileSize = ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE + 1024;
         String fileSize = Long.toString(invalidFileSize);
         AsyncUploadJobsQuery query = Mockito.mock(AsyncUploadJobsQuery.class, Answers.RETURNS_SELF);
         String error = "content length exceeds max permitted size of 4GB";

@@ -24,7 +24,6 @@ import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.configuration.Environment;
 import org.cloudfoundry.multiapps.controller.core.health.model.HealthCheckConfiguration;
 import org.cloudfoundry.multiapps.controller.core.health.model.ImmutableHealthCheckConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.util.Configuration;
 import org.cloudfoundry.multiapps.mta.handlers.ConfigurationParser;
 import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.slf4j.Logger;
@@ -93,6 +92,8 @@ public class ApplicationConfiguration {
     static final String CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = "SPRING_SCHEDULER_TASK_EXECUTOR_THREADS";
     static final String CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = "FILES_ASYNC_UPLOAD_EXECUTOR_THREADS";
     static final String CFG_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER = "ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER";
+    static final String CFG_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = "THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER";
+    static final String CFG_THREADS_FOR_FILE_STORAGE_UPLOAD = "THREADS_FOR_FILE_STORAGE_UPLOAD";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = List.of("full_application_uris", "application_uris", "uris");
 
@@ -148,6 +149,8 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = 3;
     public static final int DEFAULT_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = 50;
     public static final boolean DEFAULT_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER = false;
+    public static final int DEFAULT_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = 6;
+    public static final int DEFAULT_THREADS_FOR_FILE_STORAGE_UPLOAD = 7;
 
     protected final Environment environment;
 
@@ -205,6 +208,8 @@ public class ApplicationConfiguration {
     private Integer springSchedulerTaskExecutorThreads;
     private Integer filesAsyncUploadExecutorThreads;
     private Boolean isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment;
+    private Integer threadsForFileUploadToController;
+    private Integer threadsForFileStorageUpload;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -268,10 +273,6 @@ public class ApplicationConfiguration {
                       CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
                       CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, CFG_CONTROLLER_CLIENT_RESPONSE_TIMEOUT, CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS,
                       CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS, CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS);
-    }
-
-    public Configuration getFileConfiguration() {
-        return new Configuration(getMaxUploadSize());
     }
 
     public URL getControllerUrl() {
@@ -636,6 +637,20 @@ public class ApplicationConfiguration {
             isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment = isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment();
         }
         return isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment;
+    }
+
+    public int getThreadsForFileUploadToController() {
+        if (threadsForFileUploadToController == null) {
+            threadsForFileUploadToController = getThreadsForFileUploadToControllerFromEnvironment();
+        }
+        return threadsForFileUploadToController;
+    }
+
+    public int getThreadsForFileStorageUpload() {
+        if (threadsForFileStorageUpload == null) {
+            threadsForFileStorageUpload = getThreadsForFileStorageUploadFromEnvironment();
+        }
+        return threadsForFileStorageUpload;
     }
 
     private URL getControllerUrlFromEnvironment() {
@@ -1044,6 +1059,18 @@ public class ApplicationConfiguration {
                                                                                     DEFAULT_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER);
         LOGGER.info(format(Messages.ON_START_FILES_CLEANER_WITHOUT_CONTENT_ENABLED_0, isOnStartFilesCleanerWithoutContentEnabled));
         return isOnStartFilesCleanerWithoutContentEnabled;
+    }
+
+    private int getThreadsForFileUploadToControllerFromEnvironment() {
+        int value = environment.getInteger(CFG_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER, DEFAULT_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER);
+        LOGGER.info(format(Messages.THREADS_FOR_FILE_STORAGE_UPLOAD_0, value));
+        return value;
+    }
+
+    private int getThreadsForFileStorageUploadFromEnvironment() {
+        int value = environment.getInteger(CFG_THREADS_FOR_FILE_STORAGE_UPLOAD, DEFAULT_THREADS_FOR_FILE_STORAGE_UPLOAD);
+        LOGGER.info(format(Messages.THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER_0, value));
+        return value;
     }
 
     public Boolean isInternalEnvironment() {

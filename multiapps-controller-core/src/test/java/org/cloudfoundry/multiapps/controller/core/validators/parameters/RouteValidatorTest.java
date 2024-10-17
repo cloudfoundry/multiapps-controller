@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.MessageFormat;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -21,7 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class RouteValidatorTest {
 
-    private static final RouteValidator validator = new RouteValidator(null, false);
+    private static final RouteValidator validator = new RouteValidator(null, false, false, false, false);
 
     static Stream<Arguments> getParameters() {
         return Stream.of(

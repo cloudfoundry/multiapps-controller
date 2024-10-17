@@ -122,6 +122,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             operationsApiServiceAuditLog.logGetOperationLogs(SecurityContextUtil.getUsername(), spaceGuid, operationId);
             getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
             List<String> logIds = logsService.getLogNames(spaceGuid, operationId);
+
             List<Log> logs = logIds.stream()
                                    .map(id -> ImmutableLog.builder()
                                                           .id(id)
@@ -138,7 +139,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     public ResponseEntity<String> getOperationLogContent(String spaceGuid, String operationId, String logId) {
         try {
             operationsApiServiceAuditLog.logGetOperationLogContent(SecurityContextUtil.getUsername(), spaceGuid, operationId, logId);
-            String content = logsService.getLogContent(spaceGuid, operationId, logId);
+            String content = logsService.getOperationLog(spaceGuid, operationId, logId);
+
             return ResponseEntity.ok()
                                  .body(content);
         } catch (FileStorageException e) {
@@ -266,7 +268,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         String namespace = operation.getNamespace();
         if (namespace != null) {
             parameters.put(Variables.MTA_NAMESPACE.getName(), namespace);
-            parameters.put(Variables.APPLY_NAMESPACE.getName(), true);
         }
 
         return ImmutableOperation.copyOf(operation)

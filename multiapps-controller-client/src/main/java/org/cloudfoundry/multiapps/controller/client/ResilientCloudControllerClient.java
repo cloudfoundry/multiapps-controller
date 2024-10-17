@@ -1,11 +1,13 @@
 package org.cloudfoundry.multiapps.controller.client;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.cloudfoundry.client.v3.Metadata;
@@ -395,8 +397,14 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudPackage asyncUploadApplication(String applicationName, Path file, UploadStatusCallback callback) {
-        return executeWithRetry(() -> delegate.asyncUploadApplication(applicationName, file, callback));
+    public CloudPackage asyncUploadApplicationWithExponentialBackoff(String applicationName, Path file, UploadStatusCallback callback,
+                                                                     Duration overrideTimeout) {
+        if (overrideTimeout != null) {
+            return executeWithRetry(() -> delegate.asyncUploadApplicationWithExponentialBackoff(applicationName, file, callback,
+                                                                                                overrideTimeout));
+        }
+        return executeWithExponentialBackoff(timeout -> delegate.asyncUploadApplicationWithExponentialBackoff(applicationName, file,
+                                                                                                              callback, timeout));
     }
 
     @Override
@@ -492,11 +500,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public List<CloudStack> getStacks() {
         return executeWithRetry(delegate::getStacks, HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public CloudPackage asyncUploadApplication(String applicationName, Path file) {
-        return executeWithRetry(() -> delegate.asyncUploadApplication(applicationName, file));
     }
 
     @Override
@@ -626,6 +629,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     private <T> T executeWithRetry(Supplier<T> operation, HttpStatus... statusesToIgnore) {
         ResilientCloudOperationExecutor executor = new ResilientCloudOperationExecutor().withStatusesToIgnore(statusesToIgnore);
         return executor.execute(operation);
+    }
+
+    private <T> T executeWithExponentialBackoff(Function<Duration, T> operation, HttpStatus... statusesToIgnore) {
+        ResilientCloudOperationExecutor executor = new ResilientCloudOperationExecutor().withStatusesToIgnore(statusesToIgnore);
+        return executor.executeWithExponentialBackoff(operation);
     }
 
 }

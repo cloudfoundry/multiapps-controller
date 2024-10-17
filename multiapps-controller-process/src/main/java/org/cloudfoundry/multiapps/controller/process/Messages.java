@@ -16,7 +16,9 @@ public class Messages {
     public static final String SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT = "The size of the application exceeds max size limit \"{0}\"";
     public static final String ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT = "Unable to retrieve required service key element \"{0}\" for service \"{1}\"";
     public static final String ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE = "Value \"{0}\" of parameter \"{1}\" must not be negative";
+    public static final String ERROR_PARAMETER_1_MUST_BE_LESS_THAN_2 = "Value \"{0}\" of parameter \"{1}\" must be less than {2}";
     public static final String INVALID_VALUE_0_FOR_PARAMETER_1_VALID_VALUES_ARE_2 = "Invalid value \"{0}\" for parameter \"{1}\". Valid values are: {2}";
+    public static final String INVALID_NAMESPACE_LENGTH = "Invalid value for parameter namespace. The namespace cannot be more than {0} symbols.";
     public static final String ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1 = "There is no file associated with the specified file id \"{0}\" in space \"{1}\"";
     public static final String UNKNOWN_SERVICE_ID = "Unknown service id \"{0}\"";
     public static final String UNKNOWN_SERVICE_ID_FOR_PROCESS_0 = "Unknown service id for process \"{0}\"";
@@ -65,6 +67,12 @@ public class Messages {
     public static final String FAILED_TO_UPDATE_FILES_OF_OPERATION_0 = "Failed to update files of operation: {0}";
     public static final String COULD_NOT_DELETE_ORPHANED_FILES_MODIFIED_AFTER_0_AND_BEFORE_1 = "Could not delete orphaned files modified after {0} and before {1}";
     public static final String ERROR_WHILE_STARTING_ASYNC_UPLOAD_OF_APP_WITH_NAME_0 = "Error while starting async upload of app with name {0}";
+    public static final String REQUIRED_APPLICATION_TO_POLL_0_NOT_FOUND = "Required application to poll: \"{0}\" not found";
+    public static final String NOT_INTEGER_PARAMETER_VALUE = "Value \"{0}\" of parameter \"{1}\" is not integer";
+    public static final String ERROR_OCURRED_DURING_VALIDATION_OF_FILES_0 = "Error occurred during validation of files \"{0}\"";
+    public static final String SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1 = "Size of all operation files \"{0}\" exceeds max upload size limit \"{1}\"";
+    public static final String NOT_BOOLEAN_PARAMETER_VALUE = "Value \"{0}\" of parameter \"{1}\" is not boolean";
+    public static final String ERROR_OCCURRED_DURING_APPLICATION_UPLOAD_0 = "Error occurred during application upload: {0}";
 
     // Audit log messages
 
@@ -78,6 +86,8 @@ public class Messages {
     public static final String ERROR_WHILE_DELETING_SERVICE_KEY_0 = "Error while deleting service key \"{0}\"";
     public static final String ERROR_WHILE_CALCULATING_SERVICE_KEYS_FOR_WAITING = "Error while calculating service keys for waiting";
     public static final String COULD_NOT_GET_APP_LOGS = "Could not get application recent logs: {0}";
+    public static final String ERROR_DURING_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during incremental instance update of module \"{0}\"";
+    public static final String ERROR_DURING_POLL_OF_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during poll of incremental instance update of module \"{0}\"";
 
     // Process step errors
     public static final String ERROR_VALIDATING_PARAMS = "Error validating parameters";
@@ -205,6 +215,8 @@ public class Messages {
     public static final String COULD_NOT_UPDATE_PARAMETERS_SERVICE = "Could not update parameters of service \"{0}\" : {1}";
     public static final String COULD_NOT_UPDATE_PLAN_SERVICE = "Could not update plan of service \"{0}\" : {1}";
     public static final String COULD_NOT_UPDATE_SYSLOG_DRAIN_URL_SERVICE = "Could not update syslog drain url of service \"{0}\" : {1}";
+    public static final String SCALING_DOWN_NEW_APPLICATION_TO_ONE_INSTANCE = "Scaling down new application: \"{0}\" to one instance";
+    public static final String UPLOAD_OF_APPLICATION_0_WAS_NOT_ACCEPTED_BY_INSTANCE_1 = "Upload of application: {0} was not accepted by instance: {1}";
 
     public static final String COULD_NOT_GET_SERVICE_KEYS_FOR_OPTIONAL_SERVICE = "Could not get service keys for optional service \"{0}\"";
     public static final String DEFAULT_FAILED_OPERATION_DESCRIPTION = "The service broker returned an error with no description!";
@@ -235,6 +247,7 @@ public class Messages {
     public static final String ERROR_WHILE_CREATING_SERVICE_KEY_0_FOR_OPTIONAL_SERVICE_1 = "Error while creating service key \"{0}\" for optional service \"{1}\"";
     public static final String ERROR_WHILE_DELETING_SERVICE_KEY_0_FOR_OPTIONAL_SERVICE_1 = "Error while deleting service key \"{0}\" for optional service \"{1}\"";
     public static final String SERVICE_KEY_0_IS_ALREADY_DELETED = "Service key \"{0}\" is already deleted";
+    public static final String FILE_WITH_ID_0_OPERATION_OWNERSHIP_CHANGED_FROM_0_TO_1 = "File with id \"{0}\" operation ownership was changed from \"{1}\" to \"{2}\" and won't be deleted";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
@@ -293,6 +306,12 @@ public class Messages {
     public static final String CLOSING_STREAM_FOR_PART_0 = "Closing stream for part: {0}";
     public static final String CLOSING_STREAM_FOR_PART_STREAM_FINISHED_0 = "Closing stream for part, stream finished: {0}";
     public static final String CLOSING_LAST_STREAM_FOR_PART_0 = "Closing the last stream, part: {0}";
+    public static final String SCALING_UP_OLD_APPLICATION = "Scaling up old application: \"{0}\" to {1} instances";
+    public static final String FILE_WITH_ID_0_WAS_DELETED = "File with id \"{0}\" was deleted";
+    public static final String CALCULATING_APPLICATION_DIGEST_0 = "Calculating application digest: \"{0}\"";
+    public static final String SKIPPING_APPLICATION_0_DIGEST_CALCULATION = "Skipping application: \"{0}\" digest calculation";
+    public static final String TIME_ELAPSED_FOR_UPLOAD_0_IN_MILLIS = "Time elapsed for upload: {0} in millis";
+    public static final String TIME_ELAPSED_FOR_APP_BINARY_DOWNLOAD_0_IN_MILLIS = "Time elapsed for app binary download: {0} in millis";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
@@ -357,6 +376,12 @@ public class Messages {
     public static final String EXECUTING_HOOK_0 = "Executing hook \"{0}\"";
     public static final String WAITING_PREVIOUS_OPERATIONS_TO_FINISH = "Waiting for previous service operations to finish...";
     public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FINISHED = "Async operation for service broker \"{0}\" has finished";
+    public static final String STARTING_INCREMENTAL_APPLICATION_INSTANCE_UPDATE_FOR_0 = "Starting incremental application instance update for \"{0}\"...";
+    public static final String DUE_TO_MISSING_PRODUCTIVE_DEPLOYED_APPLICATION_OF_MODULE_0_THE_NEW_APPLICATION_WILL_BE_SCALED_IN_STANDARD_WAY = "Due to missing productive deployed application of module \"{0}\", the new application will be scaled in standard way";
+    public static final String APPLICATION_0_ALREADY_SCALED_TO_THE_DESIRED_1_INSTANCES = "Application \"{0}\" already scaled to the desired {1} instances";
+    public static final String LIVE_APPLICATION_NOT_DETECTED_DURING_ROLLING_INSTANCE_UPDATE = "Live application not detected during rolling instance update";
+    public static final String NO_DEPLOYED_MTA_DETECTED_DURING_ROLLING_INSTANCE_UPDATE = "No deployed MTA detected during rolling instance update";
+    public static final String THE_REQUIRED_APPLICATION_NOT_FOUND_IN_THE_DETECTED_MTA = "The required application not found in the detected MTA";
 
     // DEBUG log messages
     public static final String ENTERING_TESTING_PHASE = "Entering testing phase";
@@ -477,7 +502,8 @@ public class Messages {
     public static final String REMAINING_SERVICES_TO_POLL = "Remaining services to poll: {0}";
     public static final String LAST_OPERATION_FOR_SERVICE = "Last operation for service \"{0}\": {1}";
     public static final String DELETING_ERROR_TYPE_O_FOR_PROCESS_1 = "Deleting error type \"{0}\" for process \"{1}\"";
-    public static final String UPLOAD_APP_TIMEOUT = "Upload app timeout in seconds: {0}";
+    public static final String TIMEOUT_MESSAGE = "Application {0} timeout is set by \"{1}\" parameter to {2} seconds";
+    public static final String TIMEOUT_DEFAULT_VALUE_MESSAGE = "Application {0} timeout is default one: {1} seconds";
     public static final String PROVIDED_EXTENSION_DESCRIPTORS = "Provided extension descriptors: {0}";
     public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";
@@ -706,9 +732,19 @@ public class Messages {
     public static final String NEW_METADATA = "New metadata: {0}";
     public static final String OPENING_A_NEW_INPUT_STREAM_FOR_FILE_WITH_ID_0_AND_NAME_1 = "Opening a new input stream for file with ID: {0} and name: {1}";
     public static final String ARCHIVE_WITH_ID_0_AND_NAME_1_WAS_STORED = "Archive with ID: {0} and name: {1} was stored";
+    public static final String NOT_ALL_OF_THE_APPLICATION_0_INSTANCES_ARE_RUNNING_WAITING_FOR_ALL_INSTANCES_TO_START = "Not all of the application {0} instances are running. Waiting for all instances to start";
+    public static final String THE_DETECTED_APPLICATION_HAS_THE_SAME_NAME_AS_THE_NEW_ONE = "The detected application has the same name as the new one";
+    public static final String DESIRED_APPLICATION_0_INSTANCES_1_AND_NOW_SCALED_TO_2 = "Desired application \"{0}\" instances {1} and now scaled to {2}";
+    public static final String DOWNSCALING_APPLICATION_0_TO_1_INSTANCES = "Downscaling application \"{0}\" to {1} instances";
+    public static final String UPSCALING_APPLICATION_0_TO_1_INSTANCES = "Upscaling application \"{0}\" to {1} instances";
+    public static final String PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1 = "Parameter \"{0}\" must be positive integer value up to {1}!";
+    public static final String SKIPPING_UPLOAD_OF_APPLICATION_0 = "Skipping upload of application: {0}";
+    public static final String UPLOAD_OF_APPLICATION_0_STARTED_ON_INSTANCE_1 = "Upload of application: {0} started on instance: {1}";
 
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";
+    public static final String PARSE_NULL_STRING_ERROR = "Cannot parse null string";
+    public static final String INVALID_BOOLEAN_VALUE = "Invalid boolean value: must be 'true' or 'false'";
 
     protected Messages() {
     }

@@ -21,6 +21,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -39,7 +40,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
 
         DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
-        MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(context);
+        MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(context, descriptor);
 
         descriptor = resolver.resolve(descriptor);
 
@@ -57,7 +58,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                                  String.join(", ", invalidModulesSpecifiedForDeployment)));
         }
         Set<String> mtaModules = getModuleNames(descriptor, modulesForDeployment);
-        getStepLogger().debug("MTA Modules: {0}", mtaModules);
+        getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
         context.setVariable(Variables.MTA_MODULES, mtaModules);
 
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(descriptor));
@@ -71,25 +72,39 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         return Messages.ERROR_RESOLVING_DESCRIPTOR_PROPERTIES;
     }
 
-    protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(ProcessContext context) {
-        return new MtaDescriptorPropertiesResolver(buildMtaDescriptorPropertiesResolverContext(context));
+    protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(ProcessContext context, DeploymentDescriptor descriptor) {
+        return new MtaDescriptorPropertiesResolver(buildMtaDescriptorPropertiesResolverContext(context, descriptor));
     }
 
-    private MtaDescriptorPropertiesResolverContext buildMtaDescriptorPropertiesResolverContext(ProcessContext context) {
+    private MtaDescriptorPropertiesResolverContext buildMtaDescriptorPropertiesResolverContext(ProcessContext context,
+                                                                                               DeploymentDescriptor descriptor) {
         CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
         CloudTarget cloudTarget = new CloudTarget(context.getVariable(Variables.ORGANIZATION_NAME),
                                                   context.getVariable(Variables.SPACE_NAME));
         String currentSpaceId = context.getVariable(Variables.SPACE_GUID);
         String namespace = context.getVariable(Variables.MTA_NAMESPACE);
-        boolean applyNamespace = context.getVariable(Variables.APPLY_NAMESPACE);
+        Boolean applyNamespaceAppNamesProcessVariable = context.getVariable(Variables.APPLY_NAMESPACE_APP_NAMES);
+        Boolean applyNamespaceServiceNamesProcessVariable = context.getVariable(Variables.APPLY_NAMESPACE_SERVICE_NAMES);
+        Boolean applyNamespaceAppRoutesProcessVariable = context.getVariable(Variables.APPLY_NAMESPACE_APP_ROUTES);
+        Boolean applyNamespaceAsSuffixProcessVariable = context.getVariable(Variables.APPLY_NAMESPACE_AS_SUFFIX);
+
         boolean setIdleRoutes = context.getVariable(Variables.USE_IDLE_URIS);
+
+        NamespaceGlobalParameters namespaceGlobalParameters = new NamespaceGlobalParameters(descriptor);
 
         return ImmutableMtaDescriptorPropertiesResolverContext.builder()
                                                               .handlerFactory(handlerFactory)
                                                               .cloudTarget(cloudTarget)
                                                               .currentSpaceId(currentSpaceId)
                                                               .namespace(namespace)
-                                                              .applyNamespace(applyNamespace)
+                                                              .applyNamespaceAppNamesGlobalLevel(namespaceGlobalParameters.getApplyNamespaceAppNamesParameter())
+                                                              .applyNamespaceServiceNamesGlobalLevel(namespaceGlobalParameters.getApplyNamespaceServiceNamesParameter())
+                                                              .applyNamespaceAppRoutesGlobalLevel(namespaceGlobalParameters.getApplyNamespaceAppRoutesParameter())
+                                                              .applyNamespaceAsSuffixGlobalLevel(namespaceGlobalParameters.getApplyNamespaceAsSuffix())
+                                                              .applyNamespaceAsSuffixProcessVariable(applyNamespaceAsSuffixProcessVariable)
+                                                              .applyNamespaceAppNamesProcessVariable(applyNamespaceAppNamesProcessVariable)
+                                                              .applyNamespaceServiceNamesProcessVariable(applyNamespaceServiceNamesProcessVariable)
+                                                              .applyNamespaceAppRoutesProcessVariable(applyNamespaceAppRoutesProcessVariable)
                                                               .shouldReserveTemporaryRoute(setIdleRoutes)
                                                               .configurationEntryService(configurationEntryService)
                                                               .applicationConfiguration(configuration)

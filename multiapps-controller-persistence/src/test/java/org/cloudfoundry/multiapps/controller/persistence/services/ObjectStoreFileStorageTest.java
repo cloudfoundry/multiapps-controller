@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -93,6 +94,8 @@ class ObjectStoreFileStorageTest {
         FileEntry nonExistingFile = createFileEntry();
         fileEntries.add(nonExistingFile);
 
+        addBigAmountOfEntries();
+
         List<FileEntry> withoutContent = fileStorage.getFileEntriesWithoutContent(fileEntries);
         assertEquals(1, withoutContent.size());
         assertEquals(nonExistingFile.getId(), withoutContent.get(0)
@@ -140,6 +143,8 @@ class ObjectStoreFileStorageTest {
         long currentMillis = System.currentTimeMillis();
         final long oldFilesTtl = 1000 * 60 * 10; // 10min
         final long pastMoment = currentMillis - 1000 * 60 * 15; // before 15min
+
+        addBigAmountOfEntries();
 
         FileEntry fileEntryToRemain1 = addFile(TEST_FILE_LOCATION);
         FileEntry fileEntryToRemain2 = addFile(SECOND_FILE_TEST_LOCATION);
@@ -237,6 +242,12 @@ class ObjectStoreFileStorageTest {
         }
     }
 
+    private void addBigAmountOfEntries() throws Exception {
+        for (int i = 0; i < 3001; i++) {
+            addFileContent("test-file-" + i, "test".getBytes());
+        }
+    }
+
     private FileEntry addFile(String pathString) throws Exception {
         return addFile(pathString, spaceId, namespace);
     }
@@ -256,8 +267,27 @@ class ObjectStoreFileStorageTest {
         return fileEntry;
     }
 
+    private FileEntry addFileContent(String entryName, byte[] content) throws Exception {
+        FileEntry fileEntry = createFileEntry(entryName, content);
+        try (InputStream contentStream = new ByteArrayInputStream(content)) {
+            fileStorage.addFile(fileEntry, contentStream);
+        }
+        return fileEntry;
+    }
+
     private FileEntry createFileEntry() {
         return createFileEntry(spaceId, namespace);
+    }
+
+    private FileEntry createFileEntry(String entryName, byte[] content) {
+        return ImmutableFileEntry.builder()
+                                 .id(UUID.randomUUID()
+                                         .toString())
+                                 .space(spaceId)
+                                 .size(BigInteger.valueOf(content.length))
+                                 .modified(LocalDateTime.now())
+                                 .name(entryName)
+                                 .build();
     }
 
     private FileEntry createFileEntry(String space, String namespace) {

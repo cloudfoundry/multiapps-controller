@@ -167,6 +167,8 @@ public final class Messages {
     public static final String SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = "Spring scheduler task executor threads: {0}";
     public static final String FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = "Files async executor max threads: {0}";
     public static final String ON_START_FILES_CLEANER_WITHOUT_CONTENT_ENABLED_0 = "On start files cleaner without content enabled: {0}";
+    public static final String THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER_0 = "Threads for file upload to controller: {0}";
+    public static final String THREADS_FOR_FILE_STORAGE_UPLOAD_0 = "Threads for file storage upload: {0}";
 
     // Debug messages
     public static final String DEPLOYMENT_DESCRIPTOR = "Deployment descriptor: {0}";
@@ -194,11 +196,11 @@ public final class Messages {
     public static final String LIST_OPERATION_ACTIONS_AUDIT_LOG_MESSAGE = "List operation action in space with id: {0}";
     public static final String EXECUTE_OPERATION_AUDIT_LOG_MESSAGE = "Execute operation in space with id: {0}";
     public static final String GET_OPERATION_LOGS_AUDIT_LOG_MESSAGE = "Get operation logs in space with id: {0}";
-    public static final String GET_OPERATION_LOG_CONTENT_AUDIT_LOG_MESSAGE =  "Get operation log content in space with id: {0}";
+    public static final String GET_OPERATION_LOG_CONTENT_AUDIT_LOG_MESSAGE = "Get operation log content in space with id: {0}";
     public static final String START_OPERATION_AUDIT_LOG_MESSAGE = "Start {0} operation in space with id: {1}";
     public static final String GET_INFO_FOR_OPERATION = "Get info for operation in space with id: {0}";
 
-    public static final String LIST_MTA_AUDIT_LOG_MESSAGE =  "List MTA in space with id: {0}";
+    public static final String LIST_MTA_AUDIT_LOG_MESSAGE = "List MTA in space with id: {0}";
     public static final String GET_MTA_AUDIT_LOG_MESSAGE = "Get MTA in space with id: {0}";
 
     public static final String GET_INFO_FOR_API_AUDIT_LOG_CONFIG = "Get information for api";
@@ -206,7 +208,6 @@ public final class Messages {
     public static final String FAILED_TO_FETCH_TOKEN_AUDIT_LOG_MESSAGE = "Failed to fetch access token for client: \"{0}\" in space: \"{1}\" for service \"{2}\"";
 
     public static final String FETCH_TOKEN_AUDIT_LOG_CONFIG = "Access token fetch";
-
 
     // Audit log configuration
     public static final String GET_CSRF_TOKEN_AUDIT_LOG_CONFIG = "CSRF token get ";
@@ -227,10 +228,12 @@ public final class Messages {
     public static final String START_OPERATION_AUDIT_LOG_CONFIG = "Operation start";
     public static final String GET_OPERATION_INFO_AUDIT_LOG_CONFIG = "Operation info";
 
-    public static final String MTA_INFO_AUDIT_LOG_CONFIG= "MTA info";
+    public static final String MTA_INFO_AUDIT_LOG_CONFIG = "MTA info";
     public static final String MTA_LIST_AUDIT_LOG_CONFIG = "MTA list";
 
-    public static final String API_INFO_AUDIT_LOG_CONFIG= "Api info";
+    public static final String API_INFO_AUDIT_LOG_CONFIG = "Api info";
+    public static final String IGNORING_NAMESPACE_PARAMETERS = "Ignoring parameter \"{0}\" , as the MTA is not deployed with namespace!";
+    public static final String NAMESPACE_PARSING_ERROR_MESSAGE = "Cannot parse \"{0}\" flag - expected a boolean format.";
 
     private Messages() {
     }

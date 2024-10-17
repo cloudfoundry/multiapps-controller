@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -22,6 +23,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntr
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.ContainerNotFoundException;
 import org.jclouds.blobstore.domain.Blob;
+import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.options.ListContainerOptions;
 import org.jclouds.blobstore.options.PutOptions;
@@ -69,10 +71,9 @@ public class ObjectStoreFileStorage implements FileStorage {
 
     @Override
     public List<FileEntry> getFileEntriesWithoutContent(List<FileEntry> fileEntries) {
-        Set<String> existingFiles = blobStore.list(container)
-                                             .stream()
-                                             .map(StorageMetadata::getName)
-                                             .collect(Collectors.toSet());
+        Set<String> existingFiles = getAllEntries(new ListContainerOptions()).stream()
+                                                                             .map(StorageMetadata::getName)
+                                                                             .collect(Collectors.toSet());
         return fileEntries.stream()
                           .filter(fileEntry -> !existingFiles.contains(fileEntry.getId()))
                           .collect(Collectors.toList());
@@ -214,18 +215,29 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     private Set<String> getEntryNames(Predicate<? super StorageMetadata> filter) {
-        return blobStore.list(container, new ListContainerOptions().withDetails())
-                        .stream()
-                        .filter(Objects::nonNull)
-                        .filter(filter)
-                        .map(StorageMetadata::getName)
-                        .collect(Collectors.toSet());
+        return getAllEntries(new ListContainerOptions().withDetails()).stream()
+                                                                      .filter(Objects::nonNull)
+                                                                      .filter(filter)
+                                                                      .map(StorageMetadata::getName)
+                                                                      .collect(Collectors.toSet());
+    }
+
+    private Set<StorageMetadata> getAllEntries(ListContainerOptions options) {
+        Set<StorageMetadata> entries = new HashSet<>();
+        PageSet<? extends StorageMetadata> responseResult = blobStore.list(container, options);
+        entries.addAll(responseResult);
+        while (responseResult.getNextMarker() != null) {
+            responseResult = blobStore.list(container, options.afterMarker(responseResult.getNextMarker()));
+            entries.addAll(responseResult);
+        }
+        return entries;
     }
 
     private boolean filterByModificationTime(StorageMetadata blobMetadata, LocalDateTime modificationTime) {
         Map<String, String> userMetadata = blobMetadata.getUserMetadata();
         // Clean up any blobStore entries that don't have any metadata as we can't check their creation date
         if (CollectionUtils.isEmpty(userMetadata)) {
+            LOGGER.warn(MessageFormat.format(Messages.USER_METADATA_OF_BLOB_0_EMPTY_AND_WILL_BE_DELETED, blobMetadata.getName()));
             return true;
         }
         String longString = userMetadata.get(Constants.FILE_ENTRY_MODIFIED.toLowerCase());
@@ -235,6 +247,9 @@ public class ObjectStoreFileStorage implements FileStorage {
             return date.isBefore(modificationTime);
         } catch (NumberFormatException e) {
             // Clean up any blobStore entries that have invalid timestamp
+            LOGGER.warn(MessageFormat.format(Messages.DATE_METADATA_OF_BLOB_0_IS_NOT_IN_PROPER_FORMAT_AND_WILL_BE_DELETED,
+                                             blobMetadata.getName()),
+                        e);
             return true;
         }
     }

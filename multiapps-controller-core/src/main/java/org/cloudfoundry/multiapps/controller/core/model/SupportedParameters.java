@@ -31,8 +31,12 @@ public class SupportedParameters {
     public static final String SPACE_GUID = "space-guid";
     public static final String NAMESPACE = "namespace";
     public static final String APPLY_NAMESPACE = "apply-namespace";
+    public static final String APPLY_NAMESPACE_AS_SUFFIX = "as-suffix";
     public static final String MTA_VERSION = "mta-version";
     public static final String MTA_ID = "mta-id";
+    public static final String APPLY_NAMESPACE_APPS = "app-names";
+    public static final String APPLY_NAMESPACE_SERVICES = "service-names";
+    public static final String APPLY_NAMESPACE_ROUTES = "app-routes";
 
     // Module / module type parameters:
     public static final String APP_NAME = "app-name";
@@ -56,6 +60,13 @@ public class SupportedParameters {
     public static final String HEALTH_CHECK_TYPE = "health-check-type";
     public static final String HEALTH_CHECK_HTTP_ENDPOINT = "health-check-http-endpoint";
     public static final String UPLOAD_TIMEOUT = "upload-timeout";
+    public static final String STAGE_TIMEOUT = "stage-timeout";
+    public static final String START_TIMEOUT = "start-timeout";
+    public static final String TASK_EXECUTION_TIMEOUT = "task-execution-timeout";
+    public static final String APPS_TASK_EXECUTION_TIMEOUT = "apps-task-execution-timeout";
+    public static final String APPS_UPLOAD_TIMEOUT = "apps-upload-timeout";
+    public static final String APPS_STAGE_TIMEOUT = "apps-stage-timeout";
+    public static final String APPS_START_TIMEOUT = "apps-start-timeout";
     public static final String DISK_QUOTA = "disk-quota";
     public static final String MEMORY = "memory";
     public static final String INSTANCES = "instances";
@@ -165,7 +176,8 @@ public class SupportedParameters {
                                                             REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
                                                             REGISTER_SERVICE_URL_SERVICE_URL, CREATE_SERVICE_BROKER, SERVICE_BROKER_NAME,
                                                             SERVICE_BROKER_USERNAME, SERVICE_BROKER_PASSWORD, SERVICE_BROKER_URL,
-                                                            SERVICE_BROKER_SPACE_SCOPED, DEPENDENCY_TYPE, NO_START, UPLOAD_TIMEOUT);
+                                                            SERVICE_BROKER_SPACE_SCOPED, DEPENDENCY_TYPE, NO_START, UPLOAD_TIMEOUT,
+                                                            STAGE_TIMEOUT, START_TIMEOUT, TASK_EXECUTION_TIMEOUT);
 
     public static final Map<String, String> SINGULAR_PLURAL_MAPPING;
 

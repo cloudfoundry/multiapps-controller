@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Duration;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
@@ -9,12 +10,15 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.util.HooksExecutor;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -89,6 +93,18 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
         Mockito.when(client.getApplication(APP_NAME))
                .thenReturn(app);
         context.setVariable(Variables.APP_TO_PROCESS, app);
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
+    }
+
+    @ParameterizedTest
+    @MethodSource("testValidatePriority")
+    void testGetTimeout(Integer timeoutProcessVariable, Integer timeoutModuleLevel, Integer timeoutGlobalLevel, int expectedTimeout) {
+        step.initializeStepLogger(execution);
+        setUpContext(timeoutProcessVariable, timeoutModuleLevel, timeoutGlobalLevel, Variables.APPS_START_TIMEOUT_PROCESS_VARIABLE,
+                     SupportedParameters.START_TIMEOUT, SupportedParameters.APPS_START_TIMEOUT);
+
+        Duration actualTimeout = step.getTimeout(context);
+        assertEquals(Duration.ofSeconds(expectedTimeout), actualTimeout);
     }
 
     @Override

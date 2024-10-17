@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 
 public abstract class SqlFileQueryProvider {
 
-    private static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED, OPERATION_ID, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT_WITHOUT_DIGEST = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST_ALGORITHM, MODIFIED, OPERATION_ID, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_FILE_DIGEST = "UPDATE %s SET DIGEST = ? WHERE FILE_ID = ?";
     private static final String UPDATE_FILES_OPERATION_ID = "UPDATE %s SET OPERATION_ID = ? where FILE_ID = ANY(?)";
@@ -41,9 +40,8 @@ public abstract class SqlFileQueryProvider {
     private static final String SELECT_FILES_WITHOUT_OPERATION_CREATED_AFTER_TIME1_AND_BEFORE_TIME2 = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE MODIFIED > ? AND MODIFIED < ? AND OPERATION_ID ISNULL";
     private static final String SELECT_ALL_FILES = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s";
     private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE NAMESPACE=? AND SPACE=?";
-    private static final String SELECT_FILES_BY_SPACE_ID_AND_OPERATION_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND OPERATION_ID=?";
-    private static final String SELECT_FILES_BY_SPACE_ID_OPERATION_ID_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND OPERATION_ID=? AND FILE_NAME=? ORDER BY MODIFIED ASC";
     private static final String SELECT_FILES_BY_SPACE_ID_WITH_NO_NAMESPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND NAMESPACE IS NULL";
+    private static final String SELECT_FILES_BY_SPACE_ID_AND_OPERATION_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=? AND OPERATION_ID=?";
     private static final String SELECT_FILES_BY_SPACE_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE SPACE=?";
     private static final String SELECT_FILE_BY_ID_AND_SPACE_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE FILE_ID=? AND SPACE=?";
     private static final String SELECT_FILE_WITH_CONTENT_BY_ID_AND_SPACE_ID = "SELECT FILE_ID, SPACE, %s FROM %s WHERE FILE_ID=? AND SPACE=?";
@@ -61,29 +59,6 @@ public abstract class SqlFileQueryProvider {
     protected SqlFileQueryProvider(String tableName, DataSourceDialect dataSourceDialect) {
         this.tableName = tableName;
         this.dataSourceDialect = dataSourceDialect;
-    }
-
-    public SqlQuery<Boolean> getStoreFileQuery(FileEntry fileEntry, InputStream content) {
-        return (Connection connection) -> {
-            PreparedStatement statement = null;
-            try {
-                statement = connection.prepareStatement(getInsertWithContentQuery());
-                statement.setString(1, fileEntry.getId());
-                statement.setString(2, fileEntry.getSpace());
-
-                statement.setString(3, fileEntry.getName());
-                setOrNull(statement, 4, fileEntry.getNamespace());
-                getDataSourceDialect().setBigInteger(statement, 5, fileEntry.getSize());
-                statement.setString(6, fileEntry.getDigest());
-                statement.setString(7, fileEntry.getDigestAlgorithm());
-                statement.setTimestamp(8, Timestamp.valueOf(fileEntry.getModified()));
-                statement.setString(9, fileEntry.getOperationId());
-                setContentBinaryStream(statement, 10, content);
-                return statement.executeUpdate() > 0;
-            } finally {
-                JdbcUtil.closeQuietly(statement);
-            }
-        };
     }
 
     public SqlQuery<String> getStoreFileAndComputeDigestQuery(FileEntry entryWithoutDigest, InputStream content) {
@@ -183,28 +158,6 @@ public abstract class SqlFileQueryProvider {
                 statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE_ID_AND_OPERATION_ID));
                 statement.setString(1, space);
                 statement.setString(2, operationId);
-                resultSet = statement.executeQuery();
-                while (resultSet.next()) {
-                    files.add(getFileEntry(resultSet));
-                }
-                return files;
-            } finally {
-                JdbcUtil.closeQuietly(resultSet);
-                JdbcUtil.closeQuietly(statement);
-            }
-        };
-    }
-
-    public SqlQuery<List<FileEntry>> getListFilesQueryBySpaceOperationIdAndFileName(String space, String operationId, String fileName) {
-        return (Connection connection) -> {
-            PreparedStatement statement = null;
-            ResultSet resultSet = null;
-            try {
-                List<FileEntry> files = new ArrayList<>();
-                statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE_ID_OPERATION_ID_AND_NAME));
-                statement.setString(1, space);
-                statement.setString(2, operationId);
-                statement.setString(3, fileName);
                 resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     files.add(getFileEntry(resultSet));
@@ -423,10 +376,6 @@ public abstract class SqlFileQueryProvider {
 
     private String getQuery(String statementTemplate) {
         return String.format(statementTemplate, tableName);
-    }
-
-    private String getInsertWithContentQuery() {
-        return String.format(INSERT_FILE_ATTRIBUTES_AND_CONTENT, tableName, getContentColumnName());
     }
 
     private String getInsertWithContentWithoutDigestQuery() {

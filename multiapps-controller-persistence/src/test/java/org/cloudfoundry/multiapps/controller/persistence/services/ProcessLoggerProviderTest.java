@@ -1,118 +1,111 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import static org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider.LOG_LAYOUT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.MessageFormat;
+import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 class ProcessLoggerProviderTest {
 
-    private static final String CORRELATION_ID = "1234";
-    private static final String TASK_ID = "1";
-    private static final String SPACE_ID = "441cba52-fd99-4452-8c93-211ce1ad28e7";
-    private static final String TEST_FILE_NAME = "testLoggerFile";
+    private final static String TEST_LOG_NAME = "test-log-name";
+    private final static String TEST_LOG_NAME_WITH_EXTENSION = TEST_LOG_NAME + ".log";
+    private final static String DEFAULT_LOG_NAME = "OPERATION.log";
+    private final static String TEST_CORRELATION_ID = "test-correlation-id";
+    private final static String TEST_SECOND_CORRELATION_ID = "test-second-correlation-id";
+    private final static String TEST_TASK_ID = "test-task-id";
+    private final static String TEST_SPACE_ID = "test-space-id";
+    private final static LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+    private final static PatternLayout patternLayout = PatternLayout.newBuilder()
+                                                                    .withPattern(EMPTY)
+                                                                    .withConfiguration(loggerContext.getConfiguration())
+                                                                    .build();
+
+    @Spy
+    private ProcessLoggerProvider processLoggerProvider;
 
     @Mock
-    private DelegateExecution execution;
-
-    private Path temporaryLogFile;
-    private ProcessLoggerProvider processLoggerProvider;
-    private ProcessLogger processLogger;
+    private DelegateExecution delegateExecution;
 
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        temporaryLogFile = Files.createTempFile(TEST_FILE_NAME, null);
-        processLoggerProvider = new ProcessLoggerProvider();
-    }
-
-    @AfterEach
-    void tearDown() throws IOException {
-        if (processLogger != null && processLogger.getLoggerName() != null) {
-            processLoggerProvider.removeLoggersCache(processLogger);
-
-        }
-        if (temporaryLogFile.toFile()
-                            .exists()) {
-            Files.delete(temporaryLogFile);
-        }
+        when(delegateExecution.getVariable(Constants.CORRELATION_ID)).thenReturn(TEST_CORRELATION_ID);
+        when(delegateExecution.getVariable(Constants.TASK_ID)).thenReturn(TEST_TASK_ID);
+        when(delegateExecution.getCurrentActivityId()).thenReturn(TEST_TASK_ID);
+        when(delegateExecution.getVariable(Constants.VARIABLE_NAME_SPACE_ID)).thenReturn(TEST_SPACE_ID);
+        when(delegateExecution.getProcessInstanceId()).thenReturn(TEST_TASK_ID);
     }
 
     @Test
-    void testGetLogger() {
-        prepareContext();
-
-        processLogger = processLoggerProvider.getLogger(execution);
-
-        assertEquals(CORRELATION_ID, processLogger.getProcessId());
-        assertEquals(TASK_ID, processLogger.getActivityId());
-        assertEquals(SPACE_ID, processLogger.spaceId);
-
-    }
-
-    private void prepareContext() {
-        when(execution.getVariable(Constants.CORRELATION_ID)).thenReturn(CORRELATION_ID);
-        when(execution.getVariable(Constants.TASK_ID)).thenReturn(TASK_ID);
-        when(execution.getVariable(Constants.VARIABLE_NAME_SPACE_ID)).thenReturn(SPACE_ID);
+    void testCorrectlyCreatedProcessLoggerWithProvidedPatternLayoutAndLogName() {
+        ProcessLogger processLogger = processLoggerProvider.getLogger(delegateExecution, TEST_LOG_NAME, A -> patternLayout);
+        Assertions.assertEquals(processLogger.getActivityId(), TEST_TASK_ID);
+        Assertions.assertEquals(TEST_LOG_NAME_WITH_EXTENSION, processLogger.getOperationLogEntry()
+                                                                           .getOperationLogName());
+        Assertions.assertEquals(TEST_SPACE_ID, processLogger.getOperationLogEntry()
+                                                            .getSpace());
+        Assertions.assertEquals(TEST_CORRELATION_ID, processLogger.getOperationLogEntry()
+                                                                  .getOperationId());
     }
 
     @Test
-    void testGetExistingLogger() {
-        prepareContext();
-
-        processLogger = processLoggerProvider.getLogger(execution);
-        ProcessLogger existingLogger = processLoggerProvider.getExistingLoggers(CORRELATION_ID, TASK_ID)
-                                                            .get(0);
-
-        assertEquals(processLogger, existingLogger);
-
+    void testCorrectlyCreatedProcessLoggerWithLogName() {
+        ProcessLogger processLogger = processLoggerProvider.getLogger(delegateExecution, TEST_LOG_NAME);
+        Assertions.assertEquals(processLogger.getActivityId(), TEST_TASK_ID);
+        Assertions.assertEquals(TEST_LOG_NAME_WITH_EXTENSION, processLogger.getOperationLogEntry()
+                                                                           .getOperationLogName());
+        Assertions.assertEquals(TEST_SPACE_ID, processLogger.getOperationLogEntry()
+                                                            .getSpace());
+        Assertions.assertEquals(TEST_CORRELATION_ID, processLogger.getOperationLogEntry()
+                                                                  .getOperationId());
     }
 
     @Test
-    void testGetNullProcessLogger() {
-        processLogger = processLoggerProvider.getLogger(execution);
-        assertTrue(processLogger instanceof NullProcessLogger,
-                   MessageFormat.format("Expected NullProcessLogger but was {0}", processLogger.getClass()
-                                                                                               .getSimpleName()));
+    void testCorrectlyCreatedProcessLogger() {
+        ProcessLogger processLogger = processLoggerProvider.getLogger(delegateExecution);
+        Assertions.assertEquals(processLogger.getActivityId(), TEST_TASK_ID);
+        Assertions.assertEquals(DEFAULT_LOG_NAME, processLogger.getOperationLogEntry()
+                                                               .getOperationLogName());
+        Assertions.assertEquals(TEST_SPACE_ID, processLogger.getOperationLogEntry()
+                                                            .getSpace());
+        Assertions.assertEquals(TEST_CORRELATION_ID, processLogger.getOperationLogEntry()
+                                                                  .getOperationId());
     }
 
     @Test
-    void testNullProcessLoggerName() {
-        processLogger = processLoggerProvider.getLogger(execution);
-        assertEquals("NULL_LOGGER", processLogger.getLoggerName());
+    void testExistingLoggers() {
+        processLoggerProvider.getLogger(delegateExecution);
+
+        when(delegateExecution.getVariable(Constants.CORRELATION_ID)).thenReturn(TEST_SECOND_CORRELATION_ID);
+        processLoggerProvider.getLogger(delegateExecution);
+
+        List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
+        Assertions.assertEquals(1, processLoggers.size());
     }
 
     @Test
-    void testGetProcessLoggerWithParams() {
-        prepareContext();
+    void testRemoveExistingLogger() {
+        processLoggerProvider.getLogger(delegateExecution);
 
-        processLogger = processLoggerProvider.getLogger(execution, temporaryLogFile.getFileName()
-                                                                                   .toString(),
-                                                        loggerContext -> PatternLayout.newBuilder()
-                                                                                      .withPattern(LOG_LAYOUT)
-                                                                                      .withConfiguration(loggerContext.getConfiguration())
-                                                                                      .build());
+        List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
+        Assertions.assertEquals(processLoggers.size(), 1);
 
-        assertEquals(CORRELATION_ID, processLogger.getProcessId());
-        assertEquals(TASK_ID, processLogger.getActivityId());
-        assertEquals(SPACE_ID, processLogger.spaceId);
-        assertEquals("com.sap.cloud.lm.sl.xs2." + CORRELATION_ID + "." + temporaryLogFile.getFileName()
-                                                                                         .toString()
-            + "." + TASK_ID, processLogger.getLoggerName());
+        processLoggerProvider.removeProcessLoggerFromCache(processLoggers.get(0));
+
+        Assertions.assertEquals(0, processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID)
+                                                        .size());
     }
 }

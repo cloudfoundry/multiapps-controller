@@ -20,6 +20,7 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
+import org.cloudfoundry.multiapps.controller.core.model.IncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.model.SubprocessPhase;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
@@ -89,10 +90,26 @@ public interface Variables {
     Variable<String> MTA_NAMESPACE = ImmutableSimpleVariable.<String> builder()
                                                             .name("namespace")
                                                             .build();
-    Variable<Boolean> APPLY_NAMESPACE = ImmutableSimpleVariable.<Boolean> builder()
-                                                               .name("applyNamespace")
-                                                               .defaultValue(false)
-                                                               .build();
+    Variable<Boolean> APPLY_NAMESPACE_APP_NAMES = ImmutableSimpleVariable.<Boolean> builder()
+                                                                         .name("applyNamespaceAppNames")
+                                                                         .defaultValue(null)
+                                                                         .build();
+
+    Variable<Boolean> APPLY_NAMESPACE_SERVICE_NAMES = ImmutableSimpleVariable.<Boolean> builder()
+                                                                             .name("applyNamespaceServiceNames")
+                                                                             .defaultValue(null)
+                                                                             .build();
+
+    Variable<Boolean> APPLY_NAMESPACE_APP_ROUTES = ImmutableSimpleVariable.<Boolean> builder()
+                                                                          .name("applyNamespaceAppRoutes")
+                                                                          .defaultValue(null)
+                                                                          .build();
+
+    Variable<Boolean> APPLY_NAMESPACE_AS_SUFFIX = ImmutableSimpleVariable.<Boolean> builder()
+                                                                         .name("applyNamespaceAsSuffix")
+                                                                         .defaultValue(null)
+                                                                         .build();
+
     Variable<String> CTS_PROCESS_ID = ImmutableSimpleVariable.<String> builder()
                                                              .name("ctsProcessId")
                                                              .build();
@@ -131,13 +148,28 @@ public interface Variables {
                                                           .name("startApps")
                                                           .defaultValue(true)
                                                           .build();
+
     Variable<Integer> MTA_MAJOR_SCHEMA_VERSION = ImmutableSimpleVariable.<Integer> builder()
                                                                         .name("mtaMajorSchemaVersion")
                                                                         .build();
-    Variable<Duration> START_TIMEOUT = ImmutableSimpleVariable.<Duration> builder()
-                                                              .name("startTimeout")
-                                                              .defaultValue(Duration.ofHours(1))
-                                                              .build();
+
+    Variable<Duration> APPS_START_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                    .name("startTimeout")
+                                                                                    .defaultValue(Duration.ofHours(1))
+                                                                                    .build();
+    Variable<Duration> APPS_STAGE_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                    .name("appsStageTimeout")
+                                                                                    .defaultValue(Duration.ofHours(1))
+                                                                                    .build();
+
+    Variable<Duration> APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                             .name("appsTaskExecutionTimeout")
+                                                                                             .defaultValue(Duration.ofHours(12))
+                                                                                             .build();
+    Variable<Duration> APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                     .name("appsUploadTimeout")
+                                                                                     .defaultValue(Duration.ofHours(1))
+                                                                                     .build();
     Variable<Integer> UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = ImmutableSimpleVariable.<Integer> builder()
                                                                                         .name("updatedServiceBrokerSubscribersCount")
                                                                                         .build();
@@ -190,10 +222,6 @@ public interface Variables {
                                                                                  .name("skipUpdateConfigurationEntries")
                                                                                  .defaultValue(false)
                                                                                  .build();
-    Variable<Boolean> FAIL_ON_CRASHED = ImmutableSimpleVariable.<Boolean> builder()
-                                                               .name("failOnCrashed")
-                                                               .defaultValue(true)
-                                                               .build();
     Variable<Boolean> USER_PROPERTIES_CHANGED = ImmutableSimpleVariable.<Boolean> builder()
                                                                        .name("vcapUserPropertiesChanged")
                                                                        .defaultValue(false)
@@ -606,6 +634,9 @@ public interface Variables {
                                                                           .name("waitBindServiceTimeout")
                                                                           .defaultValue(Duration.ofHours(1))
                                                                           .build();
+    Variable<LocalDateTime> UPLOAD_START_TIME = ImmutableSimpleVariable.<LocalDateTime> builder()
+                                                                       .name("uploadStartTime")
+                                                                       .build();
 
     // TODO: keep custom serializers only for one release, delete after
     // Variable<List<List<CloudServiceInstanceExtended>>> BATCHES_TO_PROCESS =
@@ -791,4 +822,29 @@ public interface Variables {
                                                                             .name("serviceInProgressTimeout")
                                                                             .defaultValue(Duration.ofHours(1))
                                                                             .build();
+    Variable<Boolean> SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE = ImmutableSimpleVariable.<Boolean> builder()
+                                                                                         .name("shouldApplyIncrementalInstancesUpdate")
+                                                                                         .defaultValue(false)
+                                                                                         .build();
+
+    Variable<IncrementalAppInstanceUpdateConfiguration> INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION = ImmutableJsonStringVariable.<IncrementalAppInstanceUpdateConfiguration> builder()
+                                                                                                                                   .name("incrementalAppInstanceUpdateConfiguration")
+                                                                                                                                   .type(new TypeReference<>() {
+                                                                                                                                   })
+                                                                                                                                   .build();
+    Variable<Boolean> SKIP_APP_DIGEST_CALCULATION = ImmutableSimpleVariable.<Boolean> builder()
+                                                                           .name("skipAppDigestCalculation")
+                                                                           .defaultValue(false)
+                                                                           .build();
+    Variable<String> CALCULATED_APPLICATION_DIGEST = ImmutableSimpleVariable.<String> builder()
+                                                                            .name("calculatedApplicationDigest")
+                                                                            .build();
+    Variable<Boolean> SHOULD_UPDATE_APPLICATION_DIGEST = ImmutableSimpleVariable.<Boolean> builder()
+                                                                                .name("shouldUpdateApplicationDigest")
+                                                                                .defaultValue(false)
+                                                                                .build();
+    Variable<Boolean> SHOULD_SKIP_APPLICATION_UPLOAD = ImmutableSimpleVariable.<Boolean> builder()
+                                                                              .name("shouldSkipApplicationUpload")
+                                                                              .defaultValue(false)
+                                                                              .build();
 }
