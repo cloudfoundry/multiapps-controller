@@ -187,7 +187,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             boolean shouldApplyIncrementalInstancesUpdate = context.getVariable(Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE);
             if (shouldApplyIncrementalInstancesUpdate) {
                 UUID applicationId = client.getApplicationGuid(app.getName());
-                disableAutoscaling(client, applicationId);
+                disableAutoscaling(context, client, applicationId);
             }
         }
 

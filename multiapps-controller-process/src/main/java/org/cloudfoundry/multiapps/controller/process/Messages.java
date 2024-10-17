@@ -745,6 +745,7 @@ public class Messages {
     public static final String SERVICE_TYPE = "{0}/{1}";
     public static final String PARSE_NULL_STRING_ERROR = "Cannot parse null string";
     public static final String INVALID_BOOLEAN_VALUE = "Invalid boolean value: must be 'true' or 'false'";
+    public static final String DISABLE_AUTOSCALER_LABEL_CONTENT = "Disabled_by_MTA_operation_{0}";
 
     protected Messages() {
     }
