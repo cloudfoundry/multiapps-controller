@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.cloud.lm.sl.cf</groupId>
     <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
-    <version>1.73.47-SNAPSHOT</version>
+    <version>1.73.47</version>
     <packaging>pom</packaging>
     <name>LM SL CF Parent</name>
     <description>Multi-Target Application (MTA) deployment service for Cloud Foundry</description>
@@ -24,7 +24,7 @@
         <javax.inject.version>1</javax.inject.version>
         <log4j.version>2.20.0</log4j.version>
         <slf4j.version>2.0.7</slf4j.version>
-        <commons-io.version>2.11.0</commons-io.version>
+        <commons-io.version>2.14.0</commons-io.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
         <commons-logging.version>1.2</commons-logging.version>
         <commons-lang3.version>3.8.1</commons-lang3.version>
@@ -60,7 +60,7 @@
         <swagger.version>1.5.16</swagger.version>
         <shedlock-version>4.33.0</shedlock-version>
         <h2.database.version>1.4.198</h2.database.version>
-        <com.sap.cloud.lm.sl.open.version>1.67.19-SNAPSHOT</com.sap.cloud.lm.sl.open.version>
+        <com.sap.cloud.lm.sl.open.version>1.67.19</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
         <module>com.sap.cloud.lm.sl.cf.client</module>
