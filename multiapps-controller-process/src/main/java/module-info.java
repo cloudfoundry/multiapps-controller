@@ -54,9 +54,10 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires io.netty.handler;
     requires io.netty.transport;
 
-    requires static java.compiler;
     requires static org.immutables.value;
     requires org.apache.commons.compress;
     requires org.checkerframework.checker.qual;
+    requires com.google.errorprone.annotations;
+    requires jdk.jfr;
 
 }

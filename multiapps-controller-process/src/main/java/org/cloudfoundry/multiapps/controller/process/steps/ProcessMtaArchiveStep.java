@@ -1,12 +1,10 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,20 +13,23 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
+import java.util.zip.ZipEntry;
 
 import jakarta.inject.Inject;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveHelper;
+import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.stream.ArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.stream.ImmutableArchiveEntryWithStreamPositions;
+import org.cloudfoundry.multiapps.controller.process.util.InflatorUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessConflictPreventer;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
@@ -93,25 +94,15 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
                                                                           .longValue())
                                          .sum();
 
-        List<ZipFileEntry> zipFileEntries = readCentralDirectory(context, appArchiveId, sizeOfAllFiles);
-        List<ZipFileEntry> updatedEntries = new ArrayList<>();
-        fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId, appArchiveStream -> {
-            try (CountingInputStream countingInputStream = new CountingInputStream(appArchiveStream)) {
-                for (ZipFileEntry entry : zipFileEntries) {
-                    entry = readLocalFileHeader(countingInputStream, entry);
-                    updatedEntries.add(entry);
-                    System.out.println("File: " + entry.fileName + " | Data Start: " + entry.dataStartOffset + " | Data End: "
-                        + entry.dataEndOffset);
-                }
-                return null;
-            }
-        });
-        for (ZipFileEntry updatedEntry : updatedEntries) {
+        List<ZipFileEntry> zipFileEntries = parseEntries(context, appArchiveId, sizeOfAllFiles);
+
+        for (ZipFileEntry updatedEntry : zipFileEntries) {
             archiveEntries.add(ImmutableArchiveEntryWithStreamPositions.builder()
                                                                        .name(updatedEntry.fileName)
                                                                        .startPosition(updatedEntry.dataStartOffset)
                                                                        .endPosition(updatedEntry.dataEndOffset)
                                                                        .compressionMethod(updatedEntry.compressionMethod)
+                                                                       .isDirectory(updatedEntry.isDirectory)
                                                                        .build());
         }
 
@@ -139,10 +130,12 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         byte[] inflatedMtad = fileService.processFileContentWithOffset(context.getVariable(Variables.SPACE_GUID), appArchiveId,
                                                                        archiveStream -> {
                                                                            byte[] allBytes = archiveStream.readAllBytes();
-                                                                           if (archiveEntryWithStreamPositions.getCompressionMethod() == 0) { // means no compression
+                                                                           if (archiveEntryWithStreamPositions.getCompressionMethod() == 0) { // means
+                                                                                                                                              // no
+                                                                                                                                              // compression
                                                                                return allBytes;
                                                                            } else {
-                                                                               return inflate(allBytes);
+                                                                               return InflatorUtil.inflate(allBytes, configuration.getMaxMtaDescriptorSize());
                                                                            }
                                                                        }, archiveEntryWithStreamPositions.getStartPosition(),
                                                                        archiveEntryWithStreamPositions.getEndPosition());
@@ -152,167 +145,44 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
 
         context.getStepLogger()
-               .info("THE mtad.yaml: " + new String(inflatedMtad));
+               .debug("THE mtad.yaml: " + new String(inflatedMtad));
     }
 
-    public static byte[] inflate(byte[] compressedBytes) throws DataFormatException, IOException {
-        // Create an inflater for decompressing the data
-        Inflater inflater = new Inflater(true);
-        inflater.setInput(compressedBytes);
-
-        // Output stream to hold decompressed data
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(compressedBytes.length);
-        byte[] buffer = new byte[1024]; // Buffer to hold chunks of decompressed data
-
-        try {
-            // Inflate the compressed data
-            while (!inflater.finished()) {
-                int count = inflater.inflate(buffer); // Decompress into buffer
-                outputStream.write(buffer, 0, count); // Write decompressed data to output stream
-            }
-        } catch (DataFormatException e) {
-            throw new DataFormatException("Data format error while inflating: " + e.getMessage());
-        } finally {
-            inflater.end(); // Always call end() to release resources
-            outputStream.close(); // Close the output stream
-        }
-
-        // Return the decompressed data
-        return outputStream.toByteArray();
-    }
-
-    public List<ZipFileEntry> readCentralDirectory(ProcessContext context, String appArchiveId, long archiveSize)
-        throws IOException, FileStorageException {
-        long eocdOffset = findEOCD(context, appArchiveId, archiveSize);
-        long centralDirOffset = fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId, archiveStream -> {
-            long centralDirectoryOffset;
-            archiveStream.skipNBytes(eocdOffset);
-
-            byte[] eocdBuffer = new byte[EOCD_MIN_SIZE];
-            archiveStream.readNBytes(eocdBuffer, 0, EOCD_MIN_SIZE);
-            ByteBuffer eocd = ByteBuffer.wrap(eocdBuffer)
-                                        .order(ByteOrder.LITTLE_ENDIAN);
-
-            // Read central directory size and offset
-            int centralDirectorySize = eocd.getInt(12);
-            centralDirectoryOffset = Integer.toUnsignedLong(eocd.getInt(16));
-            return centralDirectoryOffset;
-        });
-
+    private List<ZipFileEntry> parseEntries(ProcessContext context, String appArchiveId, long sizeOfAllFiles) throws FileStorageException {
         return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId, archiveStream -> {
-            // Move to the central directory offset
-            archiveStream.skipNBytes(centralDirOffset);
+            List<ZipFileEntry> zipFileEntries = new ArrayList<>();
 
-            List<ZipFileEntry> entries = new ArrayList<>();
-            while (true) {
-                byte[] headerBuffer = new byte[46];
-                if (archiveStream.read(headerBuffer) != 46) { // probably better readNBytes()
-                    break; // No more headers to read
-                }
+            try (var c = new CountingInputStream(archiveStream);
+                BufferedInputStream bufferedInputStream = new BufferedInputStream(c, 16 * 1024);
+                ZipArchiveInputStream zf = new ZipArchiveInputStream(bufferedInputStream)) {
+                // Get the zip entry
+                ZipArchiveEntry entry = zf.getNextEntry();
+                while (entry != null) {
+                    validateEntry(entry);
+                    long startOffset = entry.getDataOffset(); // Apache Commons method
+                    long endOffset = startOffset;
+                    long read;
+                    long act = 0;
+                    byte[] buffer = new byte[16 * 1024];
+                    while ((read = zf.read(buffer, 0, buffer.length)) != -1) {
+                    }
+                    endOffset += zf.getCompressedCount();
 
-                ByteBuffer header = ByteBuffer.wrap(headerBuffer)
-                                              .order(ByteOrder.LITTLE_ENDIAN);
-
-                if (header.getInt(0) != CENTRAL_DIRECTORY_SIGNATURE) {
-                    break; // Central directory entry not found
-                }
-
-                int compressedSize = header.getInt(20);
-                int uncompressedSize = header.getInt(24);
-
-                int fileNameLength = header.getShort(28) & 0xffff;
-                int extraFieldLength = header.getShort(30) & 0xffff;
-                int fileCommentLength = header.getShort(32) & 0xffff;
-                int relativeOffset = header.getInt(42);
-
-                // Read file name
-                byte[] fileNameBuffer = new byte[fileNameLength];
-                archiveStream.readNBytes(fileNameBuffer, 0, fileNameLength);
-                String fileName = new String(fileNameBuffer, "UTF-8");
-
-                // Add entry to the list
-                entries.add(new ZipFileEntry(fileName, relativeOffset, compressedSize));
-                // Skip extra fields and file comments
-                archiveStream.skipNBytes(extraFieldLength + fileCommentLength);
-            }
-
-            return entries;
-        });
-
-    }
-
-    // find the end of the central directory
-    private long findEOCD(ProcessContext context, String appArchiveId, long archiveSize) throws IOException, FileStorageException {
-        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId, archiveStream -> {
-            int maxEocdSearch = 65557;
-            long searchLength = Math.min(maxEocdSearch, archiveSize);
-
-            // Move the stream to the point where EOCD might be
-            long skipTo = archiveSize - searchLength;
-            context.getStepLogger()
-                   .info("SKIP TO IS " + skipTo);
-            archiveStream.skipNBytes(skipTo);
-
-            context.getStepLogger()
-                   .info("TYPE IS " + archiveStream.getClass());
-
-            byte[] read = archiveStream.readNBytes((int) searchLength);
-            // Copy the value of
-            context.getStepLogger()
-                   .info("READ IS " + read.length);
-            if (read.length != searchLength) {
-                throw new IOException("Unable to read the last part of the stream.");
-            }
-
-            // Search backwards in the buffer for the EOCD signature
-            for (int i = read.length - EOCD_MIN_SIZE; i >= 0; i--) {
-                if (ByteBuffer.wrap(read, i, 4)
-                              .order(ByteOrder.LITTLE_ENDIAN)
-                              .getInt() == EOCD_SIGNATURE) {
-                    return skipTo + i; // Return the position of EOCD
+                    ZipFileEntry zipFileEntry = new ZipFileEntry(entry.getName(),
+                                                                 startOffset,
+                                                                 endOffset,
+                                                                 entry.getMethod(),
+                                                                 entry.isDirectory());
+                    zipFileEntries.add(zipFileEntry);
+                    entry = zf.getNextEntry();
                 }
             }
-            throw new IOException("End of Central Directory (EOCD) not found.");
+            return zipFileEntries;
         });
     }
 
-    // Method to read local file header
-    public static ZipFileEntry readLocalFileHeader(CountingInputStream countingStream, ZipFileEntry entry) throws IOException {
-        // Skip to the entry's file offset
-
-        long bytesToSkip = entry.fileOffset - countingStream.getByteCount();
-        if (bytesToSkip > 0) {
-            countingStream.skipNBytes(bytesToSkip); // most likely skipNBytes
-        }
-
-        // Read the Local File Header (30 bytes)
-        byte[] localFileHeaderBuffer = new byte[30];
-        countingStream.readNBytes(localFileHeaderBuffer, 0, 30);
-
-        ByteBuffer localHeader = ByteBuffer.wrap(localFileHeaderBuffer)
-                                           .order(ByteOrder.LITTLE_ENDIAN);
-
-        // Check if the Local File Header signature is correct
-        if (localHeader.getInt(0) != LOCAL_FILE_HEADER_SIGNATURE) {
-            throw new IOException("Local File Header signature not found.");
-        }
-
-        // Extract the uncompressed size, file name length, and extra field length
-        int uncompressedSize = localHeader.getInt(22); // Uncompressed size
-        int fileNameLength = localHeader.getShort(26) & 0xffff;
-        int extraFieldLength = localHeader.getShort(28) & 0xffff;
-
-        // Calculate the data start offset based on the file offset and header sizes
-        long dataStartOffset = entry.fileOffset + 30 + fileNameLength + extraFieldLength;
-        long dataEndOffset = dataStartOffset + entry.compressedSize;
-
-        // Update the entry with the calculated offsets
-        entry.dataStartOffset = dataStartOffset;
-        entry.dataEndOffset = dataEndOffset;
-        int compressionMethod = localHeader.getShort(8) & 0xffff; // Compression method (2 bytes)
-        entry.compressionMethod = compressionMethod;
-
-        return entry;
+    protected void validateEntry(ZipEntry entry) {
+        FileUtils.validatePath(entry.getName());
     }
 
     private DeploymentDescriptor extractDeploymentDescriptor(InputStream appArchiveStream) {
@@ -339,7 +209,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
                                                                     helper.init();
                                                                     return helper;
                                                                 } else {
-                                                                    byte[] inflate = inflate(archiveStream.readAllBytes());
+                                                                    byte[] inflate = InflatorUtil.inflate(archiveStream.readAllBytes(), configuration.getMaxManifestSize());
                                                                     InputStream inputStream = new ByteArrayInputStream(inflate);
                                                                     Manifest manifest = new Manifest(inputStream);
                                                                     MtaArchiveHelper helper = getHelper(manifest);
@@ -397,16 +267,17 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     private static class ZipFileEntry {
 
         private String fileName;
-        private long fileOffset;
-        private long compressedSize;
         private long dataStartOffset;
-        private int compressionMethod;
         private long dataEndOffset;
+        private int compressionMethod;
+        private boolean isDirectory;
 
-        public ZipFileEntry(String fileName, long fileOffset, long compressedSize) {
+        public ZipFileEntry(String fileName, long dataStartOffset, long dataEndOffset, int compressionMethod, boolean isDirectory) {
             this.fileName = fileName;
-            this.fileOffset = fileOffset;
-            this.compressedSize = compressedSize;
+            this.dataStartOffset = dataStartOffset;
+            this.dataEndOffset = dataEndOffset;
+            this.compressionMethod = compressionMethod;
+            this.isDirectory = isDirectory;
         }
 
         public String getFileName() {
@@ -417,28 +288,20 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
             this.fileName = fileName;
         }
 
-        public long getFileOffset() {
-            return fileOffset;
-        }
-
-        public void setFileOffset(long fileOffset) {
-            this.fileOffset = fileOffset;
-        }
-
-        public long getCompressedSize() {
-            return compressedSize;
-        }
-
-        public void setCompressedSize(long compressedSize) {
-            this.compressedSize = compressedSize;
-        }
-
         public long getDataStartOffset() {
             return dataStartOffset;
         }
 
         public void setDataStartOffset(long dataStartOffset) {
             this.dataStartOffset = dataStartOffset;
+        }
+
+        public int getCompressionMethod() {
+            return compressionMethod;
+        }
+
+        public void setCompressionMethod(int compressionMethod) {
+            this.compressionMethod = compressionMethod;
         }
 
         public long getDataEndOffset() {
@@ -449,10 +312,17 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
             this.dataEndOffset = dataEndOffset;
         }
 
+        public boolean isDirectory() {
+            return isDirectory;
+        }
+
+        public void setDirectory(boolean directory) {
+            isDirectory = directory;
+        }
     }
 
     static class CountingInputStream extends FilterInputStream {
-        private final AtomicLong byteCount = new AtomicLong(0);
+        public final AtomicLong byteCount = new AtomicLong(0);
 
         protected CountingInputStream(InputStream in) {
             super(in);

@@ -20,8 +20,8 @@ import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
+import org.cloudfoundry.multiapps.controller.process.stream.ArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
 import org.cloudfoundry.multiapps.mta.util.NameUtil;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.springframework.http.HttpStatus;
@@ -68,11 +68,9 @@ public class ServiceBindingParametersGetter {
 
     private Map<String, Object> getFileProvidedBindingParameters(String moduleName, CloudServiceInstanceExtended service)
         throws FileStorageException {
-
         String requiredDependencyName = NameUtil.getPrefixedName(moduleName, service.getResourceName(),
                                                                  org.cloudfoundry.multiapps.controller.core.Constants.MTA_ELEMENT_SEPARATOR);
         return getFileProvidedBindingParameters(requiredDependencyName);
-
     }
 
     private Map<String, Object> getFileProvidedBindingParameters(String requiredDependencyName) throws FileStorageException {
@@ -82,14 +80,34 @@ public class ServiceBindingParametersGetter {
         if (fileName == null) {
             return Collections.emptyMap();
         }
-        FileContentProcessor<Map<String, Object>> fileProcessor = archive -> {
-            try (InputStream file = ArchiveHandler.getInputStream(archive, fileName, maxManifestSize)) {
-                return JsonUtil.convertJsonToMap(file);
-            } catch (IOException e) {
-                throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
+
+        ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS)
+                                                                                 .stream()
+                                                                                 .filter(entry -> entry.getName()
+                                                                                                       .equals(fileName))
+                                                                                 .findFirst()
+                                                                                 .orElseThrow(() -> new SLException("Entry not found: {0}",
+                                                                                                                    fileName));
+
+        FileContentProcessor<Map<String, Object>> fileProcessor = entryStream -> {
+            if (archiveEntryWithStreamPositions.getCompressionMethod() == 0) {
+                try (InputStream inputStream = entryStream) {
+                    return JsonUtil.convertJsonToMap(inputStream);
+                } catch (IOException e) {
+                    throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
+                }
+            } else {
+                try (InputStream inputStream = entryStream) {
+                    byte[] fileBytes = InflatorUtil.inflate(inputStream.readAllBytes());
+                    return JsonUtil.convertJsonToMap(new String(fileBytes));
+                } catch (IOException e) {
+                    throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
+                }
             }
         };
-        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), archiveId, fileProcessor);
+        return fileService.processFileContentWithOffset(context.getVariable(Variables.SPACE_GUID), archiveId, fileProcessor,
+                                                        archiveEntryWithStreamPositions.getStartPosition(),
+                                                        archiveEntryWithStreamPositions.getEndPosition());
     }
 
     private Map<String, Object> getDescriptorProvidedBindingParameters(CloudApplicationExtended app, CloudServiceInstanceExtended service) {

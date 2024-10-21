@@ -18,4 +18,6 @@ public interface ArchiveEntryWithStreamPositions {
 
     int getCompressionMethod();
 
+    boolean isDirectory();
+
 }

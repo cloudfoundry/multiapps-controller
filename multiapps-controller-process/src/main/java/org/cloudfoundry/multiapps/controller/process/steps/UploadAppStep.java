@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static java.text.MessageFormat.format;
 
-import java.io.InputStream;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -20,11 +19,11 @@ import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.stream.ArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveContext;
-import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveReader;
+import org.cloudfoundry.multiapps.controller.process.util.ApplicationDigestCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationZipBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.CloudPackagesGetter;
@@ -46,7 +45,7 @@ import com.sap.cloudfoundry.client.facade.domain.Status;
 public class UploadAppStep extends TimeoutAsyncFlowableStep {
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadAppStep.class);
     @Inject
-    protected ApplicationArchiveReader applicationArchiveReader;
+    protected ApplicationDigestCalculator applicationDigestCalculator;
     @Inject
     protected ApplicationZipBuilder applicationZipBuilder;
     @Inject
@@ -125,21 +124,18 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     private String getNewApplicationDigest(ProcessContext context, String fileName) throws FileStorageException {
-        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID),
-                                              context.getRequiredVariable(Variables.APP_ARCHIVE_ID),
-                                              createDigestCalculatorFileContentProcessor(fileName));
+        ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(context, fileName);
+        return applicationDigestCalculator.calculateApplicationDigest(applicationArchiveContext);
     }
 
-    private FileContentProcessor<String> createDigestCalculatorFileContentProcessor(String fileName) {
-        return appArchiveStream -> {
-            long maxSize = configuration.getMaxResourceFileSize();
-            ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(appArchiveStream, fileName, maxSize);
-            return applicationArchiveReader.calculateApplicationDigest(applicationArchiveContext);
-        };
-    }
-
-    protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName, long maxSize) {
-        return new ApplicationArchiveContext(appArchiveStream, fileName, maxSize);
+    protected ApplicationArchiveContext createApplicationArchiveContext(ProcessContext context, String fileName) {
+        long maxSize = configuration.getMaxResourceFileSize();
+        List<ArchiveEntryWithStreamPositions> archiveEntryWithStreamPositions = context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS);
+        return new ApplicationArchiveContext(fileName,
+                                             maxSize,
+                                             archiveEntryWithStreamPositions,
+                                             context.getRequiredVariable(Variables.SPACE_GUID),
+                                             context.getRequiredVariable(Variables.APP_ARCHIVE_ID));
     }
 
     private boolean detectApplicationFileDigestChanges(Map<String, String> appEnv, String newApplicationDigest) {
