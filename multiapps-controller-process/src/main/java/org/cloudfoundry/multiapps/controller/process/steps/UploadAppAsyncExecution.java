@@ -193,7 +193,7 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = applicationToUploadContext.getArchiveEntries()
                                                                                                     .stream()
                                                                                                     .filter(e -> e.getName()
-                                                                                                                  .equals(applicationArchiveContext.getModuleFileName()))
+                                                                                                                  .startsWith(applicationArchiveContext.getModuleFileName()))
                                                                                                     .findFirst()
                                                                                                     .orElseThrow(() -> new SLException(format("Entry with module name: {0} not found",
                                                                                                                                               applicationArchiveContext.getModuleFileName())));
