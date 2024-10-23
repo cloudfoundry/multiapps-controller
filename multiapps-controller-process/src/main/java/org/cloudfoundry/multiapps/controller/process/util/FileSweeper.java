@@ -43,7 +43,7 @@ public class FileSweeper {
         sweepFileEntry(fileEntry);
     }
 
-    private void sweepFileEntry(FileEntry fileEntry) throws FileStorageException {
+    public void sweepFileEntry(FileEntry fileEntry) throws FileStorageException {
         if (operationId.equals(fileEntry.getOperationId())) {
             fileService.deleteFile(spaceId, fileEntry.getId());
             LOGGER.info(MessageFormat.format(Messages.FILE_WITH_ID_0_WAS_DELETED, fileEntry.getId()));

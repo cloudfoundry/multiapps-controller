@@ -26,6 +26,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntr
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.FilePartsMerger;
+import org.cloudfoundry.multiapps.controller.process.util.SumAllFilesChecker;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.VersionRule;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -183,13 +184,15 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
     @Override
     protected ValidateDeployParametersStep createStep() {
         ExecutorService executorService = Mockito.mock(ExecutorService.class);
+        SumAllFilesChecker renameLater = Mockito.mock(SumAllFilesChecker.class);
         when(executorService.submit(any(Callable.class))).thenAnswer(invocation -> {
             Callable<?> callable = invocation.getArgument(0);
             FutureTask<?> futureTask = new FutureTask<>(callable);
             futureTask.run();
             return futureTask;
         });
-        return new ValidateDeployParametersStep(executorService);
+        when(renameLater.shouldSumAllTheFiles(execution)).thenReturn(true);
+        return new ValidateDeployParametersStep(executorService, renameLater);
     }
 
     private static class StepInput {
