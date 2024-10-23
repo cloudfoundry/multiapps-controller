@@ -135,6 +135,21 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
         when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.2"))
                .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.2", MERGED_ARCHIVE_NAME + ".part.2", 1024 * 1024L));
 
+        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.0"))
+            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.0", MERGED_ARCHIVE_NAME + ".part.0", 1024 * 1024 * 1024));
+
+        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.1"))
+            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.1", MERGED_ARCHIVE_NAME + ".part.1", 1024 * 1024 * 1024));
+
+        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.2"))
+            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.2", MERGED_ARCHIVE_NAME + ".part.2", 1024 * 1024 * 1024));
+
+        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.3"))
+            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.3", MERGED_ARCHIVE_NAME + ".part.3", 1024 * 1024 * 1024));
+
+        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.4"))
+            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.4", MERGED_ARCHIVE_NAME + ".part.4", 1024 * 1024 * 1024));
+
         when(fileService.getFile("space-id", EXISTING_BIGGER_FILE_ID))
                .thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024L + 1));
         when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID))
