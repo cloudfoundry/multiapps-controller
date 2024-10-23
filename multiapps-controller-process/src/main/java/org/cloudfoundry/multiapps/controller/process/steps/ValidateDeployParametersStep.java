@@ -23,8 +23,10 @@ import org.cloudfoundry.multiapps.controller.process.util.FileSweeper;
 import org.cloudfoundry.multiapps.controller.process.util.MergedArchiveStreamCreator;
 import org.cloudfoundry.multiapps.controller.process.util.PriorityCallable;
 import org.cloudfoundry.multiapps.controller.process.util.PriorityFuture;
+import org.cloudfoundry.multiapps.controller.process.util.SumAllFilesChecker;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 
 @Named("validateDeployParametersStep")
@@ -33,10 +35,12 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private final ResilientOperationExecutor resilientOperationExecutor = new ResilientOperationExecutor();
     private final ExecutorService fileStorageThreadPool;
+    private final SumAllFilesChecker renameLater;
 
     @Inject
-    public ValidateDeployParametersStep(ExecutorService fileStorageThreadPool) {
+    public ValidateDeployParametersStep(ExecutorService fileStorageThreadPool, SumAllFilesChecker renameLater) {
         this.fileStorageThreadPool = fileStorageThreadPool;
+        this.renameLater = renameLater;
     }
 
     @Override
@@ -114,10 +118,27 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         long maxFileSizeLimit = configuration.getMaxUploadSize();
         List<FileEntry> fileEntries = fileService.listFilesBySpaceAndOperationId(context.getVariable(Variables.SPACE_GUID),
                                                                                  context.getVariable(Variables.CORRELATION_ID));
-        long sizeOfAllFiles = getSizeOfAllFiles(fileEntries);
-        if (sizeOfAllFiles >= maxFileSizeLimit) {
-            deleteFiles(context, fileEntries);
-            throw new ContentException(Messages.SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1, sizeOfAllFiles, maxFileSizeLimit);
+        if (renameLater.shouldSumAllTheFiles(context.getExecution())) {
+            long sizeOfAllFiles = getSizeOfAllFiles(fileEntries);
+            if (sizeOfAllFiles >= maxFileSizeLimit) {
+                deleteFiles(context, fileEntries);
+                throw new ContentException(Messages.SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1,
+                                           sizeOfAllFiles,
+                                           maxFileSizeLimit);
+            }
+        } else {
+            for (FileEntry fileEntry: fileEntries) {
+                checkFileSizeOfAFile(maxFileSizeLimit, context, fileEntry);
+            }
+        }
+    }
+
+    private void checkFileSizeOfAFile(long maxFileSizeLimit, ProcessContext context, FileEntry fileEntry) throws FileStorageException {
+        long sizeOfAFile = fileEntry.getSize()
+                                    .longValue();
+        if (sizeOfAFile >= maxFileSizeLimit) {
+            deleteFile(context, fileEntry);
+            throw new ContentException(Messages.SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1, sizeOfAFile, maxFileSizeLimit);
         }
     }
 
@@ -133,6 +154,13 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
                                                   fileService,
                                                   context.getVariable(Variables.CORRELATION_ID));
         fileSweeper.sweep(fileEntries);
+    }
+
+    private void deleteFile(ProcessContext context, FileEntry fileEntry) throws FileStorageException {
+        FileSweeper fileSweeper = new FileSweeper(context.getVariable(Variables.SPACE_GUID),
+                                                  fileService,
+                                                  context.getVariable(Variables.CORRELATION_ID));
+        fileSweeper.sweepFileEntry(fileEntry);
     }
 
     private void validateArchive(ProcessContext context) {
