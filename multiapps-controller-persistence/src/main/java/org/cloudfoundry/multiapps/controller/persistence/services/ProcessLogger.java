@@ -1,8 +1,5 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.util.Objects;
-import java.util.UUID;
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.impl.Log4jLogEvent;
@@ -10,6 +7,9 @@ import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.ObjectMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
+
+import java.util.Objects;
+import java.util.UUID;
 
 public class ProcessLogger {
 
@@ -19,6 +19,8 @@ public class ProcessLogger {
     private final UUID id;
     private OperationLogEntry operationLogEntry;
     private String logMessage;
+
+    private boolean headerIsSet = false;
 
     public ProcessLogger(OperationLogEntry operationLogEntry, String logName, AbstractStringLayout layout, String activityId) {
         this.operationLogEntry = operationLogEntry;
@@ -77,11 +79,13 @@ public class ProcessLogger {
     }
 
     private void createLogMessage(Object message, Level logLevel) {
-        logMessage = layout.toSerializable(createEvent(message, logLevel));
+        String formattedLogMessage = layout.toSerializable(createEvent((message), logLevel));
+        setLogMessage(formattedLogMessage);
     }
 
     private void createLogMessage(Object message, Level logLevel, Throwable t) {
-        logMessage = layout.toSerializable(createEvent(message, logLevel, t));
+        String formattedLogMessage = layout.toSerializable(createEvent(message, logLevel, t));
+        setLogMessage(formattedLogMessage);
     }
 
     private LogEvent createEvent(Object message, Level logLevel) {
@@ -92,14 +96,27 @@ public class ProcessLogger {
     // The StackTraceElement is required because there isn't a contructor that we can use without StackTraceElement
     private LogEvent createEvent(Object message, Level logLevel, Throwable t) {
         Message logMessage = new ObjectMessage(message);
-        StackTraceElement stackTrace = new StackTraceElement(null,
-                                                             null,
-                                                             null,
-                                                             ProcessLoggerProvider.class.getName(),
-                                                             logLevel.name(),
-                                                             null,
+        StackTraceElement stackTrace = new StackTraceElement(null, null, null, ProcessLoggerProvider.class.getName(), logLevel.name(), null,
                                                              0);
         return new Log4jLogEvent(logName, null, null, stackTrace, logLevel, logMessage, null, t);
+    }
+
+    private void setLogMessage(String formattedLogMessage) {
+        byte[] header = layout.getHeader();
+        if (header != null && !headerIsSet) {
+            setLogMessageWithHeader(formattedLogMessage, header);
+        } else {
+            logMessage = formattedLogMessage;
+        }
+    }
+
+    private void setLogMessageWithHeader(String formattedLogMessage, byte[] header) {
+        StringBuilder builder = new StringBuilder();
+        String headerString = new String(header);
+        builder.append(headerString);
+        builder.append(formattedLogMessage);
+        logMessage = builder.toString();
+        headerIsSet = true;
     }
 
     @Override
@@ -111,9 +128,10 @@ public class ProcessLogger {
             return false;
         }
         ProcessLogger processLogger = (ProcessLogger) incommingObject;
-        return Objects.equals(id, processLogger.id) && Objects.equals(layout, processLogger.layout)
-            && Objects.equals(activityId, processLogger.activityId) && Objects.equals(logName, processLogger.logName)
-            && Objects.equals(operationLogEntry, processLogger.operationLogEntry) && Objects.equals(logMessage, processLogger.logMessage);
+        return Objects.equals(id, processLogger.id) && Objects.equals(layout, processLogger.layout) && Objects.equals(activityId,
+                                                                                                                      processLogger.activityId) && Objects.equals(
+            logName, processLogger.logName) && Objects.equals(operationLogEntry, processLogger.operationLogEntry) && Objects.equals(
+            logMessage, processLogger.logMessage);
     }
 
     @Override
