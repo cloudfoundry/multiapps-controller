@@ -165,7 +165,7 @@ public class StepsUtil {
         var loggerPrefix = getLoggerPrefix(logger);
         for (ApplicationLog log : recentLogs) {
             processLoggerProvider.getLogger(context.getExecution(), appName)
-                                 .debug(loggerPrefix + "[" + appName + "] " + log.toString());
+                                 .debug(loggerPrefix + log.toString());
         }
 
         var lastLog = recentLogs.get(recentLogs.size() - 1);
