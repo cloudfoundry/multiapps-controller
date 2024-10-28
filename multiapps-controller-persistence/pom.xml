@@ -219,12 +219,10 @@
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
-        <!-- Dependency required by jclouds during unit testing.-->
+        <!-- Required by jclouds. For more info: https://issues.apache.org/jira/browse/JCLOUDS-1637-->
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
