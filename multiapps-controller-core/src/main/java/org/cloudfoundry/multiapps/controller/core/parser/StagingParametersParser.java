@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 
@@ -34,8 +35,9 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                                                                   getDefaultHealthCheckHttpEndpoint(healthCheckType));
         Boolean isSshEnabled = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
         DockerInfo dockerInfo = new DockerInfoParser().parse(parametersList);
-        String lifecycleValue = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.LIFECYCLE, BUILDPACK);
-        LifecycleType lifecycleType = LifecycleType.valueOf(lifecycleValue.toUpperCase());
+        LifecycleType lifecycleType = parseLifecycleType(parametersList);
+
+        validateLifecycleType(lifecycleType, buildpacks, dockerInfo);
 
         return ImmutableStaging.builder()
                                .command(command)
@@ -49,6 +51,29 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                .dockerInfo(dockerInfo)
                                .lifecycleType(lifecycleType)
                                .build();
+    }
+
+    private LifecycleType parseLifecycleType(List<Map<String, Object>> parametersList) {
+        String lifecycleValue = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.LIFECYCLE, BUILDPACK);
+        try {
+            return LifecycleType.valueOf(lifecycleValue);
+        } catch (IllegalArgumentException e) {
+            throw new SLException("Unsupported lifecycle value: " + lifecycleValue);
+        }
+    }
+
+    private void validateLifecycleType(LifecycleType lifecycleType, List<String> buildpacks, DockerInfo dockerInfo) {
+        if (lifecycleType == LifecycleType.CNB && (buildpacks == null || buildpacks.isEmpty())) {
+            throw new SLException("Buildpacks must be provided when lifecycle is set to 'cnb'.");
+        }
+        if (lifecycleType == LifecycleType.DOCKER) {
+            if (dockerInfo == null) {
+                throw new SLException("Docker information must be provided when lifecycle is set to 'docker'.");
+            }
+            if (buildpacks != null && !buildpacks.isEmpty()) {
+                throw new SLException("Buildpacks must not be provided when lifecycle is set to 'docker'.");
+            }
+        }
     }
 
     private String getDefaultHealthCheckHttpEndpoint(String healthCheckType) {
