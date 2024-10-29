@@ -18,7 +18,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 @Named("processLoggerProvider")
 public class ProcessLoggerProvider {
-    static final String LOG_LAYOUT = "#%d{yyyy MM dd HH:mm:ss.SSS}#%d{XXX}#%p#%c#%t#%m#%n";
+    static final String LOG_LAYOUT = "#%d{yyyy MM dd HH:mm:ss.SSS}#%d{XXX}#%p#%c#%t#%n%m#%n";
     private static final String DEFAULT_LOG_NAME = "OPERATION";
     private static final String LOG_FILE_EXTENSION = ".log";
     private final LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);

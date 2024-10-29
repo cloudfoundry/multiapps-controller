@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -19,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.sap.cloudfoundry.client.facade.adapters.LogCacheClient;
@@ -54,6 +56,8 @@ class PollExecuteAppStatusExecutionTest {
 
     private static final String USER_NAME = "testUsername";
     private static final String APP_SOURCE = "APP";
+    private static final String APPLICATION_GUID = UUID.randomUUID()
+                                                       .toString();
     private static final String APPLICATION_NAME = "test-app";
     private static final LocalDateTime LOG_TIMESTAMP = LocalDateTime.of(LocalDate.of(2019, Month.AUGUST, 1), LocalTime.MIN);
     private static final long PROCESS_START_TIME = LocalDateTime.of(LocalDate.of(2019, Month.JANUARY, 1), LocalTime.MIN)
@@ -117,6 +121,7 @@ class PollExecuteAppStatusExecutionTest {
 
     private static ApplicationLog createAppLog(String message, MessageType messageType, String sourceName) {
         return ImmutableApplicationLog.builder()
+                                      .applicationGuid(APPLICATION_GUID)
                                       .message(message)
                                       .timestamp(LOG_TIMESTAMP)
                                       .messageType(messageType)
@@ -178,6 +183,7 @@ class PollExecuteAppStatusExecutionTest {
     private void prepareClients(ApplicationLog applicationLog) {
         when(logCacheClient.getRecentLogs(any(), any())).thenReturn(List.of(applicationLog));
         when(clientFactory.createLogCacheClient(any(), any())).thenReturn(logCacheClient);
+        when(client.getApplicationGuid(eq(APPLICATION_NAME))).thenReturn(UUID.fromString(APPLICATION_GUID));
         when(clientProvider.getControllerClient(any(), any(), any())).thenReturn(client);
     }
 

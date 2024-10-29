@@ -37,6 +37,127 @@ paths:
             $ref: "#/definitions/Info"
       security:
       - oauth2: []
+  /api/v1/spaces/{spaceGuid}/files:
+    get:
+      summary: ""
+      description: "Retrieves all Multi-Target Application files "
+      operationId: "getMtaFiles"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "spaceGuid"
+        in: "path"
+        description: "GUID of space with mtas"
+        required: true
+        type: "string"
+      - name: "namespace"
+        in: "query"
+        description: "Filter mtas by namespace"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/FileMetadata"
+      security:
+      - oauth2: []
+    post:
+      summary: ""
+      description: "Uploads a Multi Target Application archive or an Extension Descriptor "
+      operationId: "uploadMtaFile"
+      consumes:
+      - "multipart/form-data"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "spaceGuid"
+        in: "path"
+        description: "GUID of space you wish to deploy in"
+        required: true
+        type: "string"
+      - name: "namespace"
+        in: "query"
+        description: "file namespace"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/FileMetadata"
+        201:
+          description: "Created"
+          schema:
+            $ref: "#/definitions/FileMetadata"
+      security:
+      - oauth2: []
+  /api/v1/spaces/{spaceGuid}/files/async:
+    post:
+      summary: ""
+      description: "Uploads a Multi Target Application archive or an Extension Descriptor\
+        \ from a remote endpoint"
+      operationId: "startUploadFromUrl"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: "spaceGuid"
+        in: "path"
+        description: "GUID of space you wish to deploy in"
+        required: true
+        type: "string"
+      - name: "namespace"
+        in: "query"
+        description: "file namespace"
+        required: false
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "URL reference to a remote file"
+        required: false
+        schema:
+          $ref: "#/definitions/FileUrl"
+      responses:
+        202:
+          description: "Accepted"
+      security:
+      - oauth2: []
+  /api/v1/spaces/{spaceGuid}/files/jobs/{jobId}:
+    get:
+      summary: ""
+      description: "Gets the status of an async upload job"
+      operationId: "getAsyncUploadJob"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "spaceGuid"
+        in: "path"
+        description: "GUID of space you wish to deploy in"
+        required: true
+        type: "string"
+      - name: "namespace"
+        in: "query"
+        description: "file namespace"
+        required: false
+        type: "string"
+      - name: "jobId"
+        in: "path"
+        description: "ID of the upload job"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/AsyncUploadResult"
+        201:
+          description: "Created"
+          schema:
+            $ref: "#/definitions/AsyncUploadResult"
+      security:
+      - oauth2: []
   /api/v1/spaces/{spaceGuid}/mtas:
     get:
       summary: ""
@@ -282,6 +403,66 @@ securityDefinitions:
     flow: "password"
     scopes: {}
 definitions:
+  AsyncUploadResult:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        readOnly: true
+        enum:
+        - "RUNNING"
+        - "FINISHED"
+        - "ERROR"
+      bytes_processed:
+        type: "integer"
+        format: "int64"
+        readOnly: true
+      error:
+        type: "string"
+        readOnly: true
+      file:
+        readOnly: true
+        $ref: "#/definitions/FileMetadata"
+      mta_id:
+        type: "string"
+        readOnly: true
+      client_actions:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+          enum:
+          - "RETRY_UPLOAD"
+  FileMetadata:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        readOnly: true
+      name:
+        type: "string"
+        readOnly: true
+      size:
+        type: "integer"
+        readOnly: true
+      digest:
+        type: "string"
+        readOnly: true
+      digestAlgorithm:
+        type: "string"
+        readOnly: true
+      space:
+        type: "string"
+        readOnly: true
+      namespace:
+        type: "string"
+        readOnly: true
+  FileUrl:
+    type: "object"
+    properties:
+      file_url:
+        type: "string"
+        readOnly: true
   Info:
     type: "object"
     properties:
