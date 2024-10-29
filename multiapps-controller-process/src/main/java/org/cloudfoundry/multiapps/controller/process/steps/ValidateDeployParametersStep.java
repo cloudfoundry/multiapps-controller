@@ -166,7 +166,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private List<FileEntry> getArchivePartEntries(ProcessContext context, String[] appArchivePartsId) {
-        return Arrays.stream(appArchivePartsId)
+        return Arrays.stream(appArchivePartsId) 
                      .map(appArchivePartId -> findFile(context, appArchivePartId))
                      .toList();
     }
