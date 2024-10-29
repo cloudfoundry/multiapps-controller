@@ -136,6 +136,7 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     @Override
     public ResponseEntity<Void> startUploadFromUrl(String spaceGuid, String namespace, FileUrl fileUrl) {
+        System.setProperty(Constants.RETRY_LIMIT_PROPERTY, "0");
         String decodedUrl = new String(Base64.getUrlDecoder()
                                              .decode(fileUrl.getFileUrl()));
         String urlWithoutUserInfo = UriUtil.stripUserInfo(decodedUrl);
