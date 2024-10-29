@@ -54,7 +54,10 @@ public class StagingParametersParser implements ParametersParser<Staging> {
     }
 
     private LifecycleType parseLifecycleType(List<Map<String, Object>> parametersList) {
-        String lifecycleValue = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.LIFECYCLE, BUILDPACK);
+        String lifecycleValue = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.LIFECYCLE, null);
+        if (lifecycleValue == null) {
+            return null;
+        }
         try {
             return LifecycleType.valueOf(lifecycleValue.toUpperCase());
         } catch (IllegalArgumentException e) {
