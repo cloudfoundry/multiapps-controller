@@ -28,7 +28,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubs
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.process.DeployStrategy;
 import org.cloudfoundry.multiapps.controller.process.steps.StepPhase;
-import org.cloudfoundry.multiapps.controller.process.stream.ArchiveEntryWithStreamPositions;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceDeletionActions;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;

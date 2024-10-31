@@ -6,24 +6,23 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
+import java.text.MessageFormat;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 import org.apache.commons.io.FilenameUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.stream.ArchiveEntryWithStreamPositions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 public class ApplicationZipBuilder {
@@ -33,58 +32,114 @@ public class ApplicationZipBuilder {
 
     private final FileService fileService;
     private final ApplicationArchiveReader applicationArchiveReader;
+    private final ArchiveEntryExtractor archiveEntryExtractor;
 
     @Inject
-    public ApplicationZipBuilder(FileService fileService, ApplicationArchiveReader applicationArchiveReader) {
+    public ApplicationZipBuilder(FileService fileService, ApplicationArchiveReader applicationArchiveReader,
+                                 ArchiveEntryExtractor archiveEntryExtractor) {
         this.fileService = fileService;
         this.applicationArchiveReader = applicationArchiveReader;
+        this.archiveEntryExtractor = archiveEntryExtractor;
     }
 
     public Path extractApplicationInNewArchive(ApplicationArchiveContext applicationArchiveContext) {
-        Path appPath = null;
+        Path appPath = createTempFile();
         try {
-            final Path applicationPath = createTempFile();
-            appPath = applicationPath;
-            List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = applicationArchiveContext.getArchiveEntryWithStreamPositions()
-                                                                                                               .stream()
-                                                                                                               .filter(e -> e.getName()
-                                                                                                                             .startsWith(applicationArchiveContext.getModuleFileName()))
-                                                                                                               .toList();
-            Optional<ArchiveEntryWithStreamPositions> directoryEntry = archiveEntriesWithStreamPositions.stream()
-                                                                                                        .filter(ArchiveEntryWithStreamPositions::isDirectory)
-                                                                                                        .findFirst();
-            if (directoryEntry.isPresent()) {
-                System.out.println("DIRECTORY FOUND FOR APP DIGEST CALC");
-                fileService.processFileContent(applicationArchiveContext.getSpaceId(), applicationArchiveContext.getAppArchiveId(),
-                                               archiveStream -> {
-                                                   try (ZipInputStream zipArchiveInputStream = new ZipInputStream(archiveStream)) {
-                                                       saveAllEntries(applicationPath, applicationArchiveContext, zipArchiveInputStream);
-                                                       return null;
-                                                   }
-                                               });
+            if (ArchiveEntryExtractorUtil.hasDirectory(applicationArchiveContext.getModuleFileName(),
+                                                       applicationArchiveContext.getArchiveEntryWithStreamPositions())) {
+                extractDirectoryContent(applicationArchiveContext, appPath);
             } else {
-                System.out.println("UNGA BUNGATA ");
-                try (FileOutputStream fileOutputStream = new FileOutputStream(appPath.toFile())) {
-                    for (ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions : archiveEntriesWithStreamPositions) {
-                        fileService.processFileContentWithOffset(applicationArchiveContext.getSpaceId(),
-                                                                 applicationArchiveContext.getAppArchiveId(), entryStream -> {
-                                                                     if (archiveEntryWithStreamPositions.getCompressionMethod() == 0) {
-                                                                         copy(entryStream, fileOutputStream, applicationArchiveContext);
-                                                                     } else {
-                                                                         InflatorUtil.inflate(entryStream, fileOutputStream,
-                                                                                              applicationArchiveContext);
-                                                                     }
-                                                                     return null;
-                                                                 }, archiveEntryWithStreamPositions.getStartPosition(),
-                                                                 archiveEntryWithStreamPositions.getEndPosition());
-                    }
-                }
+                extractModuleContent(applicationArchiveContext, appPath);
             }
-
             return appPath;
         } catch (Exception e) {
             FileUtils.cleanUp(appPath, LOGGER);
             throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, applicationArchiveContext.getModuleFileName());
+        }
+    }
+
+    protected Path createTempFile() {
+        try {
+            return Files.createTempFile(null, getFileExtension());
+        } catch (IOException e) {
+            throw new SLException(e, e.getMessage());
+        }
+    }
+
+    private void extractDirectoryContent(ApplicationArchiveContext applicationArchiveContext, Path applicationPath)
+        throws FileStorageException {
+        LOGGER.info(MessageFormat.format("Module: \"{0}\" content is a directory", applicationArchiveContext.getModuleFileName()));
+        fileService.consumeFileContent(applicationArchiveContext.getSpaceId(), applicationArchiveContext.getAppArchiveId(),
+                                       archiveStream -> {
+                                           try (ZipInputStream zipArchiveInputStream = new ZipInputStream(archiveStream)) {
+                                               saveAllEntries(applicationPath, applicationArchiveContext, zipArchiveInputStream);
+                                           }
+                                       });
+    }
+
+    private void saveAllEntries(Path dirPath, ApplicationArchiveContext applicationArchiveContext, ZipInputStream zipArchiveInputStream)
+        throws IOException {
+        try (OutputStream fileOutputStream = Files.newOutputStream(dirPath)) {
+            ZipEntry zipEntry = applicationArchiveReader.getFirstZipEntry(applicationArchiveContext, zipArchiveInputStream);
+            if (zipEntry.isDirectory()) {
+                saveAsZip(fileOutputStream, applicationArchiveContext, zipEntry, zipArchiveInputStream);
+            } else {
+                saveToFile(fileOutputStream, applicationArchiveContext, zipEntry, zipArchiveInputStream);
+            }
+        }
+    }
+
+    private void saveAsZip(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext, ZipEntry zipEntry,
+                           ZipInputStream zipArchiveInputStream)
+        throws IOException {
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
+            String moduleFileName = applicationArchiveContext.getModuleFileName();
+            do {
+                if (!isAlreadyUploaded(zipEntry.getName(), applicationArchiveContext) && !zipEntry.isDirectory()) {
+                    zipOutputStream.putNextEntry(createNewZipEntry(zipEntry.getName(), moduleFileName));
+                    copy(zipArchiveInputStream, zipOutputStream, applicationArchiveContext);
+                    zipOutputStream.closeEntry();
+                }
+            } while ((zipEntry = applicationArchiveReader.getNextEntryByName(moduleFileName, zipArchiveInputStream)) != null);
+        }
+    }
+
+    private boolean isAlreadyUploaded(String zipEntryName, ApplicationArchiveContext applicationArchiveContext) {
+        return applicationArchiveContext.getAlreadyUploadedFiles()
+                                        .contains(zipEntryName);
+    }
+
+    private void saveToFile(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext, ZipEntry zipEntry,
+                            ZipInputStream zipArchiveInputStream)
+        throws IOException {
+        String moduleFileName = applicationArchiveContext.getModuleFileName();
+        do {
+            if (!isAlreadyUploaded(zipEntry.getName(), applicationArchiveContext)) {
+                copy(zipArchiveInputStream, fileOutputStream, applicationArchiveContext);
+            }
+        } while ((zipEntry = applicationArchiveReader.getNextEntryByName(moduleFileName, zipArchiveInputStream)) != null);
+    }
+
+    private void extractModuleContent(ApplicationArchiveContext applicationArchiveContext, Path appPath) throws IOException {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(appPath.toFile())) {
+            ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(applicationArchiveContext.getModuleFileName(),
+                                                                                                                  applicationArchiveContext.getArchiveEntryWithStreamPositions());
+            archiveEntryExtractor.processFileEntryContent(ImmutableFileEntryProperties.builder()
+                                                                                      .guid(applicationArchiveContext.getAppArchiveId())
+                                                                                      .spaceGuid(applicationArchiveContext.getSpaceId())
+                                                                                      .maxFileSize(applicationArchiveContext.getMaxSizeInBytes())
+                                                                                      .build(),
+                                                          archiveEntryWithStreamPositions,
+                                                          (bytesBuffer, bytesRead) -> writeModuleContent(bytesBuffer, bytesRead,
+                                                                                                         fileOutputStream));
+        }
+    }
+
+    private void writeModuleContent(byte[] bytesBuffer, Integer bytesRead, FileOutputStream fileOutputStream) {
+        try {
+            fileOutputStream.write(bytesBuffer, 0, bytesRead);
+        } catch (IOException e) {
+            throw new SLException(e, e.getMessage());
         }
     }
 
@@ -104,54 +159,6 @@ public class ApplicationZipBuilder {
 
     private ZipEntry createNewZipEntry(String zipEntryName, String moduleFileName) {
         return new UtcAdjustedZipEntry(FileUtils.getRelativePath(moduleFileName, zipEntryName));
-    }
-
-    private boolean isAlreadyUploaded(String zipEntryName, ApplicationArchiveContext applicationArchiveContext) {
-        return applicationArchiveContext.getAlreadyUploadedFiles()
-                                        .contains(zipEntryName);
-    }
-
-    private void saveAllEntries(Path dirPath, ApplicationArchiveContext applicationArchiveContext, ZipInputStream zipArchiveInputStream)
-        throws IOException {
-        try (OutputStream fileOutputStream = Files.newOutputStream(dirPath)) {
-            ZipEntry zipEntry = applicationArchiveReader.getFirstZipEntry(applicationArchiveContext, zipArchiveInputStream);
-            if (zipEntry.isDirectory()) {
-                saveAsZip(fileOutputStream, applicationArchiveContext, zipEntry, zipArchiveInputStream);
-            } else {
-                saveToFile(fileOutputStream, applicationArchiveContext, zipEntry, zipArchiveInputStream);
-            }
-        }
-    }
-
-    private void saveToFile(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext, ZipEntry zipEntry,
-                            ZipInputStream zipArchiveInputStream)
-        throws IOException {
-        String moduleFileName = applicationArchiveContext.getModuleFileName();
-        do {
-            if (!isAlreadyUploaded(zipEntry.getName(), applicationArchiveContext)) {
-                copy(zipArchiveInputStream, fileOutputStream, applicationArchiveContext);
-            }
-        } while ((zipEntry = applicationArchiveReader.getNextEntryByName(moduleFileName, zipArchiveInputStream)) != null);
-    }
-
-    private void saveAsZip(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext, ZipEntry zipEntry,
-                           ZipInputStream zipArchiveInputStream)
-        throws IOException {
-        try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
-            String moduleFileName = applicationArchiveContext.getModuleFileName();
-            do {
-                if (!isAlreadyUploaded(zipEntry.getName(), applicationArchiveContext) && !zipEntry.isDirectory()) {
-                    zipOutputStream.putNextEntry(createNewZipEntry(zipEntry.getName(), moduleFileName));
-                    copy(zipArchiveInputStream, zipOutputStream, applicationArchiveContext);
-                    zipOutputStream.closeEntry();
-
-                }
-            } while ((zipEntry = applicationArchiveReader.getNextEntryByName(moduleFileName, zipArchiveInputStream)) != null);
-        }
-    }
-
-    protected Path createTempFile() throws IOException {
-        return Files.createTempFile(null, getFileExtension());
     }
 
     private String getFileExtension() {

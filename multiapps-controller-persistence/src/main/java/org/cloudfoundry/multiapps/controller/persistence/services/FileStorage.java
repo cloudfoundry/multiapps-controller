@@ -32,5 +32,6 @@ public interface FileStorage {
 
     void deleteFilesByIds(List<String> fileIds) throws FileStorageException;
 
-    <T> T processFileContentWithOffset(String space, String id, FileContentProcessor<T> fileContentProcessor, long startOffset, long endOffset) throws FileStorageException;
+    <T> T processArchiveEntryContent(FileContentToProcess fileContentToProcess, FileContentProcessor<T> fileContentProcessor)
+        throws FileStorageException;
 }

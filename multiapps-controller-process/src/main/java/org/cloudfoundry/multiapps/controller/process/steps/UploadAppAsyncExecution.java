@@ -21,7 +21,6 @@ import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationEnvironment
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -43,16 +42,13 @@ public class UploadAppAsyncExecution implements AsyncExecution {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadAppAsyncExecution.class);
 
-    private final FileService fileService;
     private final ApplicationZipBuilder applicationZipBuilder;
     private final ProcessLoggerPersister processLoggerPersister;
     private final ApplicationConfiguration applicationConfiguration;
     private final ExecutorService appUploaderThreadPool;
 
-    public UploadAppAsyncExecution(FileService fileService, ApplicationZipBuilder applicationZipBuilder,
-                                   ProcessLoggerPersister processLoggerPersister, ApplicationConfiguration applicationConfiguration,
-                                   ExecutorService appUploaderThreadPool) {
-        this.fileService = fileService;
+    public UploadAppAsyncExecution(ApplicationZipBuilder applicationZipBuilder, ProcessLoggerPersister processLoggerPersister,
+                                   ApplicationConfiguration applicationConfiguration, ExecutorService appUploaderThreadPool) {
         this.applicationZipBuilder = applicationZipBuilder;
         this.processLoggerPersister = processLoggerPersister;
         this.applicationConfiguration = applicationConfiguration;
@@ -73,8 +69,6 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         ApplicationToUploadContext applicationToUploadContext = buildApplicationToUploadContext(context, applicationToProcess);
         CloudControllerClient client = context.getControllerClient();
         Future<CloudPackage> runningUpload;
-        context.getStepLogger()
-               .info("Should start");
         try {
             runningUpload = appUploaderThreadPool.submit(() -> doUpload(context, applicationToProcess, applicationToUploadContext));
         } catch (RejectedExecutionException rejectedExecutionException) {
@@ -116,8 +110,8 @@ public class UploadAppAsyncExecution implements AsyncExecution {
     private CloudPackage doUpload(ProcessContext context, CloudApplicationExtended applicationToProcess,
                                   ApplicationToUploadContext applicationToUploadContext) {
         context.getStepLogger()
-               .info(Messages.UPLOAD_OF_APPLICATION_0_STARTED_ON_INSTANCE_1, applicationToProcess.getName(),
-                     applicationConfiguration.getApplicationInstanceIndex());
+               .debug(Messages.UPLOAD_OF_APPLICATION_0_STARTED_ON_INSTANCE_1, applicationToProcess.getName(),
+                      applicationConfiguration.getApplicationInstanceIndex());
         try {
             return proceedWithUpload(context.getControllerClient(), applicationToUploadContext);
         } catch (FileStorageException e) {

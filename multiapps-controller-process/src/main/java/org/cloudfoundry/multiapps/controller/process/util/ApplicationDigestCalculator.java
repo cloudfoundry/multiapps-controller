@@ -2,19 +2,17 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.stream.ArchiveEntryWithStreamPositions;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 public class ApplicationDigestCalculator {
@@ -23,11 +21,14 @@ public class ApplicationDigestCalculator {
 
     private final FileService fileService;
     private final ApplicationArchiveReader applicationArchiveReader;
+    private final ArchiveEntryExtractor archiveEntryExtractor;
 
     @Inject
-    public ApplicationDigestCalculator(FileService fileService, ApplicationArchiveReader applicationArchiveReader) {
+    public ApplicationDigestCalculator(FileService fileService, ApplicationArchiveReader applicationArchiveReader,
+                                       ArchiveEntryExtractor archiveEntryExtractor) {
         this.fileService = fileService;
         this.applicationArchiveReader = applicationArchiveReader;
+        this.archiveEntryExtractor = archiveEntryExtractor;
     }
 
     public String calculateApplicationDigest(ApplicationArchiveContext applicationArchiveContext) {
@@ -41,48 +42,37 @@ public class ApplicationDigestCalculator {
     }
 
     private void iterateApplicationArchive(ApplicationArchiveContext applicationArchiveContext) throws IOException, FileStorageException {
-
-        List<ArchiveEntryWithStreamPositions> entries = applicationArchiveContext.getArchiveEntryWithStreamPositions()
-                                                                                 .stream()
-                                                                                 .filter(entry -> entry.getName()
-                                                                                                       .startsWith(applicationArchiveContext.getModuleFileName()))
-                                                                                 .toList();
-        if (entries.stream()
-                   .anyMatch(ArchiveEntryWithStreamPositions::isDirectory)) {
-            System.out.println("DIRECTORY FOUND FOR APP DIGEST CALC");
-            fileService.processFileContent(applicationArchiveContext.getSpaceId(), applicationArchiveContext.getAppArchiveId(),
-                                           archiveStream -> {
-                                               try (ZipInputStream zipArchiveInputStream = new ZipInputStream(archiveStream)) {
-                                                   String moduleFileName = applicationArchiveContext.getModuleFileName();
-                                                   ZipEntry zipEntry = applicationArchiveReader.getFirstZipEntry(applicationArchiveContext,
-                                                                                                                 zipArchiveInputStream);
-                                                   do {
-                                                       if (!zipEntry.isDirectory()) {
-                                                           calculateDigestFromArchive(applicationArchiveContext, zipArchiveInputStream);
-                                                       }
-                                                   } while ((zipEntry = applicationArchiveReader.getNextEntryByName(moduleFileName,
-                                                                                                                    zipArchiveInputStream)) != null);
-                                               }
-                                               return null;
-                                           });
-
+        if (ArchiveEntryExtractorUtil.hasDirectory(applicationArchiveContext.getModuleFileName(),
+                                                   applicationArchiveContext.getArchiveEntryWithStreamPositions())) {
+            fileService.consumeFileContent(applicationArchiveContext.getSpaceId(), applicationArchiveContext.getAppArchiveId(),
+                                           archiveStream -> calculateDigestFromDirectory(applicationArchiveContext, archiveStream));
         } else {
-            System.out.println("DRAKULATA ");
-            for (ArchiveEntryWithStreamPositions archiveEntryWithStreamPosition : entries) {
-                try {
-                    System.out.println("ITERATING ENTRY: " + archiveEntryWithStreamPosition.getName());
-                    fileService.processFileContentWithOffset(applicationArchiveContext.getSpaceId(),
-                                                             applicationArchiveContext.getAppArchiveId(), fileEntryStream -> {
-                                                                 calculateDigestFromArchive(applicationArchiveContext, fileEntryStream);
-                                                                 return null;
-                                                             }, archiveEntryWithStreamPosition.getStartPosition(),
-                                                             archiveEntryWithStreamPosition.getEndPosition());
-                } catch (FileStorageException e) {
-                    throw new SLException(e, e.getMessage());
-                }
-            }
+            ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(applicationArchiveContext.getModuleFileName(),
+                                                                                                                  applicationArchiveContext.getArchiveEntryWithStreamPositions());
+            DigestCalculator applicationDigestCalculator = applicationArchiveContext.getApplicationDigestCalculator();
+            archiveEntryExtractor.processFileEntryContent(ImmutableFileEntryProperties.builder()
+                                                                                      .guid(applicationArchiveContext.getAppArchiveId())
+                                                                                      .spaceGuid(applicationArchiveContext.getSpaceId())
+                                                                                      .maxFileSize(applicationArchiveContext.getMaxSizeInBytes())
+                                                                                      .build(),
+                                                          archiveEntryWithStreamPositions, (bytesBuffer, bytesRead) -> {
+                                                              applicationArchiveContext.calculateCurrentSizeInBytes(bytesRead);
+                                                              applicationDigestCalculator.updateDigest(bytesBuffer, 0, bytesRead);
+                                                          });
         }
+    }
 
+    private void calculateDigestFromDirectory(ApplicationArchiveContext applicationArchiveContext, InputStream archiveStream)
+        throws IOException {
+        try (ZipInputStream zipArchiveInputStream = new ZipInputStream(archiveStream)) {
+            String moduleFileName = applicationArchiveContext.getModuleFileName();
+            ZipEntry zipEntry = applicationArchiveReader.getFirstZipEntry(applicationArchiveContext, zipArchiveInputStream);
+            do {
+                if (!zipEntry.isDirectory()) {
+                    calculateDigestFromArchive(applicationArchiveContext, zipArchiveInputStream);
+                }
+            } while ((zipEntry = applicationArchiveReader.getNextEntryByName(moduleFileName, zipArchiveInputStream)) != null);
+        }
     }
 
     protected void calculateDigestFromArchive(ApplicationArchiveContext applicationArchiveContext, InputStream inputStream)

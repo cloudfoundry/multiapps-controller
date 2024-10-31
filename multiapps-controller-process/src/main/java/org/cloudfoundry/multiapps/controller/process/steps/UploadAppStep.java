@@ -10,9 +10,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
@@ -21,11 +18,11 @@ import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.stream.ArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveContext;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationDigestCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationZipBuilder;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.util.CloudPackagesGetter;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -40,10 +37,15 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.Status;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 @Named("uploadAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UploadAppStep extends TimeoutAsyncFlowableStep {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadAppStep.class);
+
     @Inject
     protected ApplicationDigestCalculator applicationDigestCalculator;
     @Inject
@@ -123,7 +125,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         return client.createDockerPackage(applicationGuid, application.getDockerInfo());
     }
 
-    private String getNewApplicationDigest(ProcessContext context, String fileName) throws FileStorageException {
+    private String getNewApplicationDigest(ProcessContext context, String fileName) {
         ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(context, fileName);
         return applicationDigestCalculator.calculateApplicationDigest(applicationArchiveContext);
     }
@@ -181,11 +183,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new UploadAppAsyncExecution(fileService,
-                                                   applicationZipBuilder,
-                                                   getProcessLogsPersister(),
-                                                   configuration,
-                                                   appUploaderThreadPool),
+        return List.of(new UploadAppAsyncExecution(applicationZipBuilder, getProcessLogsPersister(), configuration, appUploaderThreadPool),
                        new PollUploadAppStatusExecution());
     }
 

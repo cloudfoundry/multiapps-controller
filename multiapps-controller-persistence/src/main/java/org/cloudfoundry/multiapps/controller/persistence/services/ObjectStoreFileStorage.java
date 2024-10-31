@@ -112,12 +112,11 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     @Override
-    public <T> T processFileContentWithOffset(String space, String id, FileContentProcessor<T> fileContentProcessor, long startOffset,
-                                              long endOffset)
+    public <T> T processArchiveEntryContent(FileContentToProcess fileContentToProcess, FileContentProcessor<T> fileContentProcessor)
         throws FileStorageException {
-        FileEntry fileEntry = createFileEntry(space, id);
+        FileEntry fileEntry = createFileEntry(fileContentToProcess.getSpaceGuid(), fileContentToProcess.getGuid());
         try {
-            Payload payload = getBlobPayloadWithOffset(fileEntry, startOffset, endOffset);
+            Payload payload = getBlobPayloadWithOffset(fileEntry, fileContentToProcess.getStartOffset(), fileContentToProcess.getEndOffset());
             return processContent(fileContentProcessor, payload);
         } catch (Exception e) {
             throw new FileStorageException(e);

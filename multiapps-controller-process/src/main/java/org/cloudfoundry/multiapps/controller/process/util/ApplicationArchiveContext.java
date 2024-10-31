@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
-import org.cloudfoundry.multiapps.controller.process.stream.ArchiveEntryWithStreamPositions;
 
 public class ApplicationArchiveContext {
 

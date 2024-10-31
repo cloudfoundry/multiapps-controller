@@ -59,5 +59,7 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires org.checkerframework.checker.qual;
     requires com.google.errorprone.annotations;
     requires jdk.jfr;
+    requires annotations;
+    requires spring.security.core;
 
 }

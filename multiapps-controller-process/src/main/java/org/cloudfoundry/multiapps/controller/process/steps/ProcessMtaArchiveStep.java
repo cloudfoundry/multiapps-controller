@@ -1,52 +1,48 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
-
-import jakarta.inject.Inject;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveHelper;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
-import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.stream.ArchiveEntryWithStreamPositions;
-import org.cloudfoundry.multiapps.controller.process.stream.ImmutableArchiveEntryWithStreamPositions;
-import org.cloudfoundry.multiapps.controller.process.util.InflatorUtil;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractor;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractorUtil;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
+import org.cloudfoundry.multiapps.controller.process.util.ImmutableArchiveEntryWithStreamPositions;
+import org.cloudfoundry.multiapps.controller.process.util.ImmutableFileEntryProperties;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessConflictPreventer;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
 import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 
+import jakarta.inject.Inject;
+
 public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
-    private static final int EOCD_SIGNATURE = 0x06054b50; // End of Central Directory Signature
-    private static final int CENTRAL_DIRECTORY_SIGNATURE = 0x02014b50; // Central Directory Header Signature
-    private static final int LOCAL_FILE_HEADER_SIGNATURE = 0x04034b50; // Local File Header Signature
-    private static final int EOCD_MIN_SIZE = 22; // Minimum size of EOCD for non-ZIP64 format
-
+    public static final int BUFFER_SIZE = 4 * 1024;
     @Inject
     private OperationService operationService;
     @Inject
     protected DescriptorParserFacadeFactory descriptorParserFactory;
+    @Inject
+    private ArchiveEntryExtractor archiveEntryExtractor;
 
     protected Function<OperationService, ProcessConflictPreventer> conflictPreventerSupplier = ProcessConflictPreventer::new;
 
@@ -56,11 +52,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
         String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
         getStepLogger().debug("MTA Archive ID: {0}", appArchiveId);
-        try {
-            processApplicationArchive(context, appArchiveId);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        processApplicationArchive(context, appArchiveId);
         setMtaIdForProcess(context);
         acquireOperationLock(context);
 
@@ -73,153 +65,90 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         return Messages.ERROR_PROCESSING_MTA_ARCHIVE;
     }
 
-    private void processApplicationArchive(ProcessContext context, String appArchiveId) throws FileStorageException, IOException {
-
-        List<ArchiveEntryWithStreamPositions> archiveEntries = new ArrayList<>();
-
-        String archiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
-        String[] split = archiveId.split(",");
-        List<FileEntry> fileEntries = Arrays.stream(split)
-                                            .map(id -> {
-                                                try {
-                                                    return fileService.getFile(context.getRequiredVariable(Variables.SPACE_GUID), id);
-                                                } catch (FileStorageException e) {
-                                                    throw new RuntimeException(e);
-                                                }
-                                            })
-                                            .collect(Collectors.toList());
-
-        long sizeOfAllFiles = fileEntries.stream()
-                                         .mapToLong(fileEntry -> fileEntry.getSize()
-                                                                          .longValue())
-                                         .sum();
-
-        List<ZipFileEntry> zipFileEntries = parseEntries(context, appArchiveId, sizeOfAllFiles);
-
-        for (ZipFileEntry updatedEntry : zipFileEntries) {
-            archiveEntries.add(ImmutableArchiveEntryWithStreamPositions.builder()
-                                                                       .name(updatedEntry.fileName)
-                                                                       .startPosition(updatedEntry.dataStartOffset)
-                                                                       .endPosition(updatedEntry.dataEndOffset)
-                                                                       .compressionMethod(updatedEntry.compressionMethod)
-                                                                       .isDirectory(updatedEntry.isDirectory)
-                                                                       .build());
-        }
-
-        context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, archiveEntries);
-        StringBuilder archiveEntriesInfo = new StringBuilder();
-        archiveEntries.stream()
-                      .map(entry -> String.format("Entry: %s, start index: %d, end index: %d\r\n", entry.getName(),
-                                                  entry.getStartPosition(), entry.getEndPosition()))
-                      .forEach(archiveEntriesInfo::append);
-        context.getStepLogger()
-               .info("Archive entries: " + archiveEntriesInfo);
-
-        ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = archiveEntries.stream()
-                                                                                        .filter(e -> e.getName()
-                                                                                                      .equals("META-INF/mtad.yaml"))
-                                                                                        .findFirst()
-                                                                                        .get();
-        MtaArchiveHelper helper = createMtaArchiveHelperFromManifest(context, archiveEntries);
+    private void processApplicationArchive(ProcessContext context, String appArchiveId) {
+        List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = determineArchiveEntries(context, appArchiveId);
+        context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, archiveEntriesWithStreamPositions);
+        MtaArchiveHelper helper = createMtaArchiveHelperFromManifest(context, appArchiveId, archiveEntriesWithStreamPositions);
         MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
         addMtaArchiveModulesInMtaArchiveElements(context, helper, mtaArchiveElements);
         addMtaRequiredDependenciesInMtaArchiveElements(helper, mtaArchiveElements);
         addMtaArchiveResourcesInMtaArchiveElements(helper, mtaArchiveElements);
         context.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
-
-        byte[] inflatedMtad = fileService.processFileContentWithOffset(context.getVariable(Variables.SPACE_GUID), appArchiveId,
-                                                                       archiveStream -> {
-                                                                           byte[] allBytes = archiveStream.readAllBytes();
-                                                                           if (archiveEntryWithStreamPositions.getCompressionMethod() == 0) { // means
-                                                                                                                                              // no
-                                                                                                                                              // compression
-                                                                               return allBytes;
-                                                                           } else {
-                                                                               return InflatorUtil.inflate(allBytes, configuration.getMaxMtaDescriptorSize());
-                                                                           }
-                                                                       }, archiveEntryWithStreamPositions.getStartPosition(),
-                                                                       archiveEntryWithStreamPositions.getEndPosition());
-
-        DescriptorParserFacade descriptorParserFacade = descriptorParserFactory.getInstance();
-        DeploymentDescriptor deploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(new String(inflatedMtad));
+        DeploymentDescriptor deploymentDescriptor = extractDeploymentDescriptor(context, appArchiveId, archiveEntriesWithStreamPositions);
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
-
-        context.getStepLogger()
-               .debug("THE mtad.yaml: " + new String(inflatedMtad));
     }
 
-    private List<ZipFileEntry> parseEntries(ProcessContext context, String appArchiveId, long sizeOfAllFiles) throws FileStorageException {
-        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId, archiveStream -> {
-            List<ZipFileEntry> zipFileEntries = new ArrayList<>();
+    private DeploymentDescriptor extractDeploymentDescriptor(ProcessContext context, String appArchiveId,
+                                                             List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions) {
 
-            try (var c = new CountingInputStream(archiveStream);
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(c, 16 * 1024);
-                ZipArchiveInputStream zf = new ZipArchiveInputStream(bufferedInputStream)) {
-                // Get the zip entry
-                ZipArchiveEntry entry = zf.getNextEntry();
-                while (entry != null) {
-                    validateEntry(entry);
-                    long startOffset = entry.getDataOffset(); // Apache Commons method
-                    long endOffset = startOffset;
-                    long read;
-                    long act = 0;
-                    byte[] buffer = new byte[16 * 1024];
-                    while ((read = zf.read(buffer, 0, buffer.length)) != -1) {
+        ArchiveEntryWithStreamPositions deploymentDescriptorEntry = ArchiveEntryExtractorUtil.findEntry(ArchiveHandler.MTA_DEPLOYMENT_DESCRIPTOR_NAME,
+                                                                                                        archiveEntriesWithStreamPositions);
+        byte[] inflatedDeploymentDescriptor = archiveEntryExtractor.readFullEntry(ImmutableFileEntryProperties.builder()
+                                                                                                          .guid(appArchiveId)
+                                                                                                          .spaceGuid(context.getRequiredVariable(Variables.SPACE_GUID))
+                                                                                                          .maxFileSize(configuration.getMaxMtaDescriptorSize())
+                                                                                                          .build(),
+                                                                              deploymentDescriptorEntry);
+        DescriptorParserFacade descriptorParserFacade = descriptorParserFactory.getInstance();
+        DeploymentDescriptor deploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(new String(inflatedDeploymentDescriptor));
+        getStepLogger().debug("MTA Descriptor length: {0}", inflatedDeploymentDescriptor.length);
+        return deploymentDescriptor;
+    }
+
+    private List<ArchiveEntryWithStreamPositions> determineArchiveEntries(ProcessContext context, String appArchiveId) {
+        try {
+            return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId, archiveStream -> {
+                List<ArchiveEntryWithStreamPositions> archiveEntriesWithPositions = new ArrayList<>();
+                try (
+                    ZipArchiveInputStream zipStream = new ZipArchiveInputStream(archiveStream, StandardCharsets.UTF_8.name(), true, true)) {
+                    ZipArchiveEntry entry = zipStream.getNextEntry();
+                    while (entry != null) {
+                        validateEntry(entry);
+                        long startOffset = entry.getDataOffset();
+                        long endOffset = startOffset;
+                        byte[] buffer = new byte[BUFFER_SIZE];
+                        while (zipStream.read(buffer, 0, buffer.length) != -1) {
+                            // read the entry, to calculate the compressed size
+                        }
+                        endOffset += zipStream.getCompressedCount();
+                        archiveEntriesWithPositions.add(ImmutableArchiveEntryWithStreamPositions.builder()
+                                                                                                .name(entry.getName())
+                                                                                                .startPosition(startOffset)
+                                                                                                .endPosition(endOffset)
+                                                                                                .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.parseValue(entry.getMethod()))
+                                                                                                .isDirectory(entry.isDirectory())
+                                                                                                .build());
+                        entry = zipStream.getNextEntry();
                     }
-                    endOffset += zf.getCompressedCount();
-
-                    ZipFileEntry zipFileEntry = new ZipFileEntry(entry.getName(),
-                                                                 startOffset,
-                                                                 endOffset,
-                                                                 entry.getMethod(),
-                                                                 entry.isDirectory());
-                    zipFileEntries.add(zipFileEntry);
-                    entry = zf.getNextEntry();
                 }
-            }
-            return zipFileEntries;
-        });
+                return archiveEntriesWithPositions;
+            });
+        } catch (FileStorageException e) {
+            throw new SLException(e, e.getMessage());
+        }
     }
 
     protected void validateEntry(ZipEntry entry) {
         FileUtils.validatePath(entry.getName());
     }
 
-    private DeploymentDescriptor extractDeploymentDescriptor(InputStream appArchiveStream) {
-        String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, configuration.getMaxMtaDescriptorSize());
-        getStepLogger().debug("MTA Descriptor length: {0}", descriptorString.length());
-        DescriptorParserFacade descriptorParserFacade = descriptorParserFactory.getInstance();
-        return descriptorParserFacade.parseDeploymentDescriptor(descriptorString);
-    }
-
-    private MtaArchiveHelper createMtaArchiveHelperFromManifest(ProcessContext context,
-                                                                List<ArchiveEntryWithStreamPositions> archiveEntries) {
-        ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = archiveEntries.stream()
-                                                                                        .filter(e -> e.getName()
-                                                                                                      .equals("META-INF/MANIFEST.MF"))
-                                                                                        .findFirst()
-                                                                                        .get();
-
-        try {
-            return fileService.processFileContentWithOffset(context.getVariable(Variables.SPACE_GUID),
-                                                            context.getRequiredVariable(Variables.APP_ARCHIVE_ID), archiveStream -> {
-                                                                if (archiveEntryWithStreamPositions.getCompressionMethod() == 0) {
-                                                                    Manifest manifest = new Manifest(archiveStream);
-                                                                    MtaArchiveHelper helper = getHelper(manifest);
-                                                                    helper.init();
-                                                                    return helper;
-                                                                } else {
-                                                                    byte[] inflate = InflatorUtil.inflate(archiveStream.readAllBytes(), configuration.getMaxManifestSize());
-                                                                    InputStream inputStream = new ByteArrayInputStream(inflate);
-                                                                    Manifest manifest = new Manifest(inputStream);
-                                                                    MtaArchiveHelper helper = getHelper(manifest);
-                                                                    helper.init();
-                                                                    return helper;
-                                                                }
-                                                            }, archiveEntryWithStreamPositions.getStartPosition(),
-                                                            archiveEntryWithStreamPositions.getEndPosition());
-        } catch (FileStorageException e) {
-            throw new RuntimeException(e);
+    private MtaArchiveHelper createMtaArchiveHelperFromManifest(ProcessContext context, String appArchiveId,
+                                                                List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions) {
+        ArchiveEntryWithStreamPositions deploymentDescriptorEntry = ArchiveEntryExtractorUtil.findEntry(ArchiveHandler.MTA_MANIFEST_NAME,
+                                                                                                        archiveEntriesWithStreamPositions);
+        byte[] inflatedManifestFile = archiveEntryExtractor.readFullEntry(ImmutableFileEntryProperties.builder()
+                                                                                                  .guid(appArchiveId)
+                                                                                                  .spaceGuid(context.getRequiredVariable(Variables.SPACE_GUID))
+                                                                                                  .maxFileSize(configuration.getMaxMtaDescriptorSize())
+                                                                                                  .build(),
+                                                                      deploymentDescriptorEntry);
+        try (InputStream inputStream = new ByteArrayInputStream(inflatedManifestFile)) {
+            Manifest manifest = new Manifest(inputStream);
+            MtaArchiveHelper helper = getHelper(manifest);
+            helper.init();
+            return helper;
+        } catch (IOException e) {
+            throw new SLException(e, e.getMessage());
         }
     }
 
@@ -262,100 +191,6 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         conflictPreventerSupplier.apply(operationService)
                                  .acquireLock(mtaId, namespace, context.getVariable(Variables.SPACE_GUID),
                                               context.getVariable(Variables.CORRELATION_ID));
-    }
-
-    private static class ZipFileEntry {
-
-        private String fileName;
-        private long dataStartOffset;
-        private long dataEndOffset;
-        private int compressionMethod;
-        private boolean isDirectory;
-
-        public ZipFileEntry(String fileName, long dataStartOffset, long dataEndOffset, int compressionMethod, boolean isDirectory) {
-            this.fileName = fileName;
-            this.dataStartOffset = dataStartOffset;
-            this.dataEndOffset = dataEndOffset;
-            this.compressionMethod = compressionMethod;
-            this.isDirectory = isDirectory;
-        }
-
-        public String getFileName() {
-            return fileName;
-        }
-
-        public void setFileName(String fileName) {
-            this.fileName = fileName;
-        }
-
-        public long getDataStartOffset() {
-            return dataStartOffset;
-        }
-
-        public void setDataStartOffset(long dataStartOffset) {
-            this.dataStartOffset = dataStartOffset;
-        }
-
-        public int getCompressionMethod() {
-            return compressionMethod;
-        }
-
-        public void setCompressionMethod(int compressionMethod) {
-            this.compressionMethod = compressionMethod;
-        }
-
-        public long getDataEndOffset() {
-            return dataEndOffset;
-        }
-
-        public void setDataEndOffset(long dataEndOffset) {
-            this.dataEndOffset = dataEndOffset;
-        }
-
-        public boolean isDirectory() {
-            return isDirectory;
-        }
-
-        public void setDirectory(boolean directory) {
-            isDirectory = directory;
-        }
-    }
-
-    static class CountingInputStream extends FilterInputStream {
-        public final AtomicLong byteCount = new AtomicLong(0);
-
-        protected CountingInputStream(InputStream in) {
-            super(in);
-        }
-
-        @Override
-        public long skip(long n) throws IOException {
-            long skipped = super.skip(n);
-            byteCount.addAndGet(skipped);
-            return skipped;
-        }
-
-        @Override
-        public int read() throws IOException {
-            int result = super.read();
-            if (result != -1) {
-                byteCount.incrementAndGet();
-            }
-            return result;
-        }
-
-        @Override
-        public int read(byte[] b, int off, int len) throws IOException {
-            int bytesRead = super.read(b, off, len);
-            if (bytesRead != -1) {
-                byteCount.addAndGet(bytesRead);
-            }
-            return bytesRead;
-        }
-
-        public long getByteCount() {
-            return byteCount.get();
-        }
     }
 
 }

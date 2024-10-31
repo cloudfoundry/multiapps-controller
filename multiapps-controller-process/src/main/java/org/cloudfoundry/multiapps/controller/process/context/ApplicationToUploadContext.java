@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.context;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.process.stream.ArchiveEntryWithStreamPositions;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.immutables.value.Value;
 

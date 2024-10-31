@@ -187,7 +187,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
                                             new PriorityCallable<>(PriorityFuture.Priority.HIGHEST, () -> doPersistArchive(archiveStreamWithName, context, size)))
                                         .get();
         } catch (ExecutionException | InterruptedException e) {
-            throw new SLException(e.getMessage(), e);
+            throw new SLException(e, e.getMessage());
         }
     }
 
