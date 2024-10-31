@@ -3,20 +3,19 @@ package org.cloudfoundry.multiapps.controller.core.parser;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 
 import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
+import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 
 public class StagingParametersParser implements ParametersParser<Staging> {
 
     private static final String DEFAULT_HEALTH_CHECK_HTTP_ENDPOINT = "/";
     private static final String HTTP_HEALTH_CHECK_TYPE = "http";
-    public static final String BUILDPACK = "buildpack";
 
     @Override
     public Staging parse(List<Map<String, Object>> parametersList) {
