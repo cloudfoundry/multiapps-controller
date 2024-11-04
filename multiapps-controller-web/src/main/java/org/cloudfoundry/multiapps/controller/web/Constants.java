@@ -36,5 +36,4 @@ public class Constants {
     public static final String GOOGLE_CLOUD_STORAGE = "google-cloud-storage";
 
     public static final String RETRY_LIMIT_PROPERTY = "jdk.httpclient.auth.retrylimit";
-    public static final String AUTHORIZATION_HEADER = "Authorization";
 }
