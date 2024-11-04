@@ -69,8 +69,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import static org.cloudfoundry.multiapps.controller.web.Constants.AUTHORIZATION_HEADER;
-
 @Named
 public class FilesApiServiceImpl implements FilesApiService {
 
@@ -418,11 +416,14 @@ public class FilesApiServiceImpl implements FilesApiService {
             var request = buildFetchFileRequest(decodedUrl);
             LOGGER.debug(Messages.CALLING_REMOTE_MTAR_ENDPOINT, request.uri());
             var response = client.send(request, BodyHandlers.ofInputStream());
-            if (response.statusCode() == 401) {
-                String errorMessage = MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS, UriUtil.stripUserInfo(decodedUrl));
-                throw new SLException(errorMessage);
-            } else if (response.statusCode() / 100 != 2) {
+            if (response.statusCode() / 100 != 2) {
                 String error = readErrorBodyFromResponse(response);
+                LOGGER.error(error);
+                if (response.statusCode() == HttpStatus.UNAUTHORIZED.value()) {
+                    String errorMessage = MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS,
+                                                               UriUtil.stripUserInfo(decodedUrl));
+                    throw new SLException(errorMessage);
+                }
                 throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, request.uri(), response.statusCode(),
                                                            error));
             }
@@ -452,7 +453,7 @@ public class FilesApiServiceImpl implements FilesApiService {
             builder.uri(URI.create(decodedUrl.replace(userInfo + "@", "")));
             String encodedAuth = Base64.getEncoder()
                                        .encodeToString(userInfo.getBytes());
-            builder.header(AUTHORIZATION_HEADER, "Basic " + encodedAuth);
+            builder.header(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
         } else {
             builder.uri(uri);
         }
