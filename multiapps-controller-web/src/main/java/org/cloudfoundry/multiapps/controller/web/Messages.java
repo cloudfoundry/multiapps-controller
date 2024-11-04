@@ -23,6 +23,7 @@ public final class Messages {
     public static final String CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0 = "Cannot create Object Store client with provider: {0}";
     public static final String NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND = "No valid Object Store configuration found!";
     public static final String MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER = "Missing properties for creating the specific provider!";
+    public static final String DEPLOY_FROM_URL_WRONG_CREDENTIALS = "Credentials to {0} are wrong. Make sure that they are correct.";
 
     // Audit log messages
     public static final String USER_TRYING_TO_LOGIN_AUDIT_LOG_MESSAGE = "\"{0}\" is trying to login in space \"{1}\"";

@@ -4,8 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
@@ -71,6 +69,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import static org.cloudfoundry.multiapps.controller.web.Constants.AUTHORIZATION_HEADER;
+
 @Named
 public class FilesApiServiceImpl implements FilesApiService {
 
@@ -98,6 +98,10 @@ public class FilesApiServiceImpl implements FilesApiService {
     private FilesApiServiceAuditLog filesApiServiceAuditLog;
     @Inject
     private ExecutorService fileStorageThreadPool;
+
+    static {
+        System.setProperty(Constants.RETRY_LIMIT_PROPERTY, "0");
+    }
 
     @Override
     public ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid, String namespace) {
@@ -136,7 +140,6 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     @Override
     public ResponseEntity<Void> startUploadFromUrl(String spaceGuid, String namespace, FileUrl fileUrl) {
-        System.setProperty(Constants.RETRY_LIMIT_PROPERTY, "0");
         String decodedUrl = new String(Base64.getUrlDecoder()
                                              .decode(fileUrl.getFileUrl()));
         String urlWithoutUserInfo = UriUtil.stripUserInfo(decodedUrl);
@@ -415,7 +418,10 @@ public class FilesApiServiceImpl implements FilesApiService {
             var request = buildFetchFileRequest(decodedUrl);
             LOGGER.debug(Messages.CALLING_REMOTE_MTAR_ENDPOINT, request.uri());
             var response = client.send(request, BodyHandlers.ofInputStream());
-            if (response.statusCode() / 100 != 2) {
+            if (response.statusCode() == 401) {
+                String errorMessage = MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS, UriUtil.stripUserInfo(decodedUrl));
+                throw new SLException(errorMessage);
+            } else if (response.statusCode() / 100 != 2) {
                 String error = readErrorBodyFromResponse(response);
                 throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, request.uri(), response.statusCode(),
                                                            error));
@@ -433,25 +439,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                          .version(HttpClient.Version.HTTP_2)
                          .connectTimeout(HTTP_CONNECT_TIMEOUT)
                          .followRedirects(Redirect.NORMAL)
-                         .authenticator(buildPasswordAuthenticator(decodedUrl))
                          .build();
-    }
-
-    private Authenticator buildPasswordAuthenticator(String decodedUrl) {
-        return new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                var uri = URI.create(decodedUrl);
-                var userInfo = uri.getUserInfo();
-                if (userInfo != null) {
-                    var separatorIndex = userInfo.indexOf(':');
-                    var username = userInfo.substring(0, separatorIndex);
-                    var password = userInfo.substring(separatorIndex + 1);
-                    return new PasswordAuthentication(username, password.toCharArray());
-                }
-                return super.getPasswordAuthentication();
-            }
-        };
     }
 
     private HttpRequest buildFetchFileRequest(String decodedUrl) {
@@ -462,6 +450,9 @@ public class FilesApiServiceImpl implements FilesApiService {
         var userInfo = uri.getUserInfo();
         if (userInfo != null) {
             builder.uri(URI.create(decodedUrl.replace(userInfo + "@", "")));
+            String encodedAuth = Base64.getEncoder()
+                                       .encodeToString(userInfo.getBytes());
+            builder.header(AUTHORIZATION_HEADER, "Basic " + encodedAuth);
         } else {
             builder.uri(uri);
         }
