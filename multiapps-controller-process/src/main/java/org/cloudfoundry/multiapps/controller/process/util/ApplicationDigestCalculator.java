@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
@@ -20,21 +20,21 @@ public class ApplicationDigestCalculator {
     protected static final int BUFFER_SIZE = 4 * 1024; // 4KB
 
     private final FileService fileService;
-    private final ApplicationArchiveReader applicationArchiveReader;
+    private final ApplicationArchiveIterator applicationArchiveIterator;
     private final ArchiveEntryExtractor archiveEntryExtractor;
 
     @Inject
-    public ApplicationDigestCalculator(FileService fileService, ApplicationArchiveReader applicationArchiveReader,
+    public ApplicationDigestCalculator(FileService fileService, ApplicationArchiveIterator applicationArchiveIterator,
                                        ArchiveEntryExtractor archiveEntryExtractor) {
         this.fileService = fileService;
-        this.applicationArchiveReader = applicationArchiveReader;
+        this.applicationArchiveIterator = applicationArchiveIterator;
         this.archiveEntryExtractor = archiveEntryExtractor;
     }
 
     public String calculateApplicationDigest(ApplicationArchiveContext applicationArchiveContext) {
         try {
             iterateApplicationArchive(applicationArchiveContext);
-            return applicationArchiveContext.getApplicationDigestCalculator()
+            return applicationArchiveContext.getDigestCalculator()
                                             .getDigest();
         } catch (IOException | FileStorageException e) {
             throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, applicationArchiveContext.getModuleFileName());
@@ -49,7 +49,7 @@ public class ApplicationDigestCalculator {
         } else {
             ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(applicationArchiveContext.getModuleFileName(),
                                                                                                                   applicationArchiveContext.getArchiveEntryWithStreamPositions());
-            DigestCalculator applicationDigestCalculator = applicationArchiveContext.getApplicationDigestCalculator();
+            DigestCalculator applicationDigestCalculator = applicationArchiveContext.getDigestCalculator();
             archiveEntryExtractor.processFileEntryContent(ImmutableFileEntryProperties.builder()
                                                                                       .guid(applicationArchiveContext.getAppArchiveId())
                                                                                       .spaceGuid(applicationArchiveContext.getSpaceId())
@@ -64,14 +64,15 @@ public class ApplicationDigestCalculator {
 
     private void calculateDigestFromDirectory(ApplicationArchiveContext applicationArchiveContext, InputStream archiveStream)
         throws IOException {
-        try (ZipInputStream zipArchiveInputStream = new ZipInputStream(archiveStream)) {
+        try (ZipArchiveInputStream zipArchiveInputStream = new ZipArchiveInputStream(archiveStream)) {
             String moduleFileName = applicationArchiveContext.getModuleFileName();
-            ZipEntry zipEntry = applicationArchiveReader.getFirstZipEntry(applicationArchiveContext, zipArchiveInputStream);
+            ZipEntry zipEntry = applicationArchiveIterator.getFirstZipEntry(applicationArchiveContext.getModuleFileName(),
+                                                                            zipArchiveInputStream);
             do {
                 if (!zipEntry.isDirectory()) {
                     calculateDigestFromArchive(applicationArchiveContext, zipArchiveInputStream);
                 }
-            } while ((zipEntry = applicationArchiveReader.getNextEntryByName(moduleFileName, zipArchiveInputStream)) != null);
+            } while ((zipEntry = applicationArchiveIterator.getNextEntryByName(moduleFileName, zipArchiveInputStream)) != null);
         }
     }
 
@@ -80,7 +81,7 @@ public class ApplicationDigestCalculator {
         byte[] buffer = new byte[BUFFER_SIZE];
         int numberOfReadBytes = 0;
         long maxSizeInBytes = applicationArchiveContext.getMaxSizeInBytes();
-        DigestCalculator applicationDigestCalculator = applicationArchiveContext.getApplicationDigestCalculator();
+        DigestCalculator applicationDigestCalculator = applicationArchiveContext.getDigestCalculator();
         while ((numberOfReadBytes = inputStream.read(buffer)) != -1) {
             long currentSizeInBytes = applicationArchiveContext.getCurrentSizeInBytes();
             if (currentSizeInBytes + numberOfReadBytes > maxSizeInBytes) {

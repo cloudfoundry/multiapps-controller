@@ -21,7 +21,6 @@ import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationEnvironment
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.context.ApplicationToUploadContext;
@@ -112,15 +111,10 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         context.getStepLogger()
                .debug(Messages.UPLOAD_OF_APPLICATION_0_STARTED_ON_INSTANCE_1, applicationToProcess.getName(),
                       applicationConfiguration.getApplicationInstanceIndex());
-        try {
-            return proceedWithUpload(context.getControllerClient(), applicationToUploadContext);
-        } catch (FileStorageException e) {
-            throw new SLException(e, e.getMessage());
-        }
+        return proceedWithUpload(context.getControllerClient(), applicationToUploadContext);
     }
 
-    private CloudPackage proceedWithUpload(CloudControllerClient client, ApplicationToUploadContext applicationToUploadContext)
-        throws FileStorageException {
+    private CloudPackage proceedWithUpload(CloudControllerClient client, ApplicationToUploadContext applicationToUploadContext) {
         applicationToUploadContext.getStepLogger()
                                   .debug(Messages.UPLOADING_FILE_0_FOR_APP_1, applicationToUploadContext.getModuleFileName(),
                                          applicationToUploadContext.getApplication()
@@ -133,8 +127,7 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         return cloudPackage;
     }
 
-    private CloudPackage asyncUploadFiles(CloudControllerClient client, ApplicationToUploadContext applicationToUploadContext)
-        throws FileStorageException {
+    private CloudPackage asyncUploadFiles(CloudControllerClient client, ApplicationToUploadContext applicationToUploadContext) {
         Path extractedAppPath = extractApplicationFromArchive(applicationToUploadContext);
         LOGGER.debug(MessageFormat.format(Messages.APPLICATION_WITH_NAME_0_SAVED_TO_1, applicationToUploadContext.getApplication()
                                                                                                                  .getName(),
@@ -147,7 +140,7 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         return upload(client, applicationToUploadContext, extractedAppPath);
     }
 
-    private Path extractApplicationFromArchive(ApplicationToUploadContext applicationToUploadContext) throws FileStorageException {
+    private Path extractApplicationFromArchive(ApplicationToUploadContext applicationToUploadContext) {
         LocalDateTime startTime = LocalDateTime.now();
         Path extractedAppPath = extractFromMtar(createApplicationArchiveContext(applicationToUploadContext,
                                                                                 applicationConfiguration.getMaxResourceFileSize()));
@@ -168,7 +161,7 @@ public class UploadAppAsyncExecution implements AsyncExecution {
                                              applicationToUploadContext.getAppArchiveId());
     }
 
-    protected Path extractFromMtar(ApplicationArchiveContext applicationArchiveContext) throws FileStorageException {
+    protected Path extractFromMtar(ApplicationArchiveContext applicationArchiveContext) {
         return applicationZipBuilder.extractApplicationInNewArchive(applicationArchiveContext);
     }
 

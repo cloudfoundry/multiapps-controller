@@ -54,7 +54,7 @@ public class ApplicationArchiveContext {
         return maxSizeInBytes;
     }
 
-    public DigestCalculator getApplicationDigestCalculator() {
+    public DigestCalculator getDigestCalculator() {
         return applicationDigestCalculator;
     }
 

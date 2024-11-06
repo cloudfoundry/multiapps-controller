@@ -1,0 +1,18 @@
+_schema-version: "3.1.0"
+ID: mta
+version: 6.0.0
+
+modules:
+  - name: test-module1
+    type: application
+    requires:
+      - name: test-resource1
+
+  - name: test-module2
+    type: application
+    requires:
+      - name: test-resource1
+
+resources:
+  - name: test-resource1
+    type: com.sap.xs.uaa

@@ -7,18 +7,22 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.common.ParsingException;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveHelper;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractor;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessConflictPreventer;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
@@ -35,6 +39,8 @@ class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveSt
     private static final String FILE_ID = "0";
 
     private final StepInput input;
+
+    private final ArchiveEntryExtractor archiveEntryExtractor = Mockito.mock(ArchiveEntryExtractor.class);
 
     ProcessMtaArchiveStepTest() throws ParsingException {
         String json = TestUtil.getResourceAsString("process-mta-archive-step-1.json", getClass());
@@ -76,6 +82,9 @@ class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveSt
         DescriptorParserFacadeFactory descriptorParserFactory = Mockito.mock(DescriptorParserFacadeFactory.class);
         Mockito.when(descriptorParserFactory.getInstance())
                .thenReturn(new DescriptorParserFacade());
+        Mockito.when(archiveEntryExtractor.readFullEntry(any(), any()))
+               .thenReturn(loadFile("test-manifest-1.MF"))
+               .thenReturn(loadFile("test-mtad-1.yaml"));
         step.descriptorParserFactory = descriptorParserFactory;
         step.execute(execution);
 
@@ -103,6 +112,14 @@ class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveSt
         for (String expectedDependency : input.expectedRequiredDependencies) {
             assertNotNull(context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS)
                                  .getRequiredDependencyFileName(expectedDependency));
+        }
+    }
+
+    private byte[] loadFile(String fileName) {
+        try (InputStream stream = getClass().getResourceAsStream(fileName)) {
+            return stream.readAllBytes();
+        } catch (IOException e) {
+            throw new SLException(e, e.getMessage());
         }
     }
 

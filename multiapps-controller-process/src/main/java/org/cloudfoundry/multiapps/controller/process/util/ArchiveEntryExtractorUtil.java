@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.mta.Messages;
 
 public class ArchiveEntryExtractorUtil {
 
@@ -16,7 +17,7 @@ public class ArchiveEntryExtractorUtil {
                                                 .filter(e -> e.getName()
                                                               .startsWith(entryName))
                                                 .findFirst()
-                                                .orElseThrow(() -> new SLException("Entry with name: {0} not found", entryName));
+                                                .orElseThrow(() -> new SLException(Messages.CANNOT_FIND_ARCHIVE_ENTRY, entryName));
     }
 
     public static boolean hasDirectory(String entryName, List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions) {
