@@ -37,7 +37,7 @@ public class DBInputStream extends FilterInputStream { // NOSONAR does not need 
         try {
             JdbcUtil.commit(connection);
         } catch (SQLException e) {
-            throw new SLException(e.getMessage(), e);
+            throw new SLException(e, e.getMessage());
         } finally {
             setAutoCommit();
             JdbcUtil.closeQuietly(connection);
@@ -48,7 +48,7 @@ public class DBInputStream extends FilterInputStream { // NOSONAR does not need 
         try {
             JdbcUtil.setAutoCommitSafely(connection);
         } catch (SQLException e) {
-            throw new SLException(e.getMessage(), e);
+            throw new SLException(e, e.getMessage());
         }
     }
 }

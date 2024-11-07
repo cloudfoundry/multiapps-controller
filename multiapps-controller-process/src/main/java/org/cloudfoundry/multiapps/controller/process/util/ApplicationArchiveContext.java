@@ -1,26 +1,32 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.zip.ZipInputStream;
 
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 
 public class ApplicationArchiveContext {
-    private final ZipInputStream zipInputStream;
+
     private final String moduleFileName;
     private final long maxSizeInBytes;
+    private final List<ArchiveEntryWithStreamPositions> archiveEntryWithStreamPositions;
+    private final String spaceId;
+    private final String appArchiveId;
     private long currentSizeInBytes;
     private DigestCalculator applicationDigestCalculator;
     private Set<String> alreadyUploadedFiles;
 
-    public ApplicationArchiveContext(InputStream inputStream, String moduleFileName, long maxSizeInBytes) {
-        this.zipInputStream = new ZipInputStream(inputStream);
+    public ApplicationArchiveContext(String moduleFileName, long maxSizeInBytes,
+                                     List<ArchiveEntryWithStreamPositions> archiveEntryWithStreamPositions, String spaceId,
+                                     String appArchiveId) {
         this.moduleFileName = moduleFileName;
         this.maxSizeInBytes = maxSizeInBytes;
+        this.archiveEntryWithStreamPositions = archiveEntryWithStreamPositions;
+        this.spaceId = spaceId;
+        this.appArchiveId = appArchiveId;
         createDigestCalculator(Constants.DIGEST_ALGORITHM);
     }
 
@@ -40,10 +46,6 @@ public class ApplicationArchiveContext {
         currentSizeInBytes += sizeInBytes;
     }
 
-    public ZipInputStream getZipInputStream() {
-        return zipInputStream;
-    }
-
     public String getModuleFileName() {
         return moduleFileName;
     }
@@ -52,7 +54,7 @@ public class ApplicationArchiveContext {
         return maxSizeInBytes;
     }
 
-    public DigestCalculator getApplicationDigestCalculator() {
+    public DigestCalculator getDigestCalculator() {
         return applicationDigestCalculator;
     }
 
@@ -67,4 +69,15 @@ public class ApplicationArchiveContext {
         this.alreadyUploadedFiles = alreadyUploadedFiles;
     }
 
+    public List<ArchiveEntryWithStreamPositions> getArchiveEntryWithStreamPositions() {
+        return archiveEntryWithStreamPositions;
+    }
+
+    public String getSpaceId() {
+        return spaceId;
+    }
+
+    public String getAppArchiveId() {
+        return appArchiveId;
+    }
 }

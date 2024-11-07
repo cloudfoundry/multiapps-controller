@@ -28,6 +28,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubs
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.process.DeployStrategy;
 import org.cloudfoundry.multiapps.controller.process.steps.StepPhase;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceDeletionActions;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -847,4 +848,11 @@ public interface Variables {
                                                                               .name("shouldSkipApplicationUpload")
                                                                               .defaultValue(false)
                                                                               .build();
+
+    Variable<List<ArchiveEntryWithStreamPositions>> ARCHIVE_ENTRIES_POSITIONS = ImmutableJsonStringListVariable.<ArchiveEntryWithStreamPositions> builder()
+                                                                                                               .name("archiveEntriesPositions")
+                                                                                                               .type(new TypeReference<>() {
+                                                                                                               })
+                                                                                                               .defaultValue(Collections.emptyList())
+                                                                                                               .build();
 }

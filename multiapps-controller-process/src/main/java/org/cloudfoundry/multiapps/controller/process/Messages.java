@@ -73,6 +73,7 @@ public class Messages {
     public static final String SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1 = "Size of all operation files \"{0}\" exceeds max upload size limit \"{1}\"";
     public static final String NOT_BOOLEAN_PARAMETER_VALUE = "Value \"{0}\" of parameter \"{1}\" is not boolean";
     public static final String ERROR_OCCURRED_DURING_APPLICATION_UPLOAD_0 = "Error occurred during application upload: {0}";
+    public static final String COMPRESSION_METHOD_WITH_VALUE_0_NOT_FOUND = "Compression method with value: {0} not found";
 
     // Audit log messages
 
@@ -741,6 +742,12 @@ public class Messages {
     public static final String PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1 = "Parameter \"{0}\" must be positive integer value up to {1}!";
     public static final String SKIPPING_UPLOAD_OF_APPLICATION_0 = "Skipping upload of application: {0}";
     public static final String UPLOAD_OF_APPLICATION_0_STARTED_ON_INSTANCE_1 = "Upload of application: {0} started on instance: {1}";
+    public static final String MTA_ARCHIVE_ID_0_MESSAGE = "MTA Archive ID: {0}";
+    public static final String MTA_DESCRIPTOR_LENGTH_0_MESSAGE = "MTA Descriptor length: {0}";
+    public static final String MTA_ARCHIVE_MODULES_0_MESSAGE = "MTA Archive Modules: {0}";
+    public static final String MTA_ARCHIVE_REQUIRES_0_MESSAGE = "MTA Archive Requires: {0}";
+    public static final String MTA_ARCHIVE_RESOURCES_0_MESSAGE = "MTA Archive Resources: {0}";
+    public static final String MODULE_0_CONTENT_IS_A_DIRECTORY = "Module: \"{0}\" content is a directory";
 
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";

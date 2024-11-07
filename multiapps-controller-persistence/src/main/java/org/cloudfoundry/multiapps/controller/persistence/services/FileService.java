@@ -16,8 +16,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import jakarta.xml.bind.DatatypeConverter;
-
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
@@ -28,6 +26,8 @@ import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFile
 import org.cloudfoundry.multiapps.controller.persistence.util.SqlQueryExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.xml.bind.DatatypeConverter;
 
 public class FileService {
 
@@ -126,6 +126,19 @@ public class FileService {
             fileContentConsumer.consume(inputStream);
             return null;
         });
+    }
+
+    public void consumeFileContentWithOffset(FileContentToProcess fileContentToProcess, FileContentConsumer fileContentConsumer)
+        throws FileStorageException {
+        processFileContentWithOffset(fileContentToProcess, inputStream -> {
+            fileContentConsumer.consume(inputStream);
+            return null;
+        });
+    }
+
+    public <T> T processFileContentWithOffset(FileContentToProcess fileContentToProcess, FileContentProcessor<T> fileContentProcessor)
+        throws FileStorageException {
+        return fileStorage.processArchiveEntryContent(fileContentToProcess, fileContentProcessor);
     }
 
     public <T> T processFileContent(String space, String id, FileContentProcessor<T> fileContentProcessor) throws FileStorageException {
