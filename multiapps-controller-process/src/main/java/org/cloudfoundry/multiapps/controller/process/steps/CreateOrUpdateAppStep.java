@@ -12,8 +12,8 @@ import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -187,7 +187,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             boolean shouldApplyIncrementalInstancesUpdate = context.getVariable(Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE);
             if (shouldApplyIncrementalInstancesUpdate) {
                 UUID applicationId = client.getApplicationGuid(app.getName());
-                disableAutoscaling(client, applicationId);
+                disableAutoscaling(context, client, applicationId);
             }
         }
 

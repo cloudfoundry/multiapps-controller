@@ -165,7 +165,7 @@ public class StepsUtil {
         var loggerPrefix = getLoggerPrefix(logger);
         for (ApplicationLog log : recentLogs) {
             processLoggerProvider.getLogger(context.getExecution(), appName)
-                                 .debug(loggerPrefix + "[" + appName + "] " + log.toString());
+                                 .debug(loggerPrefix + log.toString());
         }
 
         var lastLog = recentLogs.get(recentLogs.size() - 1);
@@ -277,9 +277,11 @@ public class StepsUtil {
         scope.setVariable(name, jsonBinary);
     }
 
-    public static void disableAutoscaling(CloudControllerClient client, UUID uuid) {
+    public static void disableAutoscaling(ProcessContext context, CloudControllerClient client, UUID uuid) {
+        String correlationId = context.getVariable(Variables.CORRELATION_ID);
         Metadata metadata = Metadata.builder()
-                                    .label(MtaMetadataLabels.AUTOSCALER_LABEL, String.valueOf(true))
+                                    .label(MtaMetadataLabels.AUTOSCALER_LABEL,
+                                           MessageFormat.format(Messages.DISABLE_AUTOSCALER_LABEL_CONTENT, correlationId))
                                     .build();
         client.updateApplicationMetadata(uuid, metadata);
     }

@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.cloudfoundry.multiapps</groupId>
         <artifactId>multiapps-controller-parent</artifactId>
-        <version>1.179.0-SNAPSHOT</version>
+        <version>1.180.0-SNAPSHOT</version>
     </parent>
 
     <build>
@@ -91,12 +91,12 @@
             <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
+            <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -193,6 +193,11 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-jmx</artifactId>
+        </dependency>
+        <!-- Required by jclouds. For more info: https://issues.apache.org/jira/browse/JCLOUDS-1637-->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
         </dependency>
     </dependencies>
 </project>

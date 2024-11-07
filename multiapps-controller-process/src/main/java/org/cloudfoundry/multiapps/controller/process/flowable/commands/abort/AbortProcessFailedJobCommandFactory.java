@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.flowable.commands.abort;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.flowable.common.engine.impl.interceptor.Command;
 import org.flowable.engine.impl.jobexecutor.DefaultFailedJobCommandFactory;

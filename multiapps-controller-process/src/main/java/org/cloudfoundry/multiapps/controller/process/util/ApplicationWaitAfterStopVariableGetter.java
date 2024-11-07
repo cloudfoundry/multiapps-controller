@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.time.Duration;
 import java.util.Optional;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;

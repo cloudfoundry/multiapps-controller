@@ -2,9 +2,9 @@ package org.cloudfoundry.multiapps.controller.web.interceptors;
 
 import java.util.UUID;
 
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
 import org.cloudfoundry.multiapps.controller.core.Constants;

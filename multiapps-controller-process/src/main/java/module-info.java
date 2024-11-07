@@ -30,10 +30,10 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires flowable.job.service.api;
     requires flowable.variable.service;
     requires flowable.variable.service.api;
-    requires java.persistence;
+    requires jakarta.persistence;
     requires java.sql;
-    requires java.xml.bind;
-    requires javax.inject;
+    requires jakarta.xml.bind;
+    requires jakarta.inject;
     requires org.apache.logging.log4j.core;
     requires org.apache.logging.log4j;
     requires org.apache.commons.collections4;

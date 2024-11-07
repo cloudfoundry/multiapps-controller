@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.web.resources;
 
 import java.time.Duration;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.core.health.HealthRetriever;
 import org.cloudfoundry.multiapps.controller.core.health.model.Health;

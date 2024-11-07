@@ -2,11 +2,10 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import java.util.List;
 import java.util.Queue;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Function;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -19,9 +18,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 @Named("processLoggerProvider")
 public class ProcessLoggerProvider {
-
-    static final String LOG_LAYOUT = "#2.0#%d{yyyy MM dd HH:mm:ss.SSS}#%d{XXX}#%p#%c#%n%X{MsgCode}#%X{CSNComponent}#%X{DCComponent}##%X{DSRCorrelationId}#%X{Application}#%C#%X{User}#%X{Session}#%X{Transaction}#%X{DSRRootContextId}#%X{DSRTransaction}#%X{DSRConnection}#%X{DSRCounter}#%t##%X{ResourceBundle}#%n%m#%n%n";
-    private static final String PARENT_LOGGER = "com.sap.cloud.lm.sl.xs2";
+    static final String LOG_LAYOUT = "#%d{yyyy MM dd HH:mm:ss.SSS}#%d{XXX}#%p#%c#%t#%n%m#%n";
     private static final String DEFAULT_LOG_NAME = "OPERATION";
     private static final String LOG_FILE_EXTENSION = ".log";
     private final LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
@@ -57,7 +54,7 @@ public class ProcessLoggerProvider {
     }
 
     private String getLoggerName(DelegateExecution execution, String logName) {
-        return PARENT_LOGGER + '.' + getCorrelationId(execution) + '.' + logName + '.' + getTaskId(execution);
+        return getCorrelationId(execution) + '.' + logName;
     }
 
     private String getCorrelationId(DelegateExecution execution) {

@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.web.util;
 
 import java.text.MessageFormat;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.security.token.parsers.TokenParserChain;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;

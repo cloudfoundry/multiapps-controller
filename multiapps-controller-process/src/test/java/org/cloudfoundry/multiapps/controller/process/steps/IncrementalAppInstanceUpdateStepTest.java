@@ -1,10 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.prepareDisablingAutoscaler;
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +23,7 @@ import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaAppl
 import org.cloudfoundry.multiapps.controller.core.model.IncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,6 +72,7 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         InstancesInfo instancesInfo = buildInstancesInfo(InstanceState.RUNNING);
         when(client.getApplicationInstances(APP_TO_PROCESS_GUID)).thenReturn(instancesInfo);
         context.setVariable(Variables.APP_TO_PROCESS, cloudApplication);
+        when(client.getApplicationGuid(cloudApplication.getName())).thenReturn(APP_TO_PROCESS_GUID);
     }
 
     private CloudApplicationExtended buildAppToProcessApplication(int instancesCount) {
@@ -92,6 +97,7 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getOldApplicationInstanceCount());
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getOldApplicationInitialInstanceCount());
         assertExecutionStepStatus(StepPhase.POLL.toString());
+        testIfEnabledOrDisabledAutoscaler(client, MessageFormat.format(Messages.DISABLE_AUTOSCALER_LABEL_CONTENT, ""), APP_TO_PROCESS_GUID);
     }
 
     private void prepareRunningOldApplication() {
@@ -100,6 +106,7 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         InstancesInfo instancesInfo = buildInstancesInfo(InstanceState.RUNNING);
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
         when(client.getApplicationInstances(deployedMtaApplication)).thenReturn(instancesInfo);
+        prepareDisablingAutoscaler(context, client, deployedMtaApplication, APP_TO_PROCESS_GUID);
     }
 
     private InstancesInfo buildInstancesInfo(InstanceState state) {
@@ -132,6 +139,7 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getOldApplicationInstanceCount());
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getOldApplicationInitialInstanceCount());
         assertExecutionStepStatus(StepPhase.POLL.toString());
+        testIfEnabledOrDisabledAutoscaler(client, MessageFormat.format(Messages.DISABLE_AUTOSCALER_LABEL_CONTENT, ""), APP_TO_PROCESS_GUID);
     }
 
     private void prepareFailingOldApplication() {
@@ -140,6 +148,7 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         InstancesInfo instancesInfo = buildInstancesInfo(InstanceState.CRASHED);
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
         when(client.getApplicationInstances(deployedMtaApplication)).thenReturn(instancesInfo);
+        prepareDisablingAutoscaler(context, client, deployedMtaApplication, APP_TO_PROCESS_GUID);
     }
 
     @Test
@@ -153,6 +162,8 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getOldApplicationInstanceCount());
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getOldApplicationInitialInstanceCount());
         assertExecutionStepStatus(StepPhase.DONE.toString());
+        testIfEnabledOrDisabledAutoscaler(client, MessageFormat.format(Messages.DISABLE_AUTOSCALER_LABEL_CONTENT, ""), APP_TO_PROCESS_GUID);
+        testIfEnabledOrDisabledAutoscaler(client, null, APP_TO_PROCESS_GUID);
     }
 
     @Test

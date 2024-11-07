@@ -2,8 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import java.time.LocalDateTime;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.security.data.termination.DataTerminationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;

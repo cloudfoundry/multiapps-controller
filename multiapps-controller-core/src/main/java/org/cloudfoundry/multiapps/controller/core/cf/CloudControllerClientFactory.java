@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.client.ResilientCloudControllerClient;

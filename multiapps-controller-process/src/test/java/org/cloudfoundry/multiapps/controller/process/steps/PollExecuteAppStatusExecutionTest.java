@@ -2,8 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -60,8 +60,9 @@ class PollExecuteAppStatusExecutionTest {
                                                        .toString();
     private static final String APPLICATION_NAME = "test-app";
     private static final LocalDateTime LOG_TIMESTAMP = LocalDateTime.of(LocalDate.of(2019, Month.AUGUST, 1), LocalTime.MIN);
-    private static final long PROCESS_START_TIME = LocalDateTime.of(LocalDate.of(2019, Month.JANUARY, 1), LocalTime.MIN).toInstant(ZoneOffset.UTC)
-                                                                                                                        .toEpochMilli();
+    private static final long PROCESS_START_TIME = LocalDateTime.of(LocalDate.of(2019, Month.JANUARY, 1), LocalTime.MIN)
+                                                                .toInstant(ZoneOffset.UTC)
+                                                                .toEpochMilli();
 
     @Mock
     private StepLogger stepLogger;

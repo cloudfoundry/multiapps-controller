@@ -4,8 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
@@ -26,8 +24,8 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.ProxyInputStream;
@@ -98,6 +96,10 @@ public class FilesApiServiceImpl implements FilesApiService {
     private FilesApiServiceAuditLog filesApiServiceAuditLog;
     @Inject
     private ExecutorService fileStorageThreadPool;
+
+    static {
+        System.setProperty(Constants.RETRY_LIMIT_PROPERTY, "0");
+    }
 
     @Override
     public ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid, String namespace) {
@@ -416,6 +418,12 @@ public class FilesApiServiceImpl implements FilesApiService {
             var response = client.send(request, BodyHandlers.ofInputStream());
             if (response.statusCode() / 100 != 2) {
                 String error = readErrorBodyFromResponse(response);
+                LOGGER.error(error);
+                if (response.statusCode() == HttpStatus.UNAUTHORIZED.value()) {
+                    String errorMessage = MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS,
+                                                               UriUtil.stripUserInfo(decodedUrl));
+                    throw new SLException(errorMessage);
+                }
                 throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, request.uri(), response.statusCode(),
                                                            error));
             }
@@ -432,25 +440,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                          .version(HttpClient.Version.HTTP_2)
                          .connectTimeout(HTTP_CONNECT_TIMEOUT)
                          .followRedirects(Redirect.NORMAL)
-                         .authenticator(buildPasswordAuthenticator(decodedUrl))
                          .build();
-    }
-
-    private Authenticator buildPasswordAuthenticator(String decodedUrl) {
-        return new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                var uri = URI.create(decodedUrl);
-                var userInfo = uri.getUserInfo();
-                if (userInfo != null) {
-                    var separatorIndex = userInfo.indexOf(':');
-                    var username = userInfo.substring(0, separatorIndex);
-                    var password = userInfo.substring(separatorIndex + 1);
-                    return new PasswordAuthentication(username, password.toCharArray());
-                }
-                return super.getPasswordAuthentication();
-            }
-        };
     }
 
     private HttpRequest buildFetchFileRequest(String decodedUrl) {
@@ -461,6 +451,9 @@ public class FilesApiServiceImpl implements FilesApiService {
         var userInfo = uri.getUserInfo();
         if (userInfo != null) {
             builder.uri(URI.create(decodedUrl.replace(userInfo + "@", "")));
+            String encodedAuth = Base64.getEncoder()
+                                       .encodeToString(userInfo.getBytes());
+            builder.header(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
         } else {
             builder.uri(uri);
         }

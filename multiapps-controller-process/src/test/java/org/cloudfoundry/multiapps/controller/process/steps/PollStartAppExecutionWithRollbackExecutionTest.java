@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -73,6 +74,7 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
         when(client.getApplicationInstances(any(CloudApplication.class))).thenReturn(instancesInfo);
         context.setVariable(Variables.EXISTING_APP_TO_POLL, cloudApplicationExtended);
         context.setVariable(Variables.APP_TO_PROCESS, cloudApplicationExtended);
+        when(client.getApplicationGuid(LIVE_APP_NAME)).thenReturn(LIVE_APP_GUID);
     }
 
     private IncrementalAppInstanceUpdateConfiguration buildConfigWithoutOldApp(CloudApplicationExtended cloudApplicationExtended) {
@@ -98,6 +100,7 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
         testExecuteOperations();
         verify(client).updateApplicationInstances(APP_TO_PROCESS_NAME, 1);
         verify(client).updateApplicationInstances(LIVE_APP_NAME, 10);
+        testIfEnabledOrDisabledAutoscaler(client, null, LIVE_APP_GUID);
     }
 
     private DeployedMtaApplication buildDeployedMtaApplication() {

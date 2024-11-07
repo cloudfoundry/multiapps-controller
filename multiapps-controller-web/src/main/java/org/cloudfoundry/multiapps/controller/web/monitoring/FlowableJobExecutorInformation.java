@@ -2,15 +2,15 @@ package org.cloudfoundry.multiapps.controller.web.monitoring;
 
 import java.time.Instant;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.flowable.common.engine.impl.async.DefaultAsyncTaskExecutor;
 
 @Named
 public class FlowableJobExecutorInformation {
 
-    private static final int CACHE_TIMEOUT_IN_SECONDS = 60;
+    private static final int CACHE_TIMEOUT_IN_SECONDS = 1;
 
     protected Instant lastUpdateTime;
 

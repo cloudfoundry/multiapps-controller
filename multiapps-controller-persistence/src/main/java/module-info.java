@@ -19,7 +19,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
 
     requires transitive io.pivotal.cfenv.core;
     requires transitive io.pivotal.cfenv.jdbc;
-    requires transitive java.persistence;
+    requires transitive jakarta.persistence;
     requires transitive java.sql;
     requires transitive jclouds.blobstore;
     requires transitive jclouds.core;
@@ -37,9 +37,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires flowable.engine;
     requires flowable.engine.common.api;
     requires flowable.variable.service.api;
-    requires java.xml.bind;
     requires jakarta.inject;
-    requires javax.inject;
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.core;
     requires org.apache.commons.io;
@@ -52,5 +50,6 @@ open module org.cloudfoundry.multiapps.controller.persistence {
 
     requires static java.compiler;
     requires static org.immutables.value;
+    requires jakarta.xml.bind;
 
 }

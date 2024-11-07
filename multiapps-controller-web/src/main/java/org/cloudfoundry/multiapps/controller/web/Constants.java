@@ -34,4 +34,6 @@ public class Constants {
     public static final String AZUREBLOB = "azureblob";
     public static final String ALIYUN_OSS = "aliyun-oss";
     public static final String GOOGLE_CLOUD_STORAGE = "google-cloud-storage";
+
+    public static final String RETRY_LIMIT_PROPERTY = "jdk.httpclient.auth.retrylimit";
 }

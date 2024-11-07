@@ -2,8 +2,8 @@ package org.cloudfoundry.multiapps.controller.persistence;
 
 import java.util.function.Function;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 
 public class Executor<T> {
 

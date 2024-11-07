@@ -1,15 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.math.BigInteger;
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -26,6 +18,13 @@ import org.cloudfoundry.multiapps.controller.process.util.PriorityFuture;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+
+import java.math.BigInteger;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 
 @Named("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -95,9 +94,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
                 .compareTo(BigInteger.valueOf(maxSizeLimit)) > 0) {
             throw new SLException(org.cloudfoundry.multiapps.mta.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
                                   file.getSize()
-                                      .toString(),
-                                  file.getName(),
-                                  String.valueOf(maxSizeLimit.longValue()));
+                                      .toString(), file.getName(), String.valueOf(maxSizeLimit.longValue()));
         }
     }
 
@@ -129,8 +126,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private void deleteFiles(ProcessContext context, List<FileEntry> fileEntries) throws FileStorageException {
-        FileSweeper fileSweeper = new FileSweeper(context.getVariable(Variables.SPACE_GUID),
-                                                  fileService,
+        FileSweeper fileSweeper = new FileSweeper(context.getVariable(Variables.SPACE_GUID), fileService,
                                                   context.getVariable(Variables.CORRELATION_ID));
         fileSweeper.sweep(fileEntries);
     }
@@ -156,9 +152,9 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
                                                        archivePartEntries.size(), archiveSize);
             FileEntry uploadedArchive = persistArchive(archiveStreamWithName, context, archiveSize);
             context.setVariable(Variables.APP_ARCHIVE_ID, uploadedArchive.getId());
-            getStepLogger().infoWithoutProgressMessage(MessageFormat.format(Messages.ARCHIVE_WITH_ID_0_AND_NAME_1_WAS_STORED,
-                                                                            uploadedArchive.getId(),
-                                                                            archiveStreamWithName.getArchiveName()));
+            getStepLogger().infoWithoutProgressMessage(
+                MessageFormat.format(Messages.ARCHIVE_WITH_ID_0_AND_NAME_1_WAS_STORED, uploadedArchive.getId(),
+                                     archiveStreamWithName.getArchiveName()));
         } finally {
             IOUtils.closeQuietly(archiveStreamWithName.getArchiveStream());
         }
@@ -170,7 +166,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private List<FileEntry> getArchivePartEntries(ProcessContext context, String[] appArchivePartsId) {
-        return Arrays.stream(appArchivePartsId)
+        return Arrays.stream(appArchivePartsId) 
                      .map(appArchivePartId -> findFile(context, appArchivePartId))
                      .toList();
     }
@@ -187,8 +183,8 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private FileEntry persistArchive(ArchiveStreamWithName archiveStreamWithName, ProcessContext context, BigInteger size) {
         try {
-            return fileStorageThreadPool.submit(new PriorityCallable<>(PriorityFuture.Priority.HIGHEST,
-                                                                       () -> doPersistArchive(archiveStreamWithName, context, size)))
+            return fileStorageThreadPool.submit(
+                                            new PriorityCallable<>(PriorityFuture.Priority.HIGHEST, () -> doPersistArchive(archiveStreamWithName, context, size)))
                                         .get();
         } catch (ExecutionException | InterruptedException e) {
             throw new SLException(e.getMessage(), e);
@@ -204,8 +200,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
                                                      .operationId(context.getExecution()
                                                                          .getProcessInstanceId())
                                                      .size(size)
-                                                     .build(),
-                                   archiveStreamWithName.getArchiveStream());
+                                                     .build(), archiveStreamWithName.getArchiveStream());
     }
 
 }
