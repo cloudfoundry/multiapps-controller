@@ -216,7 +216,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
                                                                        () -> doPersistArchive(archiveStreamWithName, context, size)))
                                         .get();
         } catch (ExecutionException | InterruptedException e) {
-            throw new SLException(e.getMessage(), e);
+            throw new SLException(e, e.getMessage());
         }
     }
 

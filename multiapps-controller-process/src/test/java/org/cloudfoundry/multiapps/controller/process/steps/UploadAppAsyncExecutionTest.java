@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
@@ -15,7 +14,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.io.InputStream;
+import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,11 +31,13 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
-import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveContext;
-import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveReader;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
+import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveIterator;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationZipBuilder;
-import org.cloudfoundry.multiapps.controller.process.util.CloudPackagesGetter;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractor;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
+import org.cloudfoundry.multiapps.controller.process.util.ImmutableArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +56,13 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
 
     private static final String APP_NAME = "sample-app-backend";
     private static final String APP_FILE = "web.zip";
+    private static final ArchiveEntryWithStreamPositions ARCHIVE_ENTRY_WITH_STREAM_POSITIONS = ImmutableArchiveEntryWithStreamPositions.builder()
+                                                                                                                                       .name(APP_FILE)
+                                                                                                                                       .startPosition(37)
+                                                                                                                                       .endPosition(5012)
+                                                                                                                                       .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
+                                                                                                                                       .isDirectory(false)
+                                                                                                                                       .build();
     private static final String SPACE = "space";
     private static final String APP_ARCHIVE = "sample-app.mtar";
     private static final CloudOperationException CO_EXCEPTION = new CloudOperationException(HttpStatus.BAD_REQUEST);
@@ -72,7 +80,6 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
                                                                            .status(Status.AWAITING_UPLOAD)
                                                                            .build();
     private final MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
-    private final CloudPackagesGetter cloudPackagesGetter = mock(CloudPackagesGetter.class);
     private final ExecutorService appUploaderThreadPool = mock(ExecutorService.class);
 
     @TempDir
@@ -85,6 +92,9 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
     public void setUp() throws Exception {
         prepareFileService();
         prepareContext();
+        step.applicationZipBuilder = spy(new ApplicationZipBuilderMock(fileService,
+                                                                       new ApplicationArchiveIterator(),
+                                                                       new ArchiveEntryExtractor(fileService)));
     }
 
     @SuppressWarnings("rawtypes")
@@ -95,10 +105,11 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
             Files.createFile(appFile);
         }
         doAnswer(invocation -> {
-            FileContentProcessor contentProcessor = invocation.getArgument(2);
-            return contentProcessor.process(null);
+            FileContentConsumer fileContentConsumer = invocation.getArgument(1);
+            fileContentConsumer.consume(new FileInputStream(appFile.toFile()));
+            return null;
         }).when(fileService)
-          .processFileContent(anyString(), anyString(), any());
+          .consumeFileContentWithOffset(any(), any());
     }
 
     private void prepareContext() {
@@ -123,6 +134,7 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
     @Test
     void testFailedUploadWithException() {
         prepareExecutorService();
+        context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, List.of(ARCHIVE_ENTRY_WITH_STREAM_POSITIONS));
         when(client.asyncUploadApplicationWithExponentialBackoff(eq(APP_NAME), eq(appFile), any(UploadStatusCallback.class),
                                                                  any())).thenThrow(CO_EXCEPTION);
         expectedStatus = AsyncExecutionState.ERROR;
@@ -163,6 +175,7 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
     @Test
     void testSuccessfulUpload() {
         prepareExecutorService();
+        context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, List.of(ARCHIVE_ENTRY_WITH_STREAM_POSITIONS));
         when(client.asyncUploadApplicationWithExponentialBackoff(eq(APP_NAME), eq(appFile), any(UploadStatusCallback.class),
                                                                  any())).thenReturn(CLOUD_PACKAGE);
         expectedStatus = AsyncExecutionState.FINISHED;
@@ -195,39 +208,28 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
 
     private class UploadAppStepMock extends UploadAppStep {
 
-        public UploadAppStepMock() {
-            applicationArchiveReader = getApplicationArchiveReader();
-            applicationZipBuilder = spy(getApplicationZipBuilder(applicationArchiveReader));
-            cloudPackagesGetter = UploadAppAsyncExecutionTest.this.cloudPackagesGetter;
-        }
-
-        private ApplicationArchiveReader getApplicationArchiveReader() {
-            return new ApplicationArchiveReader();
-        }
-
-        private ApplicationZipBuilder getApplicationZipBuilder(ApplicationArchiveReader applicationArchiveReader) {
-            return new ApplicationZipBuilder(applicationArchiveReader) {
-                @Override
-                protected Path createTempFile() {
-                    return appFile;
-                }
-            };
-        }
-
         @Override
         protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-
-            return List.of(new UploadAppAsyncExecution(fileService,
-                                                       applicationZipBuilder,
+            return List.of(new UploadAppAsyncExecution(applicationZipBuilder,
                                                        getProcessLogsPersister(),
                                                        configuration,
                                                        appUploaderThreadPool) {
-                @Override
-                protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName,
-                                                                                    long maxSize) {
-                    return super.createApplicationArchiveContext(getClass().getResourceAsStream(APP_ARCHIVE), fileName, maxSize);
-                }
+
             });
         }
     }
+
+    private class ApplicationZipBuilderMock extends ApplicationZipBuilder {
+
+        public ApplicationZipBuilderMock(FileService fileService, ApplicationArchiveIterator applicationArchiveIterator,
+                                         ArchiveEntryExtractor archiveEntryExtractor) {
+            super(fileService, applicationArchiveIterator, archiveEntryExtractor);
+        }
+
+        @Override
+        protected Path createTempFile() {
+            return appFile;
+        }
+    }
+
 }

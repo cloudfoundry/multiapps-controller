@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+
+Name: test-module1
+MTA-Module: app1
+
+Name: test-module2
+MTA-Module: app2
+
+Name: test-resource1
+MTA-Resource: test-resource1
+
+Name: test-dependency1
+MTA-Requires: test-module1/test-resource1
+
+Name: test-dependency1
+MTA-Requires: test-module2/test-resource2
+
+Name: META-INF/mtad.yaml

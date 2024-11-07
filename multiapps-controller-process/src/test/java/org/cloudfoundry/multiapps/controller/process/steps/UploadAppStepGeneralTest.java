@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -11,7 +10,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,11 +28,15 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApp
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
-import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveContext;
-import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveReader;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
+import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveIterator;
+import org.cloudfoundry.multiapps.controller.process.util.ApplicationDigestCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationZipBuilder;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractor;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.util.CloudPackagesGetter;
+import org.cloudfoundry.multiapps.controller.process.util.ImmutableArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +61,13 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
 
     private static final String APP_NAME = "sample-app-backend";
     private static final String APP_FILE = "web.zip";
+    private static final ArchiveEntryWithStreamPositions ARCHIVE_ENTRY_WITH_STREAM_POSITIONS = ImmutableArchiveEntryWithStreamPositions.builder()
+                                                                                                                                       .name(APP_FILE)
+                                                                                                                                       .startPosition(37)
+                                                                                                                                       .endPosition(5012)
+                                                                                                                                       .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
+                                                                                                                                       .isDirectory(false)
+                                                                                                                                       .build();
     private static final String SPACE = "space";
     private static final String APP_ARCHIVE = "sample-app.mtar";
     private static final String CURRENT_MODULE_DIGEST = "439B99DFFD0583200D5D21F4CD1BF035";
@@ -121,6 +130,10 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     public void setUp() throws Exception {
         prepareFileService();
         prepareContext();
+        step.applicationZipBuilder = spy(new ApplicationZipBuilderMock(fileService,
+                                                                       new ApplicationArchiveIterator(),
+                                                                       new ArchiveEntryExtractor(fileService)));
+        step.applicationDigestCalculator = mock(ApplicationDigestCalculator.class);
     }
 
     @SuppressWarnings("rawtypes")
@@ -131,10 +144,11 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
             Files.createFile(appFile);
         }
         doAnswer(invocation -> {
-            FileContentProcessor contentProcessor = invocation.getArgument(2);
-            return contentProcessor.process(null);
+            FileContentConsumer fileContentConsumer = invocation.getArgument(1);
+            fileContentConsumer.consume(null);
+            return null;
         }).when(fileService)
-          .processFileContent(anyString(), anyString(), any());
+          .consumeFileContentWithOffset(any(), any());
     }
 
     private void prepareContext() {
@@ -154,6 +168,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, false);
         when(configuration.getMaxResourceFileSize()).thenReturn(ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE);
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
+        context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, List.of(ARCHIVE_ENTRY_WITH_STREAM_POSITIONS));
     }
 
     @AfterEach
@@ -251,6 +266,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         CloudApplicationExtended application = createApplication(applicationDigest);
         when(client.getApplicationEnvironment(APP_GUID)).thenReturn(application.getEnv());
         when(client.getApplication(APP_NAME)).thenReturn(application);
+        when(step.applicationDigestCalculator.calculateApplicationDigest(any())).thenReturn(applicationDigest);
     }
 
     private CloudApplicationExtended createApplication(String digest) {
@@ -268,35 +284,20 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
 
     @Override
     protected UploadAppStep createStep() {
-        return new UploadAppStepMock();
+        return new UploadAppStep();
     }
 
-    private class UploadAppStepMock extends UploadAppStep {
+    private class ApplicationZipBuilderMock extends ApplicationZipBuilder {
 
-        public UploadAppStepMock() {
-            applicationArchiveReader = getApplicationArchiveReader();
-            applicationZipBuilder = spy(getApplicationZipBuilder(applicationArchiveReader));
-            cloudPackagesGetter = UploadAppStepGeneralTest.this.cloudPackagesGetter;
-        }
-
-        private ApplicationArchiveReader getApplicationArchiveReader() {
-            return new ApplicationArchiveReader();
-        }
-
-        private ApplicationZipBuilder getApplicationZipBuilder(ApplicationArchiveReader applicationArchiveReader) {
-            return new ApplicationZipBuilder(applicationArchiveReader) {
-                @Override
-                protected Path createTempFile() {
-                    return appFile;
-                }
-            };
+        public ApplicationZipBuilderMock(FileService fileService, ApplicationArchiveIterator applicationArchiveIterator,
+                                         ArchiveEntryExtractor archiveEntryExtractor) {
+            super(fileService, applicationArchiveIterator, archiveEntryExtractor);
         }
 
         @Override
-        protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName, long maxSize) {
-            return super.createApplicationArchiveContext(getClass().getResourceAsStream(APP_ARCHIVE), fileName, maxSize);
+        protected Path createTempFile() {
+            return appFile;
         }
-
     }
 
 }

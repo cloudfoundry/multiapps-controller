@@ -1,41 +1,56 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 public class ApplicationZipBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationZipBuilder.class);
     private static final int BUFFER_SIZE = 4 * 1024; // 4KB
-    private final ApplicationArchiveReader applicationArchiveReader;
+
+    private final FileService fileService;
+    private final ApplicationArchiveIterator applicationArchiveIterator;
+    private final ArchiveEntryExtractor archiveEntryExtractor;
 
     @Inject
-    public ApplicationZipBuilder(ApplicationArchiveReader applicationArchiveReader) {
-        this.applicationArchiveReader = applicationArchiveReader;
+    public ApplicationZipBuilder(FileService fileService, ApplicationArchiveIterator applicationArchiveIterator,
+                                 ArchiveEntryExtractor archiveEntryExtractor) {
+        this.fileService = fileService;
+        this.applicationArchiveIterator = applicationArchiveIterator;
+        this.archiveEntryExtractor = archiveEntryExtractor;
     }
 
     public Path extractApplicationInNewArchive(ApplicationArchiveContext applicationArchiveContext) {
-        Path appPath = null;
+        Path appPath = createTempFile();
         try {
-            appPath = createTempFile();
-            saveAllEntries(appPath, applicationArchiveContext);
+            if (ArchiveEntryExtractorUtil.containsDirectory(applicationArchiveContext.getModuleFileName(),
+                                                            applicationArchiveContext.getArchiveEntryWithStreamPositions())) {
+                extractDirectoryContent(applicationArchiveContext, appPath);
+            } else {
+                extractModuleContent(applicationArchiveContext, appPath);
+            }
             return appPath;
         } catch (Exception e) {
             FileUtils.cleanUp(appPath, LOGGER);
@@ -43,49 +58,65 @@ public class ApplicationZipBuilder {
         }
     }
 
-    private void saveAllEntries(Path dirPath, ApplicationArchiveContext applicationArchiveContext) throws IOException {
+    protected Path createTempFile() {
+        try {
+            return Files.createTempFile(null, getFileExtension());
+        } catch (IOException e) {
+            throw new SLException(e, e.getMessage());
+        }
+    }
+
+    private String getFileExtension() {
+        return FilenameUtils.EXTENSION_SEPARATOR_STR + "zip";
+    }
+
+    private void extractDirectoryContent(ApplicationArchiveContext applicationArchiveContext, Path applicationPath)
+        throws FileStorageException {
+        LOGGER.info(MessageFormat.format(Messages.MODULE_0_CONTENT_IS_A_DIRECTORY, applicationArchiveContext.getModuleFileName()));
+        fileService.consumeFileContent(applicationArchiveContext.getSpaceId(), applicationArchiveContext.getAppArchiveId(),
+                                       archiveStream -> {
+                                           try (ZipArchiveInputStream zipArchiveInputStream = new ZipArchiveInputStream(archiveStream)) {
+                                               saveAllEntries(applicationPath, applicationArchiveContext, zipArchiveInputStream);
+                                           }
+                                       });
+    }
+
+    private void saveAllEntries(Path dirPath, ApplicationArchiveContext applicationArchiveContext,
+                                ZipArchiveInputStream zipArchiveInputStream)
+        throws IOException {
         try (OutputStream fileOutputStream = Files.newOutputStream(dirPath)) {
-            ZipEntry zipEntry = applicationArchiveReader.getFirstZipEntry(applicationArchiveContext);
+            ZipEntry zipEntry = applicationArchiveIterator.getFirstZipEntry(applicationArchiveContext.getModuleFileName(),
+                                                                            zipArchiveInputStream);
             if (zipEntry.isDirectory()) {
-                saveAsZip(fileOutputStream, applicationArchiveContext, zipEntry);
+                saveAsZip(fileOutputStream, applicationArchiveContext, zipEntry, zipArchiveInputStream);
             } else {
-                saveToFile(fileOutputStream, applicationArchiveContext, zipEntry);
+                saveToFile(fileOutputStream, applicationArchiveContext, zipEntry, zipArchiveInputStream);
             }
         }
     }
 
-    private void saveAsZip(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext, ZipEntry zipEntry)
+    private void saveAsZip(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext, ZipEntry zipEntry,
+                           ZipArchiveInputStream zipArchiveInputStream)
         throws IOException {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
             String moduleFileName = applicationArchiveContext.getModuleFileName();
             do {
                 if (!isAlreadyUploaded(zipEntry.getName(), applicationArchiveContext) && !zipEntry.isDirectory()) {
                     zipOutputStream.putNextEntry(createNewZipEntry(zipEntry.getName(), moduleFileName));
-                    copy(applicationArchiveContext.getZipInputStream(), zipOutputStream, applicationArchiveContext);
+                    copy(zipArchiveInputStream, zipOutputStream, applicationArchiveContext);
                     zipOutputStream.closeEntry();
-
                 }
-            } while ((zipEntry = applicationArchiveReader.getNextEntryByName(moduleFileName, applicationArchiveContext)) != null);
+            } while ((zipEntry = applicationArchiveIterator.getNextEntryByName(moduleFileName, zipArchiveInputStream)) != null);
         }
-    }
-
-    private ZipEntry createNewZipEntry(String zipEntryName, String moduleFileName) {
-        return new UtcAdjustedZipEntry(FileUtils.getRelativePath(moduleFileName, zipEntryName));
-    }
-
-    private void saveToFile(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext, ZipEntry zipEntry)
-        throws IOException {
-        String moduleFileName = applicationArchiveContext.getModuleFileName();
-        do {
-            if (!isAlreadyUploaded(zipEntry.getName(), applicationArchiveContext)) {
-                copy(applicationArchiveContext.getZipInputStream(), fileOutputStream, applicationArchiveContext);
-            }
-        } while ((zipEntry = applicationArchiveReader.getNextEntryByName(moduleFileName, applicationArchiveContext)) != null);
     }
 
     private boolean isAlreadyUploaded(String zipEntryName, ApplicationArchiveContext applicationArchiveContext) {
         return applicationArchiveContext.getAlreadyUploadedFiles()
                                         .contains(zipEntryName);
+    }
+
+    private ZipEntry createNewZipEntry(String zipEntryName, String moduleFileName) {
+        return new UtcAdjustedZipEntry(FileUtils.getRelativePath(moduleFileName, zipEntryName));
     }
 
     protected void copy(InputStream input, OutputStream output, ApplicationArchiveContext applicationArchiveContext) throws IOException {
@@ -102,12 +133,39 @@ public class ApplicationZipBuilder {
         }
     }
 
-    protected Path createTempFile() throws IOException {
-        return Files.createTempFile(null, getFileExtension());
+    private void saveToFile(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext, ZipEntry zipEntry,
+                            ZipArchiveInputStream zipArchiveInputStream)
+        throws IOException {
+        String moduleFileName = applicationArchiveContext.getModuleFileName();
+        do {
+            if (!isAlreadyUploaded(zipEntry.getName(), applicationArchiveContext)) {
+                copy(zipArchiveInputStream, fileOutputStream, applicationArchiveContext);
+            }
+        } while ((zipEntry = applicationArchiveIterator.getNextEntryByName(moduleFileName, zipArchiveInputStream)) != null);
     }
 
-    private String getFileExtension() {
-        return FilenameUtils.EXTENSION_SEPARATOR_STR + "zip";
+    private void extractModuleContent(ApplicationArchiveContext applicationArchiveContext, Path appPath) throws IOException {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(appPath.toFile())) {
+            ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(applicationArchiveContext.getModuleFileName(),
+                                                                                                                  applicationArchiveContext.getArchiveEntryWithStreamPositions());
+            archiveEntryExtractor.processFileEntryContent(ImmutableFileEntryProperties.builder()
+                                                                                      .guid(applicationArchiveContext.getAppArchiveId())
+                                                                                      .name(archiveEntryWithStreamPositions.getName())
+                                                                                      .spaceGuid(applicationArchiveContext.getSpaceId())
+                                                                                      .maxFileSizeInBytes(applicationArchiveContext.getMaxSizeInBytes())
+                                                                                      .build(),
+                                                          archiveEntryWithStreamPositions,
+                                                          (bytesBuffer, bytesRead) -> writeModuleContent(bytesBuffer, bytesRead,
+                                                                                                         fileOutputStream));
+        }
+    }
+
+    private void writeModuleContent(byte[] bytesBuffer, Integer bytesRead, FileOutputStream fileOutputStream) {
+        try {
+            fileOutputStream.write(bytesBuffer, 0, bytesRead);
+        } catch (IOException e) {
+            throw new SLException(e, e.getMessage());
+        }
     }
 
 }

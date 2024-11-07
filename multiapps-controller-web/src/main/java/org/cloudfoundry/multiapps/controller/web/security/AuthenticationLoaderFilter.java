@@ -2,13 +2,6 @@ package org.cloudfoundry.multiapps.controller.web.security;
 
 import java.io.IOException;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SSLUtil;
 import org.cloudfoundry.multiapps.controller.core.util.SecurityUtil;
@@ -26,6 +19,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Named
 public class AuthenticationLoaderFilter extends OncePerRequestFilter {

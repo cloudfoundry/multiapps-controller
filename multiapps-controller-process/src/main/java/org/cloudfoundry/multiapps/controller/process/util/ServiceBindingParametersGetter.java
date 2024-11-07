@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -15,13 +15,9 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
 import org.cloudfoundry.multiapps.mta.util.NameUtil;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.springframework.http.HttpStatus;
@@ -34,17 +30,16 @@ import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 public class ServiceBindingParametersGetter {
 
     private final ProcessContext context;
-    private final FileService fileService;
+    private final ArchiveEntryExtractor archiveEntryExtractor;
     private final long maxManifestSize;
 
-    public ServiceBindingParametersGetter(ProcessContext context, FileService fileService, long maxManifestSize) {
+    public ServiceBindingParametersGetter(ProcessContext context, ArchiveEntryExtractor archiveEntryExtractor, long maxManifestSize) {
         this.context = context;
-        this.fileService = fileService;
+        this.archiveEntryExtractor = archiveEntryExtractor;
         this.maxManifestSize = maxManifestSize;
     }
 
-    public Map<String, Object> getServiceBindingParametersFromMta(CloudApplicationExtended app, String serviceName)
-        throws FileStorageException {
+    public Map<String, Object> getServiceBindingParametersFromMta(CloudApplicationExtended app, String serviceName) {
         Optional<CloudServiceInstanceExtended> service = getService(context.getVariable(Variables.SERVICES_TO_BIND), serviceName);
         if (service.isEmpty()) {
             return Collections.emptyMap();
@@ -66,30 +61,33 @@ public class ServiceBindingParametersGetter {
                        .findFirst();
     }
 
-    private Map<String, Object> getFileProvidedBindingParameters(String moduleName, CloudServiceInstanceExtended service)
-        throws FileStorageException {
-
+    private Map<String, Object> getFileProvidedBindingParameters(String moduleName, CloudServiceInstanceExtended service) {
         String requiredDependencyName = NameUtil.getPrefixedName(moduleName, service.getResourceName(),
                                                                  org.cloudfoundry.multiapps.controller.core.Constants.MTA_ELEMENT_SEPARATOR);
         return getFileProvidedBindingParameters(requiredDependencyName);
-
     }
 
-    private Map<String, Object> getFileProvidedBindingParameters(String requiredDependencyName) throws FileStorageException {
-        String archiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
+    private Map<String, Object> getFileProvidedBindingParameters(String requiredDependencyName) {
         MtaArchiveElements mtaArchiveElements = context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
         String fileName = mtaArchiveElements.getRequiredDependencyFileName(requiredDependencyName);
         if (fileName == null) {
             return Collections.emptyMap();
         }
-        FileContentProcessor<Map<String, Object>> fileProcessor = archive -> {
-            try (InputStream file = ArchiveHandler.getInputStream(archive, fileName, maxManifestSize)) {
-                return JsonUtil.convertJsonToMap(file);
-            } catch (IOException e) {
-                throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
-            }
-        };
-        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), archiveId, fileProcessor);
+        String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
+        ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(fileName,
+                                                                                                              context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS));
+        byte[] serviceBindingParametersFileContent = archiveEntryExtractor.readFullEntry(ImmutableFileEntryProperties.builder()
+                                                                                                                     .guid(appArchiveId)
+                                                                                                                     .name(archiveEntryWithStreamPositions.getName())
+                                                                                                                     .spaceGuid(context.getRequiredVariable(Variables.SPACE_GUID))
+                                                                                                                     .maxFileSizeInBytes(maxManifestSize)
+                                                                                                                     .build(),
+                                                                                         archiveEntryWithStreamPositions);
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(serviceBindingParametersFileContent)) {
+            return JsonUtil.convertJsonToMap(byteArrayInputStream);
+        } catch (IOException e) {
+            throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
+        }
     }
 
     private Map<String, Object> getDescriptorProvidedBindingParameters(CloudApplicationExtended app, CloudServiceInstanceExtended service) {

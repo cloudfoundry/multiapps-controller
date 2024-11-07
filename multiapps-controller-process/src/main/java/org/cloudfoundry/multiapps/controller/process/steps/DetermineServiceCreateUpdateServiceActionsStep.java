@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
@@ -9,8 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import jakarta.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -23,13 +22,15 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudSer
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractor;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractorUtil;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.util.DynamicResolvableParametersContextUpdater;
+import org.cloudfoundry.multiapps.controller.process.util.ImmutableFileEntryProperties;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -40,9 +41,15 @@ import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 @Named("determineServiceCreateUpdateActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowableStep {
+
+    @Inject
+    private ArchiveEntryExtractor archiveEntryExtractor;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
@@ -80,7 +87,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
     }
 
-    private void setServiceParameters(ProcessContext context, CloudServiceInstanceExtended service) throws FileStorageException {
+    private void setServiceParameters(ProcessContext context, CloudServiceInstanceExtended service) {
         service = prepareServiceParameters(context, service);
         context.setVariable(Variables.SERVICE_TO_PROCESS, service);
     }
@@ -134,9 +141,11 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
 
         if (service.shouldSkipParametersUpdate()) {
-            getStepLogger().warnWithoutProgressMessage(Messages.WILL_NOT_UPDATE_SERVICE_PARAMS_BECAUSE_PARAMETER_SKIP_SERVICE_UPDATES, service.getName());
+            getStepLogger().warnWithoutProgressMessage(Messages.WILL_NOT_UPDATE_SERVICE_PARAMS_BECAUSE_PARAMETER_SKIP_SERVICE_UPDATES,
+                                                       service.getName());
         } else if (MapUtils.isEmpty(service.getCredentials())) {
-            getStepLogger().warnWithoutProgressMessage(Messages.WILL_NOT_UPDATE_SERVICE_PARAMS_BECAUSE_UNDEFINED_OR_EMPTY, service.getName());
+            getStepLogger().warnWithoutProgressMessage(Messages.WILL_NOT_UPDATE_SERVICE_PARAMS_BECAUSE_UNDEFINED_OR_EMPTY,
+                                                       service.getName());
         } else {
             getStepLogger().debug(Messages.WILL_UPDATE_SERVICE_PARAMETERS);
             getStepLogger().debug(Messages.NEW_SERVICE_PARAMETERS, SecureSerialization.toJson(service.getCredentials()));
@@ -195,8 +204,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return newMetadata != null;
     }
 
-    private CloudServiceInstanceExtended prepareServiceParameters(ProcessContext context, CloudServiceInstanceExtended service)
-        throws FileStorageException {
+    private CloudServiceInstanceExtended prepareServiceParameters(ProcessContext context, CloudServiceInstanceExtended service) {
         MtaArchiveElements mtaArchiveElements = context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
         String fileName = mtaArchiveElements.getResourceFileName(service.getResourceName());
         if (fileName != null) {
@@ -206,17 +214,24 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return service;
     }
 
-    private CloudServiceInstanceExtended setServiceParameters(ProcessContext context, CloudServiceInstanceExtended service, String fileName)
-        throws FileStorageException {
+    private CloudServiceInstanceExtended setServiceParameters(ProcessContext context, CloudServiceInstanceExtended service,
+                                                              String fileName) {
         String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
-        return fileService.processFileContent(spaceGuid, appArchiveId, appArchiveStream -> {
-            try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize())) {
-                return mergeCredentials(service, is);
-            } catch (IOException e) {
-                throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
-            }
-        });
+        ArchiveEntryWithStreamPositions serviceBindingParametersEntry = ArchiveEntryExtractorUtil.findEntry(fileName,
+                                                                                                            context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS));
+        byte[] serviceBindingsParametersContent = archiveEntryExtractor.readFullEntry(ImmutableFileEntryProperties.builder()
+                                                                                                                  .guid(appArchiveId)
+                                                                                                                  .name(serviceBindingParametersEntry.getName())
+                                                                                                                  .spaceGuid(spaceGuid)
+                                                                                                                  .maxFileSizeInBytes(configuration.getMaxManifestSize())
+                                                                                                                  .build(),
+                                                                                      serviceBindingParametersEntry);
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(serviceBindingsParametersContent)) {
+            return mergeCredentials(service, byteArrayInputStream);
+        } catch (IOException e) {
+            throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
+        }
     }
 
     private CloudServiceInstanceExtended mergeCredentials(CloudServiceInstanceExtended service, InputStream credentialsJson) {
