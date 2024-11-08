@@ -68,6 +68,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         if (lifecycleType == LifecycleType.CNB && (buildpacks == null || buildpacks.isEmpty())) {
             throw new SLException("Buildpacks must be provided when lifecycle is set to 'cnb'.");
         }
+        // Validate Docker-specific conditions
         if (lifecycleType == LifecycleType.DOCKER) {
             if (dockerInfo == null) {
                 throw new SLException("Docker information must be provided when lifecycle is set to 'docker'.");
@@ -75,6 +76,8 @@ public class StagingParametersParser implements ParametersParser<Staging> {
             if (buildpacks != null && !buildpacks.isEmpty()) {
                 throw new SLException("Buildpacks must not be provided when lifecycle is set to 'docker'.");
             }
+        } else if (dockerInfo != null && lifecycleType != null) {
+            throw new SLException("Docker information must not be provided when lifecycle is set to " + lifecycleType + "'.");
         }
     }
 
