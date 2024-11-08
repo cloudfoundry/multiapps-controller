@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.context;
 
 import java.util.List;
 
+import org.cloudfoundry.Nullable;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
@@ -29,5 +30,6 @@ public interface ApplicationToUploadContext {
 
     String getAppArchiveId();
 
+    @Nullable // TODO: backwards compatibility for one tact
     List<ArchiveEntryWithStreamPositions> getArchiveEntries();
 }

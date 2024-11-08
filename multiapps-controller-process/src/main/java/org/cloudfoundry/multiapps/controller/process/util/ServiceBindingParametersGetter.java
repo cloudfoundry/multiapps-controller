@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +16,12 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
 import org.cloudfoundry.multiapps.mta.util.NameUtil;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.springframework.http.HttpStatus;
@@ -32,11 +36,14 @@ public class ServiceBindingParametersGetter {
     private final ProcessContext context;
     private final ArchiveEntryExtractor archiveEntryExtractor;
     private final long maxManifestSize;
+    private final FileService fileService;
 
-    public ServiceBindingParametersGetter(ProcessContext context, ArchiveEntryExtractor archiveEntryExtractor, long maxManifestSize) {
+    public ServiceBindingParametersGetter(ProcessContext context, ArchiveEntryExtractor archiveEntryExtractor, long maxManifestSize,
+                                          FileService fileService) {
         this.context = context;
         this.archiveEntryExtractor = archiveEntryExtractor;
         this.maxManifestSize = maxManifestSize;
+        this.fileService = fileService;
     }
 
     public Map<String, Object> getServiceBindingParametersFromMta(CloudApplicationExtended app, String serviceName) {
@@ -73,7 +80,23 @@ public class ServiceBindingParametersGetter {
         if (fileName == null) {
             return Collections.emptyMap();
         }
+        String spaceGuid = context.getRequiredVariable(Variables.SPACE_GUID);
         String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
+
+        // TODO: backwards compatibility for one tact
+        List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS);
+        if (archiveEntriesWithStreamPositions == null) {
+            try {
+                return fileService.processFileContent(spaceGuid, appArchiveId, appArchiveStream -> {
+                    InputStream fileStream = ArchiveHandler.getInputStream(appArchiveStream, fileName, maxManifestSize);
+                    return JsonUtil.convertJsonToMap(fileStream);
+                });
+            } catch (FileStorageException e) {
+                throw new SLException(e, e.getMessage());
+            }
+        }
+        // TODO: backwards compatibility for one tact
+
         ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(fileName,
                                                                                                               context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS));
         byte[] serviceBindingParametersFileContent = archiveEntryExtractor.readFullEntry(ImmutableFileEntryProperties.builder()

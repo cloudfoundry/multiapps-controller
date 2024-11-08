@@ -22,6 +22,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudSer
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractor;
@@ -31,6 +32,7 @@ import org.cloudfoundry.multiapps.controller.process.util.DynamicResolvableParam
 import org.cloudfoundry.multiapps.controller.process.util.ImmutableFileEntryProperties;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -218,6 +220,21 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                                                               String fileName) {
         String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
+
+        // TODO: backwards compatibility for one tact
+        List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS);
+        if (archiveEntriesWithStreamPositions == null) {
+            try {
+                return fileService.processFileContent(spaceGuid, appArchiveId, appArchiveStream -> {
+                    InputStream fileStream = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize());
+                    return mergeCredentials(service, fileStream);
+                });
+            } catch (FileStorageException e) {
+                throw new SLException(e, e.getMessage());
+            }
+        }
+        // TODO: backwards compatibility for one tact
+
         ArchiveEntryWithStreamPositions serviceBindingParametersEntry = ArchiveEntryExtractorUtil.findEntry(fileName,
                                                                                                             context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS));
         byte[] serviceBindingsParametersContent = archiveEntryExtractor.readFullEntry(ImmutableFileEntryProperties.builder()

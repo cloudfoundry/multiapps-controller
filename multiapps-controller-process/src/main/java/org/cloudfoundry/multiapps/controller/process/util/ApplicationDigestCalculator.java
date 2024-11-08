@@ -36,12 +36,19 @@ public class ApplicationDigestCalculator {
             iterateApplicationArchive(applicationArchiveContext);
             return applicationArchiveContext.getDigestCalculator()
                                             .getDigest();
-        } catch (IOException | FileStorageException e) {
+        } catch (FileStorageException e) {
             throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, applicationArchiveContext.getModuleFileName());
         }
     }
 
-    private void iterateApplicationArchive(ApplicationArchiveContext applicationArchiveContext) throws IOException, FileStorageException {
+    private void iterateApplicationArchive(ApplicationArchiveContext applicationArchiveContext) throws FileStorageException {
+        // TODO: backwards compatibility for one tact
+        if (applicationArchiveContext.getArchiveEntryWithStreamPositions() == null) {
+            fileService.consumeFileContent(applicationArchiveContext.getSpaceId(), applicationArchiveContext.getAppArchiveId(),
+                                           archiveStream -> calculateDigestFromDirectory(applicationArchiveContext, archiveStream));
+            return;
+        }
+        // TODO: backwards compatibility for one tact
         if (ArchiveEntryExtractorUtil.containsDirectory(applicationArchiveContext.getModuleFileName(),
                                                         applicationArchiveContext.getArchiveEntryWithStreamPositions())) {
             fileService.consumeFileContent(applicationArchiveContext.getSpaceId(), applicationArchiveContext.getAppArchiveId(),

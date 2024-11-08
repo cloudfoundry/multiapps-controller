@@ -45,8 +45,15 @@ public class ApplicationZipBuilder {
     public Path extractApplicationInNewArchive(ApplicationArchiveContext applicationArchiveContext) {
         Path appPath = createTempFile();
         try {
+            // TODO: backwards compatibility for one tact
+            if (applicationArchiveContext.getArchiveEntryWithStreamPositions() == null) {
+                extractDirectoryContent(applicationArchiveContext, appPath);
+                return appPath;
+            }
+            // TODO: backwards compatibility for one tact
             if (ArchiveEntryExtractorUtil.containsDirectory(applicationArchiveContext.getModuleFileName(),
                                                             applicationArchiveContext.getArchiveEntryWithStreamPositions())) {
+                LOGGER.info(MessageFormat.format(Messages.MODULE_0_CONTENT_IS_A_DIRECTORY, applicationArchiveContext.getModuleFileName()));
                 extractDirectoryContent(applicationArchiveContext, appPath);
             } else {
                 extractModuleContent(applicationArchiveContext, appPath);
@@ -72,7 +79,6 @@ public class ApplicationZipBuilder {
 
     private void extractDirectoryContent(ApplicationArchiveContext applicationArchiveContext, Path applicationPath)
         throws FileStorageException {
-        LOGGER.info(MessageFormat.format(Messages.MODULE_0_CONTENT_IS_A_DIRECTORY, applicationArchiveContext.getModuleFileName()));
         fileService.consumeFileContent(applicationArchiveContext.getSpaceId(), applicationArchiveContext.getAppArchiveId(),
                                        archiveStream -> {
                                            try (ZipArchiveInputStream zipArchiveInputStream = new ZipArchiveInputStream(archiveStream)) {
