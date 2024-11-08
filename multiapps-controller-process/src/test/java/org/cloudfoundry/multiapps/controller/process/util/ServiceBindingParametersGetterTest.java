@@ -22,6 +22,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableBindingD
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,13 +69,15 @@ class ServiceBindingParametersGetterTest {
     private MtaArchiveElements mtaArchiveElements;
     @Mock
     private CloudControllerClient client;
+    @Mock
+    private FileService fileService;
 
     private ServiceBindingParametersGetter serviceBindingParametersGetter;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        serviceBindingParametersGetter = new ServiceBindingParametersGetter(context, archiveEntryExtractor, 0);
+        serviceBindingParametersGetter = new ServiceBindingParametersGetter(context, archiveEntryExtractor, 0, fileService);
     }
 
     static Stream<Arguments> testGetServiceBindingParametersFromMta() {

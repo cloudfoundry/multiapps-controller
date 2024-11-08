@@ -133,7 +133,7 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
     }
 
     protected ServiceBindingParametersGetter getServiceBindingParametersGetter(ProcessContext context) {
-        return new ServiceBindingParametersGetter(context, archiveEntryExtractor, configuration.getMaxManifestSize());
+        return new ServiceBindingParametersGetter(context, archiveEntryExtractor, configuration.getMaxManifestSize(), fileService);
     }
 
     protected AppBoundServiceInstanceNamesGetter getAppServicesGetter(CloudCredentials credentials, String correlationId) {

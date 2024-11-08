@@ -853,6 +853,5 @@ public interface Variables {
                                                                                                                .name("archiveEntriesPositions")
                                                                                                                .type(new TypeReference<>() {
                                                                                                                })
-                                                                                                               .defaultValue(Collections.emptyList())
                                                                                                                .build();
 }
