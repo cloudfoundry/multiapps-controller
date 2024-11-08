@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.cloudfoundry.multiapps.controller.persistence.dialects.DataSourceDialect;
+import org.cloudfoundry.multiapps.controller.persistence.query.options.StreamFetchingOptions;
 
 public class ByteArraySqlFileQueryProvider extends SqlFileQueryProvider {
 
@@ -30,4 +31,9 @@ public class ByteArraySqlFileQueryProvider extends SqlFileQueryProvider {
         return getDataSourceDialect().getBinaryStreamFromByteArray(resultSet, columnName);
     }
 
+    @Override
+    protected InputStream getContentBinaryStreamWithOffset(ResultSet resultSet, String columnName,
+                                                           StreamFetchingOptions streamFetchingOptions) {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -6,9 +6,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.cloudfoundry.multiapps.controller.persistence.query.options.StreamFetchingOptions;
+
 public interface DataSourceDialect {
 
     String getSequenceNextValueSyntax(String sequenceName);
+
+    InputStream getBinaryStreamFromBlob(ResultSet rs, String columnName, StreamFetchingOptions streamFetchingOptions) throws SQLException;
 
     InputStream getBinaryStreamFromBlob(ResultSet rs, String columnName) throws SQLException;
 

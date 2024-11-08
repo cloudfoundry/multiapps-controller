@@ -18,18 +18,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import jakarta.xml.bind.DatatypeConverter;
-
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.dialects.DataSourceDialect;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.SqlQuery;
+import org.cloudfoundry.multiapps.controller.persistence.query.options.StreamFetchingOptions;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
 import org.cloudfoundry.multiapps.controller.persistence.stream.DBInputStream;
 import org.cloudfoundry.multiapps.controller.persistence.util.JdbcUtil;
 import org.slf4j.Logger;
+
+import jakarta.xml.bind.DatatypeConverter;
 
 public abstract class SqlFileQueryProvider {
 
@@ -244,10 +245,7 @@ public abstract class SqlFileQueryProvider {
                 statement.setString(2, space);
                 resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    return new DBInputStream(getContentBinaryStream(resultSet, getContentColumnName()),
-                                                       statement,
-                                                       resultSet,
-                                                       connection);
+                    return new DBInputStream(getContentBinaryStream(resultSet, getContentColumnName()), statement, resultSet, connection);
                 } else {
                     throw new SQLException(MessageFormat.format(Messages.FILE_NOT_FOUND, id));
                 }
@@ -271,6 +269,29 @@ public abstract class SqlFileQueryProvider {
                 resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     return processFileContent(resultSet, fileContentProcessor);
+                } else {
+                    throw new SQLException(MessageFormat.format(Messages.FILE_NOT_FOUND, id));
+                }
+            } finally {
+                JdbcUtil.closeQuietly(resultSet);
+                JdbcUtil.closeQuietly(statement);
+            }
+        };
+    }
+
+    public <T> SqlQuery<T> getProcessFileWithContentQueryWithOffsetQuery(String space, String id,
+                                                                         StreamFetchingOptions streamFetchingOptions,
+                                                                         FileContentProcessor<T> fileContentProcessor) {
+        return (Connection connection) -> {
+            PreparedStatement statement = null;
+            ResultSet resultSet = null;
+            try {
+                statement = connection.prepareStatement(getSelectWithContentQuery());
+                statement.setString(1, id);
+                statement.setString(2, space);
+                resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    return processFileContentWithOffset(resultSet, streamFetchingOptions, fileContentProcessor);
                 } else {
                     throw new SQLException(MessageFormat.format(Messages.FILE_NOT_FOUND, id));
                 }
@@ -423,7 +444,30 @@ public abstract class SqlFileQueryProvider {
         }
     }
 
+    private <T> T processFileContentWithOffset(ResultSet resultSet, StreamFetchingOptions streamFetchingOptions,
+                                               FileContentProcessor<T> fileContentProcessor)
+        throws SQLException {
+        InputStream fileStream = getContentBinaryStreamWithOffset(resultSet, getContentColumnName(), streamFetchingOptions);
+        try {
+            return fileContentProcessor.process(fileStream);
+        } catch (Exception e) {
+            throw new SQLException(e.getMessage(), e);
+        } finally {
+            if (fileStream != null) {
+                try {
+                    fileStream.close();
+                } catch (IOException e) {
+                    logger.error(Messages.UPLOAD_STREAM_FAILED_TO_CLOSE, e);
+                }
+            }
+        }
+    }
+
     protected abstract InputStream getContentBinaryStream(ResultSet resultSet, String columnName) throws SQLException;
+
+    protected abstract InputStream getContentBinaryStreamWithOffset(ResultSet resultSet, String columnName,
+                                                                    StreamFetchingOptions streamFetchingOptions)
+        throws SQLException;
 
     private PreparedStatement getFilesStatementBasedOnNamespace(Connection connection, String space, String namespace) throws SQLException {
         PreparedStatement statement;

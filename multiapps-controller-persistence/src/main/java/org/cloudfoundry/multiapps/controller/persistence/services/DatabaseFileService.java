@@ -9,6 +9,7 @@ import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.query.options.StreamFetchingOptions;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.BlobSqlFileQueryProvider;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFileQueryProvider;
 
@@ -24,6 +25,20 @@ public class DatabaseFileService extends FileService {
 
     protected DatabaseFileService(DataSourceWithDialect dataSourceWithDialect, SqlFileQueryProvider sqlFileQueryProvider) {
         super(dataSourceWithDialect, sqlFileQueryProvider, null);
+    }
+
+    @Override
+    public <T> T processFileContentWithOffset(FileContentToProcess fileContentToProcess, FileContentProcessor<T> fileContentProcessor)
+        throws FileStorageException {
+        try {
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getProcessFileWithContentQueryWithOffsetQuery(fileContentToProcess.getSpaceGuid(),
+                                                                                                                         fileContentToProcess.getGuid(),
+                                                                                                                         new StreamFetchingOptions(fileContentToProcess.getStartOffset(),
+                                                                                                                                                   fileContentToProcess.getEndOffset()),
+                                                                                                                         fileContentProcessor));
+        } catch (SQLException e) {
+            throw new FileStorageException(e.getMessage(), e);
+        }
     }
 
     @Override
