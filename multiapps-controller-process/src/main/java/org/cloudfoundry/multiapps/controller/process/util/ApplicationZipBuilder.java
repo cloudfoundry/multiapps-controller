@@ -132,7 +132,10 @@ public class ApplicationZipBuilder {
         while ((numberOfReadBytes = input.read(buffer)) != -1) {
             long currentSizeInBytes = applicationArchiveContext.getCurrentSizeInBytes();
             if (currentSizeInBytes + numberOfReadBytes > maxSizeInBytes) {
-                throw new ContentException(Messages.SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT, maxSizeInBytes);
+                throw new ContentException(org.cloudfoundry.multiapps.mta.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
+                                           currentSizeInBytes + numberOfReadBytes,
+                                           applicationArchiveContext.getModuleFileName(),
+                                           maxSizeInBytes);
             }
             output.write(buffer, 0, numberOfReadBytes);
             applicationArchiveContext.calculateCurrentSizeInBytes(numberOfReadBytes);

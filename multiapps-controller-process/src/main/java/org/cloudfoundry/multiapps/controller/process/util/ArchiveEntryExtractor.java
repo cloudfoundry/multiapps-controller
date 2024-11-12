@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.function.BiConsumer;
+import java.util.function.ObjIntConsumer;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentToProcess;
@@ -67,7 +67,7 @@ public class ArchiveEntryExtractor {
 
     public void processFileEntryContent(FileEntryProperties fileEntryProperties,
                                         ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions,
-                                        BiConsumer<byte[], Integer> decompressedBytesConsumer) {
+                                        ObjIntConsumer<byte[]> decompressedBytesConsumer) {
         try {
             fileService.consumeFileContentWithOffset(toFileContentToProcess(fileEntryProperties, archiveEntryWithStreamPositions),
                                                      fileEntryStream -> {
