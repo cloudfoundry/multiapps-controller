@@ -65,7 +65,7 @@ class ArchiveEntryExtractorTest {
         throws FileStorageException, IOException {
         prepareFileService(getClass().getResourceAsStream(mtarFileName), deploymentDescriptorEntry.getStartPosition(),
                            deploymentDescriptorEntry.getEndPosition());
-        byte[] bytesRead = archiveEntryExtractor.readFullEntry(buildFileEntryProperty(Integer.MAX_VALUE), deploymentDescriptorEntry);
+        byte[] bytesRead = archiveEntryExtractor.extractEntryBytes(buildFileEntryProperty(Integer.MAX_VALUE), deploymentDescriptorEntry);
         assertDeploymentDescriptorAreEqual(new String(bytesRead));
     }
 
@@ -86,19 +86,19 @@ class ArchiveEntryExtractorTest {
         assertEquals(expectedDeploymentDescriptor, actualDeploymentDescriptor);
     }
 
-    static Stream<Arguments> processFileEntryContent() {
+    static Stream<Arguments> processFileEntryBytes() {
         return Stream.of(Arguments.of("stored-mta.mtar", STORED_DEPLOYMENT_DESCRIPTOR_ENTRY),
                          Arguments.of("deflated-mta.mtar", DEFLATED_DEPLOYMENT_DESCRIPTOR_ENTRY));
     }
 
     @ParameterizedTest
     @MethodSource
-    void processFileEntryContent(String mtarFileName, ArchiveEntryWithStreamPositions deploymentDescriptorEntry)
+    void processFileEntryBytes(String mtarFileName, ArchiveEntryWithStreamPositions deploymentDescriptorEntry)
         throws FileStorageException, IOException {
         prepareFileService(getClass().getResourceAsStream(mtarFileName), deploymentDescriptorEntry.getStartPosition(),
                            deploymentDescriptorEntry.getEndPosition());
         StringBuilder actualDeploymentDescriptorContent = new StringBuilder();
-        archiveEntryExtractor.processFileEntryContent(buildFileEntryProperty(Integer.MAX_VALUE), deploymentDescriptorEntry,
+        archiveEntryExtractor.processFileEntryBytes(buildFileEntryProperty(Integer.MAX_VALUE), deploymentDescriptorEntry,
                                                       (byteBuffer,
                                                        bytesRead) -> actualDeploymentDescriptorContent.append(new String(Arrays.copyOfRange(byteBuffer,
                                                                                                                                             0,
@@ -118,7 +118,7 @@ class ArchiveEntryExtractorTest {
         prepareFileService(getClass().getResourceAsStream(mtarFileName), deploymentDescriptorEntry.getStartPosition(),
                            deploymentDescriptorEntry.getEndPosition());
         Exception exception = assertThrows(ContentException.class,
-                                           () -> archiveEntryExtractor.processFileEntryContent(buildFileEntryProperty(2),
+                                           () -> archiveEntryExtractor.processFileEntryBytes(buildFileEntryProperty(2),
                                                                                                deploymentDescriptorEntry,
                                                                                                (byteBuffer, bytesRead) -> {
                                                                                                }));

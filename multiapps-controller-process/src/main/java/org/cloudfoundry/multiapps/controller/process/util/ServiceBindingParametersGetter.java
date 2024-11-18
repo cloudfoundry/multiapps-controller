@@ -99,13 +99,13 @@ public class ServiceBindingParametersGetter {
 
         ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(fileName,
                                                                                                               context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS));
-        byte[] serviceBindingParametersFileContent = archiveEntryExtractor.readFullEntry(ImmutableFileEntryProperties.builder()
-                                                                                                                     .guid(appArchiveId)
-                                                                                                                     .name(archiveEntryWithStreamPositions.getName())
-                                                                                                                     .spaceGuid(context.getRequiredVariable(Variables.SPACE_GUID))
-                                                                                                                     .maxFileSizeInBytes(maxManifestSize)
-                                                                                                                     .build(),
-                                                                                         archiveEntryWithStreamPositions);
+        byte[] serviceBindingParametersFileContent = archiveEntryExtractor.extractEntryBytes(ImmutableFileEntryProperties.builder()
+                                                                                                                         .guid(appArchiveId)
+                                                                                                                         .name(archiveEntryWithStreamPositions.getName())
+                                                                                                                         .spaceGuid(context.getRequiredVariable(Variables.SPACE_GUID))
+                                                                                                                         .maxFileSizeInBytes(maxManifestSize)
+                                                                                                                         .build(),
+                                                                                             archiveEntryWithStreamPositions);
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(serviceBindingParametersFileContent)) {
             return JsonUtil.convertJsonToMap(byteArrayInputStream);
         } catch (IOException e) {

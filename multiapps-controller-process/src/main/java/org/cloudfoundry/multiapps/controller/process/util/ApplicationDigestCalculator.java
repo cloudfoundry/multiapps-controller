@@ -57,16 +57,16 @@ public class ApplicationDigestCalculator {
             ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(applicationArchiveContext.getModuleFileName(),
                                                                                                                   applicationArchiveContext.getArchiveEntryWithStreamPositions());
             DigestCalculator applicationDigestCalculator = applicationArchiveContext.getDigestCalculator();
-            archiveEntryExtractor.processFileEntryContent(ImmutableFileEntryProperties.builder()
-                                                                                      .guid(applicationArchiveContext.getAppArchiveId())
-                                                                                      .name(archiveEntryWithStreamPositions.getName())
-                                                                                      .spaceGuid(applicationArchiveContext.getSpaceId())
-                                                                                      .maxFileSizeInBytes(applicationArchiveContext.getMaxSizeInBytes())
-                                                                                      .build(),
-                                                          archiveEntryWithStreamPositions, (bytesBuffer, bytesRead) -> {
-                                                              applicationArchiveContext.calculateCurrentSizeInBytes(bytesRead);
-                                                              applicationDigestCalculator.updateDigest(bytesBuffer, 0, bytesRead);
-                                                          });
+            archiveEntryExtractor.processFileEntryBytes(ImmutableFileEntryProperties.builder()
+                                                                                    .guid(applicationArchiveContext.getAppArchiveId())
+                                                                                    .name(archiveEntryWithStreamPositions.getName())
+                                                                                    .spaceGuid(applicationArchiveContext.getSpaceId())
+                                                                                    .maxFileSizeInBytes(applicationArchiveContext.getMaxSizeInBytes())
+                                                                                    .build(),
+                                                        archiveEntryWithStreamPositions, (bytesBuffer, bytesRead) -> {
+                                                            applicationArchiveContext.calculateCurrentSizeInBytes(bytesRead);
+                                                            applicationDigestCalculator.updateDigest(bytesBuffer, 0, bytesRead);
+                                                        });
         }
     }
 

@@ -38,7 +38,7 @@ import org.springframework.util.CollectionUtils;
 public class ObjectStoreFileStorage implements FileStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectStoreFileStorage.class);
-
+    private static final int MAX_RETRIES_COUNT = 3;
     private static final long RETRY_BASE_WAIT_TIME_IN_MILLIS = 5000L;
 
     private final BlobStore blobStore;
@@ -116,7 +116,8 @@ public class ObjectStoreFileStorage implements FileStorage {
         throws FileStorageException {
         FileEntry fileEntry = createFileEntry(fileContentToProcess.getSpaceGuid(), fileContentToProcess.getGuid());
         try {
-            Payload payload = getBlobPayloadWithOffset(fileEntry, fileContentToProcess.getStartOffset(), fileContentToProcess.getEndOffset());
+            Payload payload = getBlobPayloadWithOffset(fileEntry, fileContentToProcess.getStartOffset(),
+                                                       fileContentToProcess.getEndOffset());
             return processContent(fileContentProcessor, payload);
         } catch (Exception e) {
             throw new FileStorageException(e);
@@ -124,7 +125,7 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     private Payload getBlobPayloadWithOffset(FileEntry fileEntry, long startOffset, long endOffset) throws FileStorageException {
-        Blob blob = getBlobWithRetriesWithOffset(fileEntry, 3, startOffset, endOffset);
+        Blob blob = getBlobWithRetriesWithOffset(fileEntry, MAX_RETRIES_COUNT, startOffset, endOffset);
         if (blob == null) {
             throw new FileStorageException(MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(),
                                                                 fileEntry.getSpace()));

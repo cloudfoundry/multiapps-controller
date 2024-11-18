@@ -70,13 +70,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
                                                                 List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions) {
         ArchiveEntryWithStreamPositions mtaManifestEntry = ArchiveEntryExtractorUtil.findEntry(ArchiveHandler.MTA_MANIFEST_NAME,
                                                                                                archiveEntriesWithStreamPositions);
-        byte[] inflatedManifestFile = archiveEntryExtractor.readFullEntry(ImmutableFileEntryProperties.builder()
-                                                                                                      .guid(appArchiveId)
-                                                                                                      .name(mtaManifestEntry.getName())
-                                                                                                      .spaceGuid(context.getRequiredVariable(Variables.SPACE_GUID))
-                                                                                                      .maxFileSizeInBytes(configuration.getMaxMtaDescriptorSize())
-                                                                                                      .build(),
-                                                                          mtaManifestEntry);
+        byte[] inflatedManifestFile = readEntry(context, appArchiveId, mtaManifestEntry);
         try (InputStream inputStream = new ByteArrayInputStream(inflatedManifestFile)) {
             Manifest manifest = new Manifest(inputStream);
             MtaArchiveHelper helper = getHelper(manifest);
@@ -85,6 +79,16 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         } catch (IOException e) {
             throw new SLException(e, e.getMessage());
         }
+    }
+
+    private byte[] readEntry(ProcessContext context, String appArchiveId, ArchiveEntryWithStreamPositions mtaManifestEntry) {
+        return archiveEntryExtractor.extractEntryBytes(ImmutableFileEntryProperties.builder()
+                                                                                   .guid(appArchiveId)
+                                                                                   .name(mtaManifestEntry.getName())
+                                                                                   .spaceGuid(context.getRequiredVariable(Variables.SPACE_GUID))
+                                                                                   .maxFileSizeInBytes(configuration.getMaxMtaDescriptorSize())
+                                                                                   .build(),
+                                                       mtaManifestEntry);
     }
 
     protected MtaArchiveHelper getHelper(Manifest manifest) {
@@ -116,13 +120,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
         ArchiveEntryWithStreamPositions deploymentDescriptorEntry = ArchiveEntryExtractorUtil.findEntry(ArchiveHandler.MTA_DEPLOYMENT_DESCRIPTOR_NAME,
                                                                                                         archiveEntriesWithStreamPositions);
-        byte[] inflatedDeploymentDescriptor = archiveEntryExtractor.readFullEntry(ImmutableFileEntryProperties.builder()
-                                                                                                              .guid(appArchiveId)
-                                                                                                              .name(deploymentDescriptorEntry.getName())
-                                                                                                              .spaceGuid(context.getRequiredVariable(Variables.SPACE_GUID))
-                                                                                                              .maxFileSizeInBytes(configuration.getMaxMtaDescriptorSize())
-                                                                                                              .build(),
-                                                                                  deploymentDescriptorEntry);
+        byte[] inflatedDeploymentDescriptor = readEntry(context, appArchiveId, deploymentDescriptorEntry);
         DescriptorParserFacade descriptorParserFacade = descriptorParserFactory.getInstance();
         DeploymentDescriptor deploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(new String(inflatedDeploymentDescriptor));
         getStepLogger().debug(Messages.MTA_DESCRIPTOR_LENGTH_0_MESSAGE, inflatedDeploymentDescriptor.length);

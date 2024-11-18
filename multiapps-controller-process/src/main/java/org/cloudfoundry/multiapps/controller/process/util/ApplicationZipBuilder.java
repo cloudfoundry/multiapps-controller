@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -43,8 +42,9 @@ public class ApplicationZipBuilder {
     }
 
     public Path extractApplicationInNewArchive(ApplicationArchiveContext applicationArchiveContext) {
-        Path appPath = createTempFile();
+        Path appPath = null;
         try {
+            appPath = createTempFile();
             // TODO: backwards compatibility for one tact
             if (applicationArchiveContext.getArchiveEntryWithStreamPositions() == null) {
                 extractDirectoryContent(applicationArchiveContext, appPath);
@@ -122,7 +122,7 @@ public class ApplicationZipBuilder {
     }
 
     private ZipEntry createNewZipEntry(String zipEntryName, String moduleFileName) {
-        return new UtcAdjustedZipEntry(FileUtils.getRelativePath(moduleFileName, zipEntryName));
+        return new ZipEntry(FileUtils.getRelativePath(moduleFileName, zipEntryName));
     }
 
     protected void copy(InputStream input, OutputStream output, ApplicationArchiveContext applicationArchiveContext) throws IOException {
@@ -154,22 +154,22 @@ public class ApplicationZipBuilder {
     }
 
     private void extractModuleContent(ApplicationArchiveContext applicationArchiveContext, Path appPath) throws IOException {
-        try (FileOutputStream fileOutputStream = new FileOutputStream(appPath.toFile())) {
+        try (OutputStream fileOutputStream = Files.newOutputStream(appPath)) {
             ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(applicationArchiveContext.getModuleFileName(),
                                                                                                                   applicationArchiveContext.getArchiveEntryWithStreamPositions());
-            archiveEntryExtractor.processFileEntryContent(ImmutableFileEntryProperties.builder()
-                                                                                      .guid(applicationArchiveContext.getAppArchiveId())
-                                                                                      .name(archiveEntryWithStreamPositions.getName())
-                                                                                      .spaceGuid(applicationArchiveContext.getSpaceId())
-                                                                                      .maxFileSizeInBytes(applicationArchiveContext.getMaxSizeInBytes())
-                                                                                      .build(),
-                                                          archiveEntryWithStreamPositions,
-                                                          (bytesBuffer, bytesRead) -> writeModuleContent(bytesBuffer, bytesRead,
-                                                                                                         fileOutputStream));
+            archiveEntryExtractor.processFileEntryBytes(ImmutableFileEntryProperties.builder()
+                                                                                    .guid(applicationArchiveContext.getAppArchiveId())
+                                                                                    .name(archiveEntryWithStreamPositions.getName())
+                                                                                    .spaceGuid(applicationArchiveContext.getSpaceId())
+                                                                                    .maxFileSizeInBytes(applicationArchiveContext.getMaxSizeInBytes())
+                                                                                    .build(),
+                                                        archiveEntryWithStreamPositions,
+                                                        (bytesBuffer, bytesRead) -> writeModuleContent(bytesBuffer, bytesRead,
+                                                                                                       fileOutputStream));
         }
     }
 
-    private void writeModuleContent(byte[] bytesBuffer, Integer bytesRead, FileOutputStream fileOutputStream) {
+    private void writeModuleContent(byte[] bytesBuffer, Integer bytesRead, OutputStream fileOutputStream) {
         try {
             fileOutputStream.write(bytesBuffer, 0, bytesRead);
         } catch (IOException e) {

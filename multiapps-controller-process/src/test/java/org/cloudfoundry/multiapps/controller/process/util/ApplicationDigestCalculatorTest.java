@@ -59,7 +59,7 @@ class ApplicationDigestCalculatorTest {
                                  consumer);
             return null;
         }).when(archiveEntryExtractor)
-          .processFileEntryContent(any(), any(), any());
+          .processFileEntryBytes(any(), any(), any());
         applicationDigestCalculator = new ApplicationDigestCalculator(fileService, new ApplicationArchiveIterator(), archiveEntryExtractor);
     }
 
@@ -148,7 +148,7 @@ class ApplicationDigestCalculatorTest {
                                                                                             SPACE_GUID,
                                                                                             APP_ARCHIVE_ID);
         doThrow(new SLException("Cannot calculate digest")).when(archiveEntryExtractor)
-                                                           .processFileEntryContent(any(), any(), any());
+                                                           .processFileEntryBytes(any(), any(), any());
         Exception exception = assertThrows(Exception.class,
                                            () -> applicationDigestCalculator.calculateApplicationDigest(applicationArchiveContext));
         assertEquals("Cannot calculate digest", exception.getMessage());
