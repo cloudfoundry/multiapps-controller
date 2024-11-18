@@ -50,8 +50,12 @@ import jakarta.inject.Named;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowableStep {
 
+    private final ArchiveEntryExtractor archiveEntryExtractor;
+
     @Inject
-    private ArchiveEntryExtractor archiveEntryExtractor;
+    public DetermineServiceCreateUpdateServiceActionsStep(ArchiveEntryExtractor archiveEntryExtractor) {
+        this.archiveEntryExtractor = archiveEntryExtractor;
+    }
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
@@ -237,13 +241,13 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
         ArchiveEntryWithStreamPositions serviceBindingParametersEntry = ArchiveEntryExtractorUtil.findEntry(fileName,
                                                                                                             context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS));
-        byte[] serviceBindingsParametersContent = archiveEntryExtractor.readFullEntry(ImmutableFileEntryProperties.builder()
-                                                                                                                  .guid(appArchiveId)
-                                                                                                                  .name(serviceBindingParametersEntry.getName())
-                                                                                                                  .spaceGuid(spaceGuid)
-                                                                                                                  .maxFileSizeInBytes(configuration.getMaxManifestSize())
-                                                                                                                  .build(),
-                                                                                      serviceBindingParametersEntry);
+        byte[] serviceBindingsParametersContent = archiveEntryExtractor.extractEntryBytes(ImmutableFileEntryProperties.builder()
+                                                                                                                      .guid(appArchiveId)
+                                                                                                                      .name(serviceBindingParametersEntry.getName())
+                                                                                                                      .spaceGuid(spaceGuid)
+                                                                                                                      .maxFileSizeInBytes(configuration.getMaxManifestSize())
+                                                                                                                      .build(),
+                                                                                          serviceBindingParametersEntry);
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(serviceBindingsParametersContent)) {
             return mergeCredentials(service, byteArrayInputStream);
         } catch (IOException e) {

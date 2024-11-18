@@ -220,7 +220,7 @@ class ServiceBindingParametersGetterTest {
 
     private void prepareFileService(Map<String, Object> fileProvidedParameters) {
         String fileProvidedParametersJson = JsonUtil.toJson(fileProvidedParameters);
-        when(archiveEntryExtractor.readFullEntry(any(), any())).thenReturn(fileProvidedParametersJson.getBytes());
+        when(archiveEntryExtractor.extractEntryBytes(any(), any())).thenReturn(fileProvidedParametersJson.getBytes());
     }
 
     private void prepareClient(Map<String, Object> bindingParameters, boolean serviceBindingExist) {

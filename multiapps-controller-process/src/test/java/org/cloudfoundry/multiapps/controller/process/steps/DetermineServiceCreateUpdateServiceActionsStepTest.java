@@ -23,6 +23,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudSer
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractor;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,8 @@ import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableStepTest<DetermineServiceCreateUpdateServiceActionsStep> {
 
     private static final String SERVICE_NAME = "service";
+
+    private ArchiveEntryExtractor archiveEntryExtractor;
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
@@ -330,7 +333,8 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
 
     @Override
     protected DetermineServiceCreateUpdateServiceActionsStep createStep() {
-        return new DetermineServiceCreateUpdateServiceActionsStep();
+        archiveEntryExtractor = Mockito.mock(ArchiveEntryExtractor.class);
+        return new DetermineServiceCreateUpdateServiceActionsStep(archiveEntryExtractor);
     }
 
     private static class StepInput {

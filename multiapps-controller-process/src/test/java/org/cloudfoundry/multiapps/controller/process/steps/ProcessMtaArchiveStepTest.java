@@ -85,7 +85,7 @@ class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveSt
         DescriptorParserFacadeFactory descriptorParserFactory = Mockito.mock(DescriptorParserFacadeFactory.class);
         Mockito.when(descriptorParserFactory.getInstance())
                .thenReturn(new DescriptorParserFacade());
-        Mockito.when(archiveEntryExtractor.readFullEntry(any(), any()))
+        Mockito.when(archiveEntryExtractor.extractEntryBytes(any(), any()))
                .thenReturn(loadFile("test-manifest-1.MF"))
                .thenReturn(loadFile("test-mtad-1.yaml"));
         step.descriptorParserFactory = descriptorParserFactory;
