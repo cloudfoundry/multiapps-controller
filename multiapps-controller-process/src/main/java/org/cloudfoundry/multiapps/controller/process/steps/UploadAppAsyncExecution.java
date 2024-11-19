@@ -77,7 +77,7 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         try {
             runningUpload = appUploaderThreadPool.submit(() -> doUpload(context, applicationToProcess, applicationToUploadContext));
         } catch (RejectedExecutionException rejectedExecutionException) {
-            LOGGER.error(rejectedExecutionException.getMessage());
+            LOGGER.warn(rejectedExecutionException.getMessage(), rejectedExecutionException);
             context.getStepLogger()
                    .warnWithoutProgressMessage(Messages.UPLOAD_OF_APPLICATION_0_WAS_NOT_ACCEPTED_BY_INSTANCE_1,
                                                applicationToProcess.getName(), applicationConfiguration.getApplicationInstanceIndex());
