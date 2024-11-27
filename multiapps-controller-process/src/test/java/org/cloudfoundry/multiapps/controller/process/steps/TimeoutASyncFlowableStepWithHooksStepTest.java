@@ -11,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.cloudfoundry.multiapps.mta.model.Module;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -91,7 +92,8 @@ class TimeoutASyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<Tim
         }
 
         @Override
-        protected HooksExecutor getHooksExecutor(HooksCalculator hooksCalculator, Module moduleToDeploy) {
+        protected HooksExecutor getHooksDeterminer(HooksCalculator hooksCalculator, Module moduleToDeploy,
+                                                   DelegateExecution delegateExecution) {
             return hooksExecutor;
         }
     }

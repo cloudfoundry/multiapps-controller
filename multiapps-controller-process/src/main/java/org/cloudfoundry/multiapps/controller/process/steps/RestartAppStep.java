@@ -4,9 +4,6 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
@@ -21,6 +18,9 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication.State;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named("restartAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -96,6 +96,10 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
 
     @Override
     public Duration getTimeout(ProcessContext context) {
+        Duration timeout = super.getTimeout(context);
+        if (timeout != null) {
+            return timeout;
+        }
         return calculateTimeout(context, TimeoutType.START);
     }
 }

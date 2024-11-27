@@ -39,7 +39,12 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
             context.getExecution()
                    .setVariable(getStepStartTimeVariable(), stepStartTime);
         }
-
+        if (context.getVariable(Variables.MUST_RESET_TIMEOUT)) {
+            stepStartTime = System.currentTimeMillis();
+            context.getExecution()
+                   .setVariable(getStepStartTimeVariable(), stepStartTime);
+            context.setVariable(Variables.MUST_RESET_TIMEOUT, false);
+        }
         return stepStartTime;
     }
 

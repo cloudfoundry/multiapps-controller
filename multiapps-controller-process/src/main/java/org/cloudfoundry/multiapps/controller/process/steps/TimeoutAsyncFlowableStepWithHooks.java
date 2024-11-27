@@ -1,8 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.time.Duration;
 import java.util.List;
-
-import jakarta.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.process.util.HooksCalculator;
@@ -12,9 +11,13 @@ import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ImmutableHooksCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ImmutableModuleDeterminer;
 import org.cloudfoundry.multiapps.controller.process.util.ModuleDeterminer;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.cloudfoundry.multiapps.mta.model.Module;
+import org.flowable.engine.delegate.DelegateExecution;
+
+import jakarta.inject.Inject;
 
 public abstract class TimeoutAsyncFlowableStepWithHooks extends TimeoutAsyncFlowableStep {
 
@@ -27,16 +30,25 @@ public abstract class TimeoutAsyncFlowableStepWithHooks extends TimeoutAsyncFlow
 
     @Override
     public StepPhase executeAsyncStep(ProcessContext context) {
-        ModuleDeterminer moduleDeterminer = getModuleDeterminer(context);
         StepPhase currentStepPhase = context.getVariable(Variables.STEP_PHASE);
-        Module moduleToDeploy = moduleDeterminer.determineModuleToDeploy();
-        HooksCalculator hooksCalculator = getHooksCalculator(context);
-        HooksExecutor hooksExecutor = getHooksExecutor(hooksCalculator, moduleToDeploy);
-        List<Hook> executedHooks = hooksExecutor.executeBeforeStepHooks(currentStepPhase);
+        List<Hook> executedHooks = executeHooksForExecution(context, currentStepPhase);
+        context.setVariable(Variables.HOOKS_FOR_EXECUTION, executedHooks);
         if (!executedHooks.isEmpty()) {
             return currentStepPhase;
         }
         return executePollingStep(context);
+    }
+
+    private List<Hook> executeHooksForExecution(ProcessContext context, StepPhase currentStepPhase) {
+        HooksExecutor hooksExecutor = getHooksExecutor(context);
+        return hooksExecutor.executeBeforeStepHooks(currentStepPhase);
+    }
+
+    private HooksExecutor getHooksExecutor(ProcessContext context) {
+        ModuleDeterminer moduleDeterminer = getModuleDeterminer(context);
+        Module moduleToDeploy = moduleDeterminer.determineModuleToDeploy();
+        HooksCalculator hooksCalculator = getHooksCalculator(context);
+        return getHooksDeterminer(hooksCalculator, moduleToDeploy, context.getExecution());
     }
 
     protected ModuleDeterminer getModuleDeterminer(ProcessContext context) {
@@ -54,9 +66,20 @@ public abstract class TimeoutAsyncFlowableStepWithHooks extends TimeoutAsyncFlow
                                        .build();
     }
 
-    protected HooksExecutor getHooksExecutor(HooksCalculator hooksCalculator, Module moduleToDeploy) {
-        return new HooksExecutor(hooksCalculator, moduleToDeploy);
+    protected HooksExecutor getHooksDeterminer(HooksCalculator hooksCalculator, Module moduleToDeploy,
+                                               DelegateExecution delegateExecution) {
+        return new HooksExecutor(hooksCalculator, moduleToDeploy, delegateExecution);
     }
 
     protected abstract StepPhase executePollingStep(ProcessContext context);
+
+    @Override
+    public Duration getTimeout(ProcessContext context) {
+        StepPhase currentStepPhase = context.getVariable(Variables.STEP_PHASE);
+        if (!getHooksExecutor(context).determineBeforeStepHooks(currentStepPhase)
+                                      .isEmpty()) {
+            return calculateTimeout(context, TimeoutType.TASK);
+        }
+        return null;
+    }
 }

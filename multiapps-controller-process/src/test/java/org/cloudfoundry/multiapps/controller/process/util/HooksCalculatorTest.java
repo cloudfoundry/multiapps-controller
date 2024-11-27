@@ -38,7 +38,8 @@ class HooksCalculatorTest {
         moduleToDeploy.setHooks(List.of(beforeStartIdleHook));
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
-        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE);
+        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE)
+                                                     .getHooks();
         Assertions.assertEquals(1, hooksForCurrentPhase.size());
         List<String> expectedHookPhases = List.of("deploy.application.before-start");
         Assertions.assertEquals(expectedHookPhases, hooksForCurrentPhase.get(0)
@@ -54,7 +55,8 @@ class HooksCalculatorTest {
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.SUBPROCESS_PHASE, SubprocessPhase.BEFORE_APPLICATION_START);
-        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE);
+        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE)
+                                                     .getHooks();
         Assertions.assertEquals(1, hooksForCurrentPhase.size());
         List<String> expectedHookPhases = List.of("blue-green.application.before-start.idle");
         Assertions.assertEquals(expectedHookPhases, hooksForCurrentPhase.get(0)
@@ -69,7 +71,8 @@ class HooksCalculatorTest {
         moduleToDeploy.setHooks(List.of(beforeStartLiveHook));
         context.setVariable(Variables.SUBPROCESS_PHASE, SubprocessPhase.BEFORE_APPLICATION_START);
         context.setVariable(Variables.PHASE, Phase.AFTER_RESUME);
-        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE);
+        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE)
+                                                     .getHooks();
         Assertions.assertEquals(1, hooksForCurrentPhase.size());
         List<String> expectedHookPhases = List.of("blue-green.application.before-start.live");
         Assertions.assertEquals(expectedHookPhases, hooksForCurrentPhase.get(0)
@@ -84,7 +87,8 @@ class HooksCalculatorTest {
         moduleToDeploy.setHooks(List.of(beforeStartIdleHook));
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
-        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE);
+        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE)
+                                                     .getHooks();
         Assertions.assertEquals(1, hooksForCurrentPhase.size());
         List<String> expectedHookPhases = List.of("deploy.application.before-stop");
         Assertions.assertEquals(expectedHookPhases, hooksForCurrentPhase.get(0)
@@ -100,7 +104,8 @@ class HooksCalculatorTest {
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.SUBPROCESS_PHASE, SubprocessPhase.BEFORE_APPLICATION_START);
-        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE);
+        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE)
+                                                     .getHooks();
         Assertions.assertEquals(1, hooksForCurrentPhase.size());
         List<String> expectedHookPhases = List.of("blue-green.application.before-stop.idle");
         Assertions.assertEquals(expectedHookPhases, hooksForCurrentPhase.get(0)
@@ -115,7 +120,8 @@ class HooksCalculatorTest {
         moduleToDeploy.setHooks(List.of(beforeStopLiveHook));
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
-        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE);
+        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE)
+                                                     .getHooks();
         Assertions.assertEquals(1, hooksForCurrentPhase.size());
         List<String> expectedHookPhases = List.of("blue-green.application.before-stop.live");
         Assertions.assertEquals(expectedHookPhases, hooksForCurrentPhase.get(0)
@@ -130,7 +136,8 @@ class HooksCalculatorTest {
         moduleToDeploy.setHooks(List.of(afterStopHook));
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
-        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.DONE);
+        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.DONE)
+                                                     .getHooks();
         Assertions.assertEquals(1, hooksForCurrentPhase.size());
         List<String> expectedHookPhases = List.of("deploy.application.after-stop");
         Assertions.assertEquals(expectedHookPhases, hooksForCurrentPhase.get(0)
@@ -146,7 +153,8 @@ class HooksCalculatorTest {
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.SUBPROCESS_PHASE, SubprocessPhase.BEFORE_APPLICATION_START);
-        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.DONE);
+        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.DONE)
+                                                     .getHooks();
         Assertions.assertEquals(1, hooksForCurrentPhase.size());
         List<String> expectedHookPhases = List.of("blue-green.application.after-stop.idle");
         Assertions.assertEquals(expectedHookPhases, hooksForCurrentPhase.get(0)
@@ -161,7 +169,8 @@ class HooksCalculatorTest {
         moduleToDeploy.setHooks(List.of(afterStopLiveHook));
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
-        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.DONE);
+        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.DONE)
+                                                     .getHooks();
         Assertions.assertEquals(1, hooksForCurrentPhase.size());
         List<String> expectedHookPhases = List.of("blue-green.application.after-stop.live");
         Assertions.assertEquals(expectedHookPhases, hooksForCurrentPhase.get(0)
@@ -176,7 +185,8 @@ class HooksCalculatorTest {
         moduleToDeploy.setHooks(List.of(afterUnmapRoutesHook));
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
-        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE);
+        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE)
+                                                     .getHooks();
         Assertions.assertEquals(1, hooksForCurrentPhase.size());
         List<String> expectedHookPhases = List.of("blue-green.application.before-unmap-routes.live");
         Assertions.assertEquals(expectedHookPhases, hooksForCurrentPhase.get(0)
@@ -189,7 +199,8 @@ class HooksCalculatorTest {
         Module moduleToDeploy = createModule("module-to-deploy");
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
-        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.POLL);
+        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.POLL)
+                                                     .getHooks();
         Assertions.assertEquals(0, hooksForCurrentPhase.size());
     }
 
