@@ -854,4 +854,8 @@ public interface Variables {
                                                                                                                .type(new TypeReference<>() {
                                                                                                                })
                                                                                                                .build();
+    Variable<Boolean> MUST_RESET_TIMEOUT = ImmutableSimpleVariable.<Boolean> builder()
+                                                                  .name("mustResetTimeout")
+                                                                  .defaultValue(false)
+                                                                  .build();
 }

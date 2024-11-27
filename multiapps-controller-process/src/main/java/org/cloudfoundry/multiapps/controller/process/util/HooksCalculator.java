@@ -6,7 +6,6 @@ import java.util.List;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.steps.StepPhase;
-import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.immutables.value.Value;
@@ -14,9 +13,12 @@ import org.immutables.value.Value;
 @Value.Immutable
 public abstract class HooksCalculator {
 
-    public List<Hook> calculateHooksForExecution(Module moduleToDeploy, StepPhase currentStepPhase) {
+    public HooksWithPhases calculateHooksForExecution(Module moduleToDeploy, StepPhase currentStepPhase) {
         List<HookPhase> currentHookPhasesForExecution = determineHookPhaseForCurrentStepPhase(currentStepPhase);
-        return getHooksForCurrentPhase(moduleToDeploy, currentHookPhasesForExecution);
+        return ImmutableHooksWithPhases.builder()
+                                       .hooks(getHooksForCurrentPhase(moduleToDeploy, currentHookPhasesForExecution))
+                                       .hookPhases(currentHookPhasesForExecution)
+                                       .build();
     }
 
     private List<HookPhase> determineHookPhaseForCurrentStepPhase(StepPhase currentStepPhase) {
@@ -43,10 +45,6 @@ public abstract class HooksCalculator {
 
     private ModuleHooksAggregator getModuleHooksAggregator(Module moduleToDeploy) {
         return new ModuleHooksAggregator(getContext().getExecution(), moduleToDeploy);
-    }
-
-    public void setHooksForExecution(List<Hook> hooksForExecution) {
-        getContext().setVariable(Variables.HOOKS_FOR_EXECUTION, hooksForExecution);
     }
 
     public abstract ProcessContext getContext();
