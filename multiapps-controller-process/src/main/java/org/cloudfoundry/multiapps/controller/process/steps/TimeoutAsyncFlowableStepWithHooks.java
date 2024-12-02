@@ -15,7 +15,6 @@ import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.cloudfoundry.multiapps.mta.model.Module;
-import org.flowable.engine.delegate.DelegateExecution;
 
 import jakarta.inject.Inject;
 
@@ -32,7 +31,6 @@ public abstract class TimeoutAsyncFlowableStepWithHooks extends TimeoutAsyncFlow
     public StepPhase executeAsyncStep(ProcessContext context) {
         StepPhase currentStepPhase = context.getVariable(Variables.STEP_PHASE);
         List<Hook> executedHooks = executeHooksForExecution(context, currentStepPhase);
-        context.setVariable(Variables.HOOKS_FOR_EXECUTION, executedHooks);
         if (!executedHooks.isEmpty()) {
             return currentStepPhase;
         }
@@ -48,7 +46,7 @@ public abstract class TimeoutAsyncFlowableStepWithHooks extends TimeoutAsyncFlow
         ModuleDeterminer moduleDeterminer = getModuleDeterminer(context);
         Module moduleToDeploy = moduleDeterminer.determineModuleToDeploy();
         HooksCalculator hooksCalculator = getHooksCalculator(context);
-        return getHooksDeterminer(hooksCalculator, moduleToDeploy, context.getExecution());
+        return getHooksDeterminer(hooksCalculator, moduleToDeploy, context);
     }
 
     protected ModuleDeterminer getModuleDeterminer(ProcessContext context) {
@@ -66,9 +64,8 @@ public abstract class TimeoutAsyncFlowableStepWithHooks extends TimeoutAsyncFlow
                                        .build();
     }
 
-    protected HooksExecutor getHooksDeterminer(HooksCalculator hooksCalculator, Module moduleToDeploy,
-                                               DelegateExecution delegateExecution) {
-        return new HooksExecutor(hooksCalculator, moduleToDeploy, delegateExecution);
+    protected HooksExecutor getHooksDeterminer(HooksCalculator hooksCalculator, Module moduleToDeploy, ProcessContext context) {
+        return new HooksExecutor(hooksCalculator, moduleToDeploy, context);
     }
 
     protected abstract StepPhase executePollingStep(ProcessContext context);
