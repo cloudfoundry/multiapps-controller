@@ -7,22 +7,23 @@ import java.util.Map;
 
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
+import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.steps.StepPhase;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.cloudfoundry.multiapps.mta.model.Module;
-import org.flowable.engine.delegate.DelegateExecution;
 
 public class HooksExecutor {
 
     private final HooksCalculator hooksCalculator;
     private final Module moduleToDeploy;
-    private final DelegateExecution delegateExecution;
+    private final ProcessContext context;
 
-    public HooksExecutor(HooksCalculator hooksCalculator, Module moduleToDeploy, DelegateExecution delegateExecution) {
+    public HooksExecutor(HooksCalculator hooksCalculator, Module moduleToDeploy, ProcessContext context) {
         this.hooksCalculator = hooksCalculator;
         this.moduleToDeploy = moduleToDeploy;
-        this.delegateExecution = delegateExecution;
+        this.context = context;
     }
 
     public List<Hook> determineBeforeStepHooks(StepPhase currentStepPhase) {
@@ -45,9 +46,10 @@ public class HooksExecutor {
             return Collections.emptyList();
         }
         HooksWithPhases hooksWithPhases = hooksCalculator.calculateHooksForExecution(moduleToDeploy, currentStepPhase);
-        Map<String, List<String>> alreadyExecutedHooksForModule = StepsUtil.getExecutedHooksForModule(delegateExecution,
+        Map<String, List<String>> alreadyExecutedHooksForModule = StepsUtil.getExecutedHooksForModule(context.getExecution(),
                                                                                                       moduleToDeploy.getName());
         updateExecutedHooksForModule(alreadyExecutedHooksForModule, hooksWithPhases.getHookPhases(), hooksWithPhases.getHooks());
+        context.setVariable(Variables.HOOKS_FOR_EXECUTION, hooksWithPhases.getHooks());
         return hooksWithPhases.getHooks();
     }
 
@@ -55,7 +57,7 @@ public class HooksExecutor {
                                               List<Hook> hooksForExecution) {
         Map<String, List<String>> result = new HashMap<>(alreadyExecutedHooks);
         updateExecutedHooks(result, currentHookPhasesForExecution, hooksForExecution);
-        StepsUtil.setExecutedHooksForModule(delegateExecution, moduleToDeploy.getName(), result);
+        StepsUtil.setExecutedHooksForModule(context.getExecution(), moduleToDeploy.getName(), result);
     }
 
     private void updateExecutedHooks(Map<String, List<String>> alreadyExecutedHooks, List<HookPhase> currentHookPhasesForExecution,

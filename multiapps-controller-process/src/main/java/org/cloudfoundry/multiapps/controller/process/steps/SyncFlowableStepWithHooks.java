@@ -13,7 +13,6 @@ import org.cloudfoundry.multiapps.controller.process.util.ModuleDeterminer;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.cloudfoundry.multiapps.mta.model.Module;
-import org.flowable.engine.delegate.DelegateExecution;
 
 import jakarta.inject.Inject;
 
@@ -32,15 +31,13 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         StepPhase currentStepPhase = context.getVariable(Variables.STEP_PHASE);
         Module moduleToDeploy = moduleDeterminer.determineModuleToDeploy();
         HooksCalculator hooksCalculator = getHooksCalculator(context);
-        HooksExecutor hooksExecutor = getHooksExecutor(hooksCalculator, moduleToDeploy, context.getExecution());
-        List<Hook> hooksForExecution = hooksExecutor.executeBeforeStepHooks(currentStepPhase);
-        context.setVariable(Variables.HOOKS_FOR_EXECUTION, hooksForExecution);
-        if (!hooksForExecution.isEmpty()) {
+        HooksExecutor hooksExecutor = getHooksExecutor(hooksCalculator, moduleToDeploy, context);
+        List<Hook> executedBeforeStepHooks = hooksExecutor.executeBeforeStepHooks(currentStepPhase);
+        if (!executedBeforeStepHooks.isEmpty()) {
             return currentStepPhase;
         }
         currentStepPhase = executeStepInternal(context);
-        hooksForExecution = hooksExecutor.executeAfterStepHooks(currentStepPhase);
-        context.setVariable(Variables.HOOKS_FOR_EXECUTION, hooksForExecution);
+        hooksExecutor.executeAfterStepHooks(currentStepPhase);
         return currentStepPhase;
     }
 
@@ -59,8 +56,8 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
                                        .build();
     }
 
-    protected HooksExecutor getHooksExecutor(HooksCalculator hooksCalculator, Module moduleToDeploy, DelegateExecution delegateExecution) {
-        return new HooksExecutor(hooksCalculator, moduleToDeploy, delegateExecution);
+    protected HooksExecutor getHooksExecutor(HooksCalculator hooksCalculator, Module moduleToDeploy, ProcessContext context) {
+        return new HooksExecutor(hooksCalculator, moduleToDeploy, context);
     }
 
     protected abstract StepPhase executeStepInternal(ProcessContext context);
