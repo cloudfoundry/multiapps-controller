@@ -10,11 +10,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableBindingDetails;
@@ -22,7 +23,6 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApp
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +41,7 @@ import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBinding;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceCredentialBindingOperation;
+import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
 
 class ServiceBindingParametersGetterTest {
 
@@ -49,24 +50,34 @@ class ServiceBindingParametersGetterTest {
     private static final String APP_ARCHIVE_ID = "test_archive_id";
     private static final String SERVICE_BINDING_PARAMETERS_FILENAME = "test_binding_parameters.json";
     private static final UUID RANDOM_GUID = UUID.randomUUID();
+    private static final ArchiveEntryWithStreamPositions ARCHIVE_ENTRY_WITH_STREAM_POSITIONS = ImmutableArchiveEntryWithStreamPositions.builder()
+                                                                                                                                       .name(SERVICE_BINDING_PARAMETERS_FILENAME)
+                                                                                                                                       .startPosition(37)
+                                                                                                                                       .endPosition(5012)
+                                                                                                                                       .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
+                                                                                                                                       .isDirectory(false)
+                                                                                                                                       .build();
+    private static final String TEST_SPACE_GUID = "test_space_guid";
 
     @Mock
     private ProcessContext context;
     @Mock
     private StepLogger stepLogger;
     @Mock
-    private FileService fileService;
+    private ArchiveEntryExtractor archiveEntryExtractor;
     @Mock
     private MtaArchiveElements mtaArchiveElements;
     @Mock
     private CloudControllerClient client;
+    @Mock
+    private FileService fileService;
 
     private ServiceBindingParametersGetter serviceBindingParametersGetter;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        serviceBindingParametersGetter = new ServiceBindingParametersGetter(context, fileService, 0);
+        serviceBindingParametersGetter = new ServiceBindingParametersGetter(context, archiveEntryExtractor, 0, fileService);
     }
 
     static Stream<Arguments> testGetServiceBindingParametersFromMta() {
@@ -89,8 +100,7 @@ class ServiceBindingParametersGetterTest {
     @ParameterizedTest
     @MethodSource
     void testGetServiceBindingParametersFromMta(Map<String, Object> descriptorParameters, Map<String, Object> filedProvidedParameters,
-                                                Map<String, Object> expectedParameters)
-        throws FileStorageException {
+                                                Map<String, Object> expectedParameters) {
         CloudApplicationExtended application = buildApplication(descriptorParameters);
         CloudServiceInstanceExtended serviceInstance = buildServiceInstance();
         prepareMtaArchiveElements(filedProvidedParameters);
@@ -104,7 +114,7 @@ class ServiceBindingParametersGetterTest {
     }
 
     @Test
-    void testGetServiceBindingOfMissingService() throws FileStorageException {
+    void testGetServiceBindingOfMissingService() {
         CloudApplicationExtended application = buildApplication(null);
         when(context.getVariable(Variables.SERVICES_TO_BIND)).thenReturn(Collections.emptyList());
 
@@ -202,11 +212,15 @@ class ServiceBindingParametersGetterTest {
         when(context.getVariable(Variables.SERVICES_TO_BIND)).thenReturn(Collections.singletonList(serviceInstance));
         when(context.getRequiredVariable(Variables.APP_ARCHIVE_ID)).thenReturn(APP_ARCHIVE_ID);
         when(context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS)).thenReturn(mtaArchiveElements);
+        when(context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS)).thenReturn(List.of(ARCHIVE_ENTRY_WITH_STREAM_POSITIONS));
+        when(context.getVariable(Variables.SPACE_GUID)).thenReturn(TEST_SPACE_GUID);
+        when(context.getRequiredVariable(Variables.SPACE_GUID)).thenReturn(TEST_SPACE_GUID);
         when(context.getControllerClient()).thenReturn(client);
     }
 
-    private void prepareFileService(Map<String, Object> filedProvidedParameters) throws FileStorageException {
-        when(fileService.processFileContent(any(), any(), any())).thenReturn(filedProvidedParameters);
+    private void prepareFileService(Map<String, Object> fileProvidedParameters) {
+        String fileProvidedParametersJson = JsonUtil.toJson(fileProvidedParameters);
+        when(archiveEntryExtractor.extractEntryBytes(any(), any())).thenReturn(fileProvidedParametersJson.getBytes());
     }
 
     private void prepareClient(Map<String, Object> bindingParameters, boolean serviceBindingExist) {
@@ -220,9 +234,9 @@ class ServiceBindingParametersGetterTest {
                                                                                                              .guid(RANDOM_GUID)
                                                                                                              .build())
                                                                              .serviceBindingOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                                                      .state(ServiceCredentialBindingOperation.State.SUCCEEDED)
-                                                                                                                                      .build())
+                                                                                                                                                .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                                                                .state(ServiceCredentialBindingOperation.State.SUCCEEDED)
+                                                                                                                                                .build())
                                                                              .build();
             when(client.getServiceBindingForApplication(RANDOM_GUID, RANDOM_GUID)).thenReturn(serviceBinding);
             return;

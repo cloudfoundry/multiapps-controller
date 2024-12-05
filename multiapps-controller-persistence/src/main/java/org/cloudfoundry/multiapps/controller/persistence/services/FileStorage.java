@@ -32,4 +32,6 @@ public interface FileStorage {
 
     void deleteFilesByIds(List<String> fileIds) throws FileStorageException;
 
+    <T> T processArchiveEntryContent(FileContentToProcess fileContentToProcess, FileContentProcessor<T> fileContentProcessor)
+        throws FileStorageException;
 }

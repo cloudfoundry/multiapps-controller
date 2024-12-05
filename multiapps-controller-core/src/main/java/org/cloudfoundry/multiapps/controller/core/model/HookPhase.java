@@ -8,7 +8,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public enum HookPhase {
-    
+
+    //@formatter:off
     @Deprecated
     APPLICATION_BEFORE_STOP_LIVE("application.before-stop.live"),
     @Deprecated
@@ -19,8 +20,9 @@ public enum HookPhase {
     APPLICATION_AFTER_STOP_IDLE("application.after-stop.idle"),
     @Deprecated
     APPLICATION_BEFORE_UNMAP_ROUTES("application.before-unmap-routes"),
+    //@formatter:on
 
-
+    //@formatter:off
     BEFORE_STOP("before-stop"),
     DEPLOY_APPLICATION_BEFORE_STOP("deploy.application.before-stop"),
     BLUE_GREEN_APPLICATION_BEFORE_STOP_IDLE("blue-green.application.before-stop.idle"),
@@ -38,10 +40,11 @@ public enum HookPhase {
     BLUE_GREEN_APPLICATION_BEFORE_START_IDLE("blue-green.application.before-start.idle"),
     BLUE_GREEN_APPLICATION_BEFORE_START_LIVE("blue-green.application.before-start.live"),
     NONE("");
+    //@formatter:on
 
-    private static Map<String, HookPhase> namesToValues = Arrays.stream(HookPhase.values())
-                                                                .collect(Collectors.toMap(hookPhase -> hookPhase.value,
-                                                                                          Function.identity()));
+    private static final Map<String, HookPhase> NAMES_TO_VALUES = Arrays.stream(HookPhase.values())
+                                                                        .collect(Collectors.toMap(hookPhase -> hookPhase.value,
+                                                                                                  Function.identity()));
     private final String value;
 
     HookPhase(String value) {
@@ -49,18 +52,17 @@ public enum HookPhase {
     }
 
     public static HookPhase fromString(String hookPhaseName) {
-        HookPhase hookPhase = namesToValues.get(hookPhaseName);
+        HookPhase hookPhase = NAMES_TO_VALUES.get(hookPhaseName);
         if (hookPhase == null) {
             throw new IllegalStateException(MessageFormat.format("Unsupported hook phase \"{0}\"", hookPhaseName));
         }
         return hookPhase;
     }
-    
+
     @Deprecated
     public static List<HookPhase> getOldPhases() {
         return Arrays.asList(APPLICATION_BEFORE_STOP_LIVE, APPLICATION_BEFORE_STOP_IDLE, APPLICATION_AFTER_STOP_LIVE,
-                             APPLICATION_AFTER_STOP_IDLE, APPLICATION_BEFORE_UNMAP_ROUTES
-        );
+                             APPLICATION_AFTER_STOP_IDLE, APPLICATION_BEFORE_UNMAP_ROUTES);
     }
 
     public String getValue() {

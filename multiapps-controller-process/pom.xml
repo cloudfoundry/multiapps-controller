@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.cloudfoundry.multiapps</groupId>
         <artifactId>multiapps-controller-parent</artifactId>
-        <version>1.180.0-SNAPSHOT</version>
+        <version>1.182.0-SNAPSHOT</version>
     </parent>
 
     <build>
@@ -29,6 +29,10 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>

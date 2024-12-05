@@ -1,6 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.time.Duration;
 import java.util.List;
@@ -15,7 +17,10 @@ import org.cloudfoundry.multiapps.controller.process.util.HooksExecutor;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.mta.model.Hook;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -40,8 +45,7 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     @Test
     void testExecuteWhenAppIsStopped() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
-               .thenReturn(ProcessType.DEPLOY);
+        when(processTypeParser.getProcessType(context.getExecution())).thenReturn(ProcessType.DEPLOY);
         CloudApplicationExtended app = createApplication(APP_NAME, State.STOPPED);
         prepareContextAndClient(app);
         step.execute(execution);
@@ -60,8 +64,7 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     @Test
     void testExecuteWhenAppIsStarted() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
-               .thenReturn(ProcessType.DEPLOY);
+        when(processTypeParser.getProcessType(context.getExecution())).thenReturn(ProcessType.DEPLOY);
         CloudApplicationExtended app = createApplication(APP_NAME, State.STARTED);
         prepareContextAndClient(app);
         step.execute(execution);
@@ -75,8 +78,8 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     @Test
     void testGetHookPhasesBeforeStep() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_START), context))
-               .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE));
+        when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_START),
+                                               context)).thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE));
         List<HookPhase> expectedHooks = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE);
         List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesBeforeStep(context);
         assertEquals(expectedHooks, hookPhasesBeforeStep);
@@ -90,8 +93,7 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
     }
 
     private void prepareContextAndClient(CloudApplicationExtended app) {
-        Mockito.when(client.getApplication(APP_NAME))
-               .thenReturn(app);
+        when(client.getApplication(APP_NAME)).thenReturn(app);
         context.setVariable(Variables.APP_TO_PROCESS, app);
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
     }
@@ -105,6 +107,30 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
         Duration actualTimeout = step.getTimeout(context);
         assertEquals(Duration.ofSeconds(expectedTimeout), actualTimeout);
+    }
+
+    @Test
+    void testGetTimeoutWhenHooksAreBeingExecuted() {
+        step.initializeStepLogger(execution);
+        Module moduleToDeployWithHooks = context.getVariable(Variables.MODULE_TO_DEPLOY);
+        List<Hook> hooksForExecution = buildHooksForExecution();
+        moduleToDeployWithHooks.setHooks(hooksForExecution);
+        context.setVariable(Variables.MODULE_TO_DEPLOY, moduleToDeployWithHooks);
+        context.setVariable(TimeoutType.START.getProcessVariable(), TimeoutType.START.getProcessVariable()
+                                                                                     .getDefaultValue());
+        context.setVariable(TimeoutType.TASK.getProcessVariable(), TimeoutType.TASK.getProcessVariable()
+                                                                                   .getDefaultValue());
+        when(hooksPhaseGetter.getHookPhasesBeforeStop(any(),
+                                                      any())).thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE));
+        Duration timeout = step.getTimeout(context);
+        assertEquals(Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE.getDefaultValue(), timeout);
+    }
+
+    private List<Hook> buildHooksForExecution() {
+        Hook hook = Hook.createV3()
+                        .setName("custom-hook")
+                        .setPhases(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE.getValue()));
+        return List.of(hook);
     }
 
     @Override

@@ -34,6 +34,7 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires java.sql;
     requires jakarta.xml.bind;
     requires jakarta.inject;
+    requires org.apache.commons.compress;
     requires org.apache.logging.log4j.core;
     requires org.apache.logging.log4j;
     requires org.apache.commons.collections4;

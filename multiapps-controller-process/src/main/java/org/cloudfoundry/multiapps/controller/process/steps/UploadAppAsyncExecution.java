@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static java.text.MessageFormat.format;
 
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Duration;
@@ -22,8 +21,6 @@ import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationEnvironment
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.context.ApplicationToUploadContext;
@@ -44,16 +41,13 @@ public class UploadAppAsyncExecution implements AsyncExecution {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadAppAsyncExecution.class);
 
-    private final FileService fileService;
     private final ApplicationZipBuilder applicationZipBuilder;
     private final ProcessLoggerPersister processLoggerPersister;
     private final ApplicationConfiguration applicationConfiguration;
     private final ExecutorService appUploaderThreadPool;
 
-    public UploadAppAsyncExecution(FileService fileService, ApplicationZipBuilder applicationZipBuilder,
-                                   ProcessLoggerPersister processLoggerPersister, ApplicationConfiguration applicationConfiguration,
-                                   ExecutorService appUploaderThreadPool) {
-        this.fileService = fileService;
+    public UploadAppAsyncExecution(ApplicationZipBuilder applicationZipBuilder, ProcessLoggerPersister processLoggerPersister,
+                                   ApplicationConfiguration applicationConfiguration, ExecutorService appUploaderThreadPool) {
         this.applicationZipBuilder = applicationZipBuilder;
         this.processLoggerPersister = processLoggerPersister;
         this.applicationConfiguration = applicationConfiguration;
@@ -77,10 +71,10 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         try {
             runningUpload = appUploaderThreadPool.submit(() -> doUpload(context, applicationToProcess, applicationToUploadContext));
         } catch (RejectedExecutionException rejectedExecutionException) {
-            LOGGER.error(rejectedExecutionException.getMessage());
+            LOGGER.warn(rejectedExecutionException.getMessage(), rejectedExecutionException);
             context.getStepLogger()
-                   .warnWithoutProgressMessage(Messages.UPLOAD_OF_APPLICATION_0_WAS_NOT_ACCEPTED_BY_INSTANCE_1,
-                                               applicationToProcess.getName(), applicationConfiguration.getApplicationInstanceIndex());
+                   .warn(Messages.UPLOAD_OF_APPLICATION_0_WAS_NOT_ACCEPTED_BY_INSTANCE_1, applicationToProcess.getName(),
+                         applicationConfiguration.getApplicationInstanceIndex());
             return AsyncExecutionState.RUNNING;
         }
         CloudPackage cloudPackage;
@@ -108,23 +102,19 @@ public class UploadAppAsyncExecution implements AsyncExecution {
                                                   .taskId(context.getVariable(Variables.TASK_ID))
                                                   .appArchiveId(context.getRequiredVariable(Variables.APP_ARCHIVE_ID))
                                                   .stepLogger(context.getStepLogger())
+                                                  .archiveEntries(context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS))
                                                   .build();
     }
 
     private CloudPackage doUpload(ProcessContext context, CloudApplicationExtended applicationToProcess,
                                   ApplicationToUploadContext applicationToUploadContext) {
         context.getStepLogger()
-               .infoWithoutProgressMessage(Messages.UPLOAD_OF_APPLICATION_0_STARTED_ON_INSTANCE_1, applicationToProcess.getName(),
-                                           applicationConfiguration.getApplicationInstanceIndex());
-        try {
-            return proceedWithUpload(context.getControllerClient(), applicationToUploadContext);
-        } catch (FileStorageException e) {
-            throw new SLException(e, e.getMessage());
-        }
+               .debug(Messages.UPLOAD_OF_APPLICATION_0_STARTED_ON_INSTANCE_1, applicationToProcess.getName(),
+                      applicationConfiguration.getApplicationInstanceIndex());
+        return proceedWithUpload(context.getControllerClient(), applicationToUploadContext);
     }
 
-    private CloudPackage proceedWithUpload(CloudControllerClient client, ApplicationToUploadContext applicationToUploadContext)
-        throws FileStorageException {
+    private CloudPackage proceedWithUpload(CloudControllerClient client, ApplicationToUploadContext applicationToUploadContext) {
         applicationToUploadContext.getStepLogger()
                                   .debug(Messages.UPLOADING_FILE_0_FOR_APP_1, applicationToUploadContext.getModuleFileName(),
                                          applicationToUploadContext.getApplication()
@@ -137,8 +127,7 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         return cloudPackage;
     }
 
-    private CloudPackage asyncUploadFiles(CloudControllerClient client, ApplicationToUploadContext applicationToUploadContext)
-        throws FileStorageException {
+    private CloudPackage asyncUploadFiles(CloudControllerClient client, ApplicationToUploadContext applicationToUploadContext) {
         Path extractedAppPath = extractApplicationFromArchive(applicationToUploadContext);
         LOGGER.debug(MessageFormat.format(Messages.APPLICATION_WITH_NAME_0_SAVED_TO_1, applicationToUploadContext.getApplication()
                                                                                                                  .getName(),
@@ -151,13 +140,10 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         return upload(client, applicationToUploadContext, extractedAppPath);
     }
 
-    private Path extractApplicationFromArchive(ApplicationToUploadContext applicationToUploadContext) throws FileStorageException {
+    private Path extractApplicationFromArchive(ApplicationToUploadContext applicationToUploadContext) {
         LocalDateTime startTime = LocalDateTime.now();
-        Path extractedAppPath = fileService.processFileContent(applicationToUploadContext.getSpaceGuid(),
-                                                               applicationToUploadContext.getAppArchiveId(),
-                                                               appArchiveStream -> extractFromMtar(createApplicationArchiveContext(appArchiveStream,
-                                                                                                                                   applicationToUploadContext.getModuleFileName(),
-                                                                                                                                   applicationConfiguration.getMaxResourceFileSize())));
+        Path extractedAppPath = extractFromMtar(createApplicationArchiveContext(applicationToUploadContext,
+                                                                                applicationConfiguration.getMaxResourceFileSize()));
         long timeElapsedForUpload = Duration.between(startTime, LocalDateTime.now())
                                             .toMillis();
         applicationToUploadContext.getStepLogger()
@@ -166,8 +152,13 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         return extractedAppPath;
     }
 
-    protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName, long maxSize) {
-        return new ApplicationArchiveContext(appArchiveStream, fileName, maxSize);
+    protected ApplicationArchiveContext createApplicationArchiveContext(ApplicationToUploadContext applicationToUploadContext,
+                                                                        long maxSize) {
+        return new ApplicationArchiveContext(applicationToUploadContext.getModuleFileName(),
+                                             maxSize,
+                                             applicationToUploadContext.getArchiveEntries(),
+                                             applicationToUploadContext.getSpaceGuid(),
+                                             applicationToUploadContext.getAppArchiveId());
     }
 
     protected Path extractFromMtar(ApplicationArchiveContext applicationArchiveContext) {

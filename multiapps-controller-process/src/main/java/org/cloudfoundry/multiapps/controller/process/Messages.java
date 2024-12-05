@@ -13,7 +13,6 @@ public class Messages {
     public static final String ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT = "Error retrieving content of MTA required dependency \"{0}\"";
     public static final String ERROR_RETRIEVING_MTA_RESOURCE_CONTENT = "Error retrieving content of MTA resource \"{0}\"";
     public static final String ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET = "Service described by MTA resource \"{0}\" of type [{1}] does not match already existing service \"{2}\" of type [{3}] and needs to be recreated. Use command line option \"--delete-services\" to enable the deletion of the existing one.";
-    public static final String SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT = "The size of the application exceeds max size limit \"{0}\"";
     public static final String ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT = "Unable to retrieve required service key element \"{0}\" for service \"{1}\"";
     public static final String ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE = "Value \"{0}\" of parameter \"{1}\" must not be negative";
     public static final String ERROR_PARAMETER_1_MUST_BE_LESS_THAN_2 = "Value \"{0}\" of parameter \"{1}\" must be less than {2}";
@@ -73,6 +72,7 @@ public class Messages {
     public static final String SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1 = "Size of all operation files \"{0}\" exceeds max upload size limit \"{1}\"";
     public static final String NOT_BOOLEAN_PARAMETER_VALUE = "Value \"{0}\" of parameter \"{1}\" is not boolean";
     public static final String ERROR_OCCURRED_DURING_APPLICATION_UPLOAD_0 = "Error occurred during application upload: {0}";
+    public static final String COMPRESSION_METHOD_WITH_VALUE_0_NOT_FOUND = "Compression method with value: {0} not found";
 
     // Audit log messages
 
@@ -711,6 +711,7 @@ public class Messages {
     public static final String ERROR_WAITING_FOR_OPERATION_TO_FINISH = "Error waiting for operation to finish";
     public static final String OPERATION_OF_SERVICE_BINDING_OR_KEY_IS_IN_PROGRESS = "Operation of service binding or key is in progress";
     public static final String ARCHIVE_WAS_NOT_SPLIT_TOTAL_SIZE_IN_BYTES_0 = "Archive was not split! Total size in bytes: {0}";
+    public static final String SIZE_OF_MTAR_IS_AND_SIZE_OF_EXTENSION_DESCRIPTOR_ID = "Size of mtars is {0} and size of extension descriptors is {1}";
     public static final String ARCHIVE_IS_SPLIT_TO_0_PARTS_TOTAL_SIZE_IN_BYTES_1_UPLOADING = "Archive was split to: {0} parts. Total size in bytes: {1}. Uploading started...";
     public static final String SIZE_OF_APP_0_IS_1_BYTES = "Size of app {0} is {1} bytes";
     public static final String SHOULD_UPDATE_SERVICE_KEY = "Service keys should be updated";
@@ -740,6 +741,12 @@ public class Messages {
     public static final String PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1 = "Parameter \"{0}\" must be positive integer value up to {1}!";
     public static final String SKIPPING_UPLOAD_OF_APPLICATION_0 = "Skipping upload of application: {0}";
     public static final String UPLOAD_OF_APPLICATION_0_STARTED_ON_INSTANCE_1 = "Upload of application: {0} started on instance: {1}";
+    public static final String MTA_ARCHIVE_ID_0_MESSAGE = "MTA Archive ID: {0}";
+    public static final String MTA_DESCRIPTOR_LENGTH_0_MESSAGE = "MTA Descriptor length: {0}";
+    public static final String MTA_ARCHIVE_MODULES_0_MESSAGE = "MTA Archive Modules: {0}";
+    public static final String MTA_ARCHIVE_REQUIRES_0_MESSAGE = "MTA Archive Requires: {0}";
+    public static final String MTA_ARCHIVE_RESOURCES_0_MESSAGE = "MTA Archive Resources: {0}";
+    public static final String MODULE_0_CONTENT_IS_A_DIRECTORY = "Module: \"{0}\" content is a directory";
 
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";

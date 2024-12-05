@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.cloudfoundry.multiapps</groupId>
     <artifactId>multiapps-controller-parent</artifactId>
-    <version>1.180.0-SNAPSHOT</version>
+    <version>1.182.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>MultiApps Controller Parent</name>
     <description>Multi-Target Application (MTA) deployment service for Cloud Foundry</description>
@@ -17,40 +17,40 @@
         </sonar.coverage.jacoco.xmlReportPaths>
         <junit.version>5.10.2</junit.version>
         <junit-platform.version>1.10.2</junit-platform.version>
-        <mockito.version>5.12.0</mockito.version>
+        <mockito.version>5.14.2</mockito.version>
         <derby.version>10.16.1.1</derby.version>
         <h2.version>2.2.224</h2.version>
         <servlet-api.version>6.1.0</servlet-api.version>
-        <log4j.version>2.23.1</log4j.version>
+        <log4j.version>2.24.2</log4j.version>
         <slf4j.version>2.0.12</slf4j.version>
         <commons-io.version>2.17.0</commons-io.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <snakeyaml.version>2.2</snakeyaml.version>
+        <snakeyaml.version>2.3</snakeyaml.version>
         <httpclient.version>4.5.14</httpclient.version>
         <httpcore.version>4.4.16</httpcore.version>
         <eclipselink.version>3.0.4
         </eclipselink.version>  <!-- Be careful when updating eclipselink versions. As of version 4.0.4, there have been reported regressions connected to exhausted Hikari DB pools  -->
         <flowable.version>6.8.0</flowable.version>
         <mybatis.version>3.5.16</mybatis.version>
-        <spring.version>6.1.14</spring.version>
-        <spring-security.version>6.3.4</spring-security.version>
+        <spring.version>6.2.0</spring.version>
+        <spring-security.version>6.4.1</spring-security.version>
         <json-smart.version>2.5.1</json-smart.version>
-        <hikari.version>5.1.0</hikari.version>
-        <jackson.version>2.17.2</jackson.version>
-        <jackson.databind.version>2.17.2</jackson.databind.version>
+        <hikari.version>6.2.1</hikari.version>
+        <jackson.version>2.18.1</jackson.version>
+        <jackson.databind.version>2.18.2</jackson.databind.version>
         <liquibase.version>4.29.1</liquibase.version>
         <liquibase-slf4j.version>5.0.0</liquibase-slf4j.version>
         <cloudfoundry-client.version>2.49.0</cloudfoundry-client.version>
         <swagger.version>1.6.14</swagger.version>
         <jclouds.version>2.6.0</jclouds.version>
-        <guava.version>33.1.0-jre</guava.version>
+        <guava.version>33.3.1-jre</guava.version>
         <resilience4j.version>2.2.0</resilience4j.version>
         <immutables.version>2.10.1</immutables.version>
         <micrometer.version>1.12.5</micrometer.version>
         <aliyun-sdk-oss.version>3.17.4</aliyun-sdk-oss.version>
         <auto-service.version>1.1.1</auto-service.version>
         <commons-codec.version>1.16.1</commons-codec.version>
-        <multiapps.version>2.25.0</multiapps.version>
+        <multiapps.version>2.26.0</multiapps.version>
         <java-cfenv.version>3.1.5</java-cfenv.version>
         <jaxb-api.version>4.0.2</jaxb-api.version>
         <jaxb-core.version>4.0.5</jaxb-core.version>
@@ -58,6 +58,7 @@
         <jakarta.inject-api.version>2.0.1</jakarta.inject-api.version>
         <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
         <bouncycastle.version>1.78</bouncycastle.version>
+        <apache.compress.version>1.27.1</apache.compress.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>
@@ -284,6 +285,11 @@
     </dependencies>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${apache.compress.version}</version>
+            </dependency>
             <!-- https://mvnrepository.com/artifact/org.immutables/value -->
             <dependency>
                 <groupId>org.immutables</groupId>
@@ -338,6 +344,12 @@
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>2.3.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>javax.activation-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-core -->
             <dependency>

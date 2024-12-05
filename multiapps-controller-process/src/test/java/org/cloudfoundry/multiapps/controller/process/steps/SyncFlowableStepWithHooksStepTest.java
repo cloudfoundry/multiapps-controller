@@ -88,7 +88,7 @@ class SyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<SyncFlowabl
         }
 
         @Override
-        protected HooksExecutor getHooksExecutor(HooksCalculator hooksCalculator, Module moduleToDeploy) {
+        protected HooksExecutor getHooksExecutor(HooksCalculator hooksCalculator, Module moduleToDeploy, ProcessContext context) {
             return hooksExecutor;
         }
     }

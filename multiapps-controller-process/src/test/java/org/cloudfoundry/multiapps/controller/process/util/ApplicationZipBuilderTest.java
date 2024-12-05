@@ -2,6 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,14 +13,21 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.input.BoundedInputStream;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileContentToProcess;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 class ApplicationZipBuilderTest {
@@ -33,6 +43,9 @@ class ApplicationZipBuilderTest {
     private static final String SAMPLE_MTAR = "com.sap.mta.sample-1.2.1-beta.mtar";
     private static final String SAMPLE_FLAT_MTAR = "com.sap.mta.sample-1.2.1-beta-flat.mtar";
     private static final long MAX_UPLOAD_FILE_SIZE = 1024 * 1024 * 1024L; // 1gb
+
+    @Mock
+    private FileService fileService;
 
     private Path appPath = null;
 
@@ -68,8 +81,9 @@ class ApplicationZipBuilderTest {
     @MethodSource
     void testCreateNewZip(String mtar, String fileName) throws Exception {
         ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName);
-        ApplicationArchiveReader reader = new ApplicationArchiveReader();
-        ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader);
+        ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(fileService,
+                                                                     new ApplicationArchiveIterator(),
+                                                                     new ArchiveEntryExtractor(fileService));
         appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext);
         assertTrue(Files.exists(appPath));
         try (InputStream zipStream = Files.newInputStream(appPath)) {
@@ -78,16 +92,68 @@ class ApplicationZipBuilderTest {
         }
     }
 
-    private ApplicationArchiveContext getApplicationArchiveContext(String mtar, String fileName) {
-        return new ApplicationArchiveContext(getClass().getResourceAsStream(mtar), fileName, MAX_UPLOAD_FILE_SIZE);
+    private ApplicationArchiveContext getApplicationArchiveContext(String mtar, String fileName) throws FileStorageException {
+        mockProcessingOfFileContent(mtar);
+        mockConsumptionOfFileContent(mtar);
+        mockConsumptionOfFileContentWithOffset(mtar);
+        ArchiveEntryStreamWithStreamPositionsDeterminer archiveEntryStreamWithStreamPositionsDeterminer = new ArchiveEntryStreamWithStreamPositionsDeterminer(fileService);
+        List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = archiveEntryStreamWithStreamPositionsDeterminer.determineArchiveEntries("123",
+                                                                                                                                                          "123");
+        return new ApplicationArchiveContext(fileName, MAX_UPLOAD_FILE_SIZE, archiveEntriesWithStreamPositions, "123", "123");
+    }
+
+    private void mockProcessingOfFileContent(String mtar) throws FileStorageException {
+        doAnswer(answer -> {
+            try (InputStream inputStream = getClass().getResourceAsStream(mtar)) {
+                FileContentProcessor<?> fileContentProcessor = answer.getArgument(2);
+                return fileContentProcessor.process(inputStream);
+            } catch (IOException e) {
+                throw new SLException(e, e.getMessage());
+            }
+        }).when(fileService)
+          .processFileContent(any(), any(), any());
+    }
+
+    private void mockConsumptionOfFileContent(String mtar) throws FileStorageException {
+        doAnswer(answer -> {
+            try (InputStream inputStream = getClass().getResourceAsStream(mtar)) {
+                FileContentConsumer fileContentConsumer = answer.getArgument(2);
+                fileContentConsumer.consume(inputStream);
+                return null;
+            } catch (IOException e) {
+                throw new SLException(e, e.getMessage());
+            }
+        }).when(fileService)
+          .consumeFileContent(any(), any(), any());
+    }
+
+    private void mockConsumptionOfFileContentWithOffset(String mtar) throws FileStorageException {
+        doAnswer(answer -> {
+            try (InputStream inputStream = getClass().getResourceAsStream(mtar)) {
+                FileContentToProcess fileContentToProcess = answer.getArgument(0);
+                inputStream.skip(fileContentToProcess.getStartOffset());
+                BoundedInputStream boundedInputStream = new BoundedInputStream.Builder().setInputStream(inputStream)
+                                                                                        .setCount(fileContentToProcess.getStartOffset())
+                                                                                        .setMaxCount(fileContentToProcess.getEndOffset())
+                                                                                        .get();
+                FileContentConsumer fileContentConsumer = answer.getArgument(1);
+                fileContentConsumer.consume(boundedInputStream);
+                return null;
+            } catch (IOException e) {
+                throw new SLException(e, e.getMessage());
+            }
+        }).when(fileService)
+          .consumeFileContentWithOffset(any(), any());
     }
 
     @ParameterizedTest
     @MethodSource
-    void testCreateZipOnlyWithMissingResources(String mtar, String fileName, Set<String> alreadyUploadedFiles) throws IOException {
+    void testCreateZipOnlyWithMissingResources(String mtar, String fileName, Set<String> alreadyUploadedFiles)
+        throws IOException, FileStorageException {
         ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName);
-        ApplicationArchiveReader reader = new ApplicationArchiveReader();
-        ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader);
+        ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(fileService,
+                                                                     new ApplicationArchiveIterator(),
+                                                                     new ArchiveEntryExtractor(fileService));
         appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext);
         assertTrue(Files.exists(appPath));
         Set<String> relativizedFilePaths = relativizeUploadedFilesPaths(fileName, alreadyUploadedFiles);
@@ -117,16 +183,16 @@ class ApplicationZipBuilderTest {
     }
 
     @Test
-    void testFailToCreateZip() {
+    void testFailToCreateZip() throws FileStorageException {
         String fileName = "db/";
-        ApplicationArchiveReader reader = new ApplicationArchiveReader();
-        ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader) {
+        ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(fileService,
+                                                                     new ApplicationArchiveIterator(),
+                                                                     new ArchiveEntryExtractor(fileService)) {
             @Override
             protected void copy(InputStream input, OutputStream output, ApplicationArchiveContext applicationArchiveContext)
                 throws IOException {
                 throw new IOException();
             }
-
         };
         ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(SAMPLE_MTAR, fileName);
         Assertions.assertThrows(SLException.class, () -> appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext));

@@ -6,9 +6,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
@@ -16,6 +13,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractor;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceBindingParametersGetter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -26,6 +24,9 @@ import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 @Named("determineApplicationServiceBindingActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableStep {
@@ -34,6 +35,8 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
     private TokenService tokenService;
     @Inject
     private WebClientFactory webClientFactory;
+    @Inject
+    private ArchiveEntryExtractor archiveEntryExtractor;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws FileStorageException {
@@ -130,7 +133,7 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
     }
 
     protected ServiceBindingParametersGetter getServiceBindingParametersGetter(ProcessContext context) {
-        return new ServiceBindingParametersGetter(context, fileService, configuration.getMaxManifestSize());
+        return new ServiceBindingParametersGetter(context, archiveEntryExtractor, configuration.getMaxManifestSize(), fileService);
     }
 
     protected AppBoundServiceInstanceNamesGetter getAppServicesGetter(CloudCredentials credentials, String correlationId) {

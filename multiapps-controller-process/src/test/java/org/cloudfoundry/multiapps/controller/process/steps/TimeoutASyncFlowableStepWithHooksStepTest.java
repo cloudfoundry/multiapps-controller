@@ -91,7 +91,7 @@ class TimeoutASyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<Tim
         }
 
         @Override
-        protected HooksExecutor getHooksExecutor(HooksCalculator hooksCalculator, Module moduleToDeploy) {
+        protected HooksExecutor getHooksDeterminer(HooksCalculator hooksCalculator, Module moduleToDeploy, ProcessContext context) {
             return hooksExecutor;
         }
     }

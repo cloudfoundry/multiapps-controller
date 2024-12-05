@@ -2,12 +2,10 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.mta.model.Hook;
@@ -27,14 +25,8 @@ public class ModuleHooksAggregator {
     }
 
     public List<Hook> aggregateHooks(List<HookPhase> currentHookPhasesForExecution) {
-        Map<String, List<String>> alreadyExecutedHooksForModule = getAlreadyExecutedHooks();
-        List<Hook> hooksCalculatedForExecution = determineHooksForExecution(alreadyExecutedHooksForModule, currentHookPhasesForExecution);
-        updateExecutedHooksForModule(alreadyExecutedHooksForModule, currentHookPhasesForExecution, hooksCalculatedForExecution);
-        return hooksCalculatedForExecution;
-    }
-
-    private Map<String, List<String>> getAlreadyExecutedHooks() {
-        return StepsUtil.getExecutedHooksForModule(execution, moduleToDeploy.getName());
+        Map<String, List<String>> alreadyExecutedHooksForModule = StepsUtil.getExecutedHooksForModule(execution, moduleToDeploy.getName());
+        return determineHooksForExecution(alreadyExecutedHooksForModule, currentHookPhasesForExecution);
     }
 
     private List<Hook> determineHooksForExecution(Map<String, List<String>> alreadyExecutedHooks,
@@ -111,32 +103,6 @@ public class ModuleHooksAggregator {
     private List<HookPhase> getExecutedHookPhasesForHook(Map<String, List<String>> alreadyExecutedHooks, String hookName) {
         List<String> executedHookPhasesForHook = alreadyExecutedHooks.get(hookName);
         return mapToHookPhases(executedHookPhasesForHook);
-    }
-
-    private void updateExecutedHooksForModule(Map<String, List<String>> alreadyExecutedHooks, List<HookPhase> currentHookPhasesForExecution,
-                                              List<Hook> hooksForExecution) {
-        Map<String, List<String>> result = new HashMap<>(alreadyExecutedHooks);
-        updateExecutedHooks(result, currentHookPhasesForExecution, hooksForExecution);
-        StepsUtil.setExecutedHooksForModule(execution, moduleToDeploy.getName(), result);
-    }
-
-    private void updateExecutedHooks(Map<String, List<String>> alreadyExecutedHooks, List<HookPhase> currentHookPhasesForExecution,
-                                     List<Hook> hooksForExecution) {
-        for (Hook hook : hooksForExecution) {
-            updateHook(alreadyExecutedHooks, currentHookPhasesForExecution, hook);
-        }
-    }
-
-    private void updateHook(Map<String, List<String>> alreadyExecutedHooks, List<HookPhase> currentHookPhasesForExecution, Hook hook) {
-        List<String> hookPhasesBasedOnCurrentHookPhase = getHookPhasesBasedOnCurrentHookPhase(currentHookPhasesForExecution,
-                                                                                              hook.getPhases());
-        alreadyExecutedHooks.merge(hook.getName(), hookPhasesBasedOnCurrentHookPhase, ListUtils::union);
-    }
-
-    private List<String> getHookPhasesBasedOnCurrentHookPhase(List<HookPhase> currentHookPhasesForExecution, List<String> hookPhases) {
-        return hookPhases.stream()
-                         .filter(phase -> currentHookPhasesForExecution.contains(HookPhase.fromString(phase)))
-                         .collect(Collectors.toList());
     }
 
 }
