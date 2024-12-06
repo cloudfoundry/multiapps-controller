@@ -33,7 +33,9 @@ import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureS
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
+import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorPreserverService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ApplicationsPreserveCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -56,6 +58,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     private ModuleToDeployHelper moduleToDeployHelper;
     @Inject
     private ProcessTypeParser processTypeParser;
+    @Inject
+    private DescriptorPreserverService descriptorPreserverService;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -64,7 +68,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
         if (deployedMta == null) {
             setComponentsToUndeploy(context, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
-                                    Collections.emptyList());
+                                    Collections.emptyList(), Collections.emptyList());
             return StepPhase.DONE;
         }
 
@@ -78,6 +82,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
         List<DeployedMtaApplication> deployedAppsToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames,
                                                                                        deploymentDescriptorModules);
+
         getStepLogger().debug(Messages.MODULES_TO_UNDEPLOY, SecureSerialization.toJson(deployedAppsToUndeploy));
 
         List<DeployedMtaApplication> appsWithoutChange = computeModulesWithoutChange(deployedAppsToUndeploy, mtaModules, deployedMta);
@@ -96,9 +101,21 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.SERVICE_KEYS_FOR_DELETION, serviceKeysToDelete);
 
         List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(deployedAppsToUndeploy, context.getControllerClient());
+
+        DeployedMta preservedMta = context.getVariable(Variables.PRESERVED_MTA);
+        ApplicationsPreserveCalculator applicationsPreserveCalculator = new ApplicationsPreserveCalculator(deployedMta,
+                                                                                                           preservedMta,
+                                                                                                           descriptorPreserverService);
+        List<CloudApplication> appsToPreserve = computeAppsToPreserve(context, appsToUndeploy, applicationsPreserveCalculator);
+
+        List<CloudApplication> preservedAppsToUndeploy = applicationsPreserveCalculator.calculateAppsToUndeploy(context, appsToPreserve);
+
+        appsToUndeploy.removeAll(appsToPreserve);
+        appsToUndeploy.addAll(preservedAppsToUndeploy);
+
         getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, SecureSerialization.toJson(appsToUndeploy));
 
-        setComponentsToUndeploy(context, servicesToDelete, appsToUndeploy, subscriptionsToDelete, serviceKeysToDelete);
+        setComponentsToUndeploy(context, servicesToDelete, appsToUndeploy, subscriptionsToDelete, serviceKeysToDelete, appsToPreserve);
 
         getStepLogger().debug(Messages.CLOUD_UNDEPLOY_MODEL_BUILT);
         return StepPhase.DONE;
@@ -165,11 +182,13 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     }
 
     private void setComponentsToUndeploy(ProcessContext context, List<String> services, List<CloudApplication> apps,
-                                         List<ConfigurationSubscription> subscriptions, List<DeployedMtaServiceKey> serviceKeys) {
+                                         List<ConfigurationSubscription> subscriptions, List<DeployedMtaServiceKey> serviceKeys,
+                                         List<CloudApplication> appsToPreserve) {
         context.setVariable(Variables.SUBSCRIPTIONS_TO_DELETE, subscriptions);
         context.setVariable(Variables.SERVICES_TO_DELETE, services);
         context.setVariable(Variables.APPS_TO_UNDEPLOY, apps);
         context.setVariable(Variables.SERVICE_KEYS_TO_DELETE, serviceKeys);
+        context.setVariable(Variables.APPS_TO_PRESERVE, appsToPreserve);
     }
 
     private List<String> computeServicesToDelete(ProcessContext context, List<DeployedMtaApplication> appsWithoutChange,
@@ -337,6 +356,16 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         // The deployed module may be in the list of MTA modules, but the actual application that was created from it may have a
         // different name:
         return !appsToDeploy.contains(deployedMtaApplication.getName());
+    }
+
+    private List<CloudApplication> computeAppsToPreserve(ProcessContext context, List<CloudApplication> appsToUndeploy,
+                                                         ApplicationsPreserveCalculator applicationsPreserveCalculator) {
+        boolean shouldPreserveOldApps = context.getVariable(Variables.SHOULD_PRESERVE_OLD_APPS);
+        if (!shouldPreserveOldApps) {
+            return Collections.emptyList();
+        }
+        String checksumOfCurrentDescriptor = context.getVariable(Variables.CHECKSUM_OF_MERGED_DESCRIPTOR);
+        return applicationsPreserveCalculator.calculateAppsToPreserve(appsToUndeploy, checksumOfCurrentDescriptor);
     }
 
     private List<CloudApplication> computeAppsToUndeploy(List<DeployedMtaApplication> modulesToUndeploy, CloudControllerClient client) {

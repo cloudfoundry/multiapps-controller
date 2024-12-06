@@ -604,7 +604,7 @@ public class CloudModelBuilderTest {
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor);
         modulesCalculator = getModulesCalculator(Set.of(mtaArchiveModules), Set.of(mtaModules), Set.of(deployedApps));
         moduleToDeployHelper = new ModuleToDeployHelper();
-        resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(null, getUserMessageLogger());
+        resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(null, getUserMessageLogger(), false);
     }
 
     private ModulesCloudModelBuilderContentCalculator getModulesCalculator(Set<String> mtaArchiveModules, Set<String> mtaModules,

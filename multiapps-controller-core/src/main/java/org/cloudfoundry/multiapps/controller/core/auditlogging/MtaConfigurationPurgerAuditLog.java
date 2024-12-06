@@ -10,6 +10,7 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.model.AuditLogConfiguration;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.model.ConfigurationChangeActions;
+import org.cloudfoundry.multiapps.controller.persistence.dto.PreservedDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 
@@ -30,6 +31,7 @@ public class MtaConfigurationPurgerAuditLog {
     private static final String STARTED_AT_PROPERTY_NAME = "startedAt";
     private static final String STATE_PROPERTY_NAME = "state";
     private static final String ERROR_TYPE_PROPERTY_NAME = "errorType";
+    private static final String STORED_AT_PROPERTY_NAME = "storedAt";
 
     private final AuditLoggingFacade auditLoggingFacade;
 
@@ -85,6 +87,16 @@ public class MtaConfigurationPurgerAuditLog {
                                                           ConfigurationChangeActions.CONFIGURATION_DELETE);
     }
 
+    public void logDeleteMtaPreservedDescriptor(String spaceGuid, PreservedDescriptor mtaDescriptorPreserver) {
+        String performedAction = MessageFormat.format(Messages.DELETE_PRESERVED_DESCRIPTOR_AUDIT_LOG_MESSAGE, spaceGuid);
+        auditLoggingFacade.logConfigurationChangeAuditLog(new AuditLogConfiguration(Strings.EMPTY,
+                                                                                    spaceGuid,
+                                                                                    performedAction,
+                                                                                    Messages.MTA_DESCRIPTOR_DELETE_AUDIT_LOG_CONFIG,
+                                                                                    createAuditLogDeleteMtaPreservedDescriptorIdentifier(mtaDescriptorPreserver)),
+                                                          ConfigurationChangeActions.CONFIGURATION_DELETE);
+    }
+
     private Map<String, String> createAuditLogDeleteSubscriptionConfigurationIdentifier(ConfigurationSubscription subscription) {
         Map<String, String> identifiers = new HashMap<>();
 
@@ -121,6 +133,16 @@ public class MtaConfigurationPurgerAuditLog {
         identifiers.put(STARTED_AT_PROPERTY_NAME, Objects.toString(operation.getStartedAt()));
         identifiers.put(STATE_PROPERTY_NAME, Objects.toString(operation.getState()));
         identifiers.put(ERROR_TYPE_PROPERTY_NAME, Objects.toString(operation.getErrorType()));
+
+        return identifiers;
+    }
+
+    private Map<String, String> createAuditLogDeleteMtaPreservedDescriptorIdentifier(PreservedDescriptor mtaDescriptorPreserver) {
+        Map<String, String> identifiers = new HashMap<>();
+
+        identifiers.put(MTA_ID_PROPERTY_NAME, mtaDescriptorPreserver.getMtaId());
+        identifiers.put(STORED_AT_PROPERTY_NAME, mtaDescriptorPreserver.getTimestamp()
+                                                                       .toString());
 
         return identifiers;
     }
