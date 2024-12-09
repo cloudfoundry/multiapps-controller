@@ -16,16 +16,17 @@ import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
 
 public class ApplicationMetadataBuilder {
 
-    public static Metadata build(DeploymentDescriptor deploymentDescriptor, String namespace, Module module, List<String> services) {
+    public static Metadata build(DeploymentDescriptor deploymentDescriptor, String namespace, Module module, List<String> services,
+                                 String checksumOfMergedDescriptor) {
         String mtaModuleAnnotation = buildMtaModuleAnnotation(module);
         String mtaModuleProvidedDependenciesAnnotation = buildMtaModuleProvidedDependenciesAnnotation(module);
         String mtaServicesAnnotation = buildBoundMtaServicesAnnotation(services);
 
-        Metadata.Builder builder = MtaMetadataBuilder.init(deploymentDescriptor, namespace)
-                                           .annotation(MtaMetadataAnnotations.MTA_MODULE, mtaModuleAnnotation)
-                                           .annotation(MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
-                                                       mtaModuleProvidedDependenciesAnnotation)
-                                           .annotation(MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES, mtaServicesAnnotation);
+        Metadata.Builder builder = MtaMetadataBuilder.init(deploymentDescriptor, namespace, checksumOfMergedDescriptor)
+                                                     .annotation(MtaMetadataAnnotations.MTA_MODULE, mtaModuleAnnotation)
+                                                     .annotation(MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
+                                                                 mtaModuleProvidedDependenciesAnnotation)
+                                                     .annotation(MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES, mtaServicesAnnotation);
 
         return builder.build();
     }

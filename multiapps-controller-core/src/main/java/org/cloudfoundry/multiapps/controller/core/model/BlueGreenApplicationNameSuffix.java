@@ -6,6 +6,8 @@ public class BlueGreenApplicationNameSuffix {
 
     public static final BlueGreenApplicationNameSuffix LIVE = new BlueGreenApplicationNameSuffix("live");
     public static final BlueGreenApplicationNameSuffix IDLE = new BlueGreenApplicationNameSuffix("idle");
+    public static final BlueGreenApplicationNameSuffix BLUE = new BlueGreenApplicationNameSuffix("blue");
+    public static final BlueGreenApplicationNameSuffix GREEN = new BlueGreenApplicationNameSuffix("green");
 
     private final String value;
 
@@ -18,7 +20,7 @@ public class BlueGreenApplicationNameSuffix {
     }
 
     public static boolean isSuffixContainedIn(String name) {
-        return Stream.of(LIVE, IDLE)
+        return Stream.of(LIVE, IDLE, BLUE, GREEN)
                      .map(BlueGreenApplicationNameSuffix::asSuffix)
                      .anyMatch(name::endsWith);
     }

@@ -10,7 +10,7 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 
 public class MtaMetadataBuilder {
 
-    public static Builder init(DeploymentDescriptor deploymentDescriptor, String namespace) {
+    public static Builder init(DeploymentDescriptor deploymentDescriptor, String namespace, String checksumOfMergedDescriptor) {
         String hashedMtaId = MtaMetadataUtil.getHashedLabel(deploymentDescriptor.getId());
         Builder builder = Metadata.builder()
                                   .label(MtaMetadataLabels.MTA_ID, hashedMtaId)
@@ -21,6 +21,10 @@ public class MtaMetadataBuilder {
             String hashedMtaNamespace = MtaMetadataUtil.getHashedLabel(namespace);
             builder.label(MtaMetadataLabels.MTA_NAMESPACE, hashedMtaNamespace)
                    .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, namespace);
+        }
+
+        if (StringUtils.isNotEmpty(checksumOfMergedDescriptor)) {
+            builder.label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM, checksumOfMergedDescriptor);
         }
 
         return builder;

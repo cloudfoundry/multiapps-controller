@@ -145,6 +145,10 @@ public class BlueGreenDeployMetadata {
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .defaultValue(true)
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.SHOULD_PRESERVE_OLD_APPS.getName())
+                                                                                 .type(ParameterType.BOOLEAN)
+                                                                                 .build())
                                          .build();
     }
 
