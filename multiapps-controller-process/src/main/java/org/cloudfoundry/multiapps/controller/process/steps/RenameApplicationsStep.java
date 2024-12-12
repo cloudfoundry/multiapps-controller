@@ -48,8 +48,8 @@ public class RenameApplicationsStep extends SyncFlowableStep {
 
     private RenameFlow createFlow(ProcessContext context) {
         if (processTypeParser.getProcessType(context.getExecution())
-                             .equals(ProcessType.REVERT_DEPLOY)) {
-            return new RenameApplicationsForRevert();
+                             .equals(ProcessType.ROLLBACK_MTA)) {
+            return new RenameApplicationsForRollbackFlow();
         }
         if (context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY)) {
             return new RenameApplicationsWithOldNewSuffix();
@@ -156,13 +156,13 @@ public class RenameApplicationsStep extends SyncFlowableStep {
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
     }
 
-    class RenameApplicationsForRevert implements RenameFlow {
+    class RenameApplicationsForRollbackFlow implements RenameFlow {
 
         @Override
         public void execute(ProcessContext context) {
-            getStepLogger().debug(Messages.RENAME_APPLICATION_FOR_REVERT);
+            getStepLogger().debug(Messages.RENAME_APPLICATIONS_FOR_ROLLBACK);
             DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
-            DeployedMta preservedMta = context.getVariable(Variables.PRESERVED_MTA);
+            DeployedMta backupMta = context.getVariable(Variables.BACKUP_MTA);
             CloudControllerClient client = context.getControllerClient();
 
             List<DeployedMtaApplication> deployedMtaApplications = new ArrayList<>();
@@ -177,22 +177,22 @@ public class RenameApplicationsStep extends SyncFlowableStep {
                                                                            .withName(toBeDeletedApplicationName));
             }
 
-            List<DeployedMtaApplication> preservedMtaApplications = new ArrayList<>();
-            for (DeployedMtaApplication preservedMtaApplication : preservedMta.getApplications()) {
-                String preservedApplicationName = preservedMtaApplication.getName();
-                String applicationNameWithoutMtaPreservedNamespace = preservedApplicationName.substring(NameUtil.getNamespacePrefix(Constants.MTA_PRESERVED_NAMESPACE)
-                                                                                                                .length());
-                getStepLogger().info(Messages.RENAME_PRESERVED_APPLICATION_0_TO_1, preservedApplicationName,
-                                     applicationNameWithoutMtaPreservedNamespace);
-                client.rename(preservedApplicationName, applicationNameWithoutMtaPreservedNamespace);
-                preservedMtaApplications.add(ImmutableDeployedMtaApplication.copyOf(preservedMtaApplication)
-                                                                            .withName(applicationNameWithoutMtaPreservedNamespace));
+            List<DeployedMtaApplication> backupMtaApplications = new ArrayList<>();
+            for (DeployedMtaApplication backupMtaApplication : backupMta.getApplications()) {
+                String backupApplicationName = backupMtaApplication.getName();
+                String applicationNameWithoutMtaBackupNamespace = backupApplicationName.substring(NameUtil.getNamespacePrefix(Constants.MTA_BACKUP_NAMESPACE)
+                                                                                                          .length());
+                getStepLogger().info(Messages.RENAME_BACKUP_APPLICATION_0_TO_1, backupApplicationName,
+                                     applicationNameWithoutMtaBackupNamespace);
+                client.rename(backupApplicationName, applicationNameWithoutMtaBackupNamespace);
+                backupMtaApplications.add(ImmutableDeployedMtaApplication.copyOf(backupMtaApplication)
+                                                                         .withName(applicationNameWithoutMtaBackupNamespace));
             }
 
             context.setVariable(Variables.DEPLOYED_MTA, ImmutableDeployedMta.copyOf(deployedMta)
                                                                             .withApplications(deployedMtaApplications));
-            context.setVariable(Variables.PRESERVED_MTA, ImmutableDeployedMta.copyOf(preservedMta)
-                                                                             .withApplications(preservedMtaApplications));
+            context.setVariable(Variables.BACKUP_MTA, ImmutableDeployedMta.copyOf(backupMta)
+                                                                          .withApplications(backupMtaApplications));
         }
 
     }

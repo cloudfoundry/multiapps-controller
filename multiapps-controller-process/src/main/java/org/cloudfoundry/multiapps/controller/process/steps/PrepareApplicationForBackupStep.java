@@ -19,20 +19,20 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 import jakarta.inject.Named;
 
-@Named("prepareApplicationRevertStep")
+@Named("prepareApplicationForBackupStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareApplicationRevertStep extends SyncFlowableStep {
+public class PrepareApplicationForBackupStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
         CloudApplication cloudApplication = context.getVariable(Variables.APP_TO_PROCESS);
         CloudControllerClient client = context.getControllerClient();
         String mtaNamespace = context.getVariable(Variables.MTA_NAMESPACE);
-        String mtaUserNamespaceWithSystemNamespace = NameUtil.computeUserNamespaceWithSystemNamespace(Constants.MTA_PRESERVED_NAMESPACE,
+        String mtaUserNamespaceWithSystemNamespace = NameUtil.computeUserNamespaceWithSystemNamespace(Constants.MTA_BACKUP_NAMESPACE,
                                                                                                       mtaNamespace);
 
         String newApplicationName = BlueGreenApplicationNameSuffix.removeSuffix(cloudApplication.getName());
-        newApplicationName = NameUtil.computeValidApplicationName(newApplicationName, Constants.MTA_PRESERVED_NAMESPACE, true, false);
+        newApplicationName = NameUtil.computeValidApplicationName(newApplicationName, Constants.MTA_BACKUP_NAMESPACE, true, false);
 
         getStepLogger().info(Messages.RENAMING_APPLICATION_0_TO_1_TO_BE_USED_FOR_ROLLBACK, cloudApplication.getName(), newApplicationName);
         client.rename(cloudApplication.getName(), newApplicationName);
@@ -49,8 +49,8 @@ public class PrepareApplicationRevertStep extends SyncFlowableStep {
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
-        return MessageFormat.format(Messages.ERROR_WHILE_PRESERVE_APPLICATION, context.getVariable(Variables.APP_TO_PROCESS)
-                                                                                      .getName());
+        return MessageFormat.format(Messages.ERROR_WHILE_BACKUP_APPLICATION, context.getVariable(Variables.APP_TO_PROCESS)
+                                                                                    .getName());
     }
 
 }

@@ -242,7 +242,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     }
 
     private boolean shouldProcessOnlyUserProvidedServices(ProcessContext context) {
-        return processTypeParser.getProcessType(context.getExecution()) == ProcessType.REVERT_DEPLOY
+        return processTypeParser.getProcessType(context.getExecution()) == ProcessType.ROLLBACK_MTA
             && context.getVariable(Variables.PROCESS_USER_PROVIDED_SERVICES);
     }
 

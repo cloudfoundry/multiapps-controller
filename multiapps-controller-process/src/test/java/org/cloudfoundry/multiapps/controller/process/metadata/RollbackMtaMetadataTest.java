@@ -4,16 +4,16 @@ import org.cloudfoundry.multiapps.controller.api.model.OperationMetadata;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
-class RevertDeployMetadataTest extends MetadataBaseTest {
+class RollbackMtaMetadataTest extends MetadataBaseTest {
 
     @Override
     protected OperationMetadata getMetadata() {
-        return RevertDeployMetadata.getMetadata();
+        return RollbackMtaMetadata.getMetadata();
     }
 
     @Override
     protected String getDiagramId() {
-        return Constants.REVERT_DEPLOY_SERVICE_ID;
+        return Constants.ROLLBACK_MTA_SERVICE_ID;
     }
 
     @Override

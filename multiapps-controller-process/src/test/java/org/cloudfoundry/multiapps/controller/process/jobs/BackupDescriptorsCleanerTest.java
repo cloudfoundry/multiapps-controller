@@ -6,22 +6,22 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import org.cloudfoundry.multiapps.controller.persistence.query.DescriptorPreserverQuery;
-import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorPreserverService;
+import org.cloudfoundry.multiapps.controller.persistence.query.DescriptorBackupQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-class PreservedDescriptorsCleanerTest {
+class BackupDescriptorsCleanerTest {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     private static final LocalDateTime DATE = LocalDateTime.parse("2024-12-05T13:30:25.010Z", DATE_TIME_FORMATTER);
 
     @Mock
-    private DescriptorPreserverService descriptorPreserverService;
+    private DescriptorBackupService descriptorBackupService;
     @Mock
-    private DescriptorPreserverQuery descriptorPreserverQuery;
+    private DescriptorBackupQuery descriptorBackupQuery;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -32,13 +32,13 @@ class PreservedDescriptorsCleanerTest {
 
     @Test
     void testCleanup() {
-        when(descriptorPreserverQuery.olderThan(DATE)).thenReturn(descriptorPreserverQuery);
-        when(descriptorPreserverService.createQuery()).thenReturn(descriptorPreserverQuery);
+        when(descriptorBackupQuery.olderThan(DATE)).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupService.createQuery()).thenReturn(descriptorBackupQuery);
 
-        PreservedDescriptorsCleaner cleaner = new PreservedDescriptorsCleaner(descriptorPreserverService);
+        BackupDescriptorsCleaner cleaner = new BackupDescriptorsCleaner(descriptorBackupService);
 
         cleaner.execute(DATE);
 
-        verify(descriptorPreserverQuery).delete();
+        verify(descriptorBackupQuery).delete();
     }
 }

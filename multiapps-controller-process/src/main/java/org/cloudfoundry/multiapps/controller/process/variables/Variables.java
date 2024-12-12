@@ -860,25 +860,25 @@ public interface Variables {
                                                                   .defaultValue(false)
                                                                   .build();
 
-    Variable<Boolean> SHOULD_PRESERVE_OLD_APPS = ImmutableSimpleVariable.<Boolean> builder()
-                                                                        .name("shouldPreserveOldApps")
-                                                                        .defaultValue(false)
-                                                                        .build();
+    Variable<Boolean> SHOULD_BACKUP_EXISTING_APPS = ImmutableSimpleVariable.<Boolean> builder()
+                                                                           .name("shouldBackupExistingApps")
+                                                                           .defaultValue(false)
+                                                                           .build();
 
-    Variable<List<CloudApplication>> APPS_TO_PRESERVE = ImmutableJsonStringListVariable.<CloudApplication> builder()
-                                                                                       .name("appsToPreserve")
-                                                                                       .type(Variable.typeReference(CloudApplication.class))
-                                                                                       .defaultValue(Collections.emptyList())
-                                                                                       .build();
+    Variable<List<CloudApplication>> APPS_TO_BACKUP = ImmutableJsonStringListVariable.<CloudApplication> builder()
+                                                                                     .name("appsToBackup")
+                                                                                     .type(Variable.typeReference(CloudApplication.class))
+                                                                                     .defaultValue(Collections.emptyList())
+                                                                                     .build();
 
     Variable<String> CHECKSUM_OF_MERGED_DESCRIPTOR = ImmutableSimpleVariable.<String> builder()
                                                                             .name("checksumOfMergedDescriptor")
                                                                             .build();
 
-    Variable<DeployedMta> PRESERVED_MTA = ImmutableJsonBinaryVariable.<DeployedMta> builder()
-                                                                     .name("preservedMta")
-                                                                     .type(Variable.typeReference(DeployedMta.class))
-                                                                     .build();
+    Variable<DeployedMta> BACKUP_MTA = ImmutableJsonBinaryVariable.<DeployedMta> builder()
+                                                                  .name("backupMta")
+                                                                  .type(Variable.typeReference(DeployedMta.class))
+                                                                  .build();
 
     Variable<Boolean> PROCESS_USER_PROVIDED_SERVICES = ImmutableSimpleVariable.<Boolean> builder()
                                                                               .name("processUserProvidedServices")

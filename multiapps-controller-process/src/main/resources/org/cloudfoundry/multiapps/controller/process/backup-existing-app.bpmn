@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/processdef" exporter="Flowable Open Source Modeler" exporterVersion="6.8.0">
-  <process id="preserveOldAppSubProcess" name="Preserve Old App Sub Process" isExecutable="true">
+  <process id="backupExistingAppSubProcess" name="Backup Existing App Sub Process" isExecutable="true">
     <extensionElements>
       <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessListener}"></flowable:eventListener>
       <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
@@ -33,7 +33,7 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${execution.getVariable('delayAfterAppStop') != null}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="sid-5F3776A3-77B8-4CB6-8747-EB1A0354FFEF" sourceRef="sid-54E9ED03-E535-4D00-A287-32D8E874D1F0" targetRef="sid-DFD29F59-3CDA-4F18-876E-E675418FFF0E"></sequenceFlow>
-    <serviceTask id="sid-DFD29F59-3CDA-4F18-876E-E675418FFF0E" name="Prepare Application Revert" flowable:async="true" flowable:delegateExpression="${prepareApplicationRevertStep}"></serviceTask>
+    <serviceTask id="sid-DFD29F59-3CDA-4F18-876E-E675418FFF0E" name="Prepare Application for Backup" flowable:async="true" flowable:delegateExpression="${prepareApplicationForBackupStep}"></serviceTask>
     <sequenceFlow id="sid-433CF061-93E9-44EF-99D5-7911F2C57BF6" sourceRef="shouldWaitAfterAppStop" targetRef="sid-DFD29F59-3CDA-4F18-876E-E675418FFF0E"></sequenceFlow>
     <sequenceFlow id="sid-8E8DC07B-09A6-41C6-B725-94475D548E11" sourceRef="sid-CD91820A-17BA-4ADB-B953-C967B10D88BD" targetRef="executeHooksCallActivity">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${execution.getVariable('hooksForExecution') != null}]]></conditionExpression>
@@ -41,8 +41,8 @@
     <sequenceFlow id="sid-702544D3-65E5-480E-BC09-CEB83E6A9514" sourceRef="startEvent" targetRef="stopApplicationUndeploymentTask"></sequenceFlow>
     <sequenceFlow id="sid-432011E8-1C4A-4AFA-8334-DDE504A36EAA" sourceRef="sid-DFD29F59-3CDA-4F18-876E-E675418FFF0E" targetRef="endEvent"></sequenceFlow>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_preserveOldAppSubProcess">
-    <bpmndi:BPMNPlane bpmnElement="preserveOldAppSubProcess" id="BPMNPlane_preserveOldAppSubProcess">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_backupExistingAppSubProcess">
+    <bpmndi:BPMNPlane bpmnElement="backupExistingAppSubProcess" id="BPMNPlane_backupExistingAppSubProcess">
       <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
         <omgdc:Bounds height="30.0" width="30.0" x="75.0" y="120.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>

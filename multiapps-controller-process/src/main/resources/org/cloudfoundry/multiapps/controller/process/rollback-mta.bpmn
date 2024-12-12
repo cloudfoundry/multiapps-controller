@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test" exporter="Flowable Open Source Modeler" exporterVersion="6.8.0">
-  <process id="revert-deploy" name="Revert Deploy Activiti Process" isExecutable="true">
+  <process id="rollback-mta" name="Rollback MTA Activiti Process" isExecutable="true">
     <extensionElements>
       <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessListener}"></flowable:eventListener>
       <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
@@ -14,7 +14,7 @@
     </startEvent>
     <serviceTask id="prepareModulesDeploymentTask" name="Prepare Modules Deployment" flowable:async="true" flowable:delegateExpression="${prepareModulesDeploymentStep}"></serviceTask>
     <serviceTask id="buildDeployModelTask" name="Build Deploy Model" flowable:async="true" flowable:delegateExpression="${buildCloudDeployModelStep}"></serviceTask>
-    <serviceTask id="preparePreservedMtaForDeployment" name="Prepare Preserved MTA for Deployment" flowable:async="true" flowable:delegateExpression="${preparePreservedMtaForDeploymentStep}"></serviceTask>
+    <serviceTask id="prepareBackupMtaForDeployment" name="Prepare Backup MTA for Deployment" flowable:async="true" flowable:delegateExpression="${prepareBackupMtaForDeploymentStep}"></serviceTask>
     <serviceTask id="deleteDiscontinuedConfigurationEntriesTask" name="Delete Discontinued Configuration Entries" flowable:async="true" flowable:delegateExpression="${deleteDiscontinuedConfigurationEntriesStep}"></serviceTask>
     <serviceTask id="collectSystemParametersTask" name="Collect System Parameters" flowable:async="true" flowable:delegateExpression="${collectSystemParametersStep}"></serviceTask>
     <sequenceFlow id="flow10" sourceRef="collectSystemParametersTask" targetRef="processDescriptorTask"></sequenceFlow>
@@ -78,13 +78,13 @@
     <sequenceFlow id="shouldDeployModulesParallelFlow" sourceRef="deploymentModeGateway" targetRef="computeNextModulesToDeployInParallel">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deploymentMode == "PARALLEL")}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="flowHasGitGateway" sourceRef="startEvent" targetRef="preparePreservedMtaForDeployment"></sequenceFlow>
-    <sequenceFlow id="sid-D2A02831-663A-4A9A-BCD7-CF809442D40C" sourceRef="preparePreservedMtaForDeployment" targetRef="renameApplicationsTask"></sequenceFlow>
+    <sequenceFlow id="flowHasGitGateway" sourceRef="startEvent" targetRef="prepareBackupMtaForDeployment"></sequenceFlow>
+    <sequenceFlow id="sid-D2A02831-663A-4A9A-BCD7-CF809442D40C" sourceRef="prepareBackupMtaForDeployment" targetRef="renameApplicationsTask"></sequenceFlow>
     <sequenceFlow id="flow12" sourceRef="buildDeployModelTask" targetRef="buildUndeployModelTask"></sequenceFlow>
     <sequenceFlow id="sid-DDE3D1B9-C4E9-4D36-86E7-D8E9CEA6E957" sourceRef="processBatchesSequentially" targetRef="prepareModulesDeploymentTask"></sequenceFlow>
     <sequenceFlow id="sid-28CE5BFA-32C6-42FB-8296-2015C369E8DD" sourceRef="deleteDiscontinuedConfigurationEntriesTask" targetRef="undeployAppCallActivity"></sequenceFlow>
     <sequenceFlow id="sid-9230D46E-F672-4011-8088-234DCCB6FD05" sourceRef="undeployAppCallActivity" targetRef="shouldDeleteDiscontinuedServicesGateway"></sequenceFlow>
-    <serviceTask id="sid-714ADCD2-F657-4A13-B69C-A0476959E6BA" name="Remove Preserved Namespace Metadata" flowable:async="true" flowable:delegateExpression="${removeMtaPreservedMetadataStep}"></serviceTask>
+    <serviceTask id="sid-714ADCD2-F657-4A13-B69C-A0476959E6BA" name="Remove Backup Namespace Metadata" flowable:async="true" flowable:delegateExpression="${removeMtaBackupMetadataStep}"></serviceTask>
     <sequenceFlow id="sid-49A212DC-E070-4ECD-8C04-FD205869CF1B" sourceRef="detachServicesFromMtaTask" targetRef="sid-714ADCD2-F657-4A13-B69C-A0476959E6BA"></sequenceFlow>
     <sequenceFlow id="sid-79F92B7C-4712-4F80-BB79-9EEF3695462B" sourceRef="sid-714ADCD2-F657-4A13-B69C-A0476959E6BA" targetRef="endEvent"></sequenceFlow>
     <sequenceFlow id="sid-FC7F56D7-4472-416D-B028-1ED6095D12A2" sourceRef="deleteServicesCallActivity" targetRef="sid-714ADCD2-F657-4A13-B69C-A0476959E6BA"></sequenceFlow>
@@ -99,8 +99,8 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(processUserProvidedServices == true)}]]></conditionExpression>
     </sequenceFlow>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_revert-deploy">
-    <bpmndi:BPMNPlane bpmnElement="revert-deploy" id="BPMNPlane_revert-deploy">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_rollback-mta">
+    <bpmndi:BPMNPlane bpmnElement="rollback-mta" id="BPMNPlane_rollback-mta">
       <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
         <omgdc:Bounds height="30.0" width="30.0" x="239.5" y="45.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -110,7 +110,7 @@
       <bpmndi:BPMNShape bpmnElement="buildDeployModelTask" id="BPMNShape_buildDeployModelTask">
         <omgdc:Bounds height="68.0" width="118.0" x="931.5" y="26.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="preparePreservedMtaForDeployment" id="BPMNShape_preparePreservedMtaForDeployment">
+      <bpmndi:BPMNShape bpmnElement="prepareBackupMtaForDeployment" id="BPMNShape_prepareBackupMtaForDeployment">
         <omgdc:Bounds height="65.0" width="105.0" x="366.25" y="27.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="deleteDiscontinuedConfigurationEntriesTask" id="BPMNShape_deleteDiscontinuedConfigurationEntriesTask">

@@ -18,22 +18,22 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 
-class PrepareApplicationRevertStepTest extends SyncFlowableStepTest<PrepareApplicationRevertStep> {
+class PrepareApplicationForBackupStepTest extends SyncFlowableStepTest<PrepareApplicationForBackupStep> {
 
     private static Stream<Arguments> testStep() {
         return Stream.of(
                          // (1) Rename standard app name with system namespace
-                         Arguments.of("test-app", null, "mta-preserved-test-app", "mta-preserved"),
+                         Arguments.of("test-app", null, "mta-backup-test-app", "mta-backup"),
                          // (2) Rename app name with non idle suffix and add system namespace prefix
-                         Arguments.of("test-app-idle", null, "mta-preserved-test-app", "mta-preserved"),
+                         Arguments.of("test-app-idle", null, "mta-backup-test-app", "mta-backup"),
                          // (3) Reanme app name with blue suffix without any blue/green suffixes and add system namespace
-                         Arguments.of("test-app-blue", null, "mta-preserved-test-app", "mta-preserved"),
+                         Arguments.of("test-app-blue", null, "mta-backup-test-app", "mta-backup"),
                          // (4) Reanme app name with green suffix without any blue/green suffixes and add system namespace
-                         Arguments.of("test-app-green", null, "mta-preserved-test-app", "mta-preserved"),
+                         Arguments.of("test-app-green", null, "mta-backup-test-app", "mta-backup"),
                          // (5) Rename app with namespace prefix to system+user namespace
-                         Arguments.of("dev-web-app", "dev", "mta-preserved-dev-web-app", "mta-preserved-dev"),
+                         Arguments.of("dev-web-app", "dev", "mta-backup-dev-web-app", "mta-backup-dev"),
                          // (6) Rename app with namespace prefix and blue suffix to system+user namespace only
-                         Arguments.of("prod-web-app-blue", "prod", "mta-preserved-prod-web-app", "mta-preserved-prod"));
+                         Arguments.of("prod-web-app-blue", "prod", "mta-backup-prod-web-app", "mta-backup-prod"));
     }
 
     @ParameterizedTest
@@ -68,8 +68,8 @@ class PrepareApplicationRevertStepTest extends SyncFlowableStepTest<PrepareAppli
     }
 
     @Override
-    protected PrepareApplicationRevertStep createStep() {
-        return new PrepareApplicationRevertStep();
+    protected PrepareApplicationForBackupStep createStep() {
+        return new PrepareApplicationForBackupStep();
     }
 
 }

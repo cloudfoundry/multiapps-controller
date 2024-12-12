@@ -20,9 +20,9 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication.ProductizationState;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
-import org.cloudfoundry.multiapps.controller.persistence.dto.PreservedDescriptor;
-import org.cloudfoundry.multiapps.controller.persistence.query.DescriptorPreserverQuery;
-import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorPreserverService;
+import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
+import org.cloudfoundry.multiapps.controller.persistence.query.DescriptorBackupQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Version;
@@ -37,7 +37,7 @@ import org.mockito.MockitoAnnotations;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
 
-class ApplicationsPreserveCalculatorTest {
+class ExistingAppsToBackupCalculatorTest {
 
     private static final String MTA_ID = "test-mta";
     private static final Version MTA_VERSION = Version.parseVersion("1.0.0");
@@ -45,9 +45,9 @@ class ApplicationsPreserveCalculatorTest {
                                                  .toString();
 
     @Mock
-    private DescriptorPreserverService descriptorPreserverService;
+    private DescriptorBackupService descriptorBackupService;
     @Mock
-    private DescriptorPreserverQuery descriptorPreserverQuery;
+    private DescriptorBackupQuery descriptorBackupQuery;
     @Mock
     private ProcessContext context;
 
@@ -57,7 +57,7 @@ class ApplicationsPreserveCalculatorTest {
                           .close();
     }
 
-    private static Stream<Arguments> testCalculateAppsToPreserve() {
+    private static Stream<Arguments> testCalculateExistingAppsToBackup() {
         return Stream.of(
                          // (1) Already deployed application match checksum of current deployment descriptor
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "1")), Collections.emptyList(), "1",
@@ -73,83 +73,80 @@ class ApplicationsPreserveCalculatorTest {
                                                                                                   "1")
                                                                                            .build())
                                                                        .build())),
-                         // (3) Current deployment descriptor match checksum of deployed and preserved mta
+                         // (3) Current deployment descriptor match checksum of deployed and backup mta
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "1")),
-                                      List.of(new TestApplication("app-1", "mta-preserved-app-1", "1")), "1", List.of("app-1-live"),
+                                      List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "1", List.of("app-1-live"),
                                       Collections.emptyList()),
-                         // (4) Current deployment descriptor checksum has different value of deployed and preserved mta
+                         // (4) Current deployment descriptor checksum has different value of deployed and backup mta
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "2")),
-                                      List.of(new TestApplication("app-1",
-                                                                  "mta-preserved-app-1",
-                                                                  "1")),
-                                      "3", List.of("app-1-live", "mta-preserved-app-1"), List.of(ImmutableCloudApplication.builder()
-                                                                                                                          .name("app-1-live")
-                                                                                                                          .v3Metadata(Metadata.builder()
-                                                                                                                                              .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
-                                                                                                                                                     "2")
-                                                                                                                                              .build())
-                                                                                                                          .build())),
+                                      List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "3", List.of("app-1-live",
+                                                                                                                   "mta-backup-app-1"),
+                                      List.of(ImmutableCloudApplication.builder()
+                                                                       .name("app-1-live")
+                                                                       .v3Metadata(Metadata.builder()
+                                                                                           .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
+                                                                                                  "2")
+                                                                                           .build())
+                                                                       .build())),
                          // (5) Current deployment descriptor match checksum of deployed mta only
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "2")),
-                                      List.of(new TestApplication("app-1", "mta-preserved-app-1", "1")), "2", List.of("app-1-live"),
+                                      List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "2", List.of("app-1-live"),
                                       Collections.emptyList()),
-                         // (6) Current deployment descriptor checksum match value of preserved mta
+                         // (6) Current deployment descriptor checksum match value of backup mta
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "2")),
-                                      List.of(new TestApplication("app-1", "mta-preserved-app-1", "1")), "1",
+                                      List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "1",
                                       List.of("app-1-live", "app-1-idle"), Collections.emptyList()));
     }
 
     @ParameterizedTest
     @MethodSource
-    void testCalculateAppsToPreserve(List<TestApplication> deployedApplications, List<TestApplication> preservedApplications,
-                                     String currentDeploymentDescriptorChecksum, List<String> appNamesToUndeploy,
-                                     List<CloudApplication> expectedAppsToPreserve) {
+    void testCalculateExistingAppsToBackup(List<TestApplication> deployedApplications, List<TestApplication> backupApplications,
+                                           String currentDeploymentDescriptorChecksum, List<String> appNamesToUndeploy,
+                                           List<CloudApplication> expectedAppsToBackup) {
         DeployedMta deployedMta = getDeployedMta(deployedApplications);
-        DeployedMta preservedMta = getDeployedMta(preservedApplications);
+        DeployedMta backupMta = getDeployedMta(backupApplications);
 
-        ApplicationsPreserveCalculator calculator = new ApplicationsPreserveCalculator(deployedMta,
-                                                                                       preservedMta,
-                                                                                       descriptorPreserverService);
+        ExistingAppsToBackupCalculator calculator = new ExistingAppsToBackupCalculator(deployedMta, backupMta, descriptorBackupService);
 
         List<CloudApplication> appsToUndeploy = getAppsToUndeploy(deployedMta.getApplications(), appNamesToUndeploy);
-        List<CloudApplication> appsToPreserve = calculator.calculateAppsToPreserve(appsToUndeploy, currentDeploymentDescriptorChecksum);
+        List<CloudApplication> appsToBackup = calculator.calculateExistingAppsToBackup(appsToUndeploy, currentDeploymentDescriptorChecksum);
 
-        assertEquals(expectedAppsToPreserve, appsToPreserve);
+        assertEquals(expectedAppsToBackup, appsToBackup);
     }
 
     private static Stream<Arguments> testCalculateAppsToUndeploy() {
         return Stream.of(
-                         // (1) Preserved apps exist and new version will be preserved and older one needs to be deleted
-                         Arguments.of(List.of(new TestApplication("app-1", "mta-preserved-app-1", "1")), List.of("app-1-idle"), true,
+                         // (1) Backup apps exist and new version will be backup and older one needs to be deleted
+                         Arguments.of(List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), List.of("app-1-idle"), true,
                                       List.of(ImmutableCloudApplication.builder()
-                                                                       .name("mta-preserved-app-1")
+                                                                       .name("mta-backup-app-1")
                                                                        .v3Metadata(Metadata.builder()
                                                                                            .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
                                                                                                   "1")
                                                                                            .build())
                                                                        .build())),
-                         // (2) Preserved apps does not exist and there is no need to delete applications
+                         // (2) Backup apps does not exist and there is no need to delete applications
                          Arguments.of(Collections.emptyList(), List.of("special-app"), false, Collections.emptyList()),
-                         // (3) There is no specified apps to preserve and deletion will be skipped for already existing preserved apps
-                         Arguments.of(List.of(new TestApplication("app-1", "mta-preserved-app-1", "1"),
-                                              new TestApplication("app-2", "mta-preserved-app-2", "1")),
+                         // (3) There is no specified apps to backup and deletion will be skipped for already existing backup apps
+                         Arguments.of(List.of(new TestApplication("app-1", "mta-backup-app-1", "1"),
+                                              new TestApplication("app-2", "mta-backup-app-2", "1")),
                                       Collections.emptyList(), true, Collections.emptyList()),
-                         // (4) Preserved apps exist with same name and won't be deleted
-                         Arguments.of(List.of(new TestApplication("app-1", "mta-preserved-app-1", "1"),
-                                              new TestApplication("app-2", "mta-preserved-app-2", "1")),
-                                      List.of("mta-preserved-app-1", "mta-preserved-app-2"), true, Collections.emptyList()),
-                         // (5) Preserved apps exist but descriptor is not available in db
-                         Arguments.of(List.of(new TestApplication("app-1", "mta-preserved-app-1", "2"),
-                                              new TestApplication("app-2", "mta-preserved-app-2", "2")),
+                         // (4) Backup apps exist with same name and won't be deleted
+                         Arguments.of(List.of(new TestApplication("app-1", "mta-backup-app-1", "1"),
+                                              new TestApplication("app-2", "mta-backup-app-2", "1")),
+                                      List.of("mta-backup-app-1", "mta-backup-app-2"), true, Collections.emptyList()),
+                         // (5) Backup apps exist but descriptor is not available in db
+                         Arguments.of(List.of(new TestApplication("app-1", "mta-backup-app-1", "2"),
+                                              new TestApplication("app-2", "mta-backup-app-2", "2")),
                                       Collections.emptyList(), false, List.of(ImmutableCloudApplication.builder()
-                                                                                                       .name("mta-preserved-app-1")
+                                                                                                       .name("mta-backup-app-1")
                                                                                                        .v3Metadata(Metadata.builder()
                                                                                                                            .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
                                                                                                                                   "2")
                                                                                                                            .build())
                                                                                                        .build(),
                                                                               ImmutableCloudApplication.builder()
-                                                                                                       .name("mta-preserved-app-2")
+                                                                                                       .name("mta-backup-app-2")
                                                                                                        .v3Metadata(Metadata.builder()
                                                                                                                            .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
                                                                                                                                   "2")
@@ -159,28 +156,28 @@ class ApplicationsPreserveCalculatorTest {
 
     @ParameterizedTest
     @MethodSource
-    void testCalculateAppsToUndeploy(List<TestApplication> deployedPreservedApps, List<String> appNameToPreserve,
+    void testCalculateAppsToUndeploy(List<TestApplication> deployedBackupApps, List<String> appsNameToBackup,
                                      boolean isDescriptorAvailableInDb, List<CloudApplication> expectedAppsToUndeploy) {
-        DeployedMta preservedMta = getDeployedMta(deployedPreservedApps);
+        DeployedMta backupMta = getDeployedMta(deployedBackupApps);
 
         when(context.getVariable(Variables.MTA_ID)).thenReturn(MTA_ID);
         when(context.getVariable(Variables.SPACE_GUID)).thenReturn(SPACE_GUID);
-        when(descriptorPreserverService.createQuery()).thenReturn(descriptorPreserverQuery);
-        when(descriptorPreserverQuery.mtaId(anyString())).thenReturn(descriptorPreserverQuery);
-        when(descriptorPreserverQuery.spaceId(anyString())).thenReturn(descriptorPreserverQuery);
-        when(descriptorPreserverQuery.namespace(any())).thenReturn(descriptorPreserverQuery);
-        when(descriptorPreserverQuery.checksum(anyString())).thenReturn(descriptorPreserverQuery);
-        when(descriptorPreserverQuery.list()).thenReturn(isDescriptorAvailableInDb ? List.of(Mockito.mock(PreservedDescriptor.class))
+        when(descriptorBackupService.createQuery()).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.mtaId(anyString())).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.spaceId(anyString())).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.namespace(any())).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.checksum(anyString())).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.list()).thenReturn(isDescriptorAvailableInDb ? List.of(Mockito.mock(BackupDescriptor.class))
             : Collections.emptyList());
 
-        ApplicationsPreserveCalculator calculator = new ApplicationsPreserveCalculator(null, preservedMta, descriptorPreserverService);
+        ExistingAppsToBackupCalculator calculator = new ExistingAppsToBackupCalculator(null, backupMta, descriptorBackupService);
 
-        List<CloudApplication> appsToPreserve = appNameToPreserve.stream()
-                                                                 .map(appName -> ImmutableCloudApplication.builder()
-                                                                                                          .name(appName)
-                                                                                                          .build())
-                                                                 .collect(Collectors.toList());
-        List<CloudApplication> appsToUndeploy = calculator.calculateAppsToUndeploy(context, appsToPreserve)
+        List<CloudApplication> appsToBackup = appsNameToBackup.stream()
+                                                              .map(appName -> ImmutableCloudApplication.builder()
+                                                                                                       .name(appName)
+                                                                                                       .build())
+                                                              .collect(Collectors.toList());
+        List<CloudApplication> appsToUndeploy = calculator.calculateAppsToUndeploy(context, appsToBackup)
                                                           .stream()
                                                           .map(appToUndeploy -> ImmutableCloudApplication.copyOf(appToUndeploy))
                                                           .collect(Collectors.toList());

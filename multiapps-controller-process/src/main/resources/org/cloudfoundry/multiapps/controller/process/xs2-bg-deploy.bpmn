@@ -237,8 +237,8 @@
       </extensionElements>
     </sequenceFlow>
     <sequenceFlow id="flowHasGitGateway" sourceRef="startEvent" targetRef="validateParametersTask"></sequenceFlow>
-    <callActivity id="sid-2827E336-1827-4AC2-BCE2-AD2A8B3DE595" name="Preserve Old App Call Activity" flowable:async="true" calledElement="preserveOldAppSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
-      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="appsToPreserve" flowable:elementVariable="appToProcess">
+    <callActivity id="sid-2827E336-1827-4AC2-BCE2-AD2A8B3DE595" name="Backup Existing App Call Activity" flowable:async="true" calledElement="backupExistingAppSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="appsToBackup" flowable:elementVariable="appToProcess">
         <extensionElements></extensionElements>
       </multiInstanceLoopCharacteristics>
     </callActivity>

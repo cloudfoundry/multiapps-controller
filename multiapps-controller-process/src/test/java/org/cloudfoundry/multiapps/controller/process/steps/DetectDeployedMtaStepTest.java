@@ -93,7 +93,7 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
     }
 
     @Test
-    void testExecuteWithPreservedMta() {
+    void testExecuteWithBackupdMta() {
         DeployedMta deployedMta = ImmutableDeployedMta.builder()
                                                       .addApplication(ImmutableDeployedMtaApplication.builder()
                                                                                                      .moduleName("test-module")
@@ -109,34 +109,34 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
                                                                                     .version(Version.parseVersion(MTA_VERSION_2))
                                                                                     .build())
                                                       .build();
-        DeployedMta preservedMta = ImmutableDeployedMta.builder()
-                                                       .addApplication(ImmutableDeployedMtaApplication.builder()
-                                                                                                      .moduleName("test-module")
-                                                                                                      .name("mta-preserved-test-app")
-                                                                                                      .v3Metadata(Metadata.builder()
-                                                                                                                          .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
-                                                                                                                                 "1")
-                                                                                                                          .build())
-                                                                                                      .productizationState(ProductizationState.LIVE)
-                                                                                                      .build())
-                                                       .metadata(ImmutableMtaMetadata.builder()
-                                                                                     .id(MTA_ID)
-                                                                                     .version(Version.parseVersion(MTA_VERSION_1))
-                                                                                     .build())
-                                                       .build();
+        DeployedMta backupMta = ImmutableDeployedMta.builder()
+                                                    .addApplication(ImmutableDeployedMtaApplication.builder()
+                                                                                                   .moduleName("test-module")
+                                                                                                   .name("mta-backup-test-app")
+                                                                                                   .v3Metadata(Metadata.builder()
+                                                                                                                       .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
+                                                                                                                              "1")
+                                                                                                                       .build())
+                                                                                                   .productizationState(ProductizationState.LIVE)
+                                                                                                   .build())
+                                                    .metadata(ImmutableMtaMetadata.builder()
+                                                                                  .id(MTA_ID)
+                                                                                  .version(Version.parseVersion(MTA_VERSION_1))
+                                                                                  .build())
+                                                    .build();
 
         when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(Mockito.eq(MTA_ID), Mockito.eq(null),
                                                                      Mockito.any())).thenReturn(Optional.of(deployedMta));
         when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(Mockito.eq(MTA_ID),
-                                                                     Mockito.eq(NameUtil.computeUserNamespaceWithSystemNamespace(Constants.MTA_PRESERVED_NAMESPACE,
+                                                                     Mockito.eq(NameUtil.computeUserNamespaceWithSystemNamespace(Constants.MTA_BACKUP_NAMESPACE,
                                                                                                                                  null)),
-                                                                     Mockito.any())).thenReturn(Optional.of(preservedMta));
+                                                                     Mockito.any())).thenReturn(Optional.of(backupMta));
 
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
-        assertEquals(preservedMta, context.getVariable(Variables.PRESERVED_MTA));
+        assertEquals(backupMta, context.getVariable(Variables.BACKUP_MTA));
 
     }
 

@@ -44,8 +44,8 @@ public final class Messages {
     public static final String ASYNC_UPLOAD_JOB_NOT_FOUND = "Async upload job entry with ID \"{0}\" not found";
     public static final String ASYNC_UPLOAD_JOB_ALREADY_EXISTS = "Async upload job entry with ID \"{0}\" already exists";
     public static final String ERROR_GETTING_FILES_CREATED_AFTER_0_AND_BEFORE_1 = "Error getting files created after {0} and before {1]";
-    public static final String PRESERVED_DESCRIPTOR_FOR_MTA_ID_0_AND_ID_1_ALREADY_EXIST = "Preserved descriptor for mta id \"{0}\" and id \"{1}\" already exist";
-    public static final String PRESERVED_DESCRIPTOR_WITH_ID_NOT_EXIST = "Preserved descriptor with ID \"{0}\" does not exist";
+    public static final String BACKUP_DESCRIPTOR_FOR_MTA_ID_0_AND_ID_1_ALREADY_EXIST = "Backup descriptor for mta id \"{0}\" and id \"{1}\" already exist";
+    public static final String BACKUP_DESCRIPTOR_WITH_ID_NOT_EXIST = "Backup descriptor with ID \"{0}\" does not exist";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";

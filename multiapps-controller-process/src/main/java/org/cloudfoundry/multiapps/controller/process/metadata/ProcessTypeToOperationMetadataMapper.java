@@ -23,8 +23,8 @@ public class ProcessTypeToOperationMetadataMapper {
         if (processType.equals(ProcessType.CTS_DEPLOY)) {
             return CtsDeployMetadata.getMetadata();
         }
-        if (processType.equals(ProcessType.REVERT_DEPLOY)) {
-            return RevertDeployMetadata.getMetadata();
+        if (processType.equals(ProcessType.ROLLBACK_MTA)) {
+            return RollbackMtaMetadata.getMetadata();
         }
         throw new SLException(Messages.UNSUPPORTED_PROCESS_TYPE, processType.toString());
     }

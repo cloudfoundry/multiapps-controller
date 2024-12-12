@@ -12,18 +12,18 @@ public class ProcessType {
     private static final String BLUE_GREEN_DEPLOY_NAME = "BLUE_GREEN_DEPLOY";
     private static final String UNDEPLOY_NAME = "UNDEPLOY";
     private static final String CTS_DEPLOY_NAME = "CTS_DEPLOY";
-    private static final String REVERT_DEPLOY_NAME = "REVERT_DEPLOY";
+    private static final String ROLLBACK_MTA_DEPLOY_NAME = "ROLLBACK_MTA";
     private static final String DEPLOYMENT_DISPLAY_NAME = "Deployment";
     private static final String BLUE_GREEN_DEPLOYMENT_DISPLAY_NAME = "Blue-Green Deployment";
     private static final String UNDEPLOYMENT_DISPLAY_NAME = "Undeployment";
     private static final String CTS_DEPLOYMENT_DISPLAY_NAME = "CTS Deployment";
-    private static final String REVERT_DEPLOYMENT_DISPLAY_NAME = "Revert Deployment";
+    private static final String ROLLBACK_MTA_DEPLOYMENT_DISPLAY_NAME = "Rollback MTA Deployment";
 
     public static final ProcessType DEPLOY = new ProcessType(DEPLOY_NAME, DEPLOYMENT_DISPLAY_NAME);
     public static final ProcessType BLUE_GREEN_DEPLOY = new ProcessType(BLUE_GREEN_DEPLOY_NAME, BLUE_GREEN_DEPLOYMENT_DISPLAY_NAME);
     public static final ProcessType UNDEPLOY = new ProcessType(UNDEPLOY_NAME, UNDEPLOYMENT_DISPLAY_NAME);
     public static final ProcessType CTS_DEPLOY = new ProcessType(CTS_DEPLOY_NAME, CTS_DEPLOYMENT_DISPLAY_NAME);
-    public static final ProcessType REVERT_DEPLOY = new ProcessType(REVERT_DEPLOY_NAME, REVERT_DEPLOYMENT_DISPLAY_NAME);
+    public static final ProcessType ROLLBACK_MTA = new ProcessType(ROLLBACK_MTA_DEPLOY_NAME, ROLLBACK_MTA_DEPLOYMENT_DISPLAY_NAME);
 
     private String name;
     private String displayName;
@@ -82,8 +82,8 @@ public class ProcessType {
                 return UNDEPLOY;
             case CTS_DEPLOY_NAME:
                 return CTS_DEPLOY;
-            case REVERT_DEPLOY_NAME:
-                return REVERT_DEPLOY;
+            case ROLLBACK_MTA_DEPLOY_NAME:
+                return ROLLBACK_MTA;
             default:
                 throw new IllegalStateException("Illegal process type: " + name);
         }

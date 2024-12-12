@@ -4,16 +4,16 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
 
-    <changeSet author="sap.com" id="add_table_preserved_descriptor">
+    <changeSet author="sap.com" id="add_table_backup_descriptor">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="preserved_descriptor" />
+                <tableExists tableName="backup_descriptor" />
             </not>
         </preConditions>
-        <createSequence sequenceName="preserved_descriptor_sequence" startValue="1" incrementBy="1" />
-        <createTable tableName="preserved_descriptor">
+        <createSequence sequenceName="backup_descriptor_sequence" startValue="1" incrementBy="1" />
+        <createTable tableName="backup_descriptor">
             <column name="id" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="preserved_descriptor_pk" />
+                <constraints primaryKey="true" primaryKeyName="backup_descriptor_pk" />
             </column>
             <column name="mta_id" type="VARCHAR(255)">
                 <constraints nullable="false" />
