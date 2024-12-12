@@ -19,19 +19,19 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 
-class RemoveMtaPreservedMetadataStepTest extends SyncFlowableStepTest<RemoveMtaPreservedMetadataStep> {
+class RemoveMtaBackupMetadataStepTest extends SyncFlowableStepTest<RemoveMtaBackupMetadataStep> {
 
     private static final String MTA_ID = "test-mta";
     private static final String MTA_VERSION = "0.0.1";
     private static final String MODULE_NAME = "test-module";
-    private static final String PRESERVED_APP_NAME = "mta-preserved-test-app";
+    private static final String BACKUP_APP_NAME = "mta-backup-test-app";
     private static final String APP_CHECKSUM = "1";
     private static final UUID APP_GUID = UUID.randomUUID();
 
     @Test
     void testRemoveSystemNamespace() {
-        DeployedMta preservedMta = createPreservedMta("mta-preserved");
-        context.setVariable(Variables.PRESERVED_MTA, preservedMta);
+        DeployedMta backupMta = createBackupMta("mta-backup");
+        context.setVariable(Variables.BACKUP_MTA, backupMta);
 
         step.execute(execution);
 
@@ -46,8 +46,8 @@ class RemoveMtaPreservedMetadataStepTest extends SyncFlowableStepTest<RemoveMtaP
     @Test
     void testRemoveSystemNamespaceAndKeepUserNamespace() {
         String userNamespace = "user-namespace";
-        DeployedMta preservedMta = createPreservedMta("mta-preserved-" + userNamespace);
-        context.setVariable(Variables.PRESERVED_MTA, preservedMta);
+        DeployedMta backupMta = createBackupMta("mta-backup-" + userNamespace);
+        context.setVariable(Variables.BACKUP_MTA, backupMta);
         context.setVariable(Variables.MTA_NAMESPACE, userNamespace);
 
         step.execute(execution);
@@ -61,11 +61,11 @@ class RemoveMtaPreservedMetadataStepTest extends SyncFlowableStepTest<RemoveMtaP
                                                                    .build());
     }
 
-    private DeployedMta createPreservedMta(String namespace) {
+    private DeployedMta createBackupMta(String namespace) {
         return ImmutableDeployedMta.builder()
                                    .addApplication(ImmutableDeployedMtaApplication.builder()
                                                                                   .moduleName(MODULE_NAME)
-                                                                                  .name(PRESERVED_APP_NAME)
+                                                                                  .name(BACKUP_APP_NAME)
                                                                                   .v3Metadata(Metadata.builder()
                                                                                                       .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
                                                                                                              APP_CHECKSUM)
@@ -88,8 +88,8 @@ class RemoveMtaPreservedMetadataStepTest extends SyncFlowableStepTest<RemoveMtaP
     }
 
     @Override
-    protected RemoveMtaPreservedMetadataStep createStep() {
-        return new RemoveMtaPreservedMetadataStep();
+    protected RemoveMtaBackupMetadataStep createStep() {
+        return new RemoveMtaBackupMetadataStep();
     }
 
 }

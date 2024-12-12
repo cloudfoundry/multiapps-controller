@@ -8,9 +8,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.Messages;
@@ -20,12 +17,12 @@ import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
 import org.cloudfoundry.multiapps.controller.core.util.SecurityUtil;
-import org.cloudfoundry.multiapps.controller.persistence.dto.PreservedDescriptor;
+import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
-import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorPreserverService;
+import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
@@ -33,6 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloudfoundry.client.facade.CloudCredentials;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 public class DataTerminationService {
@@ -60,7 +60,7 @@ public class DataTerminationService {
     @Inject
     private MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
     @Inject
-    private DescriptorPreserverService descriptorPreserverService;
+    private DescriptorBackupService descriptorBackupService;
 
     private static void log(Exception e) {
         LOGGER.error(format(Messages.ERROR_DURING_DATA_TERMINATION_0, e.getMessage()), e);
@@ -147,13 +147,13 @@ public class DataTerminationService {
     }
 
     private void deletedMtaDescriptorsOrphanData(String spaceId) {
-        List<PreservedDescriptor> preservedDescriptors = descriptorPreserverService.createQuery()
-                                                                                   .spaceId(spaceId)
-                                                                                   .list();
-        preservedDescriptors.forEach(descriptor -> mtaConfigurationPurgerAuditLog.logDeleteMtaPreservedDescriptor(spaceId, descriptor));
-        descriptorPreserverService.createQuery()
-                                  .spaceId(spaceId)
-                                  .delete();
+        List<BackupDescriptor> backupDescriptors = descriptorBackupService.createQuery()
+                                                                          .spaceId(spaceId)
+                                                                          .list();
+        backupDescriptors.forEach(descriptor -> mtaConfigurationPurgerAuditLog.logDeleteBackupDescriptor(spaceId, descriptor));
+        descriptorBackupService.createQuery()
+                               .spaceId(spaceId)
+                               .delete();
     }
 
     private void deleteSpaceIdsLeftovers(List<String> spaceIds) {

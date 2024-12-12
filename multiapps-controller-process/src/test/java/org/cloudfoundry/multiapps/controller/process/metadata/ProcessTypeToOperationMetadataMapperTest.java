@@ -37,9 +37,9 @@ class ProcessTypeToOperationMetadataMapperTest {
     }
 
     @Test
-    void testGetDiagramRevertDeployProcessType() {
-        Assertions.assertEquals(Constants.REVERT_DEPLOY_SERVICE_ID,
-                                processTypeToOperationMetadataMapper.getDiagramId(ProcessType.REVERT_DEPLOY));
+    void testGetDiagramRollbackMtaProcessType() {
+        Assertions.assertEquals(Constants.ROLLBACK_MTA_SERVICE_ID,
+                                processTypeToOperationMetadataMapper.getDiagramId(ProcessType.ROLLBACK_MTA));
     }
 
 }

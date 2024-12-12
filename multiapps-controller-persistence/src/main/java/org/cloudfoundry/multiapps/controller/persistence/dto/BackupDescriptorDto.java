@@ -2,6 +2,10 @@ package org.cloudfoundry.multiapps.controller.persistence.dto;
 
 import java.time.LocalDateTime;
 
+import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata.SequenceNames;
+import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata.TableColumnNames;
+import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata.TableNames;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,14 +15,10 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
-import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata.SequenceNames;
-import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata.TableColumnNames;
-import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata.TableNames;
-
 @Entity
-@Table(name = TableNames.PRESERVED_DESCRIPTOR_TABLE)
-@SequenceGenerator(name = SequenceNames.DESCRIPTOR_PRESERVER_SEQUENCE, sequenceName = SequenceNames.DESCRIPTOR_PRESERVER_SEQUENCE, allocationSize = 1)
-public class PreservedDescriptorDto implements DtoWithPrimaryKey<Long> {
+@Table(name = TableNames.BACKUP_DESCRIPTOR_TABLE)
+@SequenceGenerator(name = SequenceNames.BACKUP_DESCRIPTOR_SEQUENCE, sequenceName = SequenceNames.BACKUP_DESCRIPTOR_SEQUENCE, allocationSize = 1)
+public class BackupDescriptorDto implements DtoWithPrimaryKey<Long> {
 
     public static class AttributeNames {
         private AttributeNames() {
@@ -33,38 +33,38 @@ public class PreservedDescriptorDto implements DtoWithPrimaryKey<Long> {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DESCRIPTOR_PRESERVER_SEQUENCE)
-    @Column(name = TableColumnNames.PRESERVED_DESCRIPTOR_ID)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.BACKUP_DESCRIPTOR_SEQUENCE)
+    @Column(name = TableColumnNames.BACKUP_DESCRIPTOR_ID)
     private long id;
 
-    @Column(name = TableColumnNames.PRESERVED_DESCRIPTOR_DESCRIPTOR, nullable = false)
+    @Column(name = TableColumnNames.BACKUP_DESCRIPTOR_DESCRIPTOR, nullable = false)
     @Lob
     private byte[] descriptor;
 
-    @Column(name = TableColumnNames.PRESERVED_DESCRIPTOR_MTA_ID, nullable = false)
+    @Column(name = TableColumnNames.BACKUP_DESCRIPTOR_MTA_ID, nullable = false)
     private String mtaId;
 
-    @Column(name = TableColumnNames.PRESERVED_DESCRIPTOR_MTA_VERSION, nullable = false)
+    @Column(name = TableColumnNames.BACKUP_DESCRIPTOR_MTA_VERSION, nullable = false)
     private String mtaVersion;
 
-    @Column(name = TableColumnNames.PRESERVED_DESCRIPTOR_SPACE_ID, nullable = false)
+    @Column(name = TableColumnNames.BACKUP_DESCRIPTOR_SPACE_ID, nullable = false)
     private String spaceId;
 
-    @Column(name = TableColumnNames.PRESERVED_DESCRIPTOR_NAMESPACE, nullable = true)
+    @Column(name = TableColumnNames.BACKUP_DESCRIPTOR_NAMESPACE, nullable = true)
     private String namespace;
 
-    @Column(name = TableColumnNames.PRESERVED_DESCRIPTOR_CHECKSUM, nullable = false)
+    @Column(name = TableColumnNames.BACKUP_DESCRIPTOR_CHECKSUM, nullable = false)
     private String checksum;
 
-    @Column(name = TableColumnNames.PRESERVED_DESCRIPTOR_TIMESTAMP, nullable = false)
+    @Column(name = TableColumnNames.BACKUP_DESCRIPTOR_TIMESTAMP, nullable = false)
     private LocalDateTime timestamp;
 
-    protected PreservedDescriptorDto() {
+    protected BackupDescriptorDto() {
         // Required by JPA
     }
 
-    public PreservedDescriptorDto(long id, byte[] descriptor, String mtaId, String mtaVersion, String spaceId, String namespace,
-                                  String checksum, LocalDateTime timestamp) {
+    public BackupDescriptorDto(long id, byte[] descriptor, String mtaId, String mtaVersion, String spaceId, String namespace,
+                               String checksum, LocalDateTime timestamp) {
         this.id = id;
         this.descriptor = descriptor;
         this.mtaId = mtaId;

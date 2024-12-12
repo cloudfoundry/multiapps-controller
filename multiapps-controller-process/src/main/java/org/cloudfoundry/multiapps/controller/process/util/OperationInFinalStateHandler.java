@@ -9,9 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
@@ -25,7 +22,7 @@ import org.cloudfoundry.multiapps.controller.core.util.LoggingUtil;
 import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorPreserverService;
+import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
@@ -43,6 +40,9 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 @Named
 public class OperationInFinalStateHandler {
 
@@ -57,7 +57,7 @@ public class OperationInFinalStateHandler {
     @Inject
     private HistoricOperationEventService historicOperationEventService;
     @Inject
-    private DescriptorPreserverService descriptorPreserverService;
+    private DescriptorBackupService descriptorBackupService;
     @Inject
     private OperationTimeAggregator operationTimeAggregator;
     @Inject
@@ -74,8 +74,7 @@ public class OperationInFinalStateHandler {
         safeExecutor.execute(() -> deleteDeploymentFiles(correlationId, execution));
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(execution));
         safeExecutor.execute(() -> setOperationState(correlationId, state));
-        // It is commented out for now because current code will delete all other descriptors needed for revert
-        safeExecutor.execute(() -> deletePreviousPreservedDescriptors(execution, processType, state));
+        safeExecutor.execute(() -> deletePreviousBackupDescriptors(execution, processType, state));
         safeExecutor.execute(() -> trackOperationDuration(correlationId, execution, processType, state));
     }
 
@@ -129,7 +128,7 @@ public class OperationInFinalStateHandler {
         return state == Operation.State.FINISHED ? HistoricOperationEvent.EventType.FINISHED : HistoricOperationEvent.EventType.ABORTED;
     }
 
-    private void deletePreviousPreservedDescriptors(DelegateExecution execution, ProcessType processType, Operation.State state) {
+    private void deletePreviousBackupDescriptors(DelegateExecution execution, ProcessType processType, Operation.State state) {
         if (state != Operation.State.FINISHED) {
             return;
         }
@@ -143,14 +142,14 @@ public class OperationInFinalStateHandler {
             Optional<String> mtaChecksum = getChecksumOfDeployedApplication(deployedMta);
 
             if (mtaChecksum.isPresent()) {
-                LOGGER.info(MessageFormat.format(Messages.DELETING_PRESERVED_DESCRIPTOR_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_CHECKSUM_3,
+                LOGGER.info(MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTOR_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_CHECKSUM_3,
                                                  mtaId, spaceId, mtaNamespace, mtaChecksum.get()));
-                descriptorPreserverService.createQuery()
-                                          .mtaId(mtaId)
-                                          .spaceId(spaceId)
-                                          .namespace(mtaNamespace)
-                                          .checksum(mtaChecksum.get())
-                                          .delete();
+                descriptorBackupService.createQuery()
+                                       .mtaId(mtaId)
+                                       .spaceId(spaceId)
+                                       .namespace(mtaNamespace)
+                                       .checksum(mtaChecksum.get())
+                                       .delete();
             }
             return;
         }
@@ -160,24 +159,24 @@ public class OperationInFinalStateHandler {
         if (checksumOfMergedDescriptor != null) {
             checksumsToSkipDeletion.add(checksumOfMergedDescriptor);
         }
-        DeployedMta preservedMta = VariableHandling.get(execution, Variables.PRESERVED_MTA);
+        DeployedMta backupMta = VariableHandling.get(execution, Variables.BACKUP_MTA);
         DeployedMta deployedMta = VariableHandling.get(execution, Variables.DEPLOYED_MTA);
         List<CloudApplication> appsToUndeploy = VariableHandling.get(execution, Variables.APPS_TO_UNDEPLOY);
-        addChecksumOfDeployedMtas(checksumsToSkipDeletion, preservedMta, appsToUndeploy);
+        addChecksumOfDeployedMtas(checksumsToSkipDeletion, backupMta, appsToUndeploy);
         addChecksumOfDeployedMtas(checksumsToSkipDeletion, deployedMta, appsToUndeploy);
 
         if (checksumsToSkipDeletion.isEmpty()) {
             return;
         }
 
-        LOGGER.info(MessageFormat.format(Messages.DELETING_PRESERVED_DESCRIPTORS_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_SKIP_CHECKSUMS_3,
-                                         mtaId, spaceId, mtaNamespace, checksumsToSkipDeletion));
-        descriptorPreserverService.createQuery()
-                                  .mtaId(mtaId)
-                                  .spaceId(spaceId)
-                                  .namespace(mtaNamespace)
-                                  .checksumsNotMatch(checksumsToSkipDeletion)
-                                  .delete();
+        LOGGER.info(MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTORS_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_SKIP_CHECKSUMS_3, mtaId,
+                                         spaceId, mtaNamespace, checksumsToSkipDeletion));
+        descriptorBackupService.createQuery()
+                               .mtaId(mtaId)
+                               .spaceId(spaceId)
+                               .namespace(mtaNamespace)
+                               .checksumsNotMatch(checksumsToSkipDeletion)
+                               .delete();
 
     }
 

@@ -10,14 +10,14 @@ import org.cloudfoundry.multiapps.controller.process.metadata.parameters.Version
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.VersionRule;
 
-public class RevertDeployMetadata {
+public class RollbackMtaMetadata {
 
-    private RevertDeployMetadata() {
+    private RollbackMtaMetadata() {
     }
 
     public static OperationMetadata getMetadata() {
         return ImmutableOperationMetadata.builder()
-                                         .diagramId(Constants.REVERT_DEPLOY_SERVICE_ID)
+                                         .diagramId(Constants.ROLLBACK_MTA_SERVICE_ID)
                                          .addVersions(Constants.SERVICE_VERSION_1_1, Constants.SERVICE_VERSION_1_2)
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.MTA_NAMESPACE.getName())

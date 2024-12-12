@@ -10,7 +10,7 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.model.AuditLogConfiguration;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.model.ConfigurationChangeActions;
-import org.cloudfoundry.multiapps.controller.persistence.dto.PreservedDescriptor;
+import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 
@@ -87,13 +87,13 @@ public class MtaConfigurationPurgerAuditLog {
                                                           ConfigurationChangeActions.CONFIGURATION_DELETE);
     }
 
-    public void logDeleteMtaPreservedDescriptor(String spaceGuid, PreservedDescriptor mtaDescriptorPreserver) {
-        String performedAction = MessageFormat.format(Messages.DELETE_PRESERVED_DESCRIPTOR_AUDIT_LOG_MESSAGE, spaceGuid);
+    public void logDeleteBackupDescriptor(String spaceGuid, BackupDescriptor backupDescriptor) {
+        String performedAction = MessageFormat.format(Messages.DELETE_BACKUP_DESCRIPTOR_AUDIT_LOG_MESSAGE, spaceGuid);
         auditLoggingFacade.logConfigurationChangeAuditLog(new AuditLogConfiguration(Strings.EMPTY,
                                                                                     spaceGuid,
                                                                                     performedAction,
                                                                                     Messages.MTA_DESCRIPTOR_DELETE_AUDIT_LOG_CONFIG,
-                                                                                    createAuditLogDeleteMtaPreservedDescriptorIdentifier(mtaDescriptorPreserver)),
+                                                                                    createAuditLogDeleteMtaBackupDescriptorIdentifier(backupDescriptor)),
                                                           ConfigurationChangeActions.CONFIGURATION_DELETE);
     }
 
@@ -137,12 +137,12 @@ public class MtaConfigurationPurgerAuditLog {
         return identifiers;
     }
 
-    private Map<String, String> createAuditLogDeleteMtaPreservedDescriptorIdentifier(PreservedDescriptor mtaDescriptorPreserver) {
+    private Map<String, String> createAuditLogDeleteMtaBackupDescriptorIdentifier(BackupDescriptor backupDescriptor) {
         Map<String, String> identifiers = new HashMap<>();
 
-        identifiers.put(MTA_ID_PROPERTY_NAME, mtaDescriptorPreserver.getMtaId());
-        identifiers.put(STORED_AT_PROPERTY_NAME, mtaDescriptorPreserver.getTimestamp()
-                                                                       .toString());
+        identifiers.put(MTA_ID_PROPERTY_NAME, backupDescriptor.getMtaId());
+        identifiers.put(STORED_AT_PROPERTY_NAME, backupDescriptor.getTimestamp()
+                                                                 .toString());
 
         return identifiers;
     }

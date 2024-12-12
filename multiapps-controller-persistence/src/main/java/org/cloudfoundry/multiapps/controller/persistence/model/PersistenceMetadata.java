@@ -19,7 +19,7 @@ public class PersistenceMetadata {
         public static final String ACCESS_TOKEN_TABLE = "access_token";
         public static final String LOCK_OWNERS_TABLE = "lock_owners";
         public static final String ASYNC_UPLOAD_JOB_TABLE = "async_upload_job";
-        public static final String PRESERVED_DESCRIPTOR_TABLE = "preserved_descriptor";
+        public static final String BACKUP_DESCRIPTOR_TABLE = "backup_descriptor";
 
     }
 
@@ -35,7 +35,7 @@ public class PersistenceMetadata {
         public static final String HISTORIC_OPERATION_EVENT_SEQUENCE = "historic_operation_event_sequence";
         public static final String ACCESS_TOKEN_SEQUENCE = "access_token_sequence";
         public static final String LOCK_OWNERS_SEQUENCE = "lock_owners_sequence";
-        public static final String DESCRIPTOR_PRESERVER_SEQUENCE = "preserved_descriptor_sequence";
+        public static final String BACKUP_DESCRIPTOR_SEQUENCE = "backup_descriptor_sequence";
 
     }
 
@@ -102,14 +102,14 @@ public class PersistenceMetadata {
         public static final String ASYNC_UPLOAD_JOB_ERROR = "error";
         public static final String ASYNC_UPLOAD_JOB_INSTANCE_INDEX = "instance_index";
 
-        public static final String PRESERVED_DESCRIPTOR_ID = "id";
-        public static final String PRESERVED_DESCRIPTOR_DESCRIPTOR = "descriptor";
-        public static final String PRESERVED_DESCRIPTOR_MTA_ID = "mta_id";
-        public static final String PRESERVED_DESCRIPTOR_MTA_VERSION = "mta_version";
-        public static final String PRESERVED_DESCRIPTOR_SPACE_ID = "space_id";
-        public static final String PRESERVED_DESCRIPTOR_NAMESPACE = "namespace";
-        public static final String PRESERVED_DESCRIPTOR_CHECKSUM = "checksum";
-        public static final String PRESERVED_DESCRIPTOR_TIMESTAMP = "timestamp";
+        public static final String BACKUP_DESCRIPTOR_ID = "id";
+        public static final String BACKUP_DESCRIPTOR_DESCRIPTOR = "descriptor";
+        public static final String BACKUP_DESCRIPTOR_MTA_ID = "mta_id";
+        public static final String BACKUP_DESCRIPTOR_MTA_VERSION = "mta_version";
+        public static final String BACKUP_DESCRIPTOR_SPACE_ID = "space_id";
+        public static final String BACKUP_DESCRIPTOR_NAMESPACE = "namespace";
+        public static final String BACKUP_DESCRIPTOR_CHECKSUM = "checksum";
+        public static final String BACKUP_DESCRIPTOR_TIMESTAMP = "timestamp";
     }
 
 }

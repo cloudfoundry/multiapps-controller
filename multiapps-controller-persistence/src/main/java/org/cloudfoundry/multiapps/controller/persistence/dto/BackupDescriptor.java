@@ -7,7 +7,7 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface PreservedDescriptor {
+public interface BackupDescriptor {
 
     @Value.Default
     default long getId() {

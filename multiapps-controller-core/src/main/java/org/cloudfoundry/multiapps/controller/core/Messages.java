@@ -188,7 +188,7 @@ public final class Messages {
     public static final String DELETE_SUBSCRIPTION_AUDIT_LOG_MESSAGE = "Delete subscription in space with id: {0}";
     public static final String DELETE_ENTRY_AUDIT_LOG_MESSAGE = "Delete entry in space with id: {0}";
     public static final String DELETE_OPERATION_AUDIT_LOG_MESSAGE = "Delete operation in space with id: {0}";
-    public static final String DELETE_PRESERVED_DESCRIPTOR_AUDIT_LOG_MESSAGE = "Delete preserved descriptor in space with id: {0}";
+    public static final String DELETE_BACKUP_DESCRIPTOR_AUDIT_LOG_MESSAGE = "Delete backup descriptor in space with id: {0}";
     public static final String UPLOAD_FILE_AUDIT_LOG_MESSAGE = "Upload file in space with id: {0}";
     public static final String UPLOAD_FILE_FROM_URL_AUDIT_LOG_MESSAGE = "Upload file from url in space with id: {0}";
     public static final String GET_INFO_FOR_UPLOAD_URL_JOB_AUDIT_LOG_MESSAGE = "Get info for upload from url job in space with id: {0}";
