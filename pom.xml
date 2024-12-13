@@ -59,6 +59,7 @@
         <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
         <bouncycastle.version>1.78</bouncycastle.version>
         <apache.compress.version>1.27.1</apache.compress.version>
+        <spring.boot.actautor.version>3.4.0</spring.boot.actautor.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>
@@ -888,6 +889,12 @@
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
                 <version>${jaxb-core.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-actuator-autoconfigure -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-actuator-autoconfigure</artifactId>
+                <version>${spring.boot.actautor.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
