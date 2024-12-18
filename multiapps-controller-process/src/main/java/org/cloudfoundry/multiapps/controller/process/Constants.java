@@ -5,6 +5,7 @@ public class Constants {
     public static final String DEPLOY_SERVICE_ID = "xs2-deploy";
     public static final String BLUE_GREEN_DEPLOY_SERVICE_ID = "xs2-bg-deploy";
     public static final String UNDEPLOY_SERVICE_ID = "xs2-undeploy";
+    public static final String ROLLBACK_MTA_SERVICE_ID = "rollback-mta";
     public static final String CTS_DEPLOY_SERVICE_ID = "CTS_DEPLOY";
     public static final String DEPLOY_APP_SUB_PROCESS_ID = "deployAppSubProcess";
     public static final String EXECUTE_HOOK_TASKS_SUB_PROCESS_ID = "executeHookTasksSubProcess";
@@ -22,6 +23,8 @@ public class Constants {
     public static final String VAR_SERVICE_INSTANCE_GUID_PREFIX = "SERVICE_INSTANCE_GUID_";
     public static final String UNKNOWN_LABEL = "unknown label";
     public static final String UNKNOWN_PLAN = "unknown plan";
+    public static final String MTA_BACKUP_NAMESPACE = "mta-backup";
+    public static final String MTA_FOR_DELETION_PREFIX = "to-be-deleted";
 
     protected Constants() {
     }

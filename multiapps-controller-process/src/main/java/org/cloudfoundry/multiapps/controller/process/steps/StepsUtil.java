@@ -203,8 +203,8 @@ public class StepsUtil {
 
         return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, namespace,
                                                               context.getStepLogger(), getAppSuffixDeterminer(context),
-                                                              context.getControllerClient(),
-                                                              shouldApplyIncrementalInstancesUpdate(context));
+                                                              context.getControllerClient(), shouldApplyIncrementalInstancesUpdate(context),
+                                                              context.getVariable(Variables.CHECKSUM_OF_MERGED_DESCRIPTOR));
     }
 
     static AppSuffixDeterminer getAppSuffixDeterminer(ProcessContext context) {

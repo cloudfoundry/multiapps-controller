@@ -169,6 +169,7 @@ public final class Messages {
     public static final String ON_START_FILES_CLEANER_WITHOUT_CONTENT_ENABLED_0 = "On start files cleaner without content enabled: {0}";
     public static final String THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER_0 = "Threads for file upload to controller: {0}";
     public static final String THREADS_FOR_FILE_STORAGE_UPLOAD_0 = "Threads for file storage upload: {0}";
+    public static final String DELETED_ORPHANED_MTA_DESCRIPTORS_COUNT = "Deleted orphaned mta descriptors count: {0}";
 
     // Debug messages
     public static final String DEPLOYMENT_DESCRIPTOR = "Deployment descriptor: {0}";
@@ -188,6 +189,7 @@ public final class Messages {
     public static final String DELETE_SUBSCRIPTION_AUDIT_LOG_MESSAGE = "Delete subscription in space with id: {0}";
     public static final String DELETE_ENTRY_AUDIT_LOG_MESSAGE = "Delete entry in space with id: {0}";
     public static final String DELETE_OPERATION_AUDIT_LOG_MESSAGE = "Delete operation in space with id: {0}";
+    public static final String DELETE_BACKUP_DESCRIPTOR_AUDIT_LOG_MESSAGE = "Delete backup descriptor in space with id: {0}";
     public static final String UPLOAD_FILE_AUDIT_LOG_MESSAGE = "Upload file in space with id: {0}";
     public static final String UPLOAD_FILE_FROM_URL_AUDIT_LOG_MESSAGE = "Upload file from url in space with id: {0}";
     public static final String GET_INFO_FOR_UPLOAD_URL_JOB_AUDIT_LOG_MESSAGE = "Get info for upload from url job in space with id: {0}";
@@ -219,6 +221,7 @@ public final class Messages {
     public static final String FILE_UPLOAD_AUDIT_LOG_CONFIG = "File upload";
     public static final String FILE_UPLOAD_FROM_URL_AUDIT_LOG_CONFIG = "File upload from url";
     public static final String UPLOAD_FROM_URL_JOB_INFO_AUDIT_LOG_CONFIG = "Upload from url job info";
+    public static final String MTA_DESCRIPTOR_DELETE_AUDIT_LOG_CONFIG = "Mta descriptor delete";
 
     public static final String OPERATION_LIST_AUDIT_LOG_CONFIG = "Operation list";
     public static final String OPERATION_ACTIONS_LIST_AUDIT_LOG_CONFIG = "Operation actions list";

@@ -4,9 +4,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
@@ -17,6 +14,8 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
+import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,6 +24,9 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudCredentials;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named("detectDeployedMtaStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -47,6 +49,8 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         CloudControllerClient client = context.getControllerClient();
 
         DeployedMta deployedMta = detectDeployedMta(mtaId, mtaNamespace, client, context);
+
+        detectBackupMta(mtaId, mtaNamespace, client, context);
 
         var deployedServiceKeys = detectDeployedServiceKeys(mtaId, mtaNamespace, deployedMta, context);
         context.setVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS, deployedServiceKeys);
@@ -71,6 +75,23 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         MtaMetadata metadata = deployedMta.getMetadata();
         logDetectedDeployedMta(mtaNamespace, metadata);
         return deployedMta;
+    }
+
+    private void detectBackupMta(String mtaId, String mtaNamespace, CloudControllerClient client, ProcessContext context) {
+        getStepLogger().debug(Messages.DETECTING_BACKUP_MTA_BY_ID_AND_NAMESPACE, mtaId, mtaNamespace);
+        Optional<DeployedMta> optionalBackupMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(mtaId,
+                                                                                                          NameUtil.computeUserNamespaceWithSystemNamespace(Constants.MTA_BACKUP_NAMESPACE,
+                                                                                                                                                           mtaNamespace),
+                                                                                                          client);
+
+        if (optionalBackupMta.isEmpty()) {
+            context.setVariable(Variables.BACKUP_MTA, null);
+            return;
+        }
+
+        DeployedMta backupMta = optionalBackupMta.get();
+        context.setVariable(Variables.BACKUP_MTA, backupMta);
+        getStepLogger().debug(Messages.DETECTED_BACKUP_MTA, SecureSerialization.toJson(backupMta));
     }
 
     private List<DeployedMtaServiceKey> detectDeployedServiceKeys(String mtaId, String mtaNamespace, DeployedMta deployedMta,

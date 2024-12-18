@@ -36,4 +36,10 @@ class ProcessTypeToOperationMetadataMapperTest {
         Assertions.assertEquals(Constants.CTS_DEPLOY_SERVICE_ID, processTypeToOperationMetadataMapper.getDiagramId(ProcessType.CTS_DEPLOY));
     }
 
+    @Test
+    void testGetDiagramRollbackMtaProcessType() {
+        Assertions.assertEquals(Constants.ROLLBACK_MTA_SERVICE_ID,
+                                processTypeToOperationMetadataMapper.getDiagramId(ProcessType.ROLLBACK_MTA));
+    }
+
 }
