@@ -77,6 +77,7 @@ public class Messages {
     public static final String DESCRIPTOR_CHECKSUM_NOT_SET_IN_APPLICATION_ROLLBACK_CANNOT_BE_DONE = "Descriptor checksum is not set in the application metadata and rollback operation cannot be done";
     public static final String ROLLBACK_OPERATION_CANNOT_BE_DONE_BACKUP_APPLICATIONS_HAVE_DIFFERENT_CHECKSUMS = "Rollback operation cannot be done, backup applications have different checksums!";
     public static final String ROLLBACK_MTA_ID_0_CANNOT_BE_DONE_MISSING_DESCRIPTOR = "Rollback of mta id \"{0}\" cannot be done, missing descriptor to perform the operation";
+    public static final String BACKUP_PREVIOUS_VERSION_FLAG_AND_APPLY_NAMESPACE_AS_SUFFIX_NOT_SUPPORTED = "Backup previous version flag and apply namespace as suffix is not supported combination";
 
     // Audit log messages
 
@@ -321,6 +322,7 @@ public class Messages {
     public static final String TIME_ELAPSED_FOR_APP_BINARY_DOWNLOAD_0_IN_MILLIS = "Time elapsed for app binary download: {0} in millis";
     public static final String DELETING_BACKUP_DESCRIPTOR_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_CHECKSUM_3 = "Deleting backup descriptor with mta id \"{0}\" in space \"{1}\" namespace \"{2}\" and the following checksum \"{3}\"";
     public static final String DELETING_BACKUP_DESCRIPTORS_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_SKIP_CHECKSUMS_3 = "Deleting backup descriptors with mta id \"{0}\" in space \"{1}\" namespace \"{2}\" and skip the following checksums \"{3}\"";
+    public static final String EXISTING_APPS_TO_BACKUP = "Existing apps to backup: {0}";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";

@@ -27,11 +27,11 @@ public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBu
                        .filter(this::isActive)
                        .filter(this::isResourceSpecifiedForDeployment)
                        .filter(this::isService)
-                       .filter(this::shouldProcessOnlyUserProvidedService)
+                       .filter(this::shouldProcessService)
                        .collect(Collectors.toList());
     }
 
-    private boolean shouldProcessOnlyUserProvidedService(Resource resource) {
+    private boolean shouldProcessService(Resource resource) {
         if (processOnlyUserProvidedService) {
             return CloudModelBuilderUtil.isUserProvidedService(resource);
         }

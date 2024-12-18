@@ -151,9 +151,10 @@ public class DataTerminationService {
                                                                           .spaceId(spaceId)
                                                                           .list();
         backupDescriptors.forEach(descriptor -> mtaConfigurationPurgerAuditLog.logDeleteBackupDescriptor(spaceId, descriptor));
-        descriptorBackupService.createQuery()
-                               .spaceId(spaceId)
-                               .delete();
+        int deletedMtaDescriptorsCount = descriptorBackupService.createQuery()
+                                                                .spaceId(spaceId)
+                                                                .delete();
+        LOGGER.info(MessageFormat.format(Messages.DELETED_ORPHANED_MTA_DESCRIPTORS_COUNT, deletedMtaDescriptorsCount));
     }
 
     private void deleteSpaceIdsLeftovers(List<String> spaceIds) {

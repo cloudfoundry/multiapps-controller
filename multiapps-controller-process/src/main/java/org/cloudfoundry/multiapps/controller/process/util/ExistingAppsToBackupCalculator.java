@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,14 +12,20 @@ import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication.ProductizationState;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 public class ExistingAppsToBackupCalculator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExistingAppsToBackupCalculator.class);
 
     private final DeployedMta deployedMta;
     private final DeployedMta backupMta;
@@ -76,6 +83,7 @@ public class ExistingAppsToBackupCalculator {
                 appsToBackup.add(appToUndeploy);
             }
         }
+        LOGGER.info(MessageFormat.format(Messages.EXISTING_APPS_TO_BACKUP, SecureSerialization.toJson(appsToBackup)));
         return appsToBackup;
     }
 
