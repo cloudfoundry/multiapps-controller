@@ -12,10 +12,13 @@ public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBu
 
     private final List<String> resourcesSpecifiedForDeployment;
     private final UserMessageLogger userMessageLogger;
+    private final boolean processOnlyUserProvidedService;
 
-    public ResourcesCloudModelBuilderContentCalculator(List<String> resourcesSpecifiedForDeployment, UserMessageLogger userMessageLogger) {
+    public ResourcesCloudModelBuilderContentCalculator(List<String> resourcesSpecifiedForDeployment, UserMessageLogger userMessageLogger,
+                                                       boolean processOnlyUserProvidedService) {
         this.resourcesSpecifiedForDeployment = resourcesSpecifiedForDeployment;
         this.userMessageLogger = userMessageLogger;
+        this.processOnlyUserProvidedService = processOnlyUserProvidedService;
     }
 
     @Override
@@ -24,7 +27,15 @@ public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBu
                        .filter(this::isActive)
                        .filter(this::isResourceSpecifiedForDeployment)
                        .filter(this::isService)
+                       .filter(this::shouldProcessOnlyUserProvidedService)
                        .collect(Collectors.toList());
+    }
+
+    private boolean shouldProcessOnlyUserProvidedService(Resource resource) {
+        if (processOnlyUserProvidedService) {
+            return CloudModelBuilderUtil.isUserProvidedService(resource);
+        }
+        return true;
     }
 
     private boolean isService(Resource resource) {

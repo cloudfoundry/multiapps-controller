@@ -28,6 +28,8 @@ public class ProcessTypeParser {
                 return ProcessType.DEPLOY;
             case Constants.BLUE_GREEN_DEPLOY_SERVICE_ID:
                 return ProcessType.BLUE_GREEN_DEPLOY;
+            case Constants.REVERT_DEPLOY_SERVICE_ID:
+                return ProcessType.REVERT_DEPLOY;
             default:
                 throw new SLException(Messages.UNKNOWN_SERVICE_ID, serviceId);
         }

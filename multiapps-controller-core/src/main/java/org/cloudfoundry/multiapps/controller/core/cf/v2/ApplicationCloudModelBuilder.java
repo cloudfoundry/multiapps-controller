@@ -64,6 +64,7 @@ public class ApplicationCloudModelBuilder {
     protected final AppSuffixDeterminer appSuffixDeterminer;
     protected final CloudControllerClient client;
     protected final boolean incrementalInstancesUpdate;
+    protected final String checksumOfMergedDescriptor;
 
     protected final ParametersChainBuilder parametersChainBuilder;
 
@@ -83,6 +84,7 @@ public class ApplicationCloudModelBuilder {
         this.appSuffixDeterminer = builder.appSuffixDeterminer;
         this.client = builder.client;
         this.incrementalInstancesUpdate = builder.incrementalInstancesUpdate;
+        this.checksumOfMergedDescriptor = builder.checksumOfMergedDescriptor;
     }
 
     protected CloudHandlerFactory createCloudHandlerFactory() {
@@ -121,7 +123,8 @@ public class ApplicationCloudModelBuilder {
                                                 .dockerInfo(parseParameters(parametersList, new DockerInfoParser()))
                                                 .attributesUpdateStrategy(getApplicationAttributesUpdateStrategy(parametersList))
                                                 .v3Metadata(ApplicationMetadataBuilder.build(deploymentDescriptor, namespace, module,
-                                                                                             getApplicationServices(module)))
+                                                                                             getApplicationServices(module),
+                                                                                             checksumOfMergedDescriptor))
                                                 .build();
     }
 
@@ -314,6 +317,7 @@ public class ApplicationCloudModelBuilder {
         private AppSuffixDeterminer appSuffixDeterminer;
         private CloudControllerClient client;
         private boolean incrementalInstancesUpdate;
+        private String checksumOfMergedDescriptor;
 
         public T deploymentDescriptor(DeploymentDescriptor deploymentDescriptor) {
             this.deploymentDescriptor = deploymentDescriptor;
@@ -357,6 +361,11 @@ public class ApplicationCloudModelBuilder {
 
         public T incrementalInstancesUpdate(boolean incrementalInstancesUpdate) {
             this.incrementalInstancesUpdate = incrementalInstancesUpdate;
+            return self();
+        }
+
+        public T checksumOfMergedDescriptor(String checksumOfMergedDescriptor) {
+            this.checksumOfMergedDescriptor = checksumOfMergedDescriptor;
             return self();
         }
 

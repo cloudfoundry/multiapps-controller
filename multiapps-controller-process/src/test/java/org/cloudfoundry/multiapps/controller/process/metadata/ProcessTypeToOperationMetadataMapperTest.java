@@ -36,4 +36,10 @@ class ProcessTypeToOperationMetadataMapperTest {
         Assertions.assertEquals(Constants.CTS_DEPLOY_SERVICE_ID, processTypeToOperationMetadataMapper.getDiagramId(ProcessType.CTS_DEPLOY));
     }
 
+    @Test
+    void testGetDiagramRevertDeployProcessType() {
+        Assertions.assertEquals(Constants.REVERT_DEPLOY_SERVICE_ID,
+                                processTypeToOperationMetadataMapper.getDiagramId(ProcessType.REVERT_DEPLOY));
+    }
+
 }
