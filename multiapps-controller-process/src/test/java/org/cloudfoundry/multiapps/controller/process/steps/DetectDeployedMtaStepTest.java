@@ -8,15 +8,24 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
+import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication.ProductizationState;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
+import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.mta.model.Version;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -28,6 +37,8 @@ import com.sap.cloudfoundry.client.facade.CloudCredentials;
 class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaStep> {
 
     private static final String MTA_ID = "com.sap.xs2.samples.helloworld";
+    private static final String MTA_VERSION_1 = "0.1.0";
+    private static final String MTA_VERSION_2 = "0.2.0";
     private static final String DEPLOYED_MTA_LOCATION = "deployed-mta-01.json";
     private static final String DEPLOYED_MTA_SERVICE_KEYS_LOCATION = "deployed-mta-01-keys.json";
 
@@ -79,6 +90,54 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
 
         assertNull(context.getVariable(Variables.DEPLOYED_MTA));
         assertEquals(Collections.emptyList(), context.getVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS));
+    }
+
+    @Test
+    void testExecuteWithPreservedMta() {
+        DeployedMta deployedMta = ImmutableDeployedMta.builder()
+                                                      .addApplication(ImmutableDeployedMtaApplication.builder()
+                                                                                                     .moduleName("test-module")
+                                                                                                     .name("test-app")
+                                                                                                     .v3Metadata(Metadata.builder()
+                                                                                                                         .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
+                                                                                                                                "2")
+                                                                                                                         .build())
+                                                                                                     .productizationState(ProductizationState.LIVE)
+                                                                                                     .build())
+                                                      .metadata(ImmutableMtaMetadata.builder()
+                                                                                    .id(MTA_ID)
+                                                                                    .version(Version.parseVersion(MTA_VERSION_2))
+                                                                                    .build())
+                                                      .build();
+        DeployedMta preservedMta = ImmutableDeployedMta.builder()
+                                                       .addApplication(ImmutableDeployedMtaApplication.builder()
+                                                                                                      .moduleName("test-module")
+                                                                                                      .name("mta-preserved-test-app")
+                                                                                                      .v3Metadata(Metadata.builder()
+                                                                                                                          .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
+                                                                                                                                 "1")
+                                                                                                                          .build())
+                                                                                                      .productizationState(ProductizationState.LIVE)
+                                                                                                      .build())
+                                                       .metadata(ImmutableMtaMetadata.builder()
+                                                                                     .id(MTA_ID)
+                                                                                     .version(Version.parseVersion(MTA_VERSION_1))
+                                                                                     .build())
+                                                       .build();
+
+        when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(Mockito.eq(MTA_ID), Mockito.eq(null),
+                                                                     Mockito.any())).thenReturn(Optional.of(deployedMta));
+        when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(Mockito.eq(MTA_ID),
+                                                                     Mockito.eq(NameUtil.computeUserNamespaceWithSystemNamespace(Constants.MTA_PRESERVED_NAMESPACE,
+                                                                                                                                 null)),
+                                                                     Mockito.any())).thenReturn(Optional.of(preservedMta));
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+
+        assertEquals(preservedMta, context.getVariable(Variables.PRESERVED_MTA));
+
     }
 
     private void prepareContext() {
