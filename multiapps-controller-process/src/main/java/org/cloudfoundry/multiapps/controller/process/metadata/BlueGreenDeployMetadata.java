@@ -146,7 +146,7 @@ public class BlueGreenDeployMetadata {
                                                                                  .defaultValue(true)
                                                                                  .build())
                                          .addParameter(ImmutableParameterMetadata.builder()
-                                                                                 .id(Variables.SHOULD_BACKUP_EXISTING_APPS.getName())
+                                                                                 .id(Variables.SHOULD_BACKUP_PREVIOUS_VERSION.getName())
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .build())
                                          .build();

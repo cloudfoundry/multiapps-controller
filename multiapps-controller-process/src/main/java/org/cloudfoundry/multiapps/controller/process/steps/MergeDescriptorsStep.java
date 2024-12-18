@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
@@ -9,6 +10,7 @@ import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ImmutableBackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
@@ -49,9 +51,12 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
     }
 
     private void backupDeploymentDescriptor(ProcessContext context, DeploymentDescriptor descriptor) {
-        if (!context.getVariable(Variables.SHOULD_BACKUP_EXISTING_APPS)) {
+        boolean shouldBackupPreviousVersion = context.getVariable(Variables.SHOULD_BACKUP_PREVIOUS_VERSION);
+        if (!shouldBackupPreviousVersion) {
             return;
         }
+        checkForUnsupportedParameters(context, descriptor, shouldBackupPreviousVersion);
+
         String currentDeploymentDescriptorsChecksum = context.getVariable(Variables.CHECKSUM_OF_MERGED_DESCRIPTOR);
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
         String mtaId = descriptor.getId();
@@ -71,6 +76,15 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
                                                                  .namespace(mtaNamesapce)
                                                                  .checksum(currentDeploymentDescriptorsChecksum)
                                                                  .build());
+        }
+    }
+
+    private void checkForUnsupportedParameters(ProcessContext context, DeploymentDescriptor descriptor,
+                                               boolean shouldBackupPreviousVersion) {
+        NamespaceGlobalParameters namespaceGlobalParameters = new NamespaceGlobalParameters(descriptor);
+        if (shouldBackupPreviousVersion && (Objects.requireNonNullElse(context.getVariable(Variables.APPLY_NAMESPACE_AS_SUFFIX), false)
+            || namespaceGlobalParameters.getApplyNamespaceAsSuffix())) {
+            throw new UnsupportedOperationException(Messages.BACKUP_PREVIOUS_VERSION_FLAG_AND_APPLY_NAMESPACE_AS_SUFFIX_NOT_SUPPORTED);
         }
     }
 

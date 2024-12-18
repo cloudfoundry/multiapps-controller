@@ -860,10 +860,10 @@ public interface Variables {
                                                                   .defaultValue(false)
                                                                   .build();
 
-    Variable<Boolean> SHOULD_BACKUP_EXISTING_APPS = ImmutableSimpleVariable.<Boolean> builder()
-                                                                           .name("shouldBackupExistingApps")
-                                                                           .defaultValue(false)
-                                                                           .build();
+    Variable<Boolean> SHOULD_BACKUP_PREVIOUS_VERSION = ImmutableSimpleVariable.<Boolean> builder()
+                                                                              .name("shouldBackupPreviousVersion")
+                                                                              .defaultValue(false)
+                                                                              .build();
 
     Variable<List<CloudApplication>> APPS_TO_BACKUP = ImmutableJsonStringListVariable.<CloudApplication> builder()
                                                                                      .name("appsToBackup")

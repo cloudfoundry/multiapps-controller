@@ -108,8 +108,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                                                                                            descriptorBackupService);
         List<CloudApplication> existingAppsToBackup = computeExistingAppsToBackup(context, appsToUndeploy, existingAppsToBackupCalculator);
 
-        List<CloudApplication> backupAppsToUndeploy = existingAppsToBackupCalculator.calculateAppsToUndeploy(context,
-                                                                                                                existingAppsToBackup);
+        List<CloudApplication> backupAppsToUndeploy = existingAppsToBackupCalculator.calculateAppsToUndeploy(context, existingAppsToBackup);
 
         appsToUndeploy.removeAll(existingAppsToBackup);
         appsToUndeploy.addAll(backupAppsToUndeploy);
@@ -362,7 +361,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
     private List<CloudApplication> computeExistingAppsToBackup(ProcessContext context, List<CloudApplication> appsToUndeploy,
                                                                ExistingAppsToBackupCalculator existingAppsToBackupCalculator) {
-        boolean shouldBackupExistingApps = context.getVariable(Variables.SHOULD_BACKUP_EXISTING_APPS);
+        boolean shouldBackupExistingApps = context.getVariable(Variables.SHOULD_BACKUP_PREVIOUS_VERSION);
         if (!shouldBackupExistingApps) {
             return Collections.emptyList();
         }
