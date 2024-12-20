@@ -25,14 +25,11 @@ class DescriptorBackupServiceTest {
     private static final LocalDateTime DATE_1 = LocalDateTime.parse("2024-12-05T13:30:25.010Z", DATE_TIME_FORMATTER);
     private static final LocalDateTime DATE_2 = LocalDateTime.parse("2020-11-30T13:30:25.020Z", DATE_TIME_FORMATTER);
 
-    private static final BackupDescriptor BACKUP_DESCRIPTOR_1 = createBackupDescriptor(1, "space-1", "mta-1", "1.0.0", DATE_1, "checksum-1",
-                                                                                       null);
+    private static final BackupDescriptor BACKUP_DESCRIPTOR_1 = createBackupDescriptor(1, "space-1", "mta-1", "1.0.0", DATE_1, null);
 
-    private static final BackupDescriptor BACKUP_DESCRIPTOR_2 = createBackupDescriptor(2, "space-1", "mta-2", "2.0.0", DATE_1, "checksum-2",
-                                                                                       null);
+    private static final BackupDescriptor BACKUP_DESCRIPTOR_2 = createBackupDescriptor(2, "space-1", "mta-2", "2.0.0", DATE_1, null);
 
-    private static final BackupDescriptor BACKUP_DESCRIPTOR_3 = createBackupDescriptor(3, "sapce-2", "mta-2", "2.1.0", DATE_2, "checksum-3",
-                                                                                       "dev");
+    private static final BackupDescriptor BACKUP_DESCRIPTOR_3 = createBackupDescriptor(3, "sapce-2", "mta-2", "2.1.0", DATE_2, "dev");
 
     private final DescriptorBackupService descriptorBackupService = createDescriptorBackupService();
 
@@ -88,21 +85,21 @@ class DescriptorBackupServiceTest {
     }
 
     @Test
-    void findByChecksum() {
+    void findByMtaVersion() {
         descriptorBackupService.add(BACKUP_DESCRIPTOR_1);
         verifyBackupDescriptorsAreEqual(BACKUP_DESCRIPTOR_1, descriptorBackupService.createQuery()
-                                                                                    .checksum("checksum-1")
+                                                                                    .mtaVersion("1.0.0")
                                                                                     .singleResult());
     }
 
     @Test
-    void findByChecksumsNotMatch() {
+    void findByMtaVersionsNotMatch() {
         descriptorBackupService.add(BACKUP_DESCRIPTOR_1);
         descriptorBackupService.add(BACKUP_DESCRIPTOR_2);
         descriptorBackupService.add(BACKUP_DESCRIPTOR_3);
 
         List<BackupDescriptor> backupDescriptors = descriptorBackupService.createQuery()
-                                                                          .checksumsNotMatch(List.of("checksum-1", "checksum-3"))
+                                                                          .mtaVersionsNotMatch(List.of("1.0.0", "2.1.0"))
                                                                           .list();
 
         assertEquals(1, backupDescriptors.size());
@@ -141,7 +138,7 @@ class DescriptorBackupServiceTest {
     }
 
     private static BackupDescriptor createBackupDescriptor(long id, String spaceId, String mtaId, String mtaVersion,
-                                                           LocalDateTime timestamp, String checksum, String namespace) {
+                                                           LocalDateTime timestamp, String namespace) {
         return ImmutableBackupDescriptor.builder()
                                         .id(id)
                                         .descriptor(DeploymentDescriptor.createV3())
@@ -149,7 +146,6 @@ class DescriptorBackupServiceTest {
                                         .mtaId(mtaId)
                                         .mtaVersion(mtaVersion)
                                         .timestamp(timestamp)
-                                        .checksum(checksum)
                                         .namespace(namespace)
                                         .build();
     }
@@ -159,7 +155,6 @@ class DescriptorBackupServiceTest {
         assertEquals(expectedBackupDescriptor.getSpaceId(), backupDescriptor.getSpaceId());
         assertEquals(expectedBackupDescriptor.getMtaId(), backupDescriptor.getMtaId());
         assertEquals(expectedBackupDescriptor.getMtaVersion(), backupDescriptor.getMtaVersion());
-        assertEquals(expectedBackupDescriptor.getChecksum(), backupDescriptor.getChecksum());
         assertEquals(expectedBackupDescriptor.getTimestamp(), backupDescriptor.getTimestamp());
     }
 

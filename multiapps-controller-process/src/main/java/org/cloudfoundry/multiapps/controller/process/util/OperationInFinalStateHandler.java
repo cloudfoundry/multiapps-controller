@@ -15,7 +15,7 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.util.LoggingUtil;
@@ -139,74 +139,75 @@ public class OperationInFinalStateHandler {
 
         if (processType == ProcessType.UNDEPLOY) {
             DeployedMta deployedMta = VariableHandling.get(execution, Variables.DEPLOYED_MTA);
-            Optional<String> mtaChecksum = getChecksumOfDeployedApplication(deployedMta);
+            Optional<String> mtaVersion = getMtaVersionOfDeployedApplication(deployedMta);
 
-            if (mtaChecksum.isPresent()) {
-                LOGGER.info(MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTOR_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_CHECKSUM_3,
-                                                 mtaId, spaceId, mtaNamespace, mtaChecksum.get()));
+            if (mtaVersion.isPresent()) {
+                LOGGER.info(MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTOR_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_VERSION_3,
+                                                 mtaId, spaceId, mtaNamespace, mtaVersion.get()));
                 descriptorBackupService.createQuery()
                                        .mtaId(mtaId)
                                        .spaceId(spaceId)
                                        .namespace(mtaNamespace)
-                                       .checksum(mtaChecksum.get())
+                                       .mtaVersion(mtaVersion.get())
                                        .delete();
             }
             return;
         }
 
-        List<String> checksumsToSkipDeletion = new ArrayList<>();
-        String checksumOfMergedDescriptor = VariableHandling.get(execution, Variables.CHECKSUM_OF_MERGED_DESCRIPTOR);
-        if (checksumOfMergedDescriptor != null) {
-            checksumsToSkipDeletion.add(checksumOfMergedDescriptor);
+        List<String> mtaVersionsToSkipDeletion = new ArrayList<>();
+        String mtaVersionOfCurrentDescriptor = VariableHandling.get(execution, Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR)
+                                                               .getVersion();
+        if (mtaVersionOfCurrentDescriptor != null) {
+            mtaVersionsToSkipDeletion.add(mtaVersionOfCurrentDescriptor);
         }
         DeployedMta backupMta = VariableHandling.get(execution, Variables.BACKUP_MTA);
         DeployedMta deployedMta = VariableHandling.get(execution, Variables.DEPLOYED_MTA);
         List<CloudApplication> appsToUndeploy = VariableHandling.get(execution, Variables.APPS_TO_UNDEPLOY);
-        addChecksumOfDeployedMtas(checksumsToSkipDeletion, backupMta, appsToUndeploy);
-        addChecksumOfDeployedMtas(checksumsToSkipDeletion, deployedMta, appsToUndeploy);
+        addMtaVersionsOfDeployedMtas(mtaVersionsToSkipDeletion, backupMta, appsToUndeploy);
+        addMtaVersionsOfDeployedMtas(mtaVersionsToSkipDeletion, deployedMta, appsToUndeploy);
 
-        if (checksumsToSkipDeletion.isEmpty()) {
+        if (mtaVersionsToSkipDeletion.isEmpty()) {
             return;
         }
 
-        LOGGER.info(MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTORS_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_SKIP_CHECKSUMS_3, mtaId,
-                                         spaceId, mtaNamespace, checksumsToSkipDeletion));
+        LOGGER.info(MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTORS_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_SKIP_VERSIONS_3, mtaId,
+                                         spaceId, mtaNamespace, mtaVersionsToSkipDeletion));
         descriptorBackupService.createQuery()
                                .mtaId(mtaId)
                                .spaceId(spaceId)
                                .namespace(mtaNamespace)
-                               .checksumsNotMatch(checksumsToSkipDeletion)
+                               .mtaVersionsNotMatch(mtaVersionsToSkipDeletion)
                                .delete();
 
     }
 
-    private void addChecksumOfDeployedMtas(List<String> checksumsToSkipDeletion, DeployedMta deployedMta,
-                                           List<CloudApplication> appsToUndeploy) {
-        Optional<String> mtaChecksum = getChecksumOfDeployedApplication(deployedMta);
-        if (mtaChecksum.isPresent() && !isAppMarkedForDeletion(mtaChecksum.get(), appsToUndeploy)) {
-            checksumsToSkipDeletion.add(mtaChecksum.get());
+    private void addMtaVersionsOfDeployedMtas(List<String> mtaVersionsToSkipDeletion, DeployedMta deployedMta,
+                                              List<CloudApplication> appsToUndeploy) {
+        Optional<String> mtaVersion = getMtaVersionOfDeployedApplication(deployedMta);
+        if (mtaVersion.isPresent() && !isAppMarkedForDeletion(mtaVersion.get(), appsToUndeploy)) {
+            mtaVersionsToSkipDeletion.add(mtaVersion.get());
         }
     }
 
-    private Optional<String> getChecksumOfDeployedApplication(DeployedMta deployedMta) {
+    private Optional<String> getMtaVersionOfDeployedApplication(DeployedMta deployedMta) {
         if (deployedMta != null && !deployedMta.getApplications()
                                                .isEmpty()) {
             DeployedMtaApplication deployedApplication = deployedMta.getApplications()
                                                                     .get(0);
             return Optional.ofNullable(deployedApplication.getV3Metadata()
-                                                          .getLabels()
-                                                          .get(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM));
+                                                          .getAnnotations()
+                                                          .get(MtaMetadataAnnotations.MTA_VERSION));
         }
         return Optional.empty();
     }
 
-    private boolean isAppMarkedForDeletion(String appChecksum, List<CloudApplication> appsToUndeploy) {
+    private boolean isAppMarkedForDeletion(String appMtaVersion, List<CloudApplication> appsToUndeploy) {
         return appsToUndeploy.stream()
                              .map(CloudApplication::getV3Metadata)
-                             .map(Metadata::getLabels)
-                             .filter(labelEntries -> labelEntries.get(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM) != null)
-                             .anyMatch(labelEntries -> labelEntries.get(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM)
-                                                                   .equals(appChecksum));
+                             .map(Metadata::getAnnotations)
+                             .filter(annotationEntries -> annotationEntries.get(MtaMetadataAnnotations.MTA_VERSION) != null)
+                             .anyMatch(annotationEntries -> annotationEntries.get(MtaMetadataAnnotations.MTA_VERSION)
+                                                                             .equals(appMtaVersion));
     }
 
     private void trackOperationDuration(String correlationId, DelegateExecution execution, ProcessType processType, Operation.State state) {

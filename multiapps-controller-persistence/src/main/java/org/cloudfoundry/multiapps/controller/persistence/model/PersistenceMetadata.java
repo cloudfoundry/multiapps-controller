@@ -108,7 +108,6 @@ public class PersistenceMetadata {
         public static final String BACKUP_DESCRIPTOR_MTA_VERSION = "mta_version";
         public static final String BACKUP_DESCRIPTOR_SPACE_ID = "space_id";
         public static final String BACKUP_DESCRIPTOR_NAMESPACE = "namespace";
-        public static final String BACKUP_DESCRIPTOR_CHECKSUM = "checksum";
         public static final String BACKUP_DESCRIPTOR_TIMESTAMP = "timestamp";
     }
 

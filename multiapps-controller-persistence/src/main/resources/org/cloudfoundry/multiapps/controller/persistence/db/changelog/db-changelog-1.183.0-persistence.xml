@@ -28,9 +28,6 @@
                 <constraints nullable="false" />
             </column>
             <column name="namespace" type="VARCHAR(255)"/>
-            <column name="checksum" type="VARCHAR(255)">
-                <constraints nullable="false" />
-            </column>
             <column name="timestamp" type="TIMESTAMP">
                 <constraints nullable="false" />
             </column>

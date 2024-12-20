@@ -9,7 +9,7 @@ public class ServiceKeyMetadataBuilder {
 
     public static Metadata build(DeploymentDescriptor deploymentDescriptor, String namespace, String spaceGuid) {
 
-        Builder builder = MtaMetadataBuilder.init(deploymentDescriptor, namespace, null)
+        Builder builder = MtaMetadataBuilder.init(deploymentDescriptor, namespace)
                                             .label(MtaMetadataLabels.SPACE_GUID, spaceGuid);
 
         return builder.build();

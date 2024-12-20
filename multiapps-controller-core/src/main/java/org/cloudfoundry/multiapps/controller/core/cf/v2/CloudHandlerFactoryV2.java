@@ -32,11 +32,11 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHandlerFactory {
 
     @Override
-    public ApplicationCloudModelBuilder
-           getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
-                                           String deployId, String namespace, UserMessageLogger stepLogger,
-                                           AppSuffixDeterminer appSuffixDeterminer, CloudControllerClient client,
-                                           boolean incrementalInstancesUpdate, String checksumOfMergedDescriptor) {
+    public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting,
+                                                                        DeployedMta deployedMta, String deployId, String namespace,
+                                                                        UserMessageLogger stepLogger,
+                                                                        AppSuffixDeterminer appSuffixDeterminer,
+                                                                        CloudControllerClient client, boolean incrementalInstancesUpdate) {
         return new ApplicationCloudModelBuilder.Builder().deploymentDescriptor(deploymentDescriptor)
                                                          .prettyPrinting(prettyPrinting)
                                                          .deployedMta(deployedMta)
@@ -46,7 +46,6 @@ public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHand
                                                          .appSuffixDeterminer(appSuffixDeterminer)
                                                          .client(client)
                                                          .incrementalInstancesUpdate(incrementalInstancesUpdate)
-                                                         .checksumOfMergedDescriptor(checksumOfMergedDescriptor)
                                                          .build();
     }
 

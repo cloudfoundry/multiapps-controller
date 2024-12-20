@@ -871,10 +871,6 @@ public interface Variables {
                                                                                      .defaultValue(Collections.emptyList())
                                                                                      .build();
 
-    Variable<String> CHECKSUM_OF_MERGED_DESCRIPTOR = ImmutableSimpleVariable.<String> builder()
-                                                                            .name("checksumOfMergedDescriptor")
-                                                                            .build();
-
     Variable<DeployedMta> BACKUP_MTA = ImmutableJsonBinaryVariable.<DeployedMta> builder()
                                                                   .name("backupMta")
                                                                   .type(Variable.typeReference(DeployedMta.class))

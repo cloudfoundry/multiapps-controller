@@ -38,10 +38,7 @@ public class DescriptorBackupService extends PersistenceService<BackupDescriptor
 
     @Override
     protected void onEntityConflict(BackupDescriptorDto dto, Throwable t) {
-        throw new ConflictException(t,
-                                    Messages.BACKUP_DESCRIPTOR_FOR_MTA_ID_0_AND_ID_1_ALREADY_EXIST,
-                                    dto.getMtaId(),
-                                    dto.getPrimaryKey());
+        throw new ConflictException(t, Messages.BACKUP_DESCRIPTOR_FOR_MTA_ID_0_AND_ID_1_ALREADY_EXIST, dto.getMtaId(), dto.getPrimaryKey());
     }
 
     @Override
@@ -61,7 +58,6 @@ public class DescriptorBackupService extends PersistenceService<BackupDescriptor
                                             .mtaVersion(dto.getMtaVersion())
                                             .spaceId(dto.getSpaceId())
                                             .namespace(dto.getNamespace())
-                                            .checksum(dto.getChecksum())
                                             .timestamp(dto.getTimestamp())
                                             .build();
         }
@@ -83,9 +79,8 @@ public class DescriptorBackupService extends PersistenceService<BackupDescriptor
                                                 .toString();
             String spaceId = backupDescriptor.getSpaceId();
             String namespace = backupDescriptor.getNamespace();
-            String checksum = backupDescriptor.getChecksum();
             LocalDateTime timestamp = backupDescriptor.getTimestamp();
-            return new BackupDescriptorDto(id, serializeDescriptor(descriptor), mtaId, mtaVersion, spaceId, namespace, checksum, timestamp);
+            return new BackupDescriptorDto(id, serializeDescriptor(descriptor), mtaId, mtaVersion, spaceId, namespace, timestamp);
         }
 
     }
