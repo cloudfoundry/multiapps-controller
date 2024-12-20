@@ -12,7 +12,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -40,6 +39,7 @@ import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.adapters.LogCacheClient;
 import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
@@ -203,8 +203,8 @@ public class StepsUtil {
 
         return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, namespace,
                                                               context.getStepLogger(), getAppSuffixDeterminer(context),
-                                                              context.getControllerClient(), shouldApplyIncrementalInstancesUpdate(context),
-                                                              context.getVariable(Variables.CHECKSUM_OF_MERGED_DESCRIPTOR));
+                                                              context.getControllerClient(),
+                                                              shouldApplyIncrementalInstancesUpdate(context));
     }
 
     static AppSuffixDeterminer getAppSuffixDeterminer(ProcessContext context) {

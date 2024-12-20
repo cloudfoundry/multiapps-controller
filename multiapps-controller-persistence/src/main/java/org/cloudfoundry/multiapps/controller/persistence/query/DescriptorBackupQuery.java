@@ -15,9 +15,9 @@ public interface DescriptorBackupQuery extends Query<BackupDescriptor, Descripto
 
     DescriptorBackupQuery namespace(String namespace);
 
-    DescriptorBackupQuery checksum(String checksum);
+    DescriptorBackupQuery mtaVersion(String mtaVersion);
 
-    DescriptorBackupQuery checksumsNotMatch(List<String> checksum);
+    DescriptorBackupQuery mtaVersionsNotMatch(List<String> mtaVersions);
 
     DescriptorBackupQuery olderThan(LocalDateTime time);
 

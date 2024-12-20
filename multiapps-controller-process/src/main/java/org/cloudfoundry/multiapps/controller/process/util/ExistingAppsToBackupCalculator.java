@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication.ProductizationState;
@@ -37,32 +37,33 @@ public class ExistingAppsToBackupCalculator {
         this.descriptorBackupService = descriptorBackupService;
     }
 
-    public List<CloudApplication> calculateExistingAppsToBackup(List<CloudApplication> appsToUndeploy, String checksumOfCurrentDescriptor) {
-        if (doesDeployedMtaChecksumMatchToCurrentDeployment(deployedMta, checksumOfCurrentDescriptor)) {
+    public List<CloudApplication> calculateExistingAppsToBackup(List<CloudApplication> appsToUndeploy,
+                                                                String mtaVersionOfCurrentDescriptor) {
+        if (doesDeployedMtaVersionMatchToCurrentDeployment(deployedMta, mtaVersionOfCurrentDescriptor)) {
             return Collections.emptyList();
         }
 
-        if (doesDeployedMtaChecksumMatchToCurrentDeployment(backupMta, checksumOfCurrentDescriptor)) {
+        if (doesDeployedMtaVersionMatchToCurrentDeployment(backupMta, mtaVersionOfCurrentDescriptor)) {
             return Collections.emptyList();
         }
 
         return getAppsWithLiveProductizationState(appsToUndeploy);
     }
 
-    private boolean doesDeployedMtaChecksumMatchToCurrentDeployment(DeployedMta detectedMta, String checksumOfCurrentDescriptor) {
+    private boolean doesDeployedMtaVersionMatchToCurrentDeployment(DeployedMta detectedMta, String mtaVersionOfCurrentDescriptor) {
         return detectedMta != null && detectedMta.getApplications()
                                                  .stream()
-                                                 .allMatch(deployedApplication -> doesApplicationChecksumMatchToCurrentDeployment(deployedApplication,
-                                                                                                                                  checksumOfCurrentDescriptor));
+                                                 .allMatch(deployedApplication -> doesMtaVersionMatchToCurrentDeployment(deployedApplication,
+                                                                                                                         mtaVersionOfCurrentDescriptor));
     }
 
-    private boolean doesApplicationChecksumMatchToCurrentDeployment(DeployedMtaApplication deployedApplication,
-                                                                    String checksumOfCurrentDescriptor) {
-        String checksumOfDeployedApplication = deployedApplication.getV3Metadata()
-                                                                  .getLabels()
-                                                                  .get(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM);
+    private boolean doesMtaVersionMatchToCurrentDeployment(DeployedMtaApplication deployedApplication,
+                                                           String mtaVersionOfCurrentDescriptor) {
+        String mtaVersionOfDeployedApplication = deployedApplication.getV3Metadata()
+                                                                    .getAnnotations()
+                                                                    .get(MtaMetadataAnnotations.MTA_VERSION);
 
-        return checksumOfDeployedApplication != null && checksumOfDeployedApplication.equals(checksumOfCurrentDescriptor);
+        return mtaVersionOfDeployedApplication != null && mtaVersionOfDeployedApplication.equals(mtaVersionOfCurrentDescriptor);
     }
 
     private ProductizationState getProductizationStateOfApplication(CloudApplication appToUndeploy) {
@@ -93,23 +94,23 @@ public class ExistingAppsToBackupCalculator {
         }
 
         List<CloudApplication> appsToUndeploy = new ArrayList<>();
-        Optional<String> optionalBackupMtaDescriptorChecksum = backupMta.getApplications()
-                                                                        .stream()
-                                                                        .filter(backupApp -> backupApp.getV3Metadata()
-                                                                                                      .getLabels()
-                                                                                                      .containsKey(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM))
-                                                                        .map(backupApp -> backupApp.getV3Metadata()
-                                                                                                   .getLabels()
-                                                                                                   .get(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM))
-                                                                        .filter(Objects::nonNull)
-                                                                        .findFirst();
+        Optional<String> optionalBackupMtaVersion = backupMta.getApplications()
+                                                             .stream()
+                                                             .filter(backupApp -> backupApp.getV3Metadata()
+                                                                                           .getAnnotations()
+                                                                                           .containsKey(MtaMetadataAnnotations.MTA_VERSION))
+                                                             .map(backupApp -> backupApp.getV3Metadata()
+                                                                                        .getAnnotations()
+                                                                                        .get(MtaMetadataAnnotations.MTA_VERSION))
+                                                             .filter(Objects::nonNull)
+                                                             .findFirst();
 
-        if (optionalBackupMtaDescriptorChecksum.isPresent()) {
+        if (optionalBackupMtaVersion.isPresent()) {
             List<BackupDescriptor> backupDescriptors = descriptorBackupService.createQuery()
                                                                               .mtaId(context.getVariable(Variables.MTA_ID))
                                                                               .spaceId(context.getVariable(Variables.SPACE_GUID))
                                                                               .namespace(context.getVariable(Variables.MTA_NAMESPACE))
-                                                                              .checksum(optionalBackupMtaDescriptorChecksum.get())
+                                                                              .mtaVersion(optionalBackupMtaVersion.get())
                                                                               .list();
             if (backupDescriptors.isEmpty()) {
                 appsToUndeploy.addAll(backupMta.getApplications());

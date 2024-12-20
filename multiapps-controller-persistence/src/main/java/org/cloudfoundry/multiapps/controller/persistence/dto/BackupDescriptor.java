@@ -25,8 +25,6 @@ public interface BackupDescriptor {
     @Nullable
     String getNamespace();
 
-    String getChecksum();
-
     @Value.Default
     default LocalDateTime getTimestamp() {
         return LocalDateTime.now();

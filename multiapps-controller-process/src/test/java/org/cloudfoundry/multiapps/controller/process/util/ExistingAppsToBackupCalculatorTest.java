@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication.ProductizationState;
@@ -40,7 +40,6 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
 class ExistingAppsToBackupCalculatorTest {
 
     private static final String MTA_ID = "test-mta";
-    private static final Version MTA_VERSION = Version.parseVersion("1.0.0");
     private static final String SPACE_GUID = UUID.randomUUID()
                                                  .toString();
 
@@ -59,40 +58,40 @@ class ExistingAppsToBackupCalculatorTest {
 
     private static Stream<Arguments> testCalculateExistingAppsToBackup() {
         return Stream.of(
-                         // (1) Already deployed application match checksum of current deployment descriptor
+                         // (1) Already deployed application match version of current deployment descriptor
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "1")), Collections.emptyList(), "1",
                                       List.of("app-1-live"), List.of()),
-                         // (2) Current deployment descriptor checksum has different value than deployed mta
+                         // (2) Current deployment descriptor version has different value than deployed mta
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "1"),
                                               new TestApplication("app-1", "app-1-idle", "2", ProductizationState.IDLE)),
                                       Collections.emptyList(), "2", List.of("app-1-live", "app-1-idle"),
                                       List.of(ImmutableCloudApplication.builder()
                                                                        .name("app-1-live")
                                                                        .v3Metadata(Metadata.builder()
-                                                                                           .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
-                                                                                                  "1")
+                                                                                           .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                       "1")
                                                                                            .build())
                                                                        .build())),
-                         // (3) Current deployment descriptor match checksum of deployed and backup mta
+                         // (3) Current deployment descriptor match version of deployed and backup mta
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "1")),
                                       List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "1", List.of("app-1-live"),
                                       Collections.emptyList()),
-                         // (4) Current deployment descriptor checksum has different value of deployed and backup mta
+                         // (4) Current deployment descriptor version has different value of deployed and backup mta
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "2")),
                                       List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "3", List.of("app-1-live",
                                                                                                                    "mta-backup-app-1"),
                                       List.of(ImmutableCloudApplication.builder()
                                                                        .name("app-1-live")
                                                                        .v3Metadata(Metadata.builder()
-                                                                                           .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
-                                                                                                  "2")
+                                                                                           .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                       "2")
                                                                                            .build())
                                                                        .build())),
-                         // (5) Current deployment descriptor match checksum of deployed mta only
+                         // (5) Current deployment descriptor match version of deployed mta only
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "2")),
                                       List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "2", List.of("app-1-live"),
                                       Collections.emptyList()),
-                         // (6) Current deployment descriptor checksum match value of backup mta
+                         // (6) Current deployment descriptor version match value of backup mta
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "2")),
                                       List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "1",
                                       List.of("app-1-live", "app-1-idle"), Collections.emptyList()));
@@ -101,7 +100,7 @@ class ExistingAppsToBackupCalculatorTest {
     @ParameterizedTest
     @MethodSource
     void testCalculateExistingAppsToBackup(List<TestApplication> deployedApplications, List<TestApplication> backupApplications,
-                                           String currentDeploymentDescriptorChecksum, List<String> appNamesToUndeploy,
+                                           String mtaVersionOfCurrentDescriptor, List<String> appNamesToUndeploy,
                                            List<CloudApplication> expectedAppsToBackup) {
         DeployedMta deployedMta = getDeployedMta(deployedApplications);
         DeployedMta backupMta = getDeployedMta(backupApplications);
@@ -109,7 +108,7 @@ class ExistingAppsToBackupCalculatorTest {
         ExistingAppsToBackupCalculator calculator = new ExistingAppsToBackupCalculator(deployedMta, backupMta, descriptorBackupService);
 
         List<CloudApplication> appsToUndeploy = getAppsToUndeploy(deployedMta.getApplications(), appNamesToUndeploy);
-        List<CloudApplication> appsToBackup = calculator.calculateExistingAppsToBackup(appsToUndeploy, currentDeploymentDescriptorChecksum);
+        List<CloudApplication> appsToBackup = calculator.calculateExistingAppsToBackup(appsToUndeploy, mtaVersionOfCurrentDescriptor);
 
         assertEquals(expectedAppsToBackup, appsToBackup);
     }
@@ -121,8 +120,8 @@ class ExistingAppsToBackupCalculatorTest {
                                       List.of(ImmutableCloudApplication.builder()
                                                                        .name("mta-backup-app-1")
                                                                        .v3Metadata(Metadata.builder()
-                                                                                           .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
-                                                                                                  "1")
+                                                                                           .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                       "1")
                                                                                            .build())
                                                                        .build())),
                          // (2) Backup apps does not exist and there is no need to delete applications
@@ -141,15 +140,15 @@ class ExistingAppsToBackupCalculatorTest {
                                       Collections.emptyList(), false, List.of(ImmutableCloudApplication.builder()
                                                                                                        .name("mta-backup-app-1")
                                                                                                        .v3Metadata(Metadata.builder()
-                                                                                                                           .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
-                                                                                                                                  "2")
+                                                                                                                           .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                                                       "2")
                                                                                                                            .build())
                                                                                                        .build(),
                                                                               ImmutableCloudApplication.builder()
                                                                                                        .name("mta-backup-app-2")
                                                                                                        .v3Metadata(Metadata.builder()
-                                                                                                                           .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
-                                                                                                                                  "2")
+                                                                                                                           .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                                                       "2")
                                                                                                                            .build())
                                                                                                        .build())));
     }
@@ -166,7 +165,7 @@ class ExistingAppsToBackupCalculatorTest {
         when(descriptorBackupQuery.mtaId(anyString())).thenReturn(descriptorBackupQuery);
         when(descriptorBackupQuery.spaceId(anyString())).thenReturn(descriptorBackupQuery);
         when(descriptorBackupQuery.namespace(any())).thenReturn(descriptorBackupQuery);
-        when(descriptorBackupQuery.checksum(anyString())).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.mtaVersion(anyString())).thenReturn(descriptorBackupQuery);
         when(descriptorBackupQuery.list()).thenReturn(isDescriptorAvailableInDb ? List.of(Mockito.mock(BackupDescriptor.class))
             : Collections.emptyList());
 
@@ -194,17 +193,18 @@ class ExistingAppsToBackupCalculatorTest {
                                                                        .moduleName(application.moduleName)
                                                                        .name(application.appName)
                                                                        .v3Metadata(Metadata.builder()
-                                                                                           .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
-                                                                                                  application.metadataDescriptorChecksum)
+                                                                                           .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                       application.mtaVersion)
                                                                                            .build())
                                                                        .productizationState(application.productizationState)
                                                                        .build());
         }
+        String mtaVersion = deployedApplications.get(0).mtaVersion;
         return ImmutableDeployedMta.builder()
                                    .applications(deployedMtaApplications)
                                    .metadata(ImmutableMtaMetadata.builder()
                                                                  .id(MTA_ID)
-                                                                 .version(MTA_VERSION)
+                                                                 .version(mtaVersion != null ? Version.parseVersion(mtaVersion) : null)
                                                                  .build())
 
                                    .build();
@@ -220,20 +220,20 @@ class ExistingAppsToBackupCalculatorTest {
     private static class TestApplication {
         String moduleName;
         String appName;
-        String metadataDescriptorChecksum;
+        String mtaVersion;
         ProductizationState productizationState;
 
-        TestApplication(String moduleName, String appName, String metadataDescriptorChecksum) {
+        TestApplication(String moduleName, String appName, String mtaVersion) {
             this.moduleName = moduleName;
             this.appName = appName;
-            this.metadataDescriptorChecksum = metadataDescriptorChecksum;
+            this.mtaVersion = mtaVersion;
             this.productizationState = ProductizationState.LIVE;
         }
 
-        TestApplication(String moduleName, String appName, String metadataDescriptorChecksum, ProductizationState productizationState) {
+        TestApplication(String moduleName, String appName, String mtaVersion, ProductizationState productizationState) {
             this.moduleName = moduleName;
             this.appName = appName;
-            this.metadataDescriptorChecksum = metadataDescriptorChecksum;
+            this.mtaVersion = mtaVersion;
             this.productizationState = productizationState;
         }
 

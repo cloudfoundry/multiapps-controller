@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
@@ -89,18 +89,18 @@ public class PrepareBackupMtaForDeploymentStep extends SyncFlowableStep {
     }
 
     private BackupDescriptor getBackupDescriptor(DeployedMta backupMta, String mtaId, String spaceGuid, String mtaNamespace) {
-        String descriptorChecksumOfBackupMta = backupMta.getApplications()
-                                                        .get(0)
-                                                        .getV3Metadata()
-                                                        .getLabels()
-                                                        .get(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM);
+        String mtaVersionOfBackupMta = backupMta.getApplications()
+                                                .get(0)
+                                                .getV3Metadata()
+                                                .getAnnotations()
+                                                .get(MtaMetadataAnnotations.MTA_VERSION);
 
-        if (descriptorChecksumOfBackupMta == null) {
-            throw new ContentException(Messages.DESCRIPTOR_CHECKSUM_NOT_SET_IN_APPLICATION_ROLLBACK_CANNOT_BE_DONE);
+        if (mtaVersionOfBackupMta == null) {
+            throw new ContentException(Messages.MTA_VERSION_NOT_SET_IN_APPLICATION_ROLLBACK_CANNOT_BE_DONE);
         }
 
-        if (!doesAllDeployedAppsChecksumMatch(backupMta, descriptorChecksumOfBackupMta)) {
-            throw new ContentException(Messages.ROLLBACK_OPERATION_CANNOT_BE_DONE_BACKUP_APPLICATIONS_HAVE_DIFFERENT_CHECKSUMS);
+        if (!doesAllDeployedAppsMtaVersionMatch(backupMta, mtaVersionOfBackupMta)) {
+            throw new ContentException(Messages.ROLLBACK_OPERATION_CANNOT_BE_DONE_BACKUP_APPLICATIONS_HAVE_DIFFERENT_MTA_VERSIONS);
         }
 
         BackupDescriptor backupDescriptor = null;
@@ -109,7 +109,7 @@ public class PrepareBackupMtaForDeploymentStep extends SyncFlowableStep {
                                                       .mtaId(mtaId)
                                                       .spaceId(spaceGuid)
                                                       .namespace(mtaNamespace)
-                                                      .checksum(descriptorChecksumOfBackupMta)
+                                                      .mtaVersion(mtaVersionOfBackupMta)
                                                       .singleResult();
         } catch (NoResultException e) {
             throw new ContentException(Messages.ROLLBACK_MTA_ID_0_CANNOT_BE_DONE_MISSING_DESCRIPTOR, mtaId);
@@ -117,12 +117,12 @@ public class PrepareBackupMtaForDeploymentStep extends SyncFlowableStep {
         return backupDescriptor;
     }
 
-    private boolean doesAllDeployedAppsChecksumMatch(DeployedMta backupMta, String descriptorChecksumOfBackupMta) {
+    private boolean doesAllDeployedAppsMtaVersionMatch(DeployedMta backupMta, String mtaVersionOfBackupMta) {
         return backupMta.getApplications()
                         .stream()
-                        .allMatch(application -> descriptorChecksumOfBackupMta.equals(application.getV3Metadata()
-                                                                                                 .getLabels()
-                                                                                                 .get(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM)));
+                        .allMatch(application -> mtaVersionOfBackupMta.equals(application.getV3Metadata()
+                                                                                         .getAnnotations()
+                                                                                         .get(MtaMetadataAnnotations.MTA_VERSION)));
     }
 
     @Override

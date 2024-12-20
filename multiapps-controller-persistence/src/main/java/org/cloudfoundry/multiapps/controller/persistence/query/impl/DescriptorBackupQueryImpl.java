@@ -67,22 +67,22 @@ public class DescriptorBackupQueryImpl extends AbstractQueryImpl<BackupDescripto
     }
 
     @Override
-    public DescriptorBackupQuery checksum(String checksum) {
+    public DescriptorBackupQuery mtaVersion(String mtaVersion) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
-                                                                       .attribute(AttributeNames.CHECKSUM)
+                                                                       .attribute(AttributeNames.MTA_VERSION)
                                                                        .condition(getCriteriaBuilder()::equal)
-                                                                       .value(checksum)
+                                                                       .value(mtaVersion)
                                                                        .build());
         return this;
     }
 
     @Override
-    public DescriptorBackupQuery checksumsNotMatch(List<String> checksums) {
+    public DescriptorBackupQuery mtaVersionsNotMatch(List<String> mtaVersions) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
-                                                                       .attribute(AttributeNames.CHECKSUM)
-                                                                       .condition((expression, value) -> expression.in(checksums)
+                                                                       .attribute(AttributeNames.MTA_VERSION)
+                                                                       .condition((expression, value) -> expression.in(mtaVersions)
                                                                                                                    .not())
-                                                                       .value(checksums)
+                                                                       .value(mtaVersions)
                                                                        .build());
         return this;
     }

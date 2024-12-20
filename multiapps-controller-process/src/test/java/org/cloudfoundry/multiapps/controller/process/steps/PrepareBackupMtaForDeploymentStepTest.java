@@ -17,7 +17,7 @@ import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
@@ -44,7 +44,6 @@ import jakarta.persistence.NoResultException;
 class PrepareBackupMtaForDeploymentStepTest extends SyncFlowableStepTest<PrepareBackupMtaForDeploymentStep> {
 
     private static final String MTA_ID = "test-mta";
-    private static final String MTA_VERSION = "1.0.0";
 
     @Mock
     private DescriptorBackupService descriptorBackupService;
@@ -59,11 +58,11 @@ class PrepareBackupMtaForDeploymentStepTest extends SyncFlowableStepTest<Prepare
 
     private static Stream<Arguments> testStep() {
         return Stream.of(
-                         // (1) Backup app exist and persisted descriptor contains same checksum
+                         // (1) Backup app exist and persisted descriptor contains same mta version
                          Arguments.of(List.of(new TestApp("app-1", "1"), new TestApp("app-2", "1"), new TestApp("app-3", "1")), "1", false),
-                         // (2) Backup app does not have checksum in the metadata
+                         // (2) Backup app does not have mta version in the metadata
                          Arguments.of(List.of(new TestApp("app-1", null)), "1", true),
-                         // (3) Not all backup apps have same checksum
+                         // (3) Not all backup apps have same mta version
                          Arguments.of(List.of(new TestApp("app-1", "1"), new TestApp("app-2", "2"), new TestApp("app-3", "2")), "1", true),
                          // (4) Missing backup descriptor
                          Arguments.of(List.of(new TestApp("app-1", "2"), new TestApp("app-2", "2")), null, true));
@@ -71,9 +70,9 @@ class PrepareBackupMtaForDeploymentStepTest extends SyncFlowableStepTest<Prepare
 
     @ParameterizedTest
     @MethodSource
-    void testStep(List<TestApp> testApplications, String backupChecksumInPersistenceLayer, boolean expectedException) {
+    void testStep(List<TestApp> testApplications, String backupMtaVersionInPersistenceLayer, boolean expectedException) {
         DeployedMta backupMta = createBackupMta(testApplications);
-        prepareContext(backupMta, backupChecksumInPersistenceLayer);
+        prepareContext(backupMta, backupMtaVersionInPersistenceLayer);
 
         if (expectedException) {
             assertThrows(ContentException.class, () -> step.execute(execution));
@@ -89,38 +88,38 @@ class PrepareBackupMtaForDeploymentStepTest extends SyncFlowableStepTest<Prepare
         assertEquals(backupMta, context.getVariable(Variables.BACKUP_MTA));
     }
 
-    private void prepareContext(DeployedMta backupMta, String backupChecksumInPersistenceLayer) {
+    private void prepareContext(DeployedMta backupMta, String backupMtaVersionInPersistenceLayer) {
         context.setVariable(Variables.MTA_ID, MTA_ID);
         when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(eq(MTA_ID), eq(null),
-                                                                     any())).thenReturn(Optional.of(createBackupMta(List.of())));
+                                                                     any())).thenReturn(Optional.of(createBackupMta(List.of(new TestApp("app", "0.0.1")))));
         when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(eq(MTA_ID), eq(Constants.MTA_BACKUP_NAMESPACE),
                                                                      any())).thenReturn(Optional.of(backupMta));
         when(descriptorBackupService.createQuery()).thenReturn(descriptorBackupQuery);
         when(descriptorBackupQuery.mtaId(anyString())).thenReturn(descriptorBackupQuery);
         when(descriptorBackupQuery.spaceId(anyString())).thenReturn(descriptorBackupQuery);
         when(descriptorBackupQuery.namespace(any())).thenReturn(descriptorBackupQuery);
-        when(descriptorBackupQuery.checksum(anyString())).thenReturn(descriptorBackupQuery);
-        if (backupChecksumInPersistenceLayer == null) {
+        when(descriptorBackupQuery.mtaVersion(anyString())).thenReturn(descriptorBackupQuery);
+        if (backupMtaVersionInPersistenceLayer == null) {
             when(descriptorBackupQuery.singleResult()).thenThrow(NoResultException.class);
             return;
         }
         BackupDescriptor backupDescriptor = ImmutableBackupDescriptor.builder()
                                                                      .descriptor(Mockito.mock(DeploymentDescriptor.class))
                                                                      .mtaId(MTA_ID)
-                                                                     .mtaVersion(MTA_VERSION)
+                                                                     .mtaVersion(backupMtaVersionInPersistenceLayer)
                                                                      .spaceId(SPACE_GUID)
-                                                                     .checksum(backupChecksumInPersistenceLayer)
                                                                      .build();
         when(descriptorBackupQuery.singleResult()).thenReturn(backupDescriptor);
     }
 
     private DeployedMta createBackupMta(List<TestApp> testApplications) {
         List<DeployedMtaApplication> deployedApplications = createDeployedMtaApplications(testApplications);
+        String mtaVersion = testApplications.get(0).version;
         return ImmutableDeployedMta.builder()
                                    .applications(deployedApplications)
                                    .metadata(ImmutableMtaMetadata.builder()
                                                                  .id(MTA_ID)
-                                                                 .version(Version.parseVersion(MTA_VERSION))
+                                                                 .version(mtaVersion != null ? Version.parseVersion(mtaVersion) : null)
                                                                  .build())
                                    .build();
     }
@@ -131,8 +130,8 @@ class PrepareBackupMtaForDeploymentStepTest extends SyncFlowableStepTest<Prepare
                                                                               .name(testApp.appName)
                                                                               .moduleName(testApp.appName)
                                                                               .v3Metadata(Metadata.builder()
-                                                                                                  .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
-                                                                                                         testApp.checksum)
+                                                                                                  .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                              testApp.version)
                                                                                                   .build())
                                                                               .build())
                                .collect(Collectors.toList());
@@ -167,11 +166,11 @@ class PrepareBackupMtaForDeploymentStepTest extends SyncFlowableStepTest<Prepare
 
     private static class TestApp {
         String appName;
-        String checksum;
+        String version;
 
-        TestApp(String appName, String checksum) {
+        TestApp(String appName, String version) {
             this.appName = appName;
-            this.checksum = checksum;
+            this.version = version;
         }
 
     }

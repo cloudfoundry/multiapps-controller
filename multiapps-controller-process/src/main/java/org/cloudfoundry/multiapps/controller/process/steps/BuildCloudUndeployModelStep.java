@@ -365,8 +365,9 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         if (!shouldBackupExistingApps) {
             return Collections.emptyList();
         }
-        String checksumOfCurrentDescriptor = context.getVariable(Variables.CHECKSUM_OF_MERGED_DESCRIPTOR);
-        return existingAppsToBackupCalculator.calculateExistingAppsToBackup(appsToUndeploy, checksumOfCurrentDescriptor);
+        String mtaVersionOfCurrentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR)
+                                                      .getVersion();
+        return existingAppsToBackupCalculator.calculateExistingAppsToBackup(appsToUndeploy, mtaVersionOfCurrentDescriptor);
     }
 
     private List<CloudApplication> computeAppsToUndeploy(List<DeployedMtaApplication> modulesToUndeploy, CloudControllerClient client) {

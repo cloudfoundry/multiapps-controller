@@ -28,7 +28,7 @@ public class BackupDescriptorDto implements DtoWithPrimaryKey<Long> {
         public static final String MTA_ID = "mtaId";
         public static final String SPACE_ID = "spaceId";
         public static final String NAMESPACE = "namespace";
-        public static final String CHECKSUM = "checksum";
+        public static final String MTA_VERSION = "mtaVersion";
         public static final String TIMESTAMP = "timestamp";
     }
 
@@ -53,9 +53,6 @@ public class BackupDescriptorDto implements DtoWithPrimaryKey<Long> {
     @Column(name = TableColumnNames.BACKUP_DESCRIPTOR_NAMESPACE, nullable = true)
     private String namespace;
 
-    @Column(name = TableColumnNames.BACKUP_DESCRIPTOR_CHECKSUM, nullable = false)
-    private String checksum;
-
     @Column(name = TableColumnNames.BACKUP_DESCRIPTOR_TIMESTAMP, nullable = false)
     private LocalDateTime timestamp;
 
@@ -64,14 +61,13 @@ public class BackupDescriptorDto implements DtoWithPrimaryKey<Long> {
     }
 
     public BackupDescriptorDto(long id, byte[] descriptor, String mtaId, String mtaVersion, String spaceId, String namespace,
-                               String checksum, LocalDateTime timestamp) {
+                               LocalDateTime timestamp) {
         this.id = id;
         this.descriptor = descriptor;
         this.mtaId = mtaId;
         this.mtaVersion = mtaVersion;
         this.spaceId = spaceId;
         this.namespace = namespace;
-        this.checksum = checksum;
         this.timestamp = timestamp;
     }
 
@@ -107,10 +103,6 @@ public class BackupDescriptorDto implements DtoWithPrimaryKey<Long> {
 
     public String getNamespace() {
         return namespace;
-    }
-
-    public String getChecksum() {
-        return checksum;
     }
 
     public LocalDateTime getTimestamp() {

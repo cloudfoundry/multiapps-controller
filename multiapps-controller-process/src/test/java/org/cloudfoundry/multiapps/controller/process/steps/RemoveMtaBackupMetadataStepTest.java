@@ -25,7 +25,6 @@ class RemoveMtaBackupMetadataStepTest extends SyncFlowableStepTest<RemoveMtaBack
     private static final String MTA_VERSION = "0.0.1";
     private static final String MODULE_NAME = "test-module";
     private static final String BACKUP_APP_NAME = "mta-backup-test-app";
-    private static final String APP_CHECKSUM = "1";
     private static final UUID APP_GUID = UUID.randomUUID();
 
     @Test
@@ -37,7 +36,6 @@ class RemoveMtaBackupMetadataStepTest extends SyncFlowableStepTest<RemoveMtaBack
 
         assertStepFinishedSuccessfully();
         verify(client).updateApplicationMetadata(APP_GUID, Metadata.builder()
-                                                                   .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM, APP_CHECKSUM)
                                                                    .label(MtaMetadataLabels.MTA_NAMESPACE, null)
                                                                    .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, null)
                                                                    .build());
@@ -54,7 +52,6 @@ class RemoveMtaBackupMetadataStepTest extends SyncFlowableStepTest<RemoveMtaBack
 
         assertStepFinishedSuccessfully();
         verify(client).updateApplicationMetadata(APP_GUID, Metadata.builder()
-                                                                   .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM, APP_CHECKSUM)
                                                                    .label(MtaMetadataLabels.MTA_NAMESPACE,
                                                                           MtaMetadataUtil.getHashedLabel(userNamespace))
                                                                    .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, userNamespace)
@@ -67,8 +64,6 @@ class RemoveMtaBackupMetadataStepTest extends SyncFlowableStepTest<RemoveMtaBack
                                                                                   .moduleName(MODULE_NAME)
                                                                                   .name(BACKUP_APP_NAME)
                                                                                   .v3Metadata(Metadata.builder()
-                                                                                                      .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
-                                                                                                             APP_CHECKSUM)
                                                                                                       .label(MtaMetadataLabels.MTA_NAMESPACE,
                                                                                                              namespace)
                                                                                                       .annotation(MtaMetadataAnnotations.MTA_NAMESPACE,

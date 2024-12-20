@@ -15,7 +15,7 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication.ProductizationState;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
@@ -99,8 +99,8 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
                                                                                                      .moduleName("test-module")
                                                                                                      .name("test-app")
                                                                                                      .v3Metadata(Metadata.builder()
-                                                                                                                         .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
-                                                                                                                                "2")
+                                                                                                                         .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                                                     MTA_VERSION_2)
                                                                                                                          .build())
                                                                                                      .productizationState(ProductizationState.LIVE)
                                                                                                      .build())
@@ -114,8 +114,8 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
                                                                                                    .moduleName("test-module")
                                                                                                    .name("mta-backup-test-app")
                                                                                                    .v3Metadata(Metadata.builder()
-                                                                                                                       .label(MtaMetadataLabels.MTA_DESCRIPTOR_CHECKSUM,
-                                                                                                                              "1")
+                                                                                                                       .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                                                   MTA_VERSION_1)
                                                                                                                        .build())
                                                                                                    .productizationState(ProductizationState.LIVE)
                                                                                                    .build())
