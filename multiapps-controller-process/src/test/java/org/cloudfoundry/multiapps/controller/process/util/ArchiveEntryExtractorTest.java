@@ -1,16 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.UUID;
-import java.util.stream.Stream;
-
 import org.apache.commons.io.input.BoundedInputStream;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
@@ -24,22 +13,43 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+
 class ArchiveEntryExtractorTest {
 
     private static final ArchiveEntryWithStreamPositions DEFLATED_DEPLOYMENT_DESCRIPTOR_ENTRY = ImmutableArchiveEntryWithStreamPositions.builder()
-                                                                                                                                        .name("META-INF/mtad.yaml")
-                                                                                                                                        .startPosition(271)
-                                                                                                                                        .endPosition(315)
-                                                                                                                                        .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
-                                                                                                                                        .isDirectory(false)
+                                                                                                                                        .name(
+                                                                                                                                            "META-INF/mtad.yaml")
+                                                                                                                                        .startPosition(
+                                                                                                                                            271)
+                                                                                                                                        .endPosition(
+                                                                                                                                            315)
+                                                                                                                                        .compressionMethod(
+                                                                                                                                            ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
+                                                                                                                                        .isDirectory(
+                                                                                                                                            false)
                                                                                                                                         .build();
 
     private static final ArchiveEntryWithStreamPositions STORED_DEPLOYMENT_DESCRIPTOR_ENTRY = ImmutableArchiveEntryWithStreamPositions.builder()
-                                                                                                                                      .name("META-INF/mtad.yaml")
-                                                                                                                                      .startPosition(271)
-                                                                                                                                      .endPosition(320)
-                                                                                                                                      .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.STORED)
-                                                                                                                                      .isDirectory(false)
+                                                                                                                                      .name(
+                                                                                                                                          "META-INF/mtad.yaml")
+                                                                                                                                      .startPosition(
+                                                                                                                                          271)
+                                                                                                                                      .endPosition(
+                                                                                                                                          320)
+                                                                                                                                      .compressionMethod(
+                                                                                                                                          ArchiveEntryWithStreamPositions.CompressionMethod.STORED)
+                                                                                                                                      .isDirectory(
+                                                                                                                                          false)
                                                                                                                                       .build();
 
     @Mock
@@ -99,10 +109,8 @@ class ArchiveEntryExtractorTest {
                            deploymentDescriptorEntry.getEndPosition());
         StringBuilder actualDeploymentDescriptorContent = new StringBuilder();
         archiveEntryExtractor.processFileEntryBytes(buildFileEntryProperty(Integer.MAX_VALUE), deploymentDescriptorEntry,
-                                                      (byteBuffer,
-                                                       bytesRead) -> actualDeploymentDescriptorContent.append(new String(Arrays.copyOfRange(byteBuffer,
-                                                                                                                                            0,
-                                                                                                                                            bytesRead))));
+                                                    (byteBuffer, bytesRead) -> actualDeploymentDescriptorContent.append(
+                                                        new String(Arrays.copyOfRange(byteBuffer, 0, bytesRead))));
         assertDeploymentDescriptorAreEqual(actualDeploymentDescriptorContent.toString());
     }
 
@@ -119,9 +127,9 @@ class ArchiveEntryExtractorTest {
                            deploymentDescriptorEntry.getEndPosition());
         Exception exception = assertThrows(ContentException.class,
                                            () -> archiveEntryExtractor.processFileEntryBytes(buildFileEntryProperty(2),
-                                                                                               deploymentDescriptorEntry,
-                                                                                               (byteBuffer, bytesRead) -> {
-                                                                                               }));
+                                                                                             deploymentDescriptorEntry,
+                                                                                             (byteBuffer, bytesRead) -> {
+                                                                                             }));
         assertEquals("The size \"49\" of mta file \"archive-entry\" exceeds the configured max size limit \"2\"", exception.getMessage());
     }
 
