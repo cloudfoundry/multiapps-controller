@@ -1,13 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.jar.Manifest;
-
+import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
@@ -18,14 +11,23 @@ import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractor;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractorUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryStreamWithStreamPositionsDeterminer;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
+import org.cloudfoundry.multiapps.controller.process.util.ContentLengthTracker;
+import org.cloudfoundry.multiapps.controller.process.util.ExternalFileProcessor;
 import org.cloudfoundry.multiapps.controller.process.util.ImmutableFileEntryProperties;
+import org.cloudfoundry.multiapps.controller.process.util.MtaArchiveContentResolver;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessConflictPreventer;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
 import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 
-import jakarta.inject.Inject;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.jar.Manifest;
 
 public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
@@ -46,6 +48,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
         getStepLogger().debug(Messages.MTA_ARCHIVE_ID_0_MESSAGE, appArchiveId);
         processApplicationArchive(context, appArchiveId);
+
         setMtaIdForProcess(context);
         acquireOperationLock(context);
         getStepLogger().debug(Messages.MTA_ARCHIVE_PROCESSED);
@@ -53,16 +56,24 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     }
 
     private void processApplicationArchive(ProcessContext context, String appArchiveId) {
-        List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = archiveEntryStreamWithStreamPositionsDeterminer.determineArchiveEntries(context.getRequiredVariable(Variables.SPACE_GUID),
-                                                                                                                                                          appArchiveId);
+        List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = archiveEntryStreamWithStreamPositionsDeterminer.determineArchiveEntries(
+            context.getRequiredVariable(Variables.SPACE_GUID), appArchiveId);
         context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, archiveEntriesWithStreamPositions);
         MtaArchiveHelper helper = createMtaArchiveHelperFromManifest(context, appArchiveId, archiveEntriesWithStreamPositions);
+
+        DeploymentDescriptor deploymentDescriptor = extractDeploymentDescriptor(context, appArchiveId, archiveEntriesWithStreamPositions);
+
+        if (context.getVariable(Variables.SHOULD_BACKUP_PREVIOUS_VERSION)) {
+            MtaArchiveContentResolver contentResolver = getMtaArchiveContentResolver(helper, context);
+            contentResolver.resolveMtaArchiveFilesInDescriptor(appArchiveId, deploymentDescriptor);
+        }
+
         MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
         addMtaArchiveModulesInMtaArchiveElements(context, helper, mtaArchiveElements);
         addMtaRequiredDependenciesInMtaArchiveElements(helper, mtaArchiveElements);
         addMtaArchiveResourcesInMtaArchiveElements(helper, mtaArchiveElements);
         context.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
-        DeploymentDescriptor deploymentDescriptor = extractDeploymentDescriptor(context, appArchiveId, archiveEntriesWithStreamPositions);
+
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
     }
 
@@ -85,10 +96,11 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         return archiveEntryExtractor.extractEntryBytes(ImmutableFileEntryProperties.builder()
                                                                                    .guid(appArchiveId)
                                                                                    .name(mtaManifestEntry.getName())
-                                                                                   .spaceGuid(context.getRequiredVariable(Variables.SPACE_GUID))
-                                                                                   .maxFileSizeInBytes(configuration.getMaxMtaDescriptorSize())
-                                                                                   .build(),
-                                                       mtaManifestEntry);
+                                                                                   .spaceGuid(
+                                                                                       context.getRequiredVariable(Variables.SPACE_GUID))
+                                                                                   .maxFileSizeInBytes(
+                                                                                       configuration.getMaxMtaDescriptorSize())
+                                                                                   .build(), mtaManifestEntry);
     }
 
     protected MtaArchiveHelper getHelper(Manifest manifest) {
@@ -118,13 +130,21 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     private DeploymentDescriptor extractDeploymentDescriptor(ProcessContext context, String appArchiveId,
                                                              List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions) {
 
-        ArchiveEntryWithStreamPositions deploymentDescriptorEntry = ArchiveEntryExtractorUtil.findEntry(ArchiveHandler.MTA_DEPLOYMENT_DESCRIPTOR_NAME,
-                                                                                                        archiveEntriesWithStreamPositions);
+        ArchiveEntryWithStreamPositions deploymentDescriptorEntry = ArchiveEntryExtractorUtil.findEntry(
+            ArchiveHandler.MTA_DEPLOYMENT_DESCRIPTOR_NAME, archiveEntriesWithStreamPositions);
         byte[] inflatedDeploymentDescriptor = readEntry(context, appArchiveId, deploymentDescriptorEntry);
         DescriptorParserFacade descriptorParserFacade = descriptorParserFactory.getInstance();
-        DeploymentDescriptor deploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(new String(inflatedDeploymentDescriptor));
+        DeploymentDescriptor deploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(
+            new String(inflatedDeploymentDescriptor));
         getStepLogger().debug(Messages.MTA_DESCRIPTOR_LENGTH_0_MESSAGE, inflatedDeploymentDescriptor.length);
         return deploymentDescriptor;
+    }
+
+    private MtaArchiveContentResolver getMtaArchiveContentResolver(MtaArchiveHelper helper, ProcessContext context) {
+        ContentLengthTracker sizeTracker = new ContentLengthTracker();
+        ExternalFileProcessor fileProcessor = new ExternalFileProcessor(new ContentLengthTracker(), configuration, archiveEntryExtractor,
+                                                                        context);
+        return new MtaArchiveContentResolver(helper, fileProcessor, sizeTracker);
     }
 
     private void setMtaIdForProcess(ProcessContext context) {

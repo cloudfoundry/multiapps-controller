@@ -1,17 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
-import static java.text.MessageFormat.format;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.ParsingException;
@@ -28,8 +18,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.support.CronExpression;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static java.text.MessageFormat.format;
 
 @Named
 @Lazy(false)
@@ -43,6 +42,7 @@ public class ApplicationConfiguration {
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
     static final String CFG_MAX_MANIFEST_SIZE = "DEFAULT_MAX_MANIFEST_SIZE";
     static final String CFG_MAX_RESOURCE_FILE_SIZE = "DEFAULT_MAX_RESOURCE_FILE_SIZE";
+    static final String CFG_MAX_RESOLVED_EXTERNAL_CONTENT_SIZE = "DEFAULT_MAX_RESOLVED_EXTERNAL_CONTENT_SIZE";
     static final String CFG_CRON_EXPRESSION_FOR_OLD_DATA = "CRON_EXPRESSION_FOR_OLD_DATA";
     static final String CFG_EXECUTION_TIME_FOR_FINISHED_PROCESSES = "EXECUTION_TIME_FOR_FINISHED_PROCESSES";
     static final String CFG_MAX_TTL_FOR_OLD_DATA = "MAX_TTL_FOR_OLD_DATA";
@@ -103,14 +103,17 @@ public class ApplicationConfiguration {
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024L; // 1 MB(s)
     public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024L; // 1MB
     public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024L; // 1GB
+
+    public static final long DEFAULT_CFG_MAX_RESOLVED_EXTERNAL_CONTENT_SIZE = 1024 * 1024 * 10L; // 10MB 
+
     public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
     public static final String DEFAULT_SPACE_GUID = "";
     public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
     public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
     public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
-    public static final String DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES = Long.toString(TimeUnit.HOURS.toMillis(2)); // every 2 hours
-                                                                                                                          // after an
-                                                                                                                          // instance starts
+    public static final String DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES = Long.toString(TimeUnit.HOURS.toMillis(2));  /*every 2 hours 
+                                                                                                                                   after an 
+                                                                                                                                   instance starts*/
     public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
     public static final Integer DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS = 5;
     public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
@@ -163,6 +166,7 @@ public class ApplicationConfiguration {
     private Long maxMtaDescriptorSize;
     private Long maxManifestSize;
     private Long maxResourceFileSize;
+    private Long maxResolvedExternalContentSize;
     private String cronExpressionForOldData;
     private String executionTimeForFinishedProcesses;
     private Long maxTtlForOldData;
@@ -229,6 +233,7 @@ public class ApplicationConfiguration {
         getMaxMtaDescriptorSize();
         getMaxManifestSize();
         getMaxResourceFileSize();
+        getMaxResolvedExternalContentSize();
         shouldUseXSAuditLogging();
         getSpaceGuid();
         getOrgName();
@@ -269,10 +274,11 @@ public class ApplicationConfiguration {
 
     private Set<String> getNotSensitiveConfigVariables() {
         return Set.of(CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE, CFG_MAX_RESOURCE_FILE_SIZE,
-                      CFG_USE_XS_AUDIT_LOGGING, CFG_BASIC_AUTH_ENABLED, CFG_STEP_POLLING_INTERVAL_IN_SECONDS, CFG_SKIP_SSL_VALIDATION,
-                      CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS,
-                      CFG_GLOBAL_CONFIG_SPACE, CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS,
-                      CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
+                      CFG_MAX_RESOLVED_EXTERNAL_CONTENT_SIZE, CFG_USE_XS_AUDIT_LOGGING, CFG_BASIC_AUTH_ENABLED,
+                      CFG_STEP_POLLING_INTERVAL_IN_SECONDS, CFG_SKIP_SSL_VALIDATION, CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE,
+                      CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE,
+                      CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS, CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
+                      CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
                       CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
                       CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, CFG_CONTROLLER_CLIENT_RESPONSE_TIMEOUT, CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS,
                       CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS, CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS);
@@ -318,6 +324,13 @@ public class ApplicationConfiguration {
             maxResourceFileSize = getMaxResourceFileSizeFromEnvironment();
         }
         return maxResourceFileSize;
+    }
+
+    public Long getMaxResolvedExternalContentSize() {
+        if (maxResolvedExternalContentSize == null) {
+            maxResolvedExternalContentSize = getMaxResolvedExternalContentSizeFromEnvironment();
+        }
+        return maxResolvedExternalContentSize;
     }
 
     public String getCronExpressionForOldData() {
@@ -720,6 +733,12 @@ public class ApplicationConfiguration {
         return value;
     }
 
+    private Long getMaxResolvedExternalContentSizeFromEnvironment() {
+        Long value = environment.getLong(CFG_MAX_RESOLVED_EXTERNAL_CONTENT_SIZE, DEFAULT_CFG_MAX_RESOLVED_EXTERNAL_CONTENT_SIZE);
+        LOGGER.info(format(Messages.MAX_RESOLVED_EXTERNAL_CONTENT_SIZE, value));
+        return value;
+    }
+
     private String getCronExpressionForOldDataFromEnvironment() {
         String value = getCronExpression(CFG_CRON_EXPRESSION_FOR_OLD_DATA, DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA);
         LOGGER.info(format(Messages.CRON_EXPRESSION_FOR_OLD_DATA, value));
@@ -887,10 +906,14 @@ public class ApplicationConfiguration {
 
     private HealthCheckConfiguration getHealthCheckConfigurationFromEnvironment() {
         HealthCheckConfiguration healthCheckConfigurationFromEnvironment = ImmutableHealthCheckConfiguration.builder()
-                                                                                                            .spaceId(getHealthCheckSpaceGuidFromEnvironment())
-                                                                                                            .mtaId(getHealthCheckMtaIdFromEnvironment())
-                                                                                                            .userName(getHealthCheckUserFromEnvironment())
-                                                                                                            .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
+                                                                                                            .spaceId(
+                                                                                                                getHealthCheckSpaceGuidFromEnvironment())
+                                                                                                            .mtaId(
+                                                                                                                getHealthCheckMtaIdFromEnvironment())
+                                                                                                            .userName(
+                                                                                                                getHealthCheckUserFromEnvironment())
+                                                                                                            .timeRangeInSeconds(
+                                                                                                                getHealthCheckTimeRangeFromEnvironment())
                                                                                                             .build();
         return healthCheckConfigurationFromEnvironment;
     }
