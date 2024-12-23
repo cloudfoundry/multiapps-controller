@@ -59,6 +59,8 @@ public final class Messages {
     public static final String ENV_OF_APP_0_CONTAINS_INVALID_VALUE_FOR_1 = "The environment of application \"{0}\" contains an invalid value for \"{0}\". This indicates that MTA reserved variables in the application''s environment were modified manually. Either revert the changes or delete the application.";
     public static final String METADATA_OF_0_CONTAINS_INVALID_VALUE_FOR_1 = "The metadata of \"{0}\" contains an invalid value for \"{0}\". This indicates that MTA reserved variables in the entity''s metadata were modified manually. Either revert the changes or delete the entity.";
     public static final String COULD_NOT_DELETE_SPACEIDS_LEFTOVERS = "Could not delete space ids leftovers";
+
+    public static final String COULD_NOT_GET_FILE_CONTENT_FOR_0 = "Could not get file content for file  \"{0}\"";
     public static final String SERVICE_MISSING_REQUIRED_PARAMETER = "Service \"{0}\" has missing required parameter: {1}";
     public static final String CONTROLLER_URL_NOT_SPECIFIED = "Controller URL is not specified in the environment.";
     public static final String INVALID_CONTROLLER_URL = "Invalid controller URL \"{0}\".";
@@ -106,6 +108,7 @@ public final class Messages {
     public static final String MAX_MTA_DESCRIPTOR_SIZE = "Max mta descriptor size: {0}";
     public static final String MAX_MANIFEST_SIZE = "Max manifest size is set to: {0}";
     public static final String MAX_RESOURCE_FILE_SIZE = "Max resource file size is set to: {0}";
+    public static final String MAX_RESOLVED_EXTERNAL_CONTENT_SIZE = "Max resolved external content size is set to: {0}";
     public static final String CRON_EXPRESSION_FOR_OLD_DATA = "Cron expression for old data: {0}";
     public static final String EXECUTION_TIME_FOR_FINISHED_PROCESSES = "Execution time for finished processes: {0}";
     public static final String MAX_TTL_FOR_OLD_DATA = "Max TTL for old data: {0}";
