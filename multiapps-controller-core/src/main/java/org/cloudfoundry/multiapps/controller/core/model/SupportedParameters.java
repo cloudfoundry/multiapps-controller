@@ -58,10 +58,6 @@ public class SupportedParameters {
     public static final String HEALTH_CHECK_TIMEOUT = "health-check-timeout";
     public static final String HEALTH_CHECK_TYPE = "health-check-type";
     public static final String HEALTH_CHECK_HTTP_ENDPOINT = "health-check-http-endpoint";
-    public static final String READINESS_HEALTH_CHECK_TYPE = "readiness-health-check-type";
-    public static final String READINESS_HEALTH_CHECK_HTTP_ENDPOINT = "readiness-health-check-http-endpoint";
-    public static final String READINESS_HEALTH_CHECK_INVOCATION_TIMEOUT = "readiness-health-check-invocation-timeout";
-    public static final String READINESS_HEALTH_CHECK_INTERVAL = "readiness-health-check-interval";
     public static final String UPLOAD_TIMEOUT = "upload-timeout";
     public static final String STAGE_TIMEOUT = "stage-timeout";
     public static final String START_TIMEOUT = "start-timeout";
