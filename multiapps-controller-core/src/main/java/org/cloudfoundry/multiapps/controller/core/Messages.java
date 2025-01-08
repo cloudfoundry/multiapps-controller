@@ -73,11 +73,21 @@ public final class Messages {
     public static final String UNSUPPORTED_ALGORITHM_PROVIDED = "Unsupported algorithm: \"{0}\"";
     public static final String NO_TOKEN_PARSER_FOUND_FOR_THE_CURRENT_TOKEN = "No token parser found for the current token";
     public static final String RESOURCE_0_CANNOT_BE_CREATED_DUE_TO_UNRESOLVED_DYNAMIC_PARAMETER = "Resouce \"{0}\" cannot be created due to unresolved dynamic parameter. Please specify \"{1}\" in the processed-after section!";
+    public static final String ERROR_OCCURRED_DURING_OBJECT_STORE_HEALTH_CHECKING = "Error occurred during object store health checking";
+    public static final String ERROR_OCCURRED_DURING_DATABASE_HEALTH_CHECKING = "Error occurred during database health checking";
+    public static final String ERROR_OCCURRED_WHILE_CHECKING_FOR_INCREASED_LOCKS = "Error occurred while checking for increased locks";
+    public static final String THREAD_WAS_INTERRUPTED_WHILE_WAITING_FOR_THE_RESULT_OF_A_FUTURE = "Thread was interrupted while waiting for the result of a future";
+    public static final String ERROR_OCCURRED_DURING_HEALTH_CHECKING_FOR_INSTANCE_0_MESSAGE_1 = "Error occurred during health checking for instance: \"{0}\". Message: \"{1}\"";
+    public static final String OBJECT_STORE_FILE_STORAGE_HEALTH_DATABASE_HEALTH = "Object store file storage health: \"{}\", Database health: \"{}\"";
+    public static final String ERROR_OCCURRED_DURING_OBJECT_STORE_HEALTH_CHECKING_FOR_INSTANCE = "Error occurred during object store health checking for instance: \"{}\"";
+    public static final String ERROR_OCCURRED_WHILE_CHECKING_DATABASE_INSTANCE_0 = "Error occurred while checking database instance: \"{0}\"";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
     public static final String OPTIONAL_RESOURCE_IS_NOT_SERVICE = "Optional resource \"{0}\" it will be not created because it''s not a service";
     public static final String SERVICE_IS_NOT_ACTIVE = "Service \"{0}\" is inactive and will not be processed";
+    public static final String DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE = "Detected increased number of processes waiting for locks: \"{}\" for instance: \"{}\"";
+    public static final String DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE_0_GETTING_THE_LOCKS = "Detected increased number of processes waiting for locks for instance {0}. Getting the locks...";
 
     public static final String INVALID_VCAP_APPLICATION = "Invalid VCAP_APPLICATION \"{0}\"";
     public static final String IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE = "Ignoring label \"{0}\" for service \"{1}\", as user-provided services do not support labels!";
@@ -180,6 +190,11 @@ public final class Messages {
     public static final String PARSED_TOKEN_TYPE_0 = "Parsed token type: {0}";
     public static final String PARSED_TOKEN_EXPIRES_IN_0 = "Parsed token expires in: {0}";
     public static final String PARSER_CHAIN_0 = "Parser chain: {0}";
+    public static final String VALUES_IN_INSTANCE_IN_THE_WAITING_FOR_LOCKS_SAMPLES = "Values in instance: \"{}\" in the waiting for locks samples: {}";
+    public static final String INCREASING_OR_EQUAL_INDEX_0_1_2 = "Increasing or equal index: {0} / {1} = {2}";
+    public static final String DECREASING_INDEX_0_1_2 = "Decreasing index: {0} / {1} = {2}";
+    public static final String OBJECT_STORE_FILE_STORAGE_IS_NOT_AVAILABLE_FOR_INSTANCE = "Object store file storage is not available for instance: \"{}\"";
+    public static final String NOT_ENOUGH_SAMPLES_TO_DETECT_ANOMALY_0_1 = "Not enough samples to detect anomaly: {0} / {1}";
 
     // Audit log
 

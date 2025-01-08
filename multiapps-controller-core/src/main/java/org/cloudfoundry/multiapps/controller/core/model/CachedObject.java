@@ -11,7 +11,11 @@ public class CachedObject<T> {
     private final Duration expirationDuration;
 
     public CachedObject(Duration expirationDuration) {
-        this(null, expirationDuration, System.currentTimeMillis() + expirationDuration.toMillis());
+        this(null, expirationDuration);
+    }
+
+    public CachedObject(T object, Duration expirationDuration) {
+        this(object, expirationDuration, System.currentTimeMillis() + expirationDuration.toMillis());
     }
 
     public CachedObject(T object, Duration expirationDuration, long expirationTimestamp) {
