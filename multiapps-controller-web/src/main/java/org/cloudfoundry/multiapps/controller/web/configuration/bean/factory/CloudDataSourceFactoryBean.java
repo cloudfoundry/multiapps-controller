@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 import javax.sql.DataSource;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationInstanceNameUtil;
 import org.cloudfoundry.multiapps.controller.persistence.util.DataSourceFactory;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.springframework.beans.factory.FactoryBean;
@@ -47,7 +48,8 @@ public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, Init
         if (service == null) {
             return null;
         }
-        return dataSourceFactory.createDataSource(service, applicationConfiguration.getDbConnectionThreads());
+        return dataSourceFactory.createDataSource(service, applicationConfiguration.getDbConnectionThreads(),
+                                                  ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration));
     }
 
 }

@@ -46,6 +46,7 @@ public final class Messages {
     public static final String ERROR_GETTING_FILES_CREATED_AFTER_0_AND_BEFORE_1 = "Error getting files created after {0} and before {1]";
     public static final String BACKUP_DESCRIPTOR_FOR_MTA_ID_0_AND_ID_1_ALREADY_EXIST = "Backup descriptor for mta id \"{0}\" and id \"{1}\" already exist";
     public static final String BACKUP_DESCRIPTOR_WITH_ID_NOT_EXIST = "Backup descriptor with ID \"{0}\" does not exist";
+    public static final String DATABASE_HEALTH_CHECK_FAILED = "Database health check failed";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";

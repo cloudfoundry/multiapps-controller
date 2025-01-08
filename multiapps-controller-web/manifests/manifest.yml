@@ -8,7 +8,7 @@ applications:
     buildpack: sap_java_buildpack_jakarta
     timeout: 180 # If the landscape and/or our Liquibase changes are very slow, the application may take longer than 60 seconds to start up.
     health-check-type: http
-    health-check-http-endpoint: /public/ping
+    health-check-http-endpoint: /public/application-health
     services:
       - deploy-service-database
     env:
