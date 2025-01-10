@@ -710,7 +710,7 @@ public class Messages {
     public static final String SERVICE_KEYS_METADATA_UPDATE_DONE = "Service keys updated with labels and annotations.";
     public static final String POLLING_SERVICE_KEY_0_WITH_STATE_1 = "Polling service key \"{0}\" with state \"{1}\"";
     public static final String SERVICE_BINDING_HAS_ALREADY_BEEN_DELETED = "Service binding has already been deleted";
-    public static final String SERVICE_BINDING_0_SCHEDULED_FOR_DELETION_IS_IN_STATE_0 = "Service binding \"{0}\" scheduled for deletion is in state \"{0}\"";
+    public static final String SERVICE_BINDING_0_SCHEDULED_FOR_DELETION_IS_IN_STATE_0 = "Service binding \"{0}\" scheduled for deletion is in state \"{1}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_WAITING_0 = "Service keys scheduled for waiting: \"{0}\"";
     public static final String WILL_UNBIND_SERVICE_INSTANCE_0_FROM_APP_1 = "Will unbind service instance \"{0}\" from app \"{1}\"";
     public static final String DELETING_PROCESS_WITH_ID_0 = "Deleting process with id: {0}";
