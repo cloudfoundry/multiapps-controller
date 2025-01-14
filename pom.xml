@@ -42,14 +42,14 @@
         <flowable.version>6.4.0</flowable.version>
         <mybatis.version>3.5.6</mybatis.version>
         <joda-time.version>2.8</joda-time.version>
-        <spring.version>5.3.40</spring.version>
-        <spring.security.version>5.8.11</spring.security.version>
+        <spring.version>5.3.42</spring.version>
+        <spring.security.version>5.8.16</spring.security.version>
         <spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
         <spring.cloud.version>2.0.9.RELEASE</spring.cloud.version>
         <spring.cloud.core.version>1.2.9.RELEASE</spring.cloud.core.version>
         <hana.cloud.version>1.0.4.RELEASE</hana.cloud.version>
-        <jackson.version>2.13.4</jackson.version>
-        <jackson-databind.version>2.13.4.2</jackson-databind.version>
+        <jackson.version>2.15.0</jackson.version>
+        <jackson-databind.version>2.15.0</jackson-databind.version>
         <jackson-asl.version>1.9.13</jackson-asl.version>
         <liquibase.version>3.4.1</liquibase.version>
         <liquibase-slf4j.version>1.2.1</liquibase-slf4j.version>
