@@ -1,8 +1,8 @@
 package org.cloudfoundry.multiapps.controller.core.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.function.Supplier;
@@ -17,7 +17,7 @@ class CachedObjectTest {
         @SuppressWarnings("unchecked")
         Supplier<String> refreshFunction = Mockito.mock(Supplier.class);
         Mockito.when(refreshFunction.get())
-                .thenReturn("a", "b");
+               .thenReturn("a", "b");
 
         CachedObject<String> cachedName = new CachedObject<>(Duration.ZERO);
 
@@ -29,7 +29,7 @@ class CachedObjectTest {
 
     @Test
     void testExpiration() {
-        CachedObject<String> cache = new CachedObject<>("a", 2);
+        CachedObject<String> cache = new CachedObject<>("a", Duration.ofMillis(1), 2);
 
         assertFalse(cache.isExpired(1));
         assertTrue(cache.isExpired(3));

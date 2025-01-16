@@ -51,7 +51,7 @@ public class CachedMap<K, V> {
 
     public void put(K key, V value) {
         long expirationTimestamp = System.currentTimeMillis() + expirationTime.toMillis();
-        cache.put(key, new CachedObject<>(value, expirationTimestamp));
+        cache.put(key, new CachedObject<>(value, expirationTime, expirationTimestamp));
     }
 
     public void remove(K key) {
@@ -65,7 +65,8 @@ public class CachedMap<K, V> {
 
     private void clearStaleEntries() {
         long currentTime = System.currentTimeMillis();
-        cache.values().removeIf(obj -> obj.isExpired(currentTime));
+        cache.values()
+             .removeIf(obj -> obj.isExpired(currentTime));
     }
 
 }
