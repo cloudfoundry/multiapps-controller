@@ -101,6 +101,12 @@ public class ApplicationHealthCalculator {
     }
 
     public ResponseEntity<ApplicationHealthResult> calculateApplicationHealth() {
+        if (!applicationConfiguration.isHealthCheckEnabled()) {
+            return ResponseEntity.ok(ImmutableApplicationHealthResult.builder()
+                                                                     .status(ApplicationHealthResult.Status.UP)
+                                                                     .hasIncreasedLocks(false)
+                                                                     .build());
+        }
         boolean isObjectStoreFileStorageHealthy = objectStoreFileStorageHealthCache.getOrRefresh(() -> false);
         boolean isDbHealthy = dbHealthServiceCache.getOrRefresh(() -> false);
 

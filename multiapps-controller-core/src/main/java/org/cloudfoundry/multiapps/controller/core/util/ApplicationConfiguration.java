@@ -12,9 +12,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.ParsingException;
@@ -30,6 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.support.CronExpression;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @Lazy(false)
@@ -94,6 +94,7 @@ public class ApplicationConfiguration {
     static final String CFG_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER = "ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER";
     static final String CFG_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = "THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER";
     static final String CFG_THREADS_FOR_FILE_STORAGE_UPLOAD = "THREADS_FOR_FILE_STORAGE_UPLOAD";
+    static final String CFG_IS_HEALTH_CHECK_ENABLED = "IS_HEALTH_CHECK_ENABLED";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = List.of("full_application_uris", "application_uris", "uris");
 
@@ -151,6 +152,7 @@ public class ApplicationConfiguration {
     public static final boolean DEFAULT_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER = false;
     public static final int DEFAULT_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = 6;
     public static final int DEFAULT_THREADS_FOR_FILE_STORAGE_UPLOAD = 7;
+    public static final boolean DEFAULT_IS_HEALTH_CHECK_ENABLED = false;
 
     protected final Environment environment;
 
@@ -210,6 +212,7 @@ public class ApplicationConfiguration {
     private Boolean isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment;
     private Integer threadsForFileUploadToController;
     private Integer threadsForFileStorageUpload;
+    private Boolean isHealthCheckEnabled;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -653,6 +656,13 @@ public class ApplicationConfiguration {
         return threadsForFileStorageUpload;
     }
 
+    public boolean isHealthCheckEnabled() {
+        if (isHealthCheckEnabled == null) {
+            isHealthCheckEnabled = isHealthCheckEnabledFromEnvironment();
+        }
+        return isHealthCheckEnabled;
+    }
+
     private URL getControllerUrlFromEnvironment() {
         String controllerUrlString = environment.getString("CF_API");
         if (StringUtils.isEmpty(controllerUrlString)) {
@@ -1070,6 +1080,12 @@ public class ApplicationConfiguration {
     private int getThreadsForFileStorageUploadFromEnvironment() {
         int value = environment.getInteger(CFG_THREADS_FOR_FILE_STORAGE_UPLOAD, DEFAULT_THREADS_FOR_FILE_STORAGE_UPLOAD);
         LOGGER.info(format(Messages.THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER_0, value));
+        return value;
+    }
+
+    public boolean isHealthCheckEnabledFromEnvironment() {
+        boolean value = environment.getBoolean(CFG_IS_HEALTH_CHECK_ENABLED, DEFAULT_IS_HEALTH_CHECK_ENABLED);
+        LOGGER.info(format(Messages.IS_HEALTH_CHECK_ENABLED, value));
         return value;
     }
 
