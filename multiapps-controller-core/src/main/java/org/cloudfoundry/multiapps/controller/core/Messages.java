@@ -180,6 +180,7 @@ public final class Messages {
     public static final String THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER_0 = "Threads for file upload to controller: {0}";
     public static final String THREADS_FOR_FILE_STORAGE_UPLOAD_0 = "Threads for file storage upload: {0}";
     public static final String DELETED_ORPHANED_MTA_DESCRIPTORS_COUNT = "Deleted orphaned mta descriptors count: {0}";
+    public static final String IS_HEALTH_CHECK_ENABLED = "Is health check enabled: {0}";
 
     // Debug messages
     public static final String DEPLOYMENT_DESCRIPTOR = "Deployment descriptor: {0}";
