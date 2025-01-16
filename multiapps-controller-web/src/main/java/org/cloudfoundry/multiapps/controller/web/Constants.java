@@ -36,4 +36,25 @@ public class Constants {
     public static final String GOOGLE_CLOUD_STORAGE = "google-cloud-storage";
 
     public static final String RETRY_LIMIT_PROPERTY = "jdk.httpclient.auth.retrylimit";
+
+    public static class Resources {
+
+        private Resources() {
+        }
+
+        public static final String APPLICATION_HEALTH = "/public/application-health";
+        public static final String APPLICATION_SHUTDOWN = "/rest/admin/shutdown";
+        public static final String CONFIGURATION_ENTRIES = "/rest/configuration-entries";
+        public static final String CSRF_TOKEN = "/rest/csrf-token";
+        public static final String HEALTH_CHECK = "/public/health";
+        public static final String PING = "/public/ping";
+    }
+
+    public static class Endpoints {
+
+        private Endpoints() {
+        }
+
+        public static final String PURGE = "/purge";
+    }
 }
