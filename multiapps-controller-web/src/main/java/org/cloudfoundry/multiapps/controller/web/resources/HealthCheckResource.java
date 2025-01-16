@@ -2,18 +2,19 @@ package org.cloudfoundry.multiapps.controller.web.resources;
 
 import java.time.Duration;
 
-import jakarta.inject.Inject;
-
 import org.cloudfoundry.multiapps.controller.core.health.HealthRetriever;
 import org.cloudfoundry.multiapps.controller.core.health.model.Health;
 import org.cloudfoundry.multiapps.controller.core.model.CachedObject;
+import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.inject.Inject;
+
 @RestController
-@RequestMapping("/public/health")
+@RequestMapping(value = Constants.Resources.HEALTH_CHECK)
 public class HealthCheckResource {
 
     private static final Duration CACHE_TIME = Duration.ofSeconds(10);

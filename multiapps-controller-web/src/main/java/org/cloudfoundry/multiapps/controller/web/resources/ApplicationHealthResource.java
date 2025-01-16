@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.web.resources;
 
 import org.cloudfoundry.multiapps.controller.core.application.health.ApplicationHealthCalculator;
 import org.cloudfoundry.multiapps.controller.core.application.health.model.ApplicationHealthResult;
+import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.inject.Inject;
 
 @RestController
-@RequestMapping(value = "/public/application-health")
+@RequestMapping(value = Constants.Resources.APPLICATION_HEALTH)
 public class ApplicationHealthResource {
 
     private final ApplicationHealthCalculator applicationHealthCalculator;

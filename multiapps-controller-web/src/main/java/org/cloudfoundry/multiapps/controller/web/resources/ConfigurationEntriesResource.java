@@ -1,8 +1,5 @@
 package org.cloudfoundry.multiapps.controller.web.resources;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
@@ -12,6 +9,7 @@ import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
+import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 @RestController
-@RequestMapping("/rest/configuration-entries")
+@RequestMapping(value = Constants.Resources.CONFIGURATION_ENTRIES)
 public class ConfigurationEntriesResource {
 
     public static final String REQUEST_PARAM_ORGANIZATION = "org";
@@ -46,7 +47,7 @@ public class ConfigurationEntriesResource {
     @Inject
     private MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
 
-    @PostMapping("/purge")
+    @PostMapping(value = Constants.Endpoints.PURGE)
     public ResponseEntity<Void> purgeConfigurationRegistry(@RequestParam(REQUEST_PARAM_ORGANIZATION) String organization,
                                                            @RequestParam(REQUEST_PARAM_SPACE) String space) {
         UserInfo user = SecurityContextUtil.getUserInfo();
