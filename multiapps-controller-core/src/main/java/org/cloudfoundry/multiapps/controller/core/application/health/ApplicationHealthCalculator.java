@@ -64,10 +64,14 @@ public class ApplicationHealthCalculator {
         this.databaseHealthService = databaseHealthService;
         this.databaseMonitoringService = databaseMonitoringService;
         this.databaseWaitingLocksAnalyzer = databaseWaitingLocksAnalyzer;
+        scheduleRegularHealthUpdate();
+    }
+
+    protected void scheduleRegularHealthUpdate() {
         scheduler.scheduleAtFixedRate(this::updateHealthStatus, 0, UPDATE_HEALTH_CHECK_STATUS_PERIOD_IN_SECONDS, TimeUnit.SECONDS);
     }
 
-    private void updateHealthStatus() {
+    protected void updateHealthStatus() {
         List<Callable<Boolean>> tasks = List.of(this::isObjectStoreFileStorageHealthy, this::isDatabaseHealthy,
                                                 databaseWaitingLocksAnalyzer::hasIncreasedDbLocks);
         try {
@@ -173,7 +177,7 @@ public class ApplicationHealthCalculator {
         }
     }
 
-    private ResilientOperationExecutor getResilienceExecutor() {
+    protected ResilientOperationExecutor getResilienceExecutor() {
         return new ResilientOperationExecutor();
     }
 

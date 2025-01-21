@@ -29,6 +29,7 @@ public class DatabaseWaitingLocksAnalyzer {
     private static final Duration ANOMALY_DETECTION_THRESHOLD_IN_MINUTES = Duration.ofMinutes(5);
     private static final int MAXIMUM_VALUE_OF_NORMAL_LOCKS_COUNT = 5;
     private static final double MAXIMAL_ACCEPTABLE_INCREMENTAL_LOCKS_DEVIATION_INDEX = 0.5;
+    private static final int MINIMUM_REQUIRED_INCREASED_SAMPLES_REQUIRED_FOR_LOGGING = 5;
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final List<CachedObject<Long>> waitingLocksSamples = new LinkedList<>();
@@ -41,10 +42,14 @@ public class DatabaseWaitingLocksAnalyzer {
                                         ApplicationConfiguration applicationConfiguration) {
         this.databaseMonitoringService = databaseMonitoringService;
         this.applicationConfiguration = applicationConfiguration;
+        scheduleRegularLocksRefresh();
+    }
+
+    protected void scheduleRegularLocksRefresh() {
         executor.scheduleAtFixedRate(this::refreshLockInfo, 0, POLLING_LOCKS_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
     }
 
-    private synchronized void refreshLockInfo() {
+    protected synchronized void refreshLockInfo() {
         deleteObsoleteSamples();
         takeLocksSample();
     }
@@ -65,9 +70,10 @@ public class DatabaseWaitingLocksAnalyzer {
                                               minimumRequiredSamplesCount));
             return false;
         }
-        boolean hasIncreasedLocks = calculateIncreasingOrEqualIndex() >= MAXIMAL_ACCEPTABLE_INCREMENTAL_LOCKS_DEVIATION_INDEX
+        double calculatedIncreasingOrEqualIndex = calculateIncreasingOrEqualIndex();
+        boolean hasIncreasedLocks = calculatedIncreasingOrEqualIndex >= MAXIMAL_ACCEPTABLE_INCREMENTAL_LOCKS_DEVIATION_INDEX
             && checkIfLastOneThirdOfSequenceHasIncreasedOrIsEqualComparedToFirstOneThird(minimumRequiredSamplesCount);
-        if (hasIncreasedLocks) {
+        if (shouldLogValues()) {
             LOGGER.info(MessageFormat.format(Messages.VALUES_IN_INSTANCE_IN_THE_WAITING_FOR_LOCKS_SAMPLES,
                                              applicationConfiguration.getApplicationInstanceIndex(), waitingLocksSamples.stream()
                                                                                                                         .map(CachedObject::get)
@@ -76,7 +82,7 @@ public class DatabaseWaitingLocksAnalyzer {
         return hasIncreasedLocks;
     }
 
-    public double calculateIncreasingOrEqualIndex() {
+    private double calculateIncreasingOrEqualIndex() {
         int increasingOrEqualCount = 0;
         int decreasingCount = 0;
         int totalComparisons = waitingLocksSamples.size() - 1;
@@ -118,5 +124,12 @@ public class DatabaseWaitingLocksAnalyzer {
                                                     .mapToLong(CachedObject::get)
                                                     .sum();
         return sumOfLastOneThird >= sumOfFirstOneThird;
+    }
+
+    private boolean shouldLogValues() {
+        return waitingLocksSamples.stream()
+                                  .map(CachedObject::get)
+                                  .filter(value -> value >= MAXIMUM_VALUE_OF_NORMAL_LOCKS_COUNT)
+                                  .count() >= MINIMUM_REQUIRED_INCREASED_SAMPLES_REQUIRED_FOR_LOGGING;
     }
 }
