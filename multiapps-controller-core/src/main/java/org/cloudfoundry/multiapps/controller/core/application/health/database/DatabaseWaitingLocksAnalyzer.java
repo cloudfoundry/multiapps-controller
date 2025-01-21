@@ -27,8 +27,8 @@ public class DatabaseWaitingLocksAnalyzer {
     private static final int POLLING_LOCKS_INTERVAL_IN_SECONDS = 10;
     private static final Duration MAXIMUM_VALIDITY_OF_LOCKS_SAMPLE_IN_MINUTES = Duration.ofMinutes(6);
     private static final Duration ANOMALY_DETECTION_THRESHOLD_IN_MINUTES = Duration.ofMinutes(5);
-    public static final int MAXIMUM_VALUE_OF_NORMAL_LOCKS_COUNT = 5;
-    public static final double MAXIMAL_ACCEPTABLE_INCREMENTAL_LOCKS_DEVIATION_INDEX = 0.5;
+    private static final int MAXIMUM_VALUE_OF_NORMAL_LOCKS_COUNT = 5;
+    private static final double MAXIMAL_ACCEPTABLE_INCREMENTAL_LOCKS_DEVIATION_INDEX = 0.5;
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final List<CachedObject<Long>> waitingLocksSamples = new LinkedList<>();
@@ -55,8 +55,7 @@ public class DatabaseWaitingLocksAnalyzer {
 
     private void takeLocksSample() {
         waitingLocksSamples.add(new CachedObject<>(databaseMonitoringService.getProcessesWaitingForLocks(ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration)),
-                                                   MAXIMUM_VALIDITY_OF_LOCKS_SAMPLE_IN_MINUTES,
-                                                   System.currentTimeMillis() + MAXIMUM_VALIDITY_OF_LOCKS_SAMPLE_IN_MINUTES.toMillis()));
+                                                   MAXIMUM_VALIDITY_OF_LOCKS_SAMPLE_IN_MINUTES));
     }
 
     public synchronized boolean hasIncreasedDbLocks() {
@@ -69,10 +68,10 @@ public class DatabaseWaitingLocksAnalyzer {
         boolean hasIncreasedLocks = calculateIncreasingOrEqualIndex() >= MAXIMAL_ACCEPTABLE_INCREMENTAL_LOCKS_DEVIATION_INDEX
             && checkIfLastOneThirdOfSequenceHasIncreasedOrIsEqualComparedToFirstOneThird(minimumRequiredSamplesCount);
         if (hasIncreasedLocks) {
-            LOGGER.info(Messages.VALUES_IN_INSTANCE_IN_THE_WAITING_FOR_LOCKS_SAMPLES,
-                        applicationConfiguration.getApplicationInstanceIndex(), waitingLocksSamples.stream()
-                                                                                                   .map(CachedObject::get)
-                                                                                                   .toList());
+            LOGGER.info(MessageFormat.format(Messages.VALUES_IN_INSTANCE_IN_THE_WAITING_FOR_LOCKS_SAMPLES,
+                                             applicationConfiguration.getApplicationInstanceIndex(), waitingLocksSamples.stream()
+                                                                                                                        .map(CachedObject::get)
+                                                                                                                        .toList()));
         }
         return hasIncreasedLocks;
     }

@@ -34,7 +34,10 @@ import jakarta.inject.Named;
 @Named
 public class ApplicationHealthCalculator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationHealthCalculator.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationHealthCalculator.class);
+
+    private static final int UPDATE_HEALTH_CHECK_STATUS_PERIOD_IN_SECONDS = 10;
+    private static final int TIMEOUT_FOR_TASK_EXECUTION_IN_SECONDS = 50;
 
     private final ObjectStoreFileStorage objectStoreFileStorage;
     private final ApplicationConfiguration applicationConfiguration;
@@ -49,6 +52,8 @@ public class ApplicationHealthCalculator {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ExecutorService executor = Executors.newFixedThreadPool(3);
 
+    private final ResilientOperationExecutor resilientOperationExecutor = getResilienceExecutor();
+
     @Autowired
     public ApplicationHealthCalculator(@Autowired(required = false) ObjectStoreFileStorage objectStoreFileStorage,
                                        ApplicationConfiguration applicationConfiguration, DatabaseHealthService databaseHealthService,
@@ -59,14 +64,14 @@ public class ApplicationHealthCalculator {
         this.databaseHealthService = databaseHealthService;
         this.databaseMonitoringService = databaseMonitoringService;
         this.databaseWaitingLocksAnalyzer = databaseWaitingLocksAnalyzer;
-        scheduler.scheduleAtFixedRate(this::updateHealthStatus, 0, 10, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(this::updateHealthStatus, 0, UPDATE_HEALTH_CHECK_STATUS_PERIOD_IN_SECONDS, TimeUnit.SECONDS);
     }
 
     private void updateHealthStatus() {
         List<Callable<Boolean>> tasks = List.of(this::isObjectStoreFileStorageHealthy, this::isDatabaseHealthy,
                                                 databaseWaitingLocksAnalyzer::hasIncreasedDbLocks);
         try {
-            List<Future<Boolean>> completedFutures = executor.invokeAll(tasks, 50, TimeUnit.SECONDS);
+            List<Future<Boolean>> completedFutures = executor.invokeAll(tasks, TIMEOUT_FOR_TASK_EXECUTION_IN_SECONDS, TimeUnit.SECONDS);
             executeFuture(completedFutures.get(0), isHealthy -> objectStoreFileStorageHealthCache.refresh(() -> isHealthy), false,
                           Messages.ERROR_OCCURRED_DURING_OBJECT_STORE_HEALTH_CHECKING);
             executeFuture(completedFutures.get(1), isHealthy -> dbHealthServiceCache.refresh(() -> isHealthy), false,
@@ -111,7 +116,8 @@ public class ApplicationHealthCalculator {
         boolean isDbHealthy = dbHealthServiceCache.getOrRefresh(() -> false);
 
         if (!isObjectStoreFileStorageHealthy || !isDbHealthy) {
-            LOGGER.error(Messages.OBJECT_STORE_FILE_STORAGE_HEALTH_DATABASE_HEALTH, isObjectStoreFileStorageHealthy, isDbHealthy);
+            LOGGER.error(MessageFormat.format(Messages.OBJECT_STORE_FILE_STORAGE_HEALTH_DATABASE_HEALTH, isObjectStoreFileStorageHealthy,
+                                              isDbHealthy));
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                                  .body(ImmutableApplicationHealthResult.builder()
                                                                        .status(ApplicationHealthResult.Status.DOWN)
@@ -122,9 +128,9 @@ public class ApplicationHealthCalculator {
         if (hasIncreasedDbLocks) {
             LOGGER.warn(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE_0_GETTING_THE_LOCKS,
                         applicationConfiguration.getApplicationInstanceIndex());
-            long countOfProcessesWaitingForLocks = getResilienceExecutor().execute((Supplier<Long>) () -> databaseMonitoringService.getProcessesWaitingForLocks(ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration)));
-            LOGGER.warn(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE, countOfProcessesWaitingForLocks,
-                        applicationConfiguration.getApplicationInstanceIndex());
+            long countOfProcessesWaitingForLocks = resilientOperationExecutor.execute((Supplier<Long>) () -> databaseMonitoringService.getProcessesWaitingForLocks(ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration)));
+            LOGGER.warn(MessageFormat.format(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE,
+                                             countOfProcessesWaitingForLocks, applicationConfiguration.getApplicationInstanceIndex()));
             return ResponseEntity.ok(ImmutableApplicationHealthResult.builder() // TODO: Make this return 503 instead of 200 when the
                                                                                 // detection is trustworthy
                                                                      .status(ApplicationHealthResult.Status.DOWN)
@@ -140,15 +146,16 @@ public class ApplicationHealthCalculator {
 
     private boolean isObjectStoreFileStorageHealthy() {
         if (objectStoreFileStorage == null) {
-            LOGGER.debug(Messages.OBJECT_STORE_FILE_STORAGE_IS_NOT_AVAILABLE_FOR_INSTANCE,
-                         applicationConfiguration.getApplicationInstanceIndex());
+            LOGGER.debug(MessageFormat.format(Messages.OBJECT_STORE_FILE_STORAGE_IS_NOT_AVAILABLE_FOR_INSTANCE,
+                                              applicationConfiguration.getApplicationInstanceIndex()));
             return true;
         }
         try {
-            getResilienceExecutor().execute(objectStoreFileStorage::testConnection);
+            resilientOperationExecutor.execute(objectStoreFileStorage::testConnection);
         } catch (Exception e) {
-            LOGGER.error(Messages.ERROR_OCCURRED_DURING_OBJECT_STORE_HEALTH_CHECKING_FOR_INSTANCE,
-                         applicationConfiguration.getApplicationInstanceIndex(), e);
+            LOGGER.error(MessageFormat.format(Messages.ERROR_OCCURRED_DURING_OBJECT_STORE_HEALTH_CHECKING_FOR_INSTANCE,
+                                              applicationConfiguration.getApplicationInstanceIndex()),
+                         e);
             return false;
         }
         return true;
@@ -156,7 +163,7 @@ public class ApplicationHealthCalculator {
 
     private boolean isDatabaseHealthy() {
         try {
-            getResilienceExecutor().execute(databaseHealthService::testDatabaseConnection);
+            resilientOperationExecutor.execute(databaseHealthService::testDatabaseConnection);
             return true;
         } catch (Exception e) {
             LOGGER.error(MessageFormat.format(Messages.ERROR_OCCURRED_WHILE_CHECKING_DATABASE_INSTANCE_0,

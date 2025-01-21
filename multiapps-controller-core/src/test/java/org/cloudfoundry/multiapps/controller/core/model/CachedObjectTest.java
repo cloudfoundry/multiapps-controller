@@ -29,9 +29,9 @@ class CachedObjectTest {
 
     @Test
     void testExpiration() {
-        CachedObject<String> cache = new CachedObject<>("a", Duration.ofMillis(1), 2);
+        CachedObject<String> cache = new CachedObject<>("a", Duration.ofMillis(1));
 
-        assertFalse(cache.isExpired(1));
-        assertTrue(cache.isExpired(3));
+        assertFalse(cache.isExpired(System.currentTimeMillis() - 1000));
+        assertTrue(cache.isExpired(System.currentTimeMillis() + 3000));
     }
 }

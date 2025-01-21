@@ -15,13 +15,9 @@ public class CachedObject<T> {
     }
 
     public CachedObject(T object, Duration expirationDuration) {
-        this(object, expirationDuration, System.currentTimeMillis() + expirationDuration.toMillis());
-    }
-
-    public CachedObject(T object, Duration expirationDuration, long expirationTimestamp) {
         this.object = object;
         this.expirationDuration = expirationDuration;
-        this.expirationTimestamp = expirationTimestamp;
+        this.expirationTimestamp = System.currentTimeMillis() + expirationDuration.toMillis();
     }
 
     public synchronized T get() {
@@ -30,14 +26,14 @@ public class CachedObject<T> {
 
     public synchronized T getOrRefresh(Supplier<T> refresher) {
         if (isExpired() || object == null) {
-            expirationTimestamp += expirationDuration.toMillis();
+            expirationTimestamp = System.currentTimeMillis() + expirationDuration.toMillis();
             object = refresher.get();
         }
         return object;
     }
 
     public synchronized void refresh(Supplier<T> refresher) {
-        expirationTimestamp += expirationDuration.toMillis();
+        expirationTimestamp = System.currentTimeMillis() + expirationDuration.toMillis();
         object = refresher.get();
     }
 
