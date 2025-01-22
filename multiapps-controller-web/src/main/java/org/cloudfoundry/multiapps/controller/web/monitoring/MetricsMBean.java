@@ -20,4 +20,6 @@ public interface MetricsMBean {
 
     int getFileToUploadQueueSize();
 
+    int getFileToUploadFromUrlQueueSize();
+
 }

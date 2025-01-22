@@ -1,12 +1,15 @@
 package org.cloudfoundry.multiapps.controller.web.monitoring;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import org.cloudfoundry.multiapps.controller.core.model.CachedObject;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-
 import java.nio.file.Paths;
 import java.time.Duration;
+
+import org.cloudfoundry.multiapps.controller.core.model.CachedObject;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.web.configuration.FileUploadFromUrlThreadPoolInformation;
+import org.cloudfoundry.multiapps.controller.web.configuration.FileUploadThreadPoolInformation;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 public class Metrics implements MetricsMBean {
@@ -16,17 +19,19 @@ public class Metrics implements MetricsMBean {
     private final CachedObject<CloudFoundryClientThreadInformation> cachedCloudFoundryClientThreadMonitor;
     private final FlowableJobExecutorInformation flowableJobExecutorInformation;
     private final FileUploadThreadPoolInformation fileUploadThreadPoolInformation;
+    private final FileUploadFromUrlThreadPoolInformation fileUploadFromUrlThreadPoolInformation;
 
     @Inject
     public Metrics(ApplicationConfiguration appConfigurations, FssMonitor fssMonitor,
                    FlowableJobExecutorInformation flowableJobExecutorInformation,
-                   FileUploadThreadPoolInformation fileUploadThreadPoolInformation) {
+                   FileUploadThreadPoolInformation fileUploadThreadPoolInformation,
+                   FileUploadFromUrlThreadPoolInformation fileUploadFromUrlThreadPoolInformation) {
         this.fssMonitor = fssMonitor;
         this.cachedFlowableThreadMonitor = new CachedObject<>(Duration.ofSeconds(appConfigurations.getThreadMonitorCacheUpdateInSeconds()));
-        this.cachedCloudFoundryClientThreadMonitor = new CachedObject<>(
-            Duration.ofSeconds(appConfigurations.getThreadMonitorCacheUpdateInSeconds()));
+        this.cachedCloudFoundryClientThreadMonitor = new CachedObject<>(Duration.ofSeconds(appConfigurations.getThreadMonitorCacheUpdateInSeconds()));
         this.flowableJobExecutorInformation = flowableJobExecutorInformation;
         this.fileUploadThreadPoolInformation = fileUploadThreadPoolInformation;
+        this.fileUploadFromUrlThreadPoolInformation = fileUploadFromUrlThreadPoolInformation;
     }
 
     @Override
@@ -84,5 +89,10 @@ public class Metrics implements MetricsMBean {
     @Override
     public int getFileToUploadQueueSize() {
         return fileUploadThreadPoolInformation.getFileUploadPriorityBlockingQueueSize();
+    }
+
+    @Override
+    public int getFileToUploadFromUrlQueueSize() {
+        return fileUploadFromUrlThreadPoolInformation.getFileUploadFromUrlQueueSize();
     }
 }

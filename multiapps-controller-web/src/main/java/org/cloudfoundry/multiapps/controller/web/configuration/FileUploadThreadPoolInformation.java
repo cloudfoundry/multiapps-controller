@@ -1,9 +1,9 @@
-package org.cloudfoundry.multiapps.controller.web.monitoring;
+package org.cloudfoundry.multiapps.controller.web.configuration;
+
+import java.util.concurrent.PriorityBlockingQueue;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
-import java.util.concurrent.PriorityBlockingQueue;
 
 @Named
 public class FileUploadThreadPoolInformation {
