@@ -71,8 +71,11 @@ public class ConfigurationReferencesResolver extends org.cloudfoundry.multiapps.
         }
 
         if (!permitsMultipleResources(dependency)) {
-            makeSureIsResolvedToSingleResource(dependency.getName(), resolvedReference.getResolvedResources());
-            return Collections.singletonList(dependency);
+            if (dependencyOwner instanceof Resource resource && resource.isOptional()) {
+                return Collections.singletonList(dependency);
+            } else {
+                makeSureIsResolvedToSingleResource(dependency.getName(), resolvedReference.getResolvedResources());
+            }
         }
 
         if (resolvedReference.getResolvedResources()
