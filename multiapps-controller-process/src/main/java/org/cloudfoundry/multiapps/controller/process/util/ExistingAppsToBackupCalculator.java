@@ -37,13 +37,17 @@ public class ExistingAppsToBackupCalculator {
         this.descriptorBackupService = descriptorBackupService;
     }
 
-    public List<CloudApplication> calculateExistingAppsToBackup(List<CloudApplication> appsToUndeploy,
+    public List<CloudApplication> calculateExistingAppsToBackup(ProcessContext context, List<CloudApplication> appsToUndeploy,
                                                                 String mtaVersionOfCurrentDescriptor) {
         if (doesDeployedMtaVersionMatchToCurrentDeployment(deployedMta, mtaVersionOfCurrentDescriptor)) {
             return Collections.emptyList();
         }
 
         if (doesDeployedMtaVersionMatchToCurrentDeployment(backupMta, mtaVersionOfCurrentDescriptor)) {
+            return Collections.emptyList();
+        }
+
+        if (isDeployedMtaBackupDescriptorMissing(context, deployedMta)) {
             return Collections.emptyList();
         }
 
@@ -64,6 +68,22 @@ public class ExistingAppsToBackupCalculator {
                                                                     .get(MtaMetadataAnnotations.MTA_VERSION);
 
         return mtaVersionOfDeployedApplication != null && mtaVersionOfDeployedApplication.equals(mtaVersionOfCurrentDescriptor);
+    }
+
+    private boolean isDeployedMtaBackupDescriptorMissing(ProcessContext context, DeployedMta deployedMta) {
+        if (deployedMta == null) {
+            return true;
+        }
+        String deployedMtaVersion = deployedMta.getMetadata()
+                                               .getVersion()
+                                               .toString();
+        return descriptorBackupService.createQuery()
+                                      .mtaId(context.getVariable(Variables.MTA_ID))
+                                      .spaceId(context.getVariable(Variables.SPACE_GUID))
+                                      .namespace(context.getVariable(Variables.MTA_NAMESPACE))
+                                      .mtaVersion(deployedMtaVersion)
+                                      .list()
+                                      .isEmpty();
     }
 
     private ProductizationState getProductizationStateOfApplication(CloudApplication appToUndeploy) {
