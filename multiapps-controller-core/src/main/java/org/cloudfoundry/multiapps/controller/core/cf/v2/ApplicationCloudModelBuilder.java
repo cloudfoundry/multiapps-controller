@@ -162,10 +162,11 @@ public class ApplicationCloudModelBuilder {
     }
 
     private int getInstances(List<Map<String, Object>> parametersList) {
-        if (incrementalInstancesUpdate) {
+        int instances = (Integer) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0);
+        if (incrementalInstancesUpdate && instances > 0) {
             return 1;
         }
-        return (Integer) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0);
+        return instances;
     }
 
     protected <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {

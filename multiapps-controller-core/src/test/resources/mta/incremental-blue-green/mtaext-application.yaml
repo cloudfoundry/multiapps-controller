@@ -1,0 +1,9 @@
+_schema-version: 2
+ID: foo.mtar.mtaext
+version: 1.0.0
+extends: foo.mtar
+
+modules:
+  - name: foo5
+    parameters:
+      instances: 4
