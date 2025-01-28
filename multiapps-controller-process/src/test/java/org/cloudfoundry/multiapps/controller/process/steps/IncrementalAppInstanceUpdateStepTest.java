@@ -238,6 +238,18 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         assertEquals(Duration.ofSeconds(24 * 3600), actualTimeout);
     }
 
+    @Test
+    void testGetTimeoutWithZeroInstance() {
+        step.initializeStepLogger(execution);
+        var app = ImmutableCloudApplicationExtended.builder()
+                                                   .name("app-zero-instances")
+                                                   .instances(0)
+                                                   .build();
+        context.setVariable(Variables.APP_TO_PROCESS, app);
+        Duration actualTimeout = step.getTimeout(context);
+        assertEquals(Duration.ofSeconds(3600), actualTimeout);
+    }
+
     @Override
     protected IncrementalAppInstancesUpdateStep createStep() {
         clientFactory = Mockito.mock(CloudControllerClientFactory.class);

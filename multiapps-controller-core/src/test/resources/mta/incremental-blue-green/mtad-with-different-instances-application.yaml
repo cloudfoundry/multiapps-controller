@@ -1,0 +1,14 @@
+_schema-version: 2
+ID: foo.mtar
+version: 1.0.0
+
+modules:
+  - name: foo5
+    type: w/e
+    parameters:
+      instances: 5
+
+  - name: foo0
+    type: w/e
+    parameters:
+      instances: 0

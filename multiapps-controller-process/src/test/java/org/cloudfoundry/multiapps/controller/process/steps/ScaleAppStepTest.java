@@ -1,16 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.mockito.ArgumentMatchers.any;
+
 import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableInstanceInfo;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableInstancesInfo;
-import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
-import com.sap.cloudfoundry.client.facade.domain.InstanceState;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -18,6 +13,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
+
+import com.sap.cloudfoundry.client.facade.domain.HealthCheckType;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudProcess;
 
 class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
 
@@ -51,8 +50,14 @@ class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
         context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
         if (existingApplication != null) {
             context.setVariable(Variables.EXISTING_APP, existingApplication.toCloudApplication());
-            Mockito.when(client.getApplicationInstances(Mockito.any(CloudApplication.class)))
-                   .thenReturn(generateInstances(existingApplication.instances));
+            Mockito.when(client.getApplicationProcess(any()))
+                   .thenReturn(ImmutableCloudProcess.builder()
+                                                    .command("")
+                                                    .diskInMb(128)
+                                                    .memoryInMb(128)
+                                                    .healthCheckType(HealthCheckType.PROCESS)
+                                                    .instances(existingApplication.instances)
+                                                    .build());
         }
     }
 
@@ -80,15 +85,6 @@ class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
                                                     .instances(instances)
                                                     .build();
         }
-    }
-
-    private InstancesInfo generateInstances(int num) {
-        return ImmutableInstancesInfo.builder()
-                                     .instances(Collections.nCopies(num, ImmutableInstanceInfo.builder()
-                                                                                              .index(0)
-                                                                                              .state(InstanceState.RUNNING)
-                                                                                              .build()))
-                                     .build();
     }
 
     @Override

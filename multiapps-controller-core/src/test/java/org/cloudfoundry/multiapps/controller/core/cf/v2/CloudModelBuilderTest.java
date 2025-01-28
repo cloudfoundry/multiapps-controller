@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.cf.v2;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -8,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
@@ -17,6 +18,7 @@ import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.common.util.YamlParser;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.cf.util.ModulesCloudModelBuilderContentCalculator;
@@ -38,6 +40,7 @@ import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.resolvers.ResolverBuilder;
 import org.cloudfoundry.multiapps.mta.resolvers.v2.DescriptorReferenceResolver;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -448,9 +451,9 @@ public class CloudModelBuilderTest {
         return new ServicesCloudModelBuilder(deploymentDescriptor, namespace);
     }
 
-    protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-                                                                           boolean prettyPrinting, DeployedMta deployedMta,
-                                                                           AppSuffixDeterminer appSuffixDeterminer) {
+    protected ApplicationCloudModelBuilder
+              getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
+                                              AppSuffixDeterminer appSuffixDeterminer, boolean incrementalInstancesUpdate) {
         deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor,
                                                                new ResolverBuilder(),
                                                                new ResolverBuilder(),
@@ -466,6 +469,7 @@ public class CloudModelBuilderTest {
                                                          .userMessageLogger(Mockito.mock(UserMessageLogger.class))
                                                          .appSuffixDeterminer(appSuffixDeterminer)
                                                          .client(client)
+                                                         .incrementalInstancesUpdate(incrementalInstancesUpdate)
                                                          .build();
     }
 
@@ -559,11 +563,11 @@ public class CloudModelBuilderTest {
                              AppSuffixDeterminer appSuffixDeterminer)
         throws Exception {
         initializeParameters(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, deployedMtaLocation, namespace,
-                             applyNamespace, mtaArchiveModules, mtaModules, deployedApps, appSuffixDeterminer);
+                             applyNamespace, mtaArchiveModules, mtaModules, deployedApps, appSuffixDeterminer, false);
         tester.test(() -> modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules())
                                            .stream()
                                            .map(module -> appBuilder.build(module, moduleToDeployHelper))
-                                           .collect(Collectors.toList()),
+                                           .toList(),
                     expectedApps);
     }
 
@@ -575,14 +579,32 @@ public class CloudModelBuilderTest {
                          AppSuffixDeterminer appSuffixDeterminer)
         throws Exception {
         initializeParameters(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, deployedMtaLocation, namespace,
-                             applyNamespace, mtaArchiveModules, mtaModules, deployedApps, appSuffixDeterminer);
+                             applyNamespace, mtaArchiveModules, mtaModules, deployedApps, appSuffixDeterminer, false);
         tester.test(() -> servicesBuilder.build(resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources())),
                     expectedServices);
     }
 
+    @Test
+    void testGetApplicationsWithIncrementalBlueGreen() throws Exception {
+        initializeParameters("/mta/incremental-blue-green/mtad-with-different-instances-application.yaml",
+                             "/mta/incremental-blue-green/mtaext-application.yaml", "/mta/cf-platform.json", null, null, false,
+                             new String[] { "foo5", "foo0" }, new String[] { "foo5", "foo0" }, new String[] {},
+                             DEFAULT_APP_SUFFIX_DETERMINER, true);
+        List<CloudApplicationExtended> applications = modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules())
+                                                                       .stream()
+                                                                       .map(module -> appBuilder.build(module, moduleToDeployHelper))
+                                                                       .toList();
+        assertEquals(2, applications.size());
+        assertEquals(1, applications.get(0)
+                                    .getInstances());
+        assertEquals(0, applications.get(1)
+                                    .getInstances());
+    }
+
     protected void initializeParameters(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
                                         String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
-                                        String[] mtaModules, String[] deployedApps, AppSuffixDeterminer appSuffixDeterminer)
+                                        String[] mtaModules, String[] deployedApps, AppSuffixDeterminer appSuffixDeterminer,
+                                        boolean incrementalInstancesUpdate)
         throws Exception {
         this.deploymentDescriptorLocation = deploymentDescriptorLocation;
         this.extensionDescriptorLocation = extensionDescriptorLocation;
@@ -600,7 +622,8 @@ public class CloudModelBuilderTest {
         String defaultDomain = getDefaultDomain(platform.getName());
         insertProperNames(deploymentDescriptor);
         injectSystemParameters(deploymentDescriptor, defaultDomain);
-        appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, false, deployedMta, appSuffixDeterminer);
+        appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, false, deployedMta, appSuffixDeterminer,
+                                                     incrementalInstancesUpdate);
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor);
         modulesCalculator = getModulesCalculator(Set.of(mtaArchiveModules), Set.of(mtaModules), Set.of(deployedApps));
         moduleToDeployHelper = new ModuleToDeployHelper();

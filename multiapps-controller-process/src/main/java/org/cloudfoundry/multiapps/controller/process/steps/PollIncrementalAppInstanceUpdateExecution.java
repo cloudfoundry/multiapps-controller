@@ -54,7 +54,7 @@ public class PollIncrementalAppInstanceUpdateExecution implements AsyncExecution
                              .equals(CloudApplication.State.STOPPED)) {
             continueWithIncrementalScaling(context);
         } else {
-            pollApplicationIndexesBeforeContinueingWithIncrementalScaling(context);
+            pollApplicationIndexesBeforeContinuingWithIncrementalScaling(context);
         }
     }
 
@@ -62,7 +62,7 @@ public class PollIncrementalAppInstanceUpdateExecution implements AsyncExecution
         context.setVariable(Variables.ASYNC_STEP_EXECUTION_INDEX, 2);
     }
 
-    private void pollApplicationIndexesBeforeContinueingWithIncrementalScaling(ProcessContext context) {
+    private void pollApplicationIndexesBeforeContinuingWithIncrementalScaling(ProcessContext context) {
         context.setVariable(Variables.ASYNC_STEP_EXECUTION_INDEX, 1);
     }
 

@@ -390,7 +390,7 @@ public class Messages {
     public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FINISHED = "Async operation for service broker \"{0}\" has finished";
     public static final String STARTING_INCREMENTAL_APPLICATION_INSTANCE_UPDATE_FOR_0 = "Starting incremental application instance update for \"{0}\"...";
     public static final String DUE_TO_MISSING_PRODUCTIVE_DEPLOYED_APPLICATION_OF_MODULE_0_THE_NEW_APPLICATION_WILL_BE_SCALED_IN_STANDARD_WAY = "Due to missing productive deployed application of module \"{0}\", the new application will be scaled in standard way";
-    public static final String APPLICATION_0_ALREADY_SCALED_TO_THE_DESIRED_1_INSTANCES = "Application \"{0}\" already scaled to the desired {1} instances";
+    public static final String APPLICATION_ALREADY_SCALED_TO_THE_DESIRED_OR_MORE_INSTANCES = "Application \"{0}\" already scaled to the desired or more instances: \"{1}\". Required: \"{2}\"";
     public static final String LIVE_APPLICATION_NOT_DETECTED_DURING_ROLLING_INSTANCE_UPDATE = "Live application not detected during rolling instance update";
     public static final String NO_DEPLOYED_MTA_DETECTED_DURING_ROLLING_INSTANCE_UPDATE = "No deployed MTA detected during rolling instance update";
     public static final String THE_REQUIRED_APPLICATION_NOT_FOUND_IN_THE_DETECTED_MTA = "The required application not found in the detected MTA";
@@ -770,6 +770,7 @@ public class Messages {
     public static final String RENAME_APPLICATIONS_FOR_ROLLBACK = "Rename applications for rollback";
     public static final String DELETING_BACKUP_DESCRIPTORS_STORED_BEFORE_0 = "Deleting backup descriptors stored before \"{0}\"";
     public static final String DELETED_BACKUP_DESCRIPTORS_0 = "Deleted backup descriptors: {0}";
+    public static final String CALCULATED_TIMEOUT_FOR_INCREMENTAL_APP_INSTANCES_UPDATE_0_SECONDS = "Calculated timeout for incremental app instances update: {0} seconds";
 
     public static final String TOTAL_SIZE_OF_ALL_RESOLVED_CONTENT_0 = "Total size for all resolved content {0}";
 
