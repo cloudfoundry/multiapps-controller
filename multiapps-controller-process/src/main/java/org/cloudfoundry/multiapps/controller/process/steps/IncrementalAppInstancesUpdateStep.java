@@ -188,7 +188,7 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
     public Duration getTimeout(ProcessContext context) {
         CloudApplicationExtended application = context.getVariable(Variables.APP_TO_PROCESS);
         Duration timeout = calculateTimeout(context, TimeoutType.START);
-        int minRequiredInstances = application.getInstances() <= 0 ? 1 : application.getInstances();
+        int minRequiredInstances = Math.max(application.getInstances(), 1);
         Duration calculatedTimeout = Duration.ofSeconds(Math.min(timeout.getSeconds() * minRequiredInstances, MAX_TIMEOUT));
         getStepLogger().debug(Messages.CALCULATED_TIMEOUT_FOR_INCREMENTAL_APP_INSTANCES_UPDATE_0_SECONDS, calculatedTimeout.toSeconds());
         return calculatedTimeout;
