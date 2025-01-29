@@ -66,6 +66,7 @@ public class TokenReuser {
     }
 
     private Optional<OAuth2AccessTokenWithAdditionalInfo> parseAccessToken(AccessToken accessToken) {
+        LOGGER.debug(MessageFormat.format(Messages.ATTEMPTING_TO_REUSE_TOKEN_WITH_CLIENT_ID, accessToken.getClientId()));
         try {
             return Optional.of(tokenParserChain.parse(new String(accessToken.getValue(), StandardCharsets.UTF_8)));
         } catch (InternalAuthenticationServiceException e) {

@@ -11,6 +11,9 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import com.sap.cloud.lm.sl.cf.core.Constants;
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfoAndId;
 import org.slf4j.Logger;
@@ -85,6 +88,7 @@ public class TokenService {
         OAuth2AccessTokenWithAdditionalInfoAndId validToken = getLatestValidToken(sortedAccessTokens, username);
         cachedOauth2AccessTokens.put(username, validToken.getOAuth2AccessTokenWithAdditionalInfo());
         deleteTokens(getLeftoverTokens(sortedAccessTokens, validToken));
+        logTokenInfo(validToken);
         return validToken.getOAuth2AccessTokenWithAdditionalInfo();
     }
 
@@ -106,6 +110,7 @@ public class TokenService {
 
     private OAuth2AccessTokenWithAdditionalInfoAndId getLatestValidToken(List<AccessToken> accessTokens, String username) {
         for (AccessToken accessToken : accessTokens) {
+            LOGGER.debug(MessageFormat.format(Messages.ATTEMPTING_TO_PARSE_TOKEN_WITH_CLIENT_ID, accessToken.getClientId()));
             try {
                 OAuth2AccessTokenWithAdditionalInfo token = tokenParserChain.parse(new String(accessToken.getValue(),
                                                                                               StandardCharsets.UTF_8));
@@ -139,6 +144,14 @@ public class TokenService {
             LOGGER.error(MessageFormat.format(Messages.ERROR_DURING_TOKEN_DELETION_FOR_USER, token.getUsername()));
             LOGGER.error(e.getMessage(), e);
         }
+    }
+    
+    private void logTokenInfo(OAuth2AccessTokenWithAdditionalInfoAndId validToken){
+        String clientId = MapUtils.getString(validToken.getOAuth2AccessTokenWithAdditionalInfo().getAdditionalInfo(), Constants.CLIENT_ID);
+        if (CommonUtil.isNullOrEmpty(clientId)) {
+            LOGGER.debug(Messages.NO_CLIENT_ID_FOUND_FOR_TOKEN);
+        }
+        LOGGER.debug(MessageFormat.format(Messages.USING_VALID_TOKEN_WITH_CLIENT_ID, clientId));
     }
 
     protected void sleep(long millis) {

@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.security;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -9,7 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
+import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SSLUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
@@ -17,6 +18,8 @@ import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.TokenGenerator;
 import com.sap.cloud.lm.sl.cf.web.util.TokenGeneratorFactory;
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.client.lib.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import org.slf4j.Logger;
@@ -54,6 +57,7 @@ public class AuthenticationLoaderFilter extends OncePerRequestFilter {
             failWithUnauthorized(Messages.NO_AUTHORIZATION_HEADER_WAS_PROVIDED);
         }
         OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo = generateOauthToken(authorizationHeaderValue);
+        logTokenInfo(oAuth2AccessTokenWithAdditionalInfo);
         UserInfo tokenUserInfo = SecurityUtil.getTokenUserInfo(oAuth2AccessTokenWithAdditionalInfo, tokenFactory);
         loadAuthenticationInContext(tokenUserInfo);
         filterChain.doFilter(request, response);
@@ -72,6 +76,14 @@ public class AuthenticationLoaderFilter extends OncePerRequestFilter {
         }
         TokenGenerator tokenGenerator = tokenGeneratorFactory.createGenerator(tokenStringElements[0]);
         return tokenGenerator.generate(tokenStringElements[1]);
+    }
+
+    private void logTokenInfo(OAuth2AccessTokenWithAdditionalInfo token){
+        String clientId = MapUtils.getString(token.getAdditionalInfo(), Constants.CLIENT_ID);
+        if (CommonUtil.isNullOrEmpty(clientId)) {
+            LOGGER.debug(com.sap.cloud.lm.sl.cf.core.message.Messages.NO_CLIENT_ID_FOUND_FOR_TOKEN);
+        }
+        LOGGER.debug(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.USING_VALID_TOKEN_WITH_CLIENT_ID, clientId));
     }
 
     private void loadAuthenticationInContext(UserInfo tokenUserInfo) {
