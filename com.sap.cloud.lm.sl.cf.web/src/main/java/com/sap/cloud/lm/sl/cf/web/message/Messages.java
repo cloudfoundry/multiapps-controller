@@ -68,5 +68,7 @@ public final class Messages {
     public static final String PARSED_CONTENT = "Parsed content: {0}";
     public static final String COMPUTED_TARGET = "Computed target: {0}";
     public static final String COMPUTING_STATE_OF_OPERATION = "Computing state of operation {0} with ID: {1}";
+    
+    public static final String ATTEMPTING_TO_REUSE_TOKEN_WITH_CLIENT_ID = "Attempting to reuse token with client ID: {0}";
 
 }

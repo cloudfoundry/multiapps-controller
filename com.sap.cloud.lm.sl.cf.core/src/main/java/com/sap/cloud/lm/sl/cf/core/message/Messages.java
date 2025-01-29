@@ -205,5 +205,8 @@ public final class Messages {
     public static final String PARSED_TOKEN_TYPE_0 = "Parsed token type: {0}";
     public static final String PARSED_TOKEN_EXPIRES_IN_0 = "Parsed token expires in: {0}";
     public static final String DELETED_TOKENS = "Executed deletion of {0} expired tokens";
-
+    public static final String ATTEMPTING_TO_PARSE_TOKEN_WITH_CLIENT_ID = "Attempting to parse token with client ID: {0}";
+    public static final String USING_VALID_TOKEN_WITH_CLIENT_ID = "Will use valid token with client ID: {0}";
+    
+    public static final String NO_CLIENT_ID_FOUND_FOR_TOKEN = "No client id found for token";
 }
