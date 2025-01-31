@@ -22,7 +22,6 @@ public class MtaMetadataBuilder {
             builder.label(MtaMetadataLabels.MTA_NAMESPACE, hashedMtaNamespace)
                    .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, namespace);
         }
-
         return builder;
     }
 

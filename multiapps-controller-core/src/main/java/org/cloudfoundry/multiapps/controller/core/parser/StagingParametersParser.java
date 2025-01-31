@@ -32,17 +32,6 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         String healthCheckHttpEndpoint = (String) PropertiesUtil.getPropertyValue(parametersList,
                                                                                   SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT,
                                                                                   getDefaultHealthCheckHttpEndpoint(healthCheckType));
-        String readinessHealthCheckType = (String) PropertiesUtil.getPropertyValue(parametersList,
-                                                                                   SupportedParameters.READINESS_HEALTH_CHECK_TYPE, null);
-        String readinessHealthCheckHttpEndpoint = (String) PropertiesUtil.getPropertyValue(parametersList,
-                                                                                           SupportedParameters.READINESS_HEALTH_CHECK_HTTP_ENDPOINT,
-                                                                                           getDefaultHealthCheckHttpEndpoint(readinessHealthCheckType));
-        Integer readinessHealthCheckInvocationTimeout = (Integer) PropertiesUtil.getPropertyValue(parametersList,
-                                                                                                  SupportedParameters.READINESS_HEALTH_CHECK_INVOCATION_TIMEOUT,
-                                                                                                  null);
-        Integer readinessHealthCheckInterval = (Integer) PropertiesUtil.getPropertyValue(parametersList,
-                                                                                         SupportedParameters.READINESS_HEALTH_CHECK_INTERVAL,
-                                                                                         null);
         Boolean isSshEnabled = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
         DockerInfo dockerInfo = new DockerInfoParser().parse(parametersList);
         LifecycleType lifecycleType = parseLifecycleType(parametersList);
@@ -57,10 +46,6 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                .invocationTimeout(healthCheckInvocationTimeout)
                                .healthCheckType(healthCheckType)
                                .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
-                               .readinessHealthCheckType(readinessHealthCheckType)
-                               .readinessHealthCheckHttpEndpoint(readinessHealthCheckHttpEndpoint)
-                               .readinessHealthCheckTimeout(readinessHealthCheckInvocationTimeout)
-                               .readinessHealthCheckInterval(readinessHealthCheckInterval)
                                .isSshEnabled(isSshEnabled)
                                .dockerInfo(dockerInfo)
                                .lifecycleType(lifecycleType)

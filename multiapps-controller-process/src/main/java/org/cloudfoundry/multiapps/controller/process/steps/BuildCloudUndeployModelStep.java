@@ -15,9 +15,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
@@ -33,7 +30,9 @@ import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureS
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
+import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ExistingAppsToBackupCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -46,6 +45,9 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 @Named("buildCloudUndeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BuildCloudUndeployModelStep extends SyncFlowableStep {
@@ -56,6 +58,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     private ModuleToDeployHelper moduleToDeployHelper;
     @Inject
     private ProcessTypeParser processTypeParser;
+    @Inject
+    private DescriptorBackupService descriptorBackupService;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -64,7 +68,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
         if (deployedMta == null) {
             setComponentsToUndeploy(context, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
-                                    Collections.emptyList());
+                                    Collections.emptyList(), Collections.emptyList());
             return StepPhase.DONE;
         }
 
@@ -78,6 +82,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
         List<DeployedMtaApplication> deployedAppsToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames,
                                                                                        deploymentDescriptorModules);
+
         getStepLogger().debug(Messages.MODULES_TO_UNDEPLOY, SecureSerialization.toJson(deployedAppsToUndeploy));
 
         List<DeployedMtaApplication> appsWithoutChange = computeModulesWithoutChange(deployedAppsToUndeploy, mtaModules, deployedMta);
@@ -96,9 +101,22 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.SERVICE_KEYS_FOR_DELETION, serviceKeysToDelete);
 
         List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(deployedAppsToUndeploy, context.getControllerClient());
+
+        DeployedMta backupMta = context.getVariable(Variables.BACKUP_MTA);
+        ExistingAppsToBackupCalculator existingAppsToBackupCalculator = new ExistingAppsToBackupCalculator(deployedMta,
+                                                                                                           backupMta,
+                                                                                                           descriptorBackupService);
+        List<CloudApplication> existingAppsToBackup = computeExistingAppsToBackup(context, appsToUndeploy, existingAppsToBackupCalculator);
+
+        List<CloudApplication> backupAppsToUndeploy = existingAppsToBackupCalculator.calculateAppsToUndeploy(context, existingAppsToBackup);
+
+        appsToUndeploy.removeAll(existingAppsToBackup);
+        appsToUndeploy.addAll(backupAppsToUndeploy);
+
         getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, SecureSerialization.toJson(appsToUndeploy));
 
-        setComponentsToUndeploy(context, servicesToDelete, appsToUndeploy, subscriptionsToDelete, serviceKeysToDelete);
+        setComponentsToUndeploy(context, servicesToDelete, appsToUndeploy, subscriptionsToDelete, serviceKeysToDelete,
+                                existingAppsToBackup);
 
         getStepLogger().debug(Messages.CLOUD_UNDEPLOY_MODEL_BUILT);
         return StepPhase.DONE;
@@ -165,11 +183,13 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     }
 
     private void setComponentsToUndeploy(ProcessContext context, List<String> services, List<CloudApplication> apps,
-                                         List<ConfigurationSubscription> subscriptions, List<DeployedMtaServiceKey> serviceKeys) {
+                                         List<ConfigurationSubscription> subscriptions, List<DeployedMtaServiceKey> serviceKeys,
+                                         List<CloudApplication> appsToBackup) {
         context.setVariable(Variables.SUBSCRIPTIONS_TO_DELETE, subscriptions);
         context.setVariable(Variables.SERVICES_TO_DELETE, services);
         context.setVariable(Variables.APPS_TO_UNDEPLOY, apps);
         context.setVariable(Variables.SERVICE_KEYS_TO_DELETE, serviceKeys);
+        context.setVariable(Variables.APPS_TO_BACKUP, appsToBackup);
     }
 
     private List<String> computeServicesToDelete(ProcessContext context, List<DeployedMtaApplication> appsWithoutChange,
@@ -337,6 +357,17 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         // The deployed module may be in the list of MTA modules, but the actual application that was created from it may have a
         // different name:
         return !appsToDeploy.contains(deployedMtaApplication.getName());
+    }
+
+    private List<CloudApplication> computeExistingAppsToBackup(ProcessContext context, List<CloudApplication> appsToUndeploy,
+                                                               ExistingAppsToBackupCalculator existingAppsToBackupCalculator) {
+        boolean shouldBackupExistingApps = context.getVariable(Variables.SHOULD_BACKUP_PREVIOUS_VERSION);
+        if (!shouldBackupExistingApps) {
+            return Collections.emptyList();
+        }
+        String mtaVersionOfCurrentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR)
+                                                      .getVersion();
+        return existingAppsToBackupCalculator.calculateExistingAppsToBackup(appsToUndeploy, mtaVersionOfCurrentDescriptor);
     }
 
     private List<CloudApplication> computeAppsToUndeploy(List<DeployedMtaApplication> modulesToUndeploy, CloudControllerClient client) {

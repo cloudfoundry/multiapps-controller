@@ -11,9 +11,6 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -57,6 +54,9 @@ import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
 import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named("updateSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

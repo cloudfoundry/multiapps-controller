@@ -16,9 +16,9 @@ public class ServiceMetadataBuilder {
 
     public static Metadata build(DeploymentDescriptor deploymentDescriptor, String namespace, Resource resource) {
         String mtaResourceAnnotation = buildMtaResourceAnnotation(resource);
-        
+
         Builder builder = MtaMetadataBuilder.init(deploymentDescriptor, namespace)
-                                  .annotation(MtaMetadataAnnotations.MTA_RESOURCE, mtaResourceAnnotation);
+                                            .annotation(MtaMetadataAnnotations.MTA_RESOURCE, mtaResourceAnnotation);
 
         return builder.build();
     }

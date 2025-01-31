@@ -2,21 +2,27 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import static java.text.MessageFormat.format;
 
+import java.text.MessageFormat;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
+import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
+import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.util.LoggingUtil;
 import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
@@ -32,6 +38,11 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 @Named
 public class OperationInFinalStateHandler {
 
@@ -45,6 +56,8 @@ public class OperationInFinalStateHandler {
     private FileService fileService;
     @Inject
     private HistoricOperationEventService historicOperationEventService;
+    @Inject
+    private DescriptorBackupService descriptorBackupService;
     @Inject
     private OperationTimeAggregator operationTimeAggregator;
     @Inject
@@ -61,6 +74,7 @@ public class OperationInFinalStateHandler {
         safeExecutor.execute(() -> deleteDeploymentFiles(correlationId, execution));
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(execution));
         safeExecutor.execute(() -> setOperationState(correlationId, state));
+        safeExecutor.execute(() -> deletePreviousBackupDescriptors(execution, processType, state));
         safeExecutor.execute(() -> trackOperationDuration(correlationId, execution, processType, state));
     }
 
@@ -112,6 +126,88 @@ public class OperationInFinalStateHandler {
 
     private HistoricOperationEvent.EventType toEventType(State state) {
         return state == Operation.State.FINISHED ? HistoricOperationEvent.EventType.FINISHED : HistoricOperationEvent.EventType.ABORTED;
+    }
+
+    private void deletePreviousBackupDescriptors(DelegateExecution execution, ProcessType processType, Operation.State state) {
+        if (state != Operation.State.FINISHED) {
+            return;
+        }
+
+        String mtaId = VariableHandling.get(execution, Variables.MTA_ID);
+        String spaceId = VariableHandling.get(execution, Variables.SPACE_GUID);
+        String mtaNamespace = VariableHandling.get(execution, Variables.MTA_NAMESPACE);
+
+        if (processType == ProcessType.UNDEPLOY) {
+            DeployedMta deployedMta = VariableHandling.get(execution, Variables.DEPLOYED_MTA);
+            Optional<String> mtaVersion = getMtaVersionOfDeployedApplication(deployedMta);
+
+            if (mtaVersion.isPresent()) {
+                LOGGER.info(MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTOR_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_VERSION_3,
+                                                 mtaId, spaceId, mtaNamespace, mtaVersion.get()));
+                descriptorBackupService.createQuery()
+                                       .mtaId(mtaId)
+                                       .spaceId(spaceId)
+                                       .namespace(mtaNamespace)
+                                       .mtaVersion(mtaVersion.get())
+                                       .delete();
+            }
+            return;
+        }
+
+        List<String> mtaVersionsToSkipDeletion = new ArrayList<>();
+        String mtaVersionOfCurrentDescriptor = VariableHandling.get(execution, Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR)
+                                                               .getVersion();
+        if (mtaVersionOfCurrentDescriptor != null) {
+            mtaVersionsToSkipDeletion.add(mtaVersionOfCurrentDescriptor);
+        }
+        DeployedMta backupMta = VariableHandling.get(execution, Variables.BACKUP_MTA);
+        DeployedMta deployedMta = VariableHandling.get(execution, Variables.DEPLOYED_MTA);
+        List<CloudApplication> appsToUndeploy = VariableHandling.get(execution, Variables.APPS_TO_UNDEPLOY);
+        addMtaVersionsOfDeployedMtas(mtaVersionsToSkipDeletion, backupMta, appsToUndeploy);
+        addMtaVersionsOfDeployedMtas(mtaVersionsToSkipDeletion, deployedMta, appsToUndeploy);
+
+        if (mtaVersionsToSkipDeletion.isEmpty()) {
+            return;
+        }
+
+        LOGGER.info(MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTORS_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_SKIP_VERSIONS_3, mtaId,
+                                         spaceId, mtaNamespace, mtaVersionsToSkipDeletion));
+        descriptorBackupService.createQuery()
+                               .mtaId(mtaId)
+                               .spaceId(spaceId)
+                               .namespace(mtaNamespace)
+                               .mtaVersionsNotMatch(mtaVersionsToSkipDeletion)
+                               .delete();
+
+    }
+
+    private void addMtaVersionsOfDeployedMtas(List<String> mtaVersionsToSkipDeletion, DeployedMta deployedMta,
+                                              List<CloudApplication> appsToUndeploy) {
+        Optional<String> mtaVersion = getMtaVersionOfDeployedApplication(deployedMta);
+        if (mtaVersion.isPresent() && !isAppMarkedForDeletion(mtaVersion.get(), appsToUndeploy)) {
+            mtaVersionsToSkipDeletion.add(mtaVersion.get());
+        }
+    }
+
+    private Optional<String> getMtaVersionOfDeployedApplication(DeployedMta deployedMta) {
+        if (deployedMta != null && !deployedMta.getApplications()
+                                               .isEmpty()) {
+            DeployedMtaApplication deployedApplication = deployedMta.getApplications()
+                                                                    .get(0);
+            return Optional.ofNullable(deployedApplication.getV3Metadata()
+                                                          .getAnnotations()
+                                                          .get(MtaMetadataAnnotations.MTA_VERSION));
+        }
+        return Optional.empty();
+    }
+
+    private boolean isAppMarkedForDeletion(String appMtaVersion, List<CloudApplication> appsToUndeploy) {
+        return appsToUndeploy.stream()
+                             .map(CloudApplication::getV3Metadata)
+                             .map(Metadata::getAnnotations)
+                             .filter(annotationEntries -> annotationEntries.get(MtaMetadataAnnotations.MTA_VERSION) != null)
+                             .anyMatch(annotationEntries -> annotationEntries.get(MtaMetadataAnnotations.MTA_VERSION)
+                                                                             .equals(appMtaVersion));
     }
 
     private void trackOperationDuration(String correlationId, DelegateExecution execution, ProcessType processType, Operation.State state) {

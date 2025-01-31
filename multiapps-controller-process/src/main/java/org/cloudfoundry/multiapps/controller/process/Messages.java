@@ -73,6 +73,11 @@ public class Messages {
     public static final String NOT_BOOLEAN_PARAMETER_VALUE = "Value \"{0}\" of parameter \"{1}\" is not boolean";
     public static final String ERROR_OCCURRED_DURING_APPLICATION_UPLOAD_0 = "Error occurred during application upload: {0}";
     public static final String COMPRESSION_METHOD_WITH_VALUE_0_NOT_FOUND = "Compression method with value: {0} not found";
+    public static final String ROLLBACK_OF_MTA_ID_0_CANNOT_BE_DONE_MISSING_DEPLOYED_MTA = "Rollback of mta id \"{0}\" cannot be done, missing deployed/backup mta";
+    public static final String MTA_VERSION_NOT_SET_IN_APPLICATION_ROLLBACK_CANNOT_BE_DONE = "MTA version is not set in the application metadata and rollback operation cannot be done";
+    public static final String ROLLBACK_OPERATION_CANNOT_BE_DONE_BACKUP_APPLICATIONS_HAVE_DIFFERENT_MTA_VERSIONS = "Rollback operation cannot be done, backup applications have different MTA versions!";
+    public static final String ROLLBACK_MTA_ID_0_CANNOT_BE_DONE_MISSING_DESCRIPTOR = "Rollback of mta id \"{0}\" cannot be done, missing descriptor to perform the operation";
+    public static final String BACKUP_PREVIOUS_VERSION_FLAG_AND_APPLY_NAMESPACE_AS_SUFFIX_NOT_SUPPORTED = "Backup previous version flag and apply namespace as suffix is not supported combination";
 
     // Audit log messages
 
@@ -183,6 +188,9 @@ public class Messages {
     public static final String ERROR_WHILE_DETERMINING_SERVICE_KEYS_TO_RECREATE = "Error while determining service keys to recreate";
     public static final String ERROR_WHILE_UPDATING_SERVICE_KEYS_METADATA = "Error while updating service keys metadata";
     public static final String ERROR_WHILE_POLLING_SERVICE_KEY_OPERATION_0 = "Error while polling service key operation \"{0}\"";
+    public static final String ERROR_WHILE_BACKUP_APPLICATION = "Error while backup applcation \"{0}\"";
+    public static final String ERROR_DURING_PREPARATION_BACKUP_MTA = "Error during preparation backup mta for rollback deployment";
+    public static final String ERROR_DURING_REMOVAL_MTA_BACKUP_METADATA = "Error during removal of mta backup metadata";
 
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service \"{0}\"";
@@ -312,6 +320,9 @@ public class Messages {
     public static final String SKIPPING_APPLICATION_0_DIGEST_CALCULATION = "Skipping application: \"{0}\" digest calculation";
     public static final String TIME_ELAPSED_FOR_UPLOAD_0_IN_MILLIS = "Time elapsed for upload: {0} in millis";
     public static final String TIME_ELAPSED_FOR_APP_BINARY_DOWNLOAD_0_IN_MILLIS = "Time elapsed for app binary download: {0} in millis";
+    public static final String DELETING_BACKUP_DESCRIPTOR_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_VERSION_3 = "Deleting backup descriptor with mta id \"{0}\" in space \"{1}\" namespace \"{2}\" and version \"{3}\"";
+    public static final String DELETING_BACKUP_DESCRIPTORS_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_SKIP_VERSIONS_3 = "Deleting backup descriptors with mta id \"{0}\" in space \"{1}\" namespace \"{2}\" and skip the following mta versions \"{3}\"";
+    public static final String EXISTING_APPS_TO_BACKUP = "Existing apps to backup: {0}";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
@@ -382,6 +393,10 @@ public class Messages {
     public static final String LIVE_APPLICATION_NOT_DETECTED_DURING_ROLLING_INSTANCE_UPDATE = "Live application not detected during rolling instance update";
     public static final String NO_DEPLOYED_MTA_DETECTED_DURING_ROLLING_INSTANCE_UPDATE = "No deployed MTA detected during rolling instance update";
     public static final String THE_REQUIRED_APPLICATION_NOT_FOUND_IN_THE_DETECTED_MTA = "The required application not found in the detected MTA";
+    public static final String RENAMING_APPLICATION_0_TO_1_TO_BE_USED_FOR_ROLLBACK = "Renaming application \"{0}\" to \"{1}\" to be used for rollback";
+    public static final String PREPARE_TO_ROLLBACK_MTA = "Prepare to rollback mta \"{0}\"";
+    public static final String RENAME_CURRENTLY_DEPLOYED_APPLICATION_0_TO_1 = "Rename currently deployed application \"{0}\" to \"{1}\"";
+    public static final String RENAME_BACKUP_APPLICATION_0_TO_1 = "Rename backup application \"{0}\" to \"{1}\"";
 
     // DEBUG log messages
     public static final String ENTERING_TESTING_PHASE = "Entering testing phase";
@@ -695,7 +710,7 @@ public class Messages {
     public static final String SERVICE_KEYS_METADATA_UPDATE_DONE = "Service keys updated with labels and annotations.";
     public static final String POLLING_SERVICE_KEY_0_WITH_STATE_1 = "Polling service key \"{0}\" with state \"{1}\"";
     public static final String SERVICE_BINDING_HAS_ALREADY_BEEN_DELETED = "Service binding has already been deleted";
-    public static final String SERVICE_BINDING_0_SCHEDULED_FOR_DELETION_IS_IN_STATE_0 = "Service binding \"{0}\" scheduled for deletion is in state \"{0}\"";
+    public static final String SERVICE_BINDING_0_SCHEDULED_FOR_DELETION_IS_IN_STATE_0 = "Service binding \"{0}\" scheduled for deletion is in state \"{1}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_WAITING_0 = "Service keys scheduled for waiting: \"{0}\"";
     public static final String WILL_UNBIND_SERVICE_INSTANCE_0_FROM_APP_1 = "Will unbind service instance \"{0}\" from app \"{1}\"";
     public static final String DELETING_PROCESS_WITH_ID_0 = "Deleting process with id: {0}";
@@ -747,6 +762,13 @@ public class Messages {
     public static final String MTA_ARCHIVE_REQUIRES_0_MESSAGE = "MTA Archive Requires: {0}";
     public static final String MTA_ARCHIVE_RESOURCES_0_MESSAGE = "MTA Archive Resources: {0}";
     public static final String MODULE_0_CONTENT_IS_A_DIRECTORY = "Module: \"{0}\" content is a directory";
+    public static final String DETECTING_BACKUP_MTA_BY_ID_AND_NAMESPACE = "Detecting backup mta by id \"{0}\" and namespace \"{1}\"";
+    public static final String DETECTED_BACKUP_MTA = "Detected backup mta: {0}";
+    public static final String DELETING_METADATA_OF_BACKUP_MTA_APPLICATIONS = "Deleting metadata of backup mta applications";
+    public static final String REMOVE_MTA_BACKUP_METADATA_FOR_APPLICATION_0 = "Remove mta backup metadata for application \"{0}\"";
+    public static final String RENAME_APPLICATIONS_FOR_ROLLBACK = "Rename applications for rollback";
+    public static final String DELETING_BACKUP_DESCRIPTORS_STORED_BEFORE_0 = "Deleting backup descriptors stored before \"{0}\"";
+    public static final String DELETED_BACKUP_DESCRIPTORS_0 = "Deleted backup descriptors: {0}";
 
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";

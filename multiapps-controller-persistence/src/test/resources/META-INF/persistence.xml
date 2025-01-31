@@ -11,6 +11,7 @@
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.ProgressMessageDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.AccessTokenDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.TextAttributeConverter</class>
+        <class>org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptorDto</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />

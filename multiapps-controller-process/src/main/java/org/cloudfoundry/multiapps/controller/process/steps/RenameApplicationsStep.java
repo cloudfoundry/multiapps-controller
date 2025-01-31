@@ -1,22 +1,25 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.common.ConflictException;
+import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationNameSuffixAppender;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
+import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
+import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationColorDetector;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationProductizationStateUpdater;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationProductizationStateUpdaterBasedOnAge;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationProductizationStateUpdaterBasedOnColor;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -24,12 +27,17 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 @Named("renameApplicationsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class RenameApplicationsStep extends SyncFlowableStep {
 
     @Inject
     private ApplicationColorDetector applicationColorDetector;
+    @Inject
+    private ProcessTypeParser processTypeParser;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -39,6 +47,10 @@ public class RenameApplicationsStep extends SyncFlowableStep {
     }
 
     private RenameFlow createFlow(ProcessContext context) {
+        if (processTypeParser.getProcessType(context.getExecution())
+                             .equals(ProcessType.ROLLBACK_MTA)) {
+            return new RenameApplicationsForRollbackFlow();
+        }
         if (context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY)) {
             return new RenameApplicationsWithOldNewSuffix();
         }
@@ -142,6 +154,47 @@ public class RenameApplicationsStep extends SyncFlowableStep {
         ApplicationNameSuffixAppender appender = new ApplicationNameSuffixAppender(suffix);
         descriptor.accept(appender);
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
+    }
+
+    class RenameApplicationsForRollbackFlow implements RenameFlow {
+
+        @Override
+        public void execute(ProcessContext context) {
+            getStepLogger().debug(Messages.RENAME_APPLICATIONS_FOR_ROLLBACK);
+            DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
+            DeployedMta backupMta = context.getVariable(Variables.BACKUP_MTA);
+            CloudControllerClient client = context.getControllerClient();
+
+            List<DeployedMtaApplication> deployedMtaApplications = new ArrayList<>();
+            for (DeployedMtaApplication deployedMtaApplication : deployedMta.getApplications()) {
+                String deployedApplicationName = deployedMtaApplication.getName();
+                String toBeDeletedApplicationName = NameUtil.computeValidApplicationName(deployedApplicationName,
+                                                                                         Constants.MTA_FOR_DELETION_PREFIX, true, false);
+                getStepLogger().info(Messages.RENAME_CURRENTLY_DEPLOYED_APPLICATION_0_TO_1, deployedApplicationName,
+                                     toBeDeletedApplicationName);
+                client.rename(deployedApplicationName, toBeDeletedApplicationName);
+                deployedMtaApplications.add(ImmutableDeployedMtaApplication.copyOf(deployedMtaApplication)
+                                                                           .withName(toBeDeletedApplicationName));
+            }
+
+            List<DeployedMtaApplication> backupMtaApplications = new ArrayList<>();
+            for (DeployedMtaApplication backupMtaApplication : backupMta.getApplications()) {
+                String backupApplicationName = backupMtaApplication.getName();
+                String applicationNameWithoutMtaBackupNamespace = backupApplicationName.substring(NameUtil.getNamespacePrefix(Constants.MTA_BACKUP_NAMESPACE)
+                                                                                                          .length());
+                getStepLogger().info(Messages.RENAME_BACKUP_APPLICATION_0_TO_1, backupApplicationName,
+                                     applicationNameWithoutMtaBackupNamespace);
+                client.rename(backupApplicationName, applicationNameWithoutMtaBackupNamespace);
+                backupMtaApplications.add(ImmutableDeployedMtaApplication.copyOf(backupMtaApplication)
+                                                                         .withName(applicationNameWithoutMtaBackupNamespace));
+            }
+
+            context.setVariable(Variables.DEPLOYED_MTA, ImmutableDeployedMta.copyOf(deployedMta)
+                                                                            .withApplications(deployedMtaApplications));
+            context.setVariable(Variables.BACKUP_MTA, ImmutableDeployedMta.copyOf(backupMta)
+                                                                          .withApplications(backupMtaApplications));
+        }
+
     }
 
 }

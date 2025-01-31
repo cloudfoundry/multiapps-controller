@@ -8,9 +8,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.Messages;
@@ -20,18 +17,22 @@ import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
 import org.cloudfoundry.multiapps.controller.core.util.SecurityUtil;
+import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
+import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
-import org.cloudfoundry.multiapps.mta.model.AuditableConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloudfoundry.client.facade.CloudCredentials;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 public class DataTerminationService {
@@ -58,6 +59,8 @@ public class DataTerminationService {
     private WebClientFactory webClientFactory;
     @Inject
     private MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
+    @Inject
+    private DescriptorBackupService descriptorBackupService;
 
     private static void log(Exception e) {
         LOGGER.error(format(Messages.ERROR_DURING_DATA_TERMINATION_0, e.getMessage()), e);
@@ -70,6 +73,7 @@ public class DataTerminationService {
             SAFE_EXECUTOR.execute(() -> deleteConfigurationSubscriptionOrphanData(spaceId));
             SAFE_EXECUTOR.execute(() -> deleteConfigurationEntryOrphanData(spaceId));
             SAFE_EXECUTOR.execute(() -> deleteUserOperationsOrphanData(spaceId));
+            SAFE_EXECUTOR.execute(() -> deletedMtaDescriptorsOrphanData(spaceId));
         }
         if (!spaceEventsToBeDeleted.isEmpty()) {
             SAFE_EXECUTOR.execute(() -> deleteSpaceIdsLeftovers(spaceEventsToBeDeleted));
@@ -140,6 +144,17 @@ public class DataTerminationService {
         operationService.createQuery()
                         .spaceId(deleteEventSpaceId)
                         .delete();
+    }
+
+    private void deletedMtaDescriptorsOrphanData(String spaceId) {
+        List<BackupDescriptor> backupDescriptors = descriptorBackupService.createQuery()
+                                                                          .spaceId(spaceId)
+                                                                          .list();
+        backupDescriptors.forEach(descriptor -> mtaConfigurationPurgerAuditLog.logDeleteBackupDescriptor(spaceId, descriptor));
+        int deletedMtaDescriptorsCount = descriptorBackupService.createQuery()
+                                                                .spaceId(spaceId)
+                                                                .delete();
+        LOGGER.info(MessageFormat.format(Messages.DELETED_ORPHANED_MTA_DESCRIPTORS_COUNT, deletedMtaDescriptorsCount));
     }
 
     private void deleteSpaceIdsLeftovers(List<String> spaceIds) {

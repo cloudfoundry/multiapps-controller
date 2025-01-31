@@ -22,10 +22,10 @@ public class ApplicationMetadataBuilder {
         String mtaServicesAnnotation = buildBoundMtaServicesAnnotation(services);
 
         Metadata.Builder builder = MtaMetadataBuilder.init(deploymentDescriptor, namespace)
-                                           .annotation(MtaMetadataAnnotations.MTA_MODULE, mtaModuleAnnotation)
-                                           .annotation(MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
-                                                       mtaModuleProvidedDependenciesAnnotation)
-                                           .annotation(MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES, mtaServicesAnnotation);
+                                                     .annotation(MtaMetadataAnnotations.MTA_MODULE, mtaModuleAnnotation)
+                                                     .annotation(MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
+                                                                 mtaModuleProvidedDependenciesAnnotation)
+                                                     .annotation(MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES, mtaServicesAnnotation);
 
         return builder.build();
     }

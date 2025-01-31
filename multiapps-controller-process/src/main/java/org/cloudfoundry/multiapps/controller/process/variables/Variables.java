@@ -833,6 +833,7 @@ public interface Variables {
                                                                                                                                    .type(new TypeReference<>() {
                                                                                                                                    })
                                                                                                                                    .build();
+
     Variable<Boolean> SKIP_APP_DIGEST_CALCULATION = ImmutableSimpleVariable.<Boolean> builder()
                                                                            .name("skipAppDigestCalculation")
                                                                            .defaultValue(false)
@@ -858,4 +859,25 @@ public interface Variables {
                                                                   .name("mustResetTimeout")
                                                                   .defaultValue(false)
                                                                   .build();
+
+    Variable<Boolean> SHOULD_BACKUP_PREVIOUS_VERSION = ImmutableSimpleVariable.<Boolean> builder()
+                                                                              .name("shouldBackupPreviousVersion")
+                                                                              .defaultValue(false)
+                                                                              .build();
+
+    Variable<List<CloudApplication>> APPS_TO_BACKUP = ImmutableJsonStringListVariable.<CloudApplication> builder()
+                                                                                     .name("appsToBackup")
+                                                                                     .type(Variable.typeReference(CloudApplication.class))
+                                                                                     .defaultValue(Collections.emptyList())
+                                                                                     .build();
+
+    Variable<DeployedMta> BACKUP_MTA = ImmutableJsonBinaryVariable.<DeployedMta> builder()
+                                                                  .name("backupMta")
+                                                                  .type(Variable.typeReference(DeployedMta.class))
+                                                                  .build();
+
+    Variable<Boolean> PROCESS_USER_PROVIDED_SERVICES = ImmutableSimpleVariable.<Boolean> builder()
+                                                                              .name("processUserProvidedServices")
+                                                                              .defaultValue(false)
+                                                                              .build();
 }

@@ -6,11 +6,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.CachedMap;
@@ -22,6 +22,9 @@ import org.springframework.beans.factory.DisposableBean;
 
 import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 /**
  * Provides functionality for persisting, updating and removing tokens from a token store
  */
@@ -32,6 +35,11 @@ public class TokenService implements DisposableBean {
     private final TokenParserChain tokenParserChain;
     private final Duration tokenExpirationTime = Duration.ofMinutes(10);
     private final CachedMap<String, OAuth2AccessTokenWithAdditionalInfo> cachedTokens = new CachedMap<>(tokenExpirationTime);
+    private final ExecutorService threadPoolForTokensDeletion = new ThreadPoolExecutor(1,
+                                                                                       3,
+                                                                                       30,
+                                                                                       TimeUnit.SECONDS,
+                                                                                       new LinkedBlockingQueue<>());
 
     @Inject
     public TokenService(AccessTokenService accessTokenService, TokenParserChain tokenParserChain) {
@@ -83,8 +91,7 @@ public class TokenService implements DisposableBean {
         if (accessTokens.isEmpty()) {
             return;
         }
-        Executors.newSingleThreadExecutor()
-                 .submit(() -> doDeleteTokens(accessTokens));
+        threadPoolForTokensDeletion.submit(() -> doDeleteTokens(accessTokens));
     }
 
     private void doDeleteTokens(List<AccessToken> tokens) {
