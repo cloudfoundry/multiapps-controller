@@ -46,8 +46,12 @@ class CloudDataSourceFactoryBeanTest {
                .thenReturn(service);
         Mockito.when(configuration.getDbConnectionThreads())
                .thenReturn(DB_CONNECTION_THREADS);
-        Mockito.when(dataSourceFactory.createDataSource(service, DB_CONNECTION_THREADS))
-               .thenReturn(dataSource);
+        Mockito.when(configuration.getApplicationGuid())
+               .thenReturn("1");
+        Mockito.when(configuration.getApplicationInstanceIndex())
+               .thenReturn(0);
+        Mockito.when(dataSourceFactory.createDataSource(service, DB_CONNECTION_THREADS, "ds-1/0"))
+               .thenReturn(dataSource, null, null);
 
         testedFactory.afterPropertiesSet();
 

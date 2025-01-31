@@ -5,10 +5,10 @@ applications:
     memory: 1024M
     instances: 1
     path: ../${project.build.finalName}.war
-    buildpack: sap_java_buildpack_jakarta
+    buildpack: https://github.com/cloudfoundry/java-buildpack.git
     timeout: 180 # If the landscape and/or our Liquibase changes are very slow, the application may take longer than 60 seconds to start up.
     health-check-type: http
-    health-check-http-endpoint: /public/ping
+    health-check-http-endpoint: /public/application-health
     services:
       - deploy-service-database
     env:
@@ -16,7 +16,10 @@ applications:
       XS_TYPE: CF
       DB_TYPE: POSTGRESQL
       CATALINA_OPTS: "-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
-      JBP_CONFIG_OPEN_JDK_JRE: "{ jre: { version: 17.+ } }"
+      JBP_CONFIG_SAP_MACHINE_JRE: '{ jre: { version: "17.+" } }'
+      JBP_CONFIG_TOMCAT: '{ tomcat: { version: 10.+ } }'
+      JBP_CONFIG_COMPONENTS: '{jres: ["JavaBuildpack::Jre::SapMachineJRE"]}'
+      JAVA_OPTS: '-XX:+HeapDumpOnOutOfMemoryError -XX:MaxDirectMemorySize=192m -Xshare:off -XX:MaxMetaspaceSize=300m -XX:+ErrorFileToStdout -XX:TrimNativeHeapInterval=10000 -Dio.netty.noPreferDirect=true -Dio.netty.maxDirectMemory=0'
       PLATFORM: >
         {
           "name": "CLOUD-FOUNDRY",

@@ -6,15 +6,18 @@ import java.util.function.Supplier;
 public class CachedObject<T> {
 
     private T object;
-    private final long expirationTimestamp;
+    private long expirationTimestamp;
+
+    private final Duration expirationDuration;
 
     public CachedObject(Duration expirationDuration) {
-        this(null, System.currentTimeMillis() + expirationDuration.toMillis());
+        this(null, expirationDuration);
     }
 
-    public CachedObject(T object, long expirationTimestamp) {
+    public CachedObject(T object, Duration expirationDuration) {
         this.object = object;
-        this.expirationTimestamp = expirationTimestamp;
+        this.expirationDuration = expirationDuration;
+        this.expirationTimestamp = System.currentTimeMillis() + expirationDuration.toMillis();
     }
 
     public synchronized T get() {
@@ -23,9 +26,15 @@ public class CachedObject<T> {
 
     public synchronized T getOrRefresh(Supplier<T> refresher) {
         if (isExpired() || object == null) {
-            return object = refresher.get();
+            expirationTimestamp = System.currentTimeMillis() + expirationDuration.toMillis();
+            object = refresher.get();
         }
         return object;
+    }
+
+    public synchronized void refresh(Supplier<T> refresher) {
+        expirationTimestamp = System.currentTimeMillis() + expirationDuration.toMillis();
+        object = refresher.get();
     }
 
     public boolean isExpired() {

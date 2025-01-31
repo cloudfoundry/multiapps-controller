@@ -3,12 +3,11 @@ package org.cloudfoundry.multiapps.controller.web.resources;
 import java.text.MessageFormat;
 import java.util.concurrent.CompletableFuture;
 
-import jakarta.inject.Inject;
-
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationShutdown;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableApplicationShutdown;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
+import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -18,8 +17,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.inject.Inject;
+
 @RestController
-@RequestMapping("/rest/admin/shutdown")
+@RequestMapping(value = Constants.Resources.APPLICATION_SHUTDOWN)
 public class ApplicationShutdownResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationShutdownResource.class);
