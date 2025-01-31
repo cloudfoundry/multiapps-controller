@@ -51,6 +51,7 @@ class BuildApplicationDeployModelStepTest extends SyncFlowableStepTest<BuildAppl
         context.setVariable(Variables.MODULE_TO_DEPLOY, module);
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, completeDeploymentDescriptor);
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, completeDeploymentDescriptor);
         when(moduleToDeployHelper.isApplication(any())).thenReturn(true);
     }
 
