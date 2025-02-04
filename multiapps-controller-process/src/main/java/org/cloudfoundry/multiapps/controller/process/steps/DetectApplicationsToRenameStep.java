@@ -6,8 +6,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.inject.Named;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -22,6 +20,8 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+
+import jakarta.inject.Named;
 
 @Named("detectApplicationsToRenameStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -54,7 +54,7 @@ public class DetectApplicationsToRenameStep extends SyncFlowableStep {
     private List<String> computeOldAppsToRename(DeployedMta deployedMta, List<String> selectedModules) {
         return deployedMta.getApplications()
                           .stream()
-                          .filter(app -> !BlueGreenApplicationNameSuffix.isSuffixContainedIn(app.getName()))
+                          .filter(app -> !BlueGreenApplicationNameSuffix.isLiveIdleSuffixContainedIn(app.getName()))
                           .filter(app -> isModuleSelectedForDeployment(app.getModuleName(), selectedModules))
                           .map(DeployedMtaApplication::getName)
                           .collect(Collectors.toList());
