@@ -31,7 +31,7 @@ public class PrepareApplicationForBackupStep extends SyncFlowableStep {
         String mtaUserNamespaceWithSystemNamespace = NameUtil.computeUserNamespaceWithSystemNamespace(Constants.MTA_BACKUP_NAMESPACE,
                                                                                                       mtaNamespace);
 
-        String newApplicationName = BlueGreenApplicationNameSuffix.removeSuffix(cloudApplication.getName());
+        String newApplicationName = BlueGreenApplicationNameSuffix.removeDoubleSuffixes(cloudApplication.getName());
         newApplicationName = NameUtil.computeValidApplicationName(newApplicationName, Constants.MTA_BACKUP_NAMESPACE, true, false);
 
         getStepLogger().info(Messages.RENAMING_APPLICATION_0_TO_1_TO_BE_USED_FOR_ROLLBACK, cloudApplication.getName(), newApplicationName);
