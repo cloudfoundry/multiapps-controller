@@ -1,14 +1,17 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
@@ -24,13 +27,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
-import jakarta.persistence.NoResultException;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.AsyncUploadResult;
 import org.cloudfoundry.multiapps.controller.api.model.FileMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableFileUrl;
+import org.cloudfoundry.multiapps.controller.api.model.ImmutableUserCredentials;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.FilesApiServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
@@ -44,7 +46,6 @@ import org.cloudfoundry.multiapps.controller.persistence.query.AsyncUploadJobsQu
 import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,6 +65,8 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import jakarta.persistence.NoResultException;
+
 class FilesApiServiceImplTest {
 
     private static final String MTA_ID = "anatz";
@@ -72,6 +75,10 @@ class FilesApiServiceImplTest {
     private static final String SPACE_GUID = "896e6be9-8217-4a1c-b938-09b30966157a";
     private static final String NAMESPACE = "custom-namespace";
     private static final String DIGEST_CHARACTER_TABLE = "123456789ABCDEF";
+    private static final String DECODED_URL_WITH_CREDENTIALS_IN_THE_UTL = "https://abc:abv@google.com";
+    private static final String DECODED_URL_WITH_CREDENTIALS_AND_AT_IN_THE_UTL = "https://abc:ab%40v@google.com";
+    private static final String ENCODED_URL_WITH_CREDENTIALS_AND_AT_IN_THE_UTL_AND_IN_PARAM = "https://abc:ab%40v@google.com/%40user";
+    private static final String DECODED_URL_WITH_CREDENTIALS_AND_AT_IN_THE_UTL_AND_IN_PARAM = "https://abc:ab@v@google.com/@user";
     @Mock
     private FileService fileService;
     @Mock
@@ -80,8 +87,6 @@ class FilesApiServiceImplTest {
     private MultipartFile file;
     @Mock
     private HttpClient httpClient;
-    @Mock
-    private FilesApiServiceAuditLog filesApiServiceAuditLog;
     @InjectMocks
     private final FilesApiServiceImpl testedClass = new FilesApiServiceImpl() {
         @Override
@@ -95,6 +100,8 @@ class FilesApiServiceImplTest {
                                                    .withWaitTimeBetweenRetriesInMillis(0);
         }
     };
+    @Mock
+    private FilesApiServiceAuditLog filesApiServiceAuditLog;
     @Mock
     private HttpResponse<InputStream> fileUrlResponse;
     @Mock(name = "deployFromUrlExecutor")
@@ -144,7 +151,7 @@ class FilesApiServiceImplTest {
     void testGetMtaFilesError() throws Exception {
         Mockito.when(fileService.listFiles(Mockito.eq(SPACE_GUID), Mockito.eq(null)))
                .thenThrow(new FileStorageException("error"));
-        Assertions.assertThrows(SLException.class, () -> testedClass.getFiles(SPACE_GUID, null));
+        assertThrows(SLException.class, () -> testedClass.getFiles(SPACE_GUID, null));
     }
 
     @Test
@@ -231,7 +238,8 @@ class FilesApiServiceImplTest {
         when(future.isDone()).thenReturn(true);
         prepareAsyncExecutor(future);
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE,
+                                                                                  ImmutableFileUrl.of(FILE_URL, null));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -322,7 +330,8 @@ class FilesApiServiceImplTest {
         when(future.isDone()).thenReturn(true);
         prepareAsyncExecutor(future);
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE,
+                                                                                  ImmutableFileUrl.of(FILE_URL, null));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -348,12 +357,12 @@ class FilesApiServiceImplTest {
         Future<?> runningTask = mock(Future.class);
         prepareAsyncExecutor(runningTask);
         when(uploadJobService.update(any(), any())).thenReturn(jobEntry);
-        ResponseEntity<Void> firstUpload = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> firstUpload = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL, null));
         String locationHeader = firstUpload.getHeaders()
                                            .getFirst(org.springframework.http.HttpHeaders.LOCATION);
         String createdJobId = locationHeader.substring(locationHeader.lastIndexOf("/") + 1);
         when(jobEntry.getId()).thenReturn(createdJobId);
-        ResponseEntity<Void> secondUpload = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> secondUpload = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL, null));
         assertEquals(HttpStatus.SEE_OTHER, secondUpload.getStatusCode());
     }
 
@@ -385,7 +394,8 @@ class FilesApiServiceImplTest {
         when(future.isDone()).thenReturn(true);
         prepareAsyncExecutor(future);
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE,
+                                                                                  ImmutableFileUrl.of(FILE_URL, null));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -432,7 +442,7 @@ class FilesApiServiceImplTest {
                                       .encodeToString(url.getBytes(StandardCharsets.UTF_8));
 
         ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE,
-                                                                                  ImmutableFileUrl.of(invalidFileUrl));
+                                                                                  ImmutableFileUrl.of(invalidFileUrl, null));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -460,6 +470,83 @@ class FilesApiServiceImplTest {
         ResponseEntity<AsyncUploadResult> uploadJobResponse = testedClass.getUploadFromUrlJob(SPACE_GUID, NAMESPACE, jobEntry.getId());
         assertEquals(AsyncUploadResult.JobStatus.ERROR, uploadJobResponse.getBody()
                                                                          .getStatus());
+    }
+
+    @Test
+    void testCallRemoteEndpointWithRetry_withSuccessfulCall() throws Exception {
+        HttpResponse<Object> response = Mockito.mock(HttpResponse.class);
+
+        when(httpClient.send(any(HttpRequest.class), any())).thenReturn(response);
+        when(response.statusCode()).thenReturn(HttpStatus.OK.value());
+
+        HttpResponse testResponce = testedClass.callRemoteEndpointWithRetry(httpClient, DECODED_URL_WITH_CREDENTIALS_IN_THE_UTL,
+                                                                            ImmutableUserCredentials.builder()
+                                                                                                    .build());
+        assertEquals(200, testResponce.statusCode());
+    }
+
+    @Test
+    void testCallRemoteEndpointWithRetry_withUnauthorizedResponce() throws Exception {
+        HttpResponse<Object> response = Mockito.mock(HttpResponse.class);
+
+        when(httpClient.send(any(HttpRequest.class), any())).thenReturn(response);
+        when(response.statusCode()).thenReturn(HttpStatus.UNAUTHORIZED.value());
+        when(response.body()).thenReturn(new ByteArrayInputStream("test".getBytes()));
+
+        SLException thrownException = assertThrows(SLException.class,
+                                                   () -> testedClass.callRemoteEndpointWithRetry(httpClient,
+                                                                                                 DECODED_URL_WITH_CREDENTIALS_IN_THE_UTL,
+                                                                                                 ImmutableUserCredentials.builder()
+                                                                                                                         .build()));
+
+        assertEquals("Credentials to https://google.com are wrong. Make sure that they are correct.", thrownException.getMessage());
+    }
+
+    @Test
+    void testCallRemoteEndpointWithRetry_withBadRequest() throws Exception {
+        HttpResponse<Object> response = Mockito.mock(HttpResponse.class);
+
+        when(httpClient.send(any(HttpRequest.class), any())).thenReturn(response);
+        when(response.statusCode()).thenReturn(HttpStatus.BAD_REQUEST.value());
+        when(response.body()).thenReturn(new ByteArrayInputStream("test".getBytes()));
+
+        SLException thrownException = assertThrows(SLException.class,
+                                                   () -> testedClass.callRemoteEndpointWithRetry(httpClient,
+                                                                                                 DECODED_URL_WITH_CREDENTIALS_AND_AT_IN_THE_UTL,
+                                                                                                 ImmutableUserCredentials.builder()
+                                                                                                                         .build()));
+
+        assertEquals("Error from remote MTAR endpoint ...google.com with status code 400, message: test", thrownException.getMessage());
+    }
+
+    @Test
+    void testCallRemoteEndpointWithRetry_withBadRequestAndAtInParam() throws Exception {
+        HttpResponse<Object> response = Mockito.mock(HttpResponse.class);
+
+        when(httpClient.send(any(HttpRequest.class), any())).thenReturn(response);
+        when(response.statusCode()).thenReturn(HttpStatus.BAD_REQUEST.value());
+        when(response.body()).thenReturn(new ByteArrayInputStream("test".getBytes()));
+
+        SLException thrownException = assertThrows(SLException.class,
+                                                   () -> testedClass.callRemoteEndpointWithRetry(httpClient,
+                                                                                                 ENCODED_URL_WITH_CREDENTIALS_AND_AT_IN_THE_UTL_AND_IN_PARAM,
+                                                                                                 ImmutableUserCredentials.builder()
+                                                                                                                         .build()));
+
+        assertEquals("Error from remote MTAR endpoint ...user with status code 400, message: test", thrownException.getMessage());
+    }
+
+    @Test
+    void testCallRemoteEndpointWithRetry_withDecodedUrl() throws Exception {
+        HttpResponse<Object> response = Mockito.mock(HttpResponse.class);
+
+        when(httpClient.send(any(HttpRequest.class), any())).thenReturn(response);
+        when(response.statusCode()).thenReturn(HttpStatus.BAD_REQUEST.value());
+        when(response.body()).thenReturn(new ByteArrayInputStream("test".getBytes()));
+
+        assertThrows(IllegalArgumentException.class,
+                     () -> testedClass.callRemoteEndpointWithRetry(httpClient, DECODED_URL_WITH_CREDENTIALS_AND_AT_IN_THE_UTL_AND_IN_PARAM,
+                                                                   null));
     }
 
     private void assertMetadataMatches(FileEntry expected, FileMetadata actual) {
