@@ -103,7 +103,9 @@ public class CustomServiceKeysClient extends CustomControllerClient {
 
         public Map<String, CloudServiceInstance> getIncludedServiceInstancesMapping() {
             List<Object> serviceInstances = getIncludedResources().getOrDefault("service_instances", Collections.emptyList());
+
             return serviceInstances.stream()
+                                   .distinct()
                                    .map(service -> (Map<String, Object>) service)
                                    .collect(Collectors.toMap(service -> (String) service.get("guid"), resourceMapper::mapService));
 

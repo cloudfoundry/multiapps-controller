@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+
+Name: config-bind.json
+MTA-Requires: anatz/my-required-application, anatz/my-required-application-2
+Content-Type: application/json
+
+Name: config.json
+MTA-Resource: parameters-service, parameters-service-2
+Content-Type: application/json

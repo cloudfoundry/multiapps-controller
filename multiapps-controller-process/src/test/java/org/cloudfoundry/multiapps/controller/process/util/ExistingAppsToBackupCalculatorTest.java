@@ -59,12 +59,12 @@ class ExistingAppsToBackupCalculatorTest {
     private static Stream<Arguments> testCalculateExistingAppsToBackup() {
         return Stream.of(
                          // (1) Already deployed application match version of current deployment descriptor
-                         Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "1")), Collections.emptyList(), "1",
+                         Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "1")), Collections.emptyList(), "1", true,
                                       List.of("app-1-live"), List.of()),
                          // (2) Current deployment descriptor version has different value than deployed mta
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "1"),
                                               new TestApplication("app-1", "app-1-idle", "2", ProductizationState.IDLE)),
-                                      Collections.emptyList(), "2", List.of("app-1-live", "app-1-idle"),
+                                      Collections.emptyList(), "2", true, List.of("app-1-live", "app-1-idle"),
                                       List.of(ImmutableCloudApplication.builder()
                                                                        .name("app-1-live")
                                                                        .v3Metadata(Metadata.builder()
@@ -74,41 +74,48 @@ class ExistingAppsToBackupCalculatorTest {
                                                                        .build())),
                          // (3) Current deployment descriptor match version of deployed and backup mta
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "1")),
-                                      List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "1", List.of("app-1-live"),
+                                      List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "1", true, List.of("app-1-live"),
                                       Collections.emptyList()),
                          // (4) Current deployment descriptor version has different value of deployed and backup mta
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "2")),
-                                      List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "3", List.of("app-1-live",
-                                                                                                                   "mta-backup-app-1"),
-                                      List.of(ImmutableCloudApplication.builder()
-                                                                       .name("app-1-live")
-                                                                       .v3Metadata(Metadata.builder()
-                                                                                           .annotation(MtaMetadataAnnotations.MTA_VERSION,
-                                                                                                       "2")
-                                                                                           .build())
-                                                                       .build())),
+                                      List.of(new TestApplication("app-1",
+                                                                  "mta-backup-app-1",
+                                                                  "1")),
+                                      "3", true, List.of("app-1-live", "mta-backup-app-1"), List.of(ImmutableCloudApplication.builder()
+                                                                                                                             .name("app-1-live")
+                                                                                                                             .v3Metadata(Metadata.builder()
+                                                                                                                                                 .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                                                                             "2")
+                                                                                                                                                 .build())
+                                                                                                                             .build())),
                          // (5) Current deployment descriptor match version of deployed mta only
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "2")),
-                                      List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "2", List.of("app-1-live"),
+                                      List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "2", true, List.of("app-1-live"),
                                       Collections.emptyList()),
                          // (6) Current deployment descriptor version match value of backup mta
                          Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "2")),
-                                      List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "1",
-                                      List.of("app-1-live", "app-1-idle"), Collections.emptyList()));
+                                      List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "1", true,
+                                      List.of("app-1-live", "app-1-idle"), Collections.emptyList()),
+                         // (7) Deployed mta does not have backup descriptor in db and won't be preserved
+                         Arguments.of(List.of(new TestApplication("app-1", "app-1", "1"), new TestApplication("app-2", "app-2", "1")),
+                                      Collections.emptyList(), "2", false, Collections.emptyList(), Collections.emptyList()));
     }
 
     @ParameterizedTest
     @MethodSource
     void testCalculateExistingAppsToBackup(List<TestApplication> deployedApplications, List<TestApplication> backupApplications,
-                                           String mtaVersionOfCurrentDescriptor, List<String> appNamesToUndeploy,
-                                           List<CloudApplication> expectedAppsToBackup) {
+                                           String mtaVersionOfCurrentDescriptor, boolean isDescriptorAvailableInDb,
+                                           List<String> appNamesToUndeploy, List<CloudApplication> expectedAppsToBackup) {
         DeployedMta deployedMta = getDeployedMta(deployedApplications);
         DeployedMta backupMta = getDeployedMta(backupApplications);
+
+        prepareContext(isDescriptorAvailableInDb);
 
         ExistingAppsToBackupCalculator calculator = new ExistingAppsToBackupCalculator(deployedMta, backupMta, descriptorBackupService);
 
         List<CloudApplication> appsToUndeploy = getAppsToUndeploy(deployedMta.getApplications(), appNamesToUndeploy);
-        List<CloudApplication> appsToBackup = calculator.calculateExistingAppsToBackup(appsToUndeploy, mtaVersionOfCurrentDescriptor);
+        List<CloudApplication> appsToBackup = calculator.calculateExistingAppsToBackup(context, appsToUndeploy,
+                                                                                       mtaVersionOfCurrentDescriptor);
 
         assertEquals(expectedAppsToBackup, appsToBackup);
     }
@@ -159,15 +166,7 @@ class ExistingAppsToBackupCalculatorTest {
                                      boolean isDescriptorAvailableInDb, List<CloudApplication> expectedAppsToUndeploy) {
         DeployedMta backupMta = getDeployedMta(deployedBackupApps);
 
-        when(context.getVariable(Variables.MTA_ID)).thenReturn(MTA_ID);
-        when(context.getVariable(Variables.SPACE_GUID)).thenReturn(SPACE_GUID);
-        when(descriptorBackupService.createQuery()).thenReturn(descriptorBackupQuery);
-        when(descriptorBackupQuery.mtaId(anyString())).thenReturn(descriptorBackupQuery);
-        when(descriptorBackupQuery.spaceId(anyString())).thenReturn(descriptorBackupQuery);
-        when(descriptorBackupQuery.namespace(any())).thenReturn(descriptorBackupQuery);
-        when(descriptorBackupQuery.mtaVersion(anyString())).thenReturn(descriptorBackupQuery);
-        when(descriptorBackupQuery.list()).thenReturn(isDescriptorAvailableInDb ? List.of(Mockito.mock(BackupDescriptor.class))
-            : Collections.emptyList());
+        prepareContext(isDescriptorAvailableInDb);
 
         ExistingAppsToBackupCalculator calculator = new ExistingAppsToBackupCalculator(null, backupMta, descriptorBackupService);
 
@@ -208,6 +207,18 @@ class ExistingAppsToBackupCalculatorTest {
                                                                  .build())
 
                                    .build();
+    }
+
+    private void prepareContext(boolean isDescriptorAvailableInDb) {
+        when(context.getVariable(Variables.MTA_ID)).thenReturn(MTA_ID);
+        when(context.getVariable(Variables.SPACE_GUID)).thenReturn(SPACE_GUID);
+        when(descriptorBackupService.createQuery()).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.mtaId(anyString())).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.spaceId(anyString())).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.namespace(any())).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.mtaVersion(anyString())).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.list()).thenReturn(isDescriptorAvailableInDb ? List.of(Mockito.mock(BackupDescriptor.class))
+            : Collections.emptyList());
     }
 
     private List<CloudApplication> getAppsToUndeploy(List<DeployedMtaApplication> deployedApplications, List<String> appNamesToUndeploy) {

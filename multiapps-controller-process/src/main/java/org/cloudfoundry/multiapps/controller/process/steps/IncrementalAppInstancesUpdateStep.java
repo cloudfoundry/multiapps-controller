@@ -148,8 +148,8 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
                                                         CloudApplicationExtended application, CloudControllerClient client) {
         if (idleApplicationInstances.size() >= application.getInstances()) {
             context.getStepLogger()
-                   .info(Messages.APPLICATION_0_ALREADY_SCALED_TO_THE_DESIRED_1_INSTANCES, application.getName(),
-                         application.getInstances());
+                   .info(Messages.APPLICATION_ALREADY_SCALED_TO_THE_DESIRED_OR_MORE_INSTANCES, application.getName(),
+                         application.getInstances(), idleApplicationInstances.size());
             enableAutoscaling(client, application);
             return StepPhase.DONE;
         }
@@ -188,7 +188,10 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
     public Duration getTimeout(ProcessContext context) {
         CloudApplicationExtended application = context.getVariable(Variables.APP_TO_PROCESS);
         Duration timeout = calculateTimeout(context, TimeoutType.START);
-        return Duration.ofSeconds(Math.min(timeout.getSeconds() * application.getInstances(), MAX_TIMEOUT));
+        int minRequiredInstances = Math.max(application.getInstances(), 1);
+        Duration calculatedTimeout = Duration.ofSeconds(Math.min(timeout.getSeconds() * minRequiredInstances, MAX_TIMEOUT));
+        getStepLogger().debug(Messages.CALCULATED_TIMEOUT_FOR_INCREMENTAL_APP_INSTANCES_UPDATE_0_SECONDS, calculatedTimeout.toSeconds());
+        return calculatedTimeout;
     }
 
 }

@@ -2,8 +2,6 @@ package org.cloudfoundry.multiapps.controller.web.resources;
 
 import java.sql.SQLException;
 
-import jakarta.servlet.ServletException;
-
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.ContentException;
@@ -22,6 +20,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
+import jakarta.servlet.ServletException;
+
 @ControllerAdvice
 public class CFExceptionMapper {
 
@@ -32,20 +32,19 @@ public class CFExceptionMapper {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String message = e.getMessage();
 
-        if (e instanceof CloudOperationException) {
-            status = ((CloudOperationException) e).getStatusCode();
+        if (e instanceof CloudOperationException cloudOperationException) {
+            status = cloudOperationException.getStatusCode();
         }
-        if (e instanceof ServletException) {
-            status = handleServletExceptions((ServletException) e);
+        if (e instanceof ServletException servletException) {
+            status = handleServletExceptions(servletException);
         }
-        if (e instanceof SLException) {
-            status = handleSLExceptions((SLException) e);
+        if (e instanceof SLException slException) {
+            status = handleSLExceptions(slException);
         }
-        if (e instanceof ResponseStatusException) {
-            ResponseStatusException rse = (ResponseStatusException) e;
-            HttpStatus httpStatus =  HttpStatus.valueOf(rse.getStatusCode().value());
-            status = httpStatus;
-            message = rse.getReason();
+        if (e instanceof ResponseStatusException responseStatusException) {
+            status = HttpStatus.valueOf(responseStatusException.getStatusCode()
+                                                               .value());
+            message = responseStatusException.getReason();
         }
         if (e instanceof SQLException || e instanceof PersistenceException) {
             message = Messages.TEMPORARY_PROBLEM_WITH_PERSISTENCE_LAYER;

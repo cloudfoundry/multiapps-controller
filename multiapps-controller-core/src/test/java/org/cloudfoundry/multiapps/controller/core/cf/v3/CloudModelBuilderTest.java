@@ -60,9 +60,9 @@ class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.c
     }
 
     @Override
-    protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-                                                                           boolean prettyPrinting, DeployedMta deployedMta,
-                                                                           AppSuffixDeterminer appSuffixDeterminer) {
+    protected ApplicationCloudModelBuilder
+              getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
+                                              AppSuffixDeterminer appSuffixDeterminer, boolean incrementalBlueGreen) {
         deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor,
                                                                new ResolverBuilder(),
                                                                new ResolverBuilder(),
@@ -78,6 +78,7 @@ class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.c
                                                                                                           .userMessageLogger(Mockito.mock(UserMessageLogger.class))
                                                                                                           .appSuffixDeterminer(appSuffixDeterminer)
                                                                                                           .client(client)
+                                                                                                          .incrementalInstancesUpdate(incrementalBlueGreen)
                                                                                                           .build();
     }
 
@@ -94,7 +95,7 @@ class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.c
                          AppSuffixDeterminer appSuffixDeterminer)
         throws Exception {
         initializeParameters(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, deployedMtaLocation, namespace,
-                             applyNamespace, mtaArchiveModules, mtaModules, deployedApps, appSuffixDeterminer);
+                             applyNamespace, mtaArchiveModules, mtaModules, deployedApps, appSuffixDeterminer, false);
         resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());
         Mockito.verify(userMessageLogger)
                .warn(Mockito.anyString(), Mockito.any());

@@ -1,14 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.cloudfoundry.multiapps.common.util.YamlParser;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
@@ -17,9 +8,21 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
 import org.cloudfoundry.multiapps.mta.model.Resource;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.Manifest;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MtaArchiveHelperTest {
 
@@ -28,7 +31,7 @@ class MtaArchiveHelperTest {
 
     public static Stream<Arguments> getParameters() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
             // (0) Without modules and resources
             Arguments.of("mta-archive-helper-1.mtar", "mta-archive-helper-1.yaml"),
             // (1) With modules and resources
@@ -56,12 +59,34 @@ class MtaArchiveHelperTest {
         assertEquals(descriptorDependencies, mtaDependencies);
     }
 
+    @Test
+    void testGetResourceFileAttributes() throws IOException {
+        Manifest manifest = getManifest();
+        helper = new MtaArchiveHelper(manifest);
+        Map<String, List<String>> result = helper.getResourceFileAttributes();
+        assertEquals(Map.of("config.json", List.of("parameters-service", "parameters-service-2")), result);
+    }
+
+    private Manifest getManifest() throws IOException {
+        InputStream fileInputStream = getClass().getResourceAsStream("mta-archive-helper-manifest.txt");
+        return new Manifest(fileInputStream);
+    }
+
+    @Test
+    void getRequiresDependenciesFileAttributes() throws IOException {
+        Manifest manifest = getManifest();
+        helper = new MtaArchiveHelper(manifest);
+        Map<String, List<String>> result = helper.getRequiresDependenciesFileAttributes();
+        assertEquals(Map.of("config-bind.json", List.of("anatz/my-required-application", "anatz/my-required-application-2")), result);
+    }
+
     private void initializeParameters(String mtarLocation, String deploymentDescriptorLocation) {
         InputStream stream = getClass().getResourceAsStream(mtarLocation);
         helper = new MtaArchiveHelper(ArchiveHandler.getManifest(stream, ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE));
 
         DescriptorParser parser = new DescriptorParser();
-        Map<String, Object> deploymentDescriptorMap = new YamlParser().convertYamlToMap(getClass().getResourceAsStream(deploymentDescriptorLocation));
+        Map<String, Object> deploymentDescriptorMap = new YamlParser().convertYamlToMap(
+            getClass().getResourceAsStream(deploymentDescriptorLocation));
         descriptor = parser.parseDeploymentDescriptor(deploymentDescriptorMap);
         helper.init();
     }

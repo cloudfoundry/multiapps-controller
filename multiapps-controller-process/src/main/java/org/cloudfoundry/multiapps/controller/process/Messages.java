@@ -128,18 +128,15 @@ public class Messages {
     public static final String ERROR_STOPPING_APP = "Error stopping application \"{0}\"";
     public static final String DOWNLOAD_APP_LOGS_FOR_MORE_INFO = "Download the application logs via the dmol command and check them for more information.";
     public static final String ERROR_STAGING_APP_0 = "Error staging application \"{0}\"";
-    public static final String ERROR_STAGING_APP_0_DESCRIPTION_1 = "Error staging application \"{0}\": {1}\n"
-        + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
+    public static final String ERROR_STAGING_APP_0_DESCRIPTION_1 = "Error staging application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Error publishing public provided dependencies";
     public static final String ERROR_STARTING_APP_0 = "Error starting application \"{0}\"";
-    public static final String ERROR_STARTING_APP_0_DESCRIPTION_1 = "Error starting application \"{0}\": {1}\n"
-        + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
+    public static final String ERROR_STARTING_APP_0_DESCRIPTION_1 = "Error starting application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_EXECUTING_APP_1 = "Error executing application \"{0}\"";
     public static final String ERROR_EXECUTING_APP_2 = "Error executing application \"{0}\": {1}";
     public static final String ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP = "Error preparing to execute tasks on application \"{0}\"";
     public static final String ERROR_PREPARING_TO_RESTART_SERVICE_BROKER_SUBSCRIBERS = "Error preparing to restart service broker subscribers";
-    public static final String ERROR_EXECUTING_TASK_0_ON_APP_1 = "Execution of task \"{0}\" on application \"{1}\" failed.\n"
-        + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
+    public static final String ERROR_EXECUTING_TASK_0_ON_APP_1 = "Execution of task \"{0}\" on application \"{1}\" failed.\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY = "Error detecting components to undeploy";
     public static final String ERROR_DELETING_IDLE_ROUTES = "Error deleting idle routes";
     public static final String ERROR_CREATING_SERVICE_BROKERS = "Error creating service brokers";
@@ -188,9 +185,13 @@ public class Messages {
     public static final String ERROR_WHILE_DETERMINING_SERVICE_KEYS_TO_RECREATE = "Error while determining service keys to recreate";
     public static final String ERROR_WHILE_UPDATING_SERVICE_KEYS_METADATA = "Error while updating service keys metadata";
     public static final String ERROR_WHILE_POLLING_SERVICE_KEY_OPERATION_0 = "Error while polling service key operation \"{0}\"";
+
     public static final String ERROR_WHILE_BACKUP_APPLICATION = "Error while backup applcation \"{0}\"";
     public static final String ERROR_DURING_PREPARATION_BACKUP_MTA = "Error during preparation backup mta for rollback deployment";
     public static final String ERROR_DURING_REMOVAL_MTA_BACKUP_METADATA = "Error during removal of mta backup metadata";
+
+    public static final String ERROR_COULD_NOT_FIND_REQUIRED_DEPENDENCY_0_FOR_MODULE_1 = "Could not find \"{0}\" in required dependencies for module \"{1}\"";
+    public static final String ERROR_RESOLVED_FILE_CONTENT_IS_0_WHICH_IS_LARGER_THAN_MAX_1 = "All resolved external file content is \"{0}\", which is larger than max configured size of \"{1}\" ";
 
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service \"{0}\"";
@@ -389,7 +390,7 @@ public class Messages {
     public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FINISHED = "Async operation for service broker \"{0}\" has finished";
     public static final String STARTING_INCREMENTAL_APPLICATION_INSTANCE_UPDATE_FOR_0 = "Starting incremental application instance update for \"{0}\"...";
     public static final String DUE_TO_MISSING_PRODUCTIVE_DEPLOYED_APPLICATION_OF_MODULE_0_THE_NEW_APPLICATION_WILL_BE_SCALED_IN_STANDARD_WAY = "Due to missing productive deployed application of module \"{0}\", the new application will be scaled in standard way";
-    public static final String APPLICATION_0_ALREADY_SCALED_TO_THE_DESIRED_1_INSTANCES = "Application \"{0}\" already scaled to the desired {1} instances";
+    public static final String APPLICATION_ALREADY_SCALED_TO_THE_DESIRED_OR_MORE_INSTANCES = "Application \"{0}\" already scaled to the desired or more instances: \"{1}\". Required: \"{2}\"";
     public static final String LIVE_APPLICATION_NOT_DETECTED_DURING_ROLLING_INSTANCE_UPDATE = "Live application not detected during rolling instance update";
     public static final String NO_DEPLOYED_MTA_DETECTED_DURING_ROLLING_INSTANCE_UPDATE = "No deployed MTA detected during rolling instance update";
     public static final String THE_REQUIRED_APPLICATION_NOT_FOUND_IN_THE_DETECTED_MTA = "The required application not found in the detected MTA";
@@ -769,6 +770,9 @@ public class Messages {
     public static final String RENAME_APPLICATIONS_FOR_ROLLBACK = "Rename applications for rollback";
     public static final String DELETING_BACKUP_DESCRIPTORS_STORED_BEFORE_0 = "Deleting backup descriptors stored before \"{0}\"";
     public static final String DELETED_BACKUP_DESCRIPTORS_0 = "Deleted backup descriptors: {0}";
+    public static final String CALCULATED_TIMEOUT_FOR_INCREMENTAL_APP_INSTANCES_UPDATE_0_SECONDS = "Calculated timeout for incremental app instances update: {0} seconds";
+
+    public static final String TOTAL_SIZE_OF_ALL_RESOLVED_CONTENT_0 = "Total size for all resolved content {0}";
 
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";
