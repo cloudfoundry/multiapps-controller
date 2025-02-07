@@ -231,7 +231,7 @@ class FilesApiServiceImplTest {
         when(future.isDone()).thenReturn(true);
         prepareAsyncExecutor(future);
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL, null));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -322,7 +322,7 @@ class FilesApiServiceImplTest {
         when(future.isDone()).thenReturn(true);
         prepareAsyncExecutor(future);
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL, null));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -348,12 +348,12 @@ class FilesApiServiceImplTest {
         Future<?> runningTask = mock(Future.class);
         prepareAsyncExecutor(runningTask);
         when(uploadJobService.update(any(), any())).thenReturn(jobEntry);
-        ResponseEntity<Void> firstUpload = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> firstUpload = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL, null));
         String locationHeader = firstUpload.getHeaders()
                                            .getFirst(org.springframework.http.HttpHeaders.LOCATION);
         String createdJobId = locationHeader.substring(locationHeader.lastIndexOf("/") + 1);
         when(jobEntry.getId()).thenReturn(createdJobId);
-        ResponseEntity<Void> secondUpload = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> secondUpload = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL, null));
         assertEquals(HttpStatus.SEE_OTHER, secondUpload.getStatusCode());
     }
 
@@ -385,7 +385,7 @@ class FilesApiServiceImplTest {
         when(future.isDone()).thenReturn(true);
         prepareAsyncExecutor(future);
 
-        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL));
+        ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.of(FILE_URL, null));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
@@ -432,7 +432,7 @@ class FilesApiServiceImplTest {
                                       .encodeToString(url.getBytes(StandardCharsets.UTF_8));
 
         ResponseEntity<Void> startUploadResponse = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE,
-                                                                                  ImmutableFileUrl.of(invalidFileUrl));
+                                                                                  ImmutableFileUrl.of(invalidFileUrl, null));
 
         assertEquals(startUploadResponse.getStatusCode(), HttpStatus.ACCEPTED);
 
