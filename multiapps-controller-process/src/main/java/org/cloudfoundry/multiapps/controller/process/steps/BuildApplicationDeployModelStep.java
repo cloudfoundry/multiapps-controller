@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.v3.processes.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -19,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureS
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.AdditionalModuleParametersReporter;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationEnvironmentCalculator;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.HandlerFactory;
@@ -30,6 +28,9 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named("buildApplicationDeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -48,6 +49,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.MODULE_TO_DEPLOY, applicationModule);
         CloudApplicationExtended modifiedApp = StepsUtil.getApplicationCloudModelBuilder(context)
                                                         .build(applicationModule, moduleToDeployHelper);
+        buildAdditionalModuleParametersReporter(context).reportUsageOfAdditionalParameters(module);
         Staging stagingWithUpdatedHealthCheck = modifyHealthCheckType(modifiedApp.getStaging());
         Map<String, String> calculatedAppEnv = applicationEnvironmentCalculator.calculateNewApplicationEnv(context, modifiedApp);
         modifiedApp = ImmutableCloudApplicationExtended.builder()
@@ -69,6 +71,10 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         return handlerFactory.getDescriptorHandler()
                              .findModule(deploymentDescriptor, module);
+    }
+
+    private AdditionalModuleParametersReporter buildAdditionalModuleParametersReporter(ProcessContext context) {
+        return new AdditionalModuleParametersReporter(context);
     }
 
     private Staging modifyHealthCheckType(Staging staging) {
