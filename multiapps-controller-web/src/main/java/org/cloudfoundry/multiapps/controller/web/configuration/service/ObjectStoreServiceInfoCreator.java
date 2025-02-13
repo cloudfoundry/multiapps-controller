@@ -1,5 +1,12 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.service;
 
+import com.google.common.base.Supplier;
+import io.pivotal.cfenv.core.CfService;
+import org.cloudfoundry.multiapps.controller.web.Constants;
+import org.cloudfoundry.multiapps.controller.web.Messages;
+import org.jclouds.domain.Credentials;
+import org.jclouds.googlecloud.GoogleCredentialsFromJson;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -7,33 +14,26 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.multiapps.controller.web.Constants;
-import org.cloudfoundry.multiapps.controller.web.Messages;
-import org.jclouds.domain.Credentials;
-import org.jclouds.googlecloud.GoogleCredentialsFromJson;
-
-import com.google.common.base.Supplier;
-
-import io.pivotal.cfenv.core.CfService;
-
 public class ObjectStoreServiceInfoCreator {
 
     public List<ObjectStoreServiceInfo> getAllProvidersServiceInfo(CfService service) {
         Map<String, Object> credentials = service.getCredentials()
                                                  .getMap();
-        return List.of(createServiceInfoForAws(credentials), createServiceInfoForAliCloud(credentials),
-                       createServiceInfoForAzure(credentials), createServiceInfoForGcpCloud(credentials));
+        return List.of(createServiceInfoForAws(credentials), createServiceInfoForAliCloud(credentials), createServiceInfoForAzure(credentials),
+                       createServiceInfoForGcpCloud(credentials));
     }
 
     private ObjectStoreServiceInfo createServiceInfoForAws(Map<String, Object> credentials) {
         String accessKeyId = (String) credentials.get(Constants.ACCESS_KEY_ID);
         String secretAccessKey = (String) credentials.get(Constants.SECRET_ACCESS_KEY);
         String bucket = (String) credentials.get(Constants.BUCKET);
+        String host = (String) credentials.get(Constants.HOST);
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.AWS_S_3)
                                               .identity(accessKeyId)
                                               .credential(secretAccessKey)
                                               .container(bucket)
+                                              .host(host)
                                               .build();
     }
 

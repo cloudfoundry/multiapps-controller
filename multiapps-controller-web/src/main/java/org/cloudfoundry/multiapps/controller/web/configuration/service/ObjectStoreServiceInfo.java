@@ -1,10 +1,9 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.service;
 
+import com.google.common.base.Supplier;
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 import org.jclouds.domain.Credentials;
-
-import com.google.common.base.Supplier;
 
 @Value.Immutable
 public interface ObjectStoreServiceInfo {
@@ -28,5 +27,8 @@ public interface ObjectStoreServiceInfo {
 
     @Nullable
     String getRegion();
+
+    @Nullable
+    String getHost();
 
 }
