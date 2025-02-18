@@ -34,7 +34,7 @@
         <mybatis.version>3.5.16</mybatis.version>
         <spring.version>6.2.0</spring.version>
         <spring-security.version>6.4.1</spring-security.version>
-        <json-smart.version>2.5.1</json-smart.version>
+        <json-smart.version>2.5.2</json-smart.version>
         <hikari.version>6.2.1</hikari.version>
         <jackson.version>2.18.1</jackson.version>
         <jackson.databind.version>2.18.2</jackson.databind.version>
