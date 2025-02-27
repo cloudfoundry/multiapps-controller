@@ -18,6 +18,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBack
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.mta.model.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,14 +75,50 @@ public class ExistingAppsToBackupCalculator {
         if (deployedMta == null) {
             return true;
         }
-        String deployedMtaVersion = deployedMta.getMetadata()
-                                               .getVersion()
-                                               .toString();
+        Version deployedMtaVersion = getDeployedMtaVersion(deployedMta);
+        if (deployedMtaVersion == null) {
+            return true;
+        }
+        return isBackupDescriptorMissing(context, deployedMtaVersion);
+    }
+
+    private Version getDeployedMtaVersion(DeployedMta deployedMta) {
+        Version deployedMtaVersion = deployedMta.getMetadata()
+                                                .getVersion();
+        if (deployedMtaVersion == null) {
+            return findLiveProductizationStateVersion(deployedMta);
+        }
+        return deployedMtaVersion;
+    }
+
+    private Version findLiveProductizationStateVersion(DeployedMta deployedMta) {
+        for (DeployedMtaApplication deployedMtaApplication : deployedMta.getApplications()) {
+            if (hasMtaVersionAnnotation(deployedMtaApplication) && isLiveProductizationState(deployedMtaApplication)) {
+                return Version.parseVersion(deployedMtaApplication.getV3Metadata()
+                                                                  .getAnnotations()
+                                                                  .get(MtaMetadataAnnotations.MTA_VERSION));
+            }
+        }
+        return null;
+    }
+
+    private boolean hasMtaVersionAnnotation(DeployedMtaApplication deployedMtaApplication) {
+        return deployedMtaApplication.getV3Metadata()
+                                     .getAnnotations()
+                                     .containsKey(MtaMetadataAnnotations.MTA_VERSION);
+    }
+
+    private boolean isLiveProductizationState(DeployedMtaApplication deployedMtaApplication) {
+        return deployedMtaApplication.getProductizationState()
+                                     .equals(ProductizationState.LIVE);
+    }
+
+    private boolean isBackupDescriptorMissing(ProcessContext context, Version deployedMtaVersion) {
         return descriptorBackupService.createQuery()
                                       .mtaId(context.getVariable(Variables.MTA_ID))
                                       .spaceId(context.getVariable(Variables.SPACE_GUID))
                                       .namespace(context.getVariable(Variables.MTA_NAMESPACE))
-                                      .mtaVersion(deployedMtaVersion)
+                                      .mtaVersion(deployedMtaVersion.toString())
                                       .list()
                                       .isEmpty();
     }
