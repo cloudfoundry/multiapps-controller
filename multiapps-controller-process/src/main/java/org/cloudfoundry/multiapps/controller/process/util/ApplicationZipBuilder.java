@@ -45,12 +45,6 @@ public class ApplicationZipBuilder {
         Path appPath = null;
         try {
             appPath = createTempFile();
-            // TODO: backwards compatibility for one tact
-            if (applicationArchiveContext.getArchiveEntryWithStreamPositions() == null) {
-                extractDirectoryContent(applicationArchiveContext, appPath);
-                return appPath;
-            }
-            // TODO: backwards compatibility for one tact
             if (ArchiveEntryExtractorUtil.containsDirectory(applicationArchiveContext.getModuleFileName(),
                                                             applicationArchiveContext.getArchiveEntryWithStreamPositions())) {
                 LOGGER.info(MessageFormat.format(Messages.MODULE_0_CONTENT_IS_A_DIRECTORY, applicationArchiveContext.getModuleFileName()));
