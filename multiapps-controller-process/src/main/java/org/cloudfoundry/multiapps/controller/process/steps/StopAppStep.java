@@ -1,13 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
-import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -20,6 +15,9 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication.State;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named("stopAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -59,27 +57,14 @@ public class StopAppStep extends SyncFlowableStepWithHooks implements BeforeStep
 
     @Override
     public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
-        List<HookPhase> hookPhases = getHookPhases(HookPhase.APPLICATION_BEFORE_STOP_IDLE, HookPhase.APPLICATION_BEFORE_STOP_LIVE, context);
-        hookPhases.add(HookPhase.BEFORE_STOP);
+        List<HookPhase> hookPhases = List.of(HookPhase.BEFORE_STOP);
         return hooksPhaseBuilder.buildHookPhases(hookPhases, context);
     }
 
     @Override
     public List<HookPhase> getHookPhasesAfterStep(ProcessContext context) {
-        List<HookPhase> hookPhases = getHookPhases(HookPhase.APPLICATION_AFTER_STOP_IDLE, HookPhase.APPLICATION_AFTER_STOP_LIVE, context);
-        hookPhases.add(HookPhase.AFTER_STOP);
+        List<HookPhase> hookPhases = List.of(HookPhase.AFTER_STOP);
         return hooksPhaseBuilder.buildHookPhases(hookPhases, context);
-    }
-
-    private List<HookPhase> getHookPhases(HookPhase beforeStepHookPhase, HookPhase afterStepHookPhase, ProcessContext context) {
-        List<HookPhase> hookPhases = new ArrayList<>();
-        ProcessType processType = deploymentTypeDeterminer.determineDeploymentType(context);
-        if (ProcessType.BLUE_GREEN_DEPLOY.equals(processType)) {
-            hookPhases.add(beforeStepHookPhase);
-        } else {
-            hookPhases.add(afterStepHookPhase);
-        }
-        return hookPhases;
     }
 
 }
