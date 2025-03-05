@@ -1,15 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudRouteExtended;
@@ -28,6 +24,9 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named("deleteApplicationRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -111,7 +110,6 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
 
     @Override
     public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
-        return hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.BEFORE_UNMAP_ROUTES, HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES),
-                                                 context);
+        return hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_UNMAP_ROUTES), context);
     }
 }
