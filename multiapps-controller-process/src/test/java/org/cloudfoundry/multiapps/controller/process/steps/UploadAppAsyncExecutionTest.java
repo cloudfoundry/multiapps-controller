@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -158,6 +159,7 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
     @Test
     void testExtractionOfAppFails() {
         prepareExecutorService();
+        context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, Collections.emptyList());
         doThrow(new SLException("Error while reading blob input stream")).when(step.applicationZipBuilder)
                                                                          .extractApplicationInNewArchive(any());
         expectedStatus = AsyncExecutionState.ERROR;
@@ -167,6 +169,7 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
 
     @Test
     void testUploadExecutorCapacityIsFull() {
+        context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, Collections.emptyList());
         when(appUploaderThreadPool.submit((Callable<Object>) any())).thenThrow(new RejectedExecutionException("Capacity is full"));
         expectedStatus = AsyncExecutionState.RUNNING;
         testExecuteOperations();
