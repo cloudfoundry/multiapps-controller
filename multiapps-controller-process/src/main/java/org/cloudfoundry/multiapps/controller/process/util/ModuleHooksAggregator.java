@@ -72,32 +72,7 @@ public class ModuleHooksAggregator {
     private boolean hasAllPhasesExecuted(Map<String, List<String>> alreadyExecutedHooks, Hook hookToBeExecuted,
                                          List<HookPhase> hookPhasesForCurrentStepPhase) {
         List<HookPhase> executedHookPhasesForHook = getExecutedHookPhasesForHook(alreadyExecutedHooks, hookToBeExecuted.getName());
-        List<HookPhase> modifiedHookPhasesForHook = getModifiedHookPhasesForCurrentStepPhase(hookToBeExecuted,
-                                                                                             hookPhasesForCurrentStepPhase);
-        return executedHookPhasesForHook.containsAll(modifiedHookPhasesForHook);
-    }
-
-    @Deprecated
-    private List<HookPhase> getModifiedHookPhasesForCurrentStepPhase(Hook hookToBeExecuted, List<HookPhase> hookPhasesForCurrentStepPhase) {
-        if (doesHookContainOldPhases(hookToBeExecuted)) {
-            return hookPhasesForCurrentStepPhase.stream()
-                                                .filter(this::containsOldPhase)
-                                                .collect(Collectors.toList());
-        }
-        return hookPhasesForCurrentStepPhase.stream()
-                                            .filter(hookPhase -> !containsOldPhase(hookPhase))
-                                            .collect(Collectors.toList());
-    }
-
-    private boolean doesHookContainOldPhases(Hook hookToBeExecuted) {
-        return hookToBeExecuted.getPhases()
-                               .stream()
-                               .anyMatch(hookPhase -> containsOldPhase(HookPhase.fromString(hookPhase)));
-    }
-
-    private boolean containsOldPhase(HookPhase hookPhase) {
-        return HookPhase.getOldPhases()
-                        .contains(hookPhase);
+        return executedHookPhasesForHook.containsAll(hookPhasesForCurrentStepPhase);
     }
 
     private List<HookPhase> getExecutedHookPhasesForHook(Map<String, List<String>> alreadyExecutedHooks, String hookName) {

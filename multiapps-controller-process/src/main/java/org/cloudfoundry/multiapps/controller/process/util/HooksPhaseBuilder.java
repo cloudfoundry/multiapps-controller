@@ -3,9 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhaseProcessType;
@@ -13,6 +10,9 @@ import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.model.SubprocessPhase;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 public class HooksPhaseBuilder {
@@ -34,10 +34,6 @@ public class HooksPhaseBuilder {
     }
 
     private String buildPhase(HookPhase hookPhase, ProcessContext context) {
-        if (HookPhase.getOldPhases()
-                     .contains(hookPhase)) {
-            return hookPhase.getValue();
-        }
         String deploymentType = getDeploymentType(context);
         String fullHookPhase = deploymentType + HOOKS_DELIMITER + DEFAULT_HOOK_ENTITY + HOOKS_DELIMITER + hookPhase.getValue();
         String optionalPhaseLocator = getOptionalPhaseLocator(context);
