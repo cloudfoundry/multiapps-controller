@@ -71,11 +71,7 @@ public class ConfigurationReferencesResolver extends org.cloudfoundry.multiapps.
         }
 
         if (!permitsMultipleResources(dependency)) {
-            if (dependencyOwner instanceof Resource resource && resource.isOptional()) {
-                return Collections.singletonList(dependency);
-            } else {
-                makeSureIsResolvedToSingleResource(dependency.getName(), resolvedReference.getResolvedResources());
-            }
+            return getSingleResolvedResource(dependencyOwner, dependency, resolvedReference);
         }
 
         if (resolvedReference.getResolvedResources()
@@ -89,6 +85,16 @@ public class ConfigurationReferencesResolver extends org.cloudfoundry.multiapps.
                                                                          .collect(Collectors.toList());
         expandedDependenciesMap.put(dependency, expandedDependencies);
         return expandedDependencies;
+    }
+
+    private List<RequiredDependency> getSingleResolvedResource(PropertiesContainer dependencyOwner, RequiredDependency dependency,
+                                                               ResolvedConfigurationReference resolvedReference) {
+        if (dependencyOwner instanceof Resource resource && resource.isOptional()) {
+            return Collections.singletonList(dependency);
+        } else {
+            makeSureIsResolvedToSingleResource(dependency.getName(), resolvedReference.getResolvedResources());
+            return Collections.singletonList(dependency);
+        }
     }
 
     private void setEmptyListProperty(PropertiesContainer dependencyOwner, RequiredDependency dependencyV3) {
