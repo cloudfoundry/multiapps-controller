@@ -258,6 +258,8 @@ public class Messages {
     public static final String SERVICE_KEY_0_IS_ALREADY_DELETED = "Service key \"{0}\" is already deleted";
     public static final String FILE_WITH_ID_0_OPERATION_OWNERSHIP_CHANGED_FROM_0_TO_1 = "File with id \"{0}\" operation ownership was changed from \"{1}\" to \"{2}\" and won't be deleted";
 
+    public static final String PARAMETERS_0_ARE_NOT_SUPPORTED_OR_REFERENCED_BY_ANY_OTHER_ENTITIES = "Parameter(s) \"{0}\" are not supported or referenced by any other entities";
+
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
     public static final String ACQUIRED_LOCK = "Process \"{0}\" acquired lock for operation on MTA \"{1}\"";
