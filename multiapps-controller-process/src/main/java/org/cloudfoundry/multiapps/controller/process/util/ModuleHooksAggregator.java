@@ -1,4 +1,3 @@
-
 package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.util.Collections;
@@ -13,8 +12,6 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 import org.flowable.engine.delegate.DelegateExecution;
 
 public class ModuleHooksAggregator {
-
-    private static final int MAJOR_SCHEMA_VERSION_THREE = 3;
 
     private final DelegateExecution execution;
     private final Module moduleToDeploy;
@@ -41,8 +38,8 @@ public class ModuleHooksAggregator {
                                              .collect(Collectors.toList());
     }
 
-    private List<Hook> getModuleHooks(Module moduleToDeploy) {
-        return moduleToDeploy.getMajorSchemaVersion() < MAJOR_SCHEMA_VERSION_THREE ? Collections.emptyList() : moduleToDeploy.getHooks();
+    private List<Hook> getModuleHooks(Module module) {
+        return (List<Hook>) SchemaVersionUtils.getEntityData(module, Module::getMajorSchemaVersion, Module::getHooks);
     }
 
     private boolean shouldCollectHook(List<String> hookPhases, List<HookPhase> hookTypeForCurrentStepPhase) {
