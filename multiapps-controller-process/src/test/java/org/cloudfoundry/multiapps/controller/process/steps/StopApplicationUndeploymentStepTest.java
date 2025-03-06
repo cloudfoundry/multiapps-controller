@@ -29,18 +29,18 @@ class StopApplicationUndeploymentStepTest extends UndeployAppStepTest {
 
     @Test
     void testGetHookPhaseBefore() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_STOP, HookPhase.APPLICATION_BEFORE_STOP_LIVE), context))
-               .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_LIVE));
-        List<HookPhase> expectedHooks = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_LIVE);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_STOP), context))
+               .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE));
+        List<HookPhase> expectedHooks = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE);
         List<HookPhase> hookPhasesBeforeStep = ((StopApplicationUndeploymentStep) step).getHookPhasesBeforeStep(context);
         assertEquals(expectedHooks, hookPhasesBeforeStep);
     }
 
     @Test
     void testGetHookPhaseAfter() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.AFTER_STOP, HookPhase.APPLICATION_AFTER_STOP_LIVE), context))
-               .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_LIVE));
-        List<HookPhase> expectedHooks = List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_LIVE);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.AFTER_STOP), context))
+               .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE));
+        List<HookPhase> expectedHooks = List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE);
         List<HookPhase> hookPhasesBeforeStep = ((StopApplicationUndeploymentStep) step).getHookPhasesAfterStep(context);
         assertEquals(expectedHooks, hookPhasesBeforeStep);
     }

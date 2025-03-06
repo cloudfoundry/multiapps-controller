@@ -1,11 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.List;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -16,6 +12,9 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named("stopApplicationUndeploymentStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -42,11 +41,11 @@ public class StopApplicationUndeploymentStep extends UndeployAppStep implements 
 
     @Override
     public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
-        return hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.BEFORE_STOP, HookPhase.APPLICATION_BEFORE_STOP_LIVE), context);
+        return hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_STOP), context);
     }
 
     @Override
     public List<HookPhase> getHookPhasesAfterStep(ProcessContext context) {
-        return hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.AFTER_STOP, HookPhase.APPLICATION_AFTER_STOP_LIVE), context);
+        return hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.AFTER_STOP), context);
     }
 }
