@@ -5,13 +5,12 @@ import java.util.stream.Stream;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser;
 import org.cloudfoundry.multiapps.mta.handlers.v3.DescriptorParser;
-import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.junit.jupiter.params.provider.Arguments;
 
 public class ConfigurationReferencesResolverTest
     extends org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferencesResolverTest {
 
-    static Stream<Arguments> testResolve() {
+    static Stream<Arguments> testResolveSource() {
         return Stream.of(
                          // (1) Reference to existing provided dependency:
                          Arguments.of("mtad-01.yaml", "configuration-entries-01.json",
@@ -30,7 +29,7 @@ public class ConfigurationReferencesResolverTest
     }
 
     @Override
-    protected ConfigurationReferencesResolver getConfigurationResolver(DeploymentDescriptor deploymentDescriptor) {
+    protected ConfigurationReferencesResolver getConfigurationResolver() {
         return new ConfigurationReferencesResolver(configurationEntryService,
                                                    new ConfigurationFilterParser(getCloudTarget(),
                                                                                  getPropertiesChainBuilder(descriptor),
