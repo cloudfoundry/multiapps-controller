@@ -42,13 +42,6 @@ public class ApplicationDigestCalculator {
     }
 
     private void iterateApplicationArchive(ApplicationArchiveContext applicationArchiveContext) throws FileStorageException {
-        // TODO: backwards compatibility for one tact
-        if (applicationArchiveContext.getArchiveEntryWithStreamPositions() == null) {
-            fileService.consumeFileContent(applicationArchiveContext.getSpaceId(), applicationArchiveContext.getAppArchiveId(),
-                                           archiveStream -> calculateDigestFromDirectory(applicationArchiveContext, archiveStream));
-            return;
-        }
-        // TODO: backwards compatibility for one tact
         if (ArchiveEntryExtractorUtil.containsDirectory(applicationArchiveContext.getModuleFileName(),
                                                         applicationArchiveContext.getArchiveEntryWithStreamPositions())) {
             fileService.consumeFileContent(applicationArchiveContext.getSpaceId(), applicationArchiveContext.getAppArchiveId(),

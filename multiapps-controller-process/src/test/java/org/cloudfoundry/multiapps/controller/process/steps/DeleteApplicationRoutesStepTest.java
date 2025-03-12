@@ -72,11 +72,9 @@ class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
 
     @Test
     void testGetHookPhaseBefore() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_UNMAP_ROUTES, HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES),
-                                                       context))
-               .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_UNMAP_ROUTES_LIVE, HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES));
-        List<HookPhase> expectedPhases = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_UNMAP_ROUTES_LIVE,
-                                                 HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_UNMAP_ROUTES), context))
+               .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_UNMAP_ROUTES_LIVE));
+        List<HookPhase> expectedPhases = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_UNMAP_ROUTES_LIVE);
         List<HookPhase> hookPhasesBeforeStep = ((BeforeStepHookPhaseProvider) step).getHookPhasesBeforeStep(context);
         assertEquals(expectedPhases, hookPhasesBeforeStep);
     }

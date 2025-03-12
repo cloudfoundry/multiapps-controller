@@ -1,9 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
@@ -12,23 +16,17 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInsta
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
 import org.cloudfoundry.multiapps.mta.util.NameUtil;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.springframework.http.HttpStatus;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 
 public class ServiceBindingParametersGetter {
 
@@ -38,7 +36,8 @@ public class ServiceBindingParametersGetter {
     private final long maxManifestSize;
     private final FileService fileService;
 
-    public ServiceBindingParametersGetter(ProcessContext context, ArchiveEntryExtractor archiveEntryExtractor, long maxManifestSize, FileService fileService) {
+    public ServiceBindingParametersGetter(ProcessContext context, ArchiveEntryExtractor archiveEntryExtractor, long maxManifestSize,
+                                          FileService fileService) {
         this.context = context;
         this.archiveEntryExtractor = archiveEntryExtractor;
         this.maxManifestSize = maxManifestSize;
@@ -82,29 +81,13 @@ public class ServiceBindingParametersGetter {
         if (fileName == null) {
             return Collections.emptyMap();
         }
-        String spaceGuid = context.getRequiredVariable(Variables.SPACE_GUID);
         String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
-        // TODO: backwards compatibility for one tact
-        List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS);
-        if (archiveEntriesWithStreamPositions == null) {
-            try {
-                return fileService.processFileContent(spaceGuid, appArchiveId, appArchiveStream -> {
-                    InputStream fileStream = ArchiveHandler.getInputStream(appArchiveStream, fileName, maxManifestSize);
-                    return JsonUtil.convertJsonToMap(fileStream);
-                });
-            } catch (FileStorageException e) {
-                throw new SLException(e, e.getMessage());
-            }
-        }
-        // TODO: backwards compatibility for one tact
-        ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(fileName, context.getVariable(
-            Variables.ARCHIVE_ENTRIES_POSITIONS));
+        ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(fileName,
+                                                                                                              context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS));
         byte[] serviceBindingParametersFileContent = archiveEntryExtractor.extractEntryBytes(ImmutableFileEntryProperties.builder()
                                                                                                                          .guid(appArchiveId)
-                                                                                                                         .name(
-                                                                                                                             archiveEntryWithStreamPositions.getName())
-                                                                                                                         .spaceGuid(context.getRequiredVariable(
-                                                                                                                             Variables.SPACE_GUID))
+                                                                                                                         .name(archiveEntryWithStreamPositions.getName())
+                                                                                                                         .spaceGuid(context.getRequiredVariable(Variables.SPACE_GUID))
                                                                                                                          .maxFileSizeInBytes(maxManifestSize)
                                                                                                                          .build(),
                                                                                              archiveEntryWithStreamPositions);
@@ -124,7 +107,8 @@ public class ServiceBindingParametersGetter {
         return !context.getVariable(Variables.SHOULD_BACKUP_PREVIOUS_VERSION);
     }
 
-    private BindingDetails getDescriptorProvidedBindingParametersAndBindingName(CloudApplicationExtended app, CloudServiceInstanceExtended service) {
+    private BindingDetails getDescriptorProvidedBindingParametersAndBindingName(CloudApplicationExtended app,
+                                                                                CloudServiceInstanceExtended service) {
         return app.getBindingParameters()
                   .get(service.getResourceName());
     }
@@ -156,7 +140,7 @@ public class ServiceBindingParametersGetter {
                                                    application.getName(), serviceName);
                 return null;
             } else if (HttpStatus.BAD_GATEWAY == e.getStatusCode()) {
-                // TODO: this is a temporary fix for external error code mapping leading to incorrect 502 errors 
+                // TODO: this is a temporary fix for external error code mapping leading to incorrect 502 errors
                 context.getStepLogger()
                        .warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1_FIX,
                                                    application.getName(), serviceName);
