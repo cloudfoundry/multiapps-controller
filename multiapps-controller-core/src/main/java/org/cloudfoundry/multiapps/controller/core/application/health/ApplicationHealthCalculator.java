@@ -130,8 +130,8 @@ public class ApplicationHealthCalculator {
         }
         boolean hasIncreasedDbLocks = hasIncreasedLocksCache.getOrRefresh(() -> true);
         if (hasIncreasedDbLocks) {
-            LOGGER.warn(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE_0_GETTING_THE_LOCKS,
-                        applicationConfiguration.getApplicationInstanceIndex());
+            LOGGER.warn(MessageFormat.format(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE_0_GETTING_THE_LOCKS,
+                                             applicationConfiguration.getApplicationInstanceIndex()));
             long countOfProcessesWaitingForLocks = resilientOperationExecutor.execute((Supplier<Long>) () -> databaseMonitoringService.getProcessesWaitingForLocks(ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration)));
             LOGGER.warn(MessageFormat.format(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE,
                                              countOfProcessesWaitingForLocks, applicationConfiguration.getApplicationInstanceIndex()));
