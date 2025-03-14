@@ -13,12 +13,14 @@ import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorMerger;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
+import org.cloudfoundry.multiapps.controller.process.util.SupportedParametersChecker;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep> {
 
@@ -39,6 +41,9 @@ class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep
     @Mock
     private MtaDescriptorMerger merger;
 
+    @Mock
+    private SupportedParametersChecker supportedParametersChecker;
+
     @BeforeEach
     public void setUp() {
         prepareContext();
@@ -53,6 +58,7 @@ class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep
 
     @Test
     void testExecute1() {
+        when(supportedParametersChecker.getUnknownParameters(Mockito.any())).thenReturn(Collections.emptyList());
         when(merger.merge(any(), eq(Collections.emptyList()))).thenReturn(DEPLOYMENT_DESCRIPTOR);
 
         step.execute(execution);
@@ -65,6 +71,7 @@ class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep
 
     @Test
     void testExecute2() {
+        when(supportedParametersChecker.getUnknownParameters(Mockito.any())).thenReturn(Collections.emptyList());
         when(merger.merge(any(), eq(Collections.emptyList()))).thenThrow(new ContentException("Error!"));
         assertThrows(SLException.class, () -> step.execute(execution));
     }
