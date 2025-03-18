@@ -188,8 +188,13 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.SUBSCRIPTIONS_TO_DELETE, subscriptions);
         context.setVariable(Variables.SERVICES_TO_DELETE, services);
         context.setVariable(Variables.APPS_TO_UNDEPLOY, apps);
-        context.setVariable(Variables.SERVICE_KEYS_TO_DELETE, serviceKeys);
+        context.setVariable(Variables.SERVICE_KEYS_TO_DELETE, getServiceKeysToDelete(context, serviceKeys));
         context.setVariable(Variables.APPS_TO_BACKUP, appsToBackup);
+    }
+
+    private List<DeployedMtaServiceKey> getServiceKeysToDelete(ProcessContext context, List<DeployedMtaServiceKey> serviceKeys) {
+        List<DeployedMtaServiceKey> scheduledServiceKeysForDeletion = context.getVariable(Variables.SERVICE_KEYS_TO_DELETE);
+        return ListUtils.union(scheduledServiceKeysForDeletion, serviceKeys);
     }
 
     private List<String> computeServicesToDelete(ProcessContext context, List<DeployedMtaApplication> appsWithoutChange,
