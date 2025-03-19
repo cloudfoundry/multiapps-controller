@@ -25,13 +25,12 @@ public class ReferenceFinder {
 
     private String parameterToFind;
 
+    private static final List<Pattern> COMPILED_PATTERNS = Arrays.asList(Pattern.compile(ReferencePattern.PLACEHOLDER.getPattern()),
+                                                                         Pattern.compile(ReferencePattern.SHORT.getPattern()),
+                                                                         Pattern.compile(ReferencePattern.FULLY_QUALIFIED.getPattern()));
+
     private void setParameterToFind(String parameterToFind) {
         this.parameterToFind = parameterToFind;
-    }
-
-    private List<String> getReferencePatterns() {
-        return Arrays.asList(ReferencePattern.PLACEHOLDER.getPattern(), ReferencePattern.SHORT.getPattern(),
-                             ReferencePattern.FULLY_QUALIFIED.getPattern());
     }
 
     private String getParameterToFind() {
@@ -83,8 +82,7 @@ public class ReferenceFinder {
 
     private boolean hasReferenceInValue(Object value) {
         if (value instanceof String) {
-            List<String> patterns = getReferencePatterns();
-            return referencePatternMatches(patterns, value);
+            return referencePatternMatches(value);
         } else if (value instanceof Map<?, ?> map) {
             return map.values()
                       .stream()
@@ -96,10 +94,9 @@ public class ReferenceFinder {
         return false;
     }
 
-    private boolean referencePatternMatches(List<String> patterns, Object value) {
-        for (String pattern : patterns) {
-            Pattern compiledPattern = Pattern.compile(pattern);
-            Matcher matcher = compiledPattern.matcher(MiscUtil.cast(value));
+    private boolean referencePatternMatches(Object valueToMatch) {
+        for (Pattern compiledPattern : COMPILED_PATTERNS) {
+            Matcher matcher = compiledPattern.matcher(MiscUtil.cast(valueToMatch));
             if (referenceMatchesValue(matcher)) {
                 return true;
             }
