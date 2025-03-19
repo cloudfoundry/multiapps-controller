@@ -104,12 +104,11 @@ public class SupportedParametersChecker {
     }
 
     private List<Hook> getModuleHooks(Module module) {
-        return (List<Hook>) SchemaVersionUtils.getEntityData(module, Module::getMajorSchemaVersion, Module::getHooks);
+        return SchemaVersionUtils.getEntityData(module, Module::getMajorSchemaVersion, Module::getHooks);
     }
 
     private List<RequiredDependency> getResourceRequiredDependencies(Resource resource) {
-        return (List<RequiredDependency>) SchemaVersionUtils.getEntityData(resource, Resource::getMajorSchemaVersion,
-                                                                           Resource::getRequiredDependencies);
+        return SchemaVersionUtils.getEntityData(resource, Resource::getMajorSchemaVersion, Resource::getRequiredDependencies);
     }
 
 }

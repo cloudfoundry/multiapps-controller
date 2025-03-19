@@ -39,7 +39,7 @@ public class ModuleHooksAggregator {
     }
 
     private List<Hook> getModuleHooks(Module module) {
-        return (List<Hook>) SchemaVersionUtils.getEntityData(module, Module::getMajorSchemaVersion, Module::getHooks);
+        return SchemaVersionUtils.getEntityData(module, Module::getMajorSchemaVersion, Module::getHooks);
     }
 
     private boolean shouldCollectHook(List<String> hookPhases, List<HookPhase> hookTypeForCurrentStepPhase) {
