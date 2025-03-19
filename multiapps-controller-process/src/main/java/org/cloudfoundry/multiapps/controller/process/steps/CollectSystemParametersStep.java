@@ -4,6 +4,9 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.function.Supplier;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.CredentialsGenerator;
@@ -28,9 +31,6 @@ import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 @Named("collectSystemParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -61,6 +61,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         SystemParameters systemParameters = createSystemParameters(context, defaultDomainName, reserveTemporaryRoutes, descriptor);
         systemParameters.injectInto(descriptor);
         getStepLogger().debug(Messages.DESCRIPTOR_WITH_SYSTEM_PARAMETERS, SecureSerialization.toJson(descriptor));
+
         determineIsVersionAccepted(context, descriptor);
 
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, descriptor);
