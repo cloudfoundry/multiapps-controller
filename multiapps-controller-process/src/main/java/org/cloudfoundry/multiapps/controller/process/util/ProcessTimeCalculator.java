@@ -100,8 +100,8 @@ public class ProcessTimeCalculator {
             Date currentActivityEndTime = determineProcessActivityEndTime(processActivities[i]);
 
             long delay = nextActivityStartTime.getTime() - currentActivityEndTime.getTime();
-            //if the delay is negative, the activities are parallel
-            //whereas we want the delay as if the process is sequential
+            // if the delay is negative, the activities are parallel
+            // whereas we want the delay as if the process is sequential
             result += delay < 0 ? 0 : delay;
         }
         return result;

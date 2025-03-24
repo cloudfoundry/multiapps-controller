@@ -19,10 +19,10 @@ public class ServiceKeysCloudModelBuilder extends org.cloudfoundry.multiapps.con
     @Override
     public Map<String, List<CloudServiceKey>> build() {
         return descriptor.getResources()
-                                   .stream()
-                                   .filter(CloudModelBuilderUtil::isService)
-                                   .filter(Resource::isActive)
-                                   .collect(Collectors.toMap(Resource::getName, this::getServiceKeysForService));
+                         .stream()
+                         .filter(CloudModelBuilderUtil::isService)
+                         .filter(Resource::isActive)
+                         .collect(Collectors.toMap(Resource::getName, this::getServiceKeysForService));
     }
 
 }

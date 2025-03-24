@@ -53,7 +53,7 @@ public abstract class TokenGenerator {
 
     protected String extractUserGuid(OAuth2AccessTokenWithAdditionalInfo token) {
         return (String) token.getAdditionalInfo()
-                                                     .get(TokenProperties.USER_ID_KEY);
+                             .get(TokenProperties.USER_ID_KEY);
     }
 
     private LocalDateTime calculateAccessTokenExpirationDate(OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo) {

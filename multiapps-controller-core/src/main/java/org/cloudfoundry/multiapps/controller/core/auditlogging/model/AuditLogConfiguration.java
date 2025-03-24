@@ -59,7 +59,8 @@ public class AuditLogConfiguration implements AuditableConfiguration {
     }
 
     public String getTimeOfPerformedAction() {
-        return LocalDateTime.now().toString();
+        return LocalDateTime.now()
+                            .toString();
     }
 
     @Override

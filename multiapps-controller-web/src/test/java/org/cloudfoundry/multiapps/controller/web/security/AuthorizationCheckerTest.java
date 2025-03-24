@@ -188,7 +188,9 @@ class AuthorizationCheckerTest {
         OAuth2AccessTokenWithAdditionalInfo accessToken = new OAuth2AccessTokenWithAdditionalInfo(new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
                                                                                                                         "token_value",
                                                                                                                         Instant.now(),
-                                                                                                                        Instant.now().plus(5, ChronoUnit.MINUTES)),
+                                                                                                                        Instant.now()
+                                                                                                                               .plus(5,
+                                                                                                                                     ChronoUnit.MINUTES)),
                                                                                                   Collections.emptyMap());
         return new UserInfo(USER_ID.toString(), USERNAME, accessToken);
     }

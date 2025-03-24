@@ -100,7 +100,6 @@ class IdleRouteParametersParserTest {
 
         tester.test(() -> new IdleRouteParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null).parse(List.of(parametersMap)),
                     new Expectation(Expectation.Type.SET,
-                                    Set.of(route(DEFAULT_HOST, DEFAULT_DOMAIN, "/abc"),
-                                           route(DEFAULT_HOST, DEFAULT_DOMAIN, "/def"))));
+                                    Set.of(route(DEFAULT_HOST, DEFAULT_DOMAIN, "/abc"), route(DEFAULT_HOST, DEFAULT_DOMAIN, "/def"))));
     }
 }

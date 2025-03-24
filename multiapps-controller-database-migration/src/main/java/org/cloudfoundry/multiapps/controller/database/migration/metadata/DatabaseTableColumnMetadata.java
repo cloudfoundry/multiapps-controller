@@ -8,5 +8,5 @@ public interface DatabaseTableColumnMetadata {
     String getColumnName();
 
     String getColumnType();
-    
+
 }

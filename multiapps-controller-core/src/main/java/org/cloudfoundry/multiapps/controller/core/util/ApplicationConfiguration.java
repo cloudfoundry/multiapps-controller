@@ -104,16 +104,18 @@ public class ApplicationConfiguration {
     public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024L; // 1MB
     public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024L; // 1GB
 
-    public static final long DEFAULT_CFG_MAX_RESOLVED_EXTERNAL_CONTENT_SIZE = 1024 * 1024 * 10L; // 10MB 
+    public static final long DEFAULT_CFG_MAX_RESOLVED_EXTERNAL_CONTENT_SIZE = 1024 * 1024 * 10L; // 10MB
 
     public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
     public static final String DEFAULT_SPACE_GUID = "";
     public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
     public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
     public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
-    public static final String DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES = Long.toString(TimeUnit.HOURS.toMillis(2));  /*every 2 hours 
-                                                                                                                                   after an 
-                                                                                                                                   instance starts*/
+    public static final String DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES = Long.toString(TimeUnit.HOURS.toMillis(2)); /*
+                                                                                                                           * every 2 hours
+                                                                                                                           * after an
+                                                                                                                           * instance starts
+                                                                                                                           */
     public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
     public static final Integer DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS = 5;
     public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
@@ -906,14 +908,10 @@ public class ApplicationConfiguration {
 
     private HealthCheckConfiguration getHealthCheckConfigurationFromEnvironment() {
         HealthCheckConfiguration healthCheckConfigurationFromEnvironment = ImmutableHealthCheckConfiguration.builder()
-                                                                                                            .spaceId(
-                                                                                                                getHealthCheckSpaceGuidFromEnvironment())
-                                                                                                            .mtaId(
-                                                                                                                getHealthCheckMtaIdFromEnvironment())
-                                                                                                            .userName(
-                                                                                                                getHealthCheckUserFromEnvironment())
-                                                                                                            .timeRangeInSeconds(
-                                                                                                                getHealthCheckTimeRangeFromEnvironment())
+                                                                                                            .spaceId(getHealthCheckSpaceGuidFromEnvironment())
+                                                                                                            .mtaId(getHealthCheckMtaIdFromEnvironment())
+                                                                                                            .userName(getHealthCheckUserFromEnvironment())
+                                                                                                            .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
                                                                                                             .build();
         return healthCheckConfigurationFromEnvironment;
     }

@@ -44,7 +44,8 @@ public class ProcessLoggerPersister {
                 StringBuilder logMessage = new StringBuilder();
                 logMessage.append(processLogger.getLogMessage());
                 processLogsMessages.put(processLogger.getOperationLogEntry()
-                                                     .getOperationLogName(), logMessage);
+                                                     .getOperationLogName(),
+                                        logMessage);
             }
 
             processLoggerProvider.removeProcessLoggerFromCache(processLogger);

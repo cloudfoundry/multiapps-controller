@@ -46,8 +46,9 @@ public class ApplicationStartupStateCalculator {
 
     private boolean isStarted(CloudApplication app, InstancesInfo appInstances, long runningInstancesCount) {
         return runningInstancesCount == appInstances.getInstances()
-                                                    .size() && runningInstancesCount > 0 && app.getState()
-                                                                                               .equals(CloudApplication.State.STARTED);
+                                                    .size()
+            && runningInstancesCount > 0 && app.getState()
+                                               .equals(CloudApplication.State.STARTED);
     }
 
     private boolean isStopped(CloudApplication app, long runningInstancesCount) {

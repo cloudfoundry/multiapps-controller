@@ -67,10 +67,11 @@ public class ModuleDependencyChecker {
         boolean allModulesFoundInSpace = module.getDeployedAfter()
                                                .stream()
                                                .allMatch(dependency -> isDependencyPresent(module.getName(), dependency));
-        List<String> modulesNotYetDeployed = module.getDeployedAfter().stream()
-                                                                      .filter(modulesForDeployment::contains)
-                                                                      .filter(dependency -> !modulesAlreadyDeployed.contains(dependency))
-                                                                      .collect(Collectors.toList());
+        List<String> modulesNotYetDeployed = module.getDeployedAfter()
+                                                   .stream()
+                                                   .filter(modulesForDeployment::contains)
+                                                   .filter(dependency -> !modulesAlreadyDeployed.contains(dependency))
+                                                   .collect(Collectors.toList());
         return allModulesFoundInSpace && modulesNotYetDeployed.isEmpty();
     }
 
@@ -103,8 +104,8 @@ public class ModuleDependencyChecker {
         }
         Module dependency = allModulesInDescriptorWithNames.get(dependencyName);
         if (!moduleToDeployHelper.isApplication(dependency)) {
-            userMessageLogger.warn(MessageFormat.format(Messages.MODULE_0_DEPENDS_ON_MODULE_1_WHICH_CANNOT_BE_RESOLVED,
-                                                        moduleName, dependencyName));
+            userMessageLogger.warn(MessageFormat.format(Messages.MODULE_0_DEPENDS_ON_MODULE_1_WHICH_CANNOT_BE_RESOLVED, moduleName,
+                                                        dependencyName));
             return true;
         }
         return appExists(dependencyName);

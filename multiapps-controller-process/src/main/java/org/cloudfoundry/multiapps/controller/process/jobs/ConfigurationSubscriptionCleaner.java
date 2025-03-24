@@ -11,7 +11,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
-import org.springframework.core.annotation.Order;   
+import org.springframework.core.annotation.Order;
 
 /*
  * This cleaner is heavy because it scans for deleted space events for every configuration subscription.

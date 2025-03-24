@@ -55,7 +55,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
                                       .collect(Collectors.toList());
     }
 
-    private void deleteConfigurationEntries(List<ConfigurationEntry> entriesToDelete, ProcessContext context) {        
+    private void deleteConfigurationEntries(List<ConfigurationEntry> entriesToDelete, ProcessContext context) {
         for (ConfigurationEntry entry : entriesToDelete) {
             getStepLogger().info(MessageFormat.format(Messages.DELETING_DISCONTINUED_DEPENDENCY_0, entry.getProviderId()));
             int deletedEntries = configurationEntryService.createQuery()
@@ -71,7 +71,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
 
     private List<ConfigurationEntry> getEntries(ProcessContext context) {
         String mtaId = context.getVariable(Variables.MTA_ID);
-        String spaceGuid =  context.getVariable(Variables.SPACE_GUID);
+        String spaceGuid = context.getVariable(Variables.SPACE_GUID);
         String namespace = context.getVariable(Variables.MTA_NAMESPACE);
 
         return configurationEntryService.createQuery()

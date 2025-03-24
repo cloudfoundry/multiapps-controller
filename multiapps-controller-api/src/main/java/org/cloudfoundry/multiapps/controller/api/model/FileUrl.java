@@ -19,5 +19,5 @@ public interface FileUrl {
     @Value.Parameter
     @JsonProperty("credentials")
     UserCredentials getUserCredentials();
-    //this could potentially contain a TLS certificate as well, if the remote endpoint is a custom registry/repository
+    // this could potentially contain a TLS certificate as well, if the remote endpoint is a custom registry/repository
 }

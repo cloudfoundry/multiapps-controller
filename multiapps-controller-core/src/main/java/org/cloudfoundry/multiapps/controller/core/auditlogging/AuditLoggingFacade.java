@@ -6,6 +6,8 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.model.AuditLogCon
 public interface AuditLoggingFacade {
 
     void logSecurityIncident(AuditLogConfiguration configuration);
+
     void logDataAccessAuditLog(AuditLogConfiguration configuration);
+
     void logConfigurationChangeAuditLog(AuditLogConfiguration configuration, ConfigurationChangeActions configurationAction);
 }

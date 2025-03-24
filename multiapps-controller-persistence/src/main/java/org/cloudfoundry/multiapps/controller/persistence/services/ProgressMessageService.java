@@ -54,7 +54,9 @@ public class ProgressMessageService extends PersistenceService<ProgressMessage, 
 
     @Override
     protected void onEntityConflict(ProgressMessageDto progressMessage, Throwable t) {
-        throw new ConflictException(t, Messages.PROGRESS_MESSAGE_ALREADY_EXISTS, progressMessage.getProcessId(),
+        throw new ConflictException(t,
+                                    Messages.PROGRESS_MESSAGE_ALREADY_EXISTS,
+                                    progressMessage.getProcessId(),
                                     progressMessage.getPrimaryKey());
     }
 
@@ -89,7 +91,8 @@ public class ProgressMessageService extends PersistenceService<ProgressMessage, 
             String processId = progressMessage.getProcessId();
             String taskId = progressMessage.getTaskId();
             String type = progressMessage.getType() != null ? progressMessage.getType()
-                                                                             .name() : null;
+                                                                             .name()
+                : null;
             String text = progressMessage.getText();
             Date timestamp = progressMessage.getTimestamp();
             return new ProgressMessageDto(id, processId, taskId, type, text, timestamp);
