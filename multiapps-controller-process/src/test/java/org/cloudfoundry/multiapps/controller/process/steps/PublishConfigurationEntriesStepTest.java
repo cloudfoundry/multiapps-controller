@@ -102,12 +102,13 @@ class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishCo
                                                                                                .on(query -> query.target(Mockito.eq(entry.getTargetSpace())))
                                                                                                .build();
             doReturn(List.of(entry)).when(entryQueryMock)
-                                                      .list();
+                                    .list();
         }
     }
 
     private void prapareDynamicParameterResolver(StepInput input) {
-        when(dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(Mockito.anyList(), Mockito.anySet())).then(returnsFirstArg());
+        when(dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(Mockito.anyList(),
+                                                                                     Mockito.anySet())).then(returnsFirstArg());
     }
 
     private void prepareContext(StepInput input) {

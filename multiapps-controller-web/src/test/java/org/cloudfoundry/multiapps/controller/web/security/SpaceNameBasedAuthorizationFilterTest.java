@@ -72,7 +72,7 @@ class SpaceNameBasedAuthorizationFilterTest {
         public String getUriRegex() {
             throw new UnsupportedOperationException();
         }
-        
+
         @Override
         protected String extractUserGuid() {
             return USER_GUID;

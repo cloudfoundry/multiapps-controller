@@ -22,7 +22,6 @@ class OperationsHelperTest {
 
     private static final String PROCESS_ID = "84af8e1e-4d96-11ea-b77f-2e728ce88178";
 
-
     @Mock
     private OperationService operationService;
     @Mock

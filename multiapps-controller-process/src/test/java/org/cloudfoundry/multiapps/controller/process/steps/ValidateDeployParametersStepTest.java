@@ -124,38 +124,41 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
     }
 
     private void prepareFileService(String appArchiveId) throws FileStorageException {
-        when(fileService.getFile("space-id", EXISTING_FILE_ID))
-               .thenReturn(createFileEntry(EXISTING_FILE_ID, "some-file-entry-name", 1024 * 1024L));
-        when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.0"))
-               .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.0", MERGED_ARCHIVE_NAME + ".part.0", 1024 * 1024L));
+        when(fileService.getFile("space-id", EXISTING_FILE_ID)).thenReturn(createFileEntry(EXISTING_FILE_ID, "some-file-entry-name",
+                                                                                           1024 * 1024L));
+        when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.0")).thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.0",
+                                                                                                          MERGED_ARCHIVE_NAME + ".part.0",
+                                                                                                          1024 * 1024L));
 
-        when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.1"))
-               .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.1", MERGED_ARCHIVE_NAME + ".part.1", 1024 * 1024L));
+        when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.1")).thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.1",
+                                                                                                          MERGED_ARCHIVE_NAME + ".part.1",
+                                                                                                          1024 * 1024L));
 
-        when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.2"))
-               .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.2", MERGED_ARCHIVE_NAME + ".part.2", 1024 * 1024L));
+        when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.2")).thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.2",
+                                                                                                          MERGED_ARCHIVE_NAME + ".part.2",
+                                                                                                          1024 * 1024L));
 
-        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.0"))
-            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.0", MERGED_ARCHIVE_NAME + ".part.0", 1024 * 1024 * 1024));
+        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.0")).thenReturn(createFileEntry(MERGED_ARCHIVE_NAME
+            + ".part.0", MERGED_ARCHIVE_NAME + ".part.0", 1024 * 1024 * 1024));
 
-        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.1"))
-            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.1", MERGED_ARCHIVE_NAME + ".part.1", 1024 * 1024 * 1024));
+        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.1")).thenReturn(createFileEntry(MERGED_ARCHIVE_NAME
+            + ".part.1", MERGED_ARCHIVE_NAME + ".part.1", 1024 * 1024 * 1024));
 
-        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.2"))
-            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.2", MERGED_ARCHIVE_NAME + ".part.2", 1024 * 1024 * 1024));
+        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.2")).thenReturn(createFileEntry(MERGED_ARCHIVE_NAME
+            + ".part.2", MERGED_ARCHIVE_NAME + ".part.2", 1024 * 1024 * 1024));
 
-        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.3"))
-            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.3", MERGED_ARCHIVE_NAME + ".part.3", 1024 * 1024 * 1024));
+        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.3")).thenReturn(createFileEntry(MERGED_ARCHIVE_NAME
+            + ".part.3", MERGED_ARCHIVE_NAME + ".part.3", 1024 * 1024 * 1024));
 
-        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.4"))
-            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.4", MERGED_ARCHIVE_NAME + ".part.4", 1024 * 1024 * 1024));
+        when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.4")).thenReturn(createFileEntry(MERGED_ARCHIVE_NAME
+            + ".part.4", MERGED_ARCHIVE_NAME + ".part.4", 1024 * 1024 * 1024));
 
-        when(fileService.getFile("space-id", EXISTING_BIGGER_FILE_ID))
-               .thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024L + 1));
-        when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID))
-               .thenReturn(null);
-        when(fileService.addFile(any(FileEntry.class), any(InputStream.class)))
-               .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024L));
+        when(fileService.getFile("space-id", EXISTING_BIGGER_FILE_ID)).thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID,
+                                                                                                  "extDescriptorFile", 1024 * 1024L + 1));
+        when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID)).thenReturn(null);
+        when(fileService.addFile(any(FileEntry.class), any(InputStream.class))).thenReturn(createFileEntry(EXISTING_FILE_ID,
+                                                                                                           MERGED_ARCHIVE_TEST_MTAR,
+                                                                                                           1024 * 1024 * 1024L));
         if (appArchiveId.contains(EXCEEDING_FILE_SIZE_ID)) {
             List<FileEntry> fileEntries = List.of(createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.0", EXCEEDING_FILE_SIZE_ID + ".part.0",
                                                                   1024 * 1024 * 1024),
@@ -167,8 +170,7 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
                                                                   1024 * 1024 * 1024),
                                                   createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.4", EXCEEDING_FILE_SIZE_ID + ".part.4",
                                                                   1024 * 1024 * 1024));
-            when(fileService.listFilesBySpaceAndOperationId(Mockito.anyString(), Mockito.anyString()))
-                   .thenReturn(fileEntries);
+            when(fileService.listFilesBySpaceAndOperationId(Mockito.anyString(), Mockito.anyString())).thenReturn(fileEntries);
         }
     }
 
@@ -178,10 +180,8 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
     }
 
     private void prepareConfiguration() {
-        when(configuration.getMaxMtaDescriptorSize())
-               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
-        when(configuration.getMaxUploadSize())
-               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE);
+        when(configuration.getMaxMtaDescriptorSize()).thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
+        when(configuration.getMaxUploadSize()).thenReturn(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE);
     }
 
     private void validate() {

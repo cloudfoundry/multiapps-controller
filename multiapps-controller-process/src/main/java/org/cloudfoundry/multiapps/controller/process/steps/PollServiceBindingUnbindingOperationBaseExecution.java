@@ -47,7 +47,7 @@ public abstract class PollServiceBindingUnbindingOperationBaseExecution extends 
         String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
         return serviceBindingJob -> context.getStepLogger()
                                            .warnWithoutProgressMessage(Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FOR_OPTIONAL_SERVICE_FAILED_WITH,
-                                                                        app.getName(), serviceInstanceName, serviceBindingJob.getErrors());
+                                                                       app.getName(), serviceInstanceName, serviceBindingJob.getErrors());
     }
 
     @Override

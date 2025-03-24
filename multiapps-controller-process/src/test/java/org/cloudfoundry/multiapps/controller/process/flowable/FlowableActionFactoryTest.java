@@ -43,15 +43,23 @@ class FlowableActionFactoryTest {
     @Test
     void testAbortAction() {
         Mockito.when(processActionRegistry.getAction(ABORT_ACTION_ID))
-               .thenReturn(new AbortProcessAction(facade, List.of(additionalProcessAction), null, operationService,
-                                                  cloudControllerClientProvider, null, null));
+               .thenReturn(new AbortProcessAction(facade,
+                                                  List.of(additionalProcessAction),
+                                                  null,
+                                                  operationService,
+                                                  cloudControllerClientProvider,
+                                                  null,
+                                                  null));
         testAction(ABORT_ACTION_ID, AbortProcessAction.class);
     }
 
     @Test
     void testRetryAction() {
         Mockito.when(processActionRegistry.getAction(RETRY_ACTION_ID))
-               .thenReturn(new RetryProcessAction(facade, List.of(additionalProcessAction), historicOperationEventService, operationService,
+               .thenReturn(new RetryProcessAction(facade,
+                                                  List.of(additionalProcessAction),
+                                                  historicOperationEventService,
+                                                  operationService,
                                                   cloudControllerClientProvider));
         testAction(RETRY_ACTION_ID, RetryProcessAction.class);
     }
@@ -59,8 +67,10 @@ class FlowableActionFactoryTest {
     @Test
     void testResumeAction() {
         Mockito.when(processActionRegistry.getAction(RESUME_ACTION_ID))
-               .thenReturn(new ResumeProcessAction(facade, List.of(additionalProcessAction), operationService,
-                           cloudControllerClientProvider));
+               .thenReturn(new ResumeProcessAction(facade,
+                                                   List.of(additionalProcessAction),
+                                                   operationService,
+                                                   cloudControllerClientProvider));
         testAction(RESUME_ACTION_ID, ResumeProcessAction.class);
     }
 

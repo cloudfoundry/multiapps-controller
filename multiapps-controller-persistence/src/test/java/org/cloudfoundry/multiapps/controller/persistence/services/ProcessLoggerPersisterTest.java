@@ -54,12 +54,18 @@ class ProcessLoggerPersisterTest {
 
         processLoggerPersister.persistLogs(TEST_CORRELATION_ID, TEST_TASK_ID);
 
-        Mockito.verify(processLoggerProvider).getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
-        Mockito.verify(processLoggerProvider).removeProcessLoggerFromCache(processLogger);
-        Mockito.verify(processLoggerProvider).removeProcessLoggerFromCache(processLoggerSecond);
-        Mockito.verify(processLogsPersistenceService, times(2)).persistLog(any());
+        Mockito.verify(processLoggerProvider)
+               .getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
+        Mockito.verify(processLoggerProvider)
+               .removeProcessLoggerFromCache(processLogger);
+        Mockito.verify(processLoggerProvider)
+               .removeProcessLoggerFromCache(processLoggerSecond);
+        Mockito.verify(processLogsPersistenceService, times(2))
+               .persistLog(any());
 
-        Assertions.assertEquals(processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID).size(), 0);
+        Assertions.assertEquals(processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID)
+                                                     .size(),
+                                0);
     }
 
     @Test
@@ -70,20 +76,29 @@ class ProcessLoggerPersisterTest {
 
         processLoggerPersister.persistLogs(TEST_CORRELATION_ID, TEST_TASK_ID);
 
-        Mockito.verify(processLoggerProvider).getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
-        Mockito.verify(processLoggerProvider).removeProcessLoggerFromCache(processLogger);
-        Mockito.verify(processLoggerProvider).removeProcessLoggerFromCache(processLoggerSecond);
-        Mockito.verify(processLoggerProvider).removeProcessLoggerFromCache(processLoggerThird);
-        Mockito.verify(processLogsPersistenceService, times(2)).persistLog(any());
+        Mockito.verify(processLoggerProvider)
+               .getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
+        Mockito.verify(processLoggerProvider)
+               .removeProcessLoggerFromCache(processLogger);
+        Mockito.verify(processLoggerProvider)
+               .removeProcessLoggerFromCache(processLoggerSecond);
+        Mockito.verify(processLoggerProvider)
+               .removeProcessLoggerFromCache(processLoggerThird);
+        Mockito.verify(processLogsPersistenceService, times(2))
+               .persistLog(any());
 
-        Assertions.assertEquals(processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID).size(), 0);
+        Assertions.assertEquals(processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID)
+                                                     .size(),
+                                0);
     }
 
     @Test
     void testPersistLogWithoutLogs() {
         processLoggerPersister.persistLogs(TEST_CORRELATION_ID, TEST_TASK_ID);
 
-        Mockito.verify(processLoggerProvider).getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
-        Mockito.verify(processLogsPersistenceService, times(0)).persistLog(any());
+        Mockito.verify(processLoggerProvider)
+               .getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
+        Mockito.verify(processLogsPersistenceService, times(0))
+               .persistLog(any());
     }
 }

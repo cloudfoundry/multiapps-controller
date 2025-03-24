@@ -46,14 +46,14 @@ class ServiceOperationGetterTest {
 
     static Stream<Arguments> testGetLastServiceOperation() {
         return Stream.of(
-            // (1) Test with create succeeded operation
-            Arguments.of(ServiceOperation.Type.CREATE, ServiceOperation.State.SUCCEEDED, "created",
-                         new ServiceOperation(ServiceOperation.Type.CREATE, "created", ServiceOperation.State.SUCCEEDED)),
-            // (2) Test with delete service in progress operation
-            Arguments.of(ServiceOperation.Type.DELETE, ServiceOperation.State.IN_PROGRESS, null,
-                         new ServiceOperation(ServiceOperation.Type.DELETE, null, ServiceOperation.State.IN_PROGRESS)),
-            // (3) Test with missing service entity
-            Arguments.of(null, null, null, null));
+                         // (1) Test with create succeeded operation
+                         Arguments.of(ServiceOperation.Type.CREATE, ServiceOperation.State.SUCCEEDED, "created",
+                                      new ServiceOperation(ServiceOperation.Type.CREATE, "created", ServiceOperation.State.SUCCEEDED)),
+                         // (2) Test with delete service in progress operation
+                         Arguments.of(ServiceOperation.Type.DELETE, ServiceOperation.State.IN_PROGRESS, null,
+                                      new ServiceOperation(ServiceOperation.Type.DELETE, null, ServiceOperation.State.IN_PROGRESS)),
+                         // (3) Test with missing service entity
+                         Arguments.of(null, null, null, null));
     }
 
     @ParameterizedTest
@@ -84,12 +84,14 @@ class ServiceOperationGetterTest {
 
     static Stream<Arguments> testGetLastDeleteServiceOperation() {
         return Stream.of(
-            //(1) test with null metadata returns null service operation
-            Arguments.of(true, false, null),
-            //(2) test with delete event returns succeeded operation
-            Arguments.of(false, true, new ServiceOperation(ServiceOperation.Type.DELETE, null, ServiceOperation.State.SUCCEEDED)),
-            //(3) test with non-delete event returns in progress operation
-            Arguments.of(false, false, new ServiceOperation(ServiceOperation.Type.DELETE, null, ServiceOperation.State.IN_PROGRESS)));
+                         // (1) test with null metadata returns null service operation
+                         Arguments.of(true, false, null),
+                         // (2) test with delete event returns succeeded operation
+                         Arguments.of(false, true,
+                                      new ServiceOperation(ServiceOperation.Type.DELETE, null, ServiceOperation.State.SUCCEEDED)),
+                         // (3) test with non-delete event returns in progress operation
+                         Arguments.of(false, false,
+                                      new ServiceOperation(ServiceOperation.Type.DELETE, null, ServiceOperation.State.IN_PROGRESS)));
     }
 
     @ParameterizedTest

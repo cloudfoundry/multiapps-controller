@@ -27,7 +27,7 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceInstance;
 public class CloudEntityResourceMapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudEntityResourceMapper.class);
-    
+
     @SuppressWarnings("unchecked")
     public String getRelatedObjectGuid(Map<String, Object> resource, String relationshipName) {
         var relationships = (Map<String, Object>) resource.get("relationships");

@@ -23,8 +23,7 @@ public class Metrics implements MetricsMBean {
                    FileUploadThreadPoolInformation fileUploadThreadPoolInformation) {
         this.fssMonitor = fssMonitor;
         this.cachedFlowableThreadMonitor = new CachedObject<>(Duration.ofSeconds(appConfigurations.getThreadMonitorCacheUpdateInSeconds()));
-        this.cachedCloudFoundryClientThreadMonitor = new CachedObject<>(
-            Duration.ofSeconds(appConfigurations.getThreadMonitorCacheUpdateInSeconds()));
+        this.cachedCloudFoundryClientThreadMonitor = new CachedObject<>(Duration.ofSeconds(appConfigurations.getThreadMonitorCacheUpdateInSeconds()));
         this.flowableJobExecutorInformation = flowableJobExecutorInformation;
         this.fileUploadThreadPoolInformation = fileUploadThreadPoolInformation;
     }

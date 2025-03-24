@@ -142,8 +142,8 @@ public class OperationInFinalStateHandler {
             Optional<String> mtaVersion = getMtaVersionOfDeployedApplication(deployedMta);
 
             if (mtaVersion.isPresent()) {
-                LOGGER.info(MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTOR_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_VERSION_3,
-                                                 mtaId, spaceId, mtaNamespace, mtaVersion.get()));
+                LOGGER.info(MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTOR_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_VERSION_3, mtaId,
+                                                 spaceId, mtaNamespace, mtaVersion.get()));
                 descriptorBackupService.createQuery()
                                        .mtaId(mtaId)
                                        .spaceId(spaceId)

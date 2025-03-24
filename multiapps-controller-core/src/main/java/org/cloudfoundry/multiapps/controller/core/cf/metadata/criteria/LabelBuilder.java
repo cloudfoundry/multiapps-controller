@@ -23,11 +23,11 @@ public class LabelBuilder {
         if (StringUtils.isEmpty(value)) {
             return doesNotExist();
         }
-        
+
         return hasValue(value);
     }
 
-    public FinalizingBuilder hasValue(String value) {        
+    public FinalizingBuilder hasValue(String value) {
         MtaMetadataCriteriaValidator.validateLabelValue(value);
         return completeQuery(label + "=" + value);
     }

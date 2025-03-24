@@ -67,7 +67,8 @@ class AuthenticationLoaderFilterTest {
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class,
                                                                        () -> authenticationLoaderFilter.doFilterInternal(request, response,
                                                                                                                          filterChain));
-        assertEquals(HttpStatus.UNAUTHORIZED,  HttpStatus.valueOf(responseStatusException.getStatusCode().value()));
+        assertEquals(HttpStatus.UNAUTHORIZED, HttpStatus.valueOf(responseStatusException.getStatusCode()
+                                                                                        .value()));
     }
 
     @Test
@@ -95,10 +96,13 @@ class AuthenticationLoaderFilterTest {
     void testWithInvalidAuthorizationHeaderBasicAuth(String bearerToken) throws ServletException, IOException {
         OAuth2AccessTokenWithAdditionalInfo mockedToken = getMockedOAuth2AccessTokenWithAdditionalInfo();
         Mockito.when(request.getHeader(HttpHeaders.AUTHORIZATION))
-                .thenReturn(bearerToken);
+               .thenReturn(bearerToken);
         mockTokenParsingStrategyFactory(mockedToken);
-        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> authenticationLoaderFilter.doFilterInternal(request, response, filterChain));
-        assertEquals(HttpStatus.UNAUTHORIZED,  HttpStatus.valueOf(responseStatusException.getStatusCode().value()));
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class,
+                                                                       () -> authenticationLoaderFilter.doFilterInternal(request, response,
+                                                                                                                         filterChain));
+        assertEquals(HttpStatus.UNAUTHORIZED, HttpStatus.valueOf(responseStatusException.getStatusCode()
+                                                                                        .value()));
     }
 
     private OAuth2AccessTokenWithAdditionalInfo getMockedOAuth2AccessTokenWithAdditionalInfo() {

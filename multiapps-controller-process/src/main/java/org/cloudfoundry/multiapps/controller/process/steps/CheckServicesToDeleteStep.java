@@ -28,8 +28,7 @@ public class CheckServicesToDeleteStep extends CollectServicesInProgressStateSte
     private ApplicationConfiguration applicationConfiguration;
 
     @Inject
-    CheckServicesToDeleteStep(ServiceOperationGetter serviceOperationGetter,
-                              ServiceProgressReporter serviceProgressReporter,
+    CheckServicesToDeleteStep(ServiceOperationGetter serviceOperationGetter, ServiceProgressReporter serviceProgressReporter,
                               ApplicationConfiguration applicationConfiguration) {
         super(serviceOperationGetter, serviceProgressReporter);
         this.applicationConfiguration = applicationConfiguration;
@@ -43,10 +42,11 @@ public class CheckServicesToDeleteStep extends CollectServicesInProgressStateSte
         }
         CloudControllerClient client = context.getControllerClient();
         int maxParallelThreads = getMaxParallelThreads(servicesToDelete);
-        return ForkJoinPoolUtil.execute(maxParallelThreads, () ->  doGetExistingServicesInProgress(client, servicesToDelete));
+        return ForkJoinPoolUtil.execute(maxParallelThreads, () -> doGetExistingServicesInProgress(client, servicesToDelete));
     }
 
-    private List<CloudServiceInstanceExtended> doGetExistingServicesInProgress(CloudControllerClient client, List<String> servicesToDelete) {
+    private List<CloudServiceInstanceExtended> doGetExistingServicesInProgress(CloudControllerClient client,
+                                                                               List<String> servicesToDelete) {
         return servicesToDelete.parallelStream()
                                .map(service -> getExistingService(client, buildCloudServiceExtended(service)))
                                .filter(Objects::nonNull)

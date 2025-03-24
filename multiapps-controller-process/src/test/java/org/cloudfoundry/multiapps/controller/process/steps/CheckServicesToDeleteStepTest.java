@@ -53,9 +53,8 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
                                                     Pair.of("service-2", ServiceOperation.State.SUCCEEDED)),
                                       Collections.emptyList(), "DONE"),
                          // (4) No services to delete
-                         Arguments.of(Collections.emptyList(), Collections.emptyList(),
-                                      Collections.emptyMap(),
-                                      Collections.emptyList(), "DONE"));
+                         Arguments.of(Collections.emptyList(), Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(),
+                                      "DONE"));
     }
 
     @ParameterizedTest
@@ -90,7 +89,7 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
     }
 
     private void prepareClient(List<String> serviceNames, Map<String, ServiceOperation.State> servicesOperationState) {
-        for (String serviceName: serviceNames) {
+        for (String serviceName : serviceNames) {
             ServiceOperation lastServiceOperation = new ServiceOperation(ServiceOperation.Type.DELETE,
                                                                          "",
                                                                          servicesOperationState.get(serviceName));

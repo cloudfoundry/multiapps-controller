@@ -15,7 +15,7 @@ public class PollServiceKeyCreationOperationExecution extends PollServiceKeyOper
         CloudServiceInstanceExtended serviceInstanceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
         return serviceKeyJob -> context.getStepLogger()
                                        .warn(Messages.ASYNC_OPERATION_FOR_OPTIONAL_SERVICE_KEY_FAILED_WITH,
-                                              serviceInstanceToProcess.getName(), serviceKeyJob.getErrors());
+                                             serviceInstanceToProcess.getName(), serviceKeyJob.getErrors());
     }
 
     @Override

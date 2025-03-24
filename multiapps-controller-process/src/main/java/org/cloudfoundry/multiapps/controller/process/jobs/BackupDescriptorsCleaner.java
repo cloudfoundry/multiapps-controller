@@ -30,8 +30,8 @@ public class BackupDescriptorsCleaner implements Cleaner {
         LOGGER.debug(CleanUpJob.LOG_MARKER, MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTORS_STORED_BEFORE_0, expirationTime));
 
         int removedBackupDescriptors = descriptorBackupService.createQuery()
-                                                                 .olderThan(expirationTime)
-                                                                 .delete();
+                                                              .olderThan(expirationTime)
+                                                              .delete();
 
         LOGGER.debug(CleanUpJob.LOG_MARKER, MessageFormat.format(Messages.DELETED_BACKUP_DESCRIPTORS_0, removedBackupDescriptors));
     }

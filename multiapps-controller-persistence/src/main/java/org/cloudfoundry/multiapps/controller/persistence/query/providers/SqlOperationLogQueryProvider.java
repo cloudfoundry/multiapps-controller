@@ -24,7 +24,6 @@ public class SqlOperationLogQueryProvider {
     private static final String SELECT_LOGS_BY_SPACE_ID_AND_NAME = "SELECT DISTINCT ID, OPERATION_LOG, OPERATION_LOG_NAME, MODIFIED FROM %s WHERE SPACE=? AND OPERATION_ID=? ORDER BY MODIFIED ASC";
     private final String tableName;
 
-
     public SqlOperationLogQueryProvider(String tableName) {
         this.tableName = tableName;
     }

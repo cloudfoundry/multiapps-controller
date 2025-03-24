@@ -165,11 +165,11 @@ public class ConfigurationSubscriptionDto implements DtoWithPrimaryKey<Long> {
     public String getResourceName() {
         return resourceName;
     }
-    
+
     public String getModuleId() {
         return moduleId;
     }
-    
+
     public String getResourceId() {
         return resourceId;
     }

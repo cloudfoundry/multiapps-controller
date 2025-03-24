@@ -18,7 +18,6 @@ public class NullProcessLogger extends ProcessLogger {
     private final String processId;
     private final String activityId;
 
-
     public NullProcessLogger(String spaceId, String processId, String activityId) {
         super(null, NULL_LOGGER_NAME, null, Strings.EMPTY);
         this.activityId = activityId;

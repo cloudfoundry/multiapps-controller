@@ -55,8 +55,8 @@ class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRoutesStep
                          Arguments.of("existing-app-4.json", "app-to-deploy-4.json", Collections.emptySet(), null, StepPhase.DONE),
                          // (8) No-Hostname: The new routes are a subset of the old:
                          Arguments.of("existing-app-5.json", "app-to-deploy-4.json",
-                                      TestData.routeSet(TestData.NOHOSTNAME_URI_FLAG + "testdomain.com", "bar.testdomain.com/another/path"), null,
-                                      StepPhase.DONE));
+                                      TestData.routeSet(TestData.NOHOSTNAME_URI_FLAG + "testdomain.com", "bar.testdomain.com/another/path"),
+                                      null, StepPhase.DONE));
     }
 
     @ParameterizedTest
@@ -110,7 +110,8 @@ class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRoutesStep
 
         for (CloudRoute route : routesToDelete) {
             verify(client, times(1)).deleteRoute(route.getHost(), route.getDomain()
-                                                                       .getName(), route.getPath());
+                                                                       .getName(),
+                                                 route.getPath());
         }
     }
 

@@ -7,8 +7,7 @@ import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 public class PollStartServiceBrokerSubscriberStatusExecution extends PollStartAppStatusExecution {
 
-    public PollStartServiceBrokerSubscriberStatusExecution(CloudControllerClientFactory clientFactory,
-                                                           TokenService tokenService) {
+    public PollStartServiceBrokerSubscriberStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService) {
         super(clientFactory, tokenService);
     }
 

@@ -145,8 +145,7 @@ class FileServiceTest extends DatabaseFileServiceTest {
     @Test
     @Override
     void testOpenInputStream() throws Exception {
-        when(fileStorage.openInputStream(anyString(), anyString()))
-                .thenReturn(getResource(PIC_RESOURCE_NAME));
+        when(fileStorage.openInputStream(anyString(), anyString())).thenReturn(getResource(PIC_RESOURCE_NAME));
         super.testOpenInputStream();
         Mockito.verify(fileStorage)
                .openInputStream(anyString(), anyString());

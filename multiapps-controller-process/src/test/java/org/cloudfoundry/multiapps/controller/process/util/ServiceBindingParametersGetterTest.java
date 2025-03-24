@@ -50,12 +50,10 @@ class ServiceBindingParametersGetterTest {
     private static final String SERVICE_BINDING_PARAMETERS_FILENAME = "test_binding_parameters.json";
     private static final UUID RANDOM_GUID = UUID.randomUUID();
     private static final ArchiveEntryWithStreamPositions ARCHIVE_ENTRY_WITH_STREAM_POSITIONS = ImmutableArchiveEntryWithStreamPositions.builder()
-                                                                                                                                       .name(
-                                                                                                                                           SERVICE_BINDING_PARAMETERS_FILENAME)
+                                                                                                                                       .name(SERVICE_BINDING_PARAMETERS_FILENAME)
                                                                                                                                        .startPosition(37)
                                                                                                                                        .endPosition(5012)
-                                                                                                                                       .compressionMethod(
-                                                                                                                                           ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
+                                                                                                                                       .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
                                                                                                                                        .isDirectory(false)
                                                                                                                                        .build();
     private static final String TEST_SPACE_GUID = "test_space_guid";
@@ -85,7 +83,7 @@ class ServiceBindingParametersGetterTest {
 
     static Stream<Arguments> testGetServiceBindingParametersFromMta() {
         return Stream.of(
-            //@formatter:off
+        //@formatter:off
                          Arguments.of(Map.of("param1", "value1"),  Map.of("param1", "value1")),
                          Arguments.of(null, Collections.emptyMap()),
                          Arguments.of(Map.of("object", Map.of("new-nested-parameter", "value1")),
@@ -104,7 +102,8 @@ class ServiceBindingParametersGetterTest {
         prepareMtaArchiveElements(expectedParameters);
         prepareContext(serviceInstance);
         prepareFileService(expectedParameters);
-        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromMta(application, SERVICE_NAME);
+        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromMta(application,
+                                                                                                                  SERVICE_NAME);
 
         assertEquals(expectedParameters, bindingParameters);
     }
@@ -114,7 +113,8 @@ class ServiceBindingParametersGetterTest {
         CloudApplicationExtended application = buildApplication(null);
         when(context.getVariable(Variables.SERVICES_TO_BIND)).thenReturn(Collections.emptyList());
 
-        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromMta(application, SERVICE_NAME);
+        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromMta(application,
+                                                                                                                  SERVICE_NAME);
 
         assertTrue(bindingParameters.isEmpty(), "Binding parameters should be empty map");
     }
@@ -127,7 +127,8 @@ class ServiceBindingParametersGetterTest {
         prepareContext(serviceInstance);
         prepareClient(bindingParametersToReturn, true);
 
-        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application, SERVICE_NAME);
+        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application,
+                                                                                                                               SERVICE_NAME);
 
         assertEquals(bindingParametersToReturn, bindingParameters);
     }
@@ -144,8 +145,8 @@ class ServiceBindingParametersGetterTest {
     }
 
     static Stream<Arguments> testHandleCloudOperationExceptions() {
-        return Stream.of(Arguments.of(HttpStatus.BAD_REQUEST, false), Arguments.of(HttpStatus.NOT_FOUND, true), Arguments.of(HttpStatus.NOT_IMPLEMENTED, false),
-                         Arguments.of(HttpStatus.INTERNAL_SERVER_ERROR, true));
+        return Stream.of(Arguments.of(HttpStatus.BAD_REQUEST, false), Arguments.of(HttpStatus.NOT_FOUND, true),
+                         Arguments.of(HttpStatus.NOT_IMPLEMENTED, false), Arguments.of(HttpStatus.INTERNAL_SERVER_ERROR, true));
     }
 
     @ParameterizedTest
@@ -162,7 +163,8 @@ class ServiceBindingParametersGetterTest {
                          () -> serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application, SERVICE_NAME));
             return;
         }
-        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application, SERVICE_NAME);
+        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application,
+                                                                                                                               SERVICE_NAME);
         assertNull(bindingParameters, "Returned result from CloudOperationException should be null");
         verify(stepLogger).warnWithoutProgressMessage(anyString(), any(Object[].class));
     }
@@ -229,10 +231,8 @@ class ServiceBindingParametersGetterTest {
                                                                                                              .guid(RANDOM_GUID)
                                                                                                              .build())
                                                                              .serviceBindingOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                                                                .type(
-                                                                                                                                                    ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                                                                .state(
-                                                                                                                                                    ServiceCredentialBindingOperation.State.SUCCEEDED)
+                                                                                                                                                .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                                                                .state(ServiceCredentialBindingOperation.State.SUCCEEDED)
                                                                                                                                                 .build())
                                                                              .build();
             when(client.getServiceBindingForApplication(RANDOM_GUID, RANDOM_GUID)).thenReturn(serviceBinding);

@@ -48,7 +48,8 @@ class ApplicationEnvironmentUpdaterTest {
                                                                                      .type(LifecycleType.DOCKER)
                                                                                      .build())
                                                         .build();
-        ApplicationEnvironmentUpdater applicationEnvironmentUpdater = new ApplicationEnvironmentUpdater(app, ENV_CONVERTER.asEnv(input.app.env),
+        ApplicationEnvironmentUpdater applicationEnvironmentUpdater = new ApplicationEnvironmentUpdater(app,
+                                                                                                        ENV_CONVERTER.asEnv(input.app.env),
                                                                                                         client).withPrettyPrinting(false);
         applicationEnvironmentUpdater.updateApplicationEnvironment(input.envPropertyKey, input.newKey, input.newValue);
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);

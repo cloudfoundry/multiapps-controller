@@ -127,9 +127,9 @@ public class MtaArchiveContentResolver {
                      .filter(r -> r.getName()
                                    .equals(requiresDependencyName))
                      .findFirst()
-                     .orElseThrow(
-                         () -> new SLException(Messages.ERROR_COULD_NOT_FIND_REQUIRED_DEPENDENCY_0_FOR_MODULE_1, requiresDependencyName,
-                                               module.getName()));
+                     .orElseThrow(() -> new SLException(Messages.ERROR_COULD_NOT_FIND_REQUIRED_DEPENDENCY_0_FOR_MODULE_1,
+                                                        requiresDependencyName,
+                                                        module.getName()));
     }
 
 }

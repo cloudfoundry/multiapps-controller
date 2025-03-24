@@ -73,13 +73,14 @@ public class NameUtil {
 
     private static String getNameWithNamespaceSuffix(String name, String namespace, int maxLength) {
         String namespaceSuffix = getNamespaceSuffix(namespace);
-        String shortenedName = getNameWithProperLength(name, calculateNameLengthWithoutNamespaceAndBlueGreenSuffix(namespaceSuffix, maxLength));
+        String shortenedName = getNameWithProperLength(name,
+                                                       calculateNameLengthWithoutNamespaceAndBlueGreenSuffix(namespaceSuffix, maxLength));
 
         return correctNameSuffix(shortenedName, name, namespaceSuffix);
     }
 
     private static int calculateNameLengthWithoutNamespaceAndBlueGreenSuffix(String namespaceSuffix, int maxLengthWithSuffix) {
-        //Here we use the "green" suffix because it is the longest out of all
+        // Here we use the "green" suffix because it is the longest out of all
         return maxLengthWithSuffix - (namespaceSuffix.length() + SystemParameters.GREEN_HOST_SUFFIX.length());
     }
 
@@ -120,6 +121,7 @@ public class NameUtil {
         }
         return systemNamespace;
     }
+
     private static String getShortenedName(String name, int maxLength) {
         String nameHashCode = getHashCodeAsHexString(name);
         if (maxLength < nameHashCode.length()) {
