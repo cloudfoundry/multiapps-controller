@@ -1,11 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Hook;
@@ -17,17 +17,11 @@ import org.cloudfoundry.multiapps.mta.resolvers.ReferencePattern;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import jakarta.inject.Named;
-
 @Named("referenceFinder")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ReferenceFinder {
 
     private String parameterToFind;
-
-    private static final List<Pattern> COMPILED_PATTERNS = Arrays.asList(Pattern.compile(ReferencePattern.PLACEHOLDER.getPattern()),
-                                                                         Pattern.compile(ReferencePattern.SHORT.getPattern()),
-                                                                         Pattern.compile(ReferencePattern.FULLY_QUALIFIED.getPattern()));
 
     private void setParameterToFind(String parameterToFind) {
         this.parameterToFind = parameterToFind;
@@ -95,7 +89,7 @@ public class ReferenceFinder {
     }
 
     private boolean referencePatternMatches(Object valueToMatch) {
-        for (Pattern compiledPattern : COMPILED_PATTERNS) {
+        for (Pattern compiledPattern : ReferencePattern.COMPILED_PATTERNS) {
             Matcher matcher = compiledPattern.matcher(MiscUtil.cast(valueToMatch));
             if (referenceMatchesValue(matcher)) {
                 return true;

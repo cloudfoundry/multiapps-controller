@@ -194,17 +194,15 @@ public class SupportedParameters {
                                                                TCP_ROUTES, TCPS_ROUTES, TIMESTAMP, UPLOAD_TIMEOUT, ROUTE, EXECUTE_APP,
                                                                SUCCESS_MARKER, FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID,
                                                                REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
-                                                               REGISTER_SERVICE_URL_SERVICE_URL, MODULE_CONFIG, MANAGED, PATH);
+                                                               REGISTER_SERVICE_URL_SERVICE_URL, MODULE_CONFIG, MANAGED, PATH,
+                                                               APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
+                                                               APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT);
 
     public static final Set<String> RESOURCE_PARAMETERS = Set.of(APPLY_NAMESPACE, SERVICE_CONFIG, SYSLOG_DRAIN_URL, DEFAULT_CONTAINER_NAME,
                                                                  DEFAULT_SERVICE_NAME, DEFAULT_XS_APP_NAME, SERVICE, SERVICE_KEYS,
                                                                  SERVICE_KEY_NAME, SERVICE_NAME, SERVICE_PLAN, SERVICE_TAGS, SERVICE_BROKER,
                                                                  SKIP_SERVICE_UPDATES, TYPE, PROVIDER_ID, PROVIDER_NID, TARGET,
                                                                  SERVICE_CONFIG_PATH, FILTER, MANAGED, VERSION, PATH, MEMORY);
-    public static final Set<String> UNIVERSAL_REFERENCE_PARAMETERS = Set.of(XS_TYPE, USER, SPACE_GUID, SPACE_NAME, PROTOCOL,
-                                                                            ORGANIZATION_GUID, ORGANIZATION_NAME, MTA_VERSION, MTA_ID,
-                                                                            GENERATED_USER, GENERATED_PASSWORD, DEPLOY_SERVICE_URL,
-                                                                            DEFAULT_DOMAIN, AUTHORIZATION_URL);
     public static final Set<String> GLOBAL_PARAMETERS = Set.of(KEEP_EXISTING_ROUTES, APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
                                                                APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT, APPLY_NAMESPACE,
                                                                ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE);
