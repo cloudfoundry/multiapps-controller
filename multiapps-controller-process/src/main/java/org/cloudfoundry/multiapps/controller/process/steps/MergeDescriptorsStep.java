@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.persistence.dto.ImmutableBackupDesc
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
+import org.cloudfoundry.multiapps.controller.process.util.SupportedParametersChecker;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
@@ -23,7 +25,8 @@ import jakarta.inject.Named;
 @Named("mergeDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class MergeDescriptorsStep extends SyncFlowableStep {
-
+    @Inject
+    private SupportedParametersChecker supportedParametersChecker;
     @Inject
     private DescriptorBackupService descriptorBackupService;
 
@@ -42,9 +45,19 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
                                                                                                  extensionDescriptors);
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
 
+        warnForUnknownParameters(descriptor);
+
         backupDeploymentDescriptor(context, descriptor);
         getStepLogger().debug(Messages.DESCRIPTORS_MERGED);
         return StepPhase.DONE;
+    }
+
+    private void warnForUnknownParameters(DeploymentDescriptor descriptor) {
+        List<String> unknownParameters = supportedParametersChecker.getUnknownParameters(descriptor);
+        if (!unknownParameters.isEmpty()) {
+            getStepLogger().warn(MessageFormat.format(Messages.PARAMETERS_0_ARE_NOT_SUPPORTED_OR_REFERENCED_BY_ANY_OTHER_ENTITIES,
+                                                      unknownParameters));
+        }
     }
 
     private void backupDeploymentDescriptor(ProcessContext context, DeploymentDescriptor descriptor) {
