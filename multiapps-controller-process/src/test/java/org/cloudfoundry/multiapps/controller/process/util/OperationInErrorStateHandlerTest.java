@@ -221,8 +221,8 @@ class OperationInErrorStateHandlerTest {
         private ProcessEngineConfiguration processEngineConfiguration;
 
         public OperationInErrorStateHandlerMock(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
-                                                HistoricOperationEventService historicOperationEventService,
-                                                ClientReleaser clientReleaser, OperationService operationService) {
+                                                HistoricOperationEventService historicOperationEventService, ClientReleaser clientReleaser,
+                                                OperationService operationService) {
             super(progressMessageService, flowableFacade, historicOperationEventService, clientReleaser, operationService);
         }
 

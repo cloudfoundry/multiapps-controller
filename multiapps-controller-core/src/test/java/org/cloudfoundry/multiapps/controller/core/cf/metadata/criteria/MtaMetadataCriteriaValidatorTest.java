@@ -16,7 +16,7 @@ class MtaMetadataCriteriaValidatorTest {
 
     static Stream<Arguments> testValidateLabelKey() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
                       // (1) Blank prefix
                       Arguments.of("", true, "Metadata's label key, should not be empty"),
                       // (2) Exceeded max length
@@ -51,22 +51,22 @@ class MtaMetadataCriteriaValidatorTest {
 
     static Stream<Arguments> testValidateLabelValue() {
         return Stream.of(
-                         // (1) Blank prefix
-                         Arguments.of("", false, null),
-                         // (2) Exceeded max length
-                         Arguments.of(StringUtils.repeat('a', 65), true,
-                                      "Metadata's label value, should not be longer than \"63\" characters. Currently it is \"65\" characters with value \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""),
-                         // (3) Start with non alphanumeric
-                         Arguments.of("-foo", true,
-                                      "Metadata's label value, should start with (alphanumeric character). Currently it does not and the value is \"-foo\""),
-                         // (4) End with non alphanumeric
-                         Arguments.of("foo-", true,
-                                      "Metadata's label value, should end with (alphanumeric character). Currently it does not and the value is \"foo-\""),
-                         // (5) Not match to custom pattern
-                         Arguments.of("foo$bar", true,
-                                      "Metadata's label value, should (contain only alphanumeric characters, \"-\", \"_\" or \".\"). Currently it does not and the value is \"foo$bar\""),
-                         // (6) Valid Label value
-                         Arguments.of("quux", false, null));
+            // (1) Blank prefix
+            Arguments.of("", false, null),
+            // (2) Exceeded max length
+            Arguments.of(StringUtils.repeat('a', 65), true,
+                         "Metadata's label value, should not be longer than \"63\" characters. Currently it is \"65\" characters with value \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""),
+            // (3) Start with non alphanumeric
+            Arguments.of("-foo", true,
+                         "Metadata's label value, should start with (alphanumeric character). Currently it does not and the value is \"-foo\""),
+            // (4) End with non alphanumeric
+            Arguments.of("foo-", true,
+                         "Metadata's label value, should end with (alphanumeric character). Currently it does not and the value is \"foo-\""),
+            // (5) Not match to custom pattern
+            Arguments.of("foo$bar", true,
+                         "Metadata's label value, should (contain only alphanumeric characters, \"-\", \"_\" or \".\"). Currently it does not and the value is \"foo$bar\""),
+            // (6) Valid Label value
+            Arguments.of("quux", false, null));
     }
 
     @ParameterizedTest

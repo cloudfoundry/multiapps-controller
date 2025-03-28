@@ -46,6 +46,7 @@ class AbortProcessActionTest extends ProcessActionTest {
                                                                  .processType(ProcessType.DEPLOY)
                                                                  .state(Operation.State.RUNNING)
                                                                  .build();
+
     @BeforeEach
     void setUp() {
         prepareOperationService();

@@ -24,7 +24,8 @@ public class PollServiceBrokersOperationsExecution implements AsyncExecution {
             String jobId = brokerNameWithJobId.getValue();
             CloudControllerClient controllerClient = context.getControllerClient();
             AsyncExecutionState asyncJobStatus = createAsyncJobAdapter(context,
-                                                                       serviceBrokerName).evaluateState(controllerClient.getAsyncJob(jobId));
+                                                                       serviceBrokerName).evaluateState(
+                controllerClient.getAsyncJob(jobId));
             if (asyncJobStatus == AsyncExecutionState.ERROR) {
                 return AsyncExecutionState.ERROR;
             }

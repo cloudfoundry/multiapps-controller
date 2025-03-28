@@ -21,11 +21,12 @@ import com.sap.cloudfoundry.client.facade.CloudOperationException;
 class CustomControllerClientErrorHandlerTest {
 
     private static final ResilientCloudOperationExecutor NULL_RETRIER = new ResilientCloudOperationExecutor().withRetryCount(0)
-                                                                                                             .withWaitTimeBetweenRetriesInMillis(0);
+                                                                                                             .withWaitTimeBetweenRetriesInMillis(
+                                                                                                                 0);
 
     public static Stream<Arguments> testHandleErrorsWithRightExceptionType() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
                 // (0) The response body contains a description in the supported format:
                 Arguments.of(prepareHttpStatusCodeException(HttpStatus.BAD_GATEWAY, "Service broker error", "cf-error-response-body-0.json"),
                         new CloudOperationException(HttpStatus.BAD_GATEWAY, "Service broker error", "Application currency-services-core-uaa-dev1!i211 does not exist")),
@@ -75,8 +76,10 @@ class CustomControllerClientErrorHandlerTest {
 
     @Test
     void testHandleErrorsWithWrongExceptionType() {
-        ResilientCloudOperationExecutor resilientCloudOperationExecutor = new ResilientCloudOperationExecutor().withWaitTimeBetweenRetriesInMillis(0);
-        CustomControllerClientErrorHandler customControllerClientErrorHandler = new CustomControllerClientErrorHandler().withExecutorFactory(() -> resilientCloudOperationExecutor);
+        ResilientCloudOperationExecutor resilientCloudOperationExecutor = new ResilientCloudOperationExecutor().withWaitTimeBetweenRetriesInMillis(
+            0);
+        CustomControllerClientErrorHandler customControllerClientErrorHandler = new CustomControllerClientErrorHandler().withExecutorFactory(
+            () -> resilientCloudOperationExecutor);
         Assertions.assertThrows(IllegalArgumentException.class, () -> customControllerClientErrorHandler.handleErrors(() -> {
             throw new IllegalArgumentException("Should not be handled by the error handler");
         }));

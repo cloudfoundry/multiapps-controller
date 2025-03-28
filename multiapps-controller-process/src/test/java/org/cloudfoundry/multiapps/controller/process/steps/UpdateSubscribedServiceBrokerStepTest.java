@@ -33,7 +33,7 @@ class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<UpdateS
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) With an application that matches to an existing service broker
             Arguments.of("update-subscribed-service-broker-input-00.json", null, null),
             // (1) With an application that does not-matches to an existing service broker
@@ -130,8 +130,7 @@ class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<UpdateS
 
         Map<String, String> getAppEnv() {
             Map<String, Object> brokerDetails = getBrokerDetails();
-            return Map.of(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES,
-                          JsonUtil.toJson(brokerDetails));
+            return Map.of(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(brokerDetails));
         }
 
         private Map<String, Object> getBrokerDetails() {

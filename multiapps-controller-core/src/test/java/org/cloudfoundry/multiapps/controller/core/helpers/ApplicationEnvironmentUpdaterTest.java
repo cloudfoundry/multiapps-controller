@@ -28,7 +28,7 @@ class ApplicationEnvironmentUpdaterTest {
 
     public static Stream<Arguments> testUpdateEnv() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             Arguments.of("application-env-updater-input-00.json", new Expectation(Expectation.Type.JSON, "application-env-updater-result-00.json")),
             Arguments.of("application-env-updater-input-01.json", new Expectation(Expectation.Type.JSON, "application-env-updater-result-01.json"))
 // @formatter:on
@@ -48,7 +48,8 @@ class ApplicationEnvironmentUpdaterTest {
                                                                                      .type(LifecycleType.DOCKER)
                                                                                      .build())
                                                         .build();
-        ApplicationEnvironmentUpdater applicationEnvironmentUpdater = new ApplicationEnvironmentUpdater(app, ENV_CONVERTER.asEnv(input.app.env),
+        ApplicationEnvironmentUpdater applicationEnvironmentUpdater = new ApplicationEnvironmentUpdater(app,
+                                                                                                        ENV_CONVERTER.asEnv(input.app.env),
                                                                                                         client).withPrettyPrinting(false);
         applicationEnvironmentUpdater.updateApplicationEnvironment(input.envPropertyKey, input.newKey, input.newValue);
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);

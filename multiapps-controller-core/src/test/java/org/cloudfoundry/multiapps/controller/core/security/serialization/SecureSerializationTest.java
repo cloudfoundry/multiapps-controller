@@ -17,7 +17,7 @@ class SecureSerializationTest {
 
     public static Stream<Arguments> testToJson() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) Sensitive information should be detected in element keys:
             Arguments.of("unsecured-object-00.json", Object.class, new Expectation(Expectation.Type.STRING, getResourceAsString("secured-object-00.json"))),
             // (1) Sensitive information should be detected in element keys, but there's a typo in one of the keys:

@@ -86,14 +86,14 @@ class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorSt
 
     @Test
     void testDynamicParametersAreSetOnlyOnce() {
-        when(resolver.resolve(any())).thenAnswer((invocation) -> invocation.getArguments()[0]);        
+        when(resolver.resolve(any())).thenAnswer((invocation) -> invocation.getArguments()[0]);
         Set<DynamicResolvableParameter> dynamicParameters = Set.of(ImmutableDynamicResolvableParameter.builder()
-                                                                   .parameterName("service-guid")
-                                                                   .relationshipEntityName("service-1")
-                                                                   .value("service-guid")
-                                                                   .build());
+                                                                                                      .parameterName("service-guid")
+                                                                                                      .relationshipEntityName("service-1")
+                                                                                                      .value("service-guid")
+                                                                                                      .build());
         context.setVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS, dynamicParameters);
-        
+
         step.execute(execution);
 
         verify(execution, times(1)).setVariable(eq(Variables.DYNAMIC_RESOLVABLE_PARAMETERS.getName()), any());

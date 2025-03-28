@@ -44,7 +44,7 @@ class CleanUpJobTest {
                .thenReturn(0);
         Mockito.when(configuration.getMaxTtlForOldData())
                .thenReturn(ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA);
-        return  configuration;
+        return configuration;
     }
 
 }

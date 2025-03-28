@@ -44,7 +44,7 @@ class ConfigurationFilterParserTest {
 
     static Stream<Arguments> testParse() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
         // (1) Parse a filter with new syntax
         Arguments.of("configuration-filter-parser-test-input-01.json", new Expectation(Expectation.Type.JSON, "configuration-filter-parser-test-output-01.json")),
         // (2) Parse a filter with old syntax

@@ -43,7 +43,7 @@ class ApplicationURITest {
     @SuppressWarnings("serial")
     static Stream<Arguments> testGetURIParts() {
         return Stream.of(
-//@formatter:off
+            //@formatter:off
                 Arguments.of("host", "domain.com", "/path",
                              Map.of(SupportedParameters.HOST, "host",
                                     SupportedParameters.DOMAIN, "domain.com",

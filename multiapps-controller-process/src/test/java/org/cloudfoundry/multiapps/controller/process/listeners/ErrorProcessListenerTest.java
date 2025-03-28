@@ -58,7 +58,8 @@ class ErrorProcessListenerTest {
     @Test
     void testJobExecutionFailureWithNoException() {
         FlowableEngineEntityEvent engineEntityEvent = Mockito.mock(FlowableEngineEntityEvent.class, Mockito.withSettings()
-                                                                                                           .extraInterfaces(FlowableExceptionEvent.class));
+                                                                                                           .extraInterfaces(
+                                                                                                               FlowableExceptionEvent.class));
         errorProcessListener.jobExecutionFailure(engineEntityEvent);
         Mockito.verifyNoInteractions(eventHandler);
     }
@@ -66,7 +67,8 @@ class ErrorProcessListenerTest {
     @Test
     void testJobExecutionFailure() {
         FlowableEngineEntityEvent engineEntityEvent = Mockito.mock(FlowableEngineEntityEvent.class, Mockito.withSettings()
-                                                                                                           .extraInterfaces(FlowableExceptionEvent.class));
+                                                                                                           .extraInterfaces(
+                                                                                                               FlowableExceptionEvent.class));
         FlowableExceptionEvent exceptionEvent = (FlowableExceptionEvent) engineEntityEvent;
         Throwable t = new Throwable();
         Mockito.when(exceptionEvent.getCause())

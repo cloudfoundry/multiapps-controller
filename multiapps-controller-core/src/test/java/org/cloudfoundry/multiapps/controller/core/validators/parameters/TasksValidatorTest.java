@@ -17,7 +17,7 @@ class TasksValidatorTest {
 
     public static Stream<Arguments> testValidate() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) Valid tasks:
             Arguments.of("tasks-00.json", true),
             // (1) The tasks are an empty list:

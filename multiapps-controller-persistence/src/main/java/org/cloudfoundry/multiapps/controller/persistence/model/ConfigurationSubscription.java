@@ -69,19 +69,19 @@ public class ConfigurationSubscription implements AuditableConfiguration {
     public String getSpaceId() {
         return spaceId;
     }
-    
+
     public String getModuleId() {
         return moduleId;
     }
-    
+
     public void setModuleId(String moduleId) {
         this.moduleId = moduleId;
     }
-    
+
     public String getResourceId() {
         return resourceId;
     }
-    
+
     public void setResourceId(String resourceId) {
         this.resourceId = resourceId;
     }

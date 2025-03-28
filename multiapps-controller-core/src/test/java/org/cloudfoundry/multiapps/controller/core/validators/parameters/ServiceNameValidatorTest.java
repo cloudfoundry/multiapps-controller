@@ -27,15 +27,23 @@ class ServiceNameValidatorTest {
                                                                                      new Boolean(false));
 
     public static Stream<Arguments> getParameters() {
-        return Stream.of(Arguments.of(true, CONTEXT_APPLY_NAMESPACE, true, false, false), Arguments.of(true, CONTEXT_APPLY_NAMESPACE, false, false, false),
+        return Stream.of(Arguments.of(true, CONTEXT_APPLY_NAMESPACE, true, false, false),
+                         Arguments.of(true, CONTEXT_APPLY_NAMESPACE, false, false, false),
                          Arguments.of(true, CONTEXT_DO_NOT_APPLY_NAMESPACE, true, false, false),
-                         Arguments.of(true, CONTEXT_DO_NOT_APPLY_NAMESPACE, false, false, false), Arguments.of(true, Collections.emptyMap(), true, false, false),
-                         Arguments.of(true, Collections.emptyMap(), false, false, false), Arguments.of(false, CONTEXT_APPLY_NAMESPACE, true, false, false),
-                         Arguments.of(false, CONTEXT_APPLY_NAMESPACE, false, false, false), Arguments.of(false, CONTEXT_DO_NOT_APPLY_NAMESPACE, true, false, false),
-                         Arguments.of(false, CONTEXT_DO_NOT_APPLY_NAMESPACE, false, false, false), Arguments.of(false, Collections.emptyMap(), true, false, false),
-                         Arguments.of(false, Collections.emptyMap(), false, false, false), Arguments.of(null, CONTEXT_APPLY_NAMESPACE, true, false, false),
-                         Arguments.of(null, CONTEXT_APPLY_NAMESPACE, false, false, false), Arguments.of(null, CONTEXT_DO_NOT_APPLY_NAMESPACE, true, false, false),
-                         Arguments.of(null, CONTEXT_DO_NOT_APPLY_NAMESPACE, false, false, false), Arguments.of(null, Collections.emptyMap(), true, false, false),
+                         Arguments.of(true, CONTEXT_DO_NOT_APPLY_NAMESPACE, false, false, false),
+                         Arguments.of(true, Collections.emptyMap(), true, false, false),
+                         Arguments.of(true, Collections.emptyMap(), false, false, false),
+                         Arguments.of(false, CONTEXT_APPLY_NAMESPACE, true, false, false),
+                         Arguments.of(false, CONTEXT_APPLY_NAMESPACE, false, false, false),
+                         Arguments.of(false, CONTEXT_DO_NOT_APPLY_NAMESPACE, true, false, false),
+                         Arguments.of(false, CONTEXT_DO_NOT_APPLY_NAMESPACE, false, false, false),
+                         Arguments.of(false, Collections.emptyMap(), true, false, false),
+                         Arguments.of(false, Collections.emptyMap(), false, false, false),
+                         Arguments.of(null, CONTEXT_APPLY_NAMESPACE, true, false, false),
+                         Arguments.of(null, CONTEXT_APPLY_NAMESPACE, false, false, false),
+                         Arguments.of(null, CONTEXT_DO_NOT_APPLY_NAMESPACE, true, false, false),
+                         Arguments.of(null, CONTEXT_DO_NOT_APPLY_NAMESPACE, false, false, false),
+                         Arguments.of(null, Collections.emptyMap(), true, false, false),
                          Arguments.of(null, Collections.emptyMap(), false, false, false));
     }
 
@@ -46,7 +54,8 @@ class ServiceNameValidatorTest {
     }
 
     public static Stream<Arguments> getGlobalLevelParametersAndProcessVariables() {
-        return Stream.of(Arguments.of(true, true, false, false), Arguments.of(true, false, false, false), Arguments.of(false, true, false, false), Arguments.of(false, false, false, false),
+        return Stream.of(Arguments.of(true, true, false, false), Arguments.of(true, false, false, false),
+                         Arguments.of(false, true, false, false), Arguments.of(false, false, false, false),
                          Arguments.of(null, true, false, false), Arguments.of(null, false, false, false));
     }
 

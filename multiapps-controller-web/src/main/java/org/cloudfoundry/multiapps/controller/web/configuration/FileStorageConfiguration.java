@@ -34,7 +34,10 @@ public class FileStorageConfiguration {
     @Inject
     @Bean(name = "asyncFileUploadExecutor")
     public ExecutorService asyncFileUploadExecutor(ApplicationConfiguration configuration) {
-        return new ThreadPoolExecutor(5, configuration.getFilesAsyncUploadExecutorMaxThreads(), 30, TimeUnit.SECONDS,
+        return new ThreadPoolExecutor(5,
+                                      configuration.getFilesAsyncUploadExecutorMaxThreads(),
+                                      30,
+                                      TimeUnit.SECONDS,
                                       new LinkedBlockingQueue<>());
     }
 }

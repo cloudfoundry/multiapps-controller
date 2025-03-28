@@ -31,11 +31,13 @@ public class DatabaseFileService extends FileService {
     public <T> T processFileContentWithOffset(FileContentToProcess fileContentToProcess, FileContentProcessor<T> fileContentProcessor)
         throws FileStorageException {
         try {
-            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getProcessFileWithContentQueryWithOffsetQuery(fileContentToProcess.getSpaceGuid(),
-                                                                                                                         fileContentToProcess.getGuid(),
-                                                                                                                         new StreamFetchingOptions(fileContentToProcess.getStartOffset(),
-                                                                                                                                                   fileContentToProcess.getEndOffset()),
-                                                                                                                         fileContentProcessor));
+            return getSqlQueryExecutor().execute(
+                getSqlFileQueryProvider().getProcessFileWithContentQueryWithOffsetQuery(fileContentToProcess.getSpaceGuid(),
+                                                                                        fileContentToProcess.getGuid(),
+                                                                                        new StreamFetchingOptions(
+                                                                                            fileContentToProcess.getStartOffset(),
+                                                                                            fileContentToProcess.getEndOffset()),
+                                                                                        fileContentProcessor));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }

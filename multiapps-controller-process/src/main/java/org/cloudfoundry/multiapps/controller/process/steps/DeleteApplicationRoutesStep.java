@@ -78,8 +78,9 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
         var serviceRouteBindings = serviceInstanceRoutesGetter.getServiceRouteBindings(routeGuids);
         var routeIdsToServiceInstanceIds = serviceRouteBindings.stream()
                                                                .collect(Collectors.groupingBy(ServiceRouteBinding::getRouteId,
-                                                                                              Collectors.mapping(ServiceRouteBinding::getServiceInstanceId,
-                                                                                                                 Collectors.toList())));
+                                                                                              Collectors.mapping(
+                                                                                                  ServiceRouteBinding::getServiceInstanceId,
+                                                                                                  Collectors.toList())));
         return routes.stream()
                      .map(route -> addServicesToRoute(route, routeIdsToServiceInstanceIds))
                      .collect(Collectors.toList());

@@ -18,7 +18,7 @@ class ConfigurationFilterTest {
 
     static Stream<Arguments> testMatches() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
         // (1) Filter checks for empty namespace with keyword 'default' and matches
         Arguments.of("configuration-filter-test-input-01.json"),
         // (2) Filter doesn't contain namespace and matches with any namespace

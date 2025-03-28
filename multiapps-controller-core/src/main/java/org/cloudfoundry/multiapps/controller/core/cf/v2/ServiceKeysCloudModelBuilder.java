@@ -32,9 +32,9 @@ public class ServiceKeysCloudModelBuilder {
 
     public Map<String, List<CloudServiceKey>> build() {
         return descriptor.getResources()
-                                   .stream()
-                                   .filter(CloudModelBuilderUtil::isService)
-                                   .collect(Collectors.toMap(Resource::getName, this::getServiceKeysForService));
+                         .stream()
+                         .filter(CloudModelBuilderUtil::isService)
+                         .collect(Collectors.toMap(Resource::getName, this::getServiceKeysForService));
     }
 
     protected List<CloudServiceKey> getServiceKeysForService(Resource resource) {
@@ -79,8 +79,9 @@ public class ServiceKeysCloudModelBuilder {
 
     protected String getInvalidServiceKeysErrorMessage(String serviceName, Object serviceConfig) {
         return MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.INVALID_TYPE_FOR_KEY,
-                                    org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_KEYS), Map.class.getSimpleName(),
-                                    serviceConfig.getClass()
-                                                 .getSimpleName());
+                                    org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(serviceName,
+                                                                                                 SupportedParameters.SERVICE_KEYS),
+                                    Map.class.getSimpleName(), serviceConfig.getClass()
+                                                                            .getSimpleName());
     }
 }

@@ -52,8 +52,10 @@ class ApplicationDigestCalculatorTest {
             InputStream resourceAsStream = getClass().getResourceAsStream("com.sap.mta.sample-1.2.1-beta.mtar");
             resourceAsStream.skip(archiveEntryWithStreamPositions.getStartPosition());
             BoundedInputStream boundedInputStream = new BoundedInputStream.Builder().setInputStream(resourceAsStream)
-                                                                                    .setCount(archiveEntryWithStreamPositions.getStartPosition())
-                                                                                    .setMaxCount(archiveEntryWithStreamPositions.getEndPosition())
+                                                                                    .setCount(
+                                                                                        archiveEntryWithStreamPositions.getStartPosition())
+                                                                                    .setMaxCount(
+                                                                                        archiveEntryWithStreamPositions.getEndPosition())
                                                                                     .get();
             InflatorUtil.inflate(new EntryToInflate("web/web-server.zip", fileEntryProperties.getMaxFileSizeInBytes(), boundedInputStream),
                                  consumer);

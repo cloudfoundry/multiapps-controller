@@ -47,8 +47,9 @@ public class AdditionalModuleParametersReporter {
                                                              String readinessHealthCheckHttpEndpoint,
                                                              Integer readinessHealthCheckInvocationTimeout,
                                                              Integer readinessHealthCheckInterval, String buildpacks, String moduleType) {
-        LOGGER.info(MessageFormat.format("MTA with ID \"{0}\" associated with operation ID \"{1}\" uses readiness health check parameters: type=\"{2}\", httpEndpoint=\"{3}\", invocationTimeout=\"{4}\", interval=\"{5}\", buildpacks=\"{6}\", moduleType=\"{7}\"",
-                                         mtaId, correlationId, readinessHealthCheckType, readinessHealthCheckHttpEndpoint,
-                                         readinessHealthCheckInvocationTimeout, readinessHealthCheckInterval, buildpacks, moduleType));
+        LOGGER.info(MessageFormat.format(
+            "MTA with ID \"{0}\" associated with operation ID \"{1}\" uses readiness health check parameters: type=\"{2}\", httpEndpoint=\"{3}\", invocationTimeout=\"{4}\", interval=\"{5}\", buildpacks=\"{6}\", moduleType=\"{7}\"",
+            mtaId, correlationId, readinessHealthCheckType, readinessHealthCheckHttpEndpoint,
+            readinessHealthCheckInvocationTimeout, readinessHealthCheckInterval, buildpacks, moduleType));
     }
 }

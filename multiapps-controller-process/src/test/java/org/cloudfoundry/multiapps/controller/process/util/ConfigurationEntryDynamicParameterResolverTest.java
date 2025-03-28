@@ -67,15 +67,17 @@ class ConfigurationEntryDynamicParameterResolverTest {
                                      Set<DynamicResolvableParameter> dynamicResolvableParameters,
                                      List<ConfigurationEntry> expectedConfigurationEntries) {
         ConfigurationEntryDynamicParameterResolver dynamicParameterResolver = new ConfigurationEntryDynamicParameterResolver();
-        List<ConfigurationEntry> resolvedEntries = dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(configurationEntriesToResolve,
-                                                                                                                           dynamicResolvableParameters);
+        List<ConfigurationEntry> resolvedEntries = dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(
+            configurationEntriesToResolve,
+            dynamicResolvableParameters);
         assertEquals(expectedConfigurationEntries.size(), resolvedEntries.size());
         for (ConfigurationEntry expectedEntry : expectedConfigurationEntries) {
             ConfigurationEntry resolvedEntry = resolvedEntries.stream()
                                                               .filter(entry -> entry.getId() == expectedEntry.getId())
                                                               .findFirst()
-                                                              .orElseThrow(() -> new NoSuchElementException(MessageFormat.format("Configuration entry \"{0}\" is not found after resolve",
-                                                                                                                                 expectedEntry.getConfigurationName())));
+                                                              .orElseThrow(() -> new NoSuchElementException(MessageFormat.format(
+                                                                  "Configuration entry \"{0}\" is not found after resolve",
+                                                                  expectedEntry.getConfigurationName())));
 
             Map<String, Object> expectedEntriesMap = JsonUtil.convertJsonToMap(expectedEntry.getContent());
             Map<String, Object> resovledEntriesMap = JsonUtil.convertJsonToMap(resolvedEntry.getContent());

@@ -31,8 +31,9 @@ public class ExternalFileProcessor {
 
     public Map<String, Object> processFileContent(String appArchiveId, Map.Entry<String, List<String>> fileManifestEntry) {
         String fileName = fileManifestEntry.getKey();
-        ArchiveEntryWithStreamPositions fileArchiveEntry = ArchiveEntryExtractorUtil.findEntry(fileName, context.getVariable(
-            Variables.ARCHIVE_ENTRIES_POSITIONS));
+        ArchiveEntryWithStreamPositions fileArchiveEntry = ArchiveEntryExtractorUtil.findEntry(fileName,
+                                                                                               context.getVariable(
+                                                                                                   Variables.ARCHIVE_ENTRIES_POSITIONS));
         byte[] parametersFile = archiveEntryExtractor.extractEntryBytes(ImmutableFileEntryProperties.builder()
                                                                                                     .guid(appArchiveId)
                                                                                                     .name(fileArchiveEntry.getName())
@@ -40,25 +41,28 @@ public class ExternalFileProcessor {
                                                                                                         Variables.SPACE_GUID))
                                                                                                     .maxFileSizeInBytes(
                                                                                                         configuration.getMaxResourceFileSize())
-                                                                                                    .build(), fileArchiveEntry);
+                                                                                                    .build(),
+                                                                        fileArchiveEntry);
         trackSize(parametersFile, fileManifestEntry.getValue());
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(parametersFile)) {
             return JsonUtil.convertJsonToMap(byteArrayInputStream);
         } catch (IOException e) {
-            throw new SLException(e, org.cloudfoundry.multiapps.controller.process.Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT,
+            throw new SLException(e,
+                                  org.cloudfoundry.multiapps.controller.process.Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT,
                                   fileName);
         }
     }
 
     private void trackSize(byte[] parametersFile, List<String> resourcesForFile) {
         int resourcesCount = resourcesForFile.size();
-        sizeTracker.addToTotalFileSize(parametersFile.length * resourcesCount);
+        sizeTracker.addToTotalFileSize((long) parametersFile.length * resourcesCount);
         verifyMaxContentSizeIsNotExceeded();
     }
 
     private void verifyMaxContentSizeIsNotExceeded() {
         if (sizeTracker.getTotalSize() > configuration.getMaxResolvedExternalContentSize()) {
-            throw new SLException(Messages.ERROR_RESOLVED_FILE_CONTENT_IS_0_WHICH_IS_LARGER_THAN_MAX_1, sizeTracker.getTotalSize(),
+            throw new SLException(Messages.ERROR_RESOLVED_FILE_CONTENT_IS_0_WHICH_IS_LARGER_THAN_MAX_1,
+                                  sizeTracker.getTotalSize(),
                                   configuration.getMaxResolvedExternalContentSize());
         }
     }

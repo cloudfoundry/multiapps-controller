@@ -49,7 +49,8 @@ class UpdateServiceKeysMetadataStepTest extends SyncFlowableStepTest<UpdateServi
         CloudServiceKey brokenKey = testKeys.get(1);
         doThrow(new CloudOperationException(HttpStatus.FORBIDDEN, "Test")).when(client)
                                                                           .updateServiceBindingMetadata(Mockito.eq(brokenKey.getGuid()),
-                                                                                                        Mockito.eq(brokenKey.getV3Metadata()));
+                                                                                                        Mockito.eq(
+                                                                                                            brokenKey.getV3Metadata()));
 
         step.execute(execution);
 

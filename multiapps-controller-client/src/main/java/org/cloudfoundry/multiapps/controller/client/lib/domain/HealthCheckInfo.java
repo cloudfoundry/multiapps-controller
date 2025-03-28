@@ -22,7 +22,7 @@ public class HealthCheckInfo {
     public static HealthCheckInfo fromStaging(Staging staging) {
         var type = staging.getHealthCheckType();
         if (type == null) {
-            type = "port"; //use default health check type https://v3-apidocs.cloudfoundry.org/version/3.119.0/#the-health-check-object
+            type = "port"; // use default health check type https://v3-apidocs.cloudfoundry.org/version/3.119.0/#the-health-check-object
         }
         var timeout = staging.getHealthCheckTimeout();
         var invocationTimeout = staging.getInvocationTimeout();
@@ -63,8 +63,7 @@ public class HealthCheckInfo {
             return false;
         }
         var other = (HealthCheckInfo) obj;
-        return Objects.equals(getType(), other.getType())
-            && Objects.equals(getTimeout(), other.getTimeout())
+        return Objects.equals(getType(), other.getType()) && Objects.equals(getTimeout(), other.getTimeout())
             && Objects.equals(getInvocationTimeout(), other.getInvocationTimeout())
             && Objects.equals(getHttpEndpoint(), other.getHttpEndpoint());
     }

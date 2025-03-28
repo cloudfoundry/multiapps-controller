@@ -5,7 +5,6 @@ import java.text.MessageFormat;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.model.AuditLogConfiguration;
 
-
 public class AuthenticationAuditLog {
 
     private final AuditLoggingFacade auditLoggingFacade;

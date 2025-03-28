@@ -1,13 +1,10 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Stream;
-
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudEvent;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudEvent;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,11 +14,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudEvent;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudEvent;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.when;
 
 class ServiceOperationGetterTest {
 
@@ -84,12 +83,14 @@ class ServiceOperationGetterTest {
 
     static Stream<Arguments> testGetLastDeleteServiceOperation() {
         return Stream.of(
-            //(1) test with null metadata returns null service operation
+            // (1) test with null metadata returns null service operation
             Arguments.of(true, false, null),
-            //(2) test with delete event returns succeeded operation
-            Arguments.of(false, true, new ServiceOperation(ServiceOperation.Type.DELETE, null, ServiceOperation.State.SUCCEEDED)),
-            //(3) test with non-delete event returns in progress operation
-            Arguments.of(false, false, new ServiceOperation(ServiceOperation.Type.DELETE, null, ServiceOperation.State.IN_PROGRESS)));
+            // (2) test with delete event returns succeeded operation
+            Arguments.of(false, true,
+                         new ServiceOperation(ServiceOperation.Type.DELETE, null, ServiceOperation.State.SUCCEEDED)),
+            // (3) test with non-delete event returns in progress operation
+            Arguments.of(false, false,
+                         new ServiceOperation(ServiceOperation.Type.DELETE, null, ServiceOperation.State.IN_PROGRESS)));
     }
 
     @ParameterizedTest

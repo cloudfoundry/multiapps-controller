@@ -57,9 +57,9 @@ public class OperationsApi {
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Operation.class) })
     public ResponseEntity<Operation>
-           getOperation(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                        @PathVariable(PathVariables.OPERATION_ID) String operationId,
-                        @ApiParam(value = "Adds the specified property in the response body ") @RequestParam(name = "embed", required = false) String embed) {
+    getOperation(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                 @PathVariable(PathVariables.OPERATION_ID) String operationId,
+                 @ApiParam(value = "Adds the specified property in the response body ") @RequestParam(name = "embed", required = false) String embed) {
         return delegate.getOperation(spaceGuid, operationId, embed);
     }
 

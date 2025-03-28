@@ -60,7 +60,8 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         prepareAppToProcess(5);
         step.execute(execution);
         verify(client).updateApplicationInstances(APP_TO_PROCESS_NAME, 5);
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         assertEquals(5, incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         assertEquals(1, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
         assertExecutionStepStatus(StepPhase.POLL.toString());
@@ -91,7 +92,8 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         prepareRunningOldApplication();
         prepareAppToProcess(5);
         step.execute(execution);
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         assertEquals(2, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getOldApplicationInstanceCount());
@@ -133,7 +135,8 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         prepareFailingOldApplication();
         prepareAppToProcess(5);
         step.execute(execution);
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         assertEquals(0, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getOldApplicationInstanceCount());
@@ -156,7 +159,8 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         prepareFailingOldApplication();
         prepareAppToProcess(1);
         step.execute(execution);
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         assertEquals(0, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getOldApplicationInstanceCount());
@@ -171,7 +175,8 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         prepareDeployedMtaWithoutApplications();
         prepareAppToProcess(5);
         step.execute(execution);
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         assertEquals(5, incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         assertEquals(1, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
         assertExecutionStepStatus(StepPhase.POLL.toString());
@@ -200,7 +205,8 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
         prepareAppToProcess(5);
         step.execute(execution);
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         assertEquals(5, incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         assertEquals(1, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
         assertNull(incrementalAppInstanceUpdateConfiguration.getOldApplication());

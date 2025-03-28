@@ -15,7 +15,7 @@ public interface Query<R, T extends Query<?, ?>> {
      * @return the result
      * @throws NoResultException Thrown when there is no result. Don't use this method if it's possible for this query to match nothing.
      * @throws NonUniqueResultException Thrown when there are multiple results. If you want to get the first of these, use
-     *         {@code limitOnSelect(1).list()} instead.
+     * {@code limitOnSelect(1).list()} instead.
      */
     R singleResult() throws NoResultException, NonUniqueResultException;
 

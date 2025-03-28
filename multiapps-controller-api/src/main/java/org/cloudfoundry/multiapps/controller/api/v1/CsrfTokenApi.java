@@ -26,7 +26,7 @@ public class CsrfTokenApi {
     @GetMapping
     @ApiOperation(value = "", notes = "Retrieves a csrf-token header ", authorizations = { @Authorization(value = "oauth2", scopes = {
 
-        }) }, tags = {})
+    }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 204, message = "No Content") })
     public ResponseEntity<Void> getCsrfToken() {
         return delegate.getCsrfToken();

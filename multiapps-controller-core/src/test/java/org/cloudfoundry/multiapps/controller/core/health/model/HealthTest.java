@@ -20,7 +20,7 @@ class HealthTest {
 
     public static Stream<Arguments> testFromOperations() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
             // (0)
             Arguments.of("successful-operations.json", new Expectation(Expectation.Type.JSON, "good-health.json")),
             // (1)

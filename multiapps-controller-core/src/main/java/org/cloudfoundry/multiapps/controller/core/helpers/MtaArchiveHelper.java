@@ -54,7 +54,8 @@ public class MtaArchiveHelper {
 
     private Map<String, String> getEntriesWithAttribute(String attributeName) {
         Map<String, String> result = new HashMap<>();
-        processEntries(attributeName, (attributeValue, fileName) -> fillMapWithEntries(attributeValue, fileName, result), manifest.getEntries());
+        processEntries(attributeName, (attributeValue, fileName) -> fillMapWithEntries(attributeValue, fileName, result),
+                       manifest.getEntries());
         return result;
     }
 
@@ -96,7 +97,8 @@ public class MtaArchiveHelper {
 
     private Map<String, List<String>> getFilesWithEntityList(String attributeName, Map<String, Attributes> manifestEntries) {
         Map<String, List<String>> result = new HashMap<>();
-        processEntries(attributeName, (attributeValue, fileName) -> fillMapFilesWithEntityList(attributeValue, fileName, result), manifestEntries);
+        processEntries(attributeName, (attributeValue, fileName) -> fillMapFilesWithEntityList(attributeValue, fileName, result),
+                       manifestEntries);
         return result;
     }
 

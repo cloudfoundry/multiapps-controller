@@ -45,7 +45,8 @@ public class MtaConfigurationPurgerAuditLog {
                                                                                     spaceGuid,
                                                                                     performedAction,
                                                                                     Messages.SUBSCRIPTION_DELETE_AUDIT_LOG_CONFIG,
-                                                                                    createAuditLogDeleteSubscriptionConfigurationIdentifier(subscription)),
+                                                                                    createAuditLogDeleteSubscriptionConfigurationIdentifier(
+                                                                                        subscription)),
                                                           ConfigurationChangeActions.CONFIGURATION_DELETE);
     }
 
@@ -64,7 +65,8 @@ public class MtaConfigurationPurgerAuditLog {
                                                                                     spaceGuid,
                                                                                     performedAction,
                                                                                     Messages.ENTRY_DELETE_AUDIT_LOG_CONFIG,
-                                                                                    createAuditLogDeleteEntryConfigurationIdentifier(entry)),
+                                                                                    createAuditLogDeleteEntryConfigurationIdentifier(
+                                                                                        entry)),
                                                           ConfigurationChangeActions.CONFIGURATION_DELETE);
     }
 
@@ -83,7 +85,8 @@ public class MtaConfigurationPurgerAuditLog {
                                                                                     spaceGuid,
                                                                                     performedAction,
                                                                                     Messages.OPERATION_DELETE_AUDIT_LOG_CONFIG,
-                                                                                    createAuditLogDeleteOperationConfigurationIdentifier(operation)),
+                                                                                    createAuditLogDeleteOperationConfigurationIdentifier(
+                                                                                        operation)),
                                                           ConfigurationChangeActions.CONFIGURATION_DELETE);
     }
 
@@ -93,7 +96,8 @@ public class MtaConfigurationPurgerAuditLog {
                                                                                     spaceGuid,
                                                                                     performedAction,
                                                                                     Messages.MTA_DESCRIPTOR_DELETE_AUDIT_LOG_CONFIG,
-                                                                                    createAuditLogDeleteMtaBackupDescriptorIdentifier(backupDescriptor)),
+                                                                                    createAuditLogDeleteMtaBackupDescriptorIdentifier(
+                                                                                        backupDescriptor)),
                                                           ConfigurationChangeActions.CONFIGURATION_DELETE);
     }
 

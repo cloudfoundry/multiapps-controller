@@ -93,10 +93,10 @@ class StartProcessListenerTest {
 
     static Stream<Arguments> testVerify() {
         return Stream.of(
-                         // (0) Create Operation for process undeploy
-                         Arguments.of("process-instance-id", ProcessType.UNDEPLOY),
-                         // (1) Create Operation for process deploy
-                         Arguments.of("process-instance-id", ProcessType.DEPLOY));
+            // (0) Create Operation for process undeploy
+            Arguments.of("process-instance-id", ProcessType.UNDEPLOY),
+            // (1) Create Operation for process deploy
+            Arguments.of("process-instance-id", ProcessType.DEPLOY));
     }
 
     @BeforeEach

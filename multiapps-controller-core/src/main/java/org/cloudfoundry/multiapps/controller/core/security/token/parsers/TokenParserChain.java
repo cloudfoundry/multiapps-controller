@@ -40,7 +40,8 @@ public class TokenParserChain {
                            .filter(Optional::isPresent)
                            .map(Optional::get)
                            .findFirst()
-                           .orElseThrow(() -> new InternalAuthenticationServiceException(Messages.NO_TOKEN_PARSER_FOUND_FOR_THE_CURRENT_TOKEN));
+                           .orElseThrow(
+                               () -> new InternalAuthenticationServiceException(Messages.NO_TOKEN_PARSER_FOUND_FOR_THE_CURRENT_TOKEN));
     }
 
     private void logTokenInfo(OAuth2AccessToken accessToken) {

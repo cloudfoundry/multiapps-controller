@@ -46,18 +46,18 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
 
     static Stream<Arguments> testDetermineServiceBindUnbind() {
         return Stream.of(
-                         // (1) Service binding exist but service is no more part of the MTA
-                         Arguments.of(false, false, true, true, false),
-                         // (2) Service binding exist, service is no more part of the MTA and keepExistingBindings strategy is set to true
-                         Arguments.of(false, true, true, false, false),
-                         // (3) Service is part from MTA and binding doesn't exist
-                         Arguments.of(true, false, false, false, true),
-                         // (4) Service is part from MTA, it is already bound and existing parameters match to MTA parameters
-                         Arguments.of(true, false, true, false, false),
-                         // (5) Service is part of MTA and keepExistingBindings strategy is set to true
-                         Arguments.of(true, true, true, false, false),
-                         // (6) Service is not part of MTA and keepExistingBindings strategy is set to true
-                         Arguments.of(false, true, true, false, false));
+            // (1) Service binding exist but service is no more part of the MTA
+            Arguments.of(false, false, true, true, false),
+            // (2) Service binding exist, service is no more part of the MTA and keepExistingBindings strategy is set to true
+            Arguments.of(false, true, true, false, false),
+            // (3) Service is part from MTA and binding doesn't exist
+            Arguments.of(true, false, false, false, true),
+            // (4) Service is part from MTA, it is already bound and existing parameters match to MTA parameters
+            Arguments.of(true, false, true, false, false),
+            // (5) Service is part of MTA and keepExistingBindings strategy is set to true
+            Arguments.of(true, true, true, false, false),
+            // (6) Service is not part of MTA and keepExistingBindings strategy is set to true
+            Arguments.of(false, true, true, false, false));
     }
 
     @ParameterizedTest
@@ -119,9 +119,10 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
     void testGetStepErrorMessageDuringServiceBindingDeletion() {
         CloudServiceBinding serviceBindingToDelete = buildServiceBinding();
         context.setVariable(Variables.SERVICE_BINDING_TO_DELETE, serviceBindingToDelete);
-        assertEquals(MessageFormat.format(Messages.ERROR_WHILE_DETERMINING_BIND_UNBIND_OPERATIONS_OF_APPLICATION_GUID_TO_SERVICE_INSTANCE_GUID,
-                                          serviceBindingToDelete.getApplicationGuid(), serviceBindingToDelete.getServiceInstanceGuid()),
-                     step.getStepErrorMessage(context));
+        assertEquals(
+            MessageFormat.format(Messages.ERROR_WHILE_DETERMINING_BIND_UNBIND_OPERATIONS_OF_APPLICATION_GUID_TO_SERVICE_INSTANCE_GUID,
+                                 serviceBindingToDelete.getApplicationGuid(), serviceBindingToDelete.getServiceInstanceGuid()),
+            step.getStepErrorMessage(context));
     }
 
     @Test
@@ -144,12 +145,15 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
 
     private CloudApplicationExtended buildCloudApplicationExtended(boolean servicePartFromMta, boolean keepExistingBinding) {
         CloudApplicationExtended.AttributeUpdateStrategy attributeUpdateStrategy = ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder()
-                                                                                                                                            .shouldKeepExistingServiceBindings(keepExistingBinding)
+                                                                                                                                            .shouldKeepExistingServiceBindings(
+                                                                                                                                                keepExistingBinding)
                                                                                                                                             .build();
         ImmutableCloudApplicationExtended.Builder applicationBuilder = ImmutableCloudApplicationExtended.builder()
-                                                                                                        .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
+                                                                                                        .metadata(ImmutableCloudMetadata.of(
+                                                                                                            UUID.randomUUID()))
                                                                                                         .name(APP_NAME)
-                                                                                                        .attributesUpdateStrategy(attributeUpdateStrategy);
+                                                                                                        .attributesUpdateStrategy(
+                                                                                                            attributeUpdateStrategy);
         return servicePartFromMta ? applicationBuilder.addService(SERVICE_INSTANCE_NAME)
                                                       .build()
             : applicationBuilder.build();
@@ -172,7 +176,8 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
         throws FileStorageException {
         when(serviceBindingParametersGetter.getServiceBindingParametersFromMta(any(), any())).thenReturn(mtaBindingParameters);
         when(serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(any(),
-                                                                                            any())).thenReturn(existingServiceBindingParameters);
+                                                                                            any())).thenReturn(
+            existingServiceBindingParameters);
     }
 
     @Override

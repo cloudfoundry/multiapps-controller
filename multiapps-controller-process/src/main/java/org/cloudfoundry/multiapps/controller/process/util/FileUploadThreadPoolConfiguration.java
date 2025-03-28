@@ -31,14 +31,17 @@ public class FileUploadThreadPoolConfiguration {
     @Bean(name = "fileStorageThreadPool")
     public ExecutorService fileStorageThreadPool(PriorityBlockingQueue<Runnable> fileUploadPriorityBlockingQueue) {
         return new ThreadPoolExecutor(applicationConfiguration.getThreadsForFileStorageUpload(),
-                                      applicationConfiguration.getThreadsForFileStorageUpload(), 0L, TimeUnit.MILLISECONDS,
+                                      applicationConfiguration.getThreadsForFileStorageUpload(),
+                                      0L,
+                                      TimeUnit.MILLISECONDS,
                                       fileUploadPriorityBlockingQueue) {
 
             @Override
             protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
                 RunnableFuture<T> newTaskFor = super.newTaskFor(callable);
-                return new PriorityFuture<>(newTaskFor, ((PriorityCallable<T>) callable).getPriority()
-                                                                                        .getValue());
+                return new PriorityFuture<>(newTaskFor,
+                                            ((PriorityCallable<T>) callable).getPriority()
+                                                                            .getValue());
             }
         };
     }
@@ -46,8 +49,11 @@ public class FileUploadThreadPoolConfiguration {
     @Bean(name = "appUploaderThreadPool")
     public ExecutorService appUploaderThreadPool() {
         return new ThreadPoolExecutor(applicationConfiguration.getThreadsForFileUploadToController(),
-                                      applicationConfiguration.getThreadsForFileUploadToController(), 0, TimeUnit.MILLISECONDS,
-                                      new SynchronousQueue<>(), new ThreadPoolExecutor.AbortPolicy());
+                                      applicationConfiguration.getThreadsForFileUploadToController(),
+                                      0,
+                                      TimeUnit.MILLISECONDS,
+                                      new SynchronousQueue<>(),
+                                      new ThreadPoolExecutor.AbortPolicy());
     }
 
 }

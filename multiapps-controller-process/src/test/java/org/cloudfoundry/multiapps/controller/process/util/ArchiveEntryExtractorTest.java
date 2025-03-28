@@ -109,8 +109,11 @@ class ArchiveEntryExtractorTest {
                            deploymentDescriptorEntry.getEndPosition());
         StringBuilder actualDeploymentDescriptorContent = new StringBuilder();
         archiveEntryExtractor.processFileEntryBytes(buildFileEntryProperty(Integer.MAX_VALUE), deploymentDescriptorEntry,
-                                                    (byteBuffer, bytesRead) -> actualDeploymentDescriptorContent.append(
-                                                        new String(Arrays.copyOfRange(byteBuffer, 0, bytesRead))));
+                                                    (byteBuffer,
+                                                     bytesRead) -> actualDeploymentDescriptorContent.append(
+                                                        new String(Arrays.copyOfRange(byteBuffer,
+                                                                                      0,
+                                                                                      bytesRead))));
         assertDeploymentDescriptorAreEqual(actualDeploymentDescriptorContent.toString());
     }
 

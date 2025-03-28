@@ -56,6 +56,7 @@ public class Constants {
         public static final String SPACE_V2 = Resources.ROOT_V2 + "/spaces/{" + PathVariables.SPACE_GUID + "}";
         public static final String MTAS_V2 = SPACE_V2 + "/mtas";
     }
+
     public static class Endpoints {
 
         private Endpoints() {

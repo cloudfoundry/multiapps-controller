@@ -71,8 +71,9 @@ public class ErrorProcessListener extends AbstractFlowableEngineEventListener {
     private void handle(FlowableEngineEvent event, FlowableExceptionEvent exceptionEvent) {
         Throwable throwable = exceptionEvent.getCause();
         if (throwable == null) {
-            LOGGER.error("Job execution failure detected for process \"{}\" (definition: \"{}\"), but the exception event does not contain an exception.",
-                         event.getProcessInstanceId(), event.getProcessDefinitionId());
+            LOGGER.error(
+                "Job execution failure detected for process \"{}\" (definition: \"{}\"), but the exception event does not contain an exception.",
+                event.getProcessInstanceId(), event.getProcessDefinitionId());
         } else {
             LOGGER.error("Job execution failure detected for process \"{}\" (definition: \"{}\").", event.getProcessInstanceId(),
                          event.getProcessDefinitionId(), throwable);

@@ -97,8 +97,10 @@ class CreateServiceKeyStepTest extends SyncFlowableStepTest<CreateServiceKeyStep
                                        .name(SERVICE_KEY_NAME)
                                        .metadata(ImmutableCloudMetadata.of(SERVICE_KEY_GUID))
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                      .state(ServiceCredentialBindingOperation.State.SUCCEEDED)
+                                                                                                      .type(
+                                                                                                          ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                      .state(
+                                                                                                          ServiceCredentialBindingOperation.State.SUCCEEDED)
                                                                                                       .build())
                                        .build();
     }

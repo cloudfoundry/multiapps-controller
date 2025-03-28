@@ -51,7 +51,7 @@ class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildCloudUnd
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) No previously deployed MTA:
             Arguments.of(new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", "empty-list.json", Collections.emptyList(), "deployed-apps-01.json", new TreeSet<>(List.of("a", "b", "c")), null, "empty-list.json", "empty-list.json", new TreeSet<>(List.of("a", "b", "c"))),
                     new StepOutput(Collections.emptyList(), Collections.emptyList(), new Expectation(Expectation.Type.JSON, "empty-list.json"))),
@@ -195,7 +195,8 @@ class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildCloudUnd
     private void prepareSubscriptionService() {
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
         if (deployedMta != null) {
-            ConfigurationSubscriptionQuery mock = new MockBuilder<>(configurationSubscriptionQuery).on(query -> query.mtaId(deployedMta.getMetadata()
+            ConfigurationSubscriptionQuery mock = new MockBuilder<>(configurationSubscriptionQuery).on(
+                                                                                                       query -> query.mtaId(deployedMta.getMetadata()
                                                                                                                                        .getId()))
                                                                                                    .on(query -> query.spaceId(SPACE_ID))
                                                                                                    .build();

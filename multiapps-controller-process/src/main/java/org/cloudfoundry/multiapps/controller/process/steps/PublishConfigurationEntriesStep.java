@@ -46,8 +46,9 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
             return StepPhase.DONE;
         }
         Set<DynamicResolvableParameter> dynamicResolvableParameters = context.getVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS);
-        List<ConfigurationEntry> resolvedEntriesToPublish = dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(entriesToPublish,
-                                                                                                                                    dynamicResolvableParameters);
+        List<ConfigurationEntry> resolvedEntriesToPublish = dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(
+            entriesToPublish,
+            dynamicResolvableParameters);
 
         List<ConfigurationEntry> publishedEntries = publish(resolvedEntriesToPublish);
 

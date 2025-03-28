@@ -39,7 +39,8 @@ public class NamespaceValidationUtil {
         if (applyNamespaceAsSuffixProcessVariable != null) {
             return applyNamespaceAsSuffixProcessVariable;
         }
-        Boolean applyNamespaceAsSuffixModuleLevel = MapUtil.parseBooleanFlag(relatedParameters, SupportedParameters.APPLY_NAMESPACE_AS_SUFFIX, null);
+        Boolean applyNamespaceAsSuffixModuleLevel = MapUtil.parseBooleanFlag(relatedParameters,
+                                                                             SupportedParameters.APPLY_NAMESPACE_AS_SUFFIX, null);
         return Objects.requireNonNullElse(applyNamespaceAsSuffixModuleLevel, applyNamespaceAsSuffixGlobalLevel);
     }
 

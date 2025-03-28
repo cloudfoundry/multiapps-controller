@@ -58,11 +58,16 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
     private static final String APP_NAME = "sample-app-backend";
     private static final String APP_FILE = "web.zip";
     private static final ArchiveEntryWithStreamPositions ARCHIVE_ENTRY_WITH_STREAM_POSITIONS = ImmutableArchiveEntryWithStreamPositions.builder()
-                                                                                                                                       .name(APP_FILE)
-                                                                                                                                       .startPosition(37)
-                                                                                                                                       .endPosition(5012)
-                                                                                                                                       .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
-                                                                                                                                       .isDirectory(false)
+                                                                                                                                       .name(
+                                                                                                                                           APP_FILE)
+                                                                                                                                       .startPosition(
+                                                                                                                                           37)
+                                                                                                                                       .endPosition(
+                                                                                                                                           5012)
+                                                                                                                                       .compressionMethod(
+                                                                                                                                           ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
+                                                                                                                                       .isDirectory(
+                                                                                                                                           false)
                                                                                                                                        .build();
     private static final String SPACE = "space";
     private static final String APP_ARCHIVE = "sample-app.mtar";

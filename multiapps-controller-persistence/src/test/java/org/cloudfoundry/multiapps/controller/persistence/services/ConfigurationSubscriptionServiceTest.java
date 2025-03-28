@@ -26,15 +26,21 @@ import org.junit.jupiter.api.Test;
 class ConfigurationSubscriptionServiceTest {
 
     private static final ConfigurationSubscription CONFIGURATION_SUBSCRIPTION_1 = createConfigurationSubscription(1L, "mta", "space", "app",
-                                                                                                                  createConfigurationFilter("3.1"),
-                                                                                                                  createModuleDto("moduleName"),
-                                                                                                                  createResourceDto("resourceName"));
+                                                                                                                  createConfigurationFilter(
+                                                                                                                      "3.1"),
+                                                                                                                  createModuleDto(
+                                                                                                                      "moduleName"),
+                                                                                                                  createResourceDto(
+                                                                                                                      "resourceName"));
 
     private static final ConfigurationSubscription CONFIGURATION_SUBSCRIPTION_2 = createConfigurationSubscription(2L, "mta1", "space1",
                                                                                                                   "app1",
-                                                                                                                  createConfigurationFilter("2.0"),
-                                                                                                                  createModuleDto("moduleName1"),
-                                                                                                                  createResourceDto("resourceName1"));
+                                                                                                                  createConfigurationFilter(
+                                                                                                                      "2.0"),
+                                                                                                                  createModuleDto(
+                                                                                                                      "moduleName1"),
+                                                                                                                  createResourceDto(
+                                                                                                                      "resourceName1"));
 
     private final ConfigurationSubscriptionService configurationSubscriptionService = createConfigurationSubscriptionService();
 
@@ -115,7 +121,8 @@ class ConfigurationSubscriptionServiceTest {
         int foundSubscriptions = configurationSubscriptionService.createQuery()
                                                                  .onSelectMatching(Collections.singletonList(new ConfigurationEntry(null,
                                                                                                                                     null,
-                                                                                                                                    Version.parseVersion("3.1"),
+                                                                                                                                    Version.parseVersion(
+                                                                                                                                        "3.1"),
                                                                                                                                     "default",
                                                                                                                                     null,
                                                                                                                                     null,

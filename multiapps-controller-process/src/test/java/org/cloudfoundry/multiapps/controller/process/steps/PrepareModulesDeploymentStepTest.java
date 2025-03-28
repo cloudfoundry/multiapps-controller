@@ -27,7 +27,7 @@ class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<PrepareModul
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
             Arguments.of(1, ProcessType.DEPLOY), 
             Arguments.of(2, ProcessType.DEPLOY), 
             Arguments.of(3, ProcessType.DEPLOY), 

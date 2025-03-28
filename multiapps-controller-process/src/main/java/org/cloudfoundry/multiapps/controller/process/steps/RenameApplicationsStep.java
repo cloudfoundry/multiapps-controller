@@ -134,7 +134,8 @@ public class RenameApplicationsStep extends SyncFlowableStep {
             } catch (ConflictException e) {
                 getStepLogger().warn(e.getMessage());
                 ApplicationColor liveMtaColor = applicationColorDetector.detectLiveApplicationColor(deployedMta,
-                                                                                                    context.getVariable(Variables.CORRELATION_ID));
+                                                                                                    context.getVariable(
+                                                                                                        Variables.CORRELATION_ID));
                 ApplicationColor idleMtaColor = liveMtaColor.getAlternativeColor();
                 getStepLogger().info(Messages.ASSUMED_LIVE_AND_IDLE_COLORS, liveMtaColor, idleMtaColor);
                 return liveMtaColor;
@@ -180,8 +181,9 @@ public class RenameApplicationsStep extends SyncFlowableStep {
             List<DeployedMtaApplication> backupMtaApplications = new ArrayList<>();
             for (DeployedMtaApplication backupMtaApplication : backupMta.getApplications()) {
                 String backupApplicationName = backupMtaApplication.getName();
-                String applicationNameWithoutMtaBackupNamespace = backupApplicationName.substring(NameUtil.getNamespacePrefix(Constants.MTA_BACKUP_NAMESPACE)
-                                                                                                          .length());
+                String applicationNameWithoutMtaBackupNamespace = backupApplicationName.substring(
+                    NameUtil.getNamespacePrefix(Constants.MTA_BACKUP_NAMESPACE)
+                            .length());
                 getStepLogger().info(Messages.RENAME_BACKUP_APPLICATION_0_TO_1, backupApplicationName,
                                      applicationNameWithoutMtaBackupNamespace);
                 client.rename(backupApplicationName, applicationNameWithoutMtaBackupNamespace);

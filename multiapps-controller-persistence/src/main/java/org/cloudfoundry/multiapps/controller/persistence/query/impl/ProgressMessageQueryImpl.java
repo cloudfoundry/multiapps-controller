@@ -111,8 +111,10 @@ public class ProgressMessageQueryImpl extends AbstractQueryImpl<ProgressMessage,
     @Override
     public List<ProgressMessage> list() {
         return executeInTransaction(manager -> createQuery(manager, queryCriteria, getDtoClass()).getResultList()).stream()
-                                                                                                                  .map(progressMessageFactory::fromDto)
-                                                                                                                  .collect(Collectors.toList());
+                                                                                                                  .map(
+                                                                                                                      progressMessageFactory::fromDto)
+                                                                                                                  .collect(
+                                                                                                                      Collectors.toList());
     }
 
     @Override

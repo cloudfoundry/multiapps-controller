@@ -51,8 +51,9 @@ public class PollServiceInProgressOperationsExecution extends PollServiceOperati
             case DELETE:
                 return MessageFormat.format(Messages.SERVICE_DELETED, service.getName());
             default:
-                throw new IllegalStateException(MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
-                                                                     type));
+                throw new IllegalStateException(
+                    MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                         type));
         }
     }
 
@@ -68,8 +69,9 @@ public class PollServiceInProgressOperationsExecution extends PollServiceOperati
                 return MessageFormat.format(Messages.ERROR_DELETING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
                                             lastServiceOperation.getDescription());
             default:
-                throw new IllegalStateException(MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
-                                                                     lastServiceOperation.getType()));
+                throw new IllegalStateException(
+                    MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                         lastServiceOperation.getType()));
         }
     }
 

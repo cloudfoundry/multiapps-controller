@@ -22,13 +22,13 @@ public class ConfigurationSubscriptionFactoryTest extends AbstractConfigurationS
 
     public static Stream<Arguments> testCreateSource() {
         return Stream.of(
-                         // (0) The required dependency is managed, so a subscription should be created:
-                         Arguments.of("subscriptions-mtad-00.yaml", List.of("plugins"), "SPACE_ID_1",
-                                      new Expectation(Expectation.Type.JSON, "subscriptions-00.json")),
-                         // (1) The required dependency is not managed, so a subscription should not be created:
-                         Arguments.of("subscriptions-mtad-01.yaml", List.of("plugins"), "SPACE_ID_1", new Expectation("[]")),
-                         // (2) The required dependency is not managed, so a subscription should not be created:
-                         Arguments.of("subscriptions-mtad-02.yaml", List.of("plugins"), "SPACE_ID_1", new Expectation("[]"))
+            // (0) The required dependency is managed, so a subscription should be created:
+            Arguments.of("subscriptions-mtad-00.yaml", List.of("plugins"), "SPACE_ID_1",
+                         new Expectation(Expectation.Type.JSON, "subscriptions-00.json")),
+            // (1) The required dependency is not managed, so a subscription should not be created:
+            Arguments.of("subscriptions-mtad-01.yaml", List.of("plugins"), "SPACE_ID_1", new Expectation("[]")),
+            // (2) The required dependency is not managed, so a subscription should not be created:
+            Arguments.of("subscriptions-mtad-02.yaml", List.of("plugins"), "SPACE_ID_1", new Expectation("[]"))
 
         );
     }

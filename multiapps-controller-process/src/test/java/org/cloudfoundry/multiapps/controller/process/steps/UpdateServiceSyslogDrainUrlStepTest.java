@@ -98,8 +98,8 @@ class UpdateServiceSyslogDrainUrlStepTest extends SyncFlowableStepTest<UpdateSer
 
     private void throwExceptionOnServiceSyslogDrainUrlUpdate(HttpStatus httpStatus) {
         Mockito.doThrow(new CloudOperationException(httpStatus, "Error occurred"))
-                .when(client)
-                .updateServiceSyslogDrainUrl(any(), any());
+               .when(client)
+               .updateServiceSyslogDrainUrl(any(), any());
     }
 
     private CloudServiceInstanceExtended buildServiceWithSkipUpdate() {

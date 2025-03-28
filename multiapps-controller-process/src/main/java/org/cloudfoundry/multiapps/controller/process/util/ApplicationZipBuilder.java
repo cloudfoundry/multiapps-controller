@@ -149,13 +149,15 @@ public class ApplicationZipBuilder {
 
     private void extractModuleContent(ApplicationArchiveContext applicationArchiveContext, Path appPath) throws IOException {
         try (OutputStream fileOutputStream = Files.newOutputStream(appPath)) {
-            ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(applicationArchiveContext.getModuleFileName(),
-                                                                                                                  applicationArchiveContext.getArchiveEntryWithStreamPositions());
+            ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(
+                applicationArchiveContext.getModuleFileName(),
+                applicationArchiveContext.getArchiveEntryWithStreamPositions());
             archiveEntryExtractor.processFileEntryBytes(ImmutableFileEntryProperties.builder()
                                                                                     .guid(applicationArchiveContext.getAppArchiveId())
                                                                                     .name(archiveEntryWithStreamPositions.getName())
                                                                                     .spaceGuid(applicationArchiveContext.getSpaceId())
-                                                                                    .maxFileSizeInBytes(applicationArchiveContext.getMaxSizeInBytes())
+                                                                                    .maxFileSizeInBytes(
+                                                                                        applicationArchiveContext.getMaxSizeInBytes())
                                                                                     .build(),
                                                         archiveEntryWithStreamPositions,
                                                         (bytesBuffer, bytesRead) -> writeModuleContent(bytesBuffer, bytesRead,

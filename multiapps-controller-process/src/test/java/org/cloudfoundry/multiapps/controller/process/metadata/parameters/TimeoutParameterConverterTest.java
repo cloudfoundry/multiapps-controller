@@ -13,14 +13,12 @@ class TimeoutParameterConverterTest {
 
     @Test
     void testConvertWithInvalidValueType() {
-        assertThrows(SLException.class,
-                     () -> new TimeoutParameterConverter(Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE).convert(false));
+        assertThrows(SLException.class, () -> new TimeoutParameterConverter(Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE).convert(false));
     }
 
     @Test
     void testConvertWithInvalidValue() {
-        assertThrows(SLException.class,
-                     () -> new TimeoutParameterConverter(Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE).convert(-1000));
+        assertThrows(SLException.class, () -> new TimeoutParameterConverter(Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE).convert(-1000));
     }
 
     @Test

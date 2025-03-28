@@ -106,8 +106,9 @@ public class MtaArchiveContentResolverTest {
                          Arguments.of(List.of(createResource(RESOURCE_NAME), createResource(RESOURCE_NAME_2)),
                                       Map.of(FILENAME, List.of(RESOURCE_NAME, RESOURCE_NAME_2), FILENAME_2, List.of(RESOURCE_NAME_2)),
                                       Map.of(FILENAME, CONTENT_KEY_VALUE_PAIR, FILENAME_2, CONTENT_KEY_VALUE_PAIR_2),
-                                      Map.of(RESOURCE_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR), RESOURCE_NAME_2, Map.of(CONFIG, Map.of(
-                                          FILE_CONTENT_KEY, FILE_CONTENT_VALUE, FILE_CONTENT_KEY_2, FILE_CONTENT_VALUE_2)))));
+                                      Map.of(RESOURCE_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR), RESOURCE_NAME_2,
+                                             Map.of(CONFIG, Map.of(FILE_CONTENT_KEY, FILE_CONTENT_VALUE, FILE_CONTENT_KEY_2,
+                                                                   FILE_CONTENT_VALUE_2)))));
     }
 
     @ParameterizedTest
@@ -185,35 +186,38 @@ public class MtaArchiveContentResolverTest {
     }
 
     public static Stream<Arguments> testModuleResolve() {
-        return Stream.of(
-            Arguments.of(List.of(createModule(MODULE_NAME, DEPENDENCY_NAME)), Map.of(FILENAME, List.of(MODULE_DEPENDENCY_PATH)),
-                         Map.of(FILENAME, CONTENT_KEY_VALUE_PAIR),
-                         Map.of(MODULE_NAME, Map.of(DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)))),
-            Arguments.of(List.of(createModule(MODULE_NAME, DEPENDENCY_NAME), createModule(MODULE_NAME_2, DEPENDENCY_NAME)),
-                         Map.of(FILENAME, List.of(MODULE_DEPENDENCY_PATH, "moduleName_2/dependencyName")),
-                         Map.of(FILENAME, CONTENT_KEY_VALUE_PAIR),
-                         Map.of(MODULE_NAME, Map.of(DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)), MODULE_NAME_2,
-                                Map.of(DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)))),
-            Arguments.of(List.of(createModule(MODULE_NAME, DEPENDENCY_NAME), createModule(MODULE_NAME_2, DEPENDENCY_NAME_2)),
-                         Map.of(FILENAME, List.of(MODULE_DEPENDENCY_PATH, MODULE_2_DEPENDENCY_2_PATH)),
-                         Map.of(FILENAME, CONTENT_KEY_VALUE_PAIR),
-                         Map.of(MODULE_NAME, Map.of(DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)), MODULE_NAME_2,
-                                Map.of(DEPENDENCY_NAME_2, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)))),
-            Arguments.of(List.of(createModule(MODULE_NAME, DEPENDENCY_NAME), createModule(MODULE_NAME_2, DEPENDENCY_NAME_2)),
-                         Map.of(FILENAME, List.of(MODULE_DEPENDENCY_PATH), FILENAME_2, List.of(MODULE_2_DEPENDENCY_2_PATH)),
-                         Map.of(FILENAME, CONTENT_KEY_VALUE_PAIR, FILENAME_2, CONTENT_KEY_VALUE_PAIR_2),
-                         Map.of(MODULE_NAME, Map.of(DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)), MODULE_NAME_2,
-                                Map.of(DEPENDENCY_NAME_2, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR_2))),
+        return Stream.of(Arguments.of(List.of(createModule(MODULE_NAME, DEPENDENCY_NAME)),
+                                      Map.of(FILENAME, List.of(MODULE_DEPENDENCY_PATH)), Map.of(FILENAME, CONTENT_KEY_VALUE_PAIR),
+                                      Map.of(MODULE_NAME, Map.of(DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)))),
+                         Arguments.of(List.of(createModule(MODULE_NAME, DEPENDENCY_NAME), createModule(MODULE_NAME_2, DEPENDENCY_NAME)),
+                                      Map.of(FILENAME, List.of(MODULE_DEPENDENCY_PATH, "moduleName_2/dependencyName")),
+                                      Map.of(FILENAME, CONTENT_KEY_VALUE_PAIR),
+                                      Map.of(MODULE_NAME, Map.of(DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)), MODULE_NAME_2,
+                                             Map.of(DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)))),
                          Arguments.of(List.of(createModule(MODULE_NAME, DEPENDENCY_NAME), createModule(MODULE_NAME_2, DEPENDENCY_NAME_2)),
-                                      Map.of(FILENAME, List.of(MODULE_DEPENDENCY_PATH, MODULE_2_DEPENDENCY_2_PATH), FILENAME_2,
-                                             List.of(MODULE_2_DEPENDENCY_2_PATH)),
+                                      Map.of(FILENAME, List.of(MODULE_DEPENDENCY_PATH, MODULE_2_DEPENDENCY_2_PATH)),
+                                      Map.of(FILENAME, CONTENT_KEY_VALUE_PAIR),
+                                      Map.of(MODULE_NAME, Map.of(DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)), MODULE_NAME_2,
+                                             Map.of(DEPENDENCY_NAME_2, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)))),
+                         Arguments.of(List.of(createModule(MODULE_NAME, DEPENDENCY_NAME), createModule(MODULE_NAME_2, DEPENDENCY_NAME_2)),
+                                      Map.of(FILENAME, List.of(MODULE_DEPENDENCY_PATH), FILENAME_2, List.of(MODULE_2_DEPENDENCY_2_PATH)),
                                       Map.of(FILENAME, CONTENT_KEY_VALUE_PAIR, FILENAME_2, CONTENT_KEY_VALUE_PAIR_2),
                                       Map.of(MODULE_NAME, Map.of(DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)), MODULE_NAME_2,
-                                             Map.of(DEPENDENCY_NAME_2, Map.of(CONFIG, Map.of(FILE_CONTENT_KEY_2, FILE_CONTENT_VALUE_2,
-                                                                                             FILE_CONTENT_KEY, FILE_CONTENT_VALUE)),
-                                                    DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)))
+                                             Map.of(DEPENDENCY_NAME_2, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR_2))),
+                                      Arguments.of(List.of(createModule(MODULE_NAME, DEPENDENCY_NAME),
+                                                           createModule(MODULE_NAME_2, DEPENDENCY_NAME_2)),
+                                                   Map.of(FILENAME, List.of(MODULE_DEPENDENCY_PATH, MODULE_2_DEPENDENCY_2_PATH), FILENAME_2,
+                                                          List.of(MODULE_2_DEPENDENCY_2_PATH)),
+                                                   Map.of(FILENAME, CONTENT_KEY_VALUE_PAIR, FILENAME_2, CONTENT_KEY_VALUE_PAIR_2),
+                                                   Map.of(MODULE_NAME, Map.of(DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)),
+                                                          MODULE_NAME_2,
+                                                          Map.of(DEPENDENCY_NAME_2,
+                                                                 Map.of(CONFIG,
+                                                                        Map.of(FILE_CONTENT_KEY_2, FILE_CONTENT_VALUE_2, FILE_CONTENT_KEY,
+                                                                               FILE_CONTENT_VALUE)),
+                                                                 DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)))
 
-                         )));
+                                      )));
     }
 
     @ParameterizedTest
@@ -266,9 +270,10 @@ public class MtaArchiveContentResolverTest {
 
         resolver.resolveMtaArchiveFilesInDescriptor(SAMPLE_SPACE_ID, descriptor);
 
-        Map<String, Map<String, Object>> resolvedModulesResult = Map.of(MODULE_NAME, Map.of(DEPENDENCY_NAME, Map.of(CONFIG,
-                                                                                                                    Map.of(FILE_CONTENT_KEY,
-                                                                                                                           "shouldNotOverrideValue"))));
+        Map<String, Map<String, Object>> resolvedModulesResult = Map.of(MODULE_NAME,
+                                                                        Map.of(DEPENDENCY_NAME,
+                                                                               Map.of(CONFIG,
+                                                                                      Map.of(FILE_CONTENT_KEY, "shouldNotOverrideValue"))));
 
         assertResultsMatchActualModule(resolvedModulesResult, descriptor);
 
@@ -280,9 +285,10 @@ public class MtaArchiveContentResolverTest {
         descriptor.setModules(List.of(createModule(MODULE_NAME, DEPENDENCY_NAME), createModule(MODULE_NAME_2, DEPENDENCY_NAME_2)));
         descriptor.setResources(List.of(createResource(RESOURCE_NAME), createResource(RESOURCE_NAME_2)));
 
-        Map<String, List<String>> archiveRequiresDependenciesAttributes = Map.of(FILENAME, List.of(MODULE_DEPENDENCY_PATH,
-                                                                                                   MODULE_2_DEPENDENCY_2_PATH), FILENAME_2,
-                                                                                 List.of(MODULE_2_DEPENDENCY_2_PATH));
+        Map<String, List<String>> archiveRequiresDependenciesAttributes = Map.of(FILENAME,
+                                                                                 List.of(MODULE_DEPENDENCY_PATH,
+                                                                                         MODULE_2_DEPENDENCY_2_PATH),
+                                                                                 FILENAME_2, List.of(MODULE_2_DEPENDENCY_2_PATH));
         Mockito.when(helper.getRequiresDependenciesFileAttributes())
                .thenReturn(archiveRequiresDependenciesAttributes);
 
@@ -309,9 +315,12 @@ public class MtaArchiveContentResolverTest {
 
         Map<String, Map<String, Object>> resolvedModulesResult = Map.of(MODULE_NAME,
                                                                         Map.of(DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)),
-                                                                        MODULE_NAME_2, Map.of(DEPENDENCY_NAME_2, Map.of(CONFIG, Map.of(
-                                                                                                  FILE_CONTENT_KEY_2, FILE_CONTENT_VALUE_2, FILE_CONTENT_KEY, FILE_CONTENT_VALUE)), DEPENDENCY_NAME,
-                                                                                              Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)));
+                                                                        MODULE_NAME_2,
+                                                                        Map.of(DEPENDENCY_NAME_2,
+                                                                               Map.of(CONFIG,
+                                                                                      Map.of(FILE_CONTENT_KEY_2, FILE_CONTENT_VALUE_2,
+                                                                                             FILE_CONTENT_KEY, FILE_CONTENT_VALUE)),
+                                                                               DEPENDENCY_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR)));
         Map<String, Object> resolvedResourcesResult = Map.of(RESOURCE_NAME, Map.of(CONFIG, CONTENT_KEY_VALUE_PAIR), RESOURCE_NAME_2,
                                                              Map.of(CONFIG, Map.of(FILE_CONTENT_KEY, FILE_CONTENT_VALUE, FILE_CONTENT_KEY_2,
                                                                                    FILE_CONTENT_VALUE_2)));
@@ -333,7 +342,8 @@ public class MtaArchiveContentResolverTest {
                                                                       .getRequiredDependencies();
             for (RequiredDependency dependency : resolvedDependencies) {
                 assertEquals(resolvedModulesResult.get(module)
-                                                  .get(dependency.getName()), dependency.getParameters());
+                                                  .get(dependency.getName()),
+                             dependency.getParameters());
             }
         }
     }

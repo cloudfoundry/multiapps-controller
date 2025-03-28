@@ -21,7 +21,7 @@ class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProcessStepTe
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             Arguments.of(new UnsupportedOperationException(), ErrorType.UNKNOWN_ERROR),
             Arguments.of(new Exception(), ErrorType.UNKNOWN_ERROR),
             Arguments.of(new ContentException("There's something wrong with your MTA!"), ErrorType.CONTENT_ERROR)
