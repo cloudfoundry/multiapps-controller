@@ -56,8 +56,9 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     }
 
     private void processApplicationArchive(ProcessContext context, String appArchiveId) {
-        List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = archiveEntryStreamWithStreamPositionsDeterminer.determineArchiveEntries(context.getRequiredVariable(Variables.SPACE_GUID),
-                                                                                                                                                          appArchiveId);
+        List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = archiveEntryStreamWithStreamPositionsDeterminer.determineArchiveEntries(
+            context.getRequiredVariable(Variables.SPACE_GUID),
+            appArchiveId);
         context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, archiveEntriesWithStreamPositions);
         MtaArchiveHelper helper = createMtaArchiveHelperFromManifest(context, appArchiveId, archiveEntriesWithStreamPositions);
 
@@ -96,8 +97,10 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         return archiveEntryExtractor.extractEntryBytes(ImmutableFileEntryProperties.builder()
                                                                                    .guid(appArchiveId)
                                                                                    .name(mtaManifestEntry.getName())
-                                                                                   .spaceGuid(context.getRequiredVariable(Variables.SPACE_GUID))
-                                                                                   .maxFileSizeInBytes(configuration.getMaxMtaDescriptorSize())
+                                                                                   .spaceGuid(
+                                                                                       context.getRequiredVariable(Variables.SPACE_GUID))
+                                                                                   .maxFileSizeInBytes(
+                                                                                       configuration.getMaxMtaDescriptorSize())
                                                                                    .build(),
                                                        mtaManifestEntry);
     }
@@ -129,11 +132,13 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     private DeploymentDescriptor extractDeploymentDescriptor(ProcessContext context, String appArchiveId,
                                                              List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions) {
 
-        ArchiveEntryWithStreamPositions deploymentDescriptorEntry = ArchiveEntryExtractorUtil.findEntry(ArchiveHandler.MTA_DEPLOYMENT_DESCRIPTOR_NAME,
-                                                                                                        archiveEntriesWithStreamPositions);
+        ArchiveEntryWithStreamPositions deploymentDescriptorEntry = ArchiveEntryExtractorUtil.findEntry(
+            ArchiveHandler.MTA_DEPLOYMENT_DESCRIPTOR_NAME,
+            archiveEntriesWithStreamPositions);
         byte[] inflatedDeploymentDescriptor = readEntry(context, appArchiveId, deploymentDescriptorEntry);
         DescriptorParserFacade descriptorParserFacade = descriptorParserFactory.getInstance();
-        DeploymentDescriptor deploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(new String(inflatedDeploymentDescriptor));
+        DeploymentDescriptor deploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(
+            new String(inflatedDeploymentDescriptor));
         getStepLogger().debug(Messages.MTA_DESCRIPTOR_LENGTH_0_MESSAGE, inflatedDeploymentDescriptor.length);
         return deploymentDescriptor;
     }

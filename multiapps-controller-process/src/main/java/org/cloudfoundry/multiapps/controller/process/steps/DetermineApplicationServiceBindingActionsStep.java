@@ -165,8 +165,9 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
     protected String getStepErrorMessage(ProcessContext context) {
         CloudServiceBinding serviceBindingToDelete = context.getVariable(Variables.SERVICE_BINDING_TO_DELETE);
         if (serviceBindingToDelete != null) {
-            return MessageFormat.format(Messages.ERROR_WHILE_DETERMINING_BIND_UNBIND_OPERATIONS_OF_APPLICATION_GUID_TO_SERVICE_INSTANCE_GUID,
-                                        serviceBindingToDelete.getApplicationGuid(), serviceBindingToDelete.getServiceInstanceGuid());
+            return MessageFormat.format(
+                Messages.ERROR_WHILE_DETERMINING_BIND_UNBIND_OPERATIONS_OF_APPLICATION_GUID_TO_SERVICE_INSTANCE_GUID,
+                serviceBindingToDelete.getApplicationGuid(), serviceBindingToDelete.getServiceInstanceGuid());
         }
         return MessageFormat.format(Messages.ERROR_WHILE_DETERMINING_BIND_UNBIND_OPERATIONS_OF_APPLICATION_TO_SERVICE,
                                     context.getVariable(Variables.APP_TO_PROCESS)

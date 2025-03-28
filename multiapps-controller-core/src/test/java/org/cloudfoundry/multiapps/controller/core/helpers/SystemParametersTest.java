@@ -1,16 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.HostValidator;
@@ -25,6 +14,17 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class SystemParametersTest {
 
@@ -84,14 +84,14 @@ class SystemParametersTest {
 
     static Stream<Arguments> testModuleParameters() {
         return Stream.of(
-                         // [1] Do not reserve temporary routes and does not apply namespace
-                         Arguments.of(false, false),
-                         // [2] Reserve temporary routes and does not apply namespace
-                         Arguments.of(true, false),
-                         // [3] Do not reserve temporary routes but use namespace
-                         Arguments.of(false, true),
-                         // [4] Reserve temporary routes and apply namespace
-                         Arguments.of(true, true));
+            // [1] Do not reserve temporary routes and does not apply namespace
+            Arguments.of(false, false),
+            // [2] Reserve temporary routes and does not apply namespace
+            Arguments.of(true, false),
+            // [3] Do not reserve temporary routes but use namespace
+            Arguments.of(false, true),
+            // [4] Reserve temporary routes and apply namespace
+            Arguments.of(true, true));
     }
 
     @ParameterizedTest
@@ -240,7 +240,7 @@ class SystemParametersTest {
                                              .reserveTemporaryRoutes(reserveTemporaryRoutes)
                                              .user(USER_NAME)
                                              .hostValidator(new HostValidator(applyNamespace ? NAMESPACE
-                                                 : null, true, applyNamespace, false, false))
+                                                                                  : null, true, applyNamespace, false, false))
                                              .build();
     }
 

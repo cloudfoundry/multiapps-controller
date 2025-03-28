@@ -1,14 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.util.List;
-import java.util.function.Consumer;
-
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
+import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class PollServiceBindingUnbindingOperationBaseExecution extends PollOperationBaseExecution {
 
@@ -46,8 +45,9 @@ public abstract class PollServiceBindingUnbindingOperationBaseExecution extends 
         CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
         String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
         return serviceBindingJob -> context.getStepLogger()
-                                           .warnWithoutProgressMessage(Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FOR_OPTIONAL_SERVICE_FAILED_WITH,
-                                                                       app.getName(), serviceInstanceName, serviceBindingJob.getErrors());
+                                           .warnWithoutProgressMessage(
+                                               Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FOR_OPTIONAL_SERVICE_FAILED_WITH,
+                                               app.getName(), serviceInstanceName, serviceBindingJob.getErrors());
     }
 
     @Override

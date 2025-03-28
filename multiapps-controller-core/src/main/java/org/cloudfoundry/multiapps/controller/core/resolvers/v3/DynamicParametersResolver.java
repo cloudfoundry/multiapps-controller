@@ -1,13 +1,13 @@
 package org.cloudfoundry.multiapps.controller.core.resolvers.v3;
 
-import java.text.MessageFormat;
-
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.helpers.DynamicResolvableParametersHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.mta.helpers.SimplePropertyVisitor;
 import org.cloudfoundry.multiapps.mta.util.DynamicParameterUtil;
+
+import java.text.MessageFormat;
 
 public class DynamicParametersResolver implements SimplePropertyVisitor {
 
@@ -24,8 +24,9 @@ public class DynamicParametersResolver implements SimplePropertyVisitor {
         if (value.matches(DynamicParameterUtil.REGEX_PATTERN_FOR_DYNAMIC_PARAMETERS)) {
             String relationshipName = DynamicParameterUtil.getRelationshipName(value);
             String parameterName = DynamicParameterUtil.getParameterName(value);
-            DynamicResolvableParameter dynamicResolvableParameter = dynamicResolvableParametersHelper.findDynamicResolvableParameter(parameterName,
-                                                                                                                                     relationshipName);
+            DynamicResolvableParameter dynamicResolvableParameter = dynamicResolvableParametersHelper.findDynamicResolvableParameter(
+                parameterName,
+                relationshipName);
             if (dynamicResolvableParameter != null && dynamicResolvableParameter.getValue() != null) {
                 return dynamicResolvableParameter.getValue();
             }
