@@ -59,6 +59,9 @@ public final class Messages {
     public static final String ENV_OF_APP_0_CONTAINS_INVALID_VALUE_FOR_1 = "The environment of application \"{0}\" contains an invalid value for \"{0}\". This indicates that MTA reserved variables in the application''s environment were modified manually. Either revert the changes or delete the application.";
     public static final String METADATA_OF_0_CONTAINS_INVALID_VALUE_FOR_1 = "The metadata of \"{0}\" contains an invalid value for \"{0}\". This indicates that MTA reserved variables in the entity''s metadata were modified manually. Either revert the changes or delete the entity.";
     public static final String COULD_NOT_DELETE_SPACEIDS_LEFTOVERS = "Could not delete space ids leftovers";
+    public static final String TIMEOUT_WHILE_CHECKING_DATABASE_HEALTH = "Timeout while checking database health";
+    public static final String TIMEOUT_WHILE_CHECKING_FOR_INCREASED_LOCKS = "Timeout while checking for increased locks";
+    public static final String TIMEOUT_WHILE_CHECKING_OBJECT_STORE_HEALTH = "Timeout while checking object store health";
 
     public static final String COULD_NOT_GET_FILE_CONTENT_FOR_0 = "Could not get file content for file \"{0}\"";
     public static final String SERVICE_MISSING_REQUIRED_PARAMETER = "Service \"{0}\" has missing required parameter: {1}";
@@ -199,6 +202,9 @@ public final class Messages {
     public static final String DECREASING_INDEX_0_1_2 = "Decreasing index: {0} / {1} = {2}";
     public static final String OBJECT_STORE_FILE_STORAGE_IS_NOT_AVAILABLE_FOR_INSTANCE = "Object store file storage is not available for instance: \"{0}\"";
     public static final String NOT_ENOUGH_SAMPLES_TO_DETECT_ANOMALY_0_1 = "Not enough samples to detect anomaly: {0} / {1}";
+    public static final String CHECKING_DATABASE_HEALTH = "Checking database health...";
+    public static final String CHECKING_OBJECT_STORE_HEALTH = "Checking object store health...";
+    public static final String CHECKING_FOR_INCREASED_LOCKS = "Checking for increased locks...";
 
     // Audit log
 
