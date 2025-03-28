@@ -125,7 +125,8 @@ class PollServiceBindingOrKeyOperationExecutionTest extends AsyncStepOperationTe
                                            .serviceInstanceGuid(serviceInstance.getGuid())
                                            .serviceBindingOperation(ImmutableServiceCredentialBindingOperation.builder()
                                                                                                               .state(state)
-                                                                                                              .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                              .type(
+                                                                                                                  ServiceCredentialBindingOperation.Type.CREATE)
                                                                                                               .build())
                                            .build();
     }
@@ -135,7 +136,8 @@ class PollServiceBindingOrKeyOperationExecutionTest extends AsyncStepOperationTe
                                        .serviceInstance(serviceInstance)
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
                                                                                                       .state(state)
-                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                      .type(
+                                                                                                          ServiceCredentialBindingOperation.Type.CREATE)
                                                                                                       .build())
                                        .build();
     }

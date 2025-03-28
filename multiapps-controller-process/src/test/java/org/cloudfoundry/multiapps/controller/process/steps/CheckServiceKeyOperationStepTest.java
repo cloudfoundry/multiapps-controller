@@ -62,7 +62,8 @@ class CheckServiceKeyOperationStepTest extends SyncFlowableStepTest<CheckService
                                        .serviceInstance(buildCloudServiceInstanceExtended())
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
                                                                                                       .state(serviceKeyState)
-                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                      .type(
+                                                                                                          ServiceCredentialBindingOperation.Type.CREATE)
                                                                                                       .build())
                                        .build();
     }

@@ -83,7 +83,7 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) A subscriber should be updated, because there are new published entries (there are no existing entries):
             Arguments.of("update-subscribers-step-input-00.json", "update-subscribers-step-output-00.json", 2, null),
             // (1) A subscriber should be updated:
@@ -258,12 +258,18 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
             List<CloudTarget> targets = List.of(new CloudTarget(input.currentSpace.getOrganization()
                                                                                   .getName(),
                                                                 input.currentSpace.getName()));
-            ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(filter.getProviderNid()))
-                                                                                               .on(query -> query.providerId(filter.getProviderId()))
-                                                                                               .on(query -> query.version(filter.getProviderVersion()))
-                                                                                               .on(query -> query.target(filter.getTargetSpace()))
-                                                                                               .on(query -> query.requiredProperties(filter.getRequiredContent()))
-                                                                                               .on(query -> query.visibilityTargets(targets))
+            ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(
+                                                                                                   query -> query.providerNid(filter.getProviderNid()))
+                                                                                               .on(query -> query.providerId(
+                                                                                                   filter.getProviderId()))
+                                                                                               .on(query -> query.version(
+                                                                                                   filter.getProviderVersion()))
+                                                                                               .on(query -> query.target(
+                                                                                                   filter.getTargetSpace()))
+                                                                                               .on(query -> query.requiredProperties(
+                                                                                                   filter.getRequiredContent()))
+                                                                                               .on(query -> query.visibilityTargets(
+                                                                                                   targets))
                                                                                                .build();
             doReturn(getAllEntries(subscriber)).when(entryQueryMock)
                                                .list();

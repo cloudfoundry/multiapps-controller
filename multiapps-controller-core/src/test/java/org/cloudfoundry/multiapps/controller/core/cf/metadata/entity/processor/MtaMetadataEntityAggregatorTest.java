@@ -33,7 +33,7 @@ class MtaMetadataEntityAggregatorTest {
 
     static Stream<Arguments> testAggregate() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
         // (1) 2 mtas in CloudEntities - first has 2 apps and 2 services (with older versions), second had only 1 app
         Arguments.of("input-apps-01.json", "input-services-01.json", new Expectation(Expectation.Type.JSON, "aggregated-deployed-mtas-01.json")),
         // (2) 3 versions of the same mta (2 apps and 1 service) - two with namespaces, the last one without

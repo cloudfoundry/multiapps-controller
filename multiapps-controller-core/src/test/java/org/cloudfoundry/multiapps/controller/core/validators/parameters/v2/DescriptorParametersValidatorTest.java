@@ -37,7 +37,7 @@ class DescriptorParametersValidatorTest {
 
     public static Stream<Arguments> testValidate() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
             // (0) All parameters are valid:
             Arguments.of("mtad-01.yaml", new Expectation(Expectation.Type.JSON, "mtad-01.yaml.json")),
             // (1) Invalid host in a descriptor module:
@@ -57,7 +57,8 @@ class DescriptorParametersValidatorTest {
     void testValidate(String descriptorLocation, Expectation expectation) {
         String descriptorYaml = TestUtil.getResourceAsString(descriptorLocation, getClass());
         Map<String, Object> deploymentDescriptor = new YamlParser().convertYamlToMap(descriptorYaml);
-        DescriptorParametersValidator validator = createDescriptorParametersValidator(getDescriptorParser().parseDeploymentDescriptor(deploymentDescriptor));
+        DescriptorParametersValidator validator = createDescriptorParametersValidator(
+            getDescriptorParser().parseDeploymentDescriptor(deploymentDescriptor));
         tester.test(() -> validator.validate(), expectation);
     }
 

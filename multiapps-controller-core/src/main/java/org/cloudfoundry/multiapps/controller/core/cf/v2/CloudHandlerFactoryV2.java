@@ -55,16 +55,17 @@ public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHand
                                                                               CloudTarget cloudTarget,
                                                                               ApplicationConfiguration configuration, String namespace) {
         ParametersChainBuilder chainBuilder = new ParametersChainBuilder(deploymentDescriptor, null);
-        org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser filterParser = new org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser(cloudTarget,
-                                                                                                                                                                                           chainBuilder,
-                                                                                                                                                                                           namespace);
+        org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser filterParser = new org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser(
+            cloudTarget,
+            chainBuilder,
+            namespace);
         return new ConfigurationReferencesResolver(configurationEntryService, filterParser, cloudTarget, configuration);
     }
 
     @Override
     public ConfigurationReferencesResolver
-           getConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
-                                              CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+    getConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
+                                       CloudTarget cloudTarget, ApplicationConfiguration configuration) {
         return new ConfigurationReferencesResolver(configurationEntryService, MiscUtil.cast(filterParser), cloudTarget, configuration);
     }
 
@@ -100,9 +101,9 @@ public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHand
 
     @Override
     public ConfigurationSubscriptionFactory
-           getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
-                                               Map<String, ResolvedConfigurationReference> resolvedReferences,
-                                               Set<String> dynamicResolvableParameters) {
+    getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
+                                        Map<String, ResolvedConfigurationReference> resolvedReferences,
+                                        Set<String> dynamicResolvableParameters) {
         return new ConfigurationSubscriptionFactory(descriptor, resolvedReferences, dynamicResolvableParameters);
     }
 

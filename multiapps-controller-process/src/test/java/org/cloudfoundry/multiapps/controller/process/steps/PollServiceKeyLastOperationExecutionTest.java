@@ -73,7 +73,8 @@ class PollServiceKeyLastOperationExecutionTest extends AsyncStepOperationTest<Cr
                                        .metadata(ImmutableCloudMetadata.of(SERVICE_KEY_GUID))
                                        .serviceInstance(buildCloudServiceInstance(isServiceOptional))
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                      .type(
+                                                                                                          ServiceCredentialBindingOperation.Type.CREATE)
                                                                                                       .state(serviceKeyState)
                                                                                                       .build())
                                        .build();

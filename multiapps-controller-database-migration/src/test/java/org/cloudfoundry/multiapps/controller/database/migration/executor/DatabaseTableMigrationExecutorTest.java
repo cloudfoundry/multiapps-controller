@@ -38,7 +38,8 @@ class DatabaseTableMigrationExecutorTest {
                                                                                 .targetDataSource(mockTargetDataSource)
                                                                                 .sourceDatabaseQueryClient(mockSourceDatabaseQueryClient)
                                                                                 .targetDatabaseQueryClient(mockTargetDatabaseQueryClient)
-                                                                                .databaseTableInsertQueryGenerator(mockDatabaseTableInsertQueryGenerator)
+                                                                                .databaseTableInsertQueryGenerator(
+                                                                                    mockDatabaseTableInsertQueryGenerator)
                                                                                 .build();
         Mockito.doReturn("")
                .when(mockDatabaseTableInsertQueryGenerator)

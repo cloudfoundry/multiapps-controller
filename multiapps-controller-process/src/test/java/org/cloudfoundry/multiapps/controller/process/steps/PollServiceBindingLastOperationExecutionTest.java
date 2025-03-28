@@ -88,8 +88,9 @@ class PollServiceBindingLastOperationExecutionTest extends AsyncStepOperationTes
         context.setVariable(Variables.APP_TO_PROCESS, buildCloudApplication());
         context.setVariable(Variables.SERVICE_TO_UNBIND_BIND, SERVICE_TO_UNBIND_BIND);
         List<AsyncExecution> asyncExecutions = getAsyncOperations(context);
-        String expectedErrorMessage = MessageFormat.format(Messages.ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1,
-                                                           APP_TO_PROCESS_NAME, SERVICE_TO_UNBIND_BIND);
+        String expectedErrorMessage = MessageFormat.format(
+            Messages.ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1,
+            APP_TO_PROCESS_NAME, SERVICE_TO_UNBIND_BIND);
         asyncExecutions.forEach(asyncExecution -> assertEquals(expectedErrorMessage, asyncExecution.getPollingErrorMessage(context)));
     }
 

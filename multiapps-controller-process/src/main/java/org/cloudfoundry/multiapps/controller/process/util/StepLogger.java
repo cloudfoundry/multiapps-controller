@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 
 /**
  * The purpose of this class is to group logging of progress messages and process logs in a single place.
- *
  */
 public class StepLogger implements UserMessageLogger {
 

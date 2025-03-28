@@ -52,7 +52,7 @@ class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteServiceBro
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (1) One service broker should be deleted:
             Arguments.of(new StepInput(List.of(SERVICE_BROKER_NAME), 
                                        List.of(new SimpleApplication(APPLICATION_NAME, Map.of(SupportedParameters.SERVICE_BROKER_NAME, SERVICE_BROKER_NAME,

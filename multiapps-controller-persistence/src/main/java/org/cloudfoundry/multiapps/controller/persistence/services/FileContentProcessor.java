@@ -5,7 +5,6 @@ import java.io.InputStream;
 
 /**
  * An interface for processing the content of a file.
- *
  */
 public interface FileContentProcessor<T> {
 

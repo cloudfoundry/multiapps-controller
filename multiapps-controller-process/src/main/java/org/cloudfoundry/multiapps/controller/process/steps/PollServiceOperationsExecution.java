@@ -77,8 +77,8 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
     }
 
     protected List<CloudServiceInstanceExtended>
-              getServicesWithTriggeredOperations(Collection<CloudServiceInstanceExtended> services,
-                                                 Map<String, ServiceOperation.Type> triggeredServiceOperations) {
+    getServicesWithTriggeredOperations(Collection<CloudServiceInstanceExtended> services,
+                                       Map<String, ServiceOperation.Type> triggeredServiceOperations) {
         return services.stream()
                        .filter(cloudService -> triggeredServiceOperations.containsKey(cloudService.getName()))
                        .collect(Collectors.toList());
@@ -131,7 +131,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
     }
 
     protected List<CloudServiceInstanceExtended>
-              getRemainingServicesToPoll(Map<CloudServiceInstanceExtended, ServiceOperation> servicesWithLastOperation) {
+    getRemainingServicesToPoll(Map<CloudServiceInstanceExtended, ServiceOperation> servicesWithLastOperation) {
         return servicesWithLastOperation.entrySet()
                                         .stream()
                                         .filter(this::isOperationInProgress)

@@ -30,7 +30,7 @@ public interface AsyncUploadJobsQuery extends Query<AsyncUploadJobEntry, AsyncUp
     AsyncUploadJobsQuery withoutStartedAt();
 
     AsyncUploadJobsQuery withoutAddedAt();
-    
+
     AsyncUploadJobsQuery instanceIndex(int instanceIndex);
 
     AsyncUploadJobsQuery withFileIds(List<String> fileIds);

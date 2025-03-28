@@ -60,7 +60,7 @@ class FlowableActionFactoryTest {
     void testResumeAction() {
         Mockito.when(processActionRegistry.getAction(RESUME_ACTION_ID))
                .thenReturn(new ResumeProcessAction(facade, List.of(additionalProcessAction), operationService,
-                           cloudControllerClientProvider));
+                                                   cloudControllerClientProvider));
         testAction(RESUME_ACTION_ID, ResumeProcessAction.class);
     }
 

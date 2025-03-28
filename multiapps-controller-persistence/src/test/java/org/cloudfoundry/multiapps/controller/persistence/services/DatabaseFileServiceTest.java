@@ -195,7 +195,7 @@ class DatabaseFileServiceTest {
         verifyFileIsStored(fileEntry);
         InputStream inputStream = null;
         InputStream existingFileStream = null;
-           try {
+        try {
             inputStream = fileService.openInputStream(SPACE_1, fileEntry.getId());
             existingFileStream = getResource(PIC_RESOURCE_NAME);
             byte[] fileContent = IOUtils.toByteArray(inputStream);

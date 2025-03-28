@@ -22,20 +22,20 @@ class PollServiceBrokersOperationsExecutionTest extends AsyncStepOperationTest<D
 
     static Stream<Arguments> testPollStateExecution() {
         return Stream.of(
-                         // (1) All brokers were deleted successfully
-                         Arguments.of(List.of(new StepInput("broker1", "1", JobState.COMPLETE),
-                                              new StepInput("broker2", "2", JobState.COMPLETE)),
-                                      null, AsyncExecutionState.FINISHED),
-                         // (2) 1 of 3 brokers were deleted
-                         Arguments.of(List.of(new StepInput("broker1", "1", JobState.POLLING),
-                                              new StepInput("broker2", "2", JobState.COMPLETE),
-                                              new StepInput("broker3", "3", JobState.PROCESSING)),
-                                      Map.of("broker1", "1", "broker3", "3"), AsyncExecutionState.RUNNING),
-                         // (3) 1 of 3 brokers deletion failed
-                         Arguments.of(List.of(new StepInput("broker1", "1", JobState.FAILED),
-                                              new StepInput("broker2", "2", JobState.COMPLETE),
-                                              new StepInput("broker3", "3", JobState.PROCESSING)),
-                                      null, AsyncExecutionState.ERROR));
+            // (1) All brokers were deleted successfully
+            Arguments.of(List.of(new StepInput("broker1", "1", JobState.COMPLETE),
+                                 new StepInput("broker2", "2", JobState.COMPLETE)),
+                         null, AsyncExecutionState.FINISHED),
+            // (2) 1 of 3 brokers were deleted
+            Arguments.of(List.of(new StepInput("broker1", "1", JobState.POLLING),
+                                 new StepInput("broker2", "2", JobState.COMPLETE),
+                                 new StepInput("broker3", "3", JobState.PROCESSING)),
+                         Map.of("broker1", "1", "broker3", "3"), AsyncExecutionState.RUNNING),
+            // (3) 1 of 3 brokers deletion failed
+            Arguments.of(List.of(new StepInput("broker1", "1", JobState.FAILED),
+                                 new StepInput("broker2", "2", JobState.COMPLETE),
+                                 new StepInput("broker3", "3", JobState.PROCESSING)),
+                         null, AsyncExecutionState.ERROR));
     }
 
     @ParameterizedTest
@@ -58,7 +58,8 @@ class PollServiceBrokersOperationsExecutionTest extends AsyncStepOperationTest<D
         context.setVariable(Variables.SERVICE_BROKER_NAMES_JOB_IDS, serviceBrokerNamesJobIds);
 
         stepInput.forEach(serviceBroker -> when(client.getAsyncJob(serviceBroker.jobId)).thenReturn(ImmutableCloudAsyncJob.builder()
-                                                                                                                          .state(serviceBroker.jobState)
+                                                                                                                          .state(
+                                                                                                                              serviceBroker.jobState)
                                                                                                                           .build()));
     }
 

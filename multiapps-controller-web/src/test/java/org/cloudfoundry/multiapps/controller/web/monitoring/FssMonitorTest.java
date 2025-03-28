@@ -51,7 +51,8 @@ class FssMonitorTest {
 
     static Stream<Arguments> testGetUsedSpace() throws IOException {
         return Stream.of(Arguments.of(tempDir.toFile(), LocalDateTime.now(), 10, 10), Arguments.of(tempDir.toFile(), LocalDateTime.now()
-                                                                                                                                  .minusMinutes(10),
+                                                                                                                                  .minusMinutes(
+                                                                                                                                      10),
                                                                                                    200, 200),
                          Arguments.of(tempDir.toFile(), LocalDateTime.now()
                                                                      .minusMinutes(50),

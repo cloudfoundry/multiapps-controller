@@ -19,11 +19,13 @@ class DynamicResolvableParametersFactoryTest {
     void testDetectionDynamicParameters() {
         Set<DynamicResolvableParameter> expectedParameters = Set.of(ImmutableDynamicResolvableParameter.builder()
                                                                                                        .parameterName("service-guid")
-                                                                                                       .relationshipEntityName("test-resource-1")
+                                                                                                       .relationshipEntityName(
+                                                                                                           "test-resource-1")
                                                                                                        .build(),
                                                                     ImmutableDynamicResolvableParameter.builder()
                                                                                                        .parameterName("service-guid")
-                                                                                                       .relationshipEntityName("test-resource-2")
+                                                                                                       .relationshipEntityName(
+                                                                                                           "test-resource-2")
                                                                                                        .build());
 
         DeploymentDescriptor descriptor = DeploymentDescriptor.createV3()

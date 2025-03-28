@@ -120,7 +120,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
      *
      * @param context flowable context of the step
      * @param e thrown exception from {@link #executeStep(ProcessContext) executeStep} and pre-processed by
-     *        {@link #handleException(ProcessContext, Exception) handleException}
+     * {@link #handleException(ProcessContext, Exception) handleException}
      * @throws Exception in case derivative methods throw exception
      */
     protected void onStepError(ProcessContext context, Exception e) throws Exception {

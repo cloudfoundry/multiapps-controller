@@ -230,12 +230,15 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
         ArchiveEntryWithStreamPositions serviceBindingParametersEntry = ArchiveEntryExtractorUtil.findEntry(fileName,
-                                                                                                            context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS));
+                                                                                                            context.getVariable(
+                                                                                                                Variables.ARCHIVE_ENTRIES_POSITIONS));
         byte[] serviceBindingsParametersContent = archiveEntryExtractor.extractEntryBytes(ImmutableFileEntryProperties.builder()
                                                                                                                       .guid(appArchiveId)
-                                                                                                                      .name(serviceBindingParametersEntry.getName())
+                                                                                                                      .name(
+                                                                                                                          serviceBindingParametersEntry.getName())
                                                                                                                       .spaceGuid(spaceGuid)
-                                                                                                                      .maxFileSizeInBytes(configuration.getMaxManifestSize())
+                                                                                                                      .maxFileSizeInBytes(
+                                                                                                                          configuration.getMaxManifestSize())
                                                                                                                       .build(),
                                                                                           serviceBindingParametersEntry);
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(serviceBindingsParametersContent)) {

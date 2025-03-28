@@ -9,7 +9,8 @@ public enum ApplicationColor {
     }
 
     public String asSuffix() {
-        return "-" + super.toString().toLowerCase();
+        return "-" + super.toString()
+                          .toLowerCase();
     }
 
 }

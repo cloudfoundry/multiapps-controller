@@ -15,7 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 /**
  * A filter that is added in the Spring filter chain after the CSRF_FILTER, reads the CSRF from the session and exposes its information in
  * response headers
- * 
+ *
  * @author i031908
  */
 @Named("csrfHeadersFilter")
@@ -32,7 +32,7 @@ public class CsrfHeadersFilter extends OncePerRequestFilter {
         // This is because user authentication may force session & token recreation after this filter.
         CsrfToken token = (CsrfToken) request.getAttribute(SPRING_SECURITY_CSRF_SESSION_ATTRIBUTE);
         if (token != null && !response.isCommitted()) { // Spring invokes HttpServletResponse#sendError in case of invalid
-                                                        // credentials, which commits the response and should not be modified
+            // credentials, which commits the response and should not be modified
             response.setHeader(Constants.CSRF_HEADER_NAME, token.getHeaderName());
             response.setHeader(Constants.CSRF_PARAM_NAME, token.getParameterName());
             response.setHeader(Constants.CSRF_TOKEN, token.getToken());

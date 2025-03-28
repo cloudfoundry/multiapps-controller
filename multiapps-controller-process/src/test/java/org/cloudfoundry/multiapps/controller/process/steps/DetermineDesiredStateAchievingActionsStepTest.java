@@ -22,7 +22,7 @@ class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesiredStat
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
             // (0)
             Arguments.of(ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toList()), true, null),
             // (1)

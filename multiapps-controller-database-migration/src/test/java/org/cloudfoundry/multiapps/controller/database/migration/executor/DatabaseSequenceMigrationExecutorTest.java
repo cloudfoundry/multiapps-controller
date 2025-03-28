@@ -34,8 +34,10 @@ class DatabaseSequenceMigrationExecutorTest {
         databaseSequenceMigrationExecutor = ImmutableDatabaseSequenceMigrationExecutor.builder()
                                                                                       .sourceDataSource(mockSourceDataSource)
                                                                                       .targetDataSource(mockTargetDataSource)
-                                                                                      .sourceDatabaseQueryClient(mockSourceDatabaseQueryClient)
-                                                                                      .targetDatabaseQueryClient(mockTargetDatabaseQueryClient)
+                                                                                      .sourceDatabaseQueryClient(
+                                                                                          mockSourceDatabaseQueryClient)
+                                                                                      .targetDatabaseQueryClient(
+                                                                                          mockTargetDatabaseQueryClient)
                                                                                       .build();
     }
 

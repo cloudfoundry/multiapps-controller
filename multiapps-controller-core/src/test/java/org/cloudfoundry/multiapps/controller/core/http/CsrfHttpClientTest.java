@@ -25,12 +25,14 @@ class CsrfHttpClientTest {
                                                                                              .statusCode(200));
     private static final HttpResponse OK_RESPONSE_WITH_FOO_TOKEN = HttpMocks.mockResponse(builder -> builder.body(BODY)
                                                                                                             .statusCode(200)
-                                                                                                            .putHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME,
-                                                                                                                       FOO_TOKEN));
+                                                                                                            .putHeader(
+                                                                                                                CsrfHttpClient.CSRF_TOKEN_HEADER_NAME,
+                                                                                                                FOO_TOKEN));
     private static final HttpResponse OK_RESPONSE_WITH_BAR_TOKEN = HttpMocks.mockResponse(builder -> builder.body(BODY)
                                                                                                             .statusCode(200)
-                                                                                                            .putHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME,
-                                                                                                                       BAR_TOKEN));
+                                                                                                            .putHeader(
+                                                                                                                CsrfHttpClient.CSRF_TOKEN_HEADER_NAME,
+                                                                                                                BAR_TOKEN));
     private static final HttpResponse FORBIDDEN_RESPONSE = HttpMocks.mockResponse(b -> b.statusCode(403)
                                                                                         .body(BODY)
                                                                                         .putHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME,

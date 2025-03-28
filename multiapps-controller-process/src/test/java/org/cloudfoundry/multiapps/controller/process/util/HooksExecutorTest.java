@@ -51,8 +51,10 @@ class HooksExecutorTest {
         when(processTypeParser.getProcessType(any())).thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         List<Hook> expectedHooksForExecution = List.of(createHook("test-hook", Collections.emptyList()));
         when(hooksCalculator.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE)).thenReturn(ImmutableHooksWithPhases.builder()
-                                                                                                                               .hooks(expectedHooksForExecution)
-                                                                                                                               .hookPhases(Collections.emptyList())
+                                                                                                                               .hooks(
+                                                                                                                                   expectedHooksForExecution)
+                                                                                                                               .hookPhases(
+                                                                                                                                   Collections.emptyList())
                                                                                                                                .build());
         HooksExecutor hooksExecutor = new HooksExecutor(hooksCalculator, moduleToDeploy, context);
         List<Hook> hooksForExecution = hooksExecutor.executeBeforeStepHooks(StepPhase.EXECUTE);
@@ -75,8 +77,10 @@ class HooksExecutorTest {
         List<Hook> expectedHooksForExecution = List.of(createHook("test-hook", Collections.emptyList()));
         when(processTypeParser.getProcessType(any())).thenReturn(ProcessType.DEPLOY);
         when(hooksCalculator.calculateHooksForExecution(moduleToDeploy, StepPhase.DONE)).thenReturn(ImmutableHooksWithPhases.builder()
-                                                                                                                            .hooks(expectedHooksForExecution)
-                                                                                                                            .hookPhases(Collections.emptyList())
+                                                                                                                            .hooks(
+                                                                                                                                expectedHooksForExecution)
+                                                                                                                            .hookPhases(
+                                                                                                                                Collections.emptyList())
                                                                                                                             .build());
         HooksExecutor hooksExecutor = new HooksExecutor(hooksCalculator, moduleToDeploy, context);
         List<Hook> hooksForExecution = hooksExecutor.executeAfterStepHooks(StepPhase.DONE);

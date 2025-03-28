@@ -26,7 +26,7 @@ class UpdateServiceTagsStepTest extends SyncFlowableStepTest<UpdateServiceTagsSt
         step.execute(execution);
 
         verify(client).updateServiceTags(serviceToProcess.getName(),
-                serviceToProcess.getTags());
+                                         serviceToProcess.getTags());
     }
 
     @Test
@@ -81,10 +81,10 @@ class UpdateServiceTagsStepTest extends SyncFlowableStepTest<UpdateServiceTagsSt
 
     private void throwExceptionOnServiceTagsUpdate(HttpStatus httpStatus) {
         Mockito.doThrow(new CloudOperationException(httpStatus, "Error occurred"))
-                .when(client)
-                .updateServiceTags(any(), any());
+               .when(client)
+               .updateServiceTags(any(), any());
     }
-    
+
     @Override
     protected UpdateServiceTagsStep createStep() {
         return new UpdateServiceTagsStep();

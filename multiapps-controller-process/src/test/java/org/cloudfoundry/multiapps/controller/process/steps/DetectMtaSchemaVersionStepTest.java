@@ -34,7 +34,7 @@ class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectMtaSchem
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // Unsupported version:
             Arguments.of("1.0.0", 1,  MessageFormat.format(Messages.UNSUPPORTED_VERSION, "1.0.0")),
             // Supported version:

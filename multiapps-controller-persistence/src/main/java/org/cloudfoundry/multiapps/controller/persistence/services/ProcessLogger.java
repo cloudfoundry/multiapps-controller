@@ -129,7 +129,8 @@ public class ProcessLogger {
         }
         ProcessLogger processLogger = (ProcessLogger) incommingObject;
         return Objects.equals(id, processLogger.id) && Objects.equals(layout, processLogger.layout) && Objects.equals(activityId,
-                                                                                                                      processLogger.activityId) && Objects.equals(
+                                                                                                                      processLogger.activityId)
+            && Objects.equals(
             logName, processLogger.logName) && Objects.equals(operationLogEntry, processLogger.operationLogEntry) && Objects.equals(
             logMessage, processLogger.logMessage);
     }

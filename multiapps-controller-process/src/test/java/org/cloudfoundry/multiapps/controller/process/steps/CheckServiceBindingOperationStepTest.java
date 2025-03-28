@@ -79,13 +79,15 @@ class CheckServiceBindingOperationStepTest extends SyncFlowableStepTest<CheckSer
     @Test
     void testThrowExceptionWhenFetchingServiceBinding() {
         when(client.getServiceBindingForApplication(APP_GUID,
-                                                    SERVICE_INSTANCE_GUID)).thenThrow(new CloudOperationException(HttpStatus.SERVICE_UNAVAILABLE));
+                                                    SERVICE_INSTANCE_GUID)).thenThrow(
+            new CloudOperationException(HttpStatus.SERVICE_UNAVAILABLE));
         when(client.getApplicationGuid(APP_NAME)).thenReturn(APP_GUID);
         when(client.getRequiredServiceInstanceGuid(SERVICE_INSTANCE_NAME)).thenReturn(SERVICE_INSTANCE_GUID);
         Exception exception = assertThrows(SLException.class, () -> step.execute(execution));
-        assertEquals("Error while checking service binding operations between app: \"test-app\" and service instance \"test-service-instance\": Controller operation failed: 503 Service Unavailable",
-                     exception.getMessage()
-                              .trim());
+        assertEquals(
+            "Error while checking service binding operations between app: \"test-app\" and service instance \"test-service-instance\": Controller operation failed: 503 Service Unavailable",
+            exception.getMessage()
+                     .trim());
     }
 
     @Test
@@ -137,7 +139,8 @@ class CheckServiceBindingOperationStepTest extends SyncFlowableStepTest<CheckSer
                                            .serviceInstanceGuid(SERVICE_INSTANCE_GUID)
                                            .applicationGuid(APP_GUID)
                                            .serviceBindingOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                              .type(ServiceCredentialBindingOperation.Type.DELETE)
+                                                                                                              .type(
+                                                                                                                  ServiceCredentialBindingOperation.Type.DELETE)
                                                                                                               .state(bindingState)
                                                                                                               .build())
                                            .build();

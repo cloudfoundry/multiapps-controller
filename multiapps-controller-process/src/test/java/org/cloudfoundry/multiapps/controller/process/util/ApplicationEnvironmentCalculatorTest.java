@@ -54,9 +54,10 @@ class ApplicationEnvironmentCalculatorTest {
     @Test
     void testShouldNotKeepExistingEnv() {
         var applicationToDeploy = getApplicationToDeploy();
-        when(applicationToDeploy.getAttributesUpdateStrategy()).thenReturn(ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder()
-                                                                                                                                    .shouldKeepExistingEnv(false)
-                                                                                                                                    .build());
+        when(applicationToDeploy.getAttributesUpdateStrategy()).thenReturn(
+            ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder()
+                                                                     .shouldKeepExistingEnv(false)
+                                                                     .build());
         Map<String, String> applicationEnv = applicationEnvironmentCalculator.calculateNewApplicationEnv(context, applicationToDeploy);
         assertEquals(APP_ENV, applicationEnv);
     }
@@ -121,9 +122,10 @@ class ApplicationEnvironmentCalculatorTest {
         when(applicationToDeploy.getEnv()).thenReturn(APP_ENV);
         when(applicationToDeploy.getName()).thenReturn(APP_NAME);
         when(applicationToDeploy.getModuleName()).thenReturn(MODULE_NAME);
-        when(applicationToDeploy.getAttributesUpdateStrategy()).thenReturn(ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder()
-                                                                                                                                    .shouldKeepExistingEnv(true)
-                                                                                                                                    .build());
+        when(applicationToDeploy.getAttributesUpdateStrategy()).thenReturn(
+            ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder()
+                                                                     .shouldKeepExistingEnv(true)
+                                                                     .build());
         return applicationToDeploy;
     }
 

@@ -46,7 +46,8 @@ public class ApplicationAttributeUpdateStrategyParser implements ParametersParse
     }
 
     private Boolean shouldKeepExistingServiceBindings(Map<String, Boolean> attributesUpdateStrategy) {
-        return attributesUpdateStrategy.get(SupportedParameters.ApplicationUpdateStrategy.SERVICE_BINDINGS_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY);
+        return attributesUpdateStrategy.get(
+            SupportedParameters.ApplicationUpdateStrategy.SERVICE_BINDINGS_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY);
     }
 
 }

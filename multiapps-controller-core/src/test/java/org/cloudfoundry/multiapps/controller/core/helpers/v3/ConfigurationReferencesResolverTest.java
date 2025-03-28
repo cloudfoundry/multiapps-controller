@@ -12,15 +12,15 @@ public class ConfigurationReferencesResolverTest
 
     static Stream<Arguments> testResolveSource() {
         return Stream.of(
-                         // (1) Reference to existing provided dependency:
-                         Arguments.of("mtad-01.yaml", "configuration-entries-01.json",
-                                      new Expectation(Expectation.Type.JSON, "result-01.json")),
-                         // (2) More than one configuration entries are available for resource:
-                         Arguments.of("mtad-02.yaml", "configuration-entries-02.json",
-                                      new Expectation(Expectation.Type.JSON, "result-02.json")),
-                         // (3) Set configuration property "active" to false
-                         Arguments.of("mtad-03.yaml", "configuration-entries-02.json",
-                                      new Expectation(Expectation.Type.JSON, "result-03.json")));
+            // (1) Reference to existing provided dependency:
+            Arguments.of("mtad-01.yaml", "configuration-entries-01.json",
+                         new Expectation(Expectation.Type.JSON, "result-01.json")),
+            // (2) More than one configuration entries are available for resource:
+            Arguments.of("mtad-02.yaml", "configuration-entries-02.json",
+                         new Expectation(Expectation.Type.JSON, "result-02.json")),
+            // (3) Set configuration property "active" to false
+            Arguments.of("mtad-03.yaml", "configuration-entries-02.json",
+                         new Expectation(Expectation.Type.JSON, "result-03.json")));
     }
 
     @Override

@@ -294,7 +294,8 @@ public class ApplicationCloudModelBuilder {
 
     public List<String> getApplicationDomains(List<Map<String, Object>> parametersList, Module module) {
         return getApplicationRoutesCloudModelBuilder(parametersList).getApplicationDomains(module,
-                                                                                           parametersChainBuilder.buildModuleChain(module.getName()));
+                                                                                           parametersChainBuilder.buildModuleChain(
+                                                                                               module.getName()));
     }
 
     protected Resource getResource(String dependencyName) {

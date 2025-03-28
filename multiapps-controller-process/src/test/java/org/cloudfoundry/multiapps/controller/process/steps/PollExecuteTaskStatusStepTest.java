@@ -53,7 +53,7 @@ class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskSt
 
     public static Stream<Arguments> testPollStateExecution() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0)
             Arguments.of(CloudTask.State.SUCCEEDED, 100L, AsyncExecutionState.FINISHED),
             // (1)

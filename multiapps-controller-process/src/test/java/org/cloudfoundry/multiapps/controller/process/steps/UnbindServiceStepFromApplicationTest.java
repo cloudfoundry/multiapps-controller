@@ -66,9 +66,9 @@ class UnbindServiceStepFromApplicationTest extends SyncFlowableStepTest<UnbindSe
         prepareContext();
         when(client.unbindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME),
                                           any(ApplicationServicesUpdateCallback.class))).then(answer -> {
-                                              context.setVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_DELETION, true);
-                                              return Optional.empty();
-                                          });
+            context.setVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_DELETION, true);
+            return Optional.empty();
+        });
         step.execute(execution);
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
         verify(client).unbindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME), any(ApplicationServicesUpdateCallback.class));
@@ -180,10 +180,14 @@ class UnbindServiceStepFromApplicationTest extends SyncFlowableStepTest<UnbindSe
                                            .serviceInstanceGuid(SERVICE_INSTANCE_GUID)
                                            .applicationGuid(APP_GUID)
                                            .serviceBindingOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                              .type(ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                              .state(ServiceCredentialBindingOperation.State.IN_PROGRESS)
-                                                                                                              .createdAt(LocalDateTime.now())
-                                                                                                              .updatedAt(LocalDateTime.now())
+                                                                                                              .type(
+                                                                                                                  ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                              .state(
+                                                                                                                  ServiceCredentialBindingOperation.State.IN_PROGRESS)
+                                                                                                              .createdAt(
+                                                                                                                  LocalDateTime.now())
+                                                                                                              .updatedAt(
+                                                                                                                  LocalDateTime.now())
                                                                                                               .build())
                                            .build();
     }

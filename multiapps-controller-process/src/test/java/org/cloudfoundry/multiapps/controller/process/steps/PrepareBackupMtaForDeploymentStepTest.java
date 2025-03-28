@@ -58,14 +58,14 @@ class PrepareBackupMtaForDeploymentStepTest extends SyncFlowableStepTest<Prepare
 
     private static Stream<Arguments> testStep() {
         return Stream.of(
-                         // (1) Backup app exist and persisted descriptor contains same mta version
-                         Arguments.of(List.of(new TestApp("app-1", "1"), new TestApp("app-2", "1"), new TestApp("app-3", "1")), "1", false),
-                         // (2) Backup app does not have mta version in the metadata
-                         Arguments.of(List.of(new TestApp("app-1", null)), "1", true),
-                         // (3) Not all backup apps have same mta version
-                         Arguments.of(List.of(new TestApp("app-1", "1"), new TestApp("app-2", "2"), new TestApp("app-3", "2")), "1", true),
-                         // (4) Missing backup descriptor
-                         Arguments.of(List.of(new TestApp("app-1", "2"), new TestApp("app-2", "2")), null, true));
+            // (1) Backup app exist and persisted descriptor contains same mta version
+            Arguments.of(List.of(new TestApp("app-1", "1"), new TestApp("app-2", "1"), new TestApp("app-3", "1")), "1", false),
+            // (2) Backup app does not have mta version in the metadata
+            Arguments.of(List.of(new TestApp("app-1", null)), "1", true),
+            // (3) Not all backup apps have same mta version
+            Arguments.of(List.of(new TestApp("app-1", "1"), new TestApp("app-2", "2"), new TestApp("app-3", "2")), "1", true),
+            // (4) Missing backup descriptor
+            Arguments.of(List.of(new TestApp("app-1", "2"), new TestApp("app-2", "2")), null, true));
     }
 
     @ParameterizedTest
@@ -91,7 +91,8 @@ class PrepareBackupMtaForDeploymentStepTest extends SyncFlowableStepTest<Prepare
     private void prepareContext(DeployedMta backupMta, String backupMtaVersionInPersistenceLayer) {
         context.setVariable(Variables.MTA_ID, MTA_ID);
         when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(eq(MTA_ID), eq(null),
-                                                                     any())).thenReturn(Optional.of(createBackupMta(List.of(new TestApp("app", "0.0.1")))));
+                                                                     any())).thenReturn(
+            Optional.of(createBackupMta(List.of(new TestApp("app", "0.0.1")))));
         when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(eq(MTA_ID), eq(Constants.MTA_BACKUP_NAMESPACE),
                                                                      any())).thenReturn(Optional.of(backupMta));
         when(descriptorBackupService.createQuery()).thenReturn(descriptorBackupQuery);
@@ -130,8 +131,9 @@ class PrepareBackupMtaForDeploymentStepTest extends SyncFlowableStepTest<Prepare
                                                                               .name(testApp.appName)
                                                                               .moduleName(testApp.appName)
                                                                               .v3Metadata(Metadata.builder()
-                                                                                                  .annotation(MtaMetadataAnnotations.MTA_VERSION,
-                                                                                                              testApp.version)
+                                                                                                  .annotation(
+                                                                                                      MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                      testApp.version)
                                                                                                   .build())
                                                                               .build())
                                .collect(Collectors.toList());

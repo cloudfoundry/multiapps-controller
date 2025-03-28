@@ -97,7 +97,8 @@ class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameApplications
 
     @Test
     void testWithTwoColorsDeployed() {
-        when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(new ConflictException(Messages.CONFLICTING_APP_COLORS));
+        when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(
+            new ConflictException(Messages.CONFLICTING_APP_COLORS));
         when(applicationColorDetector.detectLiveApplicationColor(any(), any())).thenReturn(ApplicationColor.GREEN);
         step.execute(execution);
 
@@ -109,7 +110,8 @@ class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameApplications
 
     @Test
     void testExceptionIsThrown() {
-        when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(new SLException(org.cloudfoundry.multiapps.controller.process.Messages.ERROR_RENAMING_APPLICATIONS));
+        when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(
+            new SLException(org.cloudfoundry.multiapps.controller.process.Messages.ERROR_RENAMING_APPLICATIONS));
         when(applicationColorDetector.detectLiveApplicationColor(any(), any())).thenReturn(ApplicationColor.GREEN);
         Assertions.assertThrows(SLException.class, () -> step.execute(execution),
                                 org.cloudfoundry.multiapps.controller.process.Messages.ERROR_RENAMING_APPLICATIONS);

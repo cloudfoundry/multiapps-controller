@@ -8,7 +8,7 @@ public enum CookieSpecification {
 
     BROWSER_COMPATIBILITY(CookieSpecs.BROWSER_COMPATIBILITY), NETSCAPE(CookieSpecs.NETSCAPE), STANDARD(
         CookieSpecs.STANDARD), STANDARD_STRICT(CookieSpecs.STANDARD_STRICT), BEST_MATCH(
-            CookieSpecs.BEST_MATCH), DEFAULT(CookieSpecs.DEFAULT), IGNORE_COOKIES(CookieSpecs.IGNORE_COOKIES);
+        CookieSpecs.BEST_MATCH), DEFAULT(CookieSpecs.DEFAULT), IGNORE_COOKIES(CookieSpecs.IGNORE_COOKIES);
 
     private final String value;
 

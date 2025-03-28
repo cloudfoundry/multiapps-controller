@@ -56,7 +56,7 @@ class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeplo
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
                 Arguments.of(new StepInput("modules-to-deploy-01.json", "services-to-create-01.json", "service-keys-01.json", List.of("api.cf.neo.ondemand.com"), "deployed-mta-12.json")),
                 Arguments.of(new StepInput("modules-to-deploy-01.json", "services-to-create-01.json", "service-keys-01.json", List.of("api.cf.neo.ondemand.com"), null))
 // @formatter:on
@@ -141,8 +141,8 @@ class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeplo
 
         @Override
         protected ModulesCloudModelBuilderContentCalculator
-                  getModulesContentCalculator(ProcessContext context, List<Module> mtaDescriptorModules, Set<String> mtaManifestModuleNames,
-                                              Set<String> deployedModuleNames, Set<String> allMtaModuleNames) {
+        getModulesContentCalculator(ProcessContext context, List<Module> mtaDescriptorModules, Set<String> mtaManifestModuleNames,
+                                    Set<String> deployedModuleNames, Set<String> allMtaModuleNames) {
             return modulesCloudModelBuilderContentCalculator;
         }
 

@@ -29,8 +29,9 @@ public class MicrometerConfiguration {
     @Bean
     public JmxMeterRegistry jmxMeterRegistry(ApplicationConfiguration configuration, EnvironmentServicesFinder vcapServiceFinder) {
         if (vcapServiceFinder.findJdbcService(DYNATRACE_SERVICE_NAME) == null) {
-            LOGGER.warn(MessageFormat.format("Skipping registration of JmxMeterRegistry, since service \"{0}\" is not bound to the application.",
-                                             DYNATRACE_SERVICE_NAME));
+            LOGGER.warn(
+                MessageFormat.format("Skipping registration of JmxMeterRegistry, since service \"{0}\" is not bound to the application.",
+                                     DYNATRACE_SERVICE_NAME));
             return null;
         }
         Integer stepInSeconds = configuration.getMicrometerStepInSeconds();

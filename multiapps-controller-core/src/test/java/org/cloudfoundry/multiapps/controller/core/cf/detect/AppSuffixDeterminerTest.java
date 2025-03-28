@@ -12,7 +12,7 @@ class AppSuffixDeterminerTest {
 
     static Stream<Arguments> testAppSuffixDeterminer() {
         return Stream.of(
-        //@formatter:off
+            //@formatter:off
             // (1) Keep original app names is not set and the process is not after resume phase
             Arguments.of(false, false, false),
             // (2) Keep original app names is set but the process is not after resume phase

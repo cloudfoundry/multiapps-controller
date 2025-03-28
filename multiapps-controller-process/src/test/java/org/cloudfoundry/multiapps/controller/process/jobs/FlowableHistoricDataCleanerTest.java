@@ -70,7 +70,8 @@ class FlowableHistoricDataCleanerTest {
     private HistoricProcessInstanceQuery mockHistoricProcessInstanceQueryWithPages(List<List<HistoricProcessInstance>> pages) {
         HistoricProcessInstanceQuery historicProcessInstanceQuery = mock(HistoricProcessInstanceQuery.class);
         when(historicProcessInstanceQuery.startedBefore(java.util.Date.from(EXPIRATION_TIME.atZone(ZoneId.systemDefault())
-                                                                                           .toInstant()))).thenReturn(historicProcessInstanceQuery);
+                                                                                           .toInstant()))).thenReturn(
+            historicProcessInstanceQuery);
         when(historicProcessInstanceQuery.finished()).thenReturn(historicProcessInstanceQuery);
         when(historicProcessInstanceQuery.excludeSubprocesses(anyBoolean())).thenReturn(historicProcessInstanceQuery);
         when(historicProcessInstanceQuery.listPage(anyInt(), anyInt())).thenAnswer(AdditionalAnswers.returnsElementsOf(pages));

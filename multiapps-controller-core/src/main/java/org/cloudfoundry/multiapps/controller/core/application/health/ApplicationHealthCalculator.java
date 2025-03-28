@@ -130,13 +130,16 @@ public class ApplicationHealthCalculator {
         }
         boolean hasIncreasedDbLocks = hasIncreasedLocksCache.getOrRefresh(() -> true);
         if (hasIncreasedDbLocks) {
-            LOGGER.warn(MessageFormat.format(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE_0_GETTING_THE_LOCKS,
-                                             applicationConfiguration.getApplicationInstanceIndex()));
-            long countOfProcessesWaitingForLocks = resilientOperationExecutor.execute((Supplier<Long>) () -> databaseMonitoringService.getProcessesWaitingForLocks(ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration)));
+            LOGGER.warn(
+                MessageFormat.format(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE_0_GETTING_THE_LOCKS,
+                                     applicationConfiguration.getApplicationInstanceIndex()));
+            long countOfProcessesWaitingForLocks = resilientOperationExecutor.execute(
+                (Supplier<Long>) () -> databaseMonitoringService.getProcessesWaitingForLocks(
+                    ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration)));
             LOGGER.warn(MessageFormat.format(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE,
                                              countOfProcessesWaitingForLocks, applicationConfiguration.getApplicationInstanceIndex()));
             return ResponseEntity.ok(ImmutableApplicationHealthResult.builder() // TODO: Make this return 503 instead of 200 when the
-                                                                                // detection is trustworthy
+                                                                     // detection is trustworthy
                                                                      .status(ApplicationHealthResult.Status.DOWN)
                                                                      .hasIncreasedLocks(true)
                                                                      .countOfProcessesWaitingForLocks(countOfProcessesWaitingForLocks)

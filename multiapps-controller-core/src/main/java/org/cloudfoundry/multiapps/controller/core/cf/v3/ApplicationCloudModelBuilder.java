@@ -40,7 +40,7 @@ public class ApplicationCloudModelBuilder extends org.cloudfoundry.multiapps.con
     @Override
     protected List<String> getApplicationServices(Module module) {
         return getApplicationServices(module, (resource, type) -> filterExistingServicesRule(resource, type)
-                                              && onlyActiveServicesRule(resource, type));
+            && onlyActiveServicesRule(resource, type));
     }
 
     @Override

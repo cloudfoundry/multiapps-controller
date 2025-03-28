@@ -191,11 +191,13 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     private List<CloudServiceInstanceExtended> buildFilteredServices(DeploymentDescriptor deploymentDescriptor,
                                                                      List<String> filteredResourceNames,
                                                                      ServicesCloudModelBuilder servicesCloudModelBuilder) {
-        CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(filteredResourceNames,
-                                                                                                                                                   getStepLogger(),
-                                                                                                                                                   false);
+        CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(
+            filteredResourceNames,
+            getStepLogger(),
+            false);
         // this always filters the 'isActive', 'isResourceSpecifiedForDeployment' and 'isService' resources
-        List<Resource> calculatedFilteredResources = resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());
+        List<Resource> calculatedFilteredResources = resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(
+            deploymentDescriptor.getResources());
 
         return servicesCloudModelBuilder.build(calculatedFilteredResources);
     }
@@ -235,9 +237,10 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
     private List<Resource> calculateResourcesForDeployment(ProcessContext context, DeploymentDescriptor deploymentDescriptor) {
         List<String> resourcesSpecifiedForDeployment = context.getVariable(Variables.RESOURCES_FOR_DEPLOYMENT);
-        CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(resourcesSpecifiedForDeployment,
-                                                                                                                                                   getStepLogger(),
-                                                                                                                                                   shouldProcessOnlyUserProvidedServices(context));
+        CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(
+            resourcesSpecifiedForDeployment,
+            getStepLogger(),
+            shouldProcessOnlyUserProvidedServices(context));
         return resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());
     }
 
@@ -247,8 +250,8 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     }
 
     protected ModulesCloudModelBuilderContentCalculator
-              getModulesContentCalculator(ProcessContext context, List<Module> mtaDescriptorModules, Set<String> mtaManifestModuleNames,
-                                          Set<String> deployedModuleNames, Set<String> mtaModuleNamesForDeployment) {
+    getModulesContentCalculator(ProcessContext context, List<Module> mtaDescriptorModules, Set<String> mtaManifestModuleNames,
+                                Set<String> deployedModuleNames, Set<String> mtaModuleNamesForDeployment) {
         List<ModulesContentValidator> modulesValidators = getModuleContentValidators(context.getControllerClient(), mtaDescriptorModules,
                                                                                      mtaModuleNamesForDeployment, deployedModuleNames);
         return new ModulesCloudModelBuilderContentCalculator(mtaManifestModuleNames,
@@ -306,7 +309,8 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
             if (!moduleToDeployHelper.isApplication(module)) {
                 continue;
             }
-            ParametersChainBuilder parametersChainBuilder = new ParametersChainBuilder(context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR));
+            ParametersChainBuilder parametersChainBuilder = new ParametersChainBuilder(
+                context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR));
             List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
 
             boolean noRoute = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.NO_ROUTE, false);

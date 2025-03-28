@@ -47,19 +47,21 @@ public class ApplicationDigestCalculator {
             fileService.consumeFileContent(applicationArchiveContext.getSpaceId(), applicationArchiveContext.getAppArchiveId(),
                                            archiveStream -> calculateDigestFromDirectory(applicationArchiveContext, archiveStream));
         } else {
-            ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(applicationArchiveContext.getModuleFileName(),
-                                                                                                                  applicationArchiveContext.getArchiveEntryWithStreamPositions());
+            ArchiveEntryWithStreamPositions archiveEntryWithStreamPositions = ArchiveEntryExtractorUtil.findEntry(
+                applicationArchiveContext.getModuleFileName(),
+                applicationArchiveContext.getArchiveEntryWithStreamPositions());
             DigestCalculator applicationDigestCalculator = applicationArchiveContext.getDigestCalculator();
             archiveEntryExtractor.processFileEntryBytes(ImmutableFileEntryProperties.builder()
                                                                                     .guid(applicationArchiveContext.getAppArchiveId())
                                                                                     .name(archiveEntryWithStreamPositions.getName())
                                                                                     .spaceGuid(applicationArchiveContext.getSpaceId())
-                                                                                    .maxFileSizeInBytes(applicationArchiveContext.getMaxSizeInBytes())
+                                                                                    .maxFileSizeInBytes(
+                                                                                        applicationArchiveContext.getMaxSizeInBytes())
                                                                                     .build(),
                                                         archiveEntryWithStreamPositions, (bytesBuffer, bytesRead) -> {
-                                                            applicationArchiveContext.calculateCurrentSizeInBytes(bytesRead);
-                                                            applicationDigestCalculator.updateDigest(bytesBuffer, 0, bytesRead);
-                                                        });
+                    applicationArchiveContext.calculateCurrentSizeInBytes(bytesRead);
+                    applicationDigestCalculator.updateDigest(bytesBuffer, 0, bytesRead);
+                });
         }
     }
 

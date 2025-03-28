@@ -19,7 +19,8 @@ public class PollIncrementalAppInstanceUpdateExecution implements AsyncExecution
     public AsyncExecutionState execute(ProcessContext context) {
         CloudApplicationExtended appToProcess = context.getVariable(Variables.APP_TO_PROCESS);
         CloudControllerClient client = context.getControllerClient();
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         context.getStepLogger()
                .debug(Messages.DESIRED_APPLICATION_0_INSTANCES_1_AND_NOW_SCALED_TO_2, appToProcess.getName(), appToProcess.getInstances(),
                       incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
@@ -67,11 +68,12 @@ public class PollIncrementalAppInstanceUpdateExecution implements AsyncExecution
     }
 
     private IncrementalAppInstanceUpdateConfiguration
-            downscaleOldApplication(ProcessContext context,
-                                    IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration,
-                                    CloudControllerClient client) {
+    downscaleOldApplication(ProcessContext context,
+                            IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration,
+                            CloudControllerClient client) {
         var incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
-                                                                                                                 .from(incrementalAppInstanceUpdateConfiguration);
+                                                                                                                 .from(
+                                                                                                                     incrementalAppInstanceUpdateConfiguration);
         CloudApplication oldApplication = incrementalAppInstanceUpdateConfiguration.getOldApplication();
         if (oldApplication != null && incrementalAppInstanceUpdateConfiguration.getOldApplicationInstanceCount() > 1) {
             int oldApplicationInstancesCount = incrementalAppInstanceUpdateConfiguration.getOldApplicationInstanceCount() - 1;
@@ -84,11 +86,12 @@ public class PollIncrementalAppInstanceUpdateExecution implements AsyncExecution
     }
 
     private IncrementalAppInstanceUpdateConfiguration
-            scaleUpNewApplication(ProcessContext context,
-                                  IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration,
-                                  CloudControllerClient client) {
+    scaleUpNewApplication(ProcessContext context,
+                          IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration,
+                          CloudControllerClient client) {
         var incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
-                                                                                                                 .from(incrementalAppInstanceUpdateConfiguration);
+                                                                                                                 .from(
+                                                                                                                     incrementalAppInstanceUpdateConfiguration);
         CloudApplication newApplication = context.getVariable(Variables.APP_TO_PROCESS);
         int newApplicationInstancesCount = incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount() + 1;
         context.getStepLogger()

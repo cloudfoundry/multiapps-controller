@@ -96,7 +96,8 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         MtaArchiveElements mtaArchiveElements = context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
         return ImmutableApplicationToUploadContext.builder()
                                                   .application(applicationToProcess)
-                                                  .moduleFileName(mtaArchiveElements.getModuleFileName(applicationToProcess.getModuleName()))
+                                                  .moduleFileName(
+                                                      mtaArchiveElements.getModuleFileName(applicationToProcess.getModuleName()))
                                                   .spaceGuid(context.getVariable(Variables.SPACE_GUID))
                                                   .correlationId(context.getVariable(Variables.CORRELATION_ID))
                                                   .taskId(context.getVariable(Variables.TASK_ID))
@@ -171,11 +172,12 @@ public class UploadAppAsyncExecution implements AsyncExecution {
             return client.asyncUploadApplicationWithExponentialBackoff(applicationToUploadContext.getApplication()
                                                                                                  .getName(),
                                                                        extractedModulePath,
-                                                                       getMonitorUploadStatusCallback(applicationToUploadContext.getApplication(),
-                                                                                                      extractedModulePath,
-                                                                                                      applicationToUploadContext.getStepLogger(),
-                                                                                                      applicationToUploadContext.getCorrelationId(),
-                                                                                                      applicationToUploadContext.getTaskId()),
+                                                                       getMonitorUploadStatusCallback(
+                                                                           applicationToUploadContext.getApplication(),
+                                                                           extractedModulePath,
+                                                                           applicationToUploadContext.getStepLogger(),
+                                                                           applicationToUploadContext.getCorrelationId(),
+                                                                           applicationToUploadContext.getTaskId()),
                                                                        null);
         } catch (Exception e) {
             FileUtils.cleanUp(extractedModulePath, LOGGER);

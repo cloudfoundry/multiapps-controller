@@ -75,7 +75,7 @@ public class CloudModelBuilderTest {
 
     private static Stream<Arguments> getParameters() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
 				// (01) Full MTA:
 				Arguments.of("/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext",
 						"/mta/cf-platform.json", null, null, false,
@@ -452,8 +452,8 @@ public class CloudModelBuilderTest {
     }
 
     protected ApplicationCloudModelBuilder
-              getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
-                                              AppSuffixDeterminer appSuffixDeterminer, boolean incrementalInstancesUpdate) {
+    getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
+                                    AppSuffixDeterminer appSuffixDeterminer, boolean incrementalInstancesUpdate) {
         deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor,
                                                                new ResolverBuilder(),
                                                                new ResolverBuilder(),

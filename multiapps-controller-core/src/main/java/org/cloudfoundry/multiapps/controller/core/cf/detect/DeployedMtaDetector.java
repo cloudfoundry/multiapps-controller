@@ -68,7 +68,8 @@ public class DeployedMtaDetector {
                                                                           .exists()
                                                                           .and()
                                                                           .label(MtaMetadataLabels.MTA_NAMESPACE)
-                                                                          .hasValueOrIsntPresent(MtaMetadataUtil.getHashedLabel(mtaNamespace))
+                                                                          .hasValueOrIsntPresent(
+                                                                              MtaMetadataUtil.getHashedLabel(mtaNamespace))
                                                                           .build();
 
         return getDeployedMtasByMetadataSelectionCriteria(selectionCriteria, client);
@@ -80,7 +81,8 @@ public class DeployedMtaDetector {
                                                                           .hasValue(MtaMetadataUtil.getHashedLabel(mtaName))
                                                                           .and()
                                                                           .label(MtaMetadataLabels.MTA_NAMESPACE)
-                                                                          .hasValueOrIsntPresent(MtaMetadataUtil.getHashedLabel(mtaNamespace))
+                                                                          .hasValueOrIsntPresent(
+                                                                              MtaMetadataUtil.getHashedLabel(mtaNamespace))
                                                                           .build();
 
         return getDeployedMtasByMetadataSelectionCriteria(selectionCriteria, client).stream()

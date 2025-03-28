@@ -123,7 +123,8 @@ class StepsUtilTest {
     @Test
     void testSetAndGetCloudPackage() {
         CloudPackage expectedCloudPackage = ImmutableCloudPackage.builder()
-                                                                 .metadata(ImmutableCloudMetadata.of(UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93")))
+                                                                 .metadata(ImmutableCloudMetadata.of(
+                                                                     UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93")))
                                                                  .type(CloudPackage.Type.DOCKER)
                                                                  .data(ImmutableDockerData.builder()
                                                                                           .image("cloudfoundry/test")

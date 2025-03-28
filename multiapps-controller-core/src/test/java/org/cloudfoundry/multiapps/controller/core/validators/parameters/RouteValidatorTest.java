@@ -24,7 +24,7 @@ class RouteValidatorTest {
 
     static Stream<Arguments> getParameters() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // [1] basic host and domain route; is already valid, no correction needed
             Arguments.of("valid-host.domain", null, true, "valid-host.domain", null),
             // [2] route with host and domain; contains invalid characters, can be corrected

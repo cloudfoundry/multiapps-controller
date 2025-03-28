@@ -28,7 +28,8 @@ public class PollStartAppExecutionWithRollbackExecution extends PollStartAppStat
     }
 
     private void rollbackOldAppInstances(ProcessContext context) {
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         CloudApplication oldApplication = incrementalAppInstanceUpdateConfiguration.getOldApplication();
         CloudControllerClient client = context.getControllerClient();
         context.getStepLogger()
@@ -50,7 +51,8 @@ public class PollStartAppExecutionWithRollbackExecution extends PollStartAppStat
 
     @Override
     protected void onSuccess(ProcessContext context, String message, Object... arguments) {
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         CloudApplicationExtended appToProcess = context.getVariable(Variables.APP_TO_PROCESS);
         if (incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount() == appToProcess.getInstances()) {
             super.onSuccess(context, message, arguments);

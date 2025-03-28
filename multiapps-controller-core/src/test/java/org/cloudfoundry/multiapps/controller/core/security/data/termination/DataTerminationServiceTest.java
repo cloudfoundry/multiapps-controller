@@ -155,12 +155,14 @@ class DataTerminationServiceTest {
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
         when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
 
-        ConfigurationSubscriptionQuery configurationSubscriptionQueryMock = new MockBuilder<>(configurationSubscriptionQuery).on(query -> query.spaceId(deletedSpace))
+        ConfigurationSubscriptionQuery configurationSubscriptionQueryMock = new MockBuilder<>(configurationSubscriptionQuery).on(
+                                                                                                                                 query -> query.spaceId(deletedSpace))
                                                                                                                              .build();
         doReturn(subscriptions).when(configurationSubscriptionQueryMock)
                                .list();
 
-        ConfigurationEntryQuery configurationEntryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.spaceId(deletedSpace))
+        ConfigurationEntryQuery configurationEntryQueryMock = new MockBuilder<>(configurationEntryQuery).on(
+                                                                                                            query -> query.spaceId(deletedSpace))
                                                                                                         .build();
         doReturn(configurationEntries).when(configurationEntryQueryMock)
                                       .list();

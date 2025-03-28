@@ -34,7 +34,7 @@ class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubscriptio
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0)
             Arguments.of(new StepInput(List.of(1L, 2L, 3L),  List.of(1L, 2L, 3L)), null),
             // (1)

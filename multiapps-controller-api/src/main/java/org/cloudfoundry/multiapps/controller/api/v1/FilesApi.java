@@ -45,8 +45,8 @@ public class FilesApi {
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = FileMetadata.class, responseContainer = "List") })
     public ResponseEntity<List<FileMetadata>>
-           getFiles(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                    @ApiParam(value = "Filter mtas by namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace) {
+    getFiles(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+             @ApiParam(value = "Filter mtas by namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace) {
         return delegate.getFiles(spaceGuid, namespace);
     }
 
@@ -57,9 +57,9 @@ public class FilesApi {
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = FileMetadata.class) })
     public ResponseEntity<FileMetadata>
-           uploadFile(MultipartHttpServletRequest request,
-                      @ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                      @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace) {
+    uploadFile(MultipartHttpServletRequest request,
+               @ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+               @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace) {
         return delegate.uploadFile(request, spaceGuid, namespace);
     }
 
@@ -70,9 +70,9 @@ public class FilesApi {
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted") })
     public ResponseEntity<Void>
-           startUploadFromUrl(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                              @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
-                              @ApiParam(value = "URL reference to a remote file") @RequestBody FileUrl fileUrl) {
+    startUploadFromUrl(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                       @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
+                       @ApiParam(value = "URL reference to a remote file") @RequestBody FileUrl fileUrl) {
         return delegate.startUploadFromUrl(spaceGuid, namespace, fileUrl);
     }
 
@@ -84,9 +84,9 @@ public class FilesApi {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
         @ApiResponse(code = 201, message = "Created", response = AsyncUploadResult.class) })
     public ResponseEntity<AsyncUploadResult>
-           getUploadFromUrlJob(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                               @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
-                               @ApiParam(value = "ID of the upload job") @PathVariable(PathVariables.JOB_ID) String jobId) {
+    getUploadFromUrlJob(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                        @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
+                        @ApiParam(value = "ID of the upload job") @PathVariable(PathVariables.JOB_ID) String jobId) {
         return delegate.getUploadFromUrlJob(spaceGuid, namespace, jobId);
     }
 

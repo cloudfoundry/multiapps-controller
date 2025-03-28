@@ -18,7 +18,7 @@ class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) Attempt to add non-existing custom domains:
             Arguments.of(List.of("foo", "bar"), List.of("baz", "qux")),
             // (1) Attempt to add existing custom domains:

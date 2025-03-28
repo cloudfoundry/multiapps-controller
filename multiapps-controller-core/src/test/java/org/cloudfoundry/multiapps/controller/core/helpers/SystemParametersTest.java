@@ -84,14 +84,14 @@ class SystemParametersTest {
 
     static Stream<Arguments> testModuleParameters() {
         return Stream.of(
-                         // [1] Do not reserve temporary routes and does not apply namespace
-                         Arguments.of(false, false),
-                         // [2] Reserve temporary routes and does not apply namespace
-                         Arguments.of(true, false),
-                         // [3] Do not reserve temporary routes but use namespace
-                         Arguments.of(false, true),
-                         // [4] Reserve temporary routes and apply namespace
-                         Arguments.of(true, true));
+            // [1] Do not reserve temporary routes and does not apply namespace
+            Arguments.of(false, false),
+            // [2] Reserve temporary routes and does not apply namespace
+            Arguments.of(true, false),
+            // [3] Do not reserve temporary routes but use namespace
+            Arguments.of(false, true),
+            // [4] Reserve temporary routes and apply namespace
+            Arguments.of(true, true));
     }
 
     @ParameterizedTest
@@ -239,7 +239,8 @@ class SystemParametersTest {
                                              .timestamp(TIMESTAMP)
                                              .reserveTemporaryRoutes(reserveTemporaryRoutes)
                                              .user(USER_NAME)
-                                             .hostValidator(new HostValidator(applyNamespace ? NAMESPACE : null, true, applyNamespace, false, false))
+                                             .hostValidator(
+                                                 new HostValidator(applyNamespace ? NAMESPACE : null, true, applyNamespace, false, false))
                                              .build();
     }
 

@@ -57,10 +57,12 @@ public class DeployedAfterModulesContentValidator implements ModulesContentValid
             return true;
         }
         return moduleDependencies.stream()
-                                 .allMatch(dependency -> isModuleDependencyResolvable(moduleNamesForDeployment, module.getName(), dependency));
+                                 .allMatch(
+                                     dependency -> isModuleDependencyResolvable(moduleNamesForDeployment, module.getName(), dependency));
     }
 
-    private boolean isModuleDependencyResolvable(Set<String> moduleNamesForDeployment, String moduleWithDependency, String dependencyModule) {
+    private boolean isModuleDependencyResolvable(Set<String> moduleNamesForDeployment, String moduleWithDependency,
+                                                 String dependencyModule) {
         if (moduleNamesForDeployment.contains(dependencyModule)) {
             return true;
         }

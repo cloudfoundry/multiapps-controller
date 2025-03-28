@@ -47,7 +47,9 @@ public class ArchiveEntryStreamWithStreamPositionsDeterminer {
                                                                                                 .name(entry.getName())
                                                                                                 .startPosition(startOffset)
                                                                                                 .endPosition(endOffset)
-                                                                                                .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.parseValue(entry.getMethod()))
+                                                                                                .compressionMethod(
+                                                                                                    ArchiveEntryWithStreamPositions.CompressionMethod.parseValue(
+                                                                                                        entry.getMethod()))
                                                                                                 .isDirectory(entry.isDirectory())
                                                                                                 .build());
                         entry = zipStream.getNextEntry();

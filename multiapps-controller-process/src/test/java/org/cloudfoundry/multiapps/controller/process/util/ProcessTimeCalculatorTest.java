@@ -81,7 +81,7 @@ class ProcessTimeCalculatorTest {
 
     static Stream<Arguments> testDelayBetweenSteps() {
         return Stream.of(
-       // @formatter:off
+            // @formatter:off
                  Arguments.of(0, List.of(Activity.of("serviceTask", 5, 500))),
                  Arguments.of(2000,
                               List.of(Activity.of("exclusiveGateway", 1, 1000), Activity.of("inclusiveGateway", 1, 1000),

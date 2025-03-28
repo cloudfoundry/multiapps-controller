@@ -26,7 +26,7 @@ class UpdateServicePlanStepTest extends SyncFlowableStepTest<UpdateServicePlanSt
         step.execute(execution);
 
         verify(client).updateServicePlan(serviceToProcess.getName(),
-                serviceToProcess.getPlan());
+                                         serviceToProcess.getPlan());
     }
 
     @Test
@@ -81,8 +81,8 @@ class UpdateServicePlanStepTest extends SyncFlowableStepTest<UpdateServicePlanSt
 
     private void throwExceptionOnServicePlanUpdate(HttpStatus httpStatus) {
         Mockito.doThrow(new CloudOperationException(httpStatus, "Error occurred"))
-                .when(client)
-                .updateServicePlan(any(), any());
+               .when(client)
+               .updateServicePlan(any(), any());
     }
 
     @Override

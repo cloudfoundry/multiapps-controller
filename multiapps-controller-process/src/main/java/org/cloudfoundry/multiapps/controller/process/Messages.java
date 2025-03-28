@@ -128,15 +128,18 @@ public class Messages {
     public static final String ERROR_STOPPING_APP = "Error stopping application \"{0}\"";
     public static final String DOWNLOAD_APP_LOGS_FOR_MORE_INFO = "Download the application logs via the dmol command and check them for more information.";
     public static final String ERROR_STAGING_APP_0 = "Error staging application \"{0}\"";
-    public static final String ERROR_STAGING_APP_0_DESCRIPTION_1 = "Error staging application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
+    public static final String ERROR_STAGING_APP_0_DESCRIPTION_1 =
+        "Error staging application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Error publishing public provided dependencies";
     public static final String ERROR_STARTING_APP_0 = "Error starting application \"{0}\"";
-    public static final String ERROR_STARTING_APP_0_DESCRIPTION_1 = "Error starting application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
+    public static final String ERROR_STARTING_APP_0_DESCRIPTION_1 =
+        "Error starting application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_EXECUTING_APP_1 = "Error executing application \"{0}\"";
     public static final String ERROR_EXECUTING_APP_2 = "Error executing application \"{0}\": {1}";
     public static final String ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP = "Error preparing to execute tasks on application \"{0}\"";
     public static final String ERROR_PREPARING_TO_RESTART_SERVICE_BROKER_SUBSCRIBERS = "Error preparing to restart service broker subscribers";
-    public static final String ERROR_EXECUTING_TASK_0_ON_APP_1 = "Execution of task \"{0}\" on application \"{1}\" failed.\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
+    public static final String ERROR_EXECUTING_TASK_0_ON_APP_1 =
+        "Execution of task \"{0}\" on application \"{1}\" failed.\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY = "Error detecting components to undeploy";
     public static final String ERROR_DELETING_IDLE_ROUTES = "Error deleting idle routes";
     public static final String ERROR_CREATING_SERVICE_BROKERS = "Error creating service brokers";

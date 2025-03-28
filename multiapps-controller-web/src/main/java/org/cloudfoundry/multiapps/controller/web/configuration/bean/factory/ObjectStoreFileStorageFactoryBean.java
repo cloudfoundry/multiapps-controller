@@ -62,8 +62,9 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
             }
         }
         exceptions.forEach(
-            (provider, exception) -> LOGGER.error(MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0, provider),
-                                                  exception));
+            (provider, exception) -> LOGGER.error(
+                MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0, provider),
+                exception));
         throw new IllegalStateException(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND);
     }
 

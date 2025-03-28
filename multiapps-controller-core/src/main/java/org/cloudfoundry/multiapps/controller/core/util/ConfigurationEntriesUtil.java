@@ -51,8 +51,9 @@ public class ConfigurationEntriesUtil {
         String providerNamespace = filter.getProviderNamespace();
 
         Map<String, Object> requiredContent = filter.getRequiredContent();
-        LOGGER.debug("searching for configuration entries with provider nid {}, id {}, version {}, org {}, space {}, content {}, visibleTargets {}",
-                     providerNid, providerId, providerVersion, org, space, requiredContent, cloudTargets);
+        LOGGER.debug(
+            "searching for configuration entries with provider nid {}, id {}, version {}, org {}, space {}, content {}, visibleTargets {}",
+            providerNid, providerId, providerVersion, org, space, requiredContent, cloudTargets);
         List<ConfigurationEntry> result = configurationEntryService.createQuery()
                                                                    .providerNid(providerNid)
                                                                    .providerId(providerId)
@@ -75,12 +76,13 @@ public class ConfigurationEntriesUtil {
     }
 
     public static List<ConfigurationEntry>
-           findConfigurationEntriesInGlobalConfigurationSpace(ConfigurationEntryService configurationEntryService, String providerNid,
-                                                              String providerVersion, String providerNamespace, String providerId,
-                                                              Map<String, Object> requiredContent, List<CloudTarget> cloudTargets,
-                                                              CloudTarget globalConfigTarget) {
-        LOGGER.debug("searching for configuration entries with provider nid {}, id {}, version {}, global config space space {}, content {}, visibleTargets {}",
-                     providerNid, providerId, providerVersion, globalConfigTarget, requiredContent, cloudTargets);
+    findConfigurationEntriesInGlobalConfigurationSpace(ConfigurationEntryService configurationEntryService, String providerNid,
+                                                       String providerVersion, String providerNamespace, String providerId,
+                                                       Map<String, Object> requiredContent, List<CloudTarget> cloudTargets,
+                                                       CloudTarget globalConfigTarget) {
+        LOGGER.debug(
+            "searching for configuration entries with provider nid {}, id {}, version {}, global config space space {}, content {}, visibleTargets {}",
+            providerNid, providerId, providerVersion, globalConfigTarget, requiredContent, cloudTargets);
         return configurationEntryService.createQuery()
                                         .providerNid(providerNid)
                                         .providerId(providerId)

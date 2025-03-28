@@ -35,7 +35,7 @@ class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowableStepTes
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) There are no old entries:
             Arguments.of("delete-published-dependencies-step-input-0.json"),
             // (1) All of the configuration entries should be deleted:
@@ -74,7 +74,8 @@ class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowableStepTes
 
         doReturn(configurationEntryQuery).when(configurationEntryService)
                                          .createQuery();
-        ConfigurationEntryQuery queryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(ConfigurationEntriesUtil.PROVIDER_NID))
+        ConfigurationEntryQuery queryMock = new MockBuilder<>(configurationEntryQuery).on(
+                                                                                          query -> query.providerNid(ConfigurationEntriesUtil.PROVIDER_NID))
                                                                                       .on(query -> query.spaceId(input.spaceId))
                                                                                       .on(query -> query.mtaId(input.mtaId))
                                                                                       .build();

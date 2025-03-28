@@ -152,7 +152,7 @@ class HistoricOperationEventServiceTest {
     }
 
     private static ImmutableHistoricOperationEvent
-            createHistoricOperationEvent(long id, String processId, HistoricOperationEvent.EventType type, LocalDateTime timeStamp) {
+    createHistoricOperationEvent(long id, String processId, HistoricOperationEvent.EventType type, LocalDateTime timeStamp) {
         return ImmutableHistoricOperationEvent.builder()
                                               .id(id)
                                               .processId(processId)

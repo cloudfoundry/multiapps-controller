@@ -71,7 +71,9 @@ public class FinishedFlowableHistoricProcessesCleaner {
         while (!operations.isEmpty()) {
             int batchOfDeletedProcesses = 0;
             List<Callable<Boolean>> historicProcessesDeletionTasks = getHistoricProcessInstances(operations).stream()
-                                                                                                            .map(historicProcessInstance -> (Callable<Boolean>) () -> deleteHistoricProcess(historicProcessInstance))
+                                                                                                            .map(
+                                                                                                                historicProcessInstance -> (Callable<Boolean>) () -> deleteHistoricProcess(
+                                                                                                                    historicProcessInstance))
                                                                                                             .collect(Collectors.toList());
             List<Future<Boolean>> executedDeletionTasks = executorService.invokeAll(historicProcessesDeletionTasks);
             for (Future<Boolean> executedDeletionTask : executedDeletionTasks) {

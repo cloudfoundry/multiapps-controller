@@ -67,10 +67,11 @@ public class ModuleDependencyChecker {
         boolean allModulesFoundInSpace = module.getDeployedAfter()
                                                .stream()
                                                .allMatch(dependency -> isDependencyPresent(module.getName(), dependency));
-        List<String> modulesNotYetDeployed = module.getDeployedAfter().stream()
-                                                                      .filter(modulesForDeployment::contains)
-                                                                      .filter(dependency -> !modulesAlreadyDeployed.contains(dependency))
-                                                                      .collect(Collectors.toList());
+        List<String> modulesNotYetDeployed = module.getDeployedAfter()
+                                                   .stream()
+                                                   .filter(modulesForDeployment::contains)
+                                                   .filter(dependency -> !modulesAlreadyDeployed.contains(dependency))
+                                                   .collect(Collectors.toList());
         return allModulesFoundInSpace && modulesNotYetDeployed.isEmpty();
     }
 

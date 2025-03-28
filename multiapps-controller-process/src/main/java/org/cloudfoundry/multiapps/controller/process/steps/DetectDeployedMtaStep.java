@@ -80,8 +80,9 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
     private void detectBackupMta(String mtaId, String mtaNamespace, CloudControllerClient client, ProcessContext context) {
         getStepLogger().debug(Messages.DETECTING_BACKUP_MTA_BY_ID_AND_NAMESPACE, mtaId, mtaNamespace);
         Optional<DeployedMta> optionalBackupMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(mtaId,
-                                                                                                          NameUtil.computeUserNamespaceWithSystemNamespace(Constants.MTA_BACKUP_NAMESPACE,
-                                                                                                                                                           mtaNamespace),
+                                                                                                          NameUtil.computeUserNamespaceWithSystemNamespace(
+                                                                                                              Constants.MTA_BACKUP_NAMESPACE,
+                                                                                                              mtaNamespace),
                                                                                                           client);
 
         if (optionalBackupMta.isEmpty()) {

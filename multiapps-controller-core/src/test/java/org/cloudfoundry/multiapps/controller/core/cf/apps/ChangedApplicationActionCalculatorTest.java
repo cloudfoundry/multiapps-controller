@@ -24,7 +24,7 @@ class ChangedApplicationActionCalculatorTest {
 
     static Stream<Arguments> testChangedApplicationCalculator() {
         return Stream.of(
-        //@formatter:off
+            //@formatter:off
                         Arguments.of(ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, List.of(ApplicationStateAction.STAGE, ApplicationStateAction.START)),
                         Arguments.of(ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, List.of(ApplicationStateAction.STAGE)),
                         Arguments.of(ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED,

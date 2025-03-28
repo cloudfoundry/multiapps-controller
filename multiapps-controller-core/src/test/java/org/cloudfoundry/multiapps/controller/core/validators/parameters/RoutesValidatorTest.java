@@ -29,7 +29,7 @@ class RoutesValidatorTest {
     static Stream<Arguments> getParameters() {
         return Stream.of(
 
-// @formatter:off
+            // @formatter:off
             // [1] two routes; both are valid
             Arguments.of(List.of(routeParameter("valid-host.domain"), 
                                  routeParameter("sub.domain.com", true)), 
@@ -256,19 +256,19 @@ class RoutesValidatorTest {
 
     static Stream<Arguments> testOverrideRoutesContext() {
         return Stream.of(
-                         // [1] Add apply-namespace parameter from parent context when is missing in route map
-                         Arguments.of(Map.of(SupportedParameters.APPLY_NAMESPACE, false),
-                                      Map.of(SupportedParameters.ROUTE, "valid-host.domain.com"),
-                                      Map.of(SupportedParameters.ROUTE, "valid-host.domain.com", SupportedParameters.APPLY_NAMESPACE,
-                                             false)),
-                         // [2] Do not override apply-namespace parameter if it is present in route map
-                         Arguments.of(Map.of(SupportedParameters.APPLY_NAMESPACE, false),
-                                      Map.of(SupportedParameters.ROUTE, "valid-host.domain.com", SupportedParameters.APPLY_NAMESPACE, true),
-                                      Map.of(SupportedParameters.ROUTE, "dev-valid-host.domain.com", SupportedParameters.APPLY_NAMESPACE,
-                                             true)),
-                         // [3] Add no-hostname parameter from parent context when it is missing in route map
-                         Arguments.of(Map.of(SupportedParameters.NO_HOSTNAME, true), Map.of(SupportedParameters.ROUTE, "sub.domain.com"),
-                                      Map.of(SupportedParameters.ROUTE, "sub.domain.com", SupportedParameters.NO_HOSTNAME, true)));
+            // [1] Add apply-namespace parameter from parent context when is missing in route map
+            Arguments.of(Map.of(SupportedParameters.APPLY_NAMESPACE, false),
+                         Map.of(SupportedParameters.ROUTE, "valid-host.domain.com"),
+                         Map.of(SupportedParameters.ROUTE, "valid-host.domain.com", SupportedParameters.APPLY_NAMESPACE,
+                                false)),
+            // [2] Do not override apply-namespace parameter if it is present in route map
+            Arguments.of(Map.of(SupportedParameters.APPLY_NAMESPACE, false),
+                         Map.of(SupportedParameters.ROUTE, "valid-host.domain.com", SupportedParameters.APPLY_NAMESPACE, true),
+                         Map.of(SupportedParameters.ROUTE, "dev-valid-host.domain.com", SupportedParameters.APPLY_NAMESPACE,
+                                true)),
+            // [3] Add no-hostname parameter from parent context when it is missing in route map
+            Arguments.of(Map.of(SupportedParameters.NO_HOSTNAME, true), Map.of(SupportedParameters.ROUTE, "sub.domain.com"),
+                         Map.of(SupportedParameters.ROUTE, "sub.domain.com", SupportedParameters.NO_HOSTNAME, true)));
     }
 
     @ParameterizedTest

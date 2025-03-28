@@ -24,7 +24,8 @@ public abstract class PollOperationBaseExecution implements AsyncExecution {
                                                             .inProgressHandler(getInProgressHandler(context))
                                                             .onCompleteHandler(getOnCompleteHandler(context))
                                                             .onErrorHandler(getOnErrorHandler(context))
-                                                            .onErrorHandlerForOptionalResource(getOnErrorHandlerForOptionalResource(context))
+                                                            .onErrorHandlerForOptionalResource(
+                                                                getOnErrorHandlerForOptionalResource(context))
                                                             .isOptionalResource(isOptional(context))
                                                             .build();
     }

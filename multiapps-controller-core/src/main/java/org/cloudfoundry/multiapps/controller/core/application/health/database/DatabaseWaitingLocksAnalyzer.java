@@ -59,7 +59,8 @@ public class DatabaseWaitingLocksAnalyzer {
     }
 
     private void takeLocksSample() {
-        waitingLocksSamples.add(new CachedObject<>(databaseMonitoringService.getProcessesWaitingForLocks(ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration)),
+        waitingLocksSamples.add(new CachedObject<>(databaseMonitoringService.getProcessesWaitingForLocks(
+            ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration)),
                                                    MAXIMUM_VALIDITY_OF_LOCKS_SAMPLE_IN_MINUTES));
     }
 
@@ -76,7 +77,8 @@ public class DatabaseWaitingLocksAnalyzer {
         if (shouldLogValues()) {
             LOGGER.info(MessageFormat.format(Messages.VALUES_IN_INSTANCE_IN_THE_WAITING_FOR_LOCKS_SAMPLES,
                                              applicationConfiguration.getApplicationInstanceIndex(), waitingLocksSamples.stream()
-                                                                                                                        .map(CachedObject::get)
+                                                                                                                        .map(
+                                                                                                                            CachedObject::get)
                                                                                                                         .toList()));
         }
         return hasIncreasedLocks;

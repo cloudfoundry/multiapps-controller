@@ -60,7 +60,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     }
 
     private MappingJackson2HttpMessageConverter createJsonHttpMessageConverter() {
-        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(JsonUtil.getObjectMapper(JsonSerializationStrategy.DEFAULT));
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(
+            JsonUtil.getObjectMapper(JsonSerializationStrategy.DEFAULT));
         mappingJackson2HttpMessageConverter.setSupportedMediaTypes(buildSupportedMediaTypes(mappingJackson2HttpMessageConverter));
         return mappingJackson2HttpMessageConverter;
     }

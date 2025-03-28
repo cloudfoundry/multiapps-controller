@@ -68,9 +68,9 @@ class BindServiceToApplicationStepTest extends SyncFlowableStepTest<BindServiceT
         prepareContext();
         when(client.bindServiceInstance(eq(BINDING_NAME), eq(APPLICATION_NAME), eq(SERVICE_NAME), eq(BINDING_PARAMETERS),
                                         any(ApplicationServicesUpdateCallback.class))).then(answer -> {
-                                            context.setVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_CREATION, true);
-                                            return Optional.empty();
-                                        });
+            context.setVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_CREATION, true);
+            return Optional.empty();
+        });
         step.execute(execution);
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
         assertTrue(context.getVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_CREATION));

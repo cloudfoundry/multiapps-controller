@@ -24,7 +24,7 @@ class DetermineAppRestartStepTest extends DetermineDesiredStateAchievingActionsS
     // Staging is always required, because there are no previous builds
     public static Stream<Arguments> testParameters() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
                     // (0)
                     Arguments.of(STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()), true, true, true, true, true, true, true),
                     // (1)

@@ -26,7 +26,7 @@ class ApplicationStartupStateCalculatorTest {
 
     public static Stream<Arguments> testComputeCurrentState() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
                 // (0)
                 Arguments.of("started-app.json", ApplicationStartupState.STARTED),
                 // (1)
@@ -53,7 +53,7 @@ class ApplicationStartupStateCalculatorTest {
 
     public static Stream<Arguments> testComputeDesiredState() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
                 // (0)
                 Arguments.of("app-with-no-start-attribute-true.json", true, ApplicationStartupState.STOPPED),
                 // (1)

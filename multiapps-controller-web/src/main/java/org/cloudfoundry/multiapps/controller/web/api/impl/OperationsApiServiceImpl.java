@@ -285,7 +285,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         Map<String, Object> operationParameters = operation.getParameters();
         Set<ParameterMetadata> requiredParameters = getRequiredParameters(predefinedParameters);
         List<ParameterMetadata> missingRequiredParameters = requiredParameters.stream()
-                                                                              .filter(parameter -> !operationParameters.containsKey(parameter.getId()))
+                                                                              .filter(parameter -> !operationParameters.containsKey(
+                                                                                  parameter.getId()))
                                                                               .collect(Collectors.toList());
         if (!missingRequiredParameters.isEmpty()) {
             throw new ContentException("Required parameters " + getParameterIds(missingRequiredParameters) + " are not set!");

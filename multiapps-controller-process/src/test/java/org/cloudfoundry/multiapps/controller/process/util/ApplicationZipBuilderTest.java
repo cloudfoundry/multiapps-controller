@@ -96,9 +96,11 @@ class ApplicationZipBuilderTest {
         mockProcessingOfFileContent(mtar);
         mockConsumptionOfFileContent(mtar);
         mockConsumptionOfFileContentWithOffset(mtar);
-        ArchiveEntryStreamWithStreamPositionsDeterminer archiveEntryStreamWithStreamPositionsDeterminer = new ArchiveEntryStreamWithStreamPositionsDeterminer(fileService);
-        List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = archiveEntryStreamWithStreamPositionsDeterminer.determineArchiveEntries("123",
-                                                                                                                                                          "123");
+        ArchiveEntryStreamWithStreamPositionsDeterminer archiveEntryStreamWithStreamPositionsDeterminer = new ArchiveEntryStreamWithStreamPositionsDeterminer(
+            fileService);
+        List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = archiveEntryStreamWithStreamPositionsDeterminer.determineArchiveEntries(
+            "123",
+            "123");
         return new ApplicationArchiveContext(fileName, MAX_UPLOAD_FILE_SIZE, archiveEntriesWithStreamPositions, "123", "123");
     }
 
@@ -173,7 +175,7 @@ class ApplicationZipBuilderTest {
     private Set<String> getZipEntriesName(InputStream inputStream) throws IOException {
         Set<String> zipEntriesName = new HashSet<>();
         try (ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
-            for (ZipEntry zipEntry; (zipEntry = zipInputStream.getNextEntry()) != null;) {
+            for (ZipEntry zipEntry; (zipEntry = zipInputStream.getNextEntry()) != null; ) {
                 if (!zipEntry.isDirectory()) {
                     zipEntriesName.add(zipEntry.getName());
                 }

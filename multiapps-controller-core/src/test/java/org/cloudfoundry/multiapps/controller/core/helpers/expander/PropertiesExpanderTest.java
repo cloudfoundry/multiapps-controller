@@ -21,7 +21,7 @@ class PropertiesExpanderTest {
 
     public static Stream<Arguments> testExpand() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) 0 new dependency names:
             Arguments.of("properties-00.json", "bar", generateNewDependencyNames("bar", 0),
                     new Expectation(Expectation.Type.JSON, "expanded-properties-00.json"),

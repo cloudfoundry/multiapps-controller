@@ -22,7 +22,7 @@ class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
             Arguments.of(new SimpleApplication("test-app-1", 2), new SimpleApplication("test-app-1", 3)),
             Arguments.of(new SimpleApplication("test-app-1", 2), new SimpleApplication("test-app-1", 2)),
             Arguments.of(new SimpleApplication("test-app-1", 2), null),

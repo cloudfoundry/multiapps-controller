@@ -36,26 +36,26 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
 
     static Stream<Arguments> testExecute() {
         return Stream.of(
-                         // (1) Multiple services in progress
-                         Arguments.of(List.of("service-1", "service-2", "service-3"), List.of("service-1", "service-2", "service-3"),
-                                      Map.ofEntries(Map.entry("service-1", ServiceOperation.State.IN_PROGRESS),
-                                                    Map.entry("service-2", ServiceOperation.State.IN_PROGRESS),
-                                                    Map.entry("service-3", ServiceOperation.State.IN_PROGRESS)),
-                                      List.of("service-1", "service-2", "service-3"), "POLL"),
-                         // (2) One service in progress
-                         Arguments.of(List.of("service-1", "service-2", "service-3"), List.of("service-2", "service-3"),
-                                      Map.ofEntries(Pair.of("service-2", ServiceOperation.State.SUCCEEDED),
-                                                    Pair.of("service-3", ServiceOperation.State.IN_PROGRESS)),
-                                      List.of("service-3"), "POLL"),
-                         // (3) All services are not in progress state
-                         Arguments.of(List.of("service-1", "service-2", "service-3"), List.of("service-1", "service-2"),
-                                      Map.ofEntries(Pair.of("service-1", ServiceOperation.State.SUCCEEDED),
-                                                    Pair.of("service-2", ServiceOperation.State.SUCCEEDED)),
-                                      Collections.emptyList(), "DONE"),
-                         // (4) No services to delete
-                         Arguments.of(Collections.emptyList(), Collections.emptyList(),
-                                      Collections.emptyMap(),
-                                      Collections.emptyList(), "DONE"));
+            // (1) Multiple services in progress
+            Arguments.of(List.of("service-1", "service-2", "service-3"), List.of("service-1", "service-2", "service-3"),
+                         Map.ofEntries(Map.entry("service-1", ServiceOperation.State.IN_PROGRESS),
+                                       Map.entry("service-2", ServiceOperation.State.IN_PROGRESS),
+                                       Map.entry("service-3", ServiceOperation.State.IN_PROGRESS)),
+                         List.of("service-1", "service-2", "service-3"), "POLL"),
+            // (2) One service in progress
+            Arguments.of(List.of("service-1", "service-2", "service-3"), List.of("service-2", "service-3"),
+                         Map.ofEntries(Pair.of("service-2", ServiceOperation.State.SUCCEEDED),
+                                       Pair.of("service-3", ServiceOperation.State.IN_PROGRESS)),
+                         List.of("service-3"), "POLL"),
+            // (3) All services are not in progress state
+            Arguments.of(List.of("service-1", "service-2", "service-3"), List.of("service-1", "service-2"),
+                         Map.ofEntries(Pair.of("service-1", ServiceOperation.State.SUCCEEDED),
+                                       Pair.of("service-2", ServiceOperation.State.SUCCEEDED)),
+                         Collections.emptyList(), "DONE"),
+            // (4) No services to delete
+            Arguments.of(Collections.emptyList(), Collections.emptyList(),
+                         Collections.emptyMap(),
+                         Collections.emptyList(), "DONE"));
     }
 
     @ParameterizedTest
@@ -90,13 +90,14 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
     }
 
     private void prepareClient(List<String> serviceNames, Map<String, ServiceOperation.State> servicesOperationState) {
-        for (String serviceName: serviceNames) {
+        for (String serviceName : serviceNames) {
             ServiceOperation lastServiceOperation = new ServiceOperation(ServiceOperation.Type.DELETE,
                                                                          "",
                                                                          servicesOperationState.get(serviceName));
             CloudServiceInstanceExtended returnedService = ImmutableCloudServiceInstanceExtended.builder()
                                                                                                 .metadata(ImmutableCloudMetadata.builder()
-                                                                                                                                .guid(UUID.randomUUID())
+                                                                                                                                .guid(
+                                                                                                                                    UUID.randomUUID())
                                                                                                                                 .build())
                                                                                                 .name(serviceName)
                                                                                                 .lastOperation(lastServiceOperation)
@@ -106,7 +107,8 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
     }
 
     private void prepareApplicationConfiguration() {
-        when(applicationConfiguration.getServiceHandlingMaxParallelThreads()).thenReturn(ApplicationConfiguration.DEFAULT_SERVICE_HANDLING_MAX_PARALLEL_THREADS);
+        when(applicationConfiguration.getServiceHandlingMaxParallelThreads()).thenReturn(
+            ApplicationConfiguration.DEFAULT_SERVICE_HANDLING_MAX_PARALLEL_THREADS);
     }
 
     private void validateExecution(List<String> expectedServicesOperations, String expectedStatus) {

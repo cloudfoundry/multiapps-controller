@@ -248,8 +248,9 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
     private List<DeployedMtaServiceKey> computeUnusedServiceKeys(ProcessContext context, List<DeployedMtaServiceKey> deployedServiceKeys) {
         Map<String, List<DeployedMtaServiceKey>> deployedServiceKeysByService = deployedServiceKeys.stream()
-                                                                                                   .collect(groupingBy(key -> key.getServiceInstance()
-                                                                                                                                 .getName()));
+                                                                                                   .collect(groupingBy(
+                                                                                                       key -> key.getServiceInstance()
+                                                                                                                 .getName()));
         getStepLogger().debug(Messages.DEPLOYED_SERVICE_KEYS, deployedServiceKeysByService);
 
         Map<String, List<CloudServiceKey>> additionalServiceKeys = context.getVariable(Variables.SERVICE_KEYS_FOR_CONTENT_DEPLOY);

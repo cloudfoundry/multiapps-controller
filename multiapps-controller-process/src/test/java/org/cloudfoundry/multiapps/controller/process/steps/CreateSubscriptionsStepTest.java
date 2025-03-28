@@ -30,7 +30,7 @@ class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubscriptio
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0)
             Arguments.of("create-subscriptions-step-input-00.json", null),
             // (1)
@@ -87,10 +87,14 @@ class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubscriptio
             if (resourceDto == null) {
                 continue;
             }
-            ConfigurationSubscriptionQuery queryMock = new MockBuilder<>(configurationSubscriptionQuery).on(query -> query.appName(subscription.getAppName()))
-                                                                                                        .on(query -> query.spaceId(subscription.getSpaceId()))
-                                                                                                        .on(query -> query.resourceName(resourceDto.getName()))
-                                                                                                        .on(query -> query.mtaId(subscription.getMtaId()))
+            ConfigurationSubscriptionQuery queryMock = new MockBuilder<>(configurationSubscriptionQuery).on(
+                                                                                                            query -> query.appName(subscription.getAppName()))
+                                                                                                        .on(query -> query.spaceId(
+                                                                                                            subscription.getSpaceId()))
+                                                                                                        .on(query -> query.resourceName(
+                                                                                                            resourceDto.getName()))
+                                                                                                        .on(query -> query.mtaId(
+                                                                                                            subscription.getMtaId()))
                                                                                                         .build();
             doReturn(setId(subscription)).when(queryMock)
                                          .singleResult();

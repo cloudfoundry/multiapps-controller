@@ -136,7 +136,8 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
         context.setVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION, updateConfig);
         step.initializeStepLogger(execution);
         ProcessContext wrapper = step.createProcessContext(execution);
-        PollStartAppExecutionWithRollbackExecution asyncExecution = (PollStartAppExecutionWithRollbackExecution) getAsyncOperations(wrapper).get(0);
+        PollStartAppExecutionWithRollbackExecution asyncExecution = (PollStartAppExecutionWithRollbackExecution) getAsyncOperations(
+            wrapper).get(0);
         asyncExecution.onSuccess(wrapper, "App started");
     }
 

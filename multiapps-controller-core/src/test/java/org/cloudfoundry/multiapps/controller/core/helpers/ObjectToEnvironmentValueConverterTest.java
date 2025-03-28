@@ -16,7 +16,7 @@ class ObjectToEnvironmentValueConverterTest {
 
     public static Stream<Arguments> testConvert() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) There are escape sequences and they are preceded by 0 additional escape characters:
             Arguments.of("object-00.json", new Expectation(Expectation.Type.STRING, getResourceAsString("env-value-00.txt"))),
             // (1) There are no escape sequences:

@@ -44,7 +44,7 @@ class PollServiceOperationsStepTest extends AsyncStepOperationTest<CreateService
 
     public static Stream<Arguments> testPollStateExecution() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) With no async services:
             Arguments.of("poll-create-services-step-input-00.json", null),
             // (1) With one async service:

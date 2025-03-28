@@ -20,8 +20,8 @@ import org.cloudfoundry.multiapps.mta.helpers.VisitableObject;
 public class ConfigurationEntryDynamicParameterResolver {
 
     public List<ConfigurationEntry>
-           resolveDynamicParametersOfConfigurationEntries(List<ConfigurationEntry> entriesToPublish,
-                                                          Set<DynamicResolvableParameter> dynamicResolvableParameters) {
+    resolveDynamicParametersOfConfigurationEntries(List<ConfigurationEntry> entriesToPublish,
+                                                   Set<DynamicResolvableParameter> dynamicResolvableParameters) {
         return entriesToPublish.stream()
                                .map(entry -> resolveDynamicParametersOfConfigurationEntry(entry, dynamicResolvableParameters))
                                .collect(Collectors.toList());
@@ -31,7 +31,8 @@ public class ConfigurationEntryDynamicParameterResolver {
                                                                             Set<DynamicResolvableParameter> dynamicResolvableParameters) {
 
         DynamicParametersResolver resolver = new DynamicParametersResolver(entry.getConfigurationName(),
-                                                                           new DynamicResolvableParametersHelper(dynamicResolvableParameters));
+                                                                           new DynamicResolvableParametersHelper(
+                                                                               dynamicResolvableParameters));
         Map<String, Object> map = JsonUtil.convertJsonToMap(entry.getContent());
         Map<String, Object> resolvedServiceParameters = MiscUtil.cast(new VisitableObject(map).accept(resolver));
 

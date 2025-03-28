@@ -52,7 +52,8 @@ public class HostValidator extends RoutePartValidator {
     }
 
     private boolean containsNamespaceBeforeSuffix(String routePart, String suffix) {
-        return routePart.substring(0, routePart.lastIndexOf(suffix)).endsWith(getNamespace());
+        return routePart.substring(0, routePart.lastIndexOf(suffix))
+                        .endsWith(getNamespace());
     }
 
     @Override

@@ -23,7 +23,8 @@ class PriorityBlockingQueueTest {
 
     @Test
     void testPriorityQueueOrdering() {
-        FileUploadThreadPoolConfiguration fileUploadThreadPoolConfiguration = new FileUploadThreadPoolConfiguration(applicationConfiguration);
+        FileUploadThreadPoolConfiguration fileUploadThreadPoolConfiguration = new FileUploadThreadPoolConfiguration(
+            applicationConfiguration);
         PriorityBlockingQueue<Runnable> priorityBlockingQueue = fileUploadThreadPoolConfiguration.fileUploadPriorityBlockingQueue();
         priorityBlockingQueue.offer(new PriorityFuture<>(null, PriorityFuture.Priority.LOWEST.getValue()));
         priorityBlockingQueue.offer(new PriorityFuture<>(null, PriorityFuture.Priority.HIGHEST.getValue()));

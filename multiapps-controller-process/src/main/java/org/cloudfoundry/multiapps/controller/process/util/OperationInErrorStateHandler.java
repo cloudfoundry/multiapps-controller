@@ -124,7 +124,8 @@ public class OperationInErrorStateHandler {
             List<Execution> currentExecutionsForProcess = getProcessEngineConfiguration().getRuntimeService()
                                                                                          .createExecutionQuery()
                                                                                          .executionId(flowableEngineEvent.getExecutionId())
-                                                                                         .processInstanceId(flowableEngineEvent.getProcessInstanceId())
+                                                                                         .processInstanceId(
+                                                                                             flowableEngineEvent.getProcessInstanceId())
                                                                                          .list();
 
             // Based on the above comment, one of the executions will have null activityId(because it will be the monitoring one) and thus

@@ -70,7 +70,8 @@ public class OperationDto implements DtoWithPrimaryKey<String> {
         // Required by JPA
     }
 
-    private OperationDto(String processId, String processType, Date startedAt, Date endedAt, String spaceId, String mtaId, String namespace, String user,
+    private OperationDto(String processId, String processType, Date startedAt, Date endedAt, String spaceId, String mtaId, String namespace,
+                         String user,
                          boolean acquiredLock, String currentState) {
         this.processId = processId;
         this.processType = processType;
@@ -202,7 +203,8 @@ public class OperationDto implements DtoWithPrimaryKey<String> {
         }
 
         public OperationDto build() {
-            return new OperationDto(processId, processType, startedAt, endedAt, spaceId, mtaId, namespace, user, acquiredLock, currentState);
+            return new OperationDto(processId, processType, startedAt, endedAt, spaceId, mtaId, namespace, user, acquiredLock,
+                                    currentState);
         }
     }
 }

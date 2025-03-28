@@ -58,8 +58,9 @@ public class ExistingAppsToBackupCalculator {
     private boolean doesDeployedMtaVersionMatchToCurrentDeployment(DeployedMta detectedMta, String mtaVersionOfCurrentDescriptor) {
         return detectedMta != null && detectedMta.getApplications()
                                                  .stream()
-                                                 .allMatch(deployedApplication -> doesMtaVersionMatchToCurrentDeployment(deployedApplication,
-                                                                                                                         mtaVersionOfCurrentDescriptor));
+                                                 .allMatch(
+                                                     deployedApplication -> doesMtaVersionMatchToCurrentDeployment(deployedApplication,
+                                                                                                                   mtaVersionOfCurrentDescriptor));
     }
 
     private boolean doesMtaVersionMatchToCurrentDeployment(DeployedMtaApplication deployedApplication,
@@ -185,7 +186,8 @@ public class ExistingAppsToBackupCalculator {
 
         List<DeployedMtaApplication> deployedAppsToUndeploy = backupMta.getApplications()
                                                                        .stream()
-                                                                       .filter(application -> !appsToBackupNames.contains(application.getName()))
+                                                                       .filter(application -> !appsToBackupNames.contains(
+                                                                           application.getName()))
                                                                        .collect(Collectors.toList());
         appsToUndeploy.addAll(deployedAppsToUndeploy);
         return appsToUndeploy;

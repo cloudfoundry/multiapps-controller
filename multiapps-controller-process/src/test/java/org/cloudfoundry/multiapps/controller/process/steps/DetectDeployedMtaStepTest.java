@@ -65,7 +65,8 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
 
         when(deployedMtaDetector.detectDeployedMtas(Mockito.any(CloudControllerClient.class))).thenReturn(deployedComponents);
         when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(Mockito.eq(MTA_ID), Mockito.eq(null),
-                                                                     Mockito.any(CloudControllerClient.class))).thenReturn(Optional.of(deployedMta));
+                                                                     Mockito.any(CloudControllerClient.class))).thenReturn(
+            Optional.of(deployedMta));
         when(customClientMock.getServiceKeysByMetadataAndGuids(Mockito.eq(SPACE_GUID), Mockito.eq(MTA_ID), Mockito.isNull(),
                                                                Mockito.eq(deployedMta.getServices()))).thenReturn(deployedKeys);
 
@@ -99,10 +100,12 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
                                                                                                      .moduleName("test-module")
                                                                                                      .name("test-app")
                                                                                                      .v3Metadata(Metadata.builder()
-                                                                                                                         .annotation(MtaMetadataAnnotations.MTA_VERSION,
-                                                                                                                                     MTA_VERSION_2)
+                                                                                                                         .annotation(
+                                                                                                                             MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                                             MTA_VERSION_2)
                                                                                                                          .build())
-                                                                                                     .productizationState(ProductizationState.LIVE)
+                                                                                                     .productizationState(
+                                                                                                         ProductizationState.LIVE)
                                                                                                      .build())
                                                       .metadata(ImmutableMtaMetadata.builder()
                                                                                     .id(MTA_ID)
@@ -114,10 +117,12 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
                                                                                                    .moduleName("test-module")
                                                                                                    .name("mta-backup-test-app")
                                                                                                    .v3Metadata(Metadata.builder()
-                                                                                                                       .annotation(MtaMetadataAnnotations.MTA_VERSION,
-                                                                                                                                   MTA_VERSION_1)
+                                                                                                                       .annotation(
+                                                                                                                           MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                                           MTA_VERSION_1)
                                                                                                                        .build())
-                                                                                                   .productizationState(ProductizationState.LIVE)
+                                                                                                   .productizationState(
+                                                                                                       ProductizationState.LIVE)
                                                                                                    .build())
                                                     .metadata(ImmutableMtaMetadata.builder()
                                                                                   .id(MTA_ID)
@@ -128,8 +133,9 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
         when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(Mockito.eq(MTA_ID), Mockito.eq(null),
                                                                      Mockito.any())).thenReturn(Optional.of(deployedMta));
         when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(Mockito.eq(MTA_ID),
-                                                                     Mockito.eq(NameUtil.computeUserNamespaceWithSystemNamespace(Constants.MTA_BACKUP_NAMESPACE,
-                                                                                                                                 null)),
+                                                                     Mockito.eq(NameUtil.computeUserNamespaceWithSystemNamespace(
+                                                                         Constants.MTA_BACKUP_NAMESPACE,
+                                                                         null)),
                                                                      Mockito.any())).thenReturn(Optional.of(backupMta));
 
         step.execute(execution);

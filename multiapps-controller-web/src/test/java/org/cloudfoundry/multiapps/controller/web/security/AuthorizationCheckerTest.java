@@ -75,40 +75,40 @@ class AuthorizationCheckerTest {
 
     static Stream<Arguments> checkPermissionsUsingNamesTest() {
         return Stream.of(
-                         // (0) User has a space developer role and has access
-                         Arguments.of(EnumSet.of(UserRole.SPACE_DEVELOPER), true),
-                         // (1) User has org user & manager roles and no access
-                         Arguments.of(EnumSet.of(UserRole.ORGANIZATION_USER, UserRole.ORGANIZATION_MANAGER), false),
-                         // (2) User has a space manager & developer roles and has access
-                         Arguments.of(EnumSet.of(UserRole.SPACE_MANAGER, UserRole.SPACE_DEVELOPER), true),
-                         // (3) User does not have any roles and no access
-                         Arguments.of(Collections.emptySet(), false));
+            // (0) User has a space developer role and has access
+            Arguments.of(EnumSet.of(UserRole.SPACE_DEVELOPER), true),
+            // (1) User has org user & manager roles and no access
+            Arguments.of(EnumSet.of(UserRole.ORGANIZATION_USER, UserRole.ORGANIZATION_MANAGER), false),
+            // (2) User has a space manager & developer roles and has access
+            Arguments.of(EnumSet.of(UserRole.SPACE_MANAGER, UserRole.SPACE_DEVELOPER), true),
+            // (3) User does not have any roles and no access
+            Arguments.of(Collections.emptySet(), false));
     }
 
     static Stream<Arguments> checkPermissionUsingGuidsTest() {
         return Stream.of(
-                         // (0) User has a space developer role and executes a non read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_DEVELOPER), false, true),
-                         // (1) User does not have any roles and executes a non read-only request
-                         Arguments.of(Collections.emptySet(), false, false),
-                         // (2) User does not have any roles and executes a read-only request
-                         Arguments.of(Collections.emptySet(), true, false),
-                         // (3) User has a space auditor role and executes a non read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_AUDITOR), false, false),
-                         // (4) User has a space manager role and executes a non read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_MANAGER), false, false),
-                         // (5) User has a space auditor role and executes a read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_AUDITOR), true, true),
-                         // (6) User has a space manager role and executes a read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_MANAGER), true, true),
-                         // (7) User has a space developer role and executes a read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_DEVELOPER), true, true),
-                         // (8) User has a space auditor & manager roles and executes a read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_AUDITOR, UserRole.SPACE_MANAGER), true, true),
-                         // (9) User has a org user & manager roles and executes a read-only request
-                         Arguments.of(EnumSet.of(UserRole.ORGANIZATION_USER, UserRole.ORGANIZATION_MANAGER), true, false),
-                         // (10) User has a org user & manager roles and executes a read-only request
-                         Arguments.of(EnumSet.of(UserRole.ORGANIZATION_USER, UserRole.ORGANIZATION_MANAGER), false, false));
+            // (0) User has a space developer role and executes a non read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_DEVELOPER), false, true),
+            // (1) User does not have any roles and executes a non read-only request
+            Arguments.of(Collections.emptySet(), false, false),
+            // (2) User does not have any roles and executes a read-only request
+            Arguments.of(Collections.emptySet(), true, false),
+            // (3) User has a space auditor role and executes a non read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_AUDITOR), false, false),
+            // (4) User has a space manager role and executes a non read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_MANAGER), false, false),
+            // (5) User has a space auditor role and executes a read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_AUDITOR), true, true),
+            // (6) User has a space manager role and executes a read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_MANAGER), true, true),
+            // (7) User has a space developer role and executes a read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_DEVELOPER), true, true),
+            // (8) User has a space auditor & manager roles and executes a read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_AUDITOR, UserRole.SPACE_MANAGER), true, true),
+            // (9) User has a org user & manager roles and executes a read-only request
+            Arguments.of(EnumSet.of(UserRole.ORGANIZATION_USER, UserRole.ORGANIZATION_MANAGER), true, false),
+            // (10) User has a org user & manager roles and executes a read-only request
+            Arguments.of(EnumSet.of(UserRole.ORGANIZATION_USER, UserRole.ORGANIZATION_MANAGER), false, false));
     }
 
     @ParameterizedTest
@@ -185,11 +185,13 @@ class AuthorizationCheckerTest {
     }
 
     private UserInfo getUserInfo() {
-        OAuth2AccessTokenWithAdditionalInfo accessToken = new OAuth2AccessTokenWithAdditionalInfo(new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-                                                                                                                        "token_value",
-                                                                                                                        Instant.now(),
-                                                                                                                        Instant.now().plus(5, ChronoUnit.MINUTES)),
-                                                                                                  Collections.emptyMap());
+        OAuth2AccessTokenWithAdditionalInfo accessToken = new OAuth2AccessTokenWithAdditionalInfo(
+            new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+                                  "token_value",
+                                  Instant.now(),
+                                  Instant.now()
+                                         .plus(5, ChronoUnit.MINUTES)),
+            Collections.emptyMap());
         return new UserInfo(USER_ID.toString(), USERNAME, accessToken);
     }
 

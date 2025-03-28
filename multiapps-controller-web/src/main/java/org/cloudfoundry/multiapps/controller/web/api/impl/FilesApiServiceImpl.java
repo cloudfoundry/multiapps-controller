@@ -81,6 +81,7 @@ public class FilesApiServiceImpl implements FilesApiService {
     private static final Duration HTTP_CONNECT_TIMEOUT = Duration.ofMinutes(10);
     private static final String RETRY_AFTER_SECONDS = "30";
     private static final String USERNAME_PASSWORD_URL_FORMAT = "{0}:{1}";
+
     static {
         System.setProperty(Constants.RETRY_LIMIT_PROPERTY, "0");
     }

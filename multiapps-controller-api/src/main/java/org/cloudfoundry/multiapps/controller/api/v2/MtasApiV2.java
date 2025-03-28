@@ -39,9 +39,9 @@ public class MtasApiV2 {
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Mta.class, responseContainer = "List") })
     public ResponseEntity<List<Mta>>
-           getMtas(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                   @ApiParam(value = "Filter mtas by namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
-                   @ApiParam(value = "Filter mtas by name") @RequestParam(name = RequestVariables.MTA_NAME, required = false) String name) {
+    getMtas(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+            @ApiParam(value = "Filter mtas by namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
+            @ApiParam(value = "Filter mtas by name") @RequestParam(name = RequestVariables.MTA_NAME, required = false) String name) {
         return delegate.getMtas(spaceGuid, namespace, name);
     }
 

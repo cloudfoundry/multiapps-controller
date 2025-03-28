@@ -18,7 +18,7 @@ class VisibilityValidatorTest {
 
     static Stream<Arguments> testValidate() {
         return Stream.of(
-    // @formatter:off
+            // @formatter:off
             // (0)
             Arguments.of("[{\"org\":\"org1\",\"space\":\"space1\"}]", true),
             // (1)

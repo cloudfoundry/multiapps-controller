@@ -50,7 +50,7 @@ class PollServiceInProgressOperationsExecutionTest extends AsyncStepOperationTes
 
     public static Stream<Arguments> testPollStateExecution() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) With 2 services in progress:
             Arguments.of(List.of("service1","service2", "service3"),
                     List.of(ServiceOperation.Type.DELETE, ServiceOperation.Type.CREATE, ServiceOperation.Type.DELETE),

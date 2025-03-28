@@ -20,7 +20,7 @@ class ConfigurationEntriesCloudModelBuilderTest {
 
     static Stream<Arguments> testBuild() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
             // (0) Test that provided dependencies from version 2 are public by default:
             Arguments.of("mtad-07-v2.yaml", 2, "some-org", "some-space", null, new Expectation(Expectation.Type.JSON, "expected-configuration-entries-00.json")),
             // (1) Test that provided dependencies from version 3 are not public by default:

@@ -125,10 +125,10 @@ class ApplicationNameValidatorTest {
     void testCorrectionWithNamespaceAsPrefix(boolean applyNamespaceGlobalLevel, boolean applyNamespaceProcessVariable,
                                              boolean applyNamespaceAsSuffixGlobalLevel, boolean applyNamespaceAsSuffixProcessVariable) {
         ApplicationNameValidator applicationNameValidator = new ApplicationNameValidator(NAMESPACE,
-                applyNamespaceGlobalLevel,
-                applyNamespaceProcessVariable,
-                applyNamespaceAsSuffixGlobalLevel,
-                applyNamespaceAsSuffixProcessVariable);
+                                                                                         applyNamespaceGlobalLevel,
+                                                                                         applyNamespaceProcessVariable,
+                                                                                         applyNamespaceAsSuffixGlobalLevel,
+                                                                                         applyNamespaceAsSuffixProcessVariable);
         String result = (String) applicationNameValidator.attemptToCorrect(APPLICATION_NAME, CONTEXT_APPLY_NAMESPACE);
         assertEquals(APPLICATION_NAME_WITH_NAMESPACE_PREFIX, result);
     }

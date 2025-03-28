@@ -66,7 +66,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
      * This schema version will be used only for the handling of the subscription entities and it should always be the same as the latest
      * version that is supported by the deploy service, as it is assumed that the latest version of the MTA specification will always
      * support a superset of the features supported by the previous versions.
-     * 
+     *
      * The major schema version of the MTA that is currently being deployed should NOT be used instead of this one, as problems could occur
      * if the subscriber has a different major schema version. If, for example, the current MTA has a major schema version 1, and the
      * subscriber has a major schema version 2, then this would result in the creation of a handler factory for version 1. That would cause
@@ -183,9 +183,12 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
                               SecureSerialization.toJson(dummyDescriptor));
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(configurationEntryService,
-                                                                                                     new DummyConfigurationFilterParser(subscription.getFilter()),
-                                                                                                     new CloudTarget(context.getVariable(Variables.ORGANIZATION_NAME),
-                                                                                                                     context.getVariable(Variables.SPACE_NAME)),
+                                                                                                     new DummyConfigurationFilterParser(
+                                                                                                         subscription.getFilter()),
+                                                                                                     new CloudTarget(context.getVariable(
+                                                                                                         Variables.ORGANIZATION_NAME),
+                                                                                                                     context.getVariable(
+                                                                                                                         Variables.SPACE_NAME)),
                                                                                                      configuration);
         resolver.resolve(dummyDescriptor);
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(dummyDescriptor));
@@ -198,9 +201,11 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         ApplicationCloudModelBuilder applicationCloudModelBuilder = handlerFactory.getApplicationCloudModelBuilder(dummyDescriptor,
                                                                                                                    shouldUsePrettyPrinting(),
                                                                                                                    null, "",
-                                                                                                                   context.getVariable(Variables.MTA_NAMESPACE),
+                                                                                                                   context.getVariable(
+                                                                                                                       Variables.MTA_NAMESPACE),
                                                                                                                    getStepLogger(),
-                                                                                                                   StepsUtil.getAppSuffixDeterminer(context),
+                                                                                                                   StepsUtil.getAppSuffixDeterminer(
+                                                                                                                       context),
                                                                                                                    client, false);
 
         Module module = dummyDescriptor.getModules()

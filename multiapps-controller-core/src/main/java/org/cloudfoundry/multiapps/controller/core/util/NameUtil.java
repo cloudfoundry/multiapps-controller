@@ -73,7 +73,8 @@ public class NameUtil {
 
     private static String getNameWithNamespaceSuffix(String name, String namespace, int maxLength) {
         String namespaceSuffix = getNamespaceSuffix(namespace);
-        String shortenedName = getNameWithProperLength(name, calculateNameLengthWithoutNamespaceAndBlueGreenSuffix(namespaceSuffix, maxLength));
+        String shortenedName = getNameWithProperLength(name,
+                                                       calculateNameLengthWithoutNamespaceAndBlueGreenSuffix(namespaceSuffix, maxLength));
 
         return correctNameSuffix(shortenedName, name, namespaceSuffix);
     }
@@ -120,6 +121,7 @@ public class NameUtil {
         }
         return systemNamespace;
     }
+
     private static String getShortenedName(String name, int maxLength) {
         String nameHashCode = getHashCodeAsHexString(name);
         if (maxLength < nameHashCode.length()) {

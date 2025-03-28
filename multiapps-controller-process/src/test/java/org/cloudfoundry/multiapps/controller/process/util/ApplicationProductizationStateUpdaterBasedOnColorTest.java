@@ -31,23 +31,23 @@ class ApplicationProductizationStateUpdaterBasedOnColorTest {
 
     static Stream<Arguments> testUpdateApplicationsProductizationState() {
         return Stream.of(
-                         // (1) Get module-1 from deployed modules [module-1, module-2]
-                         Arguments.of(List.of(new DeployedApplication("module-1", "foo-blue"),
-                                              new DeployedApplication("module-2", "bar-green")),
-                                      ApplicationColor.BLUE, new DeployedApplication("module-1", "foo-blue")),
-                         // (2) Get live application in case where both blue and green are deployed
-                         Arguments.of(List.of(new DeployedApplication("module-1", "foo-blue"),
-                                              new DeployedApplication("module-1", "foo-green")),
-                                      ApplicationColor.GREEN, new DeployedApplication("module-1", "foo-green")),
-                         // (3) Test without deployed mta
-                         Arguments.of(Collections.emptyList(), ApplicationColor.BLUE, null),
-                         // (4) Get application without color suffix when previous deployed color is BLUE
-                         Arguments.of(List.of(new DeployedApplication("module-1", "foo"), new DeployedApplication("module-1", "foo-green")),
-                                      ApplicationColor.BLUE, new DeployedApplication("module-1", "foo")),
-                         // (5) Get live application (foo-green) when foo and foo-blue exists
-                         Arguments.of(List.of(new DeployedApplication("module-1", "foo"), new DeployedApplication("module-1", "foo-blue"),
-                                              new DeployedApplication("module-1", "foo-green")),
-                                      ApplicationColor.GREEN, new DeployedApplication("module-1", "foo-green")));
+            // (1) Get module-1 from deployed modules [module-1, module-2]
+            Arguments.of(List.of(new DeployedApplication("module-1", "foo-blue"),
+                                 new DeployedApplication("module-2", "bar-green")),
+                         ApplicationColor.BLUE, new DeployedApplication("module-1", "foo-blue")),
+            // (2) Get live application in case where both blue and green are deployed
+            Arguments.of(List.of(new DeployedApplication("module-1", "foo-blue"),
+                                 new DeployedApplication("module-1", "foo-green")),
+                         ApplicationColor.GREEN, new DeployedApplication("module-1", "foo-green")),
+            // (3) Test without deployed mta
+            Arguments.of(Collections.emptyList(), ApplicationColor.BLUE, null),
+            // (4) Get application without color suffix when previous deployed color is BLUE
+            Arguments.of(List.of(new DeployedApplication("module-1", "foo"), new DeployedApplication("module-1", "foo-green")),
+                         ApplicationColor.BLUE, new DeployedApplication("module-1", "foo")),
+            // (5) Get live application (foo-green) when foo and foo-blue exists
+            Arguments.of(List.of(new DeployedApplication("module-1", "foo"), new DeployedApplication("module-1", "foo-blue"),
+                                 new DeployedApplication("module-1", "foo-green")),
+                         ApplicationColor.GREEN, new DeployedApplication("module-1", "foo-green")));
     }
 
     @ParameterizedTest
@@ -57,19 +57,24 @@ class ApplicationProductizationStateUpdaterBasedOnColorTest {
         List<DeployedMtaApplication> deployedApplications = createDeployedMtaApplications(applications);
 
         List<DeployedMtaApplication> updatedDeployedApplications = new ApplicationProductizationStateUpdaterBasedOnColor(stepLogger,
-                                                                                                                         liveMtaColor).updateApplicationsProductizationState(deployedApplications);
+                                                                                                                         liveMtaColor).updateApplicationsProductizationState(
+            deployedApplications);
 
         if (expectedDeployedApplication != null) {
             assertTrue(updatedDeployedApplications.stream()
-                                                  .anyMatch(updatedDeployedApplication -> doesItMatchToExpectedDeployedApplication(updatedDeployedApplication,
-                                                                                                                                   expectedDeployedApplication)),
+                                                  .anyMatch(updatedDeployedApplication -> doesItMatchToExpectedDeployedApplication(
+                                                      updatedDeployedApplication,
+                                                      expectedDeployedApplication)),
                        format("Expected Deployed Application with module name:{0} application name:{1} and live:true",
                               expectedDeployedApplication.moduleName, expectedDeployedApplication.appName));
 
             assertTrue(updatedDeployedApplications.stream()
-                                                  .filter(updatedDeployedApplication -> doesNotContainExpectedApplication(expectedDeployedApplication,
-                                                                                                                          updatedDeployedApplication))
-                                                  .allMatch(updatedDeployedApplication -> updatedDeployedApplication.getProductizationState() == DeployedMtaApplication.ProductizationState.IDLE),
+                                                  .filter(updatedDeployedApplication -> doesNotContainExpectedApplication(
+                                                      expectedDeployedApplication,
+                                                      updatedDeployedApplication))
+                                                  .allMatch(
+                                                      updatedDeployedApplication -> updatedDeployedApplication.getProductizationState()
+                                                          == DeployedMtaApplication.ProductizationState.IDLE),
                        format("Only Deployed Application with module name:{0} application name:{1} should be live",
                               expectedDeployedApplication.moduleName, expectedDeployedApplication.appName));
             return;
