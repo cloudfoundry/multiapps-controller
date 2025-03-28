@@ -130,8 +130,7 @@ class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<UpdateS
 
         Map<String, String> getAppEnv() {
             Map<String, Object> brokerDetails = getBrokerDetails();
-            return Map.of(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES,
-                          JsonUtil.toJson(brokerDetails));
+            return Map.of(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(brokerDetails));
         }
 
         private Map<String, Object> getBrokerDetails() {

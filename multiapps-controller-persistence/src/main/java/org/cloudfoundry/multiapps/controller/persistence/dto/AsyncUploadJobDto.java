@@ -203,20 +203,9 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
 
     @Override
     public String toString() {
-        return "AsyncUploadJobDto{" +
-            "id='" + id + '\'' +
-            ", mtaUser='" + mtaUser + '\'' +
-            ", state='" + state + '\'' +
-            ", url='" + url + '\'' +
-            ", addedAt=" + addedAt +
-            ", startedAt=" + startedAt +
-            ", finishedAt=" + finishedAt +
-            ", namespace='" + namespace + '\'' +
-            ", spaceGuid='" + spaceGuid + '\'' +
-            ", mtaId='" + mtaId + '\'' +
-            ", fileId='" + fileId + '\'' +
-            ", error='" + error + '\'' +
-            ", instanceIndex=" + instanceIndex +
-            '}';
+        return "AsyncUploadJobDto{" + "id='" + id + '\'' + ", mtaUser='" + mtaUser + '\'' + ", state='" + state + '\'' + ", url='" + url
+            + '\'' + ", addedAt=" + addedAt + ", startedAt=" + startedAt + ", finishedAt=" + finishedAt + ", namespace='" + namespace + '\''
+            + ", spaceGuid='" + spaceGuid + '\'' + ", mtaId='" + mtaId + '\'' + ", fileId='" + fileId + '\'' + ", error='" + error + '\''
+            + ", instanceIndex=" + instanceIndex + '}';
     }
 }

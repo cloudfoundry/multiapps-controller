@@ -50,16 +50,11 @@ class ServiceBindingParametersGetterTest {
     private static final String SERVICE_BINDING_PARAMETERS_FILENAME = "test_binding_parameters.json";
     private static final UUID RANDOM_GUID = UUID.randomUUID();
     private static final ArchiveEntryWithStreamPositions ARCHIVE_ENTRY_WITH_STREAM_POSITIONS = ImmutableArchiveEntryWithStreamPositions.builder()
-                                                                                                                                       .name(
-                                                                                                                                           SERVICE_BINDING_PARAMETERS_FILENAME)
-                                                                                                                                       .startPosition(
-                                                                                                                                           37)
-                                                                                                                                       .endPosition(
-                                                                                                                                           5012)
-                                                                                                                                       .compressionMethod(
-                                                                                                                                           ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
-                                                                                                                                       .isDirectory(
-                                                                                                                                           false)
+                                                                                                                                       .name(SERVICE_BINDING_PARAMETERS_FILENAME)
+                                                                                                                                       .startPosition(37)
+                                                                                                                                       .endPosition(5012)
+                                                                                                                                       .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
+                                                                                                                                       .isDirectory(false)
                                                                                                                                        .build();
     private static final String TEST_SPACE_GUID = "test_space_guid";
 
@@ -88,7 +83,7 @@ class ServiceBindingParametersGetterTest {
 
     static Stream<Arguments> testGetServiceBindingParametersFromMta() {
         return Stream.of(
-            //@formatter:off
+        //@formatter:off
                          Arguments.of(Map.of("param1", "value1"),  Map.of("param1", "value1")),
                          Arguments.of(null, Collections.emptyMap()),
                          Arguments.of(Map.of("object", Map.of("new-nested-parameter", "value1")),
@@ -151,8 +146,7 @@ class ServiceBindingParametersGetterTest {
 
     static Stream<Arguments> testHandleCloudOperationExceptions() {
         return Stream.of(Arguments.of(HttpStatus.BAD_REQUEST, false), Arguments.of(HttpStatus.NOT_FOUND, true),
-                         Arguments.of(HttpStatus.NOT_IMPLEMENTED, false),
-                         Arguments.of(HttpStatus.INTERNAL_SERVER_ERROR, true));
+                         Arguments.of(HttpStatus.NOT_IMPLEMENTED, false), Arguments.of(HttpStatus.INTERNAL_SERVER_ERROR, true));
     }
 
     @ParameterizedTest
@@ -179,11 +173,9 @@ class ServiceBindingParametersGetterTest {
         ImmutableCloudApplicationExtended.Builder applicationBuilder = ImmutableCloudApplicationExtended.builder()
                                                                                                         .name(APP_NAME)
                                                                                                         .moduleName(APP_NAME)
-                                                                                                        .metadata(
-                                                                                                            ImmutableCloudMetadata.builder()
-                                                                                                                                  .guid(
-                                                                                                                                      RANDOM_GUID)
-                                                                                                                                  .build());
+                                                                                                        .metadata(ImmutableCloudMetadata.builder()
+                                                                                                                                        .guid(RANDOM_GUID)
+                                                                                                                                        .build());
         if (descriptorParameters != null) {
             applicationBuilder.bindingParameters(Map.of(SERVICE_NAME, ImmutableBindingDetails.builder()
                                                                                              .bindingName(null)
@@ -238,13 +230,10 @@ class ServiceBindingParametersGetterTest {
                                                                              .metadata(ImmutableCloudMetadata.builder()
                                                                                                              .guid(RANDOM_GUID)
                                                                                                              .build())
-                                                                             .serviceBindingOperation(
-                                                                                 ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                                           .type(
-                                                                                                                               ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                                           .state(
-                                                                                                                               ServiceCredentialBindingOperation.State.SUCCEEDED)
-                                                                                                                           .build())
+                                                                             .serviceBindingOperation(ImmutableServiceCredentialBindingOperation.builder()
+                                                                                                                                                .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                                                                .state(ServiceCredentialBindingOperation.State.SUCCEEDED)
+                                                                                                                                                .build())
                                                                              .build();
             when(client.getServiceBindingForApplication(RANDOM_GUID, RANDOM_GUID)).thenReturn(serviceBinding);
             return;

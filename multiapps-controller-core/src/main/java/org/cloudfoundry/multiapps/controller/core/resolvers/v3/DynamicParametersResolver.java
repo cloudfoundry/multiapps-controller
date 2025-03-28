@@ -24,9 +24,8 @@ public class DynamicParametersResolver implements SimplePropertyVisitor {
         if (value.matches(DynamicParameterUtil.REGEX_PATTERN_FOR_DYNAMIC_PARAMETERS)) {
             String relationshipName = DynamicParameterUtil.getRelationshipName(value);
             String parameterName = DynamicParameterUtil.getParameterName(value);
-            DynamicResolvableParameter dynamicResolvableParameter = dynamicResolvableParametersHelper.findDynamicResolvableParameter(
-                parameterName,
-                relationshipName);
+            DynamicResolvableParameter dynamicResolvableParameter = dynamicResolvableParametersHelper.findDynamicResolvableParameter(parameterName,
+                                                                                                                                     relationshipName);
             if (dynamicResolvableParameter != null && dynamicResolvableParameter.getValue() != null) {
                 return dynamicResolvableParameter.getValue();
             }

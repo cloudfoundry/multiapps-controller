@@ -153,8 +153,8 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         return null;
     }
 
-    private AsyncExecutionState checkAppExecutionStatus(ProcessContext context, CloudApplication app,
-                                                        ApplicationAttributes appAttributes, AppExecutionDetailedStatus status) {
+    private AsyncExecutionState checkAppExecutionStatus(ProcessContext context, CloudApplication app, ApplicationAttributes appAttributes,
+                                                        AppExecutionDetailedStatus status) {
         var execStatus = status.getStatus();
         boolean stopApp = appAttributes.get(SupportedParameters.STOP_APP, Boolean.class, Boolean.FALSE);
 
@@ -193,11 +193,13 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         if (attributeValue.startsWith(MessageType.STDERR + ":")) {
             messageType = MessageType.STDERR;
             text = attributeValue.substring(MessageType.STDERR.toString()
-                                                              .length() + 1);
+                                                              .length()
+                + 1);
         } else if (attributeValue.startsWith(MessageType.STDOUT + ":")) {
             messageType = MessageType.STDOUT;
             text = attributeValue.substring(MessageType.STDOUT.toString()
-                                                              .length() + 1);
+                                                              .length()
+                + 1);
         } else {
             messageType = MessageType.STDOUT;
             text = attributeValue;

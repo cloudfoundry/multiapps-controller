@@ -24,53 +24,49 @@ class RouteParametersParserTest {
 
     static Stream<Arguments> testRouteParametersParsing() {
         return Stream.of(
-            // with no uri parameters
-            Arguments.of(null, null, null, null, null,
-                         new Expectation(Expectation.Type.STRING,
-                                         List.of(DEFAULT_HOST + "." + DEFAULT_DOMAIN)
-                                             .toString())),
-            // with only host parameter
-            Arguments.of("some-host", null, null, null, null,
-                         new Expectation(Expectation.Type.STRING,
-                                         List.of("some-host." + DEFAULT_DOMAIN)
-                                             .toString())),
-            // with host and domain parameters
-            Arguments.of("some-host", "some-domain.com", null, null, null,
-                         new Expectation(Expectation.Type.STRING,
-                                         List.of("some-host.some-domain.com")
-                                             .toString())),
-            // with plural hosts and domains parameters
-            Arguments.of(null, null, List.of("host1", "host2"), List.of("domain1.com", "domain2.com"), null,
-                         new Expectation(Expectation.Type.SET,
-                                         Set.of(TestData.route("host1.domain1.com"),
-                                                TestData.route("host2.domain1.com"),
-                                                TestData.route("host1.domain2.com"),
-                                                TestData.route("host2.domain2.com")))),
-            // with both singular and plural parameters, testing that only the plural parameters are taken
-            Arguments.of("host1", "domain1.com", List.of("host2"), List.of("domain2.com", "domain3.com"), null,
-                         new Expectation(Expectation.Type.SET,
-                                         Set.of(TestData.route("host2.domain2.com"),
-                                                TestData.route("host2.domain3.com")))),
-            // with only routes parameters
-            Arguments.of(null, null, null, null, List.of("my.custom.route"),
-                         new Expectation(Expectation.Type.STRING,
-                                         List.of("my.custom.route")
-                                             .toString())),
-            // with host and routes parameters - host is ignored
-            Arguments.of("some-host", null, null, null, List.of("my.custom.route"),
-                         new Expectation(Expectation.Type.STRING,
-                                         List.of("my.custom.route")
-                                             .toString())),
-            // with domain and routes parameters - host is ignored
-            Arguments.of(null, "some-domain.com", null, null, List.of("my.custom.route"),
-                         new Expectation(Expectation.Type.STRING,
-                                         List.of("my.custom.route")
-                                             .toString())),
-            // with routes parameters containing starting with http schema - it is removed
-            Arguments.of(null, null, null, null, List.of("https://my.custom.route", "http://*.my.custom.route"),
-                         new Expectation(Expectation.Type.SET,
-                                         Set.of(TestData.route("my.custom.route"),
-                                                TestData.route("*.my.custom.route")))));
+                         // with no uri parameters
+                         Arguments.of(null, null, null, null, null,
+                                      new Expectation(Expectation.Type.STRING,
+                                                      List.of(DEFAULT_HOST + "." + DEFAULT_DOMAIN)
+                                                          .toString())),
+                         // with only host parameter
+                         Arguments.of("some-host", null, null, null, null,
+                                      new Expectation(Expectation.Type.STRING,
+                                                      List.of("some-host." + DEFAULT_DOMAIN)
+                                                          .toString())),
+                         // with host and domain parameters
+                         Arguments.of("some-host", "some-domain.com", null, null, null,
+                                      new Expectation(Expectation.Type.STRING,
+                                                      List.of("some-host.some-domain.com")
+                                                          .toString())),
+                         // with plural hosts and domains parameters
+                         Arguments.of(null, null, List.of("host1", "host2"), List.of("domain1.com", "domain2.com"), null,
+                                      new Expectation(Expectation.Type.SET,
+                                                      Set.of(TestData.route("host1.domain1.com"), TestData.route("host2.domain1.com"),
+                                                             TestData.route("host1.domain2.com"), TestData.route("host2.domain2.com")))),
+                         // with both singular and plural parameters, testing that only the plural parameters are taken
+                         Arguments.of("host1", "domain1.com", List.of("host2"), List.of("domain2.com", "domain3.com"), null,
+                                      new Expectation(Expectation.Type.SET,
+                                                      Set.of(TestData.route("host2.domain2.com"), TestData.route("host2.domain3.com")))),
+                         // with only routes parameters
+                         Arguments.of(null, null, null, null, List.of("my.custom.route"),
+                                      new Expectation(Expectation.Type.STRING,
+                                                      List.of("my.custom.route")
+                                                          .toString())),
+                         // with host and routes parameters - host is ignored
+                         Arguments.of("some-host", null, null, null, List.of("my.custom.route"),
+                                      new Expectation(Expectation.Type.STRING,
+                                                      List.of("my.custom.route")
+                                                          .toString())),
+                         // with domain and routes parameters - host is ignored
+                         Arguments.of(null, "some-domain.com", null, null, List.of("my.custom.route"),
+                                      new Expectation(Expectation.Type.STRING,
+                                                      List.of("my.custom.route")
+                                                          .toString())),
+                         // with routes parameters containing starting with http schema - it is removed
+                         Arguments.of(null, null, null, null, List.of("https://my.custom.route", "http://*.my.custom.route"),
+                                      new Expectation(Expectation.Type.SET,
+                                                      Set.of(TestData.route("my.custom.route"), TestData.route("*.my.custom.route")))));
     }
 
     @ParameterizedTest

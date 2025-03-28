@@ -67,14 +67,12 @@ public class CloudControllerClientProvider implements DisposableBean {
 
     private CloudControllerClient getClientFromCacheWithNoCorrelation(String userName, String spaceId) {
         String key = getKey(spaceId, userName);
-        return clients.computeIfAbsent(key,
-                                       () -> clientFactory.createClient(tokenService.getToken(userName), spaceId, null));
+        return clients.computeIfAbsent(key, () -> clientFactory.createClient(tokenService.getToken(userName), spaceId, null));
     }
 
     private CloudControllerClient getClientFromCache(String userName, String spaceId, String correlationId) {
         String key = getKey(spaceId, userName);
-        return clients.computeIfAbsent(key,
-                                       () -> clientFactory.createClient(tokenService.getToken(userName), spaceId, correlationId));
+        return clients.computeIfAbsent(key, () -> clientFactory.createClient(tokenService.getToken(userName), spaceId, correlationId));
     }
 
     private String getKey(String spaceGuid, String username) {

@@ -54,9 +54,8 @@ class ProcessConflictPreventerTest {
                                                  .withSpaceId(testSpaceId)
                                                  .withHasAcquiredLock(true);
         SLException exception = assertThrows(SLException.class, () -> tryToAcquireLock(List.of(runningOperation, runningOperation)));
-        assertEquals(
-            "Multiple operations found with lock for MTA \"test-mta-id\" in space \"test-space-id\": [test-process-id, test-process-id]",
-            exception.getMessage());
+        assertEquals("Multiple operations found with lock for MTA \"test-mta-id\" in space \"test-space-id\": [test-process-id, test-process-id]",
+                     exception.getMessage());
     }
 
     @Test

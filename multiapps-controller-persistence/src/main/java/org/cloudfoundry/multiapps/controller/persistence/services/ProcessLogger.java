@@ -96,7 +96,12 @@ public class ProcessLogger {
     // The StackTraceElement is required because there isn't a contructor that we can use without StackTraceElement
     private LogEvent createEvent(Object message, Level logLevel, Throwable t) {
         Message logMessage = new ObjectMessage(message);
-        StackTraceElement stackTrace = new StackTraceElement(null, null, null, ProcessLoggerProvider.class.getName(), logLevel.name(), null,
+        StackTraceElement stackTrace = new StackTraceElement(null,
+                                                             null,
+                                                             null,
+                                                             ProcessLoggerProvider.class.getName(),
+                                                             logLevel.name(),
+                                                             null,
                                                              0);
         return new Log4jLogEvent(logName, null, null, stackTrace, logLevel, logMessage, null, t);
     }
@@ -128,11 +133,9 @@ public class ProcessLogger {
             return false;
         }
         ProcessLogger processLogger = (ProcessLogger) incommingObject;
-        return Objects.equals(id, processLogger.id) && Objects.equals(layout, processLogger.layout) && Objects.equals(activityId,
-                                                                                                                      processLogger.activityId)
-            && Objects.equals(
-            logName, processLogger.logName) && Objects.equals(operationLogEntry, processLogger.operationLogEntry) && Objects.equals(
-            logMessage, processLogger.logMessage);
+        return Objects.equals(id, processLogger.id) && Objects.equals(layout, processLogger.layout)
+            && Objects.equals(activityId, processLogger.activityId) && Objects.equals(logName, processLogger.logName)
+            && Objects.equals(operationLogEntry, processLogger.operationLogEntry) && Objects.equals(logMessage, processLogger.logMessage);
     }
 
     @Override

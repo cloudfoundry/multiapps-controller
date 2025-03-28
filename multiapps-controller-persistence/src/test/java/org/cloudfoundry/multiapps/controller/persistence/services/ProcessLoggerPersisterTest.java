@@ -64,7 +64,8 @@ class ProcessLoggerPersisterTest {
                .persistLog(any());
 
         Assertions.assertEquals(processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID)
-                                                     .size(), 0);
+                                                     .size(),
+                                0);
     }
 
     @Test
@@ -87,7 +88,8 @@ class ProcessLoggerPersisterTest {
                .persistLog(any());
 
         Assertions.assertEquals(processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID)
-                                                     .size(), 0);
+                                                     .size(),
+                                0);
     }
 
     @Test

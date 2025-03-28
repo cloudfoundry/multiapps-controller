@@ -42,26 +42,26 @@ abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep>
 
     static Stream<Arguments> testExecution() {
         return Stream.of(
-            // (1) There are applications to undeploy:
-            Arguments.of("undeploy-apps-step-input-00.json", "undeploy-apps-step-output-00.json"),
+                         // (1) There are applications to undeploy:
+                         Arguments.of("undeploy-apps-step-input-00.json", "undeploy-apps-step-output-00.json"),
 
-            // (2) No applications to undeploy:
-            Arguments.of("undeploy-apps-step-input-02.json", "undeploy-apps-step-output-02.json"),
+                         // (2) No applications to undeploy:
+                         Arguments.of("undeploy-apps-step-input-02.json", "undeploy-apps-step-output-02.json"),
 
-            // (3) There are two routes that should be deleted, but one of them is bound to another application:
-            Arguments.of("undeploy-apps-step-input-03.json", "undeploy-apps-step-output-03.json"),
+                         // (3) There are two routes that should be deleted, but one of them is bound to another application:
+                         Arguments.of("undeploy-apps-step-input-03.json", "undeploy-apps-step-output-03.json"),
 
-            // (4) There are running one-off tasks to cancel:
-            Arguments.of("undeploy-apps-step-input-04.json", "undeploy-apps-step-output-04.json"),
+                         // (4) There are running one-off tasks to cancel:
+                         Arguments.of("undeploy-apps-step-input-04.json", "undeploy-apps-step-output-04.json"),
 
-            // (5) There are not found routes matching app uri:
-            Arguments.of("undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json"),
+                         // (5) There are not found routes matching app uri:
+                         Arguments.of("undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json"),
 
-            // (6) There is a route that should be deleted, but it is bound to a service instance:
-            Arguments.of("undeploy-apps-step-input-06.json", "undeploy-apps-step-output-06.json"),
+                         // (6) There is a route that should be deleted, but it is bound to a service instance:
+                         Arguments.of("undeploy-apps-step-input-06.json", "undeploy-apps-step-output-06.json"),
 
-            // (7) All routes should be deleted; routes have no hostnames:
-            Arguments.of("undeploy-apps-step-input-07.json", "undeploy-apps-step-output-07.json"));
+                         // (7) All routes should be deleted; routes have no hostnames:
+                         Arguments.of("undeploy-apps-step-input-07.json", "undeploy-apps-step-output-07.json"));
     }
 
     @ParameterizedTest
@@ -78,8 +78,7 @@ abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep>
     private void initializeParameters(String stepInputLocation, String stepOutputLocation) {
         String resourceAsString = TestUtil.getResourceAsString(stepInputLocation, UndeployAppStepTest.class);
         stepInput = JsonUtil.fromJson(resourceAsString, StepInput.class);
-        stepOutput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepOutputLocation, UndeployAppStepTest.class),
-                                       StepOutput.class);
+        stepOutput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepOutputLocation, UndeployAppStepTest.class), StepOutput.class);
         stepInput.appsToDelete = stepInput.appsToDelete.stream()
                                                        .map(this::addGuid)
                                                        .collect(Collectors.toList());

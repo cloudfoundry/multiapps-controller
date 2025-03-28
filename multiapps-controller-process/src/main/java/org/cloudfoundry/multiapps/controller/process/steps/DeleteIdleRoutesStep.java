@@ -60,7 +60,8 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
     private void deleteRoute(CloudRoute route, CloudControllerClient client) {
         try {
             client.deleteRoute(route.getHost(), route.getDomain()
-                                                     .getName(), route.getPath());
+                                                     .getName(),
+                               route.getPath());
         } catch (CloudOperationException e) {
             handleCloudOperationException(e, route);
         }

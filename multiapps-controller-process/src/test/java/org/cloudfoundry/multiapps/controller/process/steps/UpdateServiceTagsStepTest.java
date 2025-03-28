@@ -25,8 +25,7 @@ class UpdateServiceTagsStepTest extends SyncFlowableStepTest<UpdateServiceTagsSt
 
         step.execute(execution);
 
-        verify(client).updateServiceTags(serviceToProcess.getName(),
-                                         serviceToProcess.getTags());
+        verify(client).updateServiceTags(serviceToProcess.getName(), serviceToProcess.getTags());
     }
 
     @Test

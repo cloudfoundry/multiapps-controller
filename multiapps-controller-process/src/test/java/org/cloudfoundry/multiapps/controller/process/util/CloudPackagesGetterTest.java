@@ -64,8 +64,9 @@ class CloudPackagesGetterTest {
         assertTrue(currentPackage.isPresent());
         assertTrue(latestPackage.isPresent());
         assertEquals(currentPackage.get()
-                                   .getGuid(), latestPackage.get()
-                                                            .getGuid());
+                                   .getGuid(),
+                     latestPackage.get()
+                                  .getGuid());
     }
 
     private CloudOperationException getNotFoundCloudOperationException() {

@@ -145,8 +145,7 @@ class FileServiceTest extends DatabaseFileServiceTest {
     @Test
     @Override
     void testOpenInputStream() throws Exception {
-        when(fileStorage.openInputStream(anyString(), anyString()))
-            .thenReturn(getResource(PIC_RESOURCE_NAME));
+        when(fileStorage.openInputStream(anyString(), anyString())).thenReturn(getResource(PIC_RESOURCE_NAME));
         super.testOpenInputStream();
         Mockito.verify(fileStorage)
                .openInputStream(anyString(), anyString());
@@ -208,9 +207,8 @@ class FileServiceTest extends DatabaseFileServiceTest {
                                                                                                      dataSource.getDataSourceDialect()) {
             @Override
             protected String getSelectFilesWithoutOperationCreatedAfterTime1AndBeforeTime2Query() {
-                return String.format(
-                    "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE MODIFIED > ? AND MODIFIED < ? AND OPERATION_ID IS NULL",
-                    FileService.DEFAULT_TABLE_NAME);
+                return String.format("SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE, OPERATION_ID FROM %s WHERE MODIFIED > ? AND MODIFIED < ? AND OPERATION_ID IS NULL",
+                                     FileService.DEFAULT_TABLE_NAME);
             }
         };
         return new FileService(dataSource, externalSqlFileQueryProvider, fileStorage);

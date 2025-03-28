@@ -74,15 +74,13 @@ public class LockOwnersQueryImpl extends AbstractQueryImpl<LockOwnerEntry, LockO
 
     @Override
     public LockOwnerEntry singleResult() throws NoResultException, NonUniqueResultException {
-        LockOwnerDto dto = executeInTransaction(manager -> createQuery(manager, queryCriteria,
-                                                                       LockOwnerDto.class).getSingleResult());
+        LockOwnerDto dto = executeInTransaction(manager -> createQuery(manager, queryCriteria, LockOwnerDto.class).getSingleResult());
         return lockOwnersMapper.fromDto(dto);
     }
 
     @Override
     public List<LockOwnerEntry> list() {
-        List<LockOwnerDto> dtos = executeInTransaction(manager -> createQuery(manager, queryCriteria,
-                                                                              LockOwnerDto.class).getResultList());
+        List<LockOwnerDto> dtos = executeInTransaction(manager -> createQuery(manager, queryCriteria, LockOwnerDto.class).getResultList());
         return dtos.stream()
                    .map(lockOwnersMapper::fromDto)
                    .collect(Collectors.toList());

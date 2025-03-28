@@ -20,8 +20,7 @@ public class ObjectStoreServiceInfoCreator {
         Map<String, Object> credentials = service.getCredentials()
                                                  .getMap();
         return List.of(createServiceInfoForAws(credentials), createServiceInfoForAliCloud(credentials),
-                       createServiceInfoForAzure(credentials),
-                       createServiceInfoForGcpCloud(credentials));
+                       createServiceInfoForAzure(credentials), createServiceInfoForGcpCloud(credentials));
     }
 
     private ObjectStoreServiceInfo createServiceInfoForAws(Map<String, Object> credentials) {

@@ -54,7 +54,7 @@ class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishCo
 
     public static Stream<Arguments> test() {
         return Stream.of(
-            // @formatter:off
+// @formatter:off
                 Arguments.of("publish-configuration-entries-step-input-1.json"),
                 Arguments.of("publish-configuration-entries-step-input-2.json"),
                 Arguments.of("publish-configuration-entries-step-input-3.json"),
@@ -95,15 +95,11 @@ class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishCo
     public void prepareConfigurationEntryService() {
         when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
         for (ConfigurationEntry entry : existingConfigurationEntries) {
-            ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(
-                                                                                                   query -> query.providerNid(entry.getProviderNid()))
-                                                                                               .on(query -> query.providerId(
-                                                                                                   entry.getProviderId()))
-                                                                                               .on(query -> query.version(
-                                                                                                   entry.getProviderVersion()
-                                                                                                        .toString()))
-                                                                                               .on(query -> query.target(
-                                                                                                   Mockito.eq(entry.getTargetSpace())))
+            ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(entry.getProviderNid()))
+                                                                                               .on(query -> query.providerId(entry.getProviderId()))
+                                                                                               .on(query -> query.version(entry.getProviderVersion()
+                                                                                                                               .toString()))
+                                                                                               .on(query -> query.target(Mockito.eq(entry.getTargetSpace())))
                                                                                                .build();
             doReturn(List.of(entry)).when(entryQueryMock)
                                     .list();
@@ -111,8 +107,8 @@ class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishCo
     }
 
     private void prapareDynamicParameterResolver(StepInput input) {
-        when(dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(Mockito.anyList(), Mockito.anySet())).then(
-            returnsFirstArg());
+        when(dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(Mockito.anyList(),
+                                                                                     Mockito.anySet())).then(returnsFirstArg());
     }
 
     private void prepareContext(StepInput input) {

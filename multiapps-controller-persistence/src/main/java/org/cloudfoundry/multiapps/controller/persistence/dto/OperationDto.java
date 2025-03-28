@@ -71,8 +71,7 @@ public class OperationDto implements DtoWithPrimaryKey<String> {
     }
 
     private OperationDto(String processId, String processType, Date startedAt, Date endedAt, String spaceId, String mtaId, String namespace,
-                         String user,
-                         boolean acquiredLock, String currentState) {
+                         String user, boolean acquiredLock, String currentState) {
         this.processId = processId;
         this.processType = processType;
         this.startedAt = startedAt;
@@ -203,7 +202,15 @@ public class OperationDto implements DtoWithPrimaryKey<String> {
         }
 
         public OperationDto build() {
-            return new OperationDto(processId, processType, startedAt, endedAt, spaceId, mtaId, namespace, user, acquiredLock,
+            return new OperationDto(processId,
+                                    processType,
+                                    startedAt,
+                                    endedAt,
+                                    spaceId,
+                                    mtaId,
+                                    namespace,
+                                    user,
+                                    acquiredLock,
                                     currentState);
         }
     }

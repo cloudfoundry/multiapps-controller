@@ -242,8 +242,7 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
         }
         if (!userHasPermissions(subscriber.app.getSpace(), UserPermission.WRITE)) {
             doThrow(new CloudOperationException(HttpStatus.FORBIDDEN)).when(client)
-                                                                      .updateApplicationEnv(anyString(),
-                                                                                            any(Map.class));
+                                                                      .updateApplicationEnv(anyString(), any(Map.class));
         }
     }
 

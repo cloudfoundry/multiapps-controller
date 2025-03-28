@@ -25,8 +25,7 @@ class UpdateServicePlanStepTest extends SyncFlowableStepTest<UpdateServicePlanSt
 
         step.execute(execution);
 
-        verify(client).updateServicePlan(serviceToProcess.getName(),
-                                         serviceToProcess.getPlan());
+        verify(client).updateServicePlan(serviceToProcess.getName(), serviceToProcess.getPlan());
     }
 
     @Test

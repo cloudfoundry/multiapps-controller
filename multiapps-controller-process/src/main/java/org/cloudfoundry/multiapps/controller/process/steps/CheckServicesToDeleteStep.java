@@ -28,8 +28,7 @@ public class CheckServicesToDeleteStep extends CollectServicesInProgressStateSte
     private ApplicationConfiguration applicationConfiguration;
 
     @Inject
-    CheckServicesToDeleteStep(ServiceOperationGetter serviceOperationGetter,
-                              ServiceProgressReporter serviceProgressReporter,
+    CheckServicesToDeleteStep(ServiceOperationGetter serviceOperationGetter, ServiceProgressReporter serviceProgressReporter,
                               ApplicationConfiguration applicationConfiguration) {
         super(serviceOperationGetter, serviceProgressReporter);
         this.applicationConfiguration = applicationConfiguration;

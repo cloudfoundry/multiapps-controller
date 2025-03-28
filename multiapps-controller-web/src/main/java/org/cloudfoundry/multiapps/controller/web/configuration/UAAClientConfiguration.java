@@ -24,8 +24,7 @@ public class UAAClientConfiguration {
         if (configuration.shouldSkipSslValidation()) {
             SSLUtil.disableSSLValidation();
         }
-        return new UAAClient(readTokenEndpoint(configuration.getControllerUrl()),
-                             new RestUtil().createWebClient(false));
+        return new UAAClient(readTokenEndpoint(configuration.getControllerUrl()), new RestUtil().createWebClient(false));
     }
 
     @SuppressWarnings("unchecked")

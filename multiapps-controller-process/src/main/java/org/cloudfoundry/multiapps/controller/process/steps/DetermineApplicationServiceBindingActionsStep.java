@@ -41,8 +41,8 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
         CloudServiceBinding serviceBindingToDelete = context.getVariable(Variables.SERVICE_BINDING_TO_DELETE);
         CloudApplicationExtended appToProcess = context.getVariable(Variables.APP_TO_PROCESS);
         if (serviceBindingToDelete != null) {
-            String appName =
-                appToProcess != null ? appToProcess.getName() : client.getApplicationName(serviceBindingToDelete.getApplicationGuid());
+            String appName = appToProcess != null ? appToProcess.getName()
+                : client.getApplicationName(serviceBindingToDelete.getApplicationGuid());
             String serviceInstanceName = getServiceInstanceToUnbind(context, client, serviceBindingToDelete);
             getStepLogger().debug(Messages.WILL_UNBIND_SERVICE_INSTANCE_0_FROM_APP_1, serviceInstanceName, appName);
             return setBindingForDeletion(context, appName, serviceInstanceName);
@@ -68,8 +68,7 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
             context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, true);
             context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, bindingParameters);
             getStepLogger().debug(Messages.CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE, appToProcess.getName(),
-                                  serviceInstanceToUnbindBind,
-                                  false, true);
+                                  serviceInstanceToUnbindBind, false, true);
             return StepPhase.DONE;
         }
         getStepLogger().debug(Messages.CHECK_SHOULD_REBIND_APPLICATION_SERVICE_INSTANCE, appToProcess.getName(),
@@ -81,15 +80,13 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
             return keepExistingServiceBindings(context, appToProcess, serviceInstanceToUnbindBind);
         }
 
-        if (shouldRecreateServiceBinding(context) || areBindingParametersDifferent(serviceBindingParametersGetter, existingApp,
-                                                                                   serviceInstanceToUnbindBind,
-                                                                                   bindingParameters)) {
+        if (shouldRecreateServiceBinding(context)
+            || areBindingParametersDifferent(serviceBindingParametersGetter, existingApp, serviceInstanceToUnbindBind, bindingParameters)) {
             context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, true);
             context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, true);
             context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, bindingParameters);
             getStepLogger().debug(Messages.CALCULATED_BINDING_OPERATIONS_APPLICATION_SERVICE_INSTANCE, appToProcess.getName(),
-                                  serviceInstanceToUnbindBind,
-                                  true, true);
+                                  serviceInstanceToUnbindBind, true, true);
             return StepPhase.DONE;
         }
         getStepLogger().info(Messages.WILL_NOT_REBIND_APP_TO_SERVICE_SAME_PARAMETERS, serviceInstanceToUnbindBind, appToProcess.getName());
@@ -168,13 +165,13 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
     protected String getStepErrorMessage(ProcessContext context) {
         CloudServiceBinding serviceBindingToDelete = context.getVariable(Variables.SERVICE_BINDING_TO_DELETE);
         if (serviceBindingToDelete != null) {
-            return MessageFormat.format(
-                Messages.ERROR_WHILE_DETERMINING_BIND_UNBIND_OPERATIONS_OF_APPLICATION_GUID_TO_SERVICE_INSTANCE_GUID,
-                serviceBindingToDelete.getApplicationGuid(), serviceBindingToDelete.getServiceInstanceGuid());
+            return MessageFormat.format(Messages.ERROR_WHILE_DETERMINING_BIND_UNBIND_OPERATIONS_OF_APPLICATION_GUID_TO_SERVICE_INSTANCE_GUID,
+                                        serviceBindingToDelete.getApplicationGuid(), serviceBindingToDelete.getServiceInstanceGuid());
         }
         return MessageFormat.format(Messages.ERROR_WHILE_DETERMINING_BIND_UNBIND_OPERATIONS_OF_APPLICATION_TO_SERVICE,
                                     context.getVariable(Variables.APP_TO_PROCESS)
-                                           .getName(), context.getVariable(Variables.SERVICE_TO_UNBIND_BIND));
+                                           .getName(),
+                                    context.getVariable(Variables.SERVICE_TO_UNBIND_BIND));
     }
 
 }

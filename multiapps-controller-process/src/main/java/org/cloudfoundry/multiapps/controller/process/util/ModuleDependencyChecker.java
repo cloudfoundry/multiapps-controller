@@ -104,8 +104,8 @@ public class ModuleDependencyChecker {
         }
         Module dependency = allModulesInDescriptorWithNames.get(dependencyName);
         if (!moduleToDeployHelper.isApplication(dependency)) {
-            userMessageLogger.warn(MessageFormat.format(Messages.MODULE_0_DEPENDS_ON_MODULE_1_WHICH_CANNOT_BE_RESOLVED,
-                                                        moduleName, dependencyName));
+            userMessageLogger.warn(MessageFormat.format(Messages.MODULE_0_DEPENDS_ON_MODULE_1_WHICH_CANNOT_BE_RESOLVED, moduleName,
+                                                        dependencyName));
             return true;
         }
         return appExists(dependencyName);
