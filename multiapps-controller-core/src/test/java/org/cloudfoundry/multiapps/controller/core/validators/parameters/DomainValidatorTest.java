@@ -21,7 +21,7 @@ class DomainValidatorTest {
 
     public static Stream<Arguments> getParameters() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0)
             Arguments.of("TEST_TEST_TEST", false, new Expectation("test-test-test")),
             // (1)

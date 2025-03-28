@@ -13,7 +13,7 @@ class IncrementIndexStepTest extends SyncFlowableStepTest<IncrementIndexStep> {
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
                 Arguments.of(1),
                 Arguments.of(2),
                 Arguments.of(3),

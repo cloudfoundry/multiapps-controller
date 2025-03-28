@@ -64,10 +64,12 @@ class RemoveMtaBackupMetadataStepTest extends SyncFlowableStepTest<RemoveMtaBack
                                                                                   .moduleName(MODULE_NAME)
                                                                                   .name(BACKUP_APP_NAME)
                                                                                   .v3Metadata(Metadata.builder()
-                                                                                                      .label(MtaMetadataLabels.MTA_NAMESPACE,
-                                                                                                             namespace)
-                                                                                                      .annotation(MtaMetadataAnnotations.MTA_NAMESPACE,
-                                                                                                                  namespace)
+                                                                                                      .label(
+                                                                                                          MtaMetadataLabels.MTA_NAMESPACE,
+                                                                                                          namespace)
+                                                                                                      .annotation(
+                                                                                                          MtaMetadataAnnotations.MTA_NAMESPACE,
+                                                                                                          namespace)
                                                                                                       .build())
                                                                                   .productizationState(ProductizationState.LIVE)
                                                                                   .metadata(ImmutableCloudMetadata.builder()

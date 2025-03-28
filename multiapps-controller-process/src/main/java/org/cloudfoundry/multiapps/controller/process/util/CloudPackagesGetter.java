@@ -26,7 +26,8 @@ public class CloudPackagesGetter {
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudPackagesGetter.class);
 
     public Optional<CloudPackage> getAppPackage(CloudControllerClient client, UUID applicationGuid) {
-        Optional<DropletInfo> currentDropletForApplication = findOrReturnEmpty(() -> client.getCurrentDropletForApplication(applicationGuid));
+        Optional<DropletInfo> currentDropletForApplication = findOrReturnEmpty(
+            () -> client.getCurrentDropletForApplication(applicationGuid));
         if (currentDropletForApplication.isEmpty()) {
             return getMostRecentAppPackage(client, applicationGuid);
         }

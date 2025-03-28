@@ -29,7 +29,7 @@ class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.c
 
     public static Stream<Arguments> getParameters() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (00) Test missing resource type definition:
             Arguments.of("mtad-missing-resource-type-definition.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
                     null, false,
@@ -61,8 +61,8 @@ class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.c
 
     @Override
     protected ApplicationCloudModelBuilder
-              getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
-                                              AppSuffixDeterminer appSuffixDeterminer, boolean incrementalBlueGreen) {
+    getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
+                                    AppSuffixDeterminer appSuffixDeterminer, boolean incrementalBlueGreen) {
         deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor,
                                                                new ResolverBuilder(),
                                                                new ResolverBuilder(),
@@ -70,15 +70,19 @@ class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.c
         var client = Mockito.mock(CloudControllerClient.class);
         Mockito.when(client.getApplicationRoutes(Mockito.any()))
                .thenReturn(Collections.emptyList());
-        return new org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder.Builder().deploymentDescriptor(deploymentDescriptor)
+        return new org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder.Builder().deploymentDescriptor(
+                                                                                                              deploymentDescriptor)
                                                                                                           .prettyPrinting(prettyPrinting)
                                                                                                           .deployedMta(deployedMta)
                                                                                                           .deployId(DEPLOY_ID)
                                                                                                           .namespace(namespace)
-                                                                                                          .userMessageLogger(Mockito.mock(UserMessageLogger.class))
-                                                                                                          .appSuffixDeterminer(appSuffixDeterminer)
+                                                                                                          .userMessageLogger(Mockito.mock(
+                                                                                                              UserMessageLogger.class))
+                                                                                                          .appSuffixDeterminer(
+                                                                                                              appSuffixDeterminer)
                                                                                                           .client(client)
-                                                                                                          .incrementalInstancesUpdate(incrementalBlueGreen)
+                                                                                                          .incrementalInstancesUpdate(
+                                                                                                              incrementalBlueGreen)
                                                                                                           .build();
     }
 

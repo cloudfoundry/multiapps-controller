@@ -54,8 +54,9 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         List<String> modulesForDeployment = context.getVariable(Variables.MODULES_FOR_DEPLOYMENT);
         List<String> invalidModulesSpecifiedForDeployment = findInvalidModulesSpecifiedForDeployment(descriptor, modulesForDeployment);
         if (!invalidModulesSpecifiedForDeployment.isEmpty()) {
-            throw new IllegalStateException(MessageFormat.format(Messages.MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES,
-                                                                 String.join(", ", invalidModulesSpecifiedForDeployment)));
+            throw new IllegalStateException(
+                MessageFormat.format(Messages.MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES,
+                                     String.join(", ", invalidModulesSpecifiedForDeployment)));
         }
         Set<String> mtaModules = getModuleNames(descriptor, modulesForDeployment);
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
@@ -97,14 +98,20 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                               .cloudTarget(cloudTarget)
                                                               .currentSpaceId(currentSpaceId)
                                                               .namespace(namespace)
-                                                              .applyNamespaceAppNamesGlobalLevel(namespaceGlobalParameters.getApplyNamespaceAppNamesParameter())
-                                                              .applyNamespaceServiceNamesGlobalLevel(namespaceGlobalParameters.getApplyNamespaceServiceNamesParameter())
-                                                              .applyNamespaceAppRoutesGlobalLevel(namespaceGlobalParameters.getApplyNamespaceAppRoutesParameter())
-                                                              .applyNamespaceAsSuffixGlobalLevel(namespaceGlobalParameters.getApplyNamespaceAsSuffix())
+                                                              .applyNamespaceAppNamesGlobalLevel(
+                                                                  namespaceGlobalParameters.getApplyNamespaceAppNamesParameter())
+                                                              .applyNamespaceServiceNamesGlobalLevel(
+                                                                  namespaceGlobalParameters.getApplyNamespaceServiceNamesParameter())
+                                                              .applyNamespaceAppRoutesGlobalLevel(
+                                                                  namespaceGlobalParameters.getApplyNamespaceAppRoutesParameter())
+                                                              .applyNamespaceAsSuffixGlobalLevel(
+                                                                  namespaceGlobalParameters.getApplyNamespaceAsSuffix())
                                                               .applyNamespaceAsSuffixProcessVariable(applyNamespaceAsSuffixProcessVariable)
                                                               .applyNamespaceAppNamesProcessVariable(applyNamespaceAppNamesProcessVariable)
-                                                              .applyNamespaceServiceNamesProcessVariable(applyNamespaceServiceNamesProcessVariable)
-                                                              .applyNamespaceAppRoutesProcessVariable(applyNamespaceAppRoutesProcessVariable)
+                                                              .applyNamespaceServiceNamesProcessVariable(
+                                                                  applyNamespaceServiceNamesProcessVariable)
+                                                              .applyNamespaceAppRoutesProcessVariable(
+                                                                  applyNamespaceAppRoutesProcessVariable)
                                                               .shouldReserveTemporaryRoute(setIdleRoutes)
                                                               .configurationEntryService(configurationEntryService)
                                                               .applicationConfiguration(configuration)
@@ -139,7 +146,8 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                                 .map(Module::getName)
                                                                 .collect(Collectors.toSet());
         return modulesForDeployment.stream()
-                                   .filter(moduleSpecifiedForDeployment -> !deploymentDescriptorModuleNames.contains(moduleSpecifiedForDeployment))
+                                   .filter(moduleSpecifiedForDeployment -> !deploymentDescriptorModuleNames.contains(
+                                       moduleSpecifiedForDeployment))
                                    .collect(Collectors.toList());
     }
 

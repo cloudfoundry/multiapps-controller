@@ -60,8 +60,8 @@ public class CloudHandlerFactoryV3 extends HandlerFactoryV3 implements CloudHand
 
     @Override
     public ConfigurationReferencesResolver
-           getConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
-                                              CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+    getConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
+                                       CloudTarget cloudTarget, ApplicationConfiguration configuration) {
         return new ConfigurationReferencesResolver(configurationEntryService, filterParser, cloudTarget, configuration);
     }
 
@@ -97,9 +97,9 @@ public class CloudHandlerFactoryV3 extends HandlerFactoryV3 implements CloudHand
 
     @Override
     public ConfigurationSubscriptionFactory
-           getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
-                                               Map<String, ResolvedConfigurationReference> resolvedReferences,
-                                               Set<String> dynamicResolvableParameters) {
+    getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
+                                        Map<String, ResolvedConfigurationReference> resolvedReferences,
+                                        Set<String> dynamicResolvableParameters) {
         return new ConfigurationSubscriptionFactory(descriptor, resolvedReferences, dynamicResolvableParameters);
     }
 

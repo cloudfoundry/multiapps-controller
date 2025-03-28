@@ -66,7 +66,8 @@ class OperationsHelperTest {
     @Test
     void testAddErrorTypeWhenOperationIsInErrorStateContentError() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, Operation.State.ERROR);
-        HistoricOperationEvent mockedHistoricOperationEvent = createMockedHistoricOperationEvent(HistoricOperationEvent.EventType.FAILED_BY_CONTENT_ERROR);
+        HistoricOperationEvent mockedHistoricOperationEvent = createMockedHistoricOperationEvent(
+            HistoricOperationEvent.EventType.FAILED_BY_CONTENT_ERROR);
         List<HistoricOperationEvent> historicOperationEvents = List.of(mockedHistoricOperationEvent);
         Mockito.when(processHelper.getHistoricOperationEventByProcessId(mockedOperation.getProcessId()))
                .thenReturn(historicOperationEvents);
@@ -77,7 +78,8 @@ class OperationsHelperTest {
     @Test
     void testAddErrorTypeWhenOperationIsInErrorStateInfrastructureError() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, Operation.State.ERROR);
-        HistoricOperationEvent mockedHistoricOperationEvent = createMockedHistoricOperationEvent(HistoricOperationEvent.EventType.FAILED_BY_INFRASTRUCTURE_ERROR);
+        HistoricOperationEvent mockedHistoricOperationEvent = createMockedHistoricOperationEvent(
+            HistoricOperationEvent.EventType.FAILED_BY_INFRASTRUCTURE_ERROR);
         List<HistoricOperationEvent> historicOperationEvents = List.of(mockedHistoricOperationEvent);
         Mockito.when(processHelper.getHistoricOperationEventByProcessId(mockedOperation.getProcessId()))
                .thenReturn(historicOperationEvents);

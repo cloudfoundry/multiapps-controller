@@ -28,7 +28,7 @@ class ApplicationEnvironmentUpdaterTest {
 
     public static Stream<Arguments> testUpdateEnv() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             Arguments.of("application-env-updater-input-00.json", new Expectation(Expectation.Type.JSON, "application-env-updater-result-00.json")),
             Arguments.of("application-env-updater-input-01.json", new Expectation(Expectation.Type.JSON, "application-env-updater-result-01.json"))
 // @formatter:on

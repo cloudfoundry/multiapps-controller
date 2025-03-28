@@ -94,29 +94,29 @@ class PollExecuteAppStatusExecutionTest {
 
     static Stream<Arguments> testStep() {
         return Stream.of(
-                         // (1) Application is in running state
-                         Arguments.of(createAppLog("testMessage", MessageType.STDOUT, APP_SOURCE), null, null, false,
-                                      AsyncExecutionState.RUNNING),
-                         // (2) Application finished execution and should be stopped
-                         Arguments.of(createAppLog("SUCCESS", MessageType.STDOUT, APP_SOURCE), null, null, true,
-                                      AsyncExecutionState.FINISHED),
-                         // (3) Application finished execution and should be left to run
-                         Arguments.of(createAppLog("SUCCESS", MessageType.STDOUT, APP_SOURCE), null, null, false,
-                                      AsyncExecutionState.FINISHED),
-                         // (4) Application with Custom success marker
-                         Arguments.of(createAppLog("SUCCESS", MessageType.STDOUT, APP_SOURCE), "executed", null, false,
-                                      AsyncExecutionState.RUNNING),
-                         // (5) Application in failed state
-                         Arguments.of(createAppLog("FAILURE", MessageType.STDERR, APP_SOURCE), null, null, false,
-                                      AsyncExecutionState.ERROR),
-                         // (6) Application in failed state and should be stopped
-                         Arguments.of(createAppLog("FAILURE", MessageType.STDERR, APP_SOURCE), null, null, true, AsyncExecutionState.ERROR),
-                         // (7) Application with Custom failure marker
-                         Arguments.of(createAppLog("FAILURE", MessageType.STDERR, APP_SOURCE), null, "execution failure", false,
-                                      AsyncExecutionState.RUNNING),
-                         // (8) Log message with non APP Source
-                         Arguments.of(createAppLog("info service", MessageType.STDOUT, "service"), null, null, false,
-                                      AsyncExecutionState.RUNNING));
+            // (1) Application is in running state
+            Arguments.of(createAppLog("testMessage", MessageType.STDOUT, APP_SOURCE), null, null, false,
+                         AsyncExecutionState.RUNNING),
+            // (2) Application finished execution and should be stopped
+            Arguments.of(createAppLog("SUCCESS", MessageType.STDOUT, APP_SOURCE), null, null, true,
+                         AsyncExecutionState.FINISHED),
+            // (3) Application finished execution and should be left to run
+            Arguments.of(createAppLog("SUCCESS", MessageType.STDOUT, APP_SOURCE), null, null, false,
+                         AsyncExecutionState.FINISHED),
+            // (4) Application with Custom success marker
+            Arguments.of(createAppLog("SUCCESS", MessageType.STDOUT, APP_SOURCE), "executed", null, false,
+                         AsyncExecutionState.RUNNING),
+            // (5) Application in failed state
+            Arguments.of(createAppLog("FAILURE", MessageType.STDERR, APP_SOURCE), null, null, false,
+                         AsyncExecutionState.ERROR),
+            // (6) Application in failed state and should be stopped
+            Arguments.of(createAppLog("FAILURE", MessageType.STDERR, APP_SOURCE), null, null, true, AsyncExecutionState.ERROR),
+            // (7) Application with Custom failure marker
+            Arguments.of(createAppLog("FAILURE", MessageType.STDERR, APP_SOURCE), null, "execution failure", false,
+                         AsyncExecutionState.RUNNING),
+            // (8) Log message with non APP Source
+            Arguments.of(createAppLog("info service", MessageType.STDOUT, "service"), null, null, false,
+                         AsyncExecutionState.RUNNING));
     }
 
     private static ApplicationLog createAppLog(String message, MessageType messageType, String sourceName) {

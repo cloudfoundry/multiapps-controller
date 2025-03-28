@@ -26,8 +26,10 @@ public class DatabaseMigration {
         DataSource targetDataSource = environmentExtractor.extractDataSource("deploy-service-database");
 
         DatabaseSequenceMigrationExecutor sequenceMigrationExecutor = ImmutableDatabaseSequenceMigrationExecutor.builder()
-                                                                                                                .sourceDataSource(sourceDataSource)
-                                                                                                                .targetDataSource(targetDataSource)
+                                                                                                                .sourceDataSource(
+                                                                                                                    sourceDataSource)
+                                                                                                                .targetDataSource(
+                                                                                                                    targetDataSource)
                                                                                                                 .build();
 
         DatabaseTableMigrationExecutor tableMigrationExecutor = ImmutableDatabaseTableMigrationExecutor.builder()

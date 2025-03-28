@@ -76,8 +76,9 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
             case UPDATE:
                 return MessageFormat.format(Messages.SERVICE_UPDATED, service.getName());
             default:
-                throw new IllegalStateException(MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
-                                                                     type));
+                throw new IllegalStateException(
+                    MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                         type));
         }
     }
 
@@ -101,8 +102,9 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
                 return MessageFormat.format(Messages.ERROR_UPDATING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
                                             operation.getDescription());
             default:
-                throw new IllegalStateException(MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
-                                                                     operation.getType()));
+                throw new IllegalStateException(
+                    MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                         operation.getType()));
         }
     }
 
@@ -115,8 +117,9 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
                 return MessageFormat.format(Messages.ERROR_UPDATING_OPTIONAL_SERVICE, service.getName(), service.getLabel(),
                                             service.getPlan(), operation.getDescription());
             default:
-                throw new IllegalStateException(MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
-                                                                     operation.getType()));
+                throw new IllegalStateException(
+                    MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                         operation.getType()));
         }
     }
 

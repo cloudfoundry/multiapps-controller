@@ -66,8 +66,10 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
             List<InstanceInfo> idleApplicationInstances = client.getApplicationInstances(applicationId)
                                                                 .getInstances();
             var incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
-                                                                                                                     .newApplication(application)
-                                                                                                                     .newApplicationInstanceCount(idleApplicationInstances.size());
+                                                                                                                     .newApplication(
+                                                                                                                         application)
+                                                                                                                     .newApplicationInstanceCount(
+                                                                                                                         idleApplicationInstances.size());
 
             int oldApplicationInstanceCount = client.getApplicationInstances(oldApplication)
                                                     .getInstances()
@@ -95,7 +97,8 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
         client.updateApplicationInstances(application.getName(), application.getInstances());
         incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
                                                                                                              .newApplication(application)
-                                                                                                             .newApplicationInstanceCount(application.getInstances());
+                                                                                                             .newApplicationInstanceCount(
+                                                                                                                 application.getInstances());
         context.setVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION,
                             incrementalAppInstanceUpdateConfigurationBuilder.build());
         setExecutionIndexForPollingNewAppInstances(context);
@@ -115,7 +118,8 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
         DeployedMtaApplication deployedMtaApplication = deployedMta.getApplications()
                                                                    .stream()
                                                                    .filter(deployedApplication -> deployedApplication.getModuleName()
-                                                                                                                     .equals(currentApplication.getModuleName()))
+                                                                                                                     .equals(
+                                                                                                                         currentApplication.getModuleName()))
                                                                    .findFirst()
                                                                    .orElse(null);
         if (deployedMtaApplication == null) {

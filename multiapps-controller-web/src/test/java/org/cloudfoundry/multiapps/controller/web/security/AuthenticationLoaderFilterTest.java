@@ -84,7 +84,7 @@ class AuthenticationLoaderFilterTest {
 
     public static Stream<Arguments> testWithInvalidAuthorizationHeaderBasicAuth() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
                 Arguments.of("Bearer      "),
                 Arguments.of("Basic         ")
 // @formatter:on

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import jakarta.inject.Inject;
+
 import javax.sql.DataSource;
 
 @Configuration

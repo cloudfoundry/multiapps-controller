@@ -142,7 +142,8 @@ class OperationsApiServiceImplTest {
     @Test
     void testGetOperationsNotFound() {
         ResponseEntity<List<Operation>> response = operationsApiService.getOperations(SPACE_GUID, MTA_ID,
-                                                                                      Collections.singletonList(Operation.State.ACTION_REQUIRED.toString()),
+                                                                                      Collections.singletonList(
+                                                                                          Operation.State.ACTION_REQUIRED.toString()),
                                                                                       1);
 
         List<Operation> operations = response.getBody();
@@ -293,9 +294,10 @@ class OperationsApiServiceImplTest {
     }
 
     private void mockClientProvider(String user) {
-        org.cloudfoundry.multiapps.controller.core.util.UserInfo userInfo = new org.cloudfoundry.multiapps.controller.core.util.UserInfo(null,
-                                                                                                                                         user,
-                                                                                                                                         null);
+        org.cloudfoundry.multiapps.controller.core.util.UserInfo userInfo = new org.cloudfoundry.multiapps.controller.core.util.UserInfo(
+            null,
+            user,
+            null);
         OAuth2AuthenticationToken auth = Mockito.mock(OAuth2AuthenticationToken.class);
         Map<String, Object> attributes = Map.of(USER_INFO, userInfo);
         OAuth2User principal = Mockito.mock(OAuth2User.class);
@@ -303,7 +305,8 @@ class OperationsApiServiceImplTest {
                .thenReturn(attributes);
         Mockito.when(auth.getPrincipal())
                .thenReturn(principal);
-        org.springframework.security.core.context.SecurityContext securityContextMock = Mockito.mock(org.springframework.security.core.context.SecurityContext.class);
+        org.springframework.security.core.context.SecurityContext securityContextMock = Mockito.mock(
+            org.springframework.security.core.context.SecurityContext.class);
         SecurityContextHolder.setContext(securityContextMock);
         Mockito.when(securityContextMock.getAuthentication())
                .thenReturn(auth);
@@ -355,28 +358,28 @@ class OperationsApiServiceImplTest {
                .thenReturn(operationQuery);
 
         Mockito.doAnswer(invocation -> {
-            processId = (String) invocation.getArguments()[0];
-            return operationQuery;
-        })
+                   processId = (String) invocation.getArguments()[0];
+                   return operationQuery;
+               })
                .when(operationQuery)
                .processId(Mockito.anyString());
         Mockito.doAnswer(invocation -> {
-            Optional<Operation> foundOperation = operations.stream()
-                                                           .filter(operation -> operation.getProcessId()
-                                                                                         .equals(processId))
-                                                           .findFirst();
-            if (!foundOperation.isPresent()) {
-                throw new NoResultException("not found");
-            }
-            return foundOperation.get();
-        })
+                   Optional<Operation> foundOperation = operations.stream()
+                                                                  .filter(operation -> operation.getProcessId()
+                                                                                                .equals(processId))
+                                                                  .findFirst();
+                   if (!foundOperation.isPresent()) {
+                       throw new NoResultException("not found");
+                   }
+                   return foundOperation.get();
+               })
                .when(operationQuery)
                .singleResult();
 
         Mockito.doAnswer(invocation -> {
-            operationStatesToFilter = (List<Operation.State>) invocation.getArguments()[0];
-            return operationQuery;
-        })
+                   operationStatesToFilter = (List<Operation.State>) invocation.getArguments()[0];
+                   return operationQuery;
+               })
                .when(operationQuery)
                .withStateAnyOf(Mockito.anyList());
         Mockito.doAnswer(invocation -> operations.stream()

@@ -22,18 +22,18 @@ class PrepareApplicationForBackupStepTest extends SyncFlowableStepTest<PrepareAp
 
     private static Stream<Arguments> testStep() {
         return Stream.of(
-                         // (1) Rename standard app name with system namespace
-                         Arguments.of("test-app", null, "mta-backup-test-app", "mta-backup"),
-                         // (2) Rename app name with non idle suffix and add system namespace prefix
-                         Arguments.of("test-app-idle", null, "mta-backup-test-app", "mta-backup"),
-                         // (3) Reanme app name with blue suffix without any blue/green suffixes and add system namespace
-                         Arguments.of("test-app-blue", null, "mta-backup-test-app", "mta-backup"),
-                         // (4) Reanme app name with green suffix without any blue/green suffixes and add system namespace
-                         Arguments.of("test-app-green", null, "mta-backup-test-app", "mta-backup"),
-                         // (5) Rename app with namespace prefix to system+user namespace
-                         Arguments.of("dev-web-app", "dev", "mta-backup-dev-web-app", "mta-backup-dev"),
-                         // (6) Rename app with namespace prefix and blue suffix to system+user namespace only
-                         Arguments.of("prod-web-app-blue", "prod", "mta-backup-prod-web-app", "mta-backup-prod"));
+            // (1) Rename standard app name with system namespace
+            Arguments.of("test-app", null, "mta-backup-test-app", "mta-backup"),
+            // (2) Rename app name with non idle suffix and add system namespace prefix
+            Arguments.of("test-app-idle", null, "mta-backup-test-app", "mta-backup"),
+            // (3) Reanme app name with blue suffix without any blue/green suffixes and add system namespace
+            Arguments.of("test-app-blue", null, "mta-backup-test-app", "mta-backup"),
+            // (4) Reanme app name with green suffix without any blue/green suffixes and add system namespace
+            Arguments.of("test-app-green", null, "mta-backup-test-app", "mta-backup"),
+            // (5) Rename app with namespace prefix to system+user namespace
+            Arguments.of("dev-web-app", "dev", "mta-backup-dev-web-app", "mta-backup-dev"),
+            // (6) Rename app with namespace prefix and blue suffix to system+user namespace only
+            Arguments.of("prod-web-app-blue", "prod", "mta-backup-prod-web-app", "mta-backup-prod"));
     }
 
     @ParameterizedTest

@@ -71,8 +71,9 @@ public class LockOwnerReporter {
         LOGGER.info(Messages.MORE_THAN_ONE_LOCK_OWNER_FOUND);
         lockOwnerEntries.stream()
                         .skip(1)
-                        .forEach(lockOwner -> LOGGER.info(MessageFormat.format(Messages.LOCK_OWNER_WITH_NAME_0_ID_1_AND_TIMESTAMP_2_EXISTS_MORE_THAN_ONCE,
-                                                                               lockOwner.getLockOwner(), lockOwner.getId(),
-                                                                               lockOwner.getTimestamp())));
+                        .forEach(lockOwner -> LOGGER.info(
+                            MessageFormat.format(Messages.LOCK_OWNER_WITH_NAME_0_ID_1_AND_TIMESTAMP_2_EXISTS_MORE_THAN_ONCE,
+                                                 lockOwner.getLockOwner(), lockOwner.getId(),
+                                                 lockOwner.getTimestamp())));
     }
 }

@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
 import jakarta.inject.Inject;
+
 import javax.sql.DataSource;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -63,8 +64,8 @@ public class DatabaseConfiguration {
     }
 
     protected LocalContainerEntityManagerFactoryBean
-              getLocalContainerEntityManagerFactoryBean(DataSource dataSource, EclipseLinkJpaVendorAdapter eclipseLinkJpaVendorAdapter,
-                                                        String persistenceUnitName) {
+    getLocalContainerEntityManagerFactoryBean(DataSource dataSource, EclipseLinkJpaVendorAdapter eclipseLinkJpaVendorAdapter,
+                                              String persistenceUnitName) {
         LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setPersistenceUnitName(persistenceUnitName);
         localContainerEntityManagerFactoryBean.setDataSource(dataSource);

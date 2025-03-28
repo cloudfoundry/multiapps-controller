@@ -39,61 +39,61 @@ class ExtractBatchedServicesWithResolvedDynamicParametersStepTest
 
     static Stream<Arguments> testExecute() {
         return Stream.of(
-                         // (1) 3 input services but only 2 will be created due to specified "existing-service" resource type
-                         Arguments.of(List.of(ImmutableCloudServiceInstanceExtended.builder()
-                                                                                   .name(SERVICE_NAME_1)
-                                                                                   .type(ServiceInstanceType.MANAGED)
-                                                                                   .isManaged(true)
-                                                                                   .build(),
-                                              ImmutableCloudServiceInstanceExtended.builder()
-                                                                                   .name(SERVICE_NAME_2)
-                                                                                   .type(ServiceInstanceType.USER_PROVIDED)
-                                                                                   .isManaged(true)
-                                                                                   .build(),
-                                              ImmutableCloudServiceInstanceExtended.builder()
-                                                                                   .name(SERVICE_NAME_3)
-                                                                                   .isManaged(false)
-                                                                                   .build()),
-                                      Collections.emptySet(), List.of(ImmutableCloudServiceInstanceExtended.builder()
-                                                                                                           .resourceName(SERVICE_NAME_1)
-                                                                                                           .type(ServiceInstanceType.MANAGED)
-                                                                                                           .build(),
-                                                                      ImmutableCloudServiceInstanceExtended.builder()
-                                                                                                           .resourceName(SERVICE_NAME_2)
-                                                                                                           .type(ServiceInstanceType.USER_PROVIDED)
-                                                                                                           .build()),
-                                      false),
-                         // (2) Resolve dynamic parameter inside parameters
-                         Arguments.of(List.of(ImmutableCloudServiceInstanceExtended.builder()
-                                                                                   .name(SERVICE_NAME_2)
-                                                                                   .type(ServiceInstanceType.USER_PROVIDED)
-                                                                                   .isManaged(true)
-                                                                                   .credentials(Map.of("db-service-guid",
-                                                                                                       "{ds/service-1/service-guid}"))
-                                                                                   .build()),
-                                      Set.of(ImmutableDynamicResolvableParameter.builder()
-                                                                                .relationshipEntityName(SERVICE_NAME_1)
-                                                                                .parameterName("service-guid")
-                                                                                .value("1")
-                                                                                .build()),
-                                      List.of(ImmutableCloudServiceInstanceExtended.builder()
-                                                                                   .resourceName(SERVICE_NAME_2)
-                                                                                   .type(ServiceInstanceType.USER_PROVIDED)
-                                                                                   .credentials(Map.of("db-service-guid", "1"))
-                                                                                   .build()),
-                                      false),
-                         // (3) Fail step due to not resolved dynamic parameter
-                         Arguments.of(List.of(ImmutableCloudServiceInstanceExtended.builder()
-                                                                                   .name(SERVICE_NAME_2)
-                                                                                   .type(ServiceInstanceType.USER_PROVIDED)
-                                                                                   .credentials(Map.of("db-service-guid",
-                                                                                                       "{ds/service-1/service-guid}"))
-                                                                                   .build()),
-                                      Set.of(ImmutableDynamicResolvableParameter.builder()
-                                                                                .relationshipEntityName(SERVICE_NAME_1)
-                                                                                .parameterName("service-guid")
-                                                                                .build()),
-                                      null, true)
+            // (1) 3 input services but only 2 will be created due to specified "existing-service" resource type
+            Arguments.of(List.of(ImmutableCloudServiceInstanceExtended.builder()
+                                                                      .name(SERVICE_NAME_1)
+                                                                      .type(ServiceInstanceType.MANAGED)
+                                                                      .isManaged(true)
+                                                                      .build(),
+                                 ImmutableCloudServiceInstanceExtended.builder()
+                                                                      .name(SERVICE_NAME_2)
+                                                                      .type(ServiceInstanceType.USER_PROVIDED)
+                                                                      .isManaged(true)
+                                                                      .build(),
+                                 ImmutableCloudServiceInstanceExtended.builder()
+                                                                      .name(SERVICE_NAME_3)
+                                                                      .isManaged(false)
+                                                                      .build()),
+                         Collections.emptySet(), List.of(ImmutableCloudServiceInstanceExtended.builder()
+                                                                                              .resourceName(SERVICE_NAME_1)
+                                                                                              .type(ServiceInstanceType.MANAGED)
+                                                                                              .build(),
+                                                         ImmutableCloudServiceInstanceExtended.builder()
+                                                                                              .resourceName(SERVICE_NAME_2)
+                                                                                              .type(ServiceInstanceType.USER_PROVIDED)
+                                                                                              .build()),
+                         false),
+            // (2) Resolve dynamic parameter inside parameters
+            Arguments.of(List.of(ImmutableCloudServiceInstanceExtended.builder()
+                                                                      .name(SERVICE_NAME_2)
+                                                                      .type(ServiceInstanceType.USER_PROVIDED)
+                                                                      .isManaged(true)
+                                                                      .credentials(Map.of("db-service-guid",
+                                                                                          "{ds/service-1/service-guid}"))
+                                                                      .build()),
+                         Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                   .relationshipEntityName(SERVICE_NAME_1)
+                                                                   .parameterName("service-guid")
+                                                                   .value("1")
+                                                                   .build()),
+                         List.of(ImmutableCloudServiceInstanceExtended.builder()
+                                                                      .resourceName(SERVICE_NAME_2)
+                                                                      .type(ServiceInstanceType.USER_PROVIDED)
+                                                                      .credentials(Map.of("db-service-guid", "1"))
+                                                                      .build()),
+                         false),
+            // (3) Fail step due to not resolved dynamic parameter
+            Arguments.of(List.of(ImmutableCloudServiceInstanceExtended.builder()
+                                                                      .name(SERVICE_NAME_2)
+                                                                      .type(ServiceInstanceType.USER_PROVIDED)
+                                                                      .credentials(Map.of("db-service-guid",
+                                                                                          "{ds/service-1/service-guid}"))
+                                                                      .build()),
+                         Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                   .relationshipEntityName(SERVICE_NAME_1)
+                                                                   .parameterName("service-guid")
+                                                                   .build()),
+                         null, true)
 
         );
     }
@@ -115,11 +115,13 @@ class ExtractBatchedServicesWithResolvedDynamicParametersStepTest
                                                                     .map(CloudServiceInstanceExtended::getResourceName)
                                                                     .collect(Collectors.toList());
         Map<String, ServiceInstanceType> expectedServicesType = expectedServicesToCreate.stream()
-                                                                                        .collect(Collectors.toMap(CloudServiceInstanceExtended::getResourceName,
-                                                                                                                  CloudServiceInstanceExtended::getType));
+                                                                                        .collect(Collectors.toMap(
+                                                                                            CloudServiceInstanceExtended::getResourceName,
+                                                                                            CloudServiceInstanceExtended::getType));
         Map<String, Map<String, Object>> expectedServicesParameters = expectedServicesToCreate.stream()
-                                                                                              .collect(Collectors.toMap(CloudServiceInstanceExtended::getResourceName,
-                                                                                                                        CloudServiceInstanceExtended::getCredentials));
+                                                                                              .collect(Collectors.toMap(
+                                                                                                  CloudServiceInstanceExtended::getResourceName,
+                                                                                                  CloudServiceInstanceExtended::getCredentials));
 
         List<CloudServiceInstanceExtended> servicesToCreateResult = context.getVariable(Variables.SERVICES_TO_CREATE);
         for (var serviceToCreateResult : servicesToCreateResult) {

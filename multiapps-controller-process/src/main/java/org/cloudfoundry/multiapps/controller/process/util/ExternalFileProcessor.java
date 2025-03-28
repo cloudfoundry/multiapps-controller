@@ -32,12 +32,15 @@ public class ExternalFileProcessor {
     public Map<String, Object> processFileContent(String appArchiveId, Map.Entry<String, List<String>> fileManifestEntry) {
         String fileName = fileManifestEntry.getKey();
         ArchiveEntryWithStreamPositions fileArchiveEntry = ArchiveEntryExtractorUtil.findEntry(fileName,
-                                                                                               context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS));
+                                                                                               context.getVariable(
+                                                                                                   Variables.ARCHIVE_ENTRIES_POSITIONS));
         byte[] parametersFile = archiveEntryExtractor.extractEntryBytes(ImmutableFileEntryProperties.builder()
                                                                                                     .guid(appArchiveId)
                                                                                                     .name(fileArchiveEntry.getName())
-                                                                                                    .spaceGuid(context.getRequiredVariable(Variables.SPACE_GUID))
-                                                                                                    .maxFileSizeInBytes(configuration.getMaxResourceFileSize())
+                                                                                                    .spaceGuid(context.getRequiredVariable(
+                                                                                                        Variables.SPACE_GUID))
+                                                                                                    .maxFileSizeInBytes(
+                                                                                                        configuration.getMaxResourceFileSize())
                                                                                                     .build(),
                                                                         fileArchiveEntry);
         trackSize(parametersFile, fileManifestEntry.getValue());
@@ -52,7 +55,7 @@ public class ExternalFileProcessor {
 
     private void trackSize(byte[] parametersFile, List<String> resourcesForFile) {
         int resourcesCount = resourcesForFile.size();
-        sizeTracker.addToTotalFileSize(parametersFile.length * resourcesCount);
+        sizeTracker.addToTotalFileSize((long) parametersFile.length * resourcesCount);
         verifyMaxContentSizeIsNotExceeded();
     }
 

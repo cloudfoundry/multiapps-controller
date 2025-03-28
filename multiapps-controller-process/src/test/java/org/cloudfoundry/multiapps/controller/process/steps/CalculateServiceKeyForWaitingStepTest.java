@@ -43,7 +43,8 @@ class CalculateServiceKeyForWaitingStepTest extends SyncFlowableStepTest<Calcula
                                        .name(name)
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
                                                                                                       .state(state)
-                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                      .type(
+                                                                                                          ServiceCredentialBindingOperation.Type.CREATE)
                                                                                                       .build())
                                        .build();
     }

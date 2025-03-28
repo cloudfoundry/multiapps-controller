@@ -31,7 +31,7 @@ class MtaArchiveHelperTest {
 
     public static Stream<Arguments> getParameters() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
             // (0) Without modules and resources
             Arguments.of("mta-archive-helper-1.mtar", "mta-archive-helper-1.yaml"),
             // (1) With modules and resources
@@ -85,7 +85,8 @@ class MtaArchiveHelperTest {
         helper = new MtaArchiveHelper(ArchiveHandler.getManifest(stream, ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE));
 
         DescriptorParser parser = new DescriptorParser();
-        Map<String, Object> deploymentDescriptorMap = new YamlParser().convertYamlToMap(getClass().getResourceAsStream(deploymentDescriptorLocation));
+        Map<String, Object> deploymentDescriptorMap = new YamlParser().convertYamlToMap(
+            getClass().getResourceAsStream(deploymentDescriptorLocation));
         descriptor = parser.parseDeploymentDescriptor(deploymentDescriptorMap);
         helper.init();
     }

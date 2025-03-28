@@ -20,7 +20,7 @@ class XmlNamespaceIgnoringHttpMessageConverterTest {
 
     public static Stream<Arguments> testReadFrom() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) Attempt to deserialize an entity with a namespace declared in package-info.java (the input DOES contain a namespace):
             Arguments.of("entity-00.xml", Foo.class, new Expectation(Expectation.Type.JSON, "expected-entity-00.json")),
             // (1) Attempt to deserialize an entity with a namespace declared in package-info.java (the input DOES NOT contain a namespace):

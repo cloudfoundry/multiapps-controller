@@ -91,7 +91,8 @@ public class DatabaseQueryClient {
         for (int currentColumnIndex = 1; currentColumnIndex <= resultSetMetadata.getColumnCount(); currentColumnIndex++) {
             databaseColumnsMetadata.add(ImmutableDatabaseTableColumnMetadata.builder()
                                                                             .columnName(resultSetMetadata.getColumnName(currentColumnIndex))
-                                                                            .columnType(resultSetMetadata.getColumnTypeName(currentColumnIndex))
+                                                                            .columnType(
+                                                                                resultSetMetadata.getColumnTypeName(currentColumnIndex))
                                                                             .build());
         }
         return databaseColumnsMetadata;
@@ -152,7 +153,8 @@ public class DatabaseQueryClient {
         for (int columnIndex = 0; columnIndex < databaseTableColumnsMetadata.size(); columnIndex++) {
             DatabaseTableColumnMetadata databaseTableColumnMetadata = databaseTableColumnsMetadata.get(columnIndex);
             setInsertStatementBasedOnType(databaseTableColumnMetadata.getColumnType(), insertStatement, databaseTableRowData.getValues()
-                                                                                                                            .get(databaseTableColumnMetadata.getColumnName()),
+                                                                                                                            .get(
+                                                                                                                                databaseTableColumnMetadata.getColumnName()),
                                           columnIndex + 1);
         }
     }

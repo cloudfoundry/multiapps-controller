@@ -47,7 +47,7 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
             Arguments.of("determine-actions-create-or-update-services-step-input-1-create-key.json", null),
             Arguments.of("determine-actions-create-or-update-services-step-input-2-no-action.json", null),
             Arguments.of("determine-actions-create-or-update-services-step-input-3-recreate-service.json", null),
@@ -67,21 +67,21 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
 
     static Stream<Arguments> testSetServiceGuidIfPresent() {
         return Stream.of(Arguments.of(
-                                      // (1) Test resolve service guid
-                                      "determine-actions-create-or-update-services-step-input-15-dynamic-parameter-relationship-match.json",
-                                      Set.of(ImmutableDynamicResolvableParameter.builder()
-                                                                                .parameterName("service-guid")
-                                                                                .relationshipEntityName("service-1")
-                                                                                .build(),
-                                             ImmutableDynamicResolvableParameter.builder()
-                                                                                .parameterName("service-guid")
-                                                                                .relationshipEntityName("service-2")
-                                                                                .build()),
-                                      ImmutableDynamicResolvableParameter.builder()
-                                                                         .parameterName("service-guid")
-                                                                         .relationshipEntityName("service-1")
-                                                                         .value("beeb5e8d-4ab9-46ee-9205-455a278743f0")
-                                                                         .build()),
+                             // (1) Test resolve service guid
+                             "determine-actions-create-or-update-services-step-input-15-dynamic-parameter-relationship-match.json",
+                             Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                       .parameterName("service-guid")
+                                                                       .relationshipEntityName("service-1")
+                                                                       .build(),
+                                    ImmutableDynamicResolvableParameter.builder()
+                                                                       .parameterName("service-guid")
+                                                                       .relationshipEntityName("service-2")
+                                                                       .build()),
+                             ImmutableDynamicResolvableParameter.builder()
+                                                                .parameterName("service-guid")
+                                                                .relationshipEntityName("service-1")
+                                                                .value("beeb5e8d-4ab9-46ee-9205-455a278743f0")
+                                                                .build()),
                          // (2) Test skip resolve of unrelated parameter
                          Arguments.of("determine-actions-create-or-update-services-step-input-15-dynamic-parameter-relationship-match.json",
                                       Set.of(ImmutableDynamicResolvableParameter.builder()

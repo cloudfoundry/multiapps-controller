@@ -40,7 +40,7 @@ public class EscapeSequenceToReplace {
 
     private int getEscapedEscapeCharactersCount(String escapeCharacters) {
         return escapeCharacters.length() / 2; // Escape characters can also be escaped by preceding
-                                              // them with another escape character.
+        // them with another escape character.
     }
 
     private boolean hasUnescapedEscapeCharacter(String escapeCharacters) {

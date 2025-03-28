@@ -31,7 +31,7 @@ public class RecoveringLockService extends StandardLockService {
     @Override
     public int getPriority() {
         return super.getPriority() + 1; // Liquibase chooses which LockService to use based on its priority. This line makes sure that our
-                                        // custom lock service has a higher priority than the standard one (which it extends).
+        // custom lock service has a higher priority than the standard one (which it extends).
     }
 
     @Override

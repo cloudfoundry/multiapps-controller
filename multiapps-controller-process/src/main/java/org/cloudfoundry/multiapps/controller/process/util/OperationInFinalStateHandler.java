@@ -225,7 +225,8 @@ public class OperationInFinalStateHandler {
                                                                                                                            Variables.SPACE_GUID))
                                                                                              .operationState(state)
                                                                                              .processType(processType)
-                                                                                             .processDuration(overallProcessTime.getProcessDuration())
+                                                                                             .processDuration(
+                                                                                                 overallProcessTime.getProcessDuration())
                                                                                              .build();
         dynatracePublisher.publishProcessDuration(dynatraceProcessDuration, LOGGER);
 

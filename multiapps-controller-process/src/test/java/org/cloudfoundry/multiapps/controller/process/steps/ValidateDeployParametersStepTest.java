@@ -1,10 +1,18 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
+import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.FilePartsMerger;
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.mta.model.VersionRule;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -19,19 +27,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
-import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.util.FilePartsMerger;
-import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.cloudfoundry.multiapps.mta.model.VersionRule;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mockito;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDeployParametersStep> {
 
@@ -48,36 +48,37 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
 
     private static Stream<Arguments> testExecution() {
         return Stream.of(
-                         // [1] No file associated with the specified file id
-                         Arguments.of(new StepInput(EXISTING_FILE_ID, NOT_EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, null),
-                                      MessageFormat.format(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1,
-                                                           "notExistingFileId", "space-id"),
-                                      false, ""),
+            // [1] No file associated with the specified file id
+            Arguments.of(new StepInput(EXISTING_FILE_ID, NOT_EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, null),
+                         MessageFormat.format(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1,
+                                              "notExistingFileId", "space-id"),
+                         false, ""),
 
-                         // [2] Valid parameters
-                         Arguments.of(new StepInput(EXISTING_FILE_ID,
-                                                    EXISTING_FILE_ID + "," + EXISTING_FILE_ID,
-                                                    1,
-                                                    VersionRule.HIGHER.toString()),
-                                      null, false, ""),
+            // [2] Valid parameters
+            Arguments.of(new StepInput(EXISTING_FILE_ID,
+                                       EXISTING_FILE_ID + "," + EXISTING_FILE_ID,
+                                       1,
+                                       VersionRule.HIGHER.toString()),
+                         null, false, ""),
 
-                         // [3] Max descriptor size exceeded
-                         Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_BIGGER_FILE_ID, 1, VersionRule.HIGHER.toString()),
-                                      MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
-                                                           "1048577", "extDescriptorFile", "1048576"),
-                                      false, ""),
+            // [3] Max descriptor size exceeded
+            Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_BIGGER_FILE_ID, 1, VersionRule.HIGHER.toString()),
+                         MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
+                                              "1048577", "extDescriptorFile", "1048576"),
+                         false, ""),
 
-                         // [4] Process chunked file
-                         Arguments.of(new StepInput(MERGED_ARCHIVE_NAME + ".part.0," + MERGED_ARCHIVE_NAME + ".part.1,"
-                             + MERGED_ARCHIVE_NAME + ".part.2", null, 1, VersionRule.HIGHER.toString()), null, true, ""),
+            // [4] Process chunked file
+            Arguments.of(new StepInput(MERGED_ARCHIVE_NAME + ".part.0," + MERGED_ARCHIVE_NAME + ".part.1,"
+                                           + MERGED_ARCHIVE_NAME + ".part.2", null, 1, VersionRule.HIGHER.toString()), null, true, ""),
 
-                         // [5] Max size of entries exceeded
-                         Arguments.of(new StepInput(EXCEEDING_FILE_SIZE_ID + ".part.0," + EXCEEDING_FILE_SIZE_ID + ".part.1,"
-                             + EXCEEDING_FILE_SIZE_ID + ".part.2," + EXCEEDING_FILE_SIZE_ID + ".part.3," + EXCEEDING_FILE_SIZE_ID
-                             + ".part.4", null, 1, VersionRule.HIGHER.toString()),
-                                      MessageFormat.format(Messages.SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1, 5368709120L,
-                                                           4294967296L),
-                                      true, ""));
+            // [5] Max size of entries exceeded
+            Arguments.of(new StepInput(EXCEEDING_FILE_SIZE_ID + ".part.0," + EXCEEDING_FILE_SIZE_ID + ".part.1,"
+                                           + EXCEEDING_FILE_SIZE_ID + ".part.2," + EXCEEDING_FILE_SIZE_ID + ".part.3,"
+                                           + EXCEEDING_FILE_SIZE_ID
+                                           + ".part.4", null, 1, VersionRule.HIGHER.toString()),
+                         MessageFormat.format(Messages.SIZE_OF_ALL_OPERATIONS_FILES_0_EXCEEDS_MAX_UPLOAD_SIZE_1, 5368709120L,
+                                              4294967296L),
+                         true, ""));
     }
 
     private static FileEntry createFileEntry(String id, String name, long size) {
@@ -139,19 +140,34 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
                                                                                                           1024 * 1024L));
 
         when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.0")).thenReturn(createFileEntry(MERGED_ARCHIVE_NAME
-            + ".part.0", MERGED_ARCHIVE_NAME + ".part.0", 1024 * 1024 * 1024));
+                                                                                                                 + ".part.0",
+                                                                                                             MERGED_ARCHIVE_NAME
+                                                                                                                 + ".part.0",
+                                                                                                             1024 * 1024 * 1024));
 
         when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.1")).thenReturn(createFileEntry(MERGED_ARCHIVE_NAME
-            + ".part.1", MERGED_ARCHIVE_NAME + ".part.1", 1024 * 1024 * 1024));
+                                                                                                                 + ".part.1",
+                                                                                                             MERGED_ARCHIVE_NAME
+                                                                                                                 + ".part.1",
+                                                                                                             1024 * 1024 * 1024));
 
         when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.2")).thenReturn(createFileEntry(MERGED_ARCHIVE_NAME
-            + ".part.2", MERGED_ARCHIVE_NAME + ".part.2", 1024 * 1024 * 1024));
+                                                                                                                 + ".part.2",
+                                                                                                             MERGED_ARCHIVE_NAME
+                                                                                                                 + ".part.2",
+                                                                                                             1024 * 1024 * 1024));
 
         when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.3")).thenReturn(createFileEntry(MERGED_ARCHIVE_NAME
-            + ".part.3", MERGED_ARCHIVE_NAME + ".part.3", 1024 * 1024 * 1024));
+                                                                                                                 + ".part.3",
+                                                                                                             MERGED_ARCHIVE_NAME
+                                                                                                                 + ".part.3",
+                                                                                                             1024 * 1024 * 1024));
 
         when(fileService.getFile("space-id", EXCEEDING_FILE_SIZE_ID + ".part.4")).thenReturn(createFileEntry(MERGED_ARCHIVE_NAME
-            + ".part.4", MERGED_ARCHIVE_NAME + ".part.4", 1024 * 1024 * 1024));
+                                                                                                                 + ".part.4",
+                                                                                                             MERGED_ARCHIVE_NAME
+                                                                                                                 + ".part.4",
+                                                                                                             1024 * 1024 * 1024));
 
         when(fileService.getFile("space-id", EXISTING_BIGGER_FILE_ID)).thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID,
                                                                                                   "extDescriptorFile", 1024 * 1024L + 1));

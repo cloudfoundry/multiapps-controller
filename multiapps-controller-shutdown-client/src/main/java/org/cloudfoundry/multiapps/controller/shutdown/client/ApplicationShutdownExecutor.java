@@ -21,8 +21,9 @@ public class ApplicationShutdownExecutor {
 
     private final ShutdownConfiguration shutdownConfiguration = new EnvironmentBasedShutdownConfiguration();
     private final ShutdownClientFactory shutdownClientFactory = new ShutdownClientFactory();
-    private final ApplicationInstanceShutdownExecutor instanceShutdownExecutor = new ApplicationInstanceShutdownExecutor(shutdownConfiguration,
-                                                                                                                         shutdownClientFactory);
+    private final ApplicationInstanceShutdownExecutor instanceShutdownExecutor = new ApplicationInstanceShutdownExecutor(
+        shutdownConfiguration,
+        shutdownClientFactory);
 
     public void execute() {
         int applicationInstancesCount = getApplicationInstancesCount(shutdownConfiguration);

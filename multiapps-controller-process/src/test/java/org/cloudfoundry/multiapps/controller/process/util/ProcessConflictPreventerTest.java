@@ -1,18 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
-
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
@@ -24,6 +11,19 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ProcessConflictPreventerTest {
 
@@ -54,8 +54,9 @@ class ProcessConflictPreventerTest {
                                                  .withSpaceId(testSpaceId)
                                                  .withHasAcquiredLock(true);
         SLException exception = assertThrows(SLException.class, () -> tryToAcquireLock(List.of(runningOperation, runningOperation)));
-        assertEquals("Multiple operations found with lock for MTA \"test-mta-id\" in space \"test-space-id\": [test-process-id, test-process-id]",
-                     exception.getMessage());
+        assertEquals(
+            "Multiple operations found with lock for MTA \"test-mta-id\" in space \"test-space-id\": [test-process-id, test-process-id]",
+            exception.getMessage());
     }
 
     @Test

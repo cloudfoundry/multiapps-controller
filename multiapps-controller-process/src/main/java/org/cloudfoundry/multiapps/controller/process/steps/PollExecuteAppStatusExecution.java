@@ -1,15 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.text.MessageFormat.format;
-
-import java.text.MessageFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
+import com.sap.cloudfoundry.client.facade.domain.ApplicationLog.MessageType;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
@@ -22,10 +16,15 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
-import com.sap.cloudfoundry.client.facade.domain.ApplicationLog.MessageType;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+import static java.text.MessageFormat.format;
 
 public class PollExecuteAppStatusExecution implements AsyncExecution {
 
@@ -194,12 +193,12 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             messageType = MessageType.STDERR;
             text = attributeValue.substring(MessageType.STDERR.toString()
                                                               .length()
-                + 1);
+                                                + 1);
         } else if (attributeValue.startsWith(MessageType.STDOUT + ":")) {
             messageType = MessageType.STDOUT;
             text = attributeValue.substring(MessageType.STDOUT.toString()
                                                               .length()
-                + 1);
+                                                + 1);
         } else {
             messageType = MessageType.STDOUT;
             text = attributeValue;

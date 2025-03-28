@@ -18,10 +18,8 @@ import org.flowable.variable.api.delegate.VariableScope;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
- * 
  * Needed for backwards compatibility due to changes in how this parameter was serialized between versions - from <List<Resource> to a
  * List<CloudServiceInstanceExtended>. This class should be removed in a following release.
- *
  */
 public class BatchesToProcessSerializationAdapter implements Serializer<List<List<CloudServiceInstanceExtended>>> {
 

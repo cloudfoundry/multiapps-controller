@@ -27,19 +27,29 @@ import static org.mockito.Mockito.doAnswer;
 class ArchiveEntryExtractorTest {
 
     private static final ArchiveEntryWithStreamPositions DEFLATED_DEPLOYMENT_DESCRIPTOR_ENTRY = ImmutableArchiveEntryWithStreamPositions.builder()
-                                                                                                                                        .name("META-INF/mtad.yaml")
-                                                                                                                                        .startPosition(271)
-                                                                                                                                        .endPosition(315)
-                                                                                                                                        .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
-                                                                                                                                        .isDirectory(false)
+                                                                                                                                        .name(
+                                                                                                                                            "META-INF/mtad.yaml")
+                                                                                                                                        .startPosition(
+                                                                                                                                            271)
+                                                                                                                                        .endPosition(
+                                                                                                                                            315)
+                                                                                                                                        .compressionMethod(
+                                                                                                                                            ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
+                                                                                                                                        .isDirectory(
+                                                                                                                                            false)
                                                                                                                                         .build();
 
     private static final ArchiveEntryWithStreamPositions STORED_DEPLOYMENT_DESCRIPTOR_ENTRY = ImmutableArchiveEntryWithStreamPositions.builder()
-                                                                                                                                      .name("META-INF/mtad.yaml")
-                                                                                                                                      .startPosition(271)
-                                                                                                                                      .endPosition(320)
-                                                                                                                                      .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.STORED)
-                                                                                                                                      .isDirectory(false)
+                                                                                                                                      .name(
+                                                                                                                                          "META-INF/mtad.yaml")
+                                                                                                                                      .startPosition(
+                                                                                                                                          271)
+                                                                                                                                      .endPosition(
+                                                                                                                                          320)
+                                                                                                                                      .compressionMethod(
+                                                                                                                                          ArchiveEntryWithStreamPositions.CompressionMethod.STORED)
+                                                                                                                                      .isDirectory(
+                                                                                                                                          false)
                                                                                                                                       .build();
 
     @Mock
@@ -100,9 +110,10 @@ class ArchiveEntryExtractorTest {
         StringBuilder actualDeploymentDescriptorContent = new StringBuilder();
         archiveEntryExtractor.processFileEntryBytes(buildFileEntryProperty(Integer.MAX_VALUE), deploymentDescriptorEntry,
                                                     (byteBuffer,
-                                                     bytesRead) -> actualDeploymentDescriptorContent.append(new String(Arrays.copyOfRange(byteBuffer,
-                                                                                                                                          0,
-                                                                                                                                          bytesRead))));
+                                                     bytesRead) -> actualDeploymentDescriptorContent.append(
+                                                        new String(Arrays.copyOfRange(byteBuffer,
+                                                                                      0,
+                                                                                      bytesRead))));
         assertDeploymentDescriptorAreEqual(actualDeploymentDescriptorContent.toString());
     }
 

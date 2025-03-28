@@ -71,7 +71,8 @@ class FilesApiServiceImplTest {
 
     private static final String MTA_ID = "anatz";
     private static final String FILE_URL = Base64.getUrlEncoder()
-                                                 .encodeToString("https://host.domain/test.mtar?query=true".getBytes(StandardCharsets.UTF_8));
+                                                 .encodeToString(
+                                                     "https://host.domain/test.mtar?query=true".getBytes(StandardCharsets.UTF_8));
     private static final String SPACE_GUID = "896e6be9-8217-4a1c-b938-09b30966157a";
     private static final String NAMESPACE = "custom-namespace";
     private static final String DIGEST_CHARACTER_TABLE = "123456789ABCDEF";
@@ -281,10 +282,10 @@ class FilesApiServiceImplTest {
 
     private void prepareAsyncExecutor(Future<?> future) {
         Mockito.doAnswer(invocationOnMock -> {
-            Runnable r = invocationOnMock.getArgument(0);
-            r.run();
-            return future;
-        })
+                   Runnable r = invocationOnMock.getArgument(0);
+                   r.run();
+                   return future;
+               })
                .when(asyncFileUploadExecutor)
                .submit((Runnable) Mockito.any());
     }

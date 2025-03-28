@@ -1,24 +1,18 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.CloudTask;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.ListUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudRouteExtended;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceRouteBinding;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudRouteExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableServiceRouteBinding;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceRouteBinding;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceInstanceRoutesGetter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,10 +21,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudTask;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
 
@@ -42,26 +41,26 @@ abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep>
 
     static Stream<Arguments> testExecution() {
         return Stream.of(
-                         // (1) There are applications to undeploy:
-                         Arguments.of("undeploy-apps-step-input-00.json", "undeploy-apps-step-output-00.json"),
+            // (1) There are applications to undeploy:
+            Arguments.of("undeploy-apps-step-input-00.json", "undeploy-apps-step-output-00.json"),
 
-                         // (2) No applications to undeploy:
-                         Arguments.of("undeploy-apps-step-input-02.json", "undeploy-apps-step-output-02.json"),
+            // (2) No applications to undeploy:
+            Arguments.of("undeploy-apps-step-input-02.json", "undeploy-apps-step-output-02.json"),
 
-                         // (3) There are two routes that should be deleted, but one of them is bound to another application:
-                         Arguments.of("undeploy-apps-step-input-03.json", "undeploy-apps-step-output-03.json"),
+            // (3) There are two routes that should be deleted, but one of them is bound to another application:
+            Arguments.of("undeploy-apps-step-input-03.json", "undeploy-apps-step-output-03.json"),
 
-                         // (4) There are running one-off tasks to cancel:
-                         Arguments.of("undeploy-apps-step-input-04.json", "undeploy-apps-step-output-04.json"),
+            // (4) There are running one-off tasks to cancel:
+            Arguments.of("undeploy-apps-step-input-04.json", "undeploy-apps-step-output-04.json"),
 
-                         // (5) There are not found routes matching app uri:
-                         Arguments.of("undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json"),
+            // (5) There are not found routes matching app uri:
+            Arguments.of("undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json"),
 
-                         // (6) There is a route that should be deleted, but it is bound to a service instance:
-                         Arguments.of("undeploy-apps-step-input-06.json", "undeploy-apps-step-output-06.json"),
+            // (6) There is a route that should be deleted, but it is bound to a service instance:
+            Arguments.of("undeploy-apps-step-input-06.json", "undeploy-apps-step-output-06.json"),
 
-                         // (7) All routes should be deleted; routes have no hostnames:
-                         Arguments.of("undeploy-apps-step-input-07.json", "undeploy-apps-step-output-07.json"));
+            // (7) All routes should be deleted; routes have no hostnames:
+            Arguments.of("undeploy-apps-step-input-07.json", "undeploy-apps-step-output-07.json"));
     }
 
     @ParameterizedTest

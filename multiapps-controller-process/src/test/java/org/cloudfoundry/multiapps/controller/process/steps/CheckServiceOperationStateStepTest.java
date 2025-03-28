@@ -26,20 +26,20 @@ class CheckServiceOperationStateStepTest extends SyncFlowableStepTest<CheckServi
 
     static Stream<Arguments> testExecute() {
         return Stream.of(
-                         // (1) Service exist and it is in progress state
-                         Arguments.of("service-1", true,
-                                      new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.IN_PROGRESS),
-                                      ServiceOperation.Type.CREATE, "POLL"),
-                         // (2) Service does not exist
-                         Arguments.of("service-1", false, null, null, "DONE"),
-                         // (3) Service exist but it is not in progress state
-                         Arguments.of("service-1", true,
-                                      new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.SUCCEEDED), null,
-                                      "DONE"),
-                         // (4) Missing service operation for existing service
-                         Arguments.of("service-1", true, null, null, "DONE"),
-                         // (5) Missing type and state for last operation
-                         Arguments.of("service-1", true, new ServiceOperation(null, null, null), null, "DONE"));
+            // (1) Service exist and it is in progress state
+            Arguments.of("service-1", true,
+                         new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.IN_PROGRESS),
+                         ServiceOperation.Type.CREATE, "POLL"),
+            // (2) Service does not exist
+            Arguments.of("service-1", false, null, null, "DONE"),
+            // (3) Service exist but it is not in progress state
+            Arguments.of("service-1", true,
+                         new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.SUCCEEDED), null,
+                         "DONE"),
+            // (4) Missing service operation for existing service
+            Arguments.of("service-1", true, null, null, "DONE"),
+            // (5) Missing type and state for last operation
+            Arguments.of("service-1", true, new ServiceOperation(null, null, null), null, "DONE"));
     }
 
     @ParameterizedTest

@@ -53,7 +53,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
 
     static Stream<Arguments> testHandleApplicationAttributes() {
         return Stream.of(
-//@formatter:off
+            //@formatter:off
                          // (1) Everything is specified properly and should apply incremental instances update:
                          Arguments.of(ImmutableStaging.builder().command("command1").healthCheckType("none").addBuildpack("buildpackUrl").build(),
                                       128, 256, TestData.routeSet("example.com", "foo-bar.xyz"), Map.of("env-key", "env-value"), true),
@@ -189,8 +189,10 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
                                        .name(SERVICE_KEY_NAME)
                                        .credentials(serviceKeyCredentials)
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                      .state(ServiceCredentialBindingOperation.State.SUCCEEDED)
+                                                                                                      .type(
+                                                                                                          ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                      .state(
+                                                                                                          ServiceCredentialBindingOperation.State.SUCCEEDED)
                                                                                                       .build())
                                        .build();
     }

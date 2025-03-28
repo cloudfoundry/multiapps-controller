@@ -71,20 +71,20 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
     static Stream<Arguments> testSetServiceGuidIfPresent() {
         return Stream.of(Arguments.of(
-                                      // (1) Test resolve service guid
-                                      Set.of(ImmutableDynamicResolvableParameter.builder()
-                                                                                .parameterName("service-guid")
-                                                                                .relationshipEntityName("service-1")
-                                                                                .build(),
-                                             ImmutableDynamicResolvableParameter.builder()
-                                                                                .parameterName("service-guid")
-                                                                                .relationshipEntityName("service-2")
-                                                                                .build()),
-                                      ImmutableDynamicResolvableParameter.builder()
-                                                                         .parameterName("service-guid")
-                                                                         .relationshipEntityName("service-1")
-                                                                         .value("beeb5e8d-4ab9-46ee-9205-455a278743f0")
-                                                                         .build()),
+                             // (1) Test resolve service guid
+                             Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                       .parameterName("service-guid")
+                                                                       .relationshipEntityName("service-1")
+                                                                       .build(),
+                                    ImmutableDynamicResolvableParameter.builder()
+                                                                       .parameterName("service-guid")
+                                                                       .relationshipEntityName("service-2")
+                                                                       .build()),
+                             ImmutableDynamicResolvableParameter.builder()
+                                                                .parameterName("service-guid")
+                                                                .relationshipEntityName("service-1")
+                                                                .value("beeb5e8d-4ab9-46ee-9205-455a278743f0")
+                                                                .build()),
                          // (2) Test skip resolve of unrelated parameter
                          Arguments.of(Set.of(ImmutableDynamicResolvableParameter.builder()
                                                                                 .parameterName("service-guid")
@@ -158,8 +158,9 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
         initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, false);
         throwExceptionOnServiceCreation(HttpStatus.UNPROCESSABLE_ENTITY);
         Exception exception = assertThrows(SLException.class, () -> step.execute(execution));
-        assertEquals("Service operation failed: Controller operation failed: 422 Error occurred: Error creating or updating service instance: Could not create service \"service-1\" : Expected Exception message ",
-                     exception.getMessage());
+        assertEquals(
+            "Service operation failed: Controller operation failed: 422 Error occurred: Error creating or updating service instance: Could not create service \"service-1\" : Expected Exception message ",
+            exception.getMessage());
     }
 
     @Test
@@ -173,8 +174,10 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
     @ParameterizedTest
     void testCreateServiceInstanceWhenAlreadyExists(ServiceOperation.State serviceInstanceState, String executionStatus) {
         initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, true);
-        ImmutableCloudServiceInstance existingCloudServiceInstance = ImmutableCloudServiceInstance.copyOf(createCloudService(UUID.randomUUID()))
-                                                                                                  .withLastOperation(createLastOperation(serviceInstanceState));
+        ImmutableCloudServiceInstance existingCloudServiceInstance = ImmutableCloudServiceInstance.copyOf(
+                                                                                                      createCloudService(UUID.randomUUID()))
+                                                                                                  .withLastOperation(createLastOperation(
+                                                                                                      serviceInstanceState));
         Mockito.when(client.getServiceInstanceWithoutAuxiliaryContent(anyString(), anyBoolean()))
                .thenReturn(existingCloudServiceInstance);
         Mockito.doThrow(new CloudOperationException(HttpStatus.UNPROCESSABLE_ENTITY))

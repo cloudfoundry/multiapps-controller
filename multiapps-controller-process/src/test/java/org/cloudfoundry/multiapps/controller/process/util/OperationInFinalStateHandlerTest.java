@@ -67,7 +67,7 @@ class OperationInFinalStateHandlerTest {
 
     public static Stream<Arguments> testHandle() {
         return Stream.of(
-//@formatter:off
+            //@formatter:off
           Arguments.of("10", "20", PROCESS_ID, true, new String[] { }),
           Arguments.of("10", null, PROCESS_ID, true, new String[] { }),
           Arguments.of(null, "20", PROCESS_ID, true, new String[] { }),

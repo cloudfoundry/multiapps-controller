@@ -20,35 +20,35 @@ class DynamicParametersResolverTest {
 
     static Stream<Arguments> testResolveDynamicParameter() {
         return Stream.of(
-                         // (1) Test replace template with service guid
-                         Arguments.of("{ds/service-1/service-guid}", Set.of(ImmutableDynamicResolvableParameter.builder()
-                                                                                                               .parameterName("service-guid")
-                                                                                                               .relationshipEntityName("service-1")
-                                                                                                               .value("1")
-                                                                                                               .build(),
-                                                                            ImmutableDynamicResolvableParameter.builder()
-                                                                                                               .parameterName("service-guid")
-                                                                                                               .relationshipEntityName("service-2")
-                                                                                                               .value("2")
-                                                                                                               .build(),
-                                                                            ImmutableDynamicResolvableParameter.builder()
-                                                                                                               .parameterName("metaspace-key")
-                                                                                                               .relationshipEntityName("service-1")
-                                                                                                               .value("new-value")
-                                                                                                               .build()),
-                                      "1", false),
-                         // (2) Test throw exception due to not resolved service guid value
-                         Arguments.of("{ds/service-1/service-guid}", Set.of(ImmutableDynamicResolvableParameter.builder()
-                                                                                                               .parameterName("service-guid")
-                                                                                                               .relationshipEntityName("service-1")
-                                                                                                               .build()),
-                                      null, true),
-                         // (3) Test skip replacement of parameter value due to not matching of template
-                         Arguments.of("test-parameter-value", Set.of(ImmutableDynamicResolvableParameter.builder()
-                                                                                                        .parameterName("service-guid")
-                                                                                                        .relationshipEntityName("service-1")
-                                                                                                        .build()),
-                                      "test-parameter-value", false));
+            // (1) Test replace template with service guid
+            Arguments.of("{ds/service-1/service-guid}", Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                                  .parameterName("service-guid")
+                                                                                                  .relationshipEntityName("service-1")
+                                                                                                  .value("1")
+                                                                                                  .build(),
+                                                               ImmutableDynamicResolvableParameter.builder()
+                                                                                                  .parameterName("service-guid")
+                                                                                                  .relationshipEntityName("service-2")
+                                                                                                  .value("2")
+                                                                                                  .build(),
+                                                               ImmutableDynamicResolvableParameter.builder()
+                                                                                                  .parameterName("metaspace-key")
+                                                                                                  .relationshipEntityName("service-1")
+                                                                                                  .value("new-value")
+                                                                                                  .build()),
+                         "1", false),
+            // (2) Test throw exception due to not resolved service guid value
+            Arguments.of("{ds/service-1/service-guid}", Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                                  .parameterName("service-guid")
+                                                                                                  .relationshipEntityName("service-1")
+                                                                                                  .build()),
+                         null, true),
+            // (3) Test skip replacement of parameter value due to not matching of template
+            Arguments.of("test-parameter-value", Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                                           .parameterName("service-guid")
+                                                                                           .relationshipEntityName("service-1")
+                                                                                           .build()),
+                         "test-parameter-value", false));
     }
 
     @ParameterizedTest
@@ -56,7 +56,8 @@ class DynamicParametersResolverTest {
     void testResolveDynamicParameter(String descriptorParameterValue, Set<DynamicResolvableParameter> dynamicResolvableParameters,
                                      String expectedValue, boolean expectedException) {
         DynamicParametersResolver resolver = new DynamicParametersResolver(SERVICE_RESOURCE_NAME,
-                                                                           new DynamicResolvableParametersHelper(dynamicResolvableParameters));
+                                                                           new DynamicResolvableParametersHelper(
+                                                                               dynamicResolvableParameters));
 
         if (expectedException) {
             assertThrows(ContentException.class, () -> resolver.visit(null, descriptorParameterValue));

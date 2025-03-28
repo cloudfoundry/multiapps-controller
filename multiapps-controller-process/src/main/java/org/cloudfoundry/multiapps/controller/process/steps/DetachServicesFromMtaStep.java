@@ -21,7 +21,8 @@ public class DetachServicesFromMtaStep extends ClearMtaMetadataBaseStep {
         getStepLogger().debug(Messages.DETACHING_SERVICES_FROM_MTA);
         List<String> serviceNamesToDetachFromMta = context.getVariable(Variables.SERVICES_TO_DELETE);
         CloudControllerClient client = context.getControllerClient();
-        List<CloudServiceInstance> servicesToDetachFromMta = client.getServiceInstancesWithoutAuxiliaryContentByNames(serviceNamesToDetachFromMta);
+        List<CloudServiceInstance> servicesToDetachFromMta = client.getServiceInstancesWithoutAuxiliaryContentByNames(
+            serviceNamesToDetachFromMta);
         servicesToDetachFromMta.forEach(serviceToDetach -> deleteMtaMetadataFromService(client, serviceToDetach));
         getStepLogger().debug(Messages.SERVICES_DETACHED_FROM_MTA);
         return StepPhase.DONE;

@@ -23,7 +23,7 @@ class ParametersValidatorHelperTest {
     @SuppressWarnings("serial")
     public static Stream<Arguments> testValidate() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // [0]
             Arguments.of(new TreeMap<String, Object>() {{
                              put("domain", "correct-domain.com");

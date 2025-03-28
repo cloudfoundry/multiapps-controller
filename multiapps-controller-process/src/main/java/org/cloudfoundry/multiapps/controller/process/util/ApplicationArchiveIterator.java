@@ -21,7 +21,7 @@ public class ApplicationArchiveIterator {
     }
 
     public ZipArchiveEntry getNextEntryByName(String name, ZipArchiveInputStream zipArchiveInputStream) throws IOException {
-        for (ZipArchiveEntry zipEntry; (zipEntry = zipArchiveInputStream.getNextEntry()) != null;) {
+        for (ZipArchiveEntry zipEntry; (zipEntry = zipArchiveInputStream.getNextEntry()) != null; ) {
             if (zipEntry.getName()
                         .startsWith(name)) {
                 validateEntry(zipEntry);

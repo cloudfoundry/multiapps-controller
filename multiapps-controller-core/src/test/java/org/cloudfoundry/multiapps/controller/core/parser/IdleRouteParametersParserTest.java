@@ -26,7 +26,7 @@ class IdleRouteParametersParserTest {
 
     static Stream<Arguments> testParseIdleRoutes() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             Arguments.of(List.of(routeParameter("foo.bar.com")),
                          List.of(idleRouteParameter("foo-idle.bar.com")), 
                          new Expectation(Expectation.Type.SET, Set.of(route("foo-idle", "bar.com", "")))),
@@ -67,7 +67,7 @@ class IdleRouteParametersParserTest {
     }
 
     static Stream<Arguments> testParseIdleHostsDomainsWithoutRoutes() {
-// @formatter:off
+        // @formatter:off
         return Stream.of(
             Arguments.of(List.of("test-host-1", "test-host-2"), List.of("test-domain.com"),  List.of("idle-host"), List.of("idle-domain.com"),
                          new Expectation(List.of("idle-host.idle-domain.com").toString())),

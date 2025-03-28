@@ -76,7 +76,8 @@ class ExceptionHandlerFilterTest {
 
     @Test
     void testInternalAuthenticationServiceExceptionException() throws IOException, ServletException {
-        InternalAuthenticationServiceException internalAuthenticationServiceException = Mockito.mock(InternalAuthenticationServiceException.class);
+        InternalAuthenticationServiceException internalAuthenticationServiceException = Mockito.mock(
+            InternalAuthenticationServiceException.class);
         Mockito.doThrow(internalAuthenticationServiceException)
                .when(filterChain)
                .doFilter(request, response);

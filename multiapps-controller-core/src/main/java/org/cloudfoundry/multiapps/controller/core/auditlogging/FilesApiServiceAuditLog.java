@@ -41,7 +41,8 @@ public class FilesApiServiceAuditLog {
                                                                                     spaceGuid,
                                                                                     performedAction,
                                                                                     Messages.FILE_UPLOAD_AUDIT_LOG_CONFIG,
-                                                                                    createFileMetadataConfigurationIdentifier(fileMetadata)),
+                                                                                    createFileMetadataConfigurationIdentifier(
+                                                                                        fileMetadata)),
                                                           ConfigurationChangeActions.CONFIGURATION_CREATE);
     }
 
@@ -51,7 +52,8 @@ public class FilesApiServiceAuditLog {
                                                                                     spaceGuid,
                                                                                     performedAction,
                                                                                     Messages.FILE_UPLOAD_FROM_URL_AUDIT_LOG_CONFIG,
-                                                                                    createAuditLogStartUploadFromUrlConfigurationIdentifier(fileUrl)),
+                                                                                    createAuditLogStartUploadFromUrlConfigurationIdentifier(
+                                                                                        fileUrl)),
                                                           ConfigurationChangeActions.CONFIGURATION_CREATE);
     }
 
@@ -61,8 +63,9 @@ public class FilesApiServiceAuditLog {
                                                                            spaceGuid,
                                                                            performedAction,
                                                                            Messages.UPLOAD_FROM_URL_JOB_INFO_AUDIT_LOG_CONFIG,
-                                                                           createAuditLogGetUploadFromUrlJobConfigurationIdentifier(namespace,
-                                                                                                                                    jobId)));
+                                                                           createAuditLogGetUploadFromUrlJobConfigurationIdentifier(
+                                                                               namespace,
+                                                                               jobId)));
     }
 
     private Map<String, String> createFileMetadataConfigurationIdentifier(FileMetadata fileMetadata) {
