@@ -4,14 +4,20 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.application.health.database.DatabaseWaitingLocksAnalyzer;
@@ -29,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 @Named
@@ -37,7 +44,9 @@ public class ApplicationHealthCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationHealthCalculator.class);
 
     private static final int UPDATE_HEALTH_CHECK_STATUS_PERIOD_IN_SECONDS = 10;
-    private static final int TIMEOUT_FOR_TASK_EXECUTION_IN_SECONDS = 50;
+    private static final int SINGLE_TASK_TIMEOUT_IN_SECONDS = 70; // timeout is set to 70 so it is higher than the DB connection acquisition
+                                                                  // timeout
+    private static final int TOTAL_TASK_TIMEOUT_IN_SECONDS = 3 * SINGLE_TASK_TIMEOUT_IN_SECONDS;
 
     private final ObjectStoreFileStorage objectStoreFileStorage;
     private final ApplicationConfiguration applicationConfiguration;
@@ -45,16 +54,27 @@ public class ApplicationHealthCalculator {
     private final DatabaseMonitoringService databaseMonitoringService;
     private final DatabaseWaitingLocksAnalyzer databaseWaitingLocksAnalyzer;
 
-    private final CachedObject<Boolean> objectStoreFileStorageHealthCache = new CachedObject<>(Duration.ofMinutes(1));
-    private final CachedObject<Boolean> dbHealthServiceCache = new CachedObject<>(Duration.ofMinutes(1));
-    private final CachedObject<Boolean> hasIncreasedLocksCache = new CachedObject<>(false, Duration.ofMinutes(1));
-
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private final ExecutorService executor = Executors.newFixedThreadPool(3);
+    private final CachedObject<Boolean> objectStoreFileStorageHealthCache = new CachedObject<>(Duration.ofSeconds(TOTAL_TASK_TIMEOUT_IN_SECONDS));
+    private final CachedObject<Boolean> dbHealthServiceCache = new CachedObject<>(Duration.ofSeconds(TOTAL_TASK_TIMEOUT_IN_SECONDS));
+    private final CachedObject<Boolean> hasIncreasedLocksCache = new CachedObject<>(false,
+                                                                                    Duration.ofSeconds(TOTAL_TASK_TIMEOUT_IN_SECONDS));
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private final ExecutorService taskExecutor = new ThreadPoolExecutor(3,
+                                                                        3,
+                                                                        0L,
+                                                                        TimeUnit.MILLISECONDS,
+                                                                        new SynchronousQueue<>(),
+                                                                        new ThreadPoolExecutor.AbortPolicy());
+    private final ExecutorService timeoutExecutor = new ThreadPoolExecutor(3,
+                                                                           3,
+                                                                           0L,
+                                                                           TimeUnit.MILLISECONDS,
+                                                                           new SynchronousQueue<>(),
+                                                                           new ThreadPoolExecutor.AbortPolicy());
 
     private final ResilientOperationExecutor resilientOperationExecutor = getResilienceExecutor();
 
-    @Autowired
+    @Inject
     public ApplicationHealthCalculator(@Autowired(required = false) ObjectStoreFileStorage objectStoreFileStorage,
                                        ApplicationConfiguration applicationConfiguration, DatabaseHealthService databaseHealthService,
                                        DatabaseMonitoringService databaseMonitoringService,
@@ -73,9 +93,9 @@ public class ApplicationHealthCalculator {
 
     protected void updateHealthStatus() {
         List<Callable<Boolean>> tasks = List.of(this::isObjectStoreFileStorageHealthy, this::isDatabaseHealthy,
-                                                databaseWaitingLocksAnalyzer::hasIncreasedDbLocks);
+                                                this::checkForIncreasedLocksWithTimeout);
         try {
-            List<Future<Boolean>> completedFutures = executor.invokeAll(tasks, TIMEOUT_FOR_TASK_EXECUTION_IN_SECONDS, TimeUnit.SECONDS);
+            List<Future<Boolean>> completedFutures = taskExecutor.invokeAll(tasks, TOTAL_TASK_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
             executeFuture(completedFutures.get(0), isHealthy -> objectStoreFileStorageHealthCache.refresh(() -> isHealthy), false,
                           Messages.ERROR_OCCURRED_DURING_OBJECT_STORE_HEALTH_CHECKING);
             executeFuture(completedFutures.get(1), isHealthy -> dbHealthServiceCache.refresh(() -> isHealthy), false,
@@ -155,7 +175,7 @@ public class ApplicationHealthCalculator {
             return true;
         }
         try {
-            resilientOperationExecutor.execute(objectStoreFileStorage::testConnection);
+            resilientOperationExecutor.execute((CheckedSupplier<Boolean>) this::testObjectStoreConnectionWithTimeout);
         } catch (Exception e) {
             LOGGER.error(MessageFormat.format(Messages.ERROR_OCCURRED_DURING_OBJECT_STORE_HEALTH_CHECKING_FOR_INSTANCE,
                                               applicationConfiguration.getApplicationInstanceIndex()),
@@ -165,15 +185,51 @@ public class ApplicationHealthCalculator {
         return true;
     }
 
+    private boolean testObjectStoreConnectionWithTimeout() throws ExecutionException, InterruptedException {
+        Future<Boolean> future = timeoutExecutor.submit(() -> {
+            objectStoreFileStorage.testConnection();
+            return true;
+        });
+        try {
+            LOGGER.debug(Messages.CHECKING_OBJECT_STORE_HEALTH);
+            return future.get(SINGLE_TASK_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            throw new SLException(e, Messages.TIMEOUT_WHILE_CHECKING_OBJECT_STORE_HEALTH);
+        }
+    }
+
     private boolean isDatabaseHealthy() {
         try {
-            resilientOperationExecutor.execute(databaseHealthService::testDatabaseConnection);
+            resilientOperationExecutor.execute((CheckedSupplier<Boolean>) this::testDatabaseConnectionWithTimeout);
             return true;
         } catch (Exception e) {
             LOGGER.error(MessageFormat.format(Messages.ERROR_OCCURRED_WHILE_CHECKING_DATABASE_INSTANCE_0,
                                               applicationConfiguration.getApplicationInstanceIndex()),
                          e);
             return false;
+        }
+    }
+
+    private boolean testDatabaseConnectionWithTimeout() throws ExecutionException, InterruptedException {
+        Future<Boolean> future = timeoutExecutor.submit(() -> {
+            databaseHealthService.testDatabaseConnection();
+            return true;
+        });
+        try {
+            LOGGER.debug(Messages.CHECKING_DATABASE_HEALTH);
+            return future.get(SINGLE_TASK_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            throw new SLException(e, Messages.TIMEOUT_WHILE_CHECKING_DATABASE_HEALTH);
+        }
+    }
+
+    private boolean checkForIncreasedLocksWithTimeout() throws ExecutionException, InterruptedException {
+        Future<Boolean> future = timeoutExecutor.submit(databaseWaitingLocksAnalyzer::hasIncreasedDbLocks);
+        try {
+            LOGGER.debug(Messages.CHECKING_FOR_INCREASED_LOCKS);
+            return future.get(SINGLE_TASK_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            throw new SLException(e, Messages.TIMEOUT_WHILE_CHECKING_FOR_INCREASED_LOCKS);
         }
     }
 
