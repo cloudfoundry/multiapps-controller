@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -24,9 +26,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.ProxyInputStream;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -36,6 +35,7 @@ import org.cloudfoundry.multiapps.controller.api.model.FileMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.FileUrl;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableAsyncUploadResult;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableFileMetadata;
+import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
 import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.FilesApiServiceAuditLog;
@@ -69,6 +69,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 @Named
 public class FilesApiServiceImpl implements FilesApiService {
 
@@ -77,6 +80,11 @@ public class FilesApiServiceImpl implements FilesApiService {
     private static final int INPUT_STREAM_BUFFER_SIZE = 16 * 1024;
     private static final Duration HTTP_CONNECT_TIMEOUT = Duration.ofMinutes(10);
     private static final String RETRY_AFTER_SECONDS = "30";
+    private static final String USERNAME_PASSWORD_URL_FORMAT = "{0}:{1}";
+    static {
+        System.setProperty(Constants.RETRY_LIMIT_PROPERTY, "0");
+    }
+
     private final CachedMap<String, AtomicLong> jobCounters = new CachedMap<>(Duration.ofHours(1));
     private final CachedMap<String, Future<?>> runningTasks = new CachedMap<>(Duration.ofHours(1));
     private final ResilientOperationExecutor resilientOperationExecutor = getResilientOperationExecutor();
@@ -96,10 +104,6 @@ public class FilesApiServiceImpl implements FilesApiService {
     private FilesApiServiceAuditLog filesApiServiceAuditLog;
     @Inject
     private ExecutorService fileStorageThreadPool;
-
-    static {
-        System.setProperty(Constants.RETRY_LIMIT_PROPERTY, "0");
-    }
 
     @Override
     public ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid, String namespace) {
@@ -156,7 +160,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                 deleteAsyncJobEntry(existingJob);
             }
         }
-        return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl);
+        return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, fileUrl.getUserCredentials());
     }
 
     private String getLocationHeader(String spaceGuid, String jobId) {
@@ -289,12 +293,14 @@ public class FilesApiServiceImpl implements FilesApiService {
         }
     }
 
-    private ResponseEntity<Void> triggerUploadFromUrl(String spaceGuid, String namespace, String urlWithoutUserInfo, String decodedUrl) {
+    private ResponseEntity<Void> triggerUploadFromUrl(String spaceGuid, String namespace, String urlWithoutUserInfo, String decodedUrl,
+                                                      UserCredentials userCredentials) {
         var entry = createJobEntry(spaceGuid, namespace, urlWithoutUserInfo);
         LOGGER.debug(Messages.CREATING_ASYNC_UPLOAD_JOB, urlWithoutUserInfo, entry.getId());
         uploadJobService.add(entry);
         try {
-            Future<?> runningTask = deployFromUrlExecutor.submit(() -> uploadFileFromUrl(entry, spaceGuid, namespace, decodedUrl));
+            Future<?> runningTask = deployFromUrlExecutor.submit(() -> uploadFileFromUrl(entry, spaceGuid, namespace, decodedUrl,
+                                                                                         userCredentials));
             runningTasks.put(entry.getId(), runningTask);
         } catch (RejectedExecutionException ignored) {
             LOGGER.debug(Messages.ASYNC_UPLOAD_JOB_REJECTED, entry.getId());
@@ -345,7 +351,8 @@ public class FilesApiServiceImpl implements FilesApiService {
                                          .build();
     }
 
-    private void uploadFileFromUrl(AsyncUploadJobEntry jobEntry, String spaceGuid, String namespace, String fileUrl) {
+    private void uploadFileFromUrl(AsyncUploadJobEntry jobEntry, String spaceGuid, String namespace, String fileUrl,
+                                   UserCredentials userCredentials) {
         var counter = new AtomicLong(0);
         jobCounters.put(jobEntry.getId(), counter);
         LOGGER.info(Messages.STARTING_DOWNLOAD_OF_MTAR, jobEntry.getUrl());
@@ -358,7 +365,8 @@ public class FilesApiServiceImpl implements FilesApiService {
             FileEntry fileEntry = resilientOperationExecutor.execute((CheckedSupplier<FileEntry>) () -> doUploadFileFromUrl(spaceGuid,
                                                                                                                             namespace,
                                                                                                                             fileUrl,
-                                                                                                                            counter));
+                                                                                                                            counter,
+                                                                                                                            userCredentials));
             LOGGER.trace(Messages.UPLOADED_MTAR_FROM_REMOTE_ENDPOINT_AND_JOB_ID, jobEntry.getUrl(), jobEntry.getId(),
                          ChronoUnit.MILLIS.between(startTime, LocalDateTime.now()));
             var descriptor = fileService.processFileContent(spaceGuid, fileEntry.getId(), this::extractDeploymentDescriptor);
@@ -376,14 +384,16 @@ public class FilesApiServiceImpl implements FilesApiService {
         }
     }
 
-    private FileEntry doUploadFileFromUrl(String spaceGuid, String namespace, String fileUrl, AtomicLong counter) throws Exception {
+    private FileEntry doUploadFileFromUrl(String spaceGuid, String namespace, String fileUrl, AtomicLong counter,
+                                          UserCredentials userCredentials)
+        throws Exception {
         if (!UriUtil.isUrlSecure(fileUrl)) {
             throw new SLException(Messages.MTAR_ENDPOINT_NOT_SECURE);
         }
         UriUtil.validateUrl(fileUrl);
         HttpClient client = buildHttpClient(fileUrl);
 
-        HttpResponse<InputStream> response = callRemoteEndpointWithRetry(client, fileUrl);
+        HttpResponse<InputStream> response = callRemoteEndpointWithRetry(client, fileUrl, userCredentials);
         long fileSize = response.headers()
                                 .firstValueAsLong(Constants.CONTENT_LENGTH)
                                 .orElseThrow(() -> new SLException(Messages.FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH));
@@ -411,10 +421,11 @@ public class FilesApiServiceImpl implements FilesApiService {
         }
     }
 
-    private HttpResponse<InputStream> callRemoteEndpointWithRetry(HttpClient client, String decodedUrl) throws Exception {
+    public HttpResponse<InputStream> callRemoteEndpointWithRetry(HttpClient client, String decodedUrl, UserCredentials userCredentials)
+        throws Exception {
         return resilientOperationExecutor.execute((CheckedSupplier<HttpResponse<InputStream>>) () -> {
-            var request = buildFetchFileRequest(decodedUrl);
-            LOGGER.debug(Messages.CALLING_REMOTE_MTAR_ENDPOINT, request.uri());
+            var request = buildFetchFileRequest(decodedUrl, userCredentials);
+            LOGGER.debug(Messages.CALLING_REMOTE_MTAR_ENDPOINT, getMaskedUri(urlDecodeUrl(decodedUrl)));
             var response = client.send(request, BodyHandlers.ofInputStream());
             if (response.statusCode() / 100 != 2) {
                 String error = readErrorBodyFromResponse(response);
@@ -424,11 +435,24 @@ public class FilesApiServiceImpl implements FilesApiService {
                                                                UriUtil.stripUserInfo(decodedUrl));
                     throw new SLException(errorMessage);
                 }
-                throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, request.uri(), response.statusCode(),
-                                                           error));
+                throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, getMaskedUri(urlDecodeUrl(decodedUrl)),
+                                                           response.statusCode(), error));
             }
             return response;
         });
+    }
+
+    private String getMaskedUri(String url) {
+        if (url.contains("@")) {
+            return url.substring(url.lastIndexOf("@"))
+                      .replace("@", "...");
+        } else {
+            return url;
+        }
+    }
+
+    private String urlDecodeUrl(String url) {
+        return URLDecoder.decode(url, StandardCharsets.UTF_8);
     }
 
     private void resetCounterOnRetry(AtomicLong counter) {
@@ -443,14 +467,21 @@ public class FilesApiServiceImpl implements FilesApiService {
                          .build();
     }
 
-    private HttpRequest buildFetchFileRequest(String decodedUrl) {
+    private HttpRequest buildFetchFileRequest(String decodedUrl, UserCredentials userCredentials) {
         var builder = HttpRequest.newBuilder()
                                  .GET()
                                  .timeout(Duration.ofMinutes(15));
         var uri = URI.create(decodedUrl);
         var userInfo = uri.getUserInfo();
-        if (userInfo != null) {
-            builder.uri(URI.create(decodedUrl.replace(userInfo + "@", "")));
+        if (userCredentials != null) {
+            builder.uri(uri);
+            String userCredentialsUrlFormat = MessageFormat.format(USERNAME_PASSWORD_URL_FORMAT, userCredentials.getUsername(),
+                                                                   userCredentials.getPassword());
+            String encodedAuth = Base64.getEncoder()
+                                       .encodeToString(userCredentialsUrlFormat.getBytes());
+            builder.header(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
+        } else if (userInfo != null) {
+            builder.uri(URI.create(decodedUrl.replace(uri.getRawUserInfo() + "@", "")));
             String encodedAuth = Base64.getEncoder()
                                        .encodeToString(userInfo.getBytes());
             builder.header(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);

@@ -1,11 +1,8 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import io.pivotal.cfenv.core.CfService;
+import org.apache.commons.lang3.StringUtils;
+import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.Messages;
@@ -18,7 +15,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import io.pivotal.cfenv.core.CfService;
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStoreFileStorage>, InitializingBean {
 
@@ -60,10 +61,9 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
                 exceptions.put(objectStoreServiceInfo.getProvider(), e);
             }
         }
-        exceptions.forEach((provider,
-                            exception) -> LOGGER.error(MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0,
-                                                                            provider),
-                                                       exception));
+        exceptions.forEach(
+            (provider, exception) -> LOGGER.error(MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0, provider),
+                                                  exception));
         throw new IllegalStateException(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND);
     }
 
@@ -84,10 +84,18 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         } else {
             return null;
         }
-        if (serviceInfo.getEndpoint() != null) {
-            contextBuilder.endpoint(serviceInfo.getEndpoint());
-        }
+        resolveContextEndpoint(serviceInfo, contextBuilder);
         return contextBuilder.buildView(BlobStoreContext.class);
+    }
+
+    private void resolveContextEndpoint(ObjectStoreServiceInfo serviceInfo, ContextBuilder contextBuilder) {
+        if (StringUtils.isNotEmpty(serviceInfo.getEndpoint())) {
+            contextBuilder.endpoint(serviceInfo.getEndpoint());
+            return;
+        }
+        if (StringUtils.isNotEmpty(serviceInfo.getHost())) {
+            contextBuilder.endpoint(UriUtil.HTTPS_PROTOCOL + UriUtil.DEFAULT_SCHEME_SEPARATOR + serviceInfo.getHost());
+        }
     }
 
     protected ObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo, BlobStoreContext context) {

@@ -29,6 +29,7 @@ public class Constants {
     public static final String CONTAINER_NAME = "container_name";
     public static final String CONTAINER_URI = "container_uri";
     public static final String BASE_64_ENCODED_PRIVATE_KEY_DATA = "base64EncodedPrivateKeyData";
+    public static final String HOST = "host";
 
     public static final String AWS_S_3 = "aws-s3";
     public static final String AZUREBLOB = "azureblob";

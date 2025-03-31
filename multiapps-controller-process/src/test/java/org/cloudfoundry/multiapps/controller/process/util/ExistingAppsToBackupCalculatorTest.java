@@ -98,7 +98,25 @@ class ExistingAppsToBackupCalculatorTest {
                                       List.of("app-1-live", "app-1-idle"), Collections.emptyList()),
                          // (7) Deployed mta does not have backup descriptor in db and won't be preserved
                          Arguments.of(List.of(new TestApplication("app-1", "app-1", "1"), new TestApplication("app-2", "app-2", "1")),
-                                      Collections.emptyList(), "2", false, Collections.emptyList(), Collections.emptyList()));
+                                      Collections.emptyList(), "2", false, Collections.emptyList(), Collections.emptyList()),
+                         // (8) Deployed mta contains applications with different versions and existing backup
+                         Arguments.of(List.of(new TestApplication("app-1", "app-1-live", "2"),
+                                              new TestApplication("app-1", "app-1-idle", "3", ProductizationState.IDLE)),
+                                      List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "3", true, List.of("app-1-live"),
+                                      List.of(ImmutableCloudApplication.builder()
+                                                                       .name("app-1-live")
+                                                                       .v3Metadata(Metadata.builder()
+                                                                                           .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                       "2")
+                                                                                           .build())
+                                                                       .build())),
+                         // (9) Missing deployed mta and existing backup
+                         Arguments.of(Collections.emptyList(), List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "2", false,
+                                      Collections.emptyList(), Collections.emptyList()),
+                         // (10) Deployed mta contains applications with missing versions and existing backup
+                         Arguments.of(List.of(new TestApplication("app-1", "app-1", null)),
+                                      List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "2", false, Collections.emptyList(),
+                                      Collections.emptyList()));
     }
 
     @ParameterizedTest
@@ -113,7 +131,8 @@ class ExistingAppsToBackupCalculatorTest {
 
         ExistingAppsToBackupCalculator calculator = new ExistingAppsToBackupCalculator(deployedMta, backupMta, descriptorBackupService);
 
-        List<CloudApplication> appsToUndeploy = getAppsToUndeploy(deployedMta.getApplications(), appNamesToUndeploy);
+        List<CloudApplication> appsToUndeploy = getAppsToUndeploy(deployedMta == null ? Collections.emptyList()
+            : deployedMta.getApplications(), appNamesToUndeploy);
         List<CloudApplication> appsToBackup = calculator.calculateExistingAppsToBackup(context, appsToUndeploy,
                                                                                        mtaVersionOfCurrentDescriptor);
 
@@ -191,10 +210,13 @@ class ExistingAppsToBackupCalculatorTest {
             deployedMtaApplications.add(ImmutableDeployedMtaApplication.builder()
                                                                        .moduleName(application.moduleName)
                                                                        .name(application.appName)
-                                                                       .v3Metadata(Metadata.builder()
-                                                                                           .annotation(MtaMetadataAnnotations.MTA_VERSION,
-                                                                                                       application.mtaVersion)
-                                                                                           .build())
+                                                                       .v3Metadata(application.mtaVersion != null ? Metadata.builder()
+                                                                                                                            .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                                                        application.mtaVersion)
+                                                                                                                            .build()
+                                                                           : Metadata.builder()
+                                                                                     .annotations(Collections.emptyMap())
+                                                                                     .build())
                                                                        .productizationState(application.productizationState)
                                                                        .build());
         }
@@ -203,7 +225,10 @@ class ExistingAppsToBackupCalculatorTest {
                                    .applications(deployedMtaApplications)
                                    .metadata(ImmutableMtaMetadata.builder()
                                                                  .id(MTA_ID)
-                                                                 .version(mtaVersion != null ? Version.parseVersion(mtaVersion) : null)
+                                                                 .version(mtaVersion != null && deployedApplications.stream()
+                                                                                                                    .allMatch(deployedApplication -> mtaVersion.equals(deployedApplication.mtaVersion))
+                                                                                                                        ? Version.parseVersion(mtaVersion)
+                                                                                                                        : null)
                                                                  .build())
 
                                    .build();
