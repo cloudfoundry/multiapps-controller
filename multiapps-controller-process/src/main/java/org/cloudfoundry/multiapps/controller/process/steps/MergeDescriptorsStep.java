@@ -1,10 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -15,12 +13,11 @@ import org.cloudfoundry.multiapps.controller.persistence.dto.ImmutableBackupDesc
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
-import org.cloudfoundry.multiapps.controller.process.util.SupportedParameterChecker;
+import org.cloudfoundry.multiapps.controller.process.util.UnsupportedParameterFinder;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Platform;
-import org.cloudfoundry.multiapps.mta.resolvers.ReferencesFinder;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -32,7 +29,7 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
     private DescriptorBackupService descriptorBackupService;
 
     @Inject
-    private SupportedParameterChecker supportedParameterChecker;
+    private UnsupportedParameterFinder unsupportedParameterFinder;
 
     protected MtaDescriptorMerger getMtaDescriptorMerger(CloudHandlerFactory factory, Platform platform) {
         return new MtaDescriptorMerger(factory, platform, getStepLogger());
@@ -57,23 +54,11 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
     }
 
     private void warnForUnknownParameters(DeploymentDescriptor descriptor) {
-        List<String> unknownParametersContainer = new ArrayList<>();
-        supportedParameterChecker.checkMatches(descriptor, unknownParametersContainer);
-        Set<String> references = findReferencesInDescriptor(descriptor);
-        List<String> unsupportedList = new ArrayList<>();
-        for (String unsupportedParameter : unknownParametersContainer) {
-            if (!references.contains(unsupportedParameter)) {
-                unsupportedList.add(unsupportedParameter);
-            }
-        }
-        if (!unsupportedList.isEmpty()) {
+        List<String> unsupportedParameters = unsupportedParameterFinder.findUnsupportedParameters(descriptor);
+        if (!unsupportedParameters.isEmpty()) {
             getStepLogger().warn(MessageFormat.format(Messages.PARAMETERS_0_ARE_NOT_SUPPORTED_OR_REFERENCED_BY_ANY_OTHER_ENTITIES,
-                                                      unsupportedList));
+                                                      unsupportedParameters));
         }
-    }
-
-    private Set<String> findReferencesInDescriptor(DeploymentDescriptor descriptor) {
-        return new ReferencesFinder().findReferences(descriptor);
     }
 
     private void backupDeploymentDescriptor(ProcessContext context, DeploymentDescriptor descriptor) {
