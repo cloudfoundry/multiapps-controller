@@ -15,14 +15,14 @@
         <sonar.organization>cloudfoundry</sonar.organization>
         <sonar.coverage.jacoco.xmlReportPaths>../multiapps-controller-coverage/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
-        <junit.version>5.12.0</junit.version>
-        <junit-platform.version>1.12.0</junit-platform.version>
+        <junit.version>5.12.1</junit.version>
+        <junit-platform.version>1.12.1</junit-platform.version>
         <mockito.version>5.14.2</mockito.version>
         <derby.version>10.16.1.1</derby.version>
         <h2.version>2.2.224</h2.version>
         <servlet-api.version>6.1.0</servlet-api.version>
         <log4j.version>2.24.3</log4j.version>
-        <slf4j.version>2.0.12</slf4j.version>
+        <slf4j.version>2.0.17</slf4j.version>
         <commons-io.version>2.18.0</commons-io.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <snakeyaml.version>2.3</snakeyaml.version>
@@ -33,17 +33,17 @@
         <flowable.version>6.8.0</flowable.version>
         <mybatis.version>3.5.19</mybatis.version>
         <spring.version>6.2.4</spring.version>
-        <spring-security.version>6.4.1</spring-security.version>
+        <spring-security.version>6.4.4</spring-security.version>
         <json-smart.version>2.5.2</json-smart.version>
         <hikari.version>6.2.1</hikari.version>
-        <jackson.version>2.18.1</jackson.version>
-        <jackson.databind.version>2.18.2</jackson.databind.version>
+        <jackson.version>2.18.3</jackson.version>
+        <jackson.databind.version>2.18.3</jackson.databind.version>
         <liquibase.version>4.29.1</liquibase.version>
         <liquibase-slf4j.version>5.0.0</liquibase-slf4j.version>
         <cloudfoundry-client.version>2.52.0</cloudfoundry-client.version>
         <swagger.version>1.6.14</swagger.version>
         <jclouds.version>2.6.0</jclouds.version>
-        <guava.version>33.3.1-jre</guava.version>
+        <guava.version>33.4.6-jre</guava.version>
         <resilience4j.version>2.2.0</resilience4j.version>
         <immutables.version>2.10.1</immutables.version>
         <micrometer.version>1.12.5</micrometer.version>
