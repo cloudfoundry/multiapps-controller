@@ -1,10 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
 import java.util.Collections;
 
 import org.cloudfoundry.multiapps.common.ContentException;
@@ -13,12 +8,19 @@ import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorMerger;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
+import org.cloudfoundry.multiapps.controller.process.util.UnsupportedParameterFinder;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep> {
 
@@ -39,6 +41,9 @@ class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep
     @Mock
     private MtaDescriptorMerger merger;
 
+    @Mock
+    private UnsupportedParameterFinder unsupportedParameterFinder;
+
     @BeforeEach
     public void setUp() {
         prepareContext();
@@ -53,6 +58,7 @@ class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep
 
     @Test
     void testExecute1() {
+        when(unsupportedParameterFinder.findUnsupportedParameters(Mockito.any())).thenReturn(Collections.emptyList());
         when(merger.merge(any(), eq(Collections.emptyList()))).thenReturn(DEPLOYMENT_DESCRIPTOR);
 
         step.execute(execution);
@@ -65,6 +71,7 @@ class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep
 
     @Test
     void testExecute2() {
+        when(unsupportedParameterFinder.findUnsupportedParameters(Mockito.any())).thenReturn(Collections.emptyList());
         when(merger.merge(any(), eq(Collections.emptyList()))).thenThrow(new ContentException("Error!"));
         assertThrows(SLException.class, () -> step.execute(execution));
     }

@@ -38,6 +38,10 @@ public class SupportedParameters {
     public static final String APPLY_NAMESPACE_SERVICES = "service-names";
     public static final String APPLY_NAMESPACE_ROUTES = "app-routes";
 
+    public static final String DEPLOY_MODE = "deploy_mode";
+
+    public static final String PATH = "path";
+
     // Module / module type parameters:
     public static final String APP_NAME = "app-name";
     public static final String DEFAULT_APP_NAME = "default-app-name";
@@ -99,7 +103,8 @@ public class SupportedParameters {
     public static final String DOCKER = "docker";
     public static final String TIMESTAMP = "timestamp";
     public static final String ENABLE_PARALLEL_SERVICE_BINDINGS = "enable-parallel-service-bindings";
-
+    public static final String TCP_ROUTES = "tcp";
+    public static final String TCPS_ROUTES = "tcps";
     public static final String EXECUTE_APP = "execute-app";
     public static final String SUCCESS_MARKER = "success-marker";
     public static final String FAILURE_MARKER = "failure-marker";
@@ -117,6 +122,8 @@ public class SupportedParameters {
     public static final String SERVICE_BROKER_PASSWORD = "service-broker-password";
     public static final String SERVICE_BROKER_URL = "service-broker-url";
     public static final String SERVICE_BROKER_SPACE_SCOPED = "service-broker-space-scoped";
+    public static final String MODULE_CONFIG = "config";
+    public static final String HOOK_REQUIRES = "requires";
 
     // Required dependency parameters:
     public static final String SERVICE_BINDING_CONFIG = "config";
@@ -171,6 +178,40 @@ public class SupportedParameters {
     public static final String DEPRECATED_CONFIG_MTA_MODULE = "mta-module";
     @Deprecated
     public static final String DEPRECATED_CONFIG_MTA_PROVIDES_DEPENDENCY = "mta-provides-dependency";
+
+    public static final Set<String> MODULE_PARAMETERS = Set.of(APP_NAME, APPLY_NAMESPACE, BUILDPACK, BUILDPACKS, COMMAND,
+                                                               CREATE_SERVICE_BROKER, DEFAULT_APP_NAME, DEFAULT_HOST, DEFAULT_INSTANCES,
+                                                               DEFAULT_LIVE_APP_NAME, DEFAULT_LIVE_DOMAIN, DEFAULT_LIVE_HOST,
+                                                               DEFAULT_LIVE_URI, DEFAULT_LIVE_URL, DEFAULT_URI, DEFAULT_URL,
+                                                               DEPENDENCY_TYPE, DISK_QUOTA, DOCKER, DOMAIN, DOMAINS, DEFAULT_DOMAIN,
+                                                               ENABLE_SSH, ENABLE_PARALLEL_SERVICE_BINDINGS, HEALTH_CHECK_HTTP_ENDPOINT,
+                                                               HEALTH_CHECK_TIMEOUT, HEALTH_CHECK_INVOCATION_TIMEOUT, HEALTH_CHECK_TYPE,
+                                                               HOST, HOSTS, IDLE_DOMAIN, IDLE_DOMAINS, IDLE_HOST, IDLE_HOSTS, IDLE_ROUTES,
+                                                               INSTANCES, KEEP_EXISTING_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY,
+                                                               KEEP_EXISTING_ROUTES, MEMORY, NO_ROUTE, NO_START, RESTART_ON_ENV_CHANGE,
+                                                               ROUTES, ROUTE_PATH, SERVICE_BROKER_NAME, SERVICE_BROKER_PASSWORD,
+                                                               SERVICE_BROKER_SPACE_SCOPED, SERVICE_BROKER_URL, SERVICE_BROKER_USERNAME,
+                                                               STACK, STAGE_TIMEOUT, START_TIMEOUT, TASK_EXECUTION_TIMEOUT, TASKS,
+                                                               TCP_ROUTES, TCPS_ROUTES, TIMESTAMP, UPLOAD_TIMEOUT, ROUTE, EXECUTE_APP,
+                                                               SUCCESS_MARKER, FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID,
+                                                               REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
+                                                               REGISTER_SERVICE_URL_SERVICE_URL, MODULE_CONFIG, MANAGED, PATH,
+                                                               APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
+                                                               APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT);
+
+    public static final Set<String> RESOURCE_PARAMETERS = Set.of(APPLY_NAMESPACE, SERVICE_CONFIG, SYSLOG_DRAIN_URL, DEFAULT_CONTAINER_NAME,
+                                                                 DEFAULT_SERVICE_NAME, DEFAULT_XS_APP_NAME, SERVICE, SERVICE_KEYS,
+                                                                 SERVICE_KEY_NAME, SERVICE_NAME, SERVICE_PLAN, SERVICE_TAGS, SERVICE_BROKER,
+                                                                 SKIP_SERVICE_UPDATES, TYPE, PROVIDER_ID, PROVIDER_NID, TARGET,
+                                                                 SERVICE_CONFIG_PATH, FILTER, MANAGED, VERSION, PATH, MEMORY);
+    public static final Set<String> GLOBAL_PARAMETERS = Set.of(KEEP_EXISTING_ROUTES, APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
+                                                               APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT, APPLY_NAMESPACE,
+                                                               ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE);
+
+    public static final Set<String> DEPENDENCY_PARAMETERS = Set.of(BINDING_NAME, ENV_VAR_NAME, VISIBILITY, USE_LIVE_ROUTES,
+                                                                   SERVICE_BINDING_CONFIG);
+
+    public static final Set<String> MODULE_HOOK_PARAMETERS = Set.of(NAME, COMMAND, MEMORY, DISK_QUOTA, HOOK_REQUIRES);
 
     public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Set.of(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION,
                                                                                 DEPRECATED_CONFIG_MTA_ID, DEPRECATED_CONFIG_MTA_VERSION,
