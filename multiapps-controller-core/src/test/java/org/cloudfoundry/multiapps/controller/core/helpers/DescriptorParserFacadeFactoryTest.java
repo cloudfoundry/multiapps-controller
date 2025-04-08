@@ -23,4 +23,16 @@ class DescriptorParserFacadeFactoryTest {
         Assertions.assertThrows(ParsingException.class, () -> instance.parseDeploymentDescriptor(mtadYaml));
     }
 
+    @Test
+    void testParseWithDuplicateValues() {
+        final int maxAliases = 5;
+        ApplicationConfiguration applicationConfiguration = Mockito.mock(ApplicationConfiguration.class);
+        Mockito.when(applicationConfiguration.getSnakeyamlMaxAliasesForCollections())
+               .thenReturn(maxAliases);
+        DescriptorParserFacadeFactory descriptorParserFacadeFactory = new DescriptorParserFacadeFactory(applicationConfiguration);
+        DescriptorParserFacade instance = descriptorParserFacadeFactory.getInstanceWithDisabledDuplicateKeys();
+        InputStream mtadYaml = getClass().getResourceAsStream("duplicate-keys.yaml");
+        Assertions.assertThrows(ParsingException.class, () -> instance.parseDeploymentDescriptor(mtadYaml));
+    }
+
 }
