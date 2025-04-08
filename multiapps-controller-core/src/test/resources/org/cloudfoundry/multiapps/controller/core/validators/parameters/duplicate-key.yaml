@@ -1,0 +1,9 @@
+_schema-version: "3.3"
+ID: com.sap.grc.automatedprocedures
+extends: com.sap.grc.automatedprocedures
+
+modules:
+  - name: spark-service-admin
+    properties:
+      MAX_SIZE: а
+      MAX_SIZE: а

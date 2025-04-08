@@ -91,6 +91,8 @@ public final class Messages {
     public static final String BUILDPACKS_REQUIRED_FOR_CNB = "Buildpacks must be provided when lifecycle is set to 'cnb'.";
     public static final String DOCKER_INFO_REQUIRED = "Docker information must be provided when lifecycle is set to 'docker'.";
     public static final String BUILDPACKS_NOT_ALLOWED_WITH_DOCKER = "Buildpacks must not be provided when lifecycle is set to 'docker'.";
+    public static final String EXTENSION_DESCRIPTORS_ARE_INVALID_SOON_WONT_WORK = "Extension descriptor(s) are invalid. These extension descriptors are now processed but soon they won't work and will lead to fail of the deploy. Fix them soon. Use at your own risk";
+    public static final String UNSUPPORTED_FILE_FORMAT = "Unsupported file format! \"{0}\" detected";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";

@@ -8,10 +8,13 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.FileMimeTypeValidator;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
@@ -25,19 +28,18 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 @Named("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private final ResilientOperationExecutor resilientOperationExecutor = new ResilientOperationExecutor();
     private final ExecutorService fileStorageThreadPool;
+    private final FileMimeTypeValidator fileMimeTypeValidator;
 
     @Inject
-    public ValidateDeployParametersStep(ExecutorService fileStorageThreadPool) {
+    public ValidateDeployParametersStep(ExecutorService fileStorageThreadPool, FileMimeTypeValidator fileMimeTypeValidator) {
         this.fileStorageThreadPool = fileStorageThreadPool;
+        this.fileMimeTypeValidator = fileMimeTypeValidator;
     }
 
     @Override
@@ -181,6 +183,8 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
                                                        archivePartEntries.size(), archiveSize);
             FileEntry uploadedArchive = persistArchive(archiveStreamWithName, context, archiveSize);
             context.setVariable(Variables.APP_ARCHIVE_ID, uploadedArchive.getId());
+            fileMimeTypeValidator.validateArchiveType(uploadedArchive.getSpace(), uploadedArchive.getId(),
+                                                      getStepWarningLoggerConsumer());
             getStepLogger().infoWithoutProgressMessage(MessageFormat.format(Messages.ARCHIVE_WITH_ID_0_AND_NAME_1_WAS_STORED,
                                                                             uploadedArchive.getId(),
                                                                             archiveStreamWithName.getArchiveName()));
@@ -195,7 +199,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private List<FileEntry> getArchivePartEntries(ProcessContext context, String[] appArchivePartsId) {
-        return Arrays.stream(appArchivePartsId) 
+        return Arrays.stream(appArchivePartsId)
                      .map(appArchivePartId -> findFile(context, appArchivePartId))
                      .toList();
     }

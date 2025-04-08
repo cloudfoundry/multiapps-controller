@@ -1,13 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -22,6 +14,7 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveHelper;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.FileMimeTypeValidator;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractor;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryStreamWithStreamPositionsDeterminer;
@@ -34,6 +27,14 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveStep> {
 
     private static final String SPACE_ID = "0";
@@ -43,6 +44,7 @@ class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveSt
     private final StepInput input;
 
     private final ArchiveEntryExtractor archiveEntryExtractor = Mockito.mock(ArchiveEntryExtractor.class);
+    private final FileMimeTypeValidator fileMimeTypeValidator = Mockito.mock(FileMimeTypeValidator.class);
 
     ProcessMtaArchiveStepTest() throws ParsingException {
         String json = TestUtil.getResourceAsString("process-mta-archive-step-1.json", getClass());
@@ -77,7 +79,8 @@ class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveSt
 
         }).when(fileService)
           .processFileContent(any(), any(), any());
-        step.archiveEntryStreamWithStreamPositionsDeterminer = spy(new ArchiveEntryStreamWithStreamPositionsDeterminer(fileService));
+        step.archiveEntryStreamWithStreamPositionsDeterminer = spy(
+            new ArchiveEntryStreamWithStreamPositionsDeterminer(fileService, fileMimeTypeValidator));
     }
 
     @Test
