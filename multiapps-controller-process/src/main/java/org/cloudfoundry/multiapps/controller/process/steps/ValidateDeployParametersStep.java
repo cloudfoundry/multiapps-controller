@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -8,10 +9,13 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.FileMimeTypeValidator;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
@@ -24,9 +28,6 @@ import org.cloudfoundry.multiapps.controller.process.util.PriorityFuture;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 @Named("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -177,6 +178,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     private void mergeArchive(ProcessContext context, List<FileEntry> archivePartEntries, BigInteger archiveSize) {
         ArchiveStreamWithName archiveStreamWithName = getMergedArchiveStreamCreator(archivePartEntries, archiveSize).createArchiveStream();
         try {
+            FileMimeTypeValidator.validateInputStreamMimeType(archiveStreamWithName.getArchiveStream());
             getStepLogger().infoWithoutProgressMessage(Messages.ARCHIVE_IS_SPLIT_TO_0_PARTS_TOTAL_SIZE_IN_BYTES_1_UPLOADING,
                                                        archivePartEntries.size(), archiveSize);
             FileEntry uploadedArchive = persistArchive(archiveStreamWithName, context, archiveSize);
@@ -184,6 +186,8 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
             getStepLogger().infoWithoutProgressMessage(MessageFormat.format(Messages.ARCHIVE_WITH_ID_0_AND_NAME_1_WAS_STORED,
                                                                             uploadedArchive.getId(),
                                                                             archiveStreamWithName.getArchiveName()));
+        } catch (IOException e) {
+            throw new SLException(e);
         } finally {
             IOUtils.closeQuietly(archiveStreamWithName.getArchiveStream());
         }
@@ -195,7 +199,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private List<FileEntry> getArchivePartEntries(ProcessContext context, String[] appArchivePartsId) {
-        return Arrays.stream(appArchivePartsId) 
+        return Arrays.stream(appArchivePartsId)
                      .map(appArchivePartId -> findFile(context, appArchivePartId))
                      .toList();
     }
