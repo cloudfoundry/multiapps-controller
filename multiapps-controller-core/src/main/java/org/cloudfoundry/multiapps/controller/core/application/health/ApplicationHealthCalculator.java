@@ -15,7 +15,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
@@ -35,9 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 @Named
 public class ApplicationHealthCalculator {
 
@@ -45,7 +43,7 @@ public class ApplicationHealthCalculator {
 
     private static final int UPDATE_HEALTH_CHECK_STATUS_PERIOD_IN_SECONDS = 10;
     private static final int SINGLE_TASK_TIMEOUT_IN_SECONDS = 70; // timeout is set to 70 so it is higher than the DB connection acquisition
-                                                                  // timeout
+    // timeout
     private static final int TOTAL_TASK_TIMEOUT_IN_SECONDS = 3 * SINGLE_TASK_TIMEOUT_IN_SECONDS;
 
     private final ObjectStoreFileStorage objectStoreFileStorage;
@@ -54,19 +52,20 @@ public class ApplicationHealthCalculator {
     private final DatabaseMonitoringService databaseMonitoringService;
     private final DatabaseWaitingLocksAnalyzer databaseWaitingLocksAnalyzer;
 
-    private final CachedObject<Boolean> objectStoreFileStorageHealthCache = new CachedObject<>(Duration.ofSeconds(TOTAL_TASK_TIMEOUT_IN_SECONDS));
+    private final CachedObject<Boolean> objectStoreFileStorageHealthCache = new CachedObject<>(
+        Duration.ofSeconds(TOTAL_TASK_TIMEOUT_IN_SECONDS));
     private final CachedObject<Boolean> dbHealthServiceCache = new CachedObject<>(Duration.ofSeconds(TOTAL_TASK_TIMEOUT_IN_SECONDS));
     private final CachedObject<Boolean> hasIncreasedLocksCache = new CachedObject<>(false,
                                                                                     Duration.ofSeconds(TOTAL_TASK_TIMEOUT_IN_SECONDS));
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final ExecutorService taskExecutor = new ThreadPoolExecutor(3,
-                                                                        3,
+                                                                        9,
                                                                         0L,
                                                                         TimeUnit.MILLISECONDS,
                                                                         new SynchronousQueue<>(),
                                                                         new ThreadPoolExecutor.AbortPolicy());
     private final ExecutorService timeoutExecutor = new ThreadPoolExecutor(3,
-                                                                           3,
+                                                                           9,
                                                                            0L,
                                                                            TimeUnit.MILLISECONDS,
                                                                            new SynchronousQueue<>(),
@@ -120,11 +119,13 @@ public class ApplicationHealthCalculator {
             Thread.currentThread()
                   .interrupt();
             LOGGER.error(Messages.THREAD_WAS_INTERRUPTED_WHILE_WAITING_FOR_THE_RESULT_OF_A_FUTURE, e);
+            future.cancel(true);
             consumer.accept(onErrorValue);
         } catch (Exception e) {
             LOGGER.error(MessageFormat.format(Messages.ERROR_OCCURRED_DURING_HEALTH_CHECKING_FOR_INSTANCE_0_MESSAGE_1,
                                               applicationConfiguration.getApplicationInstanceIndex(), errorMessage),
                          e);
+            future.cancel(true);
             consumer.accept(onErrorValue);
         }
     }
@@ -150,13 +151,16 @@ public class ApplicationHealthCalculator {
         }
         boolean hasIncreasedDbLocks = hasIncreasedLocksCache.getOrRefresh(() -> true);
         if (hasIncreasedDbLocks) {
-            LOGGER.warn(MessageFormat.format(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE_0_GETTING_THE_LOCKS,
-                                             applicationConfiguration.getApplicationInstanceIndex()));
-            long countOfProcessesWaitingForLocks = resilientOperationExecutor.execute((Supplier<Long>) () -> databaseMonitoringService.getProcessesWaitingForLocks(ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration)));
+            LOGGER.warn(
+                MessageFormat.format(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE_0_GETTING_THE_LOCKS,
+                                     applicationConfiguration.getApplicationInstanceIndex()));
+            long countOfProcessesWaitingForLocks = resilientOperationExecutor.execute(
+                (Supplier<Long>) () -> databaseMonitoringService.getProcessesWaitingForLocks(
+                    ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration)));
             LOGGER.warn(MessageFormat.format(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE,
                                              countOfProcessesWaitingForLocks, applicationConfiguration.getApplicationInstanceIndex()));
             return ResponseEntity.ok(ImmutableApplicationHealthResult.builder() // TODO: Make this return 503 instead of 200 when the
-                                                                                // detection is trustworthy
+                                                                     // detection is trustworthy
                                                                      .status(ApplicationHealthResult.Status.DOWN)
                                                                      .hasIncreasedLocks(true)
                                                                      .countOfProcessesWaitingForLocks(countOfProcessesWaitingForLocks)
@@ -194,6 +198,7 @@ public class ApplicationHealthCalculator {
             LOGGER.debug(Messages.CHECKING_OBJECT_STORE_HEALTH);
             return future.get(SINGLE_TASK_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
+            future.cancel(true);
             throw new SLException(e, Messages.TIMEOUT_WHILE_CHECKING_OBJECT_STORE_HEALTH);
         }
     }
@@ -219,6 +224,7 @@ public class ApplicationHealthCalculator {
             LOGGER.debug(Messages.CHECKING_DATABASE_HEALTH);
             return future.get(SINGLE_TASK_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
+            future.cancel(true);
             throw new SLException(e, Messages.TIMEOUT_WHILE_CHECKING_DATABASE_HEALTH);
         }
     }
@@ -229,6 +235,7 @@ public class ApplicationHealthCalculator {
             LOGGER.debug(Messages.CHECKING_FOR_INCREASED_LOCKS);
             return future.get(SINGLE_TASK_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
+            future.cancel(true);
             throw new SLException(e, Messages.TIMEOUT_WHILE_CHECKING_FOR_INCREASED_LOCKS);
         }
     }
