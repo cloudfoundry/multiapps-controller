@@ -1,10 +1,14 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerException;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
+import io.netty.handler.timeout.TimeoutException;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -27,12 +31,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerException;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
-
-import io.netty.handler.timeout.TimeoutException;
 
 public abstract class SyncFlowableStep implements JavaDelegate {
 
@@ -120,7 +118,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
      *
      * @param context flowable context of the step
      * @param e thrown exception from {@link #executeStep(ProcessContext) executeStep} and pre-processed by
-     *        {@link #handleException(ProcessContext, Exception) handleException}
+     * {@link #handleException(ProcessContext, Exception) handleException}
      * @throws Exception in case derivative methods throw exception
      */
     protected void onStepError(ProcessContext context, Exception e) throws Exception {
@@ -219,6 +217,10 @@ public abstract class SyncFlowableStep implements JavaDelegate {
 
     protected ProcessLoggerPersister getProcessLogsPersister() {
         return processLoggerPersister;
+    }
+
+    protected Consumer<String> getStepWarningLoggerConsumer() {
+        return message -> getStepLogger().warn(message);
     }
 
 }
