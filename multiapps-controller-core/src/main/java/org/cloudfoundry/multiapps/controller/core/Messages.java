@@ -86,6 +86,8 @@ public final class Messages {
     public static final String OBJECT_STORE_FILE_STORAGE_HEALTH_DATABASE_HEALTH = "Object store file storage health: \"{0}\", Database health: \"{1}\"";
     public static final String ERROR_OCCURRED_DURING_OBJECT_STORE_HEALTH_CHECKING_FOR_INSTANCE = "Error occurred during object store health checking for instance: \"{0}\"";
     public static final String ERROR_OCCURRED_WHILE_CHECKING_DATABASE_INSTANCE_0 = "Error occurred while checking database instance: \"{0}\"";
+    public static final String THE_PROVIDED_0_FILE_IS_INVALID = "The provided yaml file is invalid: {0}";
+    public static final String UNSUPPORTED_FILE_FORMAT = "Unsupported file format! \"{0}\" detected";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";

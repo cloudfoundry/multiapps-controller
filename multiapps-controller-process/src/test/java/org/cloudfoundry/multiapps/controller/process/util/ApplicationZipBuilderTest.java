@@ -1,10 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,6 +18,7 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.FileMimeTypeValidator;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentToProcess;
@@ -38,6 +34,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+
 class ApplicationZipBuilderTest {
 
     private static final String SAMPLE_MTAR = "com.sap.mta.sample-1.2.1-beta.mtar";
@@ -46,6 +47,8 @@ class ApplicationZipBuilderTest {
 
     @Mock
     private FileService fileService;
+    @Mock
+    private FileMimeTypeValidator fileMimeTypeValidator;
 
     private Path appPath = null;
 
@@ -96,9 +99,12 @@ class ApplicationZipBuilderTest {
         mockProcessingOfFileContent(mtar);
         mockConsumptionOfFileContent(mtar);
         mockConsumptionOfFileContentWithOffset(mtar);
-        ArchiveEntryStreamWithStreamPositionsDeterminer archiveEntryStreamWithStreamPositionsDeterminer = new ArchiveEntryStreamWithStreamPositionsDeterminer(fileService);
-        List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = archiveEntryStreamWithStreamPositionsDeterminer.determineArchiveEntries("123",
-                                                                                                                                                          "123");
+        ArchiveEntryStreamWithStreamPositionsDeterminer archiveEntryStreamWithStreamPositionsDeterminer = new ArchiveEntryStreamWithStreamPositionsDeterminer(
+            fileService, fileMimeTypeValidator);
+        List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = archiveEntryStreamWithStreamPositionsDeterminer.determineArchiveEntries(
+            "123",
+            "123",
+            any());
         return new ApplicationArchiveContext(fileName, MAX_UPLOAD_FILE_SIZE, archiveEntriesWithStreamPositions, "123", "123");
     }
 
@@ -173,7 +179,7 @@ class ApplicationZipBuilderTest {
     private Set<String> getZipEntriesName(InputStream inputStream) throws IOException {
         Set<String> zipEntriesName = new HashSet<>();
         try (ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
-            for (ZipEntry zipEntry; (zipEntry = zipInputStream.getNextEntry()) != null;) {
+            for (ZipEntry zipEntry; (zipEntry = zipInputStream.getNextEntry()) != null; ) {
                 if (!zipEntry.isDirectory()) {
                     zipEntriesName.add(zipEntry.getName());
                 }

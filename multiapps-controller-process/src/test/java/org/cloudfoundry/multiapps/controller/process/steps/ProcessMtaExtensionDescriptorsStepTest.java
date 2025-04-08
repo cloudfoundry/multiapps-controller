@@ -1,8 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -15,6 +12,7 @@ import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.FileMimeTypeValidator;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -24,6 +22,9 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest<ProcessMtaExtensionDescriptorsStep> {
 
@@ -88,13 +89,13 @@ class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest<Proces
 
     private void prepareFileService(Map<String, String> fileIdToExtensionDescriptor) throws FileStorageException {
         Mockito.doAnswer((invocation) -> {
-            String fileId = invocation.getArgument(1);
-            FileContentConsumer contentConsumer = invocation.getArgument(2);
-            String fileContent = fileIdToExtensionDescriptor.get(fileId);
+                   String fileId = invocation.getArgument(1);
+                   FileContentConsumer contentConsumer = invocation.getArgument(2);
+                   String fileContent = fileIdToExtensionDescriptor.get(fileId);
 
-            contentConsumer.consume(IOUtils.toInputStream(fileContent, StandardCharsets.UTF_8));
-            return null;
-        })
+                   contentConsumer.consume(IOUtils.toInputStream(fileContent, StandardCharsets.UTF_8));
+                   return null;
+               })
                .when(fileService)
                .consumeFileContent(Mockito.anyString(), Mockito.anyString(), Mockito.any());
     }
@@ -112,7 +113,10 @@ class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest<Proces
 
     @Override
     protected ProcessMtaExtensionDescriptorsStep createStep() {
-        return new ProcessMtaExtensionDescriptorsStep();
+        DescriptorParserFacadeFactory descriptorParserFacadeFactory = Mockito.mock(DescriptorParserFacadeFactory.class);
+        Mockito.when(descriptorParserFacadeFactory.getInstance())
+               .thenReturn(new DescriptorParserFacade());
+        return new ProcessMtaExtensionDescriptorsStep(new FileMimeTypeValidator(fileService, descriptorParserFacadeFactory));
     }
 
 }
