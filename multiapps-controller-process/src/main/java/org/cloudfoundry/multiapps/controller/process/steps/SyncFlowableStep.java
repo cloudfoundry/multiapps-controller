@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 import io.netty.handler.timeout.TimeoutException;
 import jakarta.inject.Inject;
@@ -215,6 +216,10 @@ public abstract class SyncFlowableStep implements JavaDelegate {
 
     protected ProcessLoggerPersister getProcessLogsPersister() {
         return processLoggerPersister;
+    }
+
+    protected Consumer<String> getStepWarningLoggerConsumer() {
+        return message -> getStepLogger().warn(message);
     }
 
 }
