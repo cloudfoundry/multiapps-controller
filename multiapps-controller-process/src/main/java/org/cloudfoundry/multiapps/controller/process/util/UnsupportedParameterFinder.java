@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,15 +25,11 @@ public class UnsupportedParameterFinder {
     }
 
     private List<String> findUnsupportedParametersInDescriptor(DeploymentDescriptor descriptor) {
-        List<String> unknownParametersContainer = new ArrayList<>();
-        supportedParameterChecker.fillListWithUnmatched(descriptor, unknownParametersContainer);
-        return unknownParametersContainer;
+        return supportedParameterChecker.getCustomParameters(descriptor);
     }
 
     private Set<String> findReferencesInDescriptor(DeploymentDescriptor descriptor) {
-        Set<String> referencedParametersContainer = new HashSet<>();
-        new ReferencesFinder().fillWithReferences(descriptor, referencedParametersContainer);
-        return referencedParametersContainer;
+        return new ReferencesFinder().getAllReferences(descriptor);
     }
 
     private List<String> filterUnsupportedButReferencedParameters(List<String> unsupportedParameters, Set<String> references) {
