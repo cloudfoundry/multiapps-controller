@@ -58,7 +58,7 @@ class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep
 
     @Test
     void testExecute1() {
-        when(unsupportedParameterFinder.findUnsupportedParameters(Mockito.any())).thenReturn(Collections.emptyList());
+        when(unsupportedParameterFinder.findUnsupportedParameters(Mockito.any(), Mockito.any())).thenReturn(Collections.emptyMap());
         when(merger.merge(any(), eq(Collections.emptyList()))).thenReturn(DEPLOYMENT_DESCRIPTOR);
 
         step.execute(execution);
@@ -71,7 +71,7 @@ class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep
 
     @Test
     void testExecute2() {
-        when(unsupportedParameterFinder.findUnsupportedParameters(Mockito.any())).thenReturn(Collections.emptyList());
+        when(unsupportedParameterFinder.findUnsupportedParameters(Mockito.any(), Mockito.any())).thenReturn(Collections.emptyMap());
         when(merger.merge(any(), eq(Collections.emptyList()))).thenThrow(new ContentException("Error!"));
         assertThrows(SLException.class, () -> step.execute(execution));
     }

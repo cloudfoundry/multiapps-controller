@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import jakarta.inject.Inject;
@@ -18,6 +19,8 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Platform;
+import org.cloudfoundry.multiapps.mta.resolvers.ReferenceContainer;
+import org.cloudfoundry.multiapps.mta.resolvers.ReferencesFinder;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -54,7 +57,9 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
     }
 
     private void warnForUnknownParameters(DeploymentDescriptor descriptor) {
-        List<String> unsupportedParameters = unsupportedParameterFinder.findUnsupportedParameters(descriptor);
+        List<ReferenceContainer> references = new ReferencesFinder().getAllReferences(descriptor);
+        Map<String, List<String>> unsupportedParameters = unsupportedParameterFinder.findUnsupportedParameters(descriptor,
+                                                                                                               references);
         if (!unsupportedParameters.isEmpty()) {
             getStepLogger().warn(MessageFormat.format(Messages.PARAMETERS_0_ARE_NOT_SUPPORTED_OR_REFERENCED_BY_ANY_OTHER_ENTITIES,
                                                       unsupportedParameters));
