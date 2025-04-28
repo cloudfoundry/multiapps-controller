@@ -28,17 +28,17 @@ public class ModuleHooksAggregator {
 
     private List<Hook> determineHooksForExecution(Map<String, List<String>> alreadyExecutedHooks,
                                                   List<HookPhase> hookPhasesForCurrentStepPhase) {
-        List<Hook> moduleHooksToExecuteOnCurrentStepPhase = collectHooksWithPhase(moduleToDeploy, hookPhasesForCurrentStepPhase);
+        List<Hook> moduleHooksToExecuteOnCurrentStepPhase = collectHooksWithPhase(hookPhasesForCurrentStepPhase);
         return getHooksForExecution(alreadyExecutedHooks, moduleHooksToExecuteOnCurrentStepPhase, hookPhasesForCurrentStepPhase);
     }
 
-    private List<Hook> collectHooksWithPhase(Module moduleToDeploy, List<HookPhase> hookPhasesForCurrentStepPhase) {
-        return getModuleHooks(moduleToDeploy).stream()
-                                             .filter(hook -> shouldCollectHook(hook.getPhases(), hookPhasesForCurrentStepPhase))
-                                             .collect(Collectors.toList());
+    private List<Hook> collectHooksWithPhase(List<HookPhase> hookPhasesForCurrentStepPhase) {
+        return getModuleHooks().stream()
+                               .filter(hook -> shouldCollectHook(hook.getPhases(), hookPhasesForCurrentStepPhase))
+                               .collect(Collectors.toList());
     }
 
-    private List<Hook> getModuleHooks(Module module) {
+    private List<Hook> getModuleHooks() {
         return moduleToDeploy.getMajorSchemaVersion() < MAJOR_SCHEMA_VERSION_THREE ? Collections.emptyList() : moduleToDeploy.getHooks();
     }
 
