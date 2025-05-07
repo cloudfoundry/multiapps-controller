@@ -19,6 +19,9 @@
     "shouldSkipParametersUpdate": false,
     "shouldSkipTagsUpdate": false,
     "shouldSkipPlanUpdate": false,
-    "shouldSkipSyslogUrlUpdate": false 
+    "shouldSkipSyslogUrlUpdate": false,
+    "shouldFailOnParametersUpdateFailure" : false,
+    "shouldFailOnPlanUpdateFailure" : false,
+    "shouldFailOnTagsUpdateFailure" : false
   }
 ]

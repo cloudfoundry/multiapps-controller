@@ -152,6 +152,7 @@ public class SupportedParameters {
     public static final String DEFAULT_XS_APP_NAME = "default-xsappname";
     public static final String TYPE = "type";
     public static final String SKIP_SERVICE_UPDATES = "skip-service-updates";
+    public static final String FAIL_ON_SERVICE_UPDATE = "fail-on-service-update";
     public static final String SYSLOG_DRAIN_URL = "syslog-drain-url";
     public static final String SERVICE_GUID = "service-guid";
 
