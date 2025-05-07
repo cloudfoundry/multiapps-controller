@@ -2,8 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.stream.Collectors;
-
+import java.util.function.Supplier;
+import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -12,13 +12,19 @@ import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporte
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
-
 public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOperationsExecution implements AsyncExecution {
+
+    private final Supplier<Boolean> shouldFailOnUpdateSupplier;
 
     public PollServiceCreateOrUpdateOperationsExecution(ServiceOperationGetter serviceOperationGetter,
                                                         ServiceProgressReporter serviceProgressReporter) {
+        this(serviceOperationGetter, serviceProgressReporter, () -> false);
+    }
+
+    public PollServiceCreateOrUpdateOperationsExecution(ServiceOperationGetter serviceOperationGetter,
+                                                        ServiceProgressReporter serviceProgressReporter, Supplier<Boolean> shouldFailOnUpdateSupplier) {
         super(serviceOperationGetter, serviceProgressReporter);
+        this.shouldFailOnUpdateSupplier = shouldFailOnUpdateSupplier;
     }
 
     @Override
@@ -27,15 +33,14 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
         // There's no need to poll the creation or update of user-provided services, because it is done synchronously:
         return allServicesToCreate.stream()
                                   .filter(s -> !s.isUserProvided())
-                                  .collect(Collectors.toList());
+                                  .toList();
     }
 
     @Override
     protected ServiceOperation mapOperationState(StepLogger stepLogger, ServiceOperation lastServiceOperation,
                                                  CloudServiceInstanceExtended service) {
         lastServiceOperation = super.mapOperationState(stepLogger, lastServiceOperation, service);
-        // Be fault tolerant on failure on update of service
-        if (lastServiceOperation.getType() == ServiceOperation.Type.UPDATE
+        if ((lastServiceOperation.getType() == ServiceOperation.Type.UPDATE && !shouldFailOnUpdateSupplier.get())
             && lastServiceOperation.getState() == ServiceOperation.State.FAILED) {
             stepLogger.warn(Messages.FAILED_SERVICE_UPDATE, service.getName(), lastServiceOperation.getDescription());
             return new ServiceOperation(lastServiceOperation.getType(),
@@ -76,8 +81,9 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
             case UPDATE:
                 return MessageFormat.format(Messages.SERVICE_UPDATED, service.getName());
             default:
-                throw new IllegalStateException(MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
-                                                                     type));
+                throw new IllegalStateException(
+                    MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                         type));
         }
     }
 
@@ -101,8 +107,9 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
                 return MessageFormat.format(Messages.ERROR_UPDATING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
                                             operation.getDescription());
             default:
-                throw new IllegalStateException(MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
-                                                                     operation.getType()));
+                throw new IllegalStateException(
+                    MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                         operation.getType()));
         }
     }
 
@@ -115,8 +122,9 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
                 return MessageFormat.format(Messages.ERROR_UPDATING_OPTIONAL_SERVICE, service.getName(), service.getLabel(),
                                             service.getPlan(), operation.getDescription());
             default:
-                throw new IllegalStateException(MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
-                                                                     operation.getType()));
+                throw new IllegalStateException(
+                    MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                         operation.getType()));
         }
     }
 
