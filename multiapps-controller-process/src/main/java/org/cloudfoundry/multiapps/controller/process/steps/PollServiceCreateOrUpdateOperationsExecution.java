@@ -22,7 +22,8 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
     }
 
     public PollServiceCreateOrUpdateOperationsExecution(ServiceOperationGetter serviceOperationGetter,
-                                                        ServiceProgressReporter serviceProgressReporter, Supplier<Boolean> shouldFailOnUpdateSupplier) {
+                                                        ServiceProgressReporter serviceProgressReporter,
+                                                        Supplier<Boolean> shouldFailOnUpdateSupplier) {
         super(serviceOperationGetter, serviceProgressReporter);
         this.shouldFailOnUpdateSupplier = shouldFailOnUpdateSupplier;
     }
@@ -40,14 +41,19 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
     protected ServiceOperation mapOperationState(StepLogger stepLogger, ServiceOperation lastServiceOperation,
                                                  CloudServiceInstanceExtended service) {
         lastServiceOperation = super.mapOperationState(stepLogger, lastServiceOperation, service);
-        if ((lastServiceOperation.getType() == ServiceOperation.Type.UPDATE && !shouldFailOnUpdateSupplier.get())
-            && lastServiceOperation.getState() == ServiceOperation.State.FAILED) {
+        if (shouldIgnoreLastOperationFailure(lastServiceOperation)) {
             stepLogger.warn(Messages.FAILED_SERVICE_UPDATE, service.getName(), lastServiceOperation.getDescription());
             return new ServiceOperation(lastServiceOperation.getType(),
                                         lastServiceOperation.getDescription(),
                                         ServiceOperation.State.SUCCEEDED);
         }
         return lastServiceOperation;
+    }
+
+    private boolean shouldIgnoreLastOperationFailure(ServiceOperation lastServiceOperation) {
+        return lastServiceOperation.getType() == ServiceOperation.Type.UPDATE
+            && lastServiceOperation.getState() == ServiceOperation.State.FAILED
+            && !shouldFailOnUpdateSupplier.get();
     }
 
     @Override
