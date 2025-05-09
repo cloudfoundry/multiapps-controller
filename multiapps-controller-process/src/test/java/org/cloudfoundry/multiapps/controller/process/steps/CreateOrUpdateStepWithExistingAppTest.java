@@ -1,14 +1,29 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.HealthCheckType;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudProcess;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDropletInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableLifecycle;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
+import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
+import com.sap.cloudfoundry.client.facade.domain.Staging;
+import com.sap.cloudfoundry.client.facade.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
@@ -21,8 +36,16 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
-import com.sap.cloudfoundry.client.facade.domain.*;
-import com.sap.cloudfoundry.client.facade.util.JsonUtil;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
 
@@ -39,7 +62,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
 
     static Stream<Arguments> testHandleStagingApplicationAttributes() {
         return Stream.of(
-//@formatter:off
+            //@formatter:off
 				Arguments.of(ImmutableStaging.builder().addBuildpack("buildpack-1").command("command1").build(),
 						ImmutableStaging.builder().addBuildpack("buildpack-1").command("command2").build(), true, LifecycleType.BUILDPACK),
 				Arguments.of(ImmutableStaging.builder().addBuildpack("buildpack-1").build(),
@@ -153,9 +176,11 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
                                                                          .healthCheckType("port")
                                                                          .isSshEnabled(false)
                                                                          .build())
-                                                .attributesUpdateStrategy(ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder()
-                                                                                                                                   .shouldKeepExistingEnv(shouldKeepExistingEnv)
-                                                                                                                                   .build());
+                                                .attributesUpdateStrategy(
+                                                    ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder()
+                                                                                                             .shouldKeepExistingEnv(
+                                                                                                                 shouldKeepExistingEnv)
+                                                                                                             .build());
     }
 
     private void prepareContext(CloudApplicationExtended application, boolean shouldSkipServiceRebinding) {
@@ -203,10 +228,11 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
                                                                                                   .command(command)
                                                                                                   .diskInMb(disk == null ? 1024 : disk)
                                                                                                   .memoryInMb(memory == null ? 1024
-                                                                                                      : memory)
+                                                                                                                  : memory)
                                                                                                   .healthCheckType(hcType == null
-                                                                                                      ? HealthCheckType.PORT
-                                                                                                      : HealthCheckType.valueOf(hcType.toUpperCase()))
+                                                                                                                       ? HealthCheckType.PORT
+                                                                                                                       : HealthCheckType.valueOf(
+                                                                                                                           hcType.toUpperCase()))
                                                                                                   .healthCheckTimeout(hcTimeout)
                                                                                                   .healthCheckHttpEndpoint(hcEndpoint)
                                                                                                   .instances(1)
