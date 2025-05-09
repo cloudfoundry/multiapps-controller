@@ -1,16 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -20,6 +17,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.v2.ServiceKeysCloudModelBui
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
+import org.cloudfoundry.multiapps.controller.process.util.DeprecatedBuildpackChecker;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -29,8 +27,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeployModelStep> {
 
@@ -54,9 +54,12 @@ class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeplo
     @Mock
     private ProcessTypeParser processTypeParser;
 
+    @Mock
+    private DeprecatedBuildpackChecker deprecatedBuildpackChecker;
+
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
                 Arguments.of(new StepInput("modules-to-deploy-01.json", "services-to-create-01.json", "service-keys-01.json", List.of("api.cf.neo.ondemand.com"), "deployed-mta-12.json")),
                 Arguments.of(new StepInput("modules-to-deploy-01.json", "services-to-create-01.json", "service-keys-01.json", List.of("api.cf.neo.ondemand.com"), null))
 // @formatter:on
@@ -141,8 +144,8 @@ class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeplo
 
         @Override
         protected ModulesCloudModelBuilderContentCalculator
-                  getModulesContentCalculator(ProcessContext context, List<Module> mtaDescriptorModules, Set<String> mtaManifestModuleNames,
-                                              Set<String> deployedModuleNames, Set<String> allMtaModuleNames) {
+        getModulesContentCalculator(ProcessContext context, List<Module> mtaDescriptorModules, Set<String> mtaManifestModuleNames,
+                                    Set<String> deployedModuleNames, Set<String> allMtaModuleNames) {
             return modulesCloudModelBuilderContentCalculator;
         }
 

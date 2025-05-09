@@ -1,8 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,9 +8,10 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
@@ -35,6 +33,7 @@ import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureS
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.DeprecatedBuildpackChecker;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
@@ -51,8 +50,8 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @Named("buildCloudDeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -62,6 +61,8 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     private ModuleToDeployHelper moduleToDeployHelper;
     @Inject
     private ProcessTypeParser processTypeParser;
+    @Inject
+    private DeprecatedBuildpackChecker buildpackChecker;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -89,6 +90,10 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         List<Module> modulesCalculatedForDeployment = calculateModulesForDeployment(context, deploymentDescriptor, mtaDescriptorModules,
                                                                                     mtaManifestModulesNames, deployedModuleNames,
                                                                                     mtaModulesForDeployment);
+
+        buildpackChecker.warnForDeprecatedBuildpacks(modulesCalculatedForDeployment, deploymentDescriptor, getStepLogger(),
+                                                     moduleToDeployHelper);
+
         List<String> moduleJsons = modulesCalculatedForDeployment.stream()
                                                                  .map(SecureSerialization::toJson)
                                                                  .collect(toList());
@@ -179,7 +184,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
                                              .map(NameUtil::getApplicationName)
                                              .collect(toList());
     }
-
+    
     private List<CloudServiceInstanceExtended> buildServicesForBindings(ServicesCloudModelBuilder servicesCloudModelBuilder,
                                                                         DeploymentDescriptor deploymentDescriptor,
                                                                         List<Module> modulesCalculatedForDeployment) {
@@ -191,11 +196,13 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     private List<CloudServiceInstanceExtended> buildFilteredServices(DeploymentDescriptor deploymentDescriptor,
                                                                      List<String> filteredResourceNames,
                                                                      ServicesCloudModelBuilder servicesCloudModelBuilder) {
-        CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(filteredResourceNames,
-                                                                                                                                                   getStepLogger(),
-                                                                                                                                                   false);
+        CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(
+            filteredResourceNames,
+            getStepLogger(),
+            false);
         // this always filters the 'isActive', 'isResourceSpecifiedForDeployment' and 'isService' resources
-        List<Resource> calculatedFilteredResources = resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());
+        List<Resource> calculatedFilteredResources = resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(
+            deploymentDescriptor.getResources());
 
         return servicesCloudModelBuilder.build(calculatedFilteredResources);
     }
@@ -235,9 +242,10 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
     private List<Resource> calculateResourcesForDeployment(ProcessContext context, DeploymentDescriptor deploymentDescriptor) {
         List<String> resourcesSpecifiedForDeployment = context.getVariable(Variables.RESOURCES_FOR_DEPLOYMENT);
-        CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(resourcesSpecifiedForDeployment,
-                                                                                                                                                   getStepLogger(),
-                                                                                                                                                   shouldProcessOnlyUserProvidedServices(context));
+        CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(
+            resourcesSpecifiedForDeployment,
+            getStepLogger(),
+            shouldProcessOnlyUserProvidedServices(context));
         return resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());
     }
 
@@ -247,8 +255,8 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     }
 
     protected ModulesCloudModelBuilderContentCalculator
-              getModulesContentCalculator(ProcessContext context, List<Module> mtaDescriptorModules, Set<String> mtaManifestModuleNames,
-                                          Set<String> deployedModuleNames, Set<String> mtaModuleNamesForDeployment) {
+    getModulesContentCalculator(ProcessContext context, List<Module> mtaDescriptorModules, Set<String> mtaManifestModuleNames,
+                                Set<String> deployedModuleNames, Set<String> mtaModuleNamesForDeployment) {
         List<ModulesContentValidator> modulesValidators = getModuleContentValidators(context.getControllerClient(), mtaDescriptorModules,
                                                                                      mtaModuleNamesForDeployment, deployedModuleNames);
         return new ModulesCloudModelBuilderContentCalculator(mtaManifestModuleNames,
@@ -306,7 +314,8 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
             if (!moduleToDeployHelper.isApplication(module)) {
                 continue;
             }
-            ParametersChainBuilder parametersChainBuilder = new ParametersChainBuilder(context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR));
+            ParametersChainBuilder parametersChainBuilder = new ParametersChainBuilder(
+                context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR));
             List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
 
             boolean noRoute = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.NO_ROUTE, false);
