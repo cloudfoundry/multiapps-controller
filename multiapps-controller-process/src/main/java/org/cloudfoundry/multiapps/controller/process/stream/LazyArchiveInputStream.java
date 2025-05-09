@@ -82,6 +82,10 @@ public class LazyArchiveInputStream extends InputStream {
         return bytesRead;
     }
 
+    public InputStream getCurrentInputStream() {
+        return currentInputStream;
+    }
+
     @Override
     public synchronized int available() throws IOException {
         // The return value of this method must be anything except 0
