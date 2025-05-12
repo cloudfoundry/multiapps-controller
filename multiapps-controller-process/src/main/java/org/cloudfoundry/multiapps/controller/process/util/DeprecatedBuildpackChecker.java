@@ -27,8 +27,8 @@ public class DeprecatedBuildpackChecker {
         List<String> appsWithDeprecatedBuildpacks = modulesCalculatedForDeployment.stream()
                                                                                   .filter(moduleToDeployHelper::isApplication)
                                                                                   .filter(module -> hasDeprecatedBuildpack(module,
-                                                                                                                           deploymentDescriptor,
-                                                                                                                           stepLogger))
+                                                                                                                           deploymentDescriptor
+                                                                                  ))
                                                                                   .map(Module::getName)
                                                                                   .toList();
 
@@ -37,7 +37,7 @@ public class DeprecatedBuildpackChecker {
         }
     }
 
-    private boolean hasDeprecatedBuildpack(Module module, DeploymentDescriptor deploymentDescriptor, StepLogger stepLogger) {
+    private boolean hasDeprecatedBuildpack(Module module, DeploymentDescriptor deploymentDescriptor) {
         List<Map<String, Object>> parametersList = new ParametersChainBuilder(deploymentDescriptor)
             .buildModuleChain(module.getName());
 
