@@ -19,10 +19,7 @@
   "shouldSkipParametersUpdate" : false,
   "shouldSkipPlanUpdate" : false,
   "shouldSkipTagsUpdate" : false,
-  "shouldSkipSyslogUrlUpdate" : false,
-  "shouldFailOnParametersUpdateFailure" : false,
-  "shouldFailOnPlanUpdateFailure" : false,
-  "shouldFailOnTagsUpdateFailure" : false
+  "shouldSkipSyslogUrlUpdate" : false
 }, {
   "isOptional" : false,
   "isManaged" : true,
@@ -44,10 +41,7 @@
   "shouldSkipParametersUpdate" : false,
   "shouldSkipPlanUpdate" : false,
   "shouldSkipTagsUpdate" : false,
-  "shouldSkipSyslogUrlUpdate" : false,
-  "shouldFailOnParametersUpdateFailure" : false,
-  "shouldFailOnPlanUpdateFailure" : false,
-  "shouldFailOnTagsUpdateFailure" : false
+  "shouldSkipSyslogUrlUpdate" : false
 }, {
   "isOptional" : false,
   "isManaged" : true,
@@ -69,10 +63,7 @@
   "shouldSkipParametersUpdate" : false,
   "shouldSkipPlanUpdate" : false,
   "shouldSkipTagsUpdate" : false,
-  "shouldSkipSyslogUrlUpdate" : false,
-  "shouldFailOnParametersUpdateFailure" : false,
-  "shouldFailOnPlanUpdateFailure" : false,
-  "shouldFailOnTagsUpdateFailure" : false
+  "shouldSkipSyslogUrlUpdate" : false
 }, {
   "isOptional" : false,
   "isManaged" : true,
@@ -96,10 +87,7 @@
   "shouldSkipParametersUpdate" : false,
   "shouldSkipPlanUpdate" : false,
   "shouldSkipTagsUpdate" : false,
-  "shouldSkipSyslogUrlUpdate" : false,
-  "shouldFailOnParametersUpdateFailure" : false,
-  "shouldFailOnPlanUpdateFailure" : false,
-  "shouldFailOnTagsUpdateFailure" : false
+  "shouldSkipSyslogUrlUpdate" : false
 }, {
   "isOptional" : false,
   "isManaged" : true,
@@ -123,10 +111,7 @@
   "shouldSkipParametersUpdate" : false,
   "shouldSkipPlanUpdate" : false,
   "shouldSkipTagsUpdate" : false,
-  "shouldSkipSyslogUrlUpdate" : false,
-  "shouldFailOnParametersUpdateFailure" : false,
-  "shouldFailOnPlanUpdateFailure" : false,
-  "shouldFailOnTagsUpdateFailure" : false
+  "shouldSkipSyslogUrlUpdate" : false
 }, {
   "isOptional" : false,
   "isManaged" : true,
@@ -150,10 +135,7 @@
   "shouldSkipParametersUpdate" : false,
   "shouldSkipPlanUpdate" : false,
   "shouldSkipTagsUpdate" : false,
-  "shouldSkipSyslogUrlUpdate" : false,
-  "shouldFailOnParametersUpdateFailure" : false,
-  "shouldFailOnPlanUpdateFailure" : false,
-  "shouldFailOnTagsUpdateFailure" : false
+  "shouldSkipSyslogUrlUpdate" : false
 }, {
   "isOptional" : false,
   "isManaged" : false,
@@ -174,10 +156,7 @@
   "shouldSkipParametersUpdate" : false,
   "shouldSkipPlanUpdate" : false,
   "shouldSkipTagsUpdate" : false,
-  "shouldSkipSyslogUrlUpdate" : false,
-  "shouldFailOnParametersUpdateFailure" : false,
-  "shouldFailOnPlanUpdateFailure" : false,
-  "shouldFailOnTagsUpdateFailure" : false
+  "shouldSkipSyslogUrlUpdate" : false
 }, {
   "isOptional" : false,
   "isManaged" : false,
@@ -198,10 +177,7 @@
   "shouldSkipParametersUpdate" : false,
   "shouldSkipPlanUpdate" : false,
   "shouldSkipTagsUpdate" : false,
-  "shouldSkipSyslogUrlUpdate" : false,
-  "shouldFailOnParametersUpdateFailure" : false,
-  "shouldFailOnPlanUpdateFailure" : false,
-  "shouldFailOnTagsUpdateFailure" : false
+  "shouldSkipSyslogUrlUpdate" : false
 }, {
   "isOptional" : false,
   "isManaged" : false,
@@ -222,8 +198,5 @@
   "shouldSkipParametersUpdate" : false,
   "shouldSkipPlanUpdate" : false,
   "shouldSkipTagsUpdate" : false,
-  "shouldSkipSyslogUrlUpdate" : false,
-  "shouldFailOnParametersUpdateFailure" : false,
-  "shouldFailOnPlanUpdateFailure" : false,
-  "shouldFailOnTagsUpdateFailure" : false
+  "shouldSkipSyslogUrlUpdate" : false
 } ]
