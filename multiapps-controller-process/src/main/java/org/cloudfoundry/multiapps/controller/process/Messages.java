@@ -78,6 +78,9 @@ public class Messages {
     public static final String ROLLBACK_OPERATION_CANNOT_BE_DONE_BACKUP_APPLICATIONS_HAVE_DIFFERENT_MTA_VERSIONS = "Rollback operation cannot be done, backup applications have different MTA versions!";
     public static final String ROLLBACK_MTA_ID_0_CANNOT_BE_DONE_MISSING_DESCRIPTOR = "Rollback of mta id \"{0}\" cannot be done, missing descriptor to perform the operation";
     public static final String BACKUP_PREVIOUS_VERSION_FLAG_AND_APPLY_NAMESPACE_AS_SUFFIX_NOT_SUPPORTED = "Backup previous version flag and apply namespace as suffix is not supported combination";
+    public static final String SERVICE_INSTANCE_0_PLAN_UPDATE_FAILED_ERROR_1 = "Service instance: \"{0}\" plan update failed, error: \"{1}\"";
+    public static final String SERVICE_INSTANCE_0_PARAMETERS_UPDATE_FAILED_ERROR_1 = "Service instance: \"{0}\" parameters update failed, error: \"{1}\"";
+    public static final String SERVICE_INSTANCE_0_TAGS_UPDATE_FAILED_ERROR_1 = "Service instance: \"{0}\" tags update failed, error: \"{1}\"";
 
     // Audit log messages
 
@@ -128,15 +131,18 @@ public class Messages {
     public static final String ERROR_STOPPING_APP = "Error stopping application \"{0}\"";
     public static final String DOWNLOAD_APP_LOGS_FOR_MORE_INFO = "Download the application logs via the dmol command and check them for more information.";
     public static final String ERROR_STAGING_APP_0 = "Error staging application \"{0}\"";
-    public static final String ERROR_STAGING_APP_0_DESCRIPTION_1 = "Error staging application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
+    public static final String ERROR_STAGING_APP_0_DESCRIPTION_1 =
+        "Error staging application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Error publishing public provided dependencies";
     public static final String ERROR_STARTING_APP_0 = "Error starting application \"{0}\"";
-    public static final String ERROR_STARTING_APP_0_DESCRIPTION_1 = "Error starting application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
+    public static final String ERROR_STARTING_APP_0_DESCRIPTION_1 =
+        "Error starting application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_EXECUTING_APP_1 = "Error executing application \"{0}\"";
     public static final String ERROR_EXECUTING_APP_2 = "Error executing application \"{0}\": {1}";
     public static final String ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP = "Error preparing to execute tasks on application \"{0}\"";
     public static final String ERROR_PREPARING_TO_RESTART_SERVICE_BROKER_SUBSCRIBERS = "Error preparing to restart service broker subscribers";
-    public static final String ERROR_EXECUTING_TASK_0_ON_APP_1 = "Execution of task \"{0}\" on application \"{1}\" failed.\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
+    public static final String ERROR_EXECUTING_TASK_0_ON_APP_1 =
+        "Execution of task \"{0}\" on application \"{1}\" failed.\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY = "Error detecting components to undeploy";
     public static final String ERROR_DELETING_IDLE_ROUTES = "Error deleting idle routes";
     public static final String ERROR_CREATING_SERVICE_BROKERS = "Error creating service brokers";
@@ -226,7 +232,6 @@ public class Messages {
     public static final String COULD_NOT_UPDATE_SYSLOG_DRAIN_URL_SERVICE = "Could not update syslog drain url of service \"{0}\" : {1}";
     public static final String SCALING_DOWN_NEW_APPLICATION_TO_ONE_INSTANCE = "Scaling down new application: \"{0}\" to one instance";
     public static final String UPLOAD_OF_APPLICATION_0_WAS_NOT_ACCEPTED_BY_INSTANCE_1 = "Upload of application: {0} was not accepted by instance: {1}";
-
     public static final String COULD_NOT_GET_SERVICE_KEYS_FOR_OPTIONAL_SERVICE = "Could not get service keys for optional service \"{0}\"";
     public static final String DEFAULT_FAILED_OPERATION_DESCRIPTION = "The service broker returned an error with no description!";
     public static final String ERROR_DURING_CLEAN_UP_0 = "Error during clean-up: {0}";
@@ -257,8 +262,10 @@ public class Messages {
     public static final String ERROR_WHILE_DELETING_SERVICE_KEY_0_FOR_OPTIONAL_SERVICE_1 = "Error while deleting service key \"{0}\" for optional service \"{1}\"";
     public static final String SERVICE_KEY_0_IS_ALREADY_DELETED = "Service key \"{0}\" is already deleted";
     public static final String FILE_WITH_ID_0_OPERATION_OWNERSHIP_CHANGED_FROM_0_TO_1 = "File with id \"{0}\" operation ownership was changed from \"{1}\" to \"{2}\" and won't be deleted";
-
     public static final String PARAMETERS_0_ARE_NOT_SUPPORTED_OR_REFERENCED_BY_ANY_OTHER_ENTITIES = "Parameter(s) \"{0}\" are not supported in the specified scope, or referenced by any other entities. These parameters will not be processed and can be lost after the operation completes.";
+    public static final String SERVICE_INSTANCE_0_PLAN_UPDATE_FAILED_IGNORING_FAILURE = "Service instance: \"{0}\" plan update failed, ignoring failure...";
+    public static final String SERVICE_INSTANCE_0_PARAMETERS_UPDATE_FAILED_IGNORING_FAILURE = "Service instance: \"{0}\" parameters update failed, ignoring failure...";
+    public static final String SERVICE_INSTANCE_0_TAGS_UPDATE_FAILED_IGNORING_FAILURE = "Service instance: \"{0}\" tags update failed, ignoring failure...";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
