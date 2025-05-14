@@ -1,16 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -19,18 +8,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.core.Constants;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
-import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
@@ -47,6 +24,28 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
 import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 import com.sap.cloudfoundry.client.facade.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.Constants;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
 
@@ -63,18 +62,18 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
 
     static Stream<Arguments> testHandleStagingApplicationAttributes() {
         return Stream.of(
-//@formatter:off
+            //@formatter:off
 				Arguments.of(ImmutableStaging.builder().addBuildpack("buildpack-1").command("command1").build(),
-						ImmutableStaging.builder().addBuildpack("buildpack-1").command("command2").build(), true),
+						ImmutableStaging.builder().addBuildpack("buildpack-1").command("command2").build(), true, LifecycleType.BUILDPACK),
 				Arguments.of(ImmutableStaging.builder().addBuildpack("buildpack-1").build(),
-						ImmutableStaging.builder().addBuildpack("buildpack-1").build(), false),
+						ImmutableStaging.builder().addBuildpack("buildpack-1").build(), false, LifecycleType.BUILDPACK),
 				Arguments.of(
 						ImmutableStaging.builder().addBuildpack("buildpack-1").command("command1").stackName("stack1")
 								.healthCheckTimeout(5).healthCheckType("process").isSshEnabled(false).build(),
 						ImmutableStaging.builder().addBuildpack("buildpack-2").command("command2").stackName("stack2")
 								.healthCheckTimeout(10).healthCheckType("port").healthCheckHttpEndpoint("/test")
 								.isSshEnabled(true).build(),
-						true),
+						true, LifecycleType.BUILDPACK),
 				Arguments.of(
 						ImmutableStaging.builder().addBuildpack("buildpack-2").command("command2").stackName("stack2")
 								.healthCheckTimeout(10).healthCheckType("process").healthCheckHttpEndpoint("/test")
@@ -82,27 +81,73 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
 						ImmutableStaging.builder().addBuildpack("buildpack-2").command("command2").stackName("stack2")
 								.healthCheckTimeout(10).healthCheckType("process").healthCheckHttpEndpoint("/test")
 								.isSshEnabled(true).build(),
-						false),
+						false, LifecycleType.BUILDPACK),
 				Arguments.of(ImmutableStaging.builder()
 						.dockerInfo(ImmutableDockerInfo.builder().image("cloudfoundry/test-app").build()).build(),
 						ImmutableStaging.builder()
 								.dockerInfo(ImmutableDockerInfo.builder().image("cloudfoundry/test-app2").build())
 								.build(),
-						true),
+						true, LifecycleType.DOCKER),
 				Arguments.of(ImmutableStaging.builder()
 						.dockerInfo(ImmutableDockerInfo.builder().image("cloudfoundry/test-app").build()).build(),
 						ImmutableStaging.builder()
 								.dockerInfo(ImmutableDockerInfo.builder().image("cloudfoundry/test-app").build())
 								.build(),
-						false));
+						false, LifecycleType.DOCKER),
+                Arguments.of(ImmutableStaging.builder().build(),
+                        ImmutableStaging.builder().lifecycleType(LifecycleType.CNB).build(),
+                        false, LifecycleType.CNB),
+                Arguments.of(ImmutableStaging.builder().addBuildpack("buildpack-1").command("command1").build(),
+                        ImmutableStaging.builder().addBuildpack("buildpack-1").command("command2").lifecycleType(LifecycleType.CNB).build(),
+                        true, LifecycleType.CNB),
+                Arguments.of(ImmutableStaging.builder().addBuildpack("buildpack-333").build(),
+                        ImmutableStaging.builder().addBuildpacks("buildpack-4", "buildpack-8").lifecycleType(LifecycleType.CNB).build(),
+                        true, LifecycleType.CNB));
 //@formatter:on
     }
 
     @ParameterizedTest
     @MethodSource
-    void testHandleStagingApplicationAttributes(Staging existingStaging, Staging staging, boolean expectedPropertiesChanged) {
+    void testHandleStagingApplicationAttributes(Staging existingStaging, Staging staging, boolean expectedPropertiesChanged,
+                                                LifecycleType expectedLifecycleType) {
         CloudApplication existingApplication = getApplicationBuilder(false).staging(existingStaging)
                                                                            .build();
+        staging = ImmutableStaging.copyOf(applyDefaultsToStaging(staging));
+        CloudApplicationExtended application = getApplicationBuilder(false).staging(staging)
+                                                                           .build();
+        LifecycleType lifecycleTypeToApply = determineLifecycleType(staging);
+        application = ImmutableCloudApplicationExtended.copyOf(application)
+                                                       .withLifecycle(ImmutableLifecycle.builder()
+                                                                                        .type(lifecycleTypeToApply)
+                                                                                        .build());
+
+        prepareContext(application, false);
+        prepareClientWithStaging(existingApplication, existingStaging);
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        assertEquals(expectedLifecycleType, application.getLifecycle()
+                                                       .getType());
+        assertEquals(expectedPropertiesChanged, context.getVariable(Variables.VCAP_APP_PROPERTIES_CHANGED));
+
+        if (expectedPropertiesChanged) {
+            verify(client).updateApplicationStaging(APP_NAME, staging);
+            return;
+        }
+        verify(client, never()).updateApplicationStaging(eq(APP_NAME), any());
+    }
+
+    private LifecycleType determineLifecycleType(Staging staging) {
+        if (staging.getLifecycleType() != null) {
+            return staging.getLifecycleType();
+        } else if (staging.getDockerInfo() != null) {
+            return LifecycleType.DOCKER;
+        }
+        return LifecycleType.BUILDPACK;
+    }
+
+    private Staging applyDefaultsToStaging(Staging staging) {
         if (staging.getCommand() == null) {
             staging = ImmutableStaging.copyOf(staging)
                                       .withCommand(DEFAULT_COMMAND);
@@ -111,26 +156,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
             staging = ImmutableStaging.copyOf(staging)
                                       .withStackName(DEFAULT_STACK);
         }
-        CloudApplicationExtended application = getApplicationBuilder(false).staging(staging)
-                                                                           .build();
-        if (staging.getDockerInfo() != null) {
-            application = ImmutableCloudApplicationExtended.copyOf(application)
-                                                           .withLifecycle(ImmutableLifecycle.builder()
-                                                                                            .type(LifecycleType.DOCKER)
-                                                                                            .build());
-        }
-        prepareContext(application, false);
-        prepareClientWithStaging(existingApplication, existingStaging);
-
-        step.execute(execution);
-
-        assertStepFinishedSuccessfully();
-        assertEquals(expectedPropertiesChanged, context.getVariable(Variables.VCAP_APP_PROPERTIES_CHANGED));
-        if (expectedPropertiesChanged) {
-            verify(client).updateApplicationStaging(APP_NAME, staging);
-            return;
-        }
-        verify(client, never()).updateApplicationStaging(eq(APP_NAME), any());
+        return staging;
     }
 
     private ImmutableCloudApplicationExtended.Builder getApplicationBuilder(boolean shouldKeepExistingEnv) {
@@ -150,9 +176,11 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
                                                                          .healthCheckType("port")
                                                                          .isSshEnabled(false)
                                                                          .build())
-                                                .attributesUpdateStrategy(ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder()
-                                                                                                                                   .shouldKeepExistingEnv(shouldKeepExistingEnv)
-                                                                                                                                   .build());
+                                                .attributesUpdateStrategy(
+                                                    ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder()
+                                                                                                             .shouldKeepExistingEnv(
+                                                                                                                 shouldKeepExistingEnv)
+                                                                                                             .build());
     }
 
     private void prepareContext(CloudApplicationExtended application, boolean shouldSkipServiceRebinding) {
@@ -200,10 +228,11 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
                                                                                                   .command(command)
                                                                                                   .diskInMb(disk == null ? 1024 : disk)
                                                                                                   .memoryInMb(memory == null ? 1024
-                                                                                                      : memory)
+                                                                                                                  : memory)
                                                                                                   .healthCheckType(hcType == null
-                                                                                                      ? HealthCheckType.PORT
-                                                                                                      : HealthCheckType.valueOf(hcType.toUpperCase()))
+                                                                                                                       ? HealthCheckType.PORT
+                                                                                                                       : HealthCheckType.valueOf(
+                                                                                                                           hcType.toUpperCase()))
                                                                                                   .healthCheckTimeout(hcTimeout)
                                                                                                   .healthCheckHttpEndpoint(hcEndpoint)
                                                                                                   .instances(1)
