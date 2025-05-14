@@ -44,19 +44,13 @@ public abstract class CloudServiceInstanceExtended extends CloudServiceInstance 
         return false;
     }
 
-    @Value.Default
-    public boolean shouldFailOnParametersUpdateFailure() {
-        return false;
-    }
+    @Nullable
+    public abstract Boolean shouldFailOnParametersUpdateFailure();
 
-    @Value.Default
-    public boolean shouldFailOnPlanUpdateFailure() {
-        return false;
-    }
+    @Nullable
+    public abstract Boolean shouldFailOnPlanUpdateFailure();
 
-    @Value.Default
-    public boolean shouldFailOnTagsUpdateFailure() {
-        return false;
-    }
+    @Nullable
+    public abstract Boolean shouldFailOnTagsUpdateFailure();
 
 }

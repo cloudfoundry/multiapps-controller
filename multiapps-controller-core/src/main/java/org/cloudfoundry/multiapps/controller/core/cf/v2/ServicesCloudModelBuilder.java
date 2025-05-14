@@ -201,16 +201,16 @@ public class ServicesCloudModelBuilder {
             return shouldSkipUpdates.getOrDefault("syslog-drain-url", false);
         }
 
-        private boolean failOnServiceParametersUpdateFailure() {
-            return failOnServiceUpdateFailure.getOrDefault("parameters", false);
+        private Boolean failOnServiceParametersUpdateFailure() {
+            return failOnServiceUpdateFailure.get("parameters");
         }
 
-        private boolean failOnServiceTagsUpdateFailure() {
-            return failOnServiceUpdateFailure.getOrDefault("tags", false);
+        private Boolean failOnServiceTagsUpdateFailure() {
+            return failOnServiceUpdateFailure.get("tags");
         }
 
-        private boolean failOnServicePlanUpdateFailure() {
-            return failOnServiceUpdateFailure.getOrDefault("plan", false);
+        private Boolean failOnServicePlanUpdateFailure() {
+            return failOnServiceUpdateFailure.get("plan");
         }
 
     }

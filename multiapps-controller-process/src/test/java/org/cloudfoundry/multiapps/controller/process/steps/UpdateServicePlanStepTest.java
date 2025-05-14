@@ -4,10 +4,10 @@ import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
-
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,7 +26,7 @@ class UpdateServicePlanStepTest extends SyncFlowableStepTest<UpdateServicePlanSt
         step.execute(execution);
 
         verify(client).updateServicePlan(serviceToProcess.getName(),
-                serviceToProcess.getPlan());
+                                         serviceToProcess.getPlan());
     }
 
     @Test
@@ -79,10 +79,24 @@ class UpdateServicePlanStepTest extends SyncFlowableStepTest<UpdateServicePlanSt
         assertEquals(ServiceOperation.Type.UPDATE, step.getOperationType());
     }
 
+    @Test
+    void testFailOnPlanUpdateSetToFalse() {
+        CloudServiceInstanceExtended serviceToProcess = buildServiceToProcess(FALSE);
+        serviceToProcess = ImmutableCloudServiceInstanceExtended.copyOf(serviceToProcess)
+                                                                .withShouldFailOnPlanUpdateFailure(false);
+        prepareServiceToProcess(serviceToProcess);
+        prepareClient(serviceToProcess);
+        throwExceptionOnServicePlanUpdate(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+    }
+
     private void throwExceptionOnServicePlanUpdate(HttpStatus httpStatus) {
         Mockito.doThrow(new CloudOperationException(httpStatus, "Error occurred"))
-                .when(client)
-                .updateServicePlan(any(), any());
+               .when(client)
+               .updateServicePlan(any(), any());
     }
 
     @Override
