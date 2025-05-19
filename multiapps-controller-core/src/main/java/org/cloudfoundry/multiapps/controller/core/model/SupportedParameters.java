@@ -127,7 +127,6 @@ public class SupportedParameters {
 
     // Required dependency parameters:
     public static final String SERVICE_BINDING_CONFIG = "config";
-    public static final String SERVICE_BINDING_CONFIG_PATH = "config-path";
     public static final String MANAGED = "managed";
     public static final String ENV_VAR_NAME = "env-var-name";
     public static final String BINDING_NAME = "binding-name";
@@ -198,14 +197,17 @@ public class SupportedParameters {
                                                                REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
                                                                REGISTER_SERVICE_URL_SERVICE_URL, MODULE_CONFIG, MANAGED, PATH,
                                                                APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
-                                                               APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT);
+                                                               APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT,
+                                                               READINESS_HEALTH_CHECK_HTTP_ENDPOINT,
+                                                               READINESS_HEALTH_CHECK_INVOCATION_TIMEOUT, READINESS_HEALTH_CHECK_TYPE,
+                                                               READINESS_HEALTH_CHECK_INTERVAL, DELETE_SERVICE_KEY_AFTER_DEPLOYMENT);
 
     public static final Set<String> RESOURCE_PARAMETERS = Set.of(APPLY_NAMESPACE, SERVICE_CONFIG, SYSLOG_DRAIN_URL, DEFAULT_CONTAINER_NAME,
                                                                  DEFAULT_SERVICE_NAME, DEFAULT_XS_APP_NAME, SERVICE, SERVICE_KEYS,
                                                                  SERVICE_KEY_NAME, SERVICE_NAME, SERVICE_PLAN, SERVICE_TAGS, SERVICE_BROKER,
                                                                  SKIP_SERVICE_UPDATES, TYPE, PROVIDER_ID, PROVIDER_NID, TARGET,
                                                                  SERVICE_CONFIG_PATH, FILTER, MANAGED, VERSION, PATH, MEMORY,
-                                                                 FAIL_ON_SERVICE_UPDATE);
+                                                                 FAIL_ON_SERVICE_UPDATE, SERVICE_PROVIDER, SERVICE_VERSION);
     public static final Set<String> GLOBAL_PARAMETERS = Set.of(KEEP_EXISTING_ROUTES, APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
                                                                APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT, APPLY_NAMESPACE,
                                                                ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE);
