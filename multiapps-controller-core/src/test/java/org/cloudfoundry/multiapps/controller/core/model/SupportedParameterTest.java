@@ -43,8 +43,8 @@ public class SupportedParameterTest {
                                      .collect(Collectors.toSet());
 
         if (!missing.isEmpty()) {
-            fail("Missing whitelist entries: " + missing +
-                     ".\nTo resolve this, add the missing parameter(s) to the appropriate whitelist set in the SupportedParameters class. ");
+            fail("The following parameters are defined, but are not added to any structure: " + missing +
+                     ".\nTo resolve this, add the missing parameters to the appropriate collection in the SupportedParameters class.");
         }
     }
 
