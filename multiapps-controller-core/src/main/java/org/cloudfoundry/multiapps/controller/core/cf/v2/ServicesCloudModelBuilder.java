@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
@@ -85,6 +84,10 @@ public class ServicesCloudModelBuilder {
                                                     .shouldSkipTagsUpdate(commonServiceParameters.shouldSkipTagsUpdate())
                                                     .shouldSkipPlanUpdate(commonServiceParameters.shouldSkipPlanUpdate())
                                                     .shouldSkipSyslogUrlUpdate(commonServiceParameters.shouldSkipSyslogUrlUpdate())
+                                                    .shouldFailOnParametersUpdateFailure(
+                                                        commonServiceParameters.failOnServiceParametersUpdateFailure())
+                                                    .shouldFailOnPlanUpdateFailure(commonServiceParameters.failOnServicePlanUpdateFailure())
+                                                    .shouldFailOnTagsUpdateFailure(commonServiceParameters.failOnServiceTagsUpdateFailure())
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
@@ -113,6 +116,10 @@ public class ServicesCloudModelBuilder {
                                                     .shouldSkipTagsUpdate(commonServiceParameters.shouldSkipTagsUpdate())
                                                     .shouldSkipPlanUpdate(commonServiceParameters.shouldSkipPlanUpdate())
                                                     .shouldSkipSyslogUrlUpdate(commonServiceParameters.shouldSkipSyslogUrlUpdate())
+                                                    .shouldFailOnParametersUpdateFailure(
+                                                        commonServiceParameters.failOnServiceParametersUpdateFailure())
+                                                    .shouldFailOnPlanUpdateFailure(commonServiceParameters.failOnServicePlanUpdateFailure())
+                                                    .shouldFailOnTagsUpdateFailure(commonServiceParameters.failOnServiceTagsUpdateFailure())
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
@@ -126,6 +133,10 @@ public class ServicesCloudModelBuilder {
                                                     .shouldSkipTagsUpdate(commonServiceParameters.shouldSkipTagsUpdate())
                                                     .shouldSkipPlanUpdate(commonServiceParameters.shouldSkipPlanUpdate())
                                                     .shouldSkipSyslogUrlUpdate(commonServiceParameters.shouldSkipSyslogUrlUpdate())
+                                                    .shouldFailOnParametersUpdateFailure(
+                                                        commonServiceParameters.failOnServiceParametersUpdateFailure())
+                                                    .shouldFailOnPlanUpdateFailure(commonServiceParameters.failOnServicePlanUpdateFailure())
+                                                    .shouldFailOnTagsUpdateFailure(commonServiceParameters.failOnServiceTagsUpdateFailure())
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
@@ -153,6 +164,7 @@ public class ServicesCloudModelBuilder {
     protected static class CommonServiceParameters {
         protected final Resource resource;
         private final Map<String, Boolean> shouldSkipUpdates;
+        private final Map<String, Boolean> failOnServiceUpdateFailure;
 
         @SuppressWarnings("unchecked")
         protected CommonServiceParameters(Resource resource) {
@@ -160,6 +172,9 @@ public class ServicesCloudModelBuilder {
             this.shouldSkipUpdates = (Map<String, Boolean>) resource.getParameters()
                                                                     .getOrDefault(SupportedParameters.SKIP_SERVICE_UPDATES,
                                                                                   Collections.emptyMap());
+            failOnServiceUpdateFailure = (Map<String, Boolean>) resource.getParameters()
+                                                                        .getOrDefault(SupportedParameters.FAIL_ON_SERVICE_UPDATE,
+                                                                                      Collections.emptyMap());
         }
 
         private String getServiceName() {
@@ -184,6 +199,18 @@ public class ServicesCloudModelBuilder {
 
         private boolean shouldSkipSyslogUrlUpdate() {
             return shouldSkipUpdates.getOrDefault("syslog-drain-url", false);
+        }
+
+        private boolean failOnServiceParametersUpdateFailure() {
+            return failOnServiceUpdateFailure.getOrDefault("parameters", false);
+        }
+
+        private boolean failOnServiceTagsUpdateFailure() {
+            return failOnServiceUpdateFailure.getOrDefault("tags", false);
+        }
+
+        private boolean failOnServicePlanUpdateFailure() {
+            return failOnServiceUpdateFailure.getOrDefault("plan", false);
         }
 
     }

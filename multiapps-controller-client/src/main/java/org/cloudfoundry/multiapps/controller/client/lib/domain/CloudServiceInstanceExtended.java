@@ -1,11 +1,10 @@
 package org.cloudfoundry.multiapps.controller.client.lib.domain;
 
-import org.cloudfoundry.multiapps.common.Nullable;
-import org.immutables.value.Value;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
+import org.cloudfoundry.multiapps.common.Nullable;
+import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableCloudServiceInstanceExtended.class)
@@ -42,6 +41,21 @@ public abstract class CloudServiceInstanceExtended extends CloudServiceInstance 
 
     @Value.Default
     public boolean shouldSkipSyslogUrlUpdate() {
+        return false;
+    }
+
+    @Value.Default
+    public boolean shouldFailOnParametersUpdateFailure() {
+        return false;
+    }
+
+    @Value.Default
+    public boolean shouldFailOnPlanUpdateFailure() {
+        return false;
+    }
+
+    @Value.Default
+    public boolean shouldFailOnTagsUpdateFailure() {
         return false;
     }
 

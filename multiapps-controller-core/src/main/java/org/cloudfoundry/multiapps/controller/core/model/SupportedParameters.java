@@ -152,6 +152,7 @@ public class SupportedParameters {
     public static final String DEFAULT_XS_APP_NAME = "default-xsappname";
     public static final String TYPE = "type";
     public static final String SKIP_SERVICE_UPDATES = "skip-service-updates";
+    public static final String FAIL_ON_SERVICE_UPDATE = "fail-on-service-update";
     public static final String SYSLOG_DRAIN_URL = "syslog-drain-url";
     public static final String SERVICE_GUID = "service-guid";
 
@@ -203,7 +204,8 @@ public class SupportedParameters {
                                                                  DEFAULT_SERVICE_NAME, DEFAULT_XS_APP_NAME, SERVICE, SERVICE_KEYS,
                                                                  SERVICE_KEY_NAME, SERVICE_NAME, SERVICE_PLAN, SERVICE_TAGS, SERVICE_BROKER,
                                                                  SKIP_SERVICE_UPDATES, TYPE, PROVIDER_ID, PROVIDER_NID, TARGET,
-                                                                 SERVICE_CONFIG_PATH, FILTER, MANAGED, VERSION, PATH, MEMORY);
+                                                                 SERVICE_CONFIG_PATH, FILTER, MANAGED, VERSION, PATH, MEMORY,
+                                                                 FAIL_ON_SERVICE_UPDATE);
     public static final Set<String> GLOBAL_PARAMETERS = Set.of(KEEP_EXISTING_ROUTES, APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
                                                                APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT, APPLY_NAMESPACE,
                                                                ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE);

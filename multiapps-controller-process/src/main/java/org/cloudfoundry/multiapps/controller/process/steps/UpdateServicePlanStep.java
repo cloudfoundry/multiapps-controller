@@ -3,18 +3,16 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
-
-import jakarta.inject.Named;
-
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
-import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
+import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 
 @Named("updateServicePlanStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -28,7 +26,6 @@ public class UpdateServicePlanStep extends ServiceStep {
             return OperationExecutionState.FINISHED;
         }
         getStepLogger().debug(Messages.UPDATING_SERVICE_0_WITH_PLAN_1, service.getName(), service.getPlan());
-
         try {
             client.updateServicePlan(service.getName(), service.getPlan());
             getStepLogger().debug(Messages.SERVICE_PLAN_FOR_SERVICE_0_UPDATED, service.getName());
@@ -48,8 +45,10 @@ public class UpdateServicePlanStep extends ServiceStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
+        CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
         return Collections.singletonList(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(),
-                                                                                          getServiceProgressReporter()));
+                                                                                          getServiceProgressReporter(),
+                                                                                          serviceToProcess::shouldFailOnPlanUpdateFailure));
     }
 
     @Override
