@@ -58,7 +58,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
                 exceptions.put(objectStoreServiceInfo.getProvider(), e);
             }
         }
-        
+
         exceptions.forEach(
             (provider, exception) -> LOGGER.error(
                 MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0, provider),
@@ -75,23 +75,36 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
     }
 
     private BlobStoreContext getBlobStoreContext(ObjectStoreServiceInfo serviceInfo) {
-        ContextBuilder contextBuilder = ContextBuilder.newBuilder(serviceInfo.getProvider());
-
-        if (serviceInfo.getCredentialsSupplier() != null) {
-            contextBuilder.credentialsSupplier(serviceInfo.getCredentialsSupplier());
-        } else if (serviceInfo.getIdentity() != null && serviceInfo.getCredential() != null) {
-            contextBuilder.credentials(serviceInfo.getIdentity(), serviceInfo.getCredential());
-        } else {
-            throw new IllegalArgumentException(Messages.MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER);
+        String provider = serviceInfo.getProvider();
+        if (StringUtils.isBlank(provider)) {
+            throw new IllegalArgumentException(Messages.MISSING_PROVIDER_FOR_OBJECT_STORE_SERVICE);
         }
+
+        ContextBuilder contextBuilder = ContextBuilder.newBuilder(serviceInfo.getProvider());
+        applyCredentials(serviceInfo, contextBuilder);
 
         resolveContextEndpoint(serviceInfo, contextBuilder);
 
-        try {
-            return contextBuilder.buildView(BlobStoreContext.class);
-        } catch (NullPointerException nullPointerException) {
-            throw new IllegalArgumentException("JClouds failed to build BlobStoreContext. Possible missing credentials.",
-                                               nullPointerException);
+        BlobStoreContext context = contextBuilder.buildView(BlobStoreContext.class);
+        if (context == null) {
+            throw new IllegalStateException(MessageFormat.format(Messages.FAILED_TO_CREATE_BLOB_STORE_CONTEXT_FOR_PROVIDER_0, provider));
+        }
+
+        return context;
+    }
+
+    private void applyCredentials(ObjectStoreServiceInfo serviceInfo, ContextBuilder contextBuilder) {
+        if (serviceInfo.getCredentialsSupplier() != null) {
+            contextBuilder.credentialsSupplier(serviceInfo.getCredentialsSupplier());
+        } else {
+            String identity = serviceInfo.getIdentity();
+            String credential = serviceInfo.getCredential();
+
+            if (StringUtils.isBlank(identity) || StringUtils.isBlank(credential)) {
+                throw new IllegalArgumentException(Messages.MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER);
+            }
+
+            contextBuilder.credentials(identity, credential);
         }
     }
 
