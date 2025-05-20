@@ -33,7 +33,7 @@
         <flowable.version>6.8.0</flowable.version>
         <mybatis.version>3.5.19</mybatis.version>
         <spring.version>6.2.7</spring.version>
-        <spring-security.version>6.4.5</spring-security.version>
+        <spring-security.version>6.5.0</spring-security.version>
         <json-smart.version>2.5.2</json-smart.version>
         <hikari.version>6.3.0</hikari.version>
         <jackson.version>2.19.0</jackson.version>
