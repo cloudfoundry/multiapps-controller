@@ -25,9 +25,7 @@ public final class Messages {
     public static final String MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER = "Missing properties for creating the specific provider!";
     public static final String DEPLOY_FROM_URL_WRONG_CREDENTIALS = "Credentials to {0} are wrong. Make sure that they are correct.";
 
-    public static final String MISSING_PROVIDER_FOR_OBJECT_STORE_SERVICE = "Missing provider for object store service.";
-
-    public static final String FAILED_TO_CREATE_BLOB_STORE_CONTEXT_FOR_PROVIDER_0 = "Failed to create BlobStoreContext for provider: {0}";
+    public static final String FAILED_TO_CREATE_BLOB_STORE_CONTEXT = "Failed to create BlobStoreContext";
 
     // Audit log messages
     public static final String USER_TRYING_TO_LOGIN_AUDIT_LOG_MESSAGE = "\"{0}\" is trying to login in space \"{1}\"";

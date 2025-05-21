@@ -75,11 +75,6 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
     }
 
     private BlobStoreContext getBlobStoreContext(ObjectStoreServiceInfo serviceInfo) {
-        String provider = serviceInfo.getProvider();
-        if (StringUtils.isBlank(provider)) {
-            throw new IllegalArgumentException(Messages.MISSING_PROVIDER_FOR_OBJECT_STORE_SERVICE);
-        }
-
         ContextBuilder contextBuilder = ContextBuilder.newBuilder(serviceInfo.getProvider());
         applyCredentials(serviceInfo, contextBuilder);
 
@@ -87,7 +82,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
 
         BlobStoreContext context = contextBuilder.buildView(BlobStoreContext.class);
         if (context == null) {
-            throw new IllegalStateException(MessageFormat.format(Messages.FAILED_TO_CREATE_BLOB_STORE_CONTEXT_FOR_PROVIDER_0, provider));
+            throw new IllegalStateException(Messages.FAILED_TO_CREATE_BLOB_STORE_CONTEXT);
         }
 
         return context;
