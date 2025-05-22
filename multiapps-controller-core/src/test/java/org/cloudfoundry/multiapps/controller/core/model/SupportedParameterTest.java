@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SupportedParameterTest {
 
@@ -36,16 +36,15 @@ public class SupportedParameterTest {
     @Test
     public void allFieldsShouldBeWhitelisted() throws IllegalAccessException {
         Set<String> supportedParameters = getSupportedParameters();
-        Collection<String> strings = getClassStringFieldsFromClass();
+        Collection<String> strings = discoverAllParameterConstants();
 
         Set<String> missing = strings.stream()
                                      .filter(f -> !supportedParameters.contains(f))
                                      .collect(Collectors.toSet());
 
-        if (!missing.isEmpty()) {
-            fail("The following parameters are defined, but are not added to any structure: " + missing +
-                     ".\nTo resolve this, add the missing parameters to the appropriate collection in the SupportedParameters class.");
-        }
+        assertTrue(missing.isEmpty(),
+                   () -> "The following parameters are defined, but are not added to any structure: " + missing +
+                       ".\nTo resolve this, add the missing parameters to the appropriate collection in the SupportedParameters class.");
     }
 
     private Set<String> getSupportedParameters() {
@@ -73,7 +72,7 @@ public class SupportedParameterTest {
         supportedParameters.addAll(NESTED_PARAMETERS);
     }
 
-    private Collection<String> getClassStringFieldsFromClass() throws IllegalAccessException {
+    private Collection<String> discoverAllParameterConstants() throws IllegalAccessException {
         Collection<String> strings = new ArrayList<>();
         Class<?> clazz = SupportedParameters.class;
         for (Field field : clazz.getDeclaredFields()) {
