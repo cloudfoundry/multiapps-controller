@@ -14,6 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SupportedParameterTest {
 
+    private static final String DEFINED_MISSING_PARAMETERS_MESSAGE = "The following parameters are defined, but are not added to any structure: ";
+    private static final String FIX_MISSING_PARAMETERS_INSTRUCTIONS = ".\nTo resolve this, add the missing parameters to the appropriate collection in the SupportedParameters class.";
+
     private static final Set<String> GENERAL_PARAMETERS = Set.of(SupportedParameters.XS_TARGET_API_URL,
                                                                  SupportedParameters.APPLY_NAMESPACE_SERVICES,
                                                                  SupportedParameters.XS_AUTHORIZATION_ENDPOINT,
@@ -43,8 +46,8 @@ public class SupportedParameterTest {
                                      .collect(Collectors.toSet());
 
         assertTrue(missing.isEmpty(),
-                   () -> "The following parameters are defined, but are not added to any structure: " + missing +
-                       ".\nTo resolve this, add the missing parameters to the appropriate collection in the SupportedParameters class.");
+                   () -> DEFINED_MISSING_PARAMETERS_MESSAGE + missing +
+                       FIX_MISSING_PARAMETERS_INSTRUCTIONS);
     }
 
     private Set<String> getSupportedParameters() {
