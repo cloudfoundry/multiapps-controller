@@ -36,7 +36,7 @@ public class SupportedParameterTest {
                                                                 SupportedParameters.VCAP_SERVICES_ENV,
                                                                 SupportedParameters.USER_PROVIDED_ENV, SupportedParameters.NO_HOSTNAME);
 
-    private static final Set<String> ROLLED_BACK_PARAMETERS = Set.of(
+    private static final Set<String> PLANNED_FUTURE_PARAMETERS = Set.of(
         SupportedParameters.READINESS_HEALTH_CHECK_HTTP_ENDPOINT,
         SupportedParameters.READINESS_HEALTH_CHECK_INVOCATION_TIMEOUT, SupportedParameters.READINESS_HEALTH_CHECK_TYPE,
         SupportedParameters.READINESS_HEALTH_CHECK_INTERVAL);
@@ -78,7 +78,7 @@ public class SupportedParameterTest {
         supportedParameters.addAll(GENERAL_PARAMETERS);
         supportedParameters.addAll(CONFIGURATION_REFERENCE_PARAMETERS);
         supportedParameters.addAll(NESTED_PARAMETERS);
-        supportedParameters.addAll(ROLLED_BACK_PARAMETERS);
+        supportedParameters.addAll(PLANNED_FUTURE_PARAMETERS);
     }
 
     private Collection<String> discoverAllParameterConstants() throws IllegalAccessException {
