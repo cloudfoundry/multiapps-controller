@@ -197,10 +197,7 @@ public class SupportedParameters {
                                                                REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
                                                                REGISTER_SERVICE_URL_SERVICE_URL, MODULE_CONFIG, MANAGED, PATH,
                                                                APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
-                                                               APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT,
-                                                               READINESS_HEALTH_CHECK_HTTP_ENDPOINT,
-                                                               READINESS_HEALTH_CHECK_INVOCATION_TIMEOUT, READINESS_HEALTH_CHECK_TYPE,
-                                                               READINESS_HEALTH_CHECK_INTERVAL, DELETE_SERVICE_KEY_AFTER_DEPLOYMENT);
+                                                               APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT, DELETE_SERVICE_KEY_AFTER_DEPLOYMENT);
 
     public static final Set<String> RESOURCE_PARAMETERS = Set.of(APPLY_NAMESPACE, SERVICE_CONFIG, SYSLOG_DRAIN_URL, DEFAULT_CONTAINER_NAME,
                                                                  DEFAULT_SERVICE_NAME, DEFAULT_XS_APP_NAME, SERVICE, SERVICE_KEYS,
