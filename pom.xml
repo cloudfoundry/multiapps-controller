@@ -17,8 +17,8 @@
         </sonar.coverage.jacoco.xmlReportPaths>
         <junit.version>5.12.2</junit.version>
         <junit-platform.version>1.12.1</junit-platform.version>
-        <mockito.version>5.17.0</mockito.version>
-        <derby.version>10.16.1.1</derby.version>
+        <mockito.version>5.18.0</mockito.version>
+        <derby.version>10.16.1.1</derby.version> <!-- Upper versions of Derby(10.17.1.0) are not compatible with Java 17 -->
         <h2.version>2.2.224</h2.version>
         <servlet-api.version>6.1.0</servlet-api.version>
         <log4j.version>2.24.3</log4j.version>
@@ -38,19 +38,19 @@
         <hikari.version>6.3.0</hikari.version>
         <jackson.version>2.19.0</jackson.version>
         <jackson.databind.version>2.19.0</jackson.databind.version>
-        <liquibase.version>4.31.1</liquibase.version>
+        <liquibase.version>4.32.0</liquibase.version>
         <liquibase-slf4j.version>5.1.0</liquibase-slf4j.version>
-        <cloudfoundry-client.version>2.56.0</cloudfoundry-client.version>
-        <swagger.version>1.6.15</swagger.version>
+        <cloudfoundry-client.version>2.57.0-SNAPSHOT</cloudfoundry-client.version>
+        <swagger.version>1.6.16</swagger.version>
         <jclouds.version>2.7.0</jclouds.version>
-        <guava.version>33.4.6-jre</guava.version>
+        <guava.version>33.4.8-jre</guava.version>
         <resilience4j.version>2.3.0</resilience4j.version>
         <immutables.version>2.10.1</immutables.version>
         <micrometer.version>1.15.0</micrometer.version>
         <aliyun-sdk-oss.version>3.18.2</aliyun-sdk-oss.version>
         <auto-service.version>1.1.1</auto-service.version>
         <commons-codec.version>1.18.0</commons-codec.version>
-        <multiapps.version>2.32.0</multiapps.version>
+        <multiapps.version>2.33.0-SNAPSHOT</multiapps.version>
         <java-cfenv.version>3.4.0</java-cfenv.version>
         <jaxb-api.version>4.0.2</jaxb-api.version>
         <jaxb-core.version>4.0.5</jaxb-core.version>
@@ -115,7 +115,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.13.0</version>
+                    <version>3.14.0</version>
                     <configuration>
                         <source>17</source>
                         <target>17</target>
@@ -160,7 +160,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.2</version>
+                    <version>3.5.3</version>
                     <configuration>
                         <!-- Surefire excludes nested classes by default, so we need to explicitly specify that nothing should 
                             be excluded. -->
@@ -241,7 +241,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.10</version>
+                    <version>0.8.13</version>
                 </plugin>
             </plugins>
         </pluginManagement>
