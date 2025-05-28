@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 
 import jakarta.inject.Named;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.Tika;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
@@ -21,8 +20,6 @@ public class FileMimeTypeValidator {
     private static final String APPLICATION_ZIP_MIME_TYPE = "application/zip";
     private static final String APPLICATION_OCTET_STREAM_MIME_TYPE = "application/octet-stream";
     private static final String TEXT_PLAIN_MIME_TYPE = "text/plain";
-    private static final String YAML_FILE_EXTENSION = "yaml";
-    private static final String EXTENSION_DESCRIPTOR_FILE_EXTENSION = "mtaext";
     private static final Tika tika = new Tika();
 
     public void validateMultipartFileMimeType(MultipartFile multipartFile) {
@@ -52,20 +49,11 @@ public class FileMimeTypeValidator {
     }
 
     private void validateYamlFile(InputStream uploadedFileInputStream, String filename) {
-        validateTextFileExtension(filename);
         Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
         try {
             yaml.load(uploadedFileInputStream);
         } catch (YAMLException e) {
             throw new IllegalArgumentException(MessageFormat.format(Messages.THE_PROVIDED_0_FILE_IS_INVALID, filename), e);
-        }
-    }
-
-    private void validateTextFileExtension(String filename) {
-        String fileExtension = FilenameUtils.getExtension(filename);
-
-        if (!(YAML_FILE_EXTENSION.equals(fileExtension) || EXTENSION_DESCRIPTOR_FILE_EXTENSION.equals(fileExtension))) {
-            throw new IllegalArgumentException(MessageFormat.format(Messages.THE_PROVIDED_0_FILE_IS_INVALID, filename));
         }
     }
 }
