@@ -1,5 +1,11 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -21,7 +27,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
-import jakarta.persistence.NoResultException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.AsyncUploadResult;
@@ -33,7 +38,6 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.FilesApiServiceAu
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.FileMimeTypeValidator;
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -61,19 +65,13 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import jakarta.persistence.NoResultException;
 
 class FilesApiServiceImplTest {
 
     private static final String MTA_ID = "anatz";
     private static final String FILE_URL = Base64.getUrlEncoder()
-                                                 .encodeToString(
-                                                     "https://host.domain/test.mtar?query=true".getBytes(StandardCharsets.UTF_8));
+                                                 .encodeToString("https://host.domain/test.mtar?query=true".getBytes(StandardCharsets.UTF_8));
     private static final String SPACE_GUID = "896e6be9-8217-4a1c-b938-09b30966157a";
     private static final String NAMESPACE = "custom-namespace";
     private static final String DIGEST_CHARACTER_TABLE = "123456789ABCDEF";
@@ -116,8 +114,6 @@ class FilesApiServiceImplTest {
     private DescriptorParserFacadeFactory descriptorParserFactory = new DescriptorParserFacadeFactory(configuration);
     @Mock
     private AsyncUploadJobService uploadJobService;
-    @Mock
-    private FileMimeTypeValidator fileMimeTypeValidator;
 
     @BeforeAll
     public static void setUser() {
@@ -185,7 +181,7 @@ class FilesApiServiceImplTest {
 
         ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID, NAMESPACE);
 
-        Mockito.verify(file, times(1))
+        Mockito.verify(file)
                .getInputStream();
         Mockito.verify(fileService)
                .addFile(Mockito.eq(ImmutableFileEntry.builder()
@@ -285,10 +281,10 @@ class FilesApiServiceImplTest {
 
     private void prepareAsyncExecutor(Future<?> future) {
         Mockito.doAnswer(invocationOnMock -> {
-                   Runnable r = invocationOnMock.getArgument(0);
-                   r.run();
-                   return future;
-               })
+            Runnable r = invocationOnMock.getArgument(0);
+            r.run();
+            return future;
+        })
                .when(asyncFileUploadExecutor)
                .submit((Runnable) Mockito.any());
     }
