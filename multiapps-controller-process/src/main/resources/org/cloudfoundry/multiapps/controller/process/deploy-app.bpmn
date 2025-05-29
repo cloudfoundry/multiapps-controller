@@ -84,6 +84,7 @@
           <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
           <flowable:in source="tasksIndex" target="tasksIndex"></flowable:in>
           <flowable:in source="user" target="user"></flowable:in>
+          <flowable:in source="userGuid" target="userGuid"></flowable:in>
           <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
           <flowable:in source="correlationId" target="correlationId"></flowable:in>
           <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
@@ -100,6 +101,7 @@
           <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
           <flowable:in source="tasksIndex" target="tasksIndex"></flowable:in>
           <flowable:in source="user" target="user"></flowable:in>
+          <flowable:in source="userGuid" target="userGuid"></flowable:in>
           <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
           <flowable:in source="correlationId" target="correlationId"></flowable:in>
           <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
@@ -124,6 +126,7 @@
           <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
           <flowable:in source="tasksIndex" target="tasksIndex"></flowable:in>
           <flowable:in source="user" target="user"></flowable:in>
+          <flowable:in source="userGuid" target="userGuid"></flowable:in>
           <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
           <flowable:in source="correlationId" target="correlationId"></flowable:in>
           <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>

@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -9,8 +10,6 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 public class ProcessContext {
 
@@ -34,16 +33,18 @@ public class ProcessContext {
 
     public CloudControllerClient getControllerClient() {
         String userName = StepsUtil.determineCurrentUser(execution);
+        String userGuid = StepsUtil.determineCurrentUserGuid(execution);
         String spaceGuid = getVariable(Variables.SPACE_GUID);
         String correlationId = getVariable(Variables.CORRELATION_ID);
-        CloudControllerClient delegate = clientProvider.getControllerClient(userName, spaceGuid, correlationId);
+        CloudControllerClient delegate = clientProvider.getControllerClient(userName, userGuid, spaceGuid, correlationId);
         return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 
     public CloudControllerClient getControllerClient(String spaceGuid) {
         String userName = StepsUtil.determineCurrentUser(execution);
+        String userGuid = StepsUtil.determineCurrentUserGuid(execution);
         String correlationId = getVariable(Variables.CORRELATION_ID);
-        CloudControllerClient delegate = clientProvider.getControllerClient(userName, spaceGuid, correlationId);
+        CloudControllerClient delegate = clientProvider.getControllerClient(userName, userGuid, spaceGuid, correlationId);
         return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 

@@ -1,38 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
 
-    <property name="small-blob.type" value="BYTEA" dbms="postgresql" />
-    <property name="large-blob.type" value="OID" dbms="postgresql" />
+    <property name="small-blob.type" value="BYTEA" dbms="postgresql"/>
+    <property name="large-blob.type" value="OID" dbms="postgresql"/>
 
-    <property name="small-blob.type" value="BLOB" dbms="all" />
-    <property name="large-blob.type" value="BLOB" dbms="all" />
+    <property name="small-blob.type" value="BLOB" dbms="all"/>
+    <property name="large-blob.type" value="BLOB" dbms="all"/>
 
     <include
-        file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.110.0-persistence.xml" />
+            file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.110.0-persistence.xml"/>
     <include
-        file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.116.0-persistence.xml" />
-    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.110.0-core.xml" />
-    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.116.0-core.xml" />
+            file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.116.0-persistence.xml"/>
+    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.110.0-core.xml"/>
+    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.116.0-core.xml"/>
 
-    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.120.0-quartz.xml" />
-    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.120.0-core.xml" />
+    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.120.0-quartz.xml"/>
+    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.120.0-core.xml"/>
 
-    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.121.0-core.xml" />
+    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.121.0-core.xml"/>
 
-    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.124.0-core.xml" />
+    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.124.0-core.xml"/>
 
-    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.139.0-persistence.xml" />
+    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.139.0-persistence.xml"/>
 
-    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.160.0-persistence.xml" />
+    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.160.0-persistence.xml"/>
 
-    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.164.0-persistence.xml" />
+    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.164.0-persistence.xml"/>
 
-    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.167.0-persistence.xml" />
+    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.167.0-persistence.xml"/>
 
-    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.175.0-persistence.xml" />
-    
-    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.183.0-persistence.xml" />
+    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.175.0-persistence.xml"/>
+
+    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.183.0-persistence.xml"/>
+
+    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.192.0-persistence.xml"/>
 </databaseChangeLog>

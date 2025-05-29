@@ -1,11 +1,14 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
+import com.sap.cloudfoundry.client.facade.domain.InstanceState;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
@@ -15,11 +18,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
-import com.sap.cloudfoundry.client.facade.domain.InstanceState;
+import static java.text.MessageFormat.format;
 
 public class PollStartAppStatusExecution implements AsyncExecution {
 
@@ -48,8 +47,9 @@ public class PollStartAppStatusExecution implements AsyncExecution {
                                                              .getProcessLoggerProvider();
 
         var user = context.getVariable(Variables.USER);
+        var userGuid = context.getVariable(Variables.USER_GUID);
         var correlationId = context.getVariable(Variables.CORRELATION_ID);
-        var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(user), correlationId);
+        var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(user, userGuid), correlationId);
 
         StepsUtil.saveAppLogs(context, logCacheClient, app.getGuid(), app.getName(), LOGGER, processLoggerProvider);
         return checkStartupStatus(context, app, status);
@@ -139,8 +139,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         } else {
             stateCounts = instances.stream()
                                    .collect(Collectors.groupingBy(instance -> instance.getState()
-                                                                                      .toString(),
-                                                                  Collectors.counting()));
+                                                                                      .toString(), Collectors.counting()));
         }
         return stateCounts.entrySet()
                           .stream()

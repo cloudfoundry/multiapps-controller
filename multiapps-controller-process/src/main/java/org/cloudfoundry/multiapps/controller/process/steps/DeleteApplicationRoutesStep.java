@@ -7,6 +7,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudRouteExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudRouteExtended;
@@ -19,14 +25,6 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 @Named("deleteApplicationRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -65,8 +63,9 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
 
     private List<CloudRouteExtended> getApplicationRoutes(CloudControllerClient client, CloudApplication app, ProcessContext context) {
         String user = context.getVariable(Variables.USER);
+        String userGuid = context.getVariable(Variables.USER_GUID);
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
-        var token = tokenService.getToken(user);
+        var token = tokenService.getToken(user, userGuid);
         var credentials = new CloudCredentials(token, true);
         var serviceInstanceRoutesGetter = getServiceRoutesGetter(credentials, correlationId);
 
@@ -78,8 +77,9 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
         var serviceRouteBindings = serviceInstanceRoutesGetter.getServiceRouteBindings(routeGuids);
         var routeIdsToServiceInstanceIds = serviceRouteBindings.stream()
                                                                .collect(Collectors.groupingBy(ServiceRouteBinding::getRouteId,
-                                                                                              Collectors.mapping(ServiceRouteBinding::getServiceInstanceId,
-                                                                                                                 Collectors.toList())));
+                                                                                              Collectors.mapping(
+                                                                                                  ServiceRouteBinding::getServiceInstanceId,
+                                                                                                  Collectors.toList())));
         return routes.stream()
                      .map(route -> addServicesToRoute(route, routeIdsToServiceInstanceIds))
                      .collect(Collectors.toList());
@@ -87,8 +87,7 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
 
     private CloudRouteExtended addServicesToRoute(CloudRoute route, Map<String, List<String>> routesToServices) {
         var boundServiceGuids = routesToServices.getOrDefault(route.getGuid()
-                                                                   .toString(),
-                                                              Collections.emptyList());
+                                                                   .toString(), Collections.emptyList());
         return ImmutableCloudRouteExtended.builder()
                                           .from(route)
                                           .boundServiceInstanceGuids(boundServiceGuids)
@@ -103,8 +102,7 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
         }
         getStepLogger().info(Messages.DELETING_ROUTE, route.getUrl());
         client.deleteRoute(route.getHost(), route.getDomain()
-                                                 .getName(),
-                           route.getPath());
+                                                 .getName(), route.getPath());
         getStepLogger().debug(Messages.ROUTE_DELETED, route.getUrl());
     }
 

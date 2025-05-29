@@ -1,9 +1,5 @@
 package org.cloudfoundry.multiapps.controller.web.util;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -12,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.persistence.model.AccessToken;
 import org.cloudfoundry.multiapps.controller.persistence.query.AccessTokenQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.AccessTokenService;
@@ -23,7 +20,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 class TokenReuserTest {
 
@@ -36,41 +35,6 @@ class TokenReuserTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-    }
-
-    @Test
-    void testGetTokenWithExpirationAfterNoTokensInDatabase() {
-        AccessTokenQuery accessTokenQuery = getMockedAccessTokenQuery();
-        Mockito.when(accessTokenQuery.list())
-               .thenReturn(Collections.emptyList());
-        Optional<AccessToken> token = tokenReuser.getTokenWithExpirationAfter("username", 100);
-        assertTrue(token.isEmpty());
-    }
-
-    @Test
-    void testGetTokenWithExpirationAfterTokenShouldBeReused() {
-        AccessTokenQuery accessTokenQuery = getMockedAccessTokenQuery();
-        LocalDateTime datePlus5Mins = ZonedDateTime.now()
-                                                   .plus(Duration.ofSeconds(5 * 60))
-                                                   .toLocalDateTime();
-        AccessToken accessToken = getMockedAccessToken(datePlus5Mins);
-        Mockito.when(accessTokenQuery.list())
-               .thenReturn(List.of(accessToken));
-        Optional<AccessToken> token = tokenReuser.getTokenWithExpirationAfter("test_user", 100);
-        assertTrue(token.isPresent());
-    }
-
-    @Test
-    void testGetTokenWithExpirationAfterTokenShouldNotBeReused() {
-        AccessTokenQuery accessTokenQuery = getMockedAccessTokenQuery();
-        LocalDateTime dateMinus5Mins = ZonedDateTime.now()
-                                                    .minus(Duration.ofSeconds(5 * 60))
-                                                    .toLocalDateTime();
-        AccessToken accessToken = getMockedAccessToken(dateMinus5Mins);
-        Mockito.when(accessTokenQuery.list())
-               .thenReturn(List.of(accessToken));
-        Optional<AccessToken> token = tokenReuser.getTokenWithExpirationAfter("test_user", 100);
-        assertTrue(token.isEmpty());
     }
 
     @Test
@@ -129,7 +93,7 @@ class TokenReuserTest {
 
     private AccessTokenQuery getMockedAccessTokenQuery() {
         AccessTokenQuery accessTokenQuery = Mockito.mock(AccessTokenQuery.class);
-        Mockito.when(accessTokenQuery.username(anyString()))
+        Mockito.when(accessTokenQuery.userGuid(anyString()))
                .thenReturn(accessTokenQuery);
         Mockito.when(accessTokenQuery.orderByExpiresAt(any()))
                .thenReturn(accessTokenQuery);

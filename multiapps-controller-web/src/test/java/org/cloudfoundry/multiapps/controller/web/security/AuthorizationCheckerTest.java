@@ -1,19 +1,21 @@
 package org.cloudfoundry.multiapps.controller.web.security;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.UUID;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
+import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
+import com.sap.cloudfoundry.client.facade.domain.UserRole;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CfRolesGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
@@ -33,14 +35,11 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
-import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
-import com.sap.cloudfoundry.client.facade.domain.UserRole;
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 class AuthorizationCheckerTest {
 
@@ -75,40 +74,40 @@ class AuthorizationCheckerTest {
 
     static Stream<Arguments> checkPermissionsUsingNamesTest() {
         return Stream.of(
-                         // (0) User has a space developer role and has access
-                         Arguments.of(EnumSet.of(UserRole.SPACE_DEVELOPER), true),
-                         // (1) User has org user & manager roles and no access
-                         Arguments.of(EnumSet.of(UserRole.ORGANIZATION_USER, UserRole.ORGANIZATION_MANAGER), false),
-                         // (2) User has a space manager & developer roles and has access
-                         Arguments.of(EnumSet.of(UserRole.SPACE_MANAGER, UserRole.SPACE_DEVELOPER), true),
-                         // (3) User does not have any roles and no access
-                         Arguments.of(Collections.emptySet(), false));
+            // (0) User has a space developer role and has access
+            Arguments.of(EnumSet.of(UserRole.SPACE_DEVELOPER), true),
+            // (1) User has org user & manager roles and no access
+            Arguments.of(EnumSet.of(UserRole.ORGANIZATION_USER, UserRole.ORGANIZATION_MANAGER), false),
+            // (2) User has a space manager & developer roles and has access
+            Arguments.of(EnumSet.of(UserRole.SPACE_MANAGER, UserRole.SPACE_DEVELOPER), true),
+            // (3) User does not have any roles and no access
+            Arguments.of(Collections.emptySet(), false));
     }
 
     static Stream<Arguments> checkPermissionUsingGuidsTest() {
         return Stream.of(
-                         // (0) User has a space developer role and executes a non read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_DEVELOPER), false, true),
-                         // (1) User does not have any roles and executes a non read-only request
-                         Arguments.of(Collections.emptySet(), false, false),
-                         // (2) User does not have any roles and executes a read-only request
-                         Arguments.of(Collections.emptySet(), true, false),
-                         // (3) User has a space auditor role and executes a non read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_AUDITOR), false, false),
-                         // (4) User has a space manager role and executes a non read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_MANAGER), false, false),
-                         // (5) User has a space auditor role and executes a read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_AUDITOR), true, true),
-                         // (6) User has a space manager role and executes a read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_MANAGER), true, true),
-                         // (7) User has a space developer role and executes a read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_DEVELOPER), true, true),
-                         // (8) User has a space auditor & manager roles and executes a read-only request
-                         Arguments.of(EnumSet.of(UserRole.SPACE_AUDITOR, UserRole.SPACE_MANAGER), true, true),
-                         // (9) User has a org user & manager roles and executes a read-only request
-                         Arguments.of(EnumSet.of(UserRole.ORGANIZATION_USER, UserRole.ORGANIZATION_MANAGER), true, false),
-                         // (10) User has a org user & manager roles and executes a read-only request
-                         Arguments.of(EnumSet.of(UserRole.ORGANIZATION_USER, UserRole.ORGANIZATION_MANAGER), false, false));
+            // (0) User has a space developer role and executes a non read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_DEVELOPER), false, true),
+            // (1) User does not have any roles and executes a non read-only request
+            Arguments.of(Collections.emptySet(), false, false),
+            // (2) User does not have any roles and executes a read-only request
+            Arguments.of(Collections.emptySet(), true, false),
+            // (3) User has a space auditor role and executes a non read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_AUDITOR), false, false),
+            // (4) User has a space manager role and executes a non read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_MANAGER), false, false),
+            // (5) User has a space auditor role and executes a read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_AUDITOR), true, true),
+            // (6) User has a space manager role and executes a read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_MANAGER), true, true),
+            // (7) User has a space developer role and executes a read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_DEVELOPER), true, true),
+            // (8) User has a space auditor & manager roles and executes a read-only request
+            Arguments.of(EnumSet.of(UserRole.SPACE_AUDITOR, UserRole.SPACE_MANAGER), true, true),
+            // (9) User has a org user & manager roles and executes a read-only request
+            Arguments.of(EnumSet.of(UserRole.ORGANIZATION_USER, UserRole.ORGANIZATION_MANAGER), true, false),
+            // (10) User has a org user & manager roles and executes a read-only request
+            Arguments.of(EnumSet.of(UserRole.ORGANIZATION_USER, UserRole.ORGANIZATION_MANAGER), false, false));
     }
 
     @ParameterizedTest
@@ -152,7 +151,7 @@ class AuthorizationCheckerTest {
 
     private void setUpMocks(Set<UserRole> spaceRoles, Exception exception) {
         var token = Mockito.mock(OAuth2AccessTokenWithAdditionalInfo.class);
-        when(tokenService.getToken(anyString())).thenReturn(token);
+        when(tokenService.getToken(anyString(), anyString())).thenReturn(token);
         if (exception != null) {
             when(rolesGetter.getRoles(SPACE_ID, USER_ID)).thenThrow(exception);
         } else {
@@ -185,11 +184,13 @@ class AuthorizationCheckerTest {
     }
 
     private UserInfo getUserInfo() {
-        OAuth2AccessTokenWithAdditionalInfo accessToken = new OAuth2AccessTokenWithAdditionalInfo(new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-                                                                                                                        "token_value",
-                                                                                                                        Instant.now(),
-                                                                                                                        Instant.now().plus(5, ChronoUnit.MINUTES)),
-                                                                                                  Collections.emptyMap());
+        OAuth2AccessTokenWithAdditionalInfo accessToken = new OAuth2AccessTokenWithAdditionalInfo(
+            new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+                                  "token_value",
+                                  Instant.now(),
+                                  Instant.now()
+                                         .plus(5, ChronoUnit.MINUTES)),
+            Collections.emptyMap());
         return new UserInfo(USER_ID.toString(), USERNAME, accessToken);
     }
 

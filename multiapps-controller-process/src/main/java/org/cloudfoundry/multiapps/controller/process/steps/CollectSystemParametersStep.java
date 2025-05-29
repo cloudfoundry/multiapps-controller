@@ -4,9 +4,12 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.function.Supplier;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.CredentialsGenerator;
@@ -26,11 +29,6 @@ import org.cloudfoundry.multiapps.mta.model.VersionRule;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
 
 @Named("collectSystemParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -124,11 +122,10 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                                              .timestamp(timestamp)
                                              .mtaId(descriptor.getId())
                                              .mtaVersion(descriptor.getVersion())
-                                             .hostValidator(new HostValidator(namespace,
-                                                                              applyNamespaceGlobalLevel,
-                                                                              applyNamespaceProcessVariable,
-                                                                              applyNamespaceAsSuffixGlobalLevel,
-                                                                              applyNamespaceAsSuffixProcessVariable))
+                                             .hostValidator(
+                                                 new HostValidator(namespace, applyNamespaceGlobalLevel, applyNamespaceProcessVariable,
+                                                                   applyNamespaceAsSuffixGlobalLevel,
+                                                                   applyNamespaceAsSuffixProcessVariable))
                                              .build();
     }
 
@@ -150,8 +147,8 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         if (deploymentType == DeploymentType.REDEPLOYMENT) {
             throw new ContentException(Messages.SAME_VERSION_ALREADY_DEPLOYED);
         }
-        throw new IllegalStateException(MessageFormat.format(Messages.VERSION_RULE_DOES_NOT_ALLOW_DEPLOYMENT_TYPE, versionRule,
-                                                             deploymentType));
+        throw new IllegalStateException(
+            MessageFormat.format(Messages.VERSION_RULE_DOES_NOT_ALLOW_DEPLOYMENT_TYPE, versionRule, deploymentType));
     }
 
     private DeploymentType getDeploymentType(DeployedMta deployedMta, Version newMtaVersion) {
@@ -175,7 +172,8 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
     protected AuthorizationEndpointGetter getAuthorizationEndpointGetter(ProcessContext context) {
         String user = context.getVariable(Variables.USER);
-        var token = tokenService.getToken(user);
+        String userGuid = context.getVariable(Variables.USER_GUID);
+        var token = tokenService.getToken(user, userGuid);
         var creds = new CloudCredentials(token, true);
         return new AuthorizationEndpointGetter(webClientFactory.getWebClient(creds));
     }

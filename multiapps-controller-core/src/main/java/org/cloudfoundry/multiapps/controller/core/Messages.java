@@ -6,7 +6,7 @@ package org.cloudfoundry.multiapps.controller.core;
 public final class Messages {
 
     // Exception messages
-    public static final String NO_VALID_TOKEN_FOUND = "No valid access token was found for user \"{0}\"";
+    public static final String NO_VALID_TOKEN_FOUND = "No valid access token was found for user guid \"{0}\"";
     public static final String CANT_CREATE_CLIENT = "Could not create client";
     public static final String CANT_CREATE_CLIENT_FOR_SPACE_ID = "Could not create client in space with guid \"{0}\"";
     public static final String UNAUTHORISED_OPERATION_ORG_SPACE = "Not authorized to perform operation \"{0}\" in organization \"{1}\" and space \"{2}\"";

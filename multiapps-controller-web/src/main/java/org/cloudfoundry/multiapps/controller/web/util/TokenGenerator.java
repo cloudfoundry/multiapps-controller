@@ -1,13 +1,12 @@
 package org.cloudfoundry.multiapps.controller.web.util;
 
-import static com.sap.cloudfoundry.client.facade.oauth2.TokenFactory.EXPIRES_AT_KEY;
-
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.client.util.TokenProperties;
 import org.cloudfoundry.multiapps.controller.persistence.model.AccessToken;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableAccessToken;
@@ -16,7 +15,7 @@ import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import static com.sap.cloudfoundry.client.facade.oauth2.TokenFactory.EXPIRES_AT_KEY;
 
 public abstract class TokenGenerator {
 
@@ -29,8 +28,8 @@ public abstract class TokenGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenGenerator.class);
 
     public void storeAccessToken(AccessToken accessToken, String userGuid) {
-        LOGGER.info(MessageFormat.format(Messages.STORING_TOKEN_FOR_USER_WITH_GUID_0_WHICH_EXPIRES_AT_1, userGuid,
-                                         accessToken.getExpiresAt()));
+        LOGGER.info(
+            MessageFormat.format(Messages.STORING_TOKEN_FOR_USER_WITH_GUID_0_WHICH_EXPIRES_AT_1, userGuid, accessToken.getExpiresAt()));
         accessTokenService.add(accessToken);
     }
 
@@ -43,6 +42,7 @@ public abstract class TokenGenerator {
                                                                              .getBytes(StandardCharsets.UTF_8))
                                    .username(extractUsername(oAuth2AccessTokenWithAdditionalInfo))
                                    .expiresAt(calculateAccessTokenExpirationDate(oAuth2AccessTokenWithAdditionalInfo))
+                                   .userGuid(extractUserGuid(oAuth2AccessTokenWithAdditionalInfo))
                                    .build();
     }
 
@@ -53,7 +53,7 @@ public abstract class TokenGenerator {
 
     protected String extractUserGuid(OAuth2AccessTokenWithAdditionalInfo token) {
         return (String) token.getAdditionalInfo()
-                                                     .get(TokenProperties.USER_ID_KEY);
+                             .get(TokenProperties.USER_ID_KEY);
     }
 
     private LocalDateTime calculateAccessTokenExpirationDate(OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo) {

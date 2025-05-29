@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="add_column_to_access_token">
+        <preConditions>
+            <tableExists tableName="access_token"/>
+        </preConditions>
+        <addColumn tableName="access_token">
+            <column name="user_guid" type="VARCHAR(255)"/>
+        </addColumn>
+        <createIndex tableName="access_token"
+                     indexName="idx_access_token_user_guid">
+            <column name="user_guid"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

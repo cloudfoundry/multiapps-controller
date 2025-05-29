@@ -83,6 +83,7 @@ public class PersistenceMetadata {
         public static final String ACCESS_TOKEN_VALUE = "value";
         public static final String ACCESS_TOKEN_USERNAME = "username";
         public static final String ACCESS_TOKEN_EXPIRES_AT = "expires_at";
+        public static final String ACCESS_TOKEN_USER_GUID = "user_guid";
 
         public static final String LOCK_OWNER_ID = "id";
         public static final String LOCK_OWNER_LOCK_OWNER = "lock_owner";

@@ -5,15 +5,14 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
 import org.cloudfoundry.multiapps.controller.client.util.TokenProperties;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
-import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
 
 public class OAuthClientExtended extends OAuthClient {
 
@@ -35,10 +34,11 @@ public class OAuthClientExtended extends OAuthClient {
                  .isBefore(Instant.now()
                                   .plus(120, ChronoUnit.SECONDS))) {
             TokenProperties tokenProperties = TokenProperties.fromToken(token);
-            token = tokenService.getToken(tokenProperties.getUserName());
-            LOGGER.info(MessageFormat.format(Messages.RETRIEVED_TOKEN_FOR_USER_WITH_GUID_0_WITH_EXPIRATION_TIME_1, tokenProperties.getUserId(),
-                                             token.getOAuth2AccessToken()
-                                                  .getExpiresAt()));
+            token = tokenService.getToken(tokenProperties.getUserName(), tokenProperties.getUserId());
+            LOGGER.info(
+                MessageFormat.format(Messages.RETRIEVED_TOKEN_FOR_USER_WITH_GUID_0_WITH_EXPIRATION_TIME_1, tokenProperties.getUserId(),
+                                     token.getOAuth2AccessToken()
+                                          .getExpiresAt()));
         }
         return token;
     }
