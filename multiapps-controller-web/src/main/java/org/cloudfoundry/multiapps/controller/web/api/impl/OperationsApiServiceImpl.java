@@ -15,11 +15,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
+import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
+import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.persistence.NoResultException;
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
@@ -61,10 +63,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
-import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 
 @Named
 public class OperationsApiServiceImpl implements OperationsApiService {
@@ -155,7 +153,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
                                                                              .getParameters();
-        operation = addServiceParameters(operation, spaceGuid, user);
+        operation = addServiceParameters(operation, spaceGuid, user, SecurityContextUtil.getUserGuid());
         operation = addParameterValues(operation, predefinedParameters);
         ensureRequiredParametersSet(operation, predefinedParameters);
         ProcessInstance processInstance = flowableFacade.startProcess(processDefinitionKey, operation.getParameters());
@@ -247,7 +245,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         throw new IllegalStateException(MessageFormat.format("State \"{0}\" not recognized!", operation.getState()));
     }
 
-    private Operation addServiceParameters(Operation operation, String spaceGuid, String user) {
+    private Operation addServiceParameters(Operation operation, String spaceGuid, String user, String userGuid) {
         Map<String, Object> parameters = new HashMap<>(operation.getParameters());
 
         CloudSpaceClient client = getSpaceClient();
@@ -258,6 +256,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
         parameters.put(Constants.VARIABLE_NAME_SERVICE_ID, processDefinitionKey);
         parameters.put(Variables.USER.getName(), user);
+        parameters.put(Variables.USER_GUID.getName(), userGuid);
         parameters.put(Variables.SPACE_NAME.getName(), space.getName());
         parameters.put(Variables.SPACE_GUID.getName(), spaceGuid);
         parameters.put(Variables.ORGANIZATION_NAME.getName(), organization.getName());
@@ -285,7 +284,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         Map<String, Object> operationParameters = operation.getParameters();
         Set<ParameterMetadata> requiredParameters = getRequiredParameters(predefinedParameters);
         List<ParameterMetadata> missingRequiredParameters = requiredParameters.stream()
-                                                                              .filter(parameter -> !operationParameters.containsKey(parameter.getId()))
+                                                                              .filter(parameter -> !operationParameters.containsKey(
+                                                                                  parameter.getId()))
                                                                               .collect(Collectors.toList());
         if (!missingRequiredParameters.isEmpty()) {
             throw new ContentException("Required parameters " + getParameterIds(missingRequiredParameters) + " are not set!");
@@ -318,7 +318,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private CloudSpaceClient getSpaceClient() {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientFactory.createSpaceClient(tokenService.getToken(userInfo.getName()));
+        return clientFactory.createSpaceClient(tokenService.getToken(userInfo.getName(), userInfo.getId()));
     }
 
     private List<Message> getOperationMessages(Operation operation) {

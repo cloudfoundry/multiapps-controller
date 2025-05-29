@@ -4,6 +4,10 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
@@ -21,12 +25,6 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 @Named("detectDeployedMtaStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -80,9 +78,9 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
     private void detectBackupMta(String mtaId, String mtaNamespace, CloudControllerClient client, ProcessContext context) {
         getStepLogger().debug(Messages.DETECTING_BACKUP_MTA_BY_ID_AND_NAMESPACE, mtaId, mtaNamespace);
         Optional<DeployedMta> optionalBackupMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(mtaId,
-                                                                                                          NameUtil.computeUserNamespaceWithSystemNamespace(Constants.MTA_BACKUP_NAMESPACE,
-                                                                                                                                                           mtaNamespace),
-                                                                                                          client);
+                                                                                                          NameUtil.computeUserNamespaceWithSystemNamespace(
+                                                                                                              Constants.MTA_BACKUP_NAMESPACE,
+                                                                                                              mtaNamespace), client);
 
         if (optionalBackupMta.isEmpty()) {
             context.setVariable(Variables.BACKUP_MTA, null);
@@ -99,7 +97,8 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         List<DeployedMtaService> deployedMtaServices = deployedMta == null ? null : deployedMta.getServices();
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
         String user = context.getVariable(Variables.USER);
-        var token = tokenService.getToken(user);
+        String userGuid = context.getVariable(Variables.USER_GUID);
+        var token = tokenService.getToken(user, userGuid);
         var creds = new CloudCredentials(token, true);
 
         CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(creds, context.getVariable(Variables.CORRELATION_ID));
@@ -116,8 +115,9 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
 
     private void logDetectedDeployedMta(String mtaNamespace, MtaMetadata metadata) {
         if (StringUtils.isNotEmpty(mtaNamespace)) {
-            getStepLogger().info(MessageFormat.format(Messages.DETECTED_DEPLOYED_MTA_WITH_NAMESPACE, metadata.getId(),
-                                                      metadata.getVersion(), metadata.getNamespace()));
+            getStepLogger().info(
+                MessageFormat.format(Messages.DETECTED_DEPLOYED_MTA_WITH_NAMESPACE, metadata.getId(), metadata.getVersion(),
+                                     metadata.getNamespace()));
             return;
         }
         getStepLogger().info(MessageFormat.format(Messages.DETECTED_DEPLOYED_MTA, metadata.getId(), metadata.getVersion()));

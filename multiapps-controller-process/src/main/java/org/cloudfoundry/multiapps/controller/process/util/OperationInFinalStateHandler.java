@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static java.text.MessageFormat.format;
-
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -9,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
@@ -38,10 +39,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+import static java.text.MessageFormat.format;
 
 @Named
 public class OperationInFinalStateHandler {
@@ -92,10 +90,10 @@ public class OperationInFinalStateHandler {
     }
 
     private void deleteCloudControllerClientForProcess(DelegateExecution execution) {
-        String user = StepsUtil.determineCurrentUser(execution);
+        String userGuid = StepsUtil.determineCurrentUserGuid(execution);
         String spaceGuid = VariableHandling.get(execution, Variables.SPACE_GUID);
 
-        clientProvider.releaseClient(user, spaceGuid);
+        clientProvider.releaseClient(userGuid, spaceGuid);
     }
 
     protected void setOperationState(String processInstanceId, Operation.State state) {
@@ -120,8 +118,7 @@ public class OperationInFinalStateHandler {
 
     private boolean isOperationAlreadyFinal(Operation operation) {
         return operation.getState()
-                        .isFinal()
-            && !operation.hasAcquiredLock() && operation.getEndedAt() != null;
+                        .isFinal() && !operation.hasAcquiredLock() && operation.getEndedAt() != null;
     }
 
     private HistoricOperationEvent.EventType toEventType(State state) {
@@ -142,8 +139,8 @@ public class OperationInFinalStateHandler {
             Optional<String> mtaVersion = getMtaVersionOfDeployedApplication(deployedMta);
 
             if (mtaVersion.isPresent()) {
-                LOGGER.info(MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTOR_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_VERSION_3,
-                                                 mtaId, spaceId, mtaNamespace, mtaVersion.get()));
+                LOGGER.info(MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTOR_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_VERSION_3, mtaId,
+                                                 spaceId, mtaNamespace, mtaVersion.get()));
                 descriptorBackupService.createQuery()
                                        .mtaId(mtaId)
                                        .spaceId(spaceId)
@@ -170,8 +167,9 @@ public class OperationInFinalStateHandler {
             return;
         }
 
-        LOGGER.info(MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTORS_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_SKIP_VERSIONS_3, mtaId,
-                                         spaceId, mtaNamespace, mtaVersionsToSkipDeletion));
+        LOGGER.info(
+            MessageFormat.format(Messages.DELETING_BACKUP_DESCRIPTORS_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_SKIP_VERSIONS_3, mtaId, spaceId,
+                                 mtaNamespace, mtaVersionsToSkipDeletion));
         descriptorBackupService.createQuery()
                                .mtaId(mtaId)
                                .spaceId(spaceId)
@@ -225,12 +223,14 @@ public class OperationInFinalStateHandler {
                                                                                                                            Variables.SPACE_GUID))
                                                                                              .operationState(state)
                                                                                              .processType(processType)
-                                                                                             .processDuration(overallProcessTime.getProcessDuration())
+                                                                                             .processDuration(
+                                                                                                 overallProcessTime.getProcessDuration())
                                                                                              .build();
         dynatracePublisher.publishProcessDuration(dynatraceProcessDuration, LOGGER);
 
-        LOGGER.info(format(Messages.TIME_STATISTICS_FOR_OPERATION_0_DURATION_1_DELAY_2, correlationId,
-                           overallProcessTime.getProcessDuration(), overallProcessTime.getDelayBetweenSteps()));
+        LOGGER.info(
+            format(Messages.TIME_STATISTICS_FOR_OPERATION_0_DURATION_1_DELAY_2, correlationId, overallProcessTime.getProcessDuration(),
+                   overallProcessTime.getDelayBetweenSteps()));
     }
 
     private void logProcessTime(String correlationId, String processId, ProcessTime processTime) {

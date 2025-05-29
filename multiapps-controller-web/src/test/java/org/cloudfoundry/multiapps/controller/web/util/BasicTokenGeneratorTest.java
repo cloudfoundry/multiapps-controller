@@ -1,17 +1,13 @@
 package org.cloudfoundry.multiapps.controller.web.util;
 
-import static com.sap.cloudfoundry.client.facade.oauth2.TokenFactory.EXPIRES_AT_KEY;
-import static com.sap.cloudfoundry.client.facade.oauth2.TokenFactory.USER_NAME;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
+import com.sap.cloudfoundry.client.facade.util.RestUtil;
 import org.cloudfoundry.multiapps.controller.core.security.token.parsers.TokenParserChain;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.AccessToken;
@@ -26,9 +22,12 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
-import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
-import com.sap.cloudfoundry.client.facade.util.RestUtil;
+import static com.sap.cloudfoundry.client.facade.oauth2.TokenFactory.EXPIRES_AT_KEY;
+import static com.sap.cloudfoundry.client.facade.oauth2.TokenFactory.USER_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 class BasicTokenGeneratorTest {
 
@@ -93,11 +92,16 @@ class BasicTokenGeneratorTest {
     @Test
     void testParseTokenWithCurrentOauthToken() {
         AccessToken mockedAccessToken = Mockito.mock(AccessToken.class);
+        OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo = Mockito.mock(OAuth2AccessTokenWithAdditionalInfo.class);
         Mockito.when(mockedAccessToken.getValue())
                .thenReturn("token_value".getBytes(StandardCharsets.UTF_8));
         Optional<AccessToken> optionalAccessToken = Optional.of(mockedAccessToken);
-        Mockito.when(tokenReuser.getTokenWithExpirationAfter(any(), anyLong()))
+        Mockito.when(tokenReuser.getTokenWithExpirationAfterOrReuseCurrent(any(), anyLong(), any()))
                .thenReturn(optionalAccessToken);
+        Mockito.when(oAuth2AccessTokenWithAdditionalInfo.getAdditionalInfo())
+               .thenReturn(Map.of("user_id", "1234"));
+        Mockito.when(oAuthClient.getToken())
+               .thenReturn(oAuth2AccessTokenWithAdditionalInfo);
         basicTokenGenerator.generate(TOKEN_STRING);
         Mockito.verify(tokenParserChain)
                .parse(any());

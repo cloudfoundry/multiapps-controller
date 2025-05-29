@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.HistoryService;
@@ -18,9 +17,9 @@ public class ClientReleaser {
     }
 
     public void releaseClientFor(HistoryService historyService, String processInstanceId) {
-        String user = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.USER.getName());
+        String userGuid = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.USER_GUID.getName());
         String spaceGuid = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.SPACE_GUID.getName());
 
-        clientProvider.releaseClient(user, spaceGuid);
+        clientProvider.releaseClient(userGuid, spaceGuid);
     }
 }

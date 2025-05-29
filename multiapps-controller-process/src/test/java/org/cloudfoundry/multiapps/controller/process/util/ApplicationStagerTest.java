@@ -1,15 +1,23 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
+import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.DropletInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudBuild;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDropletInfo;
+import com.sap.cloudfoundry.client.facade.domain.PackageState;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
@@ -25,19 +33,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
-import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.DropletInfo;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudBuild;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDropletInfo;
-import com.sap.cloudfoundry.client.facade.domain.PackageState;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 
 class ApplicationStagerTest {
 
@@ -62,7 +61,8 @@ class ApplicationStagerTest {
                           .close();
         this.context = new ProcessContext(MockDelegateExecution.createSpyInstance(), stepLogger, clientProvider);
         context.setVariable(Variables.USER, "whatever");
-        Mockito.when(clientProvider.getControllerClient(Mockito.any(), Mockito.any(), Mockito.any()))
+        context.setVariable(Variables.USER_GUID, "123-456-789");
+        Mockito.when(clientProvider.getControllerClient(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                .thenReturn(client);
         this.applicationStager = new ApplicationStager(context);
         setCloudPackage();
@@ -297,8 +297,7 @@ class ApplicationStagerTest {
                .thenReturn(List.of(build));
         applicationStager.stageApp(app);
         assertEquals(build.getMetadata()
-                          .getGuid(),
-                     context.getVariable(Variables.BUILD_GUID));
+                          .getGuid(), context.getVariable(Variables.BUILD_GUID));
     }
 
     private void setCloudPackage() {

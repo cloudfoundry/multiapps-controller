@@ -1,13 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.PackageState;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
@@ -29,13 +28,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.PackageState;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class PollStageAppStatusExecutionTest {
 
     private static final String USER_NAME = "testUsername";
+    private static final String USER_GUID = "123-456-789";
     private static final String APPLICATION_NAME = "testApplication";
     private static final long PROCESS_START_TIME = Instant.EPOCH.toEpochMilli();
 
@@ -110,12 +110,13 @@ class PollStageAppStatusExecutionTest {
 
     private void prepareContext(CloudApplicationExtended application) {
         context.setVariable(Variables.USER, USER_NAME);
+        context.setVariable(Variables.USER_GUID, USER_GUID);
         context.setVariable(Variables.START_TIME, PROCESS_START_TIME);
         context.setVariable(Variables.APP_TO_PROCESS, application);
     }
 
     private void prepareClientProvider() {
-        when(clientProvider.getControllerClient(any(), any(), any())).thenReturn(client);
+        when(clientProvider.getControllerClient(any(), any(), any(), any())).thenReturn(client);
     }
 
     private void prepareClient(CloudApplicationExtended application) {
