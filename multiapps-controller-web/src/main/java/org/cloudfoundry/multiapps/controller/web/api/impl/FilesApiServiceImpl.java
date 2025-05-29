@@ -26,8 +26,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.ProxyInputStream;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -46,7 +44,6 @@ import org.cloudfoundry.multiapps.controller.core.model.CachedMap;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.FileMimeTypeValidator;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry.State;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -72,6 +69,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 @Named
 public class FilesApiServiceImpl implements FilesApiService {
 
@@ -81,7 +81,6 @@ public class FilesApiServiceImpl implements FilesApiService {
     private static final Duration HTTP_CONNECT_TIMEOUT = Duration.ofMinutes(10);
     private static final String RETRY_AFTER_SECONDS = "30";
     private static final String USERNAME_PASSWORD_URL_FORMAT = "{0}:{1}";
-
     static {
         System.setProperty(Constants.RETRY_LIMIT_PROPERTY, "0");
     }
@@ -105,8 +104,6 @@ public class FilesApiServiceImpl implements FilesApiService {
     private FilesApiServiceAuditLog filesApiServiceAuditLog;
     @Inject
     private ExecutorService fileStorageThreadPool;
-    @Inject
-    private FileMimeTypeValidator fileMimeTypeValidator;
 
     @Override
     public ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid, String namespace) {
@@ -127,7 +124,6 @@ public class FilesApiServiceImpl implements FilesApiService {
     public ResponseEntity<FileMetadata> uploadFile(MultipartHttpServletRequest request, String spaceGuid, String namespace) {
         LOGGER.trace(Messages.RECEIVED_UPLOAD_REQUEST, ServletUtil.decodeUri(request));
         var multipartFile = getFileFromRequest(request);
-        fileMimeTypeValidator.validateMultipartFileMimeType(multipartFile);
         try (InputStream in = new BufferedInputStream(multipartFile.getInputStream(), INPUT_STREAM_BUFFER_SIZE)) {
             var startTime = LocalDateTime.now();
             FileEntry fileEntry = fileStorageThreadPool.submit(createUploadFileTask(spaceGuid, namespace, multipartFile, in))

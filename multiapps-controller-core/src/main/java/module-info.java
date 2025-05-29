@@ -61,7 +61,6 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires org.apache.commons.lang3;
     requires org.apache.httpcomponents.httpclient;
     requires org.apache.httpcomponents.httpcore;
-    requires org.apache.tika.core;
     requires org.cloudfoundry.multiapps.common;
     requires org.cloudfoundry.multiapps.controller.api;
     requires org.slf4j;

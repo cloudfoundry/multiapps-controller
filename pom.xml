@@ -59,7 +59,6 @@
         <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
         <bouncycastle.version>1.80</bouncycastle.version>
         <apache.compress.version>1.27.1</apache.compress.version>
-        <tika-core.version>3.1.0</tika-core.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>
@@ -468,12 +467,6 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-jdk14</artifactId>
                 <version>${slf4j.version}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.tika/tika-core -->
-            <dependency>
-                <groupId>org.apache.tika</groupId>
-                <artifactId>tika-core</artifactId>
-                <version>${tika-core.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
             <dependency>
