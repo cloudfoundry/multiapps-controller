@@ -1,15 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
@@ -24,10 +22,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import org.mockito.MockitoAnnotations;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApplicationWaitAfterStopVariableGetterTest {
 
@@ -49,10 +48,11 @@ class ApplicationWaitAfterStopVariableGetterTest {
                           .close();
         Mockito.when(client.getApplicationEnvironment(Mockito.any(UUID.class)))
                .thenReturn(Collections.emptyMap());
-        Mockito.when(clientProvider.getControllerClient(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(clientProvider.getControllerClient(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                .thenReturn(client);
         context = new ProcessContext(MockDelegateExecution.createSpyInstance(), stepLogger, clientProvider);
         context.setVariable(Variables.USER, "user");
+        context.setVariable(Variables.USER_GUID, "123-456-789");
         context.setVariable(Variables.SPACE_GUID, "guid");
         context.setVariable(Variables.CORRELATION_ID, "id");
         delayVariableGetter = new ApplicationWaitAfterStopVariableGetter();

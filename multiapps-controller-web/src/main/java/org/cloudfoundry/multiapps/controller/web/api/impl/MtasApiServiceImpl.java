@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.controller.api.MtasApiService;
@@ -30,9 +31,6 @@ import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.cloudfoundry.multiapps.mta.model.Version;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 @Named
 public class MtasApiServiceImpl implements MtasApiService {
@@ -91,9 +89,8 @@ public class MtasApiServiceImpl implements MtasApiService {
 
         CloudControllerClient client = getCloudFoundryClient(spaceGuid);
         Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(name, namespace, client);
-        DeployedMta deployedMta = optionalDeployedMta.orElseThrow(() -> new NotFoundException(Messages.SPECIFIC_MTA_NOT_FOUND,
-                                                                                              name,
-                                                                                              namespace));
+        DeployedMta deployedMta = optionalDeployedMta.orElseThrow(
+            () -> new NotFoundException(Messages.SPECIFIC_MTA_NOT_FOUND, name, namespace));
 
         return ResponseEntity.ok()
                              .body(Arrays.asList(getMta(deployedMta, client)));
@@ -133,7 +130,7 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     private CloudControllerClient getCloudFoundryClient(String spaceGuid) {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientProvider.getControllerClientWithNoCorrelation(userInfo.getName(), spaceGuid);
+        return clientProvider.getControllerClientWithNoCorrelation(userInfo.getName(), userInfo.getId(), spaceGuid);
     }
 
     private List<Mta> getMtas(List<DeployedMta> deployedMtas, CloudControllerClient client) {

@@ -3,6 +3,9 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.util.UUID;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.PackageState;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
@@ -13,10 +16,6 @@ import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.PackageState;
 
 public class PollStageAppStatusExecution implements AsyncExecution {
 
@@ -46,8 +45,9 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         ProcessLoggerProvider processLoggerProvider = stepLogger.getProcessLoggerProvider();
 
         var user = context.getVariable(Variables.USER);
+        var userGuid = context.getVariable(Variables.USER_GUID);
         var correlationId = context.getVariable(Variables.CORRELATION_ID);
-        var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(user), correlationId);
+        var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(user, userGuid), correlationId);
 
         UUID appGuid = client.getApplicationGuid(application.getName());
         StepsUtil.saveAppLogs(context, logCacheClient, appGuid, application.getName(), LOGGER, processLoggerProvider);

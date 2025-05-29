@@ -1,18 +1,18 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.text.MessageFormat;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudControllerException;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -29,19 +29,20 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudControllerException;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceInstance;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ServiceRemoverTest {
 
     private static final String TEST_USER = "test-user";
+    private static final String TEST_USER_GUID = UUID.randomUUID()
+                                                     .toString();
     private static final String TEST_SPACE = "test-space";
     private static final String SERVICE_NAME = "test-service";
     private static final String SERVICE_LABEL = "test-label";
@@ -70,9 +71,10 @@ class ServiceRemoverTest {
     }
 
     private void prepareExecution() {
-        when(clientProvider.getControllerClient(anyString(), anyString(), any())).thenReturn(client);
+        when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), any())).thenReturn(client);
         context = new ProcessContext(execution, stepLogger, clientProvider);
         context.setVariable(Variables.USER, TEST_USER);
+        context.setVariable(Variables.USER_GUID, TEST_USER_GUID);
         execution.setVariable(org.cloudfoundry.multiapps.controller.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE);
     }
 
@@ -105,9 +107,9 @@ class ServiceRemoverTest {
         Exception wrappedException = assertThrows(SLException.class, () -> serviceRemover.deleteService(context, serviceInstance));
         assertEquals(expectedExceptionType, wrappedException.getCause()
                                                             .getClass());
-        assertEquals(MessageFormat.format(Messages.ERROR_DELETING_SERVICE, SERVICE_NAME, SERVICE_LABEL, SERVICE_PLAN,
-                                          expectedExceptionMessage),
-                     wrappedException.getMessage());
+        assertEquals(
+            MessageFormat.format(Messages.ERROR_DELETING_SERVICE, SERVICE_NAME, SERVICE_LABEL, SERVICE_PLAN, expectedExceptionMessage),
+            wrappedException.getMessage());
     }
 
     @Test

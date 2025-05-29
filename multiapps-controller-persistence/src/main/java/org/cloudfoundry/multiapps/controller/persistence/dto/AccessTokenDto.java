@@ -9,7 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-
 import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata;
 
 @Entity
@@ -25,6 +24,7 @@ public class AccessTokenDto implements DtoWithPrimaryKey<Long> {
         public static final String ID = "id";
         public static final String VALUE = "value";
         public static final String USERNAME = "username";
+        public static final String USER_GUID = "userGuid";
         public static final String EXPIRES_AT = "expiresAt";
 
     }
@@ -40,6 +40,9 @@ public class AccessTokenDto implements DtoWithPrimaryKey<Long> {
     @Column(name = PersistenceMetadata.TableColumnNames.ACCESS_TOKEN_USERNAME, nullable = false)
     private String username;
 
+    @Column(name = PersistenceMetadata.TableColumnNames.ACCESS_TOKEN_USER_GUID)
+    private String userGuid;
+
     @Column(name = PersistenceMetadata.TableColumnNames.ACCESS_TOKEN_EXPIRES_AT, nullable = false)
     private LocalDateTime expiresAt;
 
@@ -47,10 +50,11 @@ public class AccessTokenDto implements DtoWithPrimaryKey<Long> {
         // Required by JPA
     }
 
-    public AccessTokenDto(long id, byte[] value, String username, LocalDateTime expiresAt) {
+    public AccessTokenDto(long id, byte[] value, String username, String userGuid, LocalDateTime expiresAt) {
         this.id = id;
         this.value = value;
         this.username = username;
+        this.userGuid = userGuid;
         this.expiresAt = expiresAt;
     }
 
@@ -78,6 +82,14 @@ public class AccessTokenDto implements DtoWithPrimaryKey<Long> {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getUserGuid() {
+        return userGuid;
+    }
+
+    public void setUserGuid(String userGuid) {
+        this.userGuid = userGuid;
     }
 
     public LocalDateTime getExpiresAt() {

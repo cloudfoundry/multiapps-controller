@@ -12,6 +12,13 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.adapters.LogCacheClient;
+import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
+import com.sap.cloudfoundry.client.facade.domain.CloudTask;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -38,14 +45,6 @@ import org.flowable.variable.api.delegate.VariableScope;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.adapters.LogCacheClient;
-import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
-import com.sap.cloudfoundry.client.facade.domain.CloudTask;
-
 public class StepsUtil {
 
     public static final String DEPLOY_ID_PREFIX = "deploy-";
@@ -59,6 +58,16 @@ public class StepsUtil {
             throw new SLException(Messages.CANT_DETERMINE_CURRENT_USER);
         }
         return user;
+    }
+
+    public static String determineCurrentUserGuid(VariableScope scope) {
+        String userGuid = VariableHandling.get(scope, Variables.USER_GUID);
+        if (userGuid == null) {
+            // TODO: Throw exception when we are sure that userGuid is not null after one release takt
+            return null;
+            //            throw new SLException(Messages.CANT_DETERMINE_CURRENT_USER_GUID);
+        }
+        return userGuid;
     }
 
     public static CloudHandlerFactory getHandlerFactory(VariableScope scope) {

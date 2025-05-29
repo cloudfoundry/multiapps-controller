@@ -5,10 +5,13 @@ import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import com.sap.cloudfoundry.client.facade.domain.UserRole;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import com.sap.cloudfoundry.client.facade.oauth2.TokenFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
@@ -25,11 +28,6 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-import com.sap.cloudfoundry.client.facade.domain.UserRole;
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
-import com.sap.cloudfoundry.client.facade.oauth2.TokenFactory;
 
 @Named
 public class AuthorizationChecker implements DisposableBean {
@@ -94,7 +92,7 @@ public class AuthorizationChecker implements DisposableBean {
         if (hasAdminScope(userInfo)) {
             return true;
         }
-        var userToken = tokenService.getToken(userInfo.getName());
+        var userToken = tokenService.getToken(userInfo.getName(), userInfo.getId());
         var spaceClient = clientFactory.createSpaceClient(userToken);
         var space = spaceClient.getSpace(orgName, spaceName);
 
@@ -111,7 +109,7 @@ public class AuthorizationChecker implements DisposableBean {
         if (hasAdminScope(userInfo)) {
             return true;
         }
-        var userToken = tokenService.getToken(userInfo.getName());
+        var userToken = tokenService.getToken(userInfo.getName(), userInfo.getId());
         CfRolesGetter rolesGetter = getRolesGetter(userToken);
         UUID userGuid = UUID.fromString(userInfo.getId());
         UUID spaceGuid = convertSpaceIdToUUID(spaceId);

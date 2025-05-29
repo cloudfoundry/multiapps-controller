@@ -1,16 +1,15 @@
 package org.cloudfoundry.multiapps.controller.core.security.token;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import org.cloudfoundry.multiapps.controller.client.util.TokenProperties;
 import org.cloudfoundry.multiapps.controller.core.security.token.parsers.TokenParserChain;
 import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.model.AccessToken;
@@ -24,7 +23,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 
 class TokenServiceTest {
 
@@ -46,8 +47,8 @@ class TokenServiceTest {
     void testGetTokenWhenThereAreNoTokensForUser() {
         AccessTokenQuery accessTokenQuery = Mockito.mock(AccessTokenQuery.class);
         mockAccessTokenService(accessTokenQuery);
-        Exception exception = assertThrows(IllegalStateException.class, () -> tokenService.getToken("deploy-service-user"));
-        assertEquals("No valid access token was found for user \"deploy-service-user\"", exception.getMessage());
+        Exception exception = assertThrows(IllegalStateException.class, () -> tokenService.getToken("deploy-service-user", "123"));
+        assertEquals("No valid access token was found for user guid \"123\"", exception.getMessage());
     }
 
     @Test
@@ -60,9 +61,11 @@ class TokenServiceTest {
                .thenReturn(List.of(accessToken));
         mockAccessTokenService(accessTokenQuery);
         OAuth2AccessTokenWithAdditionalInfo mockedToken = Mockito.mock(OAuth2AccessTokenWithAdditionalInfo.class);
+        Mockito.when(mockedToken.getAdditionalInfo())
+               .thenReturn(Map.of(TokenProperties.USER_NAME_KEY, "deploy-service-user", TokenProperties.USER_ID_KEY, "123"));
         Mockito.when(tokenParserChain.parse(any()))
                .thenReturn(mockedToken);
-        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken("deploy-service-user");
+        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken("deploy-service-user", "123");
         assertEquals(mockedToken, token);
     }
 
@@ -71,9 +74,11 @@ class TokenServiceTest {
         AccessTokenQuery accessTokenQuery = mockAccessTokenQuery();
         mockAccessTokenService(accessTokenQuery);
         OAuth2AccessTokenWithAdditionalInfo mockedToken = Mockito.mock(OAuth2AccessTokenWithAdditionalInfo.class);
+        Mockito.when(mockedToken.getAdditionalInfo())
+               .thenReturn(Map.of(TokenProperties.USER_NAME_KEY, "deploy-service-user", TokenProperties.USER_ID_KEY, "123"));
         Mockito.when(tokenParserChain.parse(any()))
                .thenReturn(mockedToken);
-        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken("deploy-service-user");
+        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken("deploy-service-user", "123");
         assertEquals(mockedToken, token);
     }
 
@@ -88,10 +93,12 @@ class TokenServiceTest {
                                   .plus(90, ChronoUnit.SECONDS));
         Mockito.when(mockedToken.getOAuth2AccessToken())
                .thenReturn(oAuth2AccessToken);
+        Mockito.when(mockedToken.getAdditionalInfo())
+               .thenReturn(Map.of(TokenProperties.USER_NAME_KEY, "deploy-service-user", TokenProperties.USER_ID_KEY, "123"));
         Mockito.when(tokenParserChain.parse(any()))
                .thenReturn(mockedToken);
-        tokenService.getToken("deploy-service-user");
-        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken("deploy-service-user");
+        tokenService.getToken("deploy-service-user", "123");
+        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken("deploy-service-user", "123");
         assertEquals(mockedToken, token);
     }
 
@@ -116,6 +123,8 @@ class TokenServiceTest {
 
     private void mockAccessTokenService(AccessTokenQuery accessTokenQuery) {
         Mockito.when(accessTokenService.createQuery())
+               .thenReturn(accessTokenQuery);
+        Mockito.when(accessTokenQuery.userGuid(any()))
                .thenReturn(accessTokenQuery);
         Mockito.when(accessTokenQuery.username(any()))
                .thenReturn(accessTokenQuery);

@@ -8,7 +8,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.NonUniqueResultException;
 import jakarta.persistence.criteria.Expression;
-
 import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.dto.AccessTokenDto;
 import org.cloudfoundry.multiapps.controller.persistence.dto.AccessTokenDto.AttributeNames;
@@ -69,6 +68,16 @@ public class AccessTokenQueryImpl extends AbstractQueryImpl<AccessToken, AccessT
     }
 
     @Override
+    public AccessTokenQuery userGuid(String userGuid) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.USER_GUID)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(userGuid)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
     public AccessTokenQuery expiresBefore(LocalDateTime expiresAt) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<LocalDateTime> builder()
                                                                        .attribute(AttributeNames.EXPIRES_AT)
@@ -86,15 +95,15 @@ public class AccessTokenQueryImpl extends AbstractQueryImpl<AccessToken, AccessT
 
     @Override
     public AccessToken singleResult() throws NoResultException, NonUniqueResultException {
-        AccessTokenDto accessTokenDto = executeInTransaction(manager -> createQuery(manager, queryCriteria,
-                                                                                    AccessTokenDto.class).getSingleResult());
+        AccessTokenDto accessTokenDto = executeInTransaction(
+            manager -> createQuery(manager, queryCriteria, AccessTokenDto.class).getSingleResult());
         return accessTokenMapper.fromDto(accessTokenDto);
     }
 
     @Override
     public List<AccessToken> list() {
-        List<AccessTokenDto> accessTokenDtos = executeInTransaction(manager -> createQuery(manager, queryCriteria,
-                                                                                           AccessTokenDto.class).getResultList());
+        List<AccessTokenDto> accessTokenDtos = executeInTransaction(
+            manager -> createQuery(manager, queryCriteria, AccessTokenDto.class).getResultList());
         return accessTokenDtos.stream()
                               .map(accessTokenMapper::fromDto)
                               .collect(Collectors.toList());

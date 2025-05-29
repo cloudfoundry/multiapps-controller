@@ -30,6 +30,10 @@ public class Constants {
     public static final String B3_TRACE_ID_HEADER = "X-B3-TraceId";
     public static final String B3_SPAN_ID_HEADER = "X-B3-SpanId";
 
+    public static final int TOKEN_SERVICE_DELETION_CORE_POOL_SIZE = 1;
+    public static final int TOKEN_SERVICE_DELETION_MAXIMUM_POOL_SIZE = 3;
+    public static final int TOKEN_SERVICE_DELETION_KEEP_ALIVE_THREAD_IN_SECONDS = 30;
+
     protected Constants() {
     }
 }
