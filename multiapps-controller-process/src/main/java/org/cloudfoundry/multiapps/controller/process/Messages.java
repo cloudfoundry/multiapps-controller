@@ -262,7 +262,7 @@ public class Messages {
     public static final String ERROR_WHILE_DELETING_SERVICE_KEY_0_FOR_OPTIONAL_SERVICE_1 = "Error while deleting service key \"{0}\" for optional service \"{1}\"";
     public static final String SERVICE_KEY_0_IS_ALREADY_DELETED = "Service key \"{0}\" is already deleted";
     public static final String FILE_WITH_ID_0_OPERATION_OWNERSHIP_CHANGED_FROM_0_TO_1 = "File with id \"{0}\" operation ownership was changed from \"{1}\" to \"{2}\" and won't be deleted";
-    public static final String PARAMETERS_0_ARE_NOT_SUPPORTED_OR_REFERENCED_BY_ANY_OTHER_ENTITIES = "Parameter(s) \"{0}\" are not supported in the specified scope, or referenced by any other entities. These parameters will not be processed and can be lost after the operation completes.";
+    public static final String PARAMETERS_0_ARE_NOT_SUPPORTED_OR_REFERENCED_BY_ANY_OTHER_ENTITIES = "Parameter(s) \"{0}\" are not supported in the specified scope, or referenced by any other entities. These parameters are not processed and will be lost after the operation completes. Further usage of these parameters might lead to unexpected results. Use at your own risk.";
     public static final String SERVICE_INSTANCE_0_PLAN_UPDATE_FAILED_IGNORING_FAILURE = "Service instance: \"{0}\" plan update failed, ignoring failure...";
     public static final String SERVICE_INSTANCE_0_PARAMETERS_UPDATE_FAILED_IGNORING_FAILURE = "Service instance: \"{0}\" parameters update failed, ignoring failure...";
     public static final String SERVICE_INSTANCE_0_TAGS_UPDATE_FAILED_IGNORING_FAILURE = "Service instance: \"{0}\" tags update failed, ignoring failure...";
