@@ -57,7 +57,7 @@
         <jaxb-impl.version>4.0.5</jaxb-impl.version>
         <jakarta.inject-api.version>2.0.1</jakarta.inject-api.version>
         <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
-        <bouncycastle.version>1.80</bouncycastle.version>
+        <bouncycastle.version>2.1.9</bouncycastle.version>
         <apache.compress.version>1.27.1</apache.compress.version>
     </properties>
     <modules>
@@ -793,10 +793,10 @@
                 <artifactId>resilience4j-ratelimiter</artifactId>
                 <version>${resilience4j.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on -->
+            <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-fips -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpkix-jdk18on</artifactId>
+                <artifactId>bcpkix-fips</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/io.pivotal.cfenv/java-cfenv -->

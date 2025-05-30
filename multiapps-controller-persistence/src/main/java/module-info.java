@@ -26,7 +26,6 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires transitive jclouds.core;
     requires transitive org.cloudfoundry.multiapps.mta;
     requires transitive org.cloudfoundry.multiapps.controller.api;
-    requires transitive org.bouncycastle.pkix;
 
     requires aliyun.sdk.oss;
     requires com.fasterxml.jackson.annotation;
@@ -52,5 +51,6 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires static java.compiler;
     requires static org.immutables.value;
     requires jakarta.xml.bind;
+    requires org.bouncycastle.fips.pkix;
 
 }
