@@ -12,6 +12,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.CachedMap;
 import org.cloudfoundry.multiapps.controller.core.security.token.parsers.TokenParserChain;
@@ -19,11 +22,6 @@ import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.model.AccessToken;
 import org.cloudfoundry.multiapps.controller.persistence.services.AccessTokenService;
 import org.springframework.beans.factory.DisposableBean;
-
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 /**
  * Provides functionality for persisting, updating and removing tokens from a token store
@@ -35,10 +33,7 @@ public class TokenService implements DisposableBean {
     private final TokenParserChain tokenParserChain;
     private final Duration tokenExpirationTime = Duration.ofMinutes(10);
     private final CachedMap<String, OAuth2AccessTokenWithAdditionalInfo> cachedTokens = new CachedMap<>(tokenExpirationTime);
-    private final ExecutorService threadPoolForTokensDeletion = new ThreadPoolExecutor(1,
-                                                                                       3,
-                                                                                       30,
-                                                                                       TimeUnit.SECONDS,
+    private final ExecutorService threadPoolForTokensDeletion = new ThreadPoolExecutor(1, 3, 30, TimeUnit.SECONDS,
                                                                                        new LinkedBlockingQueue<>());
 
     @Inject
@@ -51,21 +46,26 @@ public class TokenService implements DisposableBean {
      * Chooses a token among all tokens for this user in the access token table.
      *
      * @param username the username
+     * @param userGuid the userGuid
      * @return the latest token, or throw an exception if token is not found
      */
-    public OAuth2AccessTokenWithAdditionalInfo getToken(String username) {
-        OAuth2AccessTokenWithAdditionalInfo cachedAccessToken = cachedTokens.get(username);
+    public OAuth2AccessTokenWithAdditionalInfo getToken(String username, String userGuid) {
+        OAuth2AccessTokenWithAdditionalInfo cachedAccessToken = cachedTokens.get(userGuid);
         if (shouldUseCachedToken(cachedAccessToken)) {
             return cachedAccessToken;
         }
-        List<AccessToken> accessTokens = getSortedAccessTokensByUsername(username);
+        List<AccessToken> accessTokens = getSortedAccessTokensByUserGuid(userGuid);
+        // If no tokens are found for the userGuid, try to find tokens by username. This is temporary and should be removed in the next release.
         if (accessTokens.isEmpty()) {
-            throw new IllegalStateException(MessageFormat.format(Messages.NO_VALID_TOKEN_FOUND, username));
+            accessTokens = getSortedAccessTokensByUsername(username);
         }
-        OAuth2AccessTokenWithAdditionalInfo tokenByUser = getLatestToken(accessTokens);
-        cachedTokens.put(username, tokenByUser);
+        if (accessTokens.isEmpty()) {
+            throw new IllegalStateException(MessageFormat.format(Messages.NO_VALID_TOKEN_FOUND, userGuid));
+        }
+        OAuth2AccessTokenWithAdditionalInfo tokenByUserGuid = getLatestToken(accessTokens);
+        cachedTokens.put(userGuid, tokenByUserGuid);
         deleteTokens(accessTokens.subList(1, accessTokens.size()));
-        return tokenByUser;
+        return tokenByUserGuid;
     }
 
     private boolean shouldUseCachedToken(OAuth2AccessTokenWithAdditionalInfo cachedAccessToken) {
@@ -75,9 +75,16 @@ public class TokenService implements DisposableBean {
                                                                                .plus(120, ChronoUnit.SECONDS));
     }
 
-    private List<AccessToken> getSortedAccessTokensByUsername(String userName) {
+    private List<AccessToken> getSortedAccessTokensByUserGuid(String userGuid) {
         return accessTokenService.createQuery()
-                                 .username(userName)
+                                 .userGuid(userGuid)
+                                 .orderByExpiresAt(OrderDirection.DESCENDING)
+                                 .list();
+    }
+
+    private List<AccessToken> getSortedAccessTokensByUsername(String username) {
+        return accessTokenService.createQuery()
+                                 .username(username)
                                  .orderByExpiresAt(OrderDirection.DESCENDING)
                                  .list();
     }

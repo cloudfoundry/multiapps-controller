@@ -4,7 +4,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
 
-import org.cloudfoundry.multiapps.controller.client.util.TokenProperties;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
+import com.sap.cloudfoundry.client.facade.util.RestUtil;
 import org.cloudfoundry.multiapps.controller.core.security.token.parsers.TokenParserChain;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.AccessToken;
@@ -13,11 +16,6 @@ import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
-
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
-import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
-import com.sap.cloudfoundry.client.facade.util.RestUtil;
 
 public class BasicTokenGenerator extends TokenGenerator {
 
@@ -43,14 +41,14 @@ public class BasicTokenGenerator extends TokenGenerator {
                                                                             applicationConfiguration.shouldSkipSslValidation());
         String[] usernameWithPassword = getUsernameWithPassword(tokenString);
         oauthClient.init(new CloudCredentials(usernameWithPassword[0], usernameWithPassword[1]));
-        Optional<AccessToken> accessToken = tokenReuser.getTokenWithExpirationAfter(usernameWithPassword[0],
-                                                                                    Constants.BASIC_TOKEN_RETENTION_TIME_IN_SECONDS);
+        OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo = oauthClient.getToken();
+        Optional<AccessToken> accessToken = tokenReuser.getTokenWithExpirationAfterOrReuseCurrent(
+            extractUserGuid(oAuth2AccessTokenWithAdditionalInfo), Constants.BASIC_TOKEN_RETENTION_TIME_IN_SECONDS,
+            oAuth2AccessTokenWithAdditionalInfo);
         if (accessToken.isPresent()) {
             return tokenParserChain.parse(new String(accessToken.get()
-                                                                .getValue(),
-                                                     StandardCharsets.UTF_8));
+                                                                .getValue(), StandardCharsets.UTF_8));
         }
-        OAuth2AccessTokenWithAdditionalInfo oAuth2AccessTokenWithAdditionalInfo = oauthClient.getToken();
         storeAccessToken(buildAccessToken(oAuth2AccessTokenWithAdditionalInfo), extractUserGuid(oAuth2AccessTokenWithAdditionalInfo));
         return oAuth2AccessTokenWithAdditionalInfo;
     }
@@ -69,8 +67,7 @@ public class BasicTokenGenerator extends TokenGenerator {
     private String decodeToken(String tokenString) {
         try {
             return new String(Base64.getDecoder()
-                                    .decode(tokenString),
-                              StandardCharsets.UTF_8);
+                                    .decode(tokenString), StandardCharsets.UTF_8);
         } catch (IllegalArgumentException e) {
             throw new InternalAuthenticationServiceException(e.getMessage(), e);
         }

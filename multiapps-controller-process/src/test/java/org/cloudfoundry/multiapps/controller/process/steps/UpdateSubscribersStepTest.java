@@ -1,16 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +9,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
@@ -46,14 +43,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersStep> {
 
@@ -83,7 +82,7 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) A subscriber should be updated, because there are new published entries (there are no existing entries):
             Arguments.of("update-subscribers-step-input-00.json", "update-subscribers-step-output-00.json", 2, null),
             // (1) A subscriber should be updated:
@@ -202,7 +201,7 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
 
     private void prepareClientProvider(CloudSpace space, CloudControllerClient clientMock) {
         String spaceName = space.getName();
-        when(clientProvider.getControllerClient(eq(USER), eq(spaceName), anyString())).thenReturn(clientMock);
+        when(clientProvider.getControllerClient(eq(USER), eq(USER_GUID), eq(spaceName), anyString())).thenReturn(clientMock);
     }
 
     private Map<CloudSpace, CloudControllerClient> createClientsForSpacesOfSubscribedApps() {
@@ -258,12 +257,18 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
             List<CloudTarget> targets = List.of(new CloudTarget(input.currentSpace.getOrganization()
                                                                                   .getName(),
                                                                 input.currentSpace.getName()));
-            ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(filter.getProviderNid()))
-                                                                                               .on(query -> query.providerId(filter.getProviderId()))
-                                                                                               .on(query -> query.version(filter.getProviderVersion()))
-                                                                                               .on(query -> query.target(filter.getTargetSpace()))
-                                                                                               .on(query -> query.requiredProperties(filter.getRequiredContent()))
-                                                                                               .on(query -> query.visibilityTargets(targets))
+            ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(
+                                                                                                   query -> query.providerNid(filter.getProviderNid()))
+                                                                                               .on(query -> query.providerId(
+                                                                                                   filter.getProviderId()))
+                                                                                               .on(query -> query.version(
+                                                                                                   filter.getProviderVersion()))
+                                                                                               .on(query -> query.target(
+                                                                                                   filter.getTargetSpace()))
+                                                                                               .on(query -> query.requiredProperties(
+                                                                                                   filter.getRequiredContent()))
+                                                                                               .on(query -> query.visibilityTargets(
+                                                                                                   targets))
                                                                                                .build();
             doReturn(getAllEntries(subscriber)).when(entryQueryMock)
                                                .list();

@@ -1,9 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.test.Tester;
@@ -53,13 +50,16 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SyncFlowableStepTest.class);
 
     protected static final String USER_NAME = "dummy";
+    protected static final String USER_GUID = "123-456-789";
     protected static final String ORG_NAME = "org";
     protected static final String SPACE_NAME = "space";
     protected static final String SPACE_GUID = "spaceGuid";
@@ -120,8 +120,9 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         context.setVariable(Variables.SPACE_NAME, SPACE_NAME);
         context.setVariable(Variables.SPACE_GUID, SPACE_GUID);
         context.setVariable(Variables.USER, USER_NAME);
+        context.setVariable(Variables.USER_GUID, USER_GUID);
         context.setVariable(Variables.ORGANIZATION_NAME, ORG_NAME);
-        when(clientProvider.getControllerClient(any(), any(), any())).thenReturn(client);
+        when(clientProvider.getControllerClient(any(), any(), any(), any())).thenReturn(client);
         execution.setVariable("correlationId", getCorrelationId());
         execution.setVariable("__TASK_ID", getTaskId());
         prepareProcessEngineConfiguration();

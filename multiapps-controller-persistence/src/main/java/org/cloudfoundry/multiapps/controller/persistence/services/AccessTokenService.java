@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.persistence.EntityManagerFactory;
-
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
@@ -52,13 +51,15 @@ public class AccessTokenService extends PersistenceService<AccessToken, AccessTo
                                        .id(accessTokenDto.getPrimaryKey())
                                        .value(accessTokenDto.getValue())
                                        .username(accessTokenDto.getUsername())
+                                       .userGuid(accessTokenDto.getUserGuid())
                                        .expiresAt(accessTokenDto.getExpiresAt())
                                        .build();
         }
 
         @Override
         public AccessTokenDto toDto(AccessToken accessToken) {
-            return new AccessTokenDto(accessToken.getId(), accessToken.getValue(), accessToken.getUsername(), accessToken.getExpiresAt());
+            return new AccessTokenDto(accessToken.getId(), accessToken.getValue(), accessToken.getUsername(), accessToken.getUserGuid(),
+                                      accessToken.getExpiresAt());
         }
     }
 }

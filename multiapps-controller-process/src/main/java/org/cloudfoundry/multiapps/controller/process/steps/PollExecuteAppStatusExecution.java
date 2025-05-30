@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -10,6 +8,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
+import com.sap.cloudfoundry.client.facade.domain.ApplicationLog.MessageType;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
@@ -22,10 +24,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
-import com.sap.cloudfoundry.client.facade.domain.ApplicationLog.MessageType;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import static java.text.MessageFormat.format;
 
 public class PollExecuteAppStatusExecution implements AsyncExecution {
 
@@ -81,8 +80,9 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
 
         LocalDateTime logsOffset = context.getVariable(Variables.LOGS_OFFSET_FOR_APP_EXECUTION);
         var user = context.getVariable(Variables.USER);
+        var userGuid = context.getVariable(Variables.USER_GUID);
         var correlationId = context.getVariable(Variables.CORRELATION_ID);
-        var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(user), correlationId);
+        var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(user, userGuid), correlationId);
 
         UUID appGuid = client.getApplicationGuid(app.getName());
         List<ApplicationLog> recentLogs = logCacheClient.getRecentLogs(appGuid, logsOffset);

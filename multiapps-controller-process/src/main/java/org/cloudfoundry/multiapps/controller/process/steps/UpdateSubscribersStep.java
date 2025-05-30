@@ -11,6 +11,13 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
+import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -49,15 +56,6 @@ import org.cloudfoundry.multiapps.mta.util.NameUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 @Named("updateSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UpdateSubscribersStep extends SyncFlowableStep {
@@ -66,7 +64,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
      * This schema version will be used only for the handling of the subscription entities and it should always be the same as the latest
      * version that is supported by the deploy service, as it is assumed that the latest version of the MTA specification will always
      * support a superset of the features supported by the previous versions.
-     * 
+     *
      * The major schema version of the MTA that is currently being deployed should NOT be used instead of this one, as problems could occur
      * if the subscriber has a different major schema version. If, for example, the current MTA has a major schema version 1, and the
      * subscriber has a major schema version 2, then this would result in the creation of a handler factory for version 1. That would cause
@@ -136,7 +134,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
     private CloudSpaceClient createSpaceClient(ProcessContext context) {
         var user = context.getVariable(Variables.USER);
-        var token = tokenService.getToken(user);
+        var userGuid = context.getVariable(Variables.USER_GUID);
+        var token = tokenService.getToken(user, userGuid);
         return clientFactory.createSpaceClient(token);
     }
 
@@ -183,9 +182,12 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
                               SecureSerialization.toJson(dummyDescriptor));
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(configurationEntryService,
-                                                                                                     new DummyConfigurationFilterParser(subscription.getFilter()),
-                                                                                                     new CloudTarget(context.getVariable(Variables.ORGANIZATION_NAME),
-                                                                                                                     context.getVariable(Variables.SPACE_NAME)),
+                                                                                                     new DummyConfigurationFilterParser(
+                                                                                                         subscription.getFilter()),
+                                                                                                     new CloudTarget(context.getVariable(
+                                                                                                         Variables.ORGANIZATION_NAME),
+                                                                                                                     context.getVariable(
+                                                                                                                         Variables.SPACE_NAME)),
                                                                                                      configuration);
         resolver.resolve(dummyDescriptor);
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(dummyDescriptor));
@@ -198,9 +200,11 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         ApplicationCloudModelBuilder applicationCloudModelBuilder = handlerFactory.getApplicationCloudModelBuilder(dummyDescriptor,
                                                                                                                    shouldUsePrettyPrinting(),
                                                                                                                    null, "",
-                                                                                                                   context.getVariable(Variables.MTA_NAMESPACE),
+                                                                                                                   context.getVariable(
+                                                                                                                       Variables.MTA_NAMESPACE),
                                                                                                                    getStepLogger(),
-                                                                                                                   StepsUtil.getAppSuffixDeterminer(context),
+                                                                                                                   StepsUtil.getAppSuffixDeterminer(
+                                                                                                                       context),
                                                                                                                    client, false);
 
         Module module = dummyDescriptor.getModules()

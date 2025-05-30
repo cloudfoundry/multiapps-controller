@@ -1,10 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +8,10 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
@@ -38,10 +37,10 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildCloudUndeployModelStep> {
 
@@ -51,7 +50,7 @@ class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildCloudUnd
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0) No previously deployed MTA:
             Arguments.of(new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", "empty-list.json", Collections.emptyList(), "deployed-apps-01.json", new TreeSet<>(List.of("a", "b", "c")), null, "empty-list.json", "empty-list.json", new TreeSet<>(List.of("a", "b", "c"))),
                     new StepOutput(Collections.emptyList(), Collections.emptyList(), new Expectation(Expectation.Type.JSON, "empty-list.json"))),
@@ -125,7 +124,7 @@ class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildCloudUnd
             Mockito.when(client.getApplication(application.getName(), false))
                    .thenReturn(application);
         }
-        Mockito.when(clientProvider.getControllerClient(anyString(), anyString(), anyString()))
+        Mockito.when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), anyString()))
                .thenReturn(client);
     }
 
@@ -195,7 +194,8 @@ class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildCloudUnd
     private void prepareSubscriptionService() {
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
         if (deployedMta != null) {
-            ConfigurationSubscriptionQuery mock = new MockBuilder<>(configurationSubscriptionQuery).on(query -> query.mtaId(deployedMta.getMetadata()
+            ConfigurationSubscriptionQuery mock = new MockBuilder<>(configurationSubscriptionQuery).on(
+                                                                                                       query -> query.mtaId(deployedMta.getMetadata()
                                                                                                                                        .getId()))
                                                                                                    .on(query -> query.spaceId(SPACE_ID))
                                                                                                    .build();

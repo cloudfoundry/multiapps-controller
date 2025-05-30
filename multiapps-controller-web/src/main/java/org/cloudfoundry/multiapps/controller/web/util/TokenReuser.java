@@ -7,13 +7,11 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.model.AccessToken;
 import org.cloudfoundry.multiapps.controller.persistence.services.AccessTokenService;
-
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 @Named
 public class TokenReuser {
@@ -24,8 +22,9 @@ public class TokenReuser {
         this.accessTokenService = accessTokenService;
     }
 
-    public Optional<AccessToken> getTokenWithExpirationAfter(String username, long expiresAfterInSeconds) {
-        List<AccessToken> accessTokens = getTokensOrderedByExpiresAt(username);
+    public Optional<AccessToken> getTokenWithExpirationAfterOrReuseCurrent(String userGuid, long expiresAfterInSeconds,
+                                                                           OAuth2AccessTokenWithAdditionalInfo currentToken) {
+        List<AccessToken> accessTokens = getTokensOrderedByExpiresAtBasedOnUserGuid(userGuid);
         if (accessTokens.isEmpty()) {
             return Optional.empty();
         }
@@ -33,12 +32,17 @@ public class TokenReuser {
         if (shouldUseLatestToken(accessTokens, dateAfter)) {
             return Optional.of(accessTokens.get(0));
         }
+        LocalDateTime currentTokenExpirationDate = getExpirationDate(currentToken);
+        if (currentTokenExpirationDate.equals(accessTokens.get(0)
+                                                          .getExpiresAt())) {
+            return Optional.of(accessTokens.get(0));
+        }
         return Optional.empty();
     }
 
-    private List<AccessToken> getTokensOrderedByExpiresAt(String username) {
+    private List<AccessToken> getTokensOrderedByExpiresAtBasedOnUserGuid(String userGuid) {
         return accessTokenService.createQuery()
-                                 .username(username)
+                                 .userGuid(userGuid)
                                  .orderByExpiresAt(OrderDirection.DESCENDING)
                                  .list();
     }
@@ -55,28 +59,9 @@ public class TokenReuser {
                            .isAfter(dateAfter);
     }
 
-    public Optional<AccessToken> getTokenWithExpirationAfterOrReuseCurrent(String username, long expiresAfterInSeconds,
-                                                                           OAuth2AccessTokenWithAdditionalInfo currentToken) {
-        List<AccessToken> accessTokens = getTokensOrderedByExpiresAt(username);
-        if (accessTokens.isEmpty()) {
-            return Optional.empty();
-        }
-        LocalDateTime dateAfter = calculateDateAfter(expiresAfterInSeconds);
-        if (shouldUseLatestToken(accessTokens, dateAfter)) {
-            return Optional.of(accessTokens.get(0));
-        }
-        LocalDateTime currentTokenExpirationDate = getExpirationDate(currentToken);
-        if (currentTokenExpirationDate.equals(accessTokens.get(0)
-                                                          .getExpiresAt())) {
-            return Optional.of(accessTokens.get(0));
-        }
-        return Optional.empty();
-    }
-
     private LocalDateTime getExpirationDate(OAuth2AccessTokenWithAdditionalInfo currentToken) {
         return LocalDateTime.ofInstant(currentToken.getOAuth2AccessToken()
-                                                   .getExpiresAt(),
-                                       ZoneId.systemDefault());
+                                                   .getExpiresAt(), ZoneId.systemDefault());
     }
 
 }

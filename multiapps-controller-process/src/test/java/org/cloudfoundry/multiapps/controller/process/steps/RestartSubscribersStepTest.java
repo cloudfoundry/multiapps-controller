@@ -1,26 +1,25 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 
 class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribersStep> {
 
@@ -40,9 +39,9 @@ class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribers
 
         // Then:
         Mockito.verify(clientProvider, Mockito.atLeastOnce())
-               .getControllerClient(eq(USER_NAME), eq(FOO_SPACE_GUID.toString()), anyString());
+               .getControllerClient(eq(USER_NAME), eq(USER_GUID), eq(FOO_SPACE_GUID.toString()), anyString());
         Mockito.verify(clientProvider, Mockito.atLeastOnce())
-               .getControllerClient(eq(USER_NAME), eq(BAR_SPACE_GUID.toString()), anyString());
+               .getControllerClient(eq(USER_NAME), eq(USER_GUID), eq(BAR_SPACE_GUID.toString()), anyString());
     }
 
     @Test
@@ -52,9 +51,9 @@ class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribers
 
         CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class);
         CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class);
-        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(FOO_SPACE_GUID.toString()), anyString()))
+        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(USER_GUID), eq(FOO_SPACE_GUID.toString()), anyString()))
                .thenReturn(clientForSpaceFoo);
-        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(BAR_SPACE_GUID.toString()), anyString()))
+        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(USER_GUID), eq(BAR_SPACE_GUID.toString()), anyString()))
                .thenReturn(clientForSpaceBar);
 
         // When:
@@ -80,9 +79,9 @@ class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribers
         CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class);
         CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class);
 
-        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(FOO_SPACE_GUID.toString()), anyString()))
+        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(USER_GUID), eq(FOO_SPACE_GUID.toString()), anyString()))
                .thenReturn(clientForSpaceFoo);
-        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(BAR_SPACE_GUID.toString()), anyString()))
+        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(USER_GUID), eq(BAR_SPACE_GUID.toString()), anyString()))
                .thenReturn(clientForSpaceBar);
 
         // When:

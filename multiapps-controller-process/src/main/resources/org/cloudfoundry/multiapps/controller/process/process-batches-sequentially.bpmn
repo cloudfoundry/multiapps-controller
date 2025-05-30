@@ -16,6 +16,7 @@
     <callActivity id="createOrUpdateServicesCallActivity" name="Create or update services" flowable:async="true" calledElement="createOrUpdateServicesSubProcess" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
         <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="userGuid" target="userGuid"></flowable:in>
         <flowable:in source="correlationId" target="correlationId"></flowable:in>
         <flowable:in source="servicesToCreate" target="servicesToCreate"></flowable:in>
         <flowable:in source="serviceToProcess" target="serviceToProcess"></flowable:in>

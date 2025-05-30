@@ -16,6 +16,8 @@ public interface AccessTokenQuery extends Query<AccessToken, AccessTokenQuery> {
 
     AccessTokenQuery username(String username);
 
+    AccessTokenQuery userGuid(String userGuid);
+
     AccessTokenQuery expiresBefore(LocalDateTime expiresAt);
 
     AccessTokenQuery orderByExpiresAt(OrderDirection orderDirection);

@@ -1,8 +1,5 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
-import static org.cloudfoundry.multiapps.controller.core.util.SecurityUtil.USER_INFO;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
@@ -44,9 +44,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import static org.cloudfoundry.multiapps.controller.core.util.SecurityUtil.USER_INFO;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MtasApiServiceImplTest {
 
@@ -185,7 +184,7 @@ class MtasApiServiceImplTest {
     }
 
     private void mockClient() {
-        UserInfo userInfo = new UserInfo(null, USER_NAME, null);
+        UserInfo userInfo = new UserInfo("123-456-789", USER_NAME, null);
         OAuth2AuthenticationToken auth = Mockito.mock(OAuth2AuthenticationToken.class);
         Map<String, Object> attributes = Map.of(USER_INFO, userInfo);
         OAuth2User principal = Mockito.mock(OAuth2User.class);
@@ -199,7 +198,7 @@ class MtasApiServiceImplTest {
                .thenReturn(auth);
         Mockito.when(client.getApplicationRoutes(Mockito.any(UUID.class)))
                .thenReturn(Collections.emptyList());
-        Mockito.when(clientProvider.getControllerClientWithNoCorrelation(Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(clientProvider.getControllerClientWithNoCorrelation(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                .thenReturn(client);
     }
 

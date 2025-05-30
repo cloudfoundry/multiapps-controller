@@ -1,5 +1,8 @@
 package org.cloudfoundry.multiapps.controller.web.resources;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
@@ -17,11 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 @RestController
 @RequestMapping(value = Constants.Resources.CONFIGURATION_ENTRIES)
@@ -51,17 +49,15 @@ public class ConfigurationEntriesResource {
     public ResponseEntity<Void> purgeConfigurationRegistry(@RequestParam(REQUEST_PARAM_ORGANIZATION) String organization,
                                                            @RequestParam(REQUEST_PARAM_SPACE) String space) {
         UserInfo user = SecurityContextUtil.getUserInfo();
-        var spaceClient = clientFactory.createSpaceClient(tokenService.getToken(user.getName()));
+        var spaceClient = clientFactory.createSpaceClient(tokenService.getToken(user.getName(), user.getId()));
 
         var cloudSpace = spaceClient.getSpace(organization, space);
 
-        CloudControllerClient client = clientProvider.getControllerClientWithNoCorrelation(user.getName(), cloudSpace.getGuid()
-                                                                                                                     .toString());
-        MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client,
-                                                                                spaceClient,
-                                                                                configurationEntryService,
-                                                                                configurationSubscriptionService,
-                                                                                mtaMetadataParser,
+        CloudControllerClient client = clientProvider.getControllerClientWithNoCorrelation(user.getName(), user.getId(),
+                                                                                           cloudSpace.getGuid()
+                                                                                                     .toString());
+        MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client, spaceClient, configurationEntryService,
+                                                                                configurationSubscriptionService, mtaMetadataParser,
                                                                                 mtaConfigurationPurgerAuditLog);
         configurationPurger.purge(organization, space);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
