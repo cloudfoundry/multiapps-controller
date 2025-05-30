@@ -58,6 +58,7 @@ public class SupportedParameters {
     public static final String BUILDPACK = "buildpack";
     public static final String BUILDPACKS = "buildpacks";
     public static final String STACK = "stack";
+    public static final String LIFECYCLE = "lifecycle";
     public static final String HEALTH_CHECK_INVOCATION_TIMEOUT = "health-check-invocation-timeout";
     public static final String HEALTH_CHECK_TIMEOUT = "health-check-timeout";
     public static final String HEALTH_CHECK_TYPE = "health-check-type";
