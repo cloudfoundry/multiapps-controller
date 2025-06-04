@@ -5,12 +5,12 @@ import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.UUID;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.http.CsrfHttpClient;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationShutdown;
@@ -50,8 +50,7 @@ class ShutdownClientImpl implements ShutdownClient {
 
     private ApplicationShutdown makeShutdownApiRequest(UUID applicationGuid, int applicationInstanceIndex, HttpUriRequest httpRequest) {
         try (CsrfHttpClient csrfHttpClient = createCsrfHttpClient(applicationGuid, applicationInstanceIndex)) {
-            HttpResponse response = csrfHttpClient.execute(httpRequest);
-            return parse(response);
+            return csrfHttpClient.execute(httpRequest, ShutdownClientImpl::parse);
         } catch (IOException e) {
             throw new IllegalStateException(MessageFormat.format("Could not parse shutdown API response: {0}", e.getMessage()), e);
         }
@@ -66,7 +65,7 @@ class ShutdownClientImpl implements ShutdownClient {
         return String.format("%s:%d", applicationGuid, applicationInstanceIndex);
     }
 
-    private static ApplicationShutdown parse(HttpResponse response) throws IOException {
+    private static ApplicationShutdown parse(ClassicHttpResponse response) throws IOException, ParseException {
         String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
         return parse(body);
     }

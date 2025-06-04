@@ -1,9 +1,8 @@
 package org.cloudfoundry.multiapps.controller.core.test;
 
 import java.util.function.UnaryOperator;
-
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 public class HttpMocks {
 
