@@ -2,12 +2,12 @@ package org.cloudfoundry.multiapps.controller.core.test;
 
 import java.io.IOException;
 import java.util.List;
-
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 import org.mockito.ArgumentMatchers;
@@ -22,9 +22,6 @@ public abstract class HttpClientMock {
 
     @Nullable
     public abstract Throwable getException();
-
-    @Nullable
-    public abstract String getResponseHandlerReturnValue();
 
     @Value.Derived
     public CloseableHttpClient getMock() {
@@ -49,12 +46,10 @@ public abstract class HttpClientMock {
             Mockito.when(httpClient.execute(ArgumentMatchers.<HttpHost> any(), ArgumentMatchers.any(),
                                             ArgumentMatchers.<HttpContext> any()))
                    .thenAnswer(answer);
+            Mockito.when(
+                       httpClient.execute(ArgumentMatchers.<ClassicHttpRequest> any(), ArgumentMatchers.<HttpClientResponseHandler<Object>> any()))
+                   .thenAnswer(answer);
 
-            if (getResponseHandlerReturnValue() != null) {
-                Mockito.when(httpClient.execute(ArgumentMatchers.any(), ArgumentMatchers.any(),
-                                                ArgumentMatchers.<ResponseHandler<Object>> any()))
-                       .thenReturn(getResponseHandlerReturnValue());
-            }
             return httpClient;
         } catch (IOException e) {
             throw new IllegalStateException(e);
