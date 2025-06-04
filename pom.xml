@@ -26,8 +26,8 @@
         <commons-io.version>2.19.0</commons-io.version>
         <commons-collections4.version>4.5.0</commons-collections4.version>
         <snakeyaml.version>2.4</snakeyaml.version>
-        <httpclient.version>4.5.14</httpclient.version>
-        <httpcore.version>4.4.16</httpcore.version>
+        <httpclient.version>5.5</httpclient.version>
+        <httpcore.version>5.3.4</httpcore.version>
         <eclipselink.version>3.0.4
         </eclipselink.version>  <!-- Be careful when updating eclipselink versions. As of version 4.0.4, there have been reported regressions connected to exhausted Hikari DB pools  -->
         <flowable.version>6.8.0</flowable.version>
@@ -482,14 +482,14 @@
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
             <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpcore</artifactId>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5</artifactId>
                 <version>${httpcore.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
             <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
                 <version>${httpclient.version}</version>
                 <exclusions>
                     <exclusion>

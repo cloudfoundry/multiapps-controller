@@ -1,10 +1,9 @@
 package org.cloudfoundry.multiapps.controller.core.cf;
 
 import java.util.Map;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 
 public class CloudControllerHeaderConfiguration {
