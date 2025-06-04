@@ -180,7 +180,7 @@ public class SupportedParameters {
     @Deprecated
     public static final String DEPRECATED_CONFIG_MTA_PROVIDES_DEPENDENCY = "mta-provides-dependency";
 
-    public static final Set<String> MODULE_PARAMETERS = Set.of(APP_NAME, APPLY_NAMESPACE, BUILDPACK, BUILDPACKS, COMMAND,
+    public static final Set<String> MODULE_PARAMETERS = Set.of(APP_NAME, APPLY_NAMESPACE, BUILDPACK, BUILDPACKS, LIFECYCLE, COMMAND,
                                                                CREATE_SERVICE_BROKER, DEFAULT_APP_NAME, DEFAULT_HOST, DEFAULT_INSTANCES,
                                                                DEFAULT_LIVE_APP_NAME, DEFAULT_LIVE_DOMAIN, DEFAULT_LIVE_HOST,
                                                                DEFAULT_LIVE_URI, DEFAULT_LIVE_URL, DEFAULT_URI, DEFAULT_URL,
