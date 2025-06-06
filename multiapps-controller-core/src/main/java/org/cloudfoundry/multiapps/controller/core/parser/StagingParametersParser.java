@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.parser;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -7,12 +8,18 @@ import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
 import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
-import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
+import org.springframework.util.CollectionUtils;
+
+import static org.cloudfoundry.multiapps.controller.core.Messages.BUILDPACKS_NOT_ALLOWED_WITH_DOCKER;
+import static org.cloudfoundry.multiapps.controller.core.Messages.BUILDPACKS_REQUIRED_FOR_CNB;
+import static org.cloudfoundry.multiapps.controller.core.Messages.DOCKER_INFO_NOT_ALLOWED_WITH_LIFECYCLE;
+import static org.cloudfoundry.multiapps.controller.core.Messages.DOCKER_INFO_REQUIRED;
+import static org.cloudfoundry.multiapps.controller.core.Messages.UNSUPPORTED_LIFECYCLE_VALUE;
 
 public class StagingParametersParser implements ParametersParser<Staging> {
-
     private static final String DEFAULT_HEALTH_CHECK_HTTP_ENDPOINT = "/";
     private static final String HTTP_HEALTH_CHECK_TYPE = "http";
 
@@ -59,24 +66,41 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         try {
             return LifecycleType.valueOf(lifecycleValue.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new SLException("Unsupported lifecycle value: " + lifecycleValue);
+            throw new ContentException(MessageFormat.format(UNSUPPORTED_LIFECYCLE_VALUE, lifecycleValue));
         }
     }
 
     private void validateLifecycleType(LifecycleType lifecycleType, List<String> buildpacks, DockerInfo dockerInfo) {
-        if (lifecycleType == LifecycleType.CNB && (buildpacks == null || buildpacks.isEmpty())) {
-            throw new SLException("Buildpacks must be provided when lifecycle is set to 'cnb'.");
-        }
+        validateBuildpacksWithCNB(lifecycleType, buildpacks);
+
         // Validate Docker-specific conditions
-        if (lifecycleType == LifecycleType.DOCKER) {
-            if (dockerInfo == null) {
-                throw new SLException("Docker information must be provided when lifecycle is set to 'docker'.");
-            }
-            if (buildpacks != null && !buildpacks.isEmpty()) {
-                throw new SLException("Buildpacks must not be provided when lifecycle is set to 'docker'.");
-            }
-        } else if (dockerInfo != null && lifecycleType != null) {
-            throw new SLException("Docker information must not be provided when lifecycle is set to " + lifecycleType + "'.");
+        validateDockerInfoWithDocker(lifecycleType, dockerInfo);
+        validateBuildpacksWithDocker(lifecycleType, buildpacks);
+        validateDockerInfoWithNonDocker(lifecycleType, dockerInfo);
+    }
+
+    private void validateBuildpacksWithCNB(LifecycleType lifecycleType, List<String> buildpacks) {
+        if (lifecycleType == LifecycleType.CNB && CollectionUtils.isEmpty(buildpacks)) {
+            throw new ContentException(BUILDPACKS_REQUIRED_FOR_CNB);
+        }
+    }
+
+    private void validateDockerInfoWithDocker(LifecycleType lifecycleType, DockerInfo dockerInfo) {
+        if (lifecycleType == LifecycleType.DOCKER && dockerInfo == null) {
+            throw new ContentException(DOCKER_INFO_REQUIRED);
+        }
+    }
+
+    private void validateBuildpacksWithDocker(LifecycleType lifecycleType, List<String> buildpacks) {
+        if (lifecycleType == LifecycleType.DOCKER && !CollectionUtils.isEmpty(buildpacks)) {
+            throw new ContentException(BUILDPACKS_NOT_ALLOWED_WITH_DOCKER);
+        }
+    }
+
+    private void validateDockerInfoWithNonDocker(LifecycleType lifecycleType, DockerInfo dockerInfo) {
+        if (lifecycleType != LifecycleType.DOCKER && lifecycleType != null && dockerInfo != null) {
+            throw new ContentException(
+                MessageFormat.format(DOCKER_INFO_NOT_ALLOWED_WITH_LIFECYCLE, lifecycleType));
         }
     }
 
