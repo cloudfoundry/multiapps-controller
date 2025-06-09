@@ -1,29 +1,28 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.UUID;
-
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 class PollStartLiveAppExecutionTest {
 
@@ -36,6 +35,10 @@ class PollStartLiveAppExecutionTest {
     private TokenService tokenService;
     @Mock
     private ProcessContext context;
+    @Mock
+    private ApplicationConfiguration configuration;
+    @Mock
+    private WebClientFactory webClientFactory;
 
     private PollStartLiveAppExecution pollStartLiveAppExecution;
 
@@ -43,7 +46,7 @@ class PollStartLiveAppExecutionTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        pollStartLiveAppExecution = new PollStartLiveAppExecution(clientFactory, tokenService);
+        pollStartLiveAppExecution = new PollStartLiveAppExecution(clientFactory, tokenService, configuration, webClientFactory);
     }
 
     @Test

@@ -1,16 +1,22 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.disableAutoscaling;
-import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.enableAutoscaling;
-
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
+import com.sap.cloudfoundry.client.facade.domain.InstanceState;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomInstancesInfoClient;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableIncrementalAppInstanceUpdateConfiguration;
@@ -22,14 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
-import com.sap.cloudfoundry.client.facade.domain.InstanceState;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.disableAutoscaling;
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.enableAutoscaling;
 
 @Named("incrementalAppInstancesUpdateStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -40,11 +40,14 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
 
     private final CloudControllerClientFactory clientFactory;
     private final TokenService tokenService;
+    private final WebClientFactory webClientFactory;
 
     @Inject
-    public IncrementalAppInstancesUpdateStep(CloudControllerClientFactory clientFactory, TokenService tokenService) {
+    public IncrementalAppInstancesUpdateStep(CloudControllerClientFactory clientFactory, TokenService tokenService,
+                                             WebClientFactory webClientFactory) {
         this.clientFactory = clientFactory;
         this.tokenService = tokenService;
+        this.webClientFactory = webClientFactory;
     }
 
     @Override
@@ -60,18 +63,29 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
             disableAutoscaling(context, client, oldApplicationGuid);
 
             UUID applicationId = client.getApplicationGuid(application.getName());
-            checkWhetherLiveAppNeedsPolling(context, client, oldApplication);
+            OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken(context.getVariable(Variables.USER),
+                                                                              context.getVariable(Variables.USER_GUID));
+            CloudCredentials credentials = new CloudCredentials(token);
+            CustomInstancesInfoClient customInstancesInfoClient = new CustomInstancesInfoClient(configuration, webClientFactory,
+                                                                                                credentials, context.getVariable(
+                Variables.CORRELATION_ID));
+
+            checkWhetherLiveAppNeedsPolling(context, customInstancesInfoClient, oldApplication);
             context.getStepLogger()
                    .info(Messages.STARTING_INCREMENTAL_APPLICATION_INSTANCE_UPDATE_FOR_0, application.getName());
-            List<InstanceInfo> idleApplicationInstances = client.getApplicationInstances(applicationId)
-                                                                .getInstances();
+            List<InstanceInfo> idleApplicationInstances = customInstancesInfoClient.getInstancesInfo(applicationId.toString())
+                                                                                   .getInstances();
             var incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
-                                                                                                                     .newApplication(application)
-                                                                                                                     .newApplicationInstanceCount(idleApplicationInstances.size());
+                                                                                                                     .newApplication(
+                                                                                                                         application)
+                                                                                                                     .newApplicationInstanceCount(
+                                                                                                                         idleApplicationInstances.size());
 
-            int oldApplicationInstanceCount = client.getApplicationInstances(oldApplication)
-                                                    .getInstances()
-                                                    .size();
+            int oldApplicationInstanceCount = customInstancesInfoClient.getInstancesInfo(oldApplication.getMetadata()
+                                                                                                       .getGuid()
+                                                                                                       .toString())
+                                                                       .getInstances()
+                                                                       .size();
             incrementalAppInstanceUpdateConfigurationBuilder.oldApplication(oldApplication)
                                                             .oldApplicationInitialInstanceCount(oldApplicationInstanceCount)
                                                             .oldApplicationInstanceCount(oldApplicationInstanceCount);
@@ -95,7 +109,8 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
         client.updateApplicationInstances(application.getName(), application.getInstances());
         incrementalAppInstanceUpdateConfigurationBuilder = ImmutableIncrementalAppInstanceUpdateConfiguration.builder()
                                                                                                              .newApplication(application)
-                                                                                                             .newApplicationInstanceCount(application.getInstances());
+                                                                                                             .newApplicationInstanceCount(
+                                                                                                                 application.getInstances());
         context.setVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION,
                             incrementalAppInstanceUpdateConfigurationBuilder.build());
         setExecutionIndexForPollingNewAppInstances(context);
@@ -115,7 +130,8 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
         DeployedMtaApplication deployedMtaApplication = deployedMta.getApplications()
                                                                    .stream()
                                                                    .filter(deployedApplication -> deployedApplication.getModuleName()
-                                                                                                                     .equals(currentApplication.getModuleName()))
+                                                                                                                     .equals(
+                                                                                                                         currentApplication.getModuleName()))
                                                                    .findFirst()
                                                                    .orElse(null);
         if (deployedMtaApplication == null) {
@@ -131,9 +147,12 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
         return deployedMtaApplication;
     }
 
-    private void checkWhetherLiveAppNeedsPolling(ProcessContext context, CloudControllerClient client, CloudApplication cloudApplication) {
+    private void checkWhetherLiveAppNeedsPolling(ProcessContext context, CustomInstancesInfoClient client,
+                                                 CloudApplication cloudApplication) {
         setExecutionIndexToTriggerNewApplicationRollingUpdate(context);
-        List<InstanceInfo> appInstances = client.getApplicationInstances(cloudApplication)
+        List<InstanceInfo> appInstances = client.getInstancesInfo(cloudApplication.getMetadata()
+                                                                                  .getGuid()
+                                                                                  .toString())
                                                 .getInstances();
         if (!appInstances.stream()
                          .allMatch(instanceInfo -> instanceInfo.getState() == InstanceState.RUNNING)) {
@@ -172,8 +191,8 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         // The sequence of executions is crucial, as the incremental blue-green deployment alternates between them during the polling
         // process
-        return List.of(new PollStartLiveAppExecution(clientFactory, tokenService),
-                       new PollStartAppExecutionWithRollbackExecution(clientFactory, tokenService),
+        return List.of(new PollStartLiveAppExecution(clientFactory, tokenService, configuration, webClientFactory),
+                       new PollStartAppExecutionWithRollbackExecution(clientFactory, tokenService, configuration, webClientFactory),
                        new PollIncrementalAppInstanceUpdateExecution());
     }
 

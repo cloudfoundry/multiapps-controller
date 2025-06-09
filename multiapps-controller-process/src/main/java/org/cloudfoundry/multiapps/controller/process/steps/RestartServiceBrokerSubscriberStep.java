@@ -2,18 +2,20 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 import java.util.List;
-
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-
 @Named("restartServiceBrokerSubscriberStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
+
+    @Inject
+    private WebClientFactory webClientFactory;
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
@@ -27,7 +29,7 @@ public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollStartServiceBrokerSubscriberStatusExecution(clientFactory, tokenService));
+        return List.of(new PollStartServiceBrokerSubscriberStatusExecution(clientFactory, tokenService, configuration, webClientFactory));
     }
 
 }

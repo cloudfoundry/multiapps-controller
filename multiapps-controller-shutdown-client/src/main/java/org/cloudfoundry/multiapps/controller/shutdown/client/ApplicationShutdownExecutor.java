@@ -3,15 +3,15 @@ package org.cloudfoundry.multiapps.controller.shutdown.client;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.UUID;
-
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
+import com.sap.cloudfoundry.client.facade.util.RestUtil;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomInstancesInfoClient;
 import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.EnvironmentBasedShutdownConfiguration;
 import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.ShutdownConfiguration;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudControllerClientImpl;
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
+import org.springframework.web.reactive.function.client.WebClient;
 
 public class ApplicationShutdownExecutor {
 
@@ -21,8 +21,9 @@ public class ApplicationShutdownExecutor {
 
     private final ShutdownConfiguration shutdownConfiguration = new EnvironmentBasedShutdownConfiguration();
     private final ShutdownClientFactory shutdownClientFactory = new ShutdownClientFactory();
-    private final ApplicationInstanceShutdownExecutor instanceShutdownExecutor = new ApplicationInstanceShutdownExecutor(shutdownConfiguration,
-                                                                                                                         shutdownClientFactory);
+    private final ApplicationInstanceShutdownExecutor instanceShutdownExecutor = new ApplicationInstanceShutdownExecutor(
+        shutdownConfiguration,
+        shutdownClientFactory);
 
     public void execute() {
         int applicationInstancesCount = getApplicationInstancesCount(shutdownConfiguration);
@@ -37,15 +38,19 @@ public class ApplicationShutdownExecutor {
     }
 
     private static int getApplicationInstancesCount(ShutdownConfiguration shutdownConfiguration) {
-        CloudControllerClient client = createCloudControllerClient(shutdownConfiguration);
-        InstancesInfo instances = client.getApplicationInstances(shutdownConfiguration.getApplicationGuid());
-        return instances.getInstances()
-                        .size();
-    }
-
-    private static CloudControllerClient createCloudControllerClient(ShutdownConfiguration shutdownConfiguration) {
         URL cloudControllerUrl = toURL(shutdownConfiguration.getCloudControllerUrl());
-        return new CloudControllerClientImpl(cloudControllerUrl, createCloudCredentials(shutdownConfiguration));
+        WebClient.Builder webClientBuilder = new RestUtil().createWebClient(false)
+                                                           .mutate()
+                                                           .baseUrl(cloudControllerUrl.toString());
+        webClientBuilder.defaultHeaders(httpHeaders -> httpHeaders.setBasicAuth(shutdownConfiguration.getUsername(),
+                                                                                shutdownConfiguration.getPassword()));
+        WebClient webClient = webClientBuilder.build();
+        CustomInstancesInfoClient customInstancesInfoClient = new CustomInstancesInfoClient(webClient, "");
+        List<InstanceInfo> instanceInfoList = customInstancesInfoClient.getInstancesInfo(shutdownConfiguration.getApplicationGuid()
+                                                                                                              .toString())
+                                                                       .getInstances();
+        return instanceInfoList
+            .size();
     }
 
     private static URL toURL(String string) {

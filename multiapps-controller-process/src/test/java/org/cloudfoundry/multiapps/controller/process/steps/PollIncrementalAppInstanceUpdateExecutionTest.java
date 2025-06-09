@@ -1,16 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.UUID;
-
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableIncrementalAppInstanceUpdateConfiguration;
@@ -18,9 +15,10 @@ import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class PollIncrementalAppInstanceUpdateExecutionTest extends AsyncStepOperationTest<IncrementalAppInstancesUpdateStep> {
 
@@ -32,6 +30,7 @@ class PollIncrementalAppInstanceUpdateExecutionTest extends AsyncStepOperationTe
 
     private CloudControllerClientFactory clientFactory;
     private TokenService tokenService;
+    private WebClientFactory webClientFactory;
 
     private AsyncExecutionState expectedAsyncExecutionState;
 
@@ -129,6 +128,7 @@ class PollIncrementalAppInstanceUpdateExecutionTest extends AsyncStepOperationTe
     protected IncrementalAppInstancesUpdateStep createStep() {
         clientFactory = Mockito.mock(CloudControllerClientFactory.class);
         tokenService = Mockito.mock(TokenService.class);
-        return new IncrementalAppInstancesUpdateStep(clientFactory, tokenService);
+        webClientFactory = Mockito.mock(WebClientFactory.class);
+        return new IncrementalAppInstancesUpdateStep(clientFactory, tokenService, webClientFactory);
     }
 }
