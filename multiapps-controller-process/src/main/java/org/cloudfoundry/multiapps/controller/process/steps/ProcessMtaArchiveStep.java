@@ -1,5 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.jar.Manifest;
+
 import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
@@ -20,14 +28,6 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
 import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.jar.Manifest;
 
 public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
@@ -57,7 +57,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
     private void processApplicationArchive(ProcessContext context, String appArchiveId) {
         List<ArchiveEntryWithStreamPositions> archiveEntriesWithStreamPositions = archiveEntryStreamWithStreamPositionsDeterminer.determineArchiveEntries(
-            context.getRequiredVariable(Variables.SPACE_GUID), appArchiveId);
+            context.getRequiredVariable(Variables.SPACE_GUID), appArchiveId, getStepWarningLoggerConsumer());
         context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, archiveEntriesWithStreamPositions);
         MtaArchiveHelper helper = createMtaArchiveHelperFromManifest(context, appArchiveId, archiveEntriesWithStreamPositions);
 

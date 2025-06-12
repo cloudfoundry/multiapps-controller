@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,11 +8,11 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.FileMimeTypeValidator;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -26,12 +24,22 @@ import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
+import static java.text.MessageFormat.format;
+
 @Named("processMtaExtensionDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
 
     @Inject
     protected DescriptorParserFacadeFactory descriptorParserFactory;
+
+    private final FileMimeTypeValidator fileMimeTypeValidator;
+
+    @Inject
+    public ProcessMtaExtensionDescriptorsStep(FileMimeTypeValidator fileMimeTypeValidator) {
+        this.fileMimeTypeValidator = fileMimeTypeValidator;
+    }
+
     protected ExtensionDescriptorChainBuilder extensionDescriptorChainBuilder = new ExtensionDescriptorChainBuilder(false);
 
     @Override
@@ -75,6 +83,8 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
                 extensionDescriptors.add(extensionDescriptor);
             };
             for (String extensionDescriptorFileId : fileIds) {
+                fileMimeTypeValidator.validateArchiveType(spaceId, extensionDescriptorFileId,
+                                                          getStepWarningLoggerConsumer());
                 fileService.consumeFileContent(spaceId, extensionDescriptorFileId, extensionDescriptorConsumer);
             }
             getStepLogger().debug(Messages.PROVIDED_EXTENSION_DESCRIPTORS, SecureSerialization.toJson(extensionDescriptors));
