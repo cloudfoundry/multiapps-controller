@@ -3,16 +3,12 @@ package org.cloudfoundry.multiapps.controller.core.test;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicStatusLine;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicHeader;
 import org.immutables.value.Value;
 import org.mockito.Mockito;
 
@@ -28,16 +24,12 @@ public abstract class HttpResponseMock {
     @Value.Derived
     public CloseableHttpResponse getMock() {
         CloseableHttpResponse response = Mockito.mock(CloseableHttpResponse.class);
-        Mockito.when(response.getStatusLine())
-               .thenReturn(createStatusLine(getStatusCode()));
+        Mockito.when(response.getCode())
+               .thenReturn(getStatusCode());
         Mockito.when(response.getEntity())
                .thenReturn(createHttpEntity(getBody()));
         mockHeaders(response);
         return response;
-    }
-
-    private static StatusLine createStatusLine(int statusCode) {
-        return new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), statusCode, null);
     }
 
     private static HttpEntity createHttpEntity(String body) {
