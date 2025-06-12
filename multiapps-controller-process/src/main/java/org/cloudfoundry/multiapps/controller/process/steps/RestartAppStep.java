@@ -3,8 +3,14 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
-
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication.State;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -14,14 +20,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication.State;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 @Named("restartAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements BeforeStepHookPhaseProvider {
@@ -30,6 +28,8 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
     protected CloudControllerClientFactory clientFactory;
     @Inject
     protected TokenService tokenService;
+    @Inject
+    private WebClientFactory webClientFactory;
 
     @Override
     public StepPhase executePollingStep(ProcessContext context) {
@@ -90,7 +90,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollStartAppStatusExecution(clientFactory, tokenService),
+        return List.of(new PollStartAppStatusExecution(clientFactory, tokenService, configuration, webClientFactory),
                        new PollExecuteAppStatusExecution(clientFactory, tokenService));
     }
 

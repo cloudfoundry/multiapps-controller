@@ -4,10 +4,13 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
-
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.RestartParameters;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ActionCalculator;
@@ -16,15 +19,14 @@ import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStartupStat
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ChangedApplicationActionCalculator;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.UnchangedApplicationActionCalculator;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomInstancesInfoClient;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 
 @Named("determineDesiredStateAchievingActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -32,6 +34,10 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
 
     @Inject
     private ApplicationStartupStateCalculator startupStateCalculator;
+    @Inject
+    private TokenService tokenService;
+    @Inject
+    private WebClientFactory webClientFactory;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -39,7 +45,17 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
                                 .getName();
         CloudControllerClient client = context.getControllerClient();
         CloudApplication app = client.getApplication(appName);
-        var appInstances = client.getApplicationInstances(app);
+
+        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken(context.getVariable(Variables.USER),
+                                                                          context.getVariable(Variables.USER_GUID));
+        CloudCredentials credentials = new CloudCredentials(token);
+        CustomInstancesInfoClient customInstancesInfoClient = new CustomInstancesInfoClient(configuration, webClientFactory,
+                                                                                            credentials, context.getVariable(
+            Variables.CORRELATION_ID));
+
+        var appInstances = customInstancesInfoClient.getInstancesInfo(app.getMetadata()
+                                                                         .getGuid()
+                                                                         .toString());
         var appEnv = client.getApplicationEnvironment(app.getGuid());
 
         ApplicationStartupState currentState = startupStateCalculator.computeCurrentState(app, appInstances, appEnv);

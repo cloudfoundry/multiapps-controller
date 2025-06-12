@@ -1,18 +1,18 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.UUID;
-
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableInstanceInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableInstancesInfo;
+import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
+import com.sap.cloudfoundry.client.facade.domain.InstanceState;
+import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableIncrementalAppInstanceUpdateConfiguration;
@@ -21,14 +21,12 @@ import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableInstanceInfo;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableInstancesInfo;
-import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
-import com.sap.cloudfoundry.client.facade.domain.InstanceState;
-import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationTest<IncrementalAppInstancesUpdateStep> {
 
@@ -40,6 +38,8 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
 
     private CloudControllerClientFactory clientFactory;
     private TokenService tokenService;
+
+    private WebClientFactory webClientFactory;
 
     private AsyncExecutionState expectedAsyncExecutionState;
 
@@ -136,7 +136,8 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
         context.setVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION, updateConfig);
         step.initializeStepLogger(execution);
         ProcessContext wrapper = step.createProcessContext(execution);
-        PollStartAppExecutionWithRollbackExecution asyncExecution = (PollStartAppExecutionWithRollbackExecution) getAsyncOperations(wrapper).get(0);
+        PollStartAppExecutionWithRollbackExecution asyncExecution = (PollStartAppExecutionWithRollbackExecution) getAsyncOperations(
+            wrapper).get(0);
         asyncExecution.onSuccess(wrapper, "App started");
     }
 
@@ -150,7 +151,8 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
 
     @Override
     protected List<AsyncExecution> getAsyncOperations(ProcessContext wrapper) {
-        return List.of(new PollStartAppExecutionWithRollbackExecution(clientFactory, tokenService));
+        webClientFactory = Mockito.mock(WebClientFactory.class);
+        return List.of(new PollStartAppExecutionWithRollbackExecution(clientFactory, tokenService, configuration, webClientFactory));
     }
 
     @Override
@@ -162,7 +164,8 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
     protected IncrementalAppInstancesUpdateStep createStep() {
         clientFactory = Mockito.mock(CloudControllerClientFactory.class);
         tokenService = Mockito.mock(TokenService.class);
-        return new IncrementalAppInstancesUpdateStep(clientFactory, tokenService);
+        webClientFactory = Mockito.mock(WebClientFactory.class);
+        return new IncrementalAppInstancesUpdateStep(clientFactory, tokenService, webClientFactory);
 
     }
 }

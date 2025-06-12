@@ -22,6 +22,11 @@ public abstract class CustomControllerClient {
     private String correlationId = StringUtils.EMPTY;
     private final CloudControllerHeaderConfiguration headerConfiguration;
 
+    protected CustomControllerClient(WebClient webClient, String version) {
+        this.webClient = webClient;
+        headerConfiguration = new CloudControllerHeaderConfiguration(version);
+    }
+
     protected CustomControllerClient(ApplicationConfiguration configuration, WebClientFactory webClientFactory,
                                      CloudCredentials credentials, String correlationID) {
         this.webClient = webClientFactory.getWebClient(credentials);

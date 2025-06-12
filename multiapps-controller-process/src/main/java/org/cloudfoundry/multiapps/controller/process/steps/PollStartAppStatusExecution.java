@@ -3,21 +3,24 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
 import com.sap.cloudfoundry.client.facade.domain.InstanceState;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomInstancesInfoClient;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import static java.text.MessageFormat.format;
 
 public class PollStartAppStatusExecution implements AsyncExecution {
@@ -25,10 +28,15 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     private static final Logger LOGGER = LoggerFactory.getLogger(PollStartAppStatusExecution.class);
     private final CloudControllerClientFactory clientFactory;
     private final TokenService tokenService;
+    private final ApplicationConfiguration applicationConfiguration;
+    private final WebClientFactory webClientFactory;
 
-    public PollStartAppStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService) {
+    public PollStartAppStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService,
+                                       ApplicationConfiguration applicationConfiguration, WebClientFactory webClientFactory) {
         this.clientFactory = clientFactory;
         this.tokenService = tokenService;
+        this.applicationConfiguration = applicationConfiguration;
+        this.webClientFactory = webClientFactory;
     }
 
     @Override
@@ -40,8 +48,18 @@ public class PollStartAppStatusExecution implements AsyncExecution {
                .debug(Messages.CHECKING_APP_STATUS, appToPoll);
 
         CloudApplication app = getApplication(context, appToPoll, client);
-        List<InstanceInfo> appInstances = client.getApplicationInstances(app)
-                                                .getInstances();
+
+        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken(context.getVariable(Variables.USER),
+                                                                          context.getVariable(Variables.USER_GUID));
+        CloudCredentials credentials = new CloudCredentials(token);
+        CustomInstancesInfoClient customInstancesInfoClient = new CustomInstancesInfoClient(applicationConfiguration, webClientFactory,
+                                                                                            credentials, context.getVariable(
+            Variables.CORRELATION_ID));
+
+        List<InstanceInfo> appInstances = customInstancesInfoClient.getInstancesInfo(app.getMetadata()
+                                                                                        .getGuid()
+                                                                                        .toString())
+                                                                   .getInstances();
         StartupStatus status = getStartupStatus(context, app.getName(), appInstances);
         ProcessLoggerProvider processLoggerProvider = context.getStepLogger()
                                                              .getProcessLoggerProvider();
