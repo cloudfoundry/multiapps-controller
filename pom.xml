@@ -32,7 +32,7 @@
         </eclipselink.version>  <!-- Be careful when updating eclipselink versions. As of version 4.0.4, there have been reported regressions connected to exhausted Hikari DB pools  -->
         <flowable.version>6.8.0</flowable.version>
         <mybatis.version>3.5.19</mybatis.version>
-        <spring.version>6.2.7</spring.version>
+        <spring.version>6.2.8</spring.version>
         <spring-security.version>6.5.0</spring-security.version>
         <json-smart.version>2.5.2</json-smart.version>
         <hikari.version>6.3.0</hikari.version>
