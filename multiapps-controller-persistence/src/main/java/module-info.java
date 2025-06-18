@@ -44,6 +44,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires org.apache.commons.collections4;
     requires org.apache.commons.lang3;
     requires org.cloudfoundry.multiapps.common;
+    requires org.eclipse.persistence.core;
     requires org.slf4j;
     requires spring.context;
     requires spring.core;

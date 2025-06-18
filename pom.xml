@@ -28,8 +28,7 @@
         <snakeyaml.version>2.4</snakeyaml.version>
         <httpclient.version>5.5</httpclient.version>
         <httpcore.version>5.3.4</httpcore.version>
-        <eclipselink.version>3.0.4
-        </eclipselink.version>  <!-- Be careful when updating eclipselink versions. As of version 4.0.4, there have been reported regressions connected to exhausted Hikari DB pools  -->
+        <eclipselink.version>4.0.6</eclipselink.version>
         <flowable.version>6.8.0</flowable.version>
         <mybatis.version>3.5.19</mybatis.version>
         <spring.version>6.2.7</spring.version>
