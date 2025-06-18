@@ -15,8 +15,8 @@
         <sonar.organization>cloudfoundry</sonar.organization>
         <sonar.coverage.jacoco.xmlReportPaths>../multiapps-controller-coverage/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
-        <junit.version>5.12.2</junit.version>
-        <junit-platform.version>1.12.1</junit-platform.version>
+        <junit.version>5.13.1</junit.version>
+        <junit-platform.version>1.13.1</junit-platform.version>
         <mockito.version>5.18.0</mockito.version>
         <derby.version>10.16.1.1</derby.version> <!-- Upper versions of Derby(10.17.1.0) are not compatible with Java 17 -->
         <h2.version>2.2.224</h2.version>
@@ -31,12 +31,12 @@
         <eclipselink.version>4.0.6</eclipselink.version>
         <flowable.version>6.8.0</flowable.version>
         <mybatis.version>3.5.19</mybatis.version>
-        <spring.version>6.2.7</spring.version>
-        <spring-security.version>6.5.0</spring-security.version>
+        <spring.version>6.2.8</spring.version>
+        <spring-security.version>6.5.1</spring-security.version>
         <json-smart.version>2.5.2</json-smart.version>
         <hikari.version>6.3.0</hikari.version>
-        <jackson.version>2.19.0</jackson.version>
-        <jackson.databind.version>2.19.0</jackson.databind.version>
+        <jackson.version>2.19.1</jackson.version>
+        <jackson.databind.version>2.19.1</jackson.databind.version>
         <liquibase.version>4.32.0</liquibase.version>
         <liquibase-slf4j.version>5.1.0</liquibase-slf4j.version>
         <cloudfoundry-client.version>2.57.0</cloudfoundry-client.version>
@@ -179,7 +179,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.1.4</version>
                 </plugin>
                 <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-javadoc-plugin -->
                 <plugin>
@@ -191,7 +191,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>3.1.1</version>
                 </plugin>
                 <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-gpg-plugin -->
                 <plugin>
@@ -203,7 +203,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.6.1</version>
                 </plugin>
                 <!-- https://mvnrepository.com/artifact/de.empulse.eclipselink/staticweave-maven-plugin -->
                 <plugin>
@@ -234,7 +234,7 @@
                 <plugin>
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
-                    <version>3.11.0.3922</version>
+                    <version>5.1.0.4751</version>
                 </plugin>
                 <!-- https://mvnrepository.com/artifact/org.jacoco/jacoco-maven-plugin -->
                 <plugin>
