@@ -37,8 +37,8 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
     public List<Module> calculateContentForBuilding(List<? extends Module> modulesForDeployment) {
         initializeModulesDependencyTypes(modulesForDeployment);
         List<Module> calculatedModules = modulesForDeployment.stream()
-                                                             .filter(module -> shouldDeployModule(module, mtaModulesInArchive,
-                                                                                                  deployedModules))
+                                                             .filter(
+                                                                 module -> shouldDeployModule(module, mtaModulesInArchive, deployedModules))
                                                              .filter(this::isModuleSpecifiedForDeployment)
                                                              .collect(Collectors.toList());
         validateCalculatedModules(calculatedModules);
@@ -71,21 +71,25 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
     }
 
     private boolean shouldDeployModule(Module module, Set<String> mtaModulesInArchive, Set<String> deployedModules) {
+        if (moduleToDeployHelper.shouldSkipDeploy(module)) {
+            printModuleWarningMessage(Messages.MODULE_0_WILL_BE_SKIPPED_DURING_DEPLOYMENT, module.getName());
+            return false;
+        }
         if (moduleToDeployHelper.shouldDeployAlways(module) || isDockerModule(module)) {
             return true;
         }
         if (!mtaModulesInArchive.contains(module.getName()) || module.getType() == null) {
             if (deployedModules.contains(module.getName())) {
-                printMTAModuleNotFoundWarning(module.getName());
+                printModuleWarningMessage(Messages.NOT_DESCRIBED_MODULE, module.getName());
             }
             return false;
         }
         return true;
     }
 
-    private void printMTAModuleNotFoundWarning(String name) {
+    private void printModuleWarningMessage(String warningMessage, String moduleName) {
         if (userMessageLogger != null) {
-            userMessageLogger.warn(Messages.NOT_DESCRIBED_MODULE, name);
+            userMessageLogger.warn(warningMessage, moduleName);
         }
     }
 
