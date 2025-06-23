@@ -1,0 +1,53 @@
+[
+  {
+    "name": "foo",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "skip-deploy-mta",
+        "mta_version": "1.0.0",
+        "mta_module": "{\"name\":\"foo\"}",
+        "mta_module_provided_dependencies": "[\"foo\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "d499a3d8e88f9f9e8e956c8ac6b8c165"
+      }
+    },
+    "moduleName": "foo",
+    "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
+    "staging": {
+      "buildpacks": []
+    },
+    "routes": [
+      {
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "cfapps.neo.ondemand.com"
+        },
+        "host": "foo",
+        "path": "",
+        "url": "foo.cfapps.neo.ondemand.com"
+      }
+    ],
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
+    },
+    "idleRoutes": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "serviceKeysToInject": [],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
+  }
+]
