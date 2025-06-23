@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "id": "test",
+    "version": "0.1.0"
+  },
+  "applications": [
+    {
+      "moduleName": "a",
+      "name": "a",
+      "boundMtaServices": [],
+      "providedDependencyNames": []
+    },
+    {
+      "moduleName": "b",
+      "name": "b",
+      "boundMtaServices": [],
+      "providedDependencyNames": []
+    },
+    {
+      "moduleName": "c",
+      "name": "c",
+      "boundMtaServices": [],
+      "providedDependencyNames": []
+    }
+  ],
+  "services": []
+}

@@ -1,0 +1,14 @@
+ID: skip-deploy-mta
+_schema-version: '3'
+version: 1.0.0
+
+modules:
+  - name: skip-deploy-app
+    type: java
+    path: app
+    parameters:
+      skip-deploy: "true"
+
+  - name: foo
+    type: java
+    path: app

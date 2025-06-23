@@ -112,6 +112,7 @@ public class SupportedParameters {
     public static final String STOP_APP = "stop-app";
     public static final String NO_START = "no-start";
     public static final String CHECK_DEPLOY_ID = "check-deploy-id";
+    public static final String SKIP_DEPLOY = "skip-deploy";
 
     public static final String REGISTER_SERVICE_URL = "register-service-url";
     public static final String REGISTER_SERVICE_URL_SERVICE_NAME = "service-name";
@@ -197,8 +198,8 @@ public class SupportedParameters {
                                                                SUCCESS_MARKER, FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID,
                                                                REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
                                                                REGISTER_SERVICE_URL_SERVICE_URL, MODULE_CONFIG, MANAGED, PATH,
-                                                               APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
-                                                               APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT, DELETE_SERVICE_KEY_AFTER_DEPLOYMENT);
+                                                               APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT, APPS_START_TIMEOUT,
+                                                               APPS_STAGE_TIMEOUT, DELETE_SERVICE_KEY_AFTER_DEPLOYMENT, SKIP_DEPLOY);
 
     public static final Set<String> RESOURCE_PARAMETERS = Set.of(APPLY_NAMESPACE, SERVICE_CONFIG, SYSLOG_DRAIN_URL, DEFAULT_CONTAINER_NAME,
                                                                  DEFAULT_SERVICE_NAME, DEFAULT_XS_APP_NAME, SERVICE, SERVICE_KEYS,

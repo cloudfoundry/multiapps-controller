@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorPropertiesResolver;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableMtaDescriptorPropertiesResolverContext;
@@ -32,8 +32,14 @@ import org.springframework.context.annotation.Scope;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessDescriptorStep extends SyncFlowableStep {
 
-    @Inject
     private ConfigurationEntryService configurationEntryService;
+    private ModuleToDeployHelper moduleToDeployHelper;
+
+    @Inject
+    public ProcessDescriptorStep(ConfigurationEntryService configurationEntryService, ModuleToDeployHelper moduleToDeployHelper) {
+        this.configurationEntryService = configurationEntryService;
+        this.moduleToDeployHelper = moduleToDeployHelper;
+    }
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -54,10 +60,11 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         List<String> modulesForDeployment = context.getVariable(Variables.MODULES_FOR_DEPLOYMENT);
         List<String> invalidModulesSpecifiedForDeployment = findInvalidModulesSpecifiedForDeployment(descriptor, modulesForDeployment);
         if (!invalidModulesSpecifiedForDeployment.isEmpty()) {
-            throw new IllegalStateException(MessageFormat.format(Messages.MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES,
-                                                                 String.join(", ", invalidModulesSpecifiedForDeployment)));
+            throw new IllegalStateException(
+                MessageFormat.format(Messages.MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES,
+                                     String.join(", ", invalidModulesSpecifiedForDeployment)));
         }
-        Set<String> mtaModules = getModuleNames(descriptor, modulesForDeployment);
+        Set<String> mtaModules = getModuleNamesForDeployment(descriptor, modulesForDeployment);
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
         context.setVariable(Variables.MTA_MODULES, mtaModules);
 
@@ -97,14 +104,20 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                               .cloudTarget(cloudTarget)
                                                               .currentSpaceId(currentSpaceId)
                                                               .namespace(namespace)
-                                                              .applyNamespaceAppNamesGlobalLevel(namespaceGlobalParameters.getApplyNamespaceAppNamesParameter())
-                                                              .applyNamespaceServiceNamesGlobalLevel(namespaceGlobalParameters.getApplyNamespaceServiceNamesParameter())
-                                                              .applyNamespaceAppRoutesGlobalLevel(namespaceGlobalParameters.getApplyNamespaceAppRoutesParameter())
-                                                              .applyNamespaceAsSuffixGlobalLevel(namespaceGlobalParameters.getApplyNamespaceAsSuffix())
+                                                              .applyNamespaceAppNamesGlobalLevel(
+                                                                  namespaceGlobalParameters.getApplyNamespaceAppNamesParameter())
+                                                              .applyNamespaceServiceNamesGlobalLevel(
+                                                                  namespaceGlobalParameters.getApplyNamespaceServiceNamesParameter())
+                                                              .applyNamespaceAppRoutesGlobalLevel(
+                                                                  namespaceGlobalParameters.getApplyNamespaceAppRoutesParameter())
+                                                              .applyNamespaceAsSuffixGlobalLevel(
+                                                                  namespaceGlobalParameters.getApplyNamespaceAsSuffix())
                                                               .applyNamespaceAsSuffixProcessVariable(applyNamespaceAsSuffixProcessVariable)
                                                               .applyNamespaceAppNamesProcessVariable(applyNamespaceAppNamesProcessVariable)
-                                                              .applyNamespaceServiceNamesProcessVariable(applyNamespaceServiceNamesProcessVariable)
-                                                              .applyNamespaceAppRoutesProcessVariable(applyNamespaceAppRoutesProcessVariable)
+                                                              .applyNamespaceServiceNamesProcessVariable(
+                                                                  applyNamespaceServiceNamesProcessVariable)
+                                                              .applyNamespaceAppRoutesProcessVariable(
+                                                                  applyNamespaceAppRoutesProcessVariable)
                                                               .shouldReserveTemporaryRoute(setIdleRoutes)
                                                               .configurationEntryService(configurationEntryService)
                                                               .applicationConfiguration(configuration)
@@ -119,17 +132,6 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         }
     }
 
-    private Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor, List<String> moduleNamesForDeployment) {
-        if (moduleNamesForDeployment == null) {
-            return deploymentDescriptor.getModules()
-                                       .stream()
-                                       .map(Module::getName)
-                                       .collect(Collectors.toSet());
-        }
-
-        return new HashSet<>(moduleNamesForDeployment);
-    }
-
     private List<String> findInvalidModulesSpecifiedForDeployment(DeploymentDescriptor descriptor, List<String> modulesForDeployment) {
         if (CollectionUtils.isEmpty(modulesForDeployment)) {
             return Collections.emptyList();
@@ -139,8 +141,25 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                                 .map(Module::getName)
                                                                 .collect(Collectors.toSet());
         return modulesForDeployment.stream()
-                                   .filter(moduleSpecifiedForDeployment -> !deploymentDescriptorModuleNames.contains(moduleSpecifiedForDeployment))
+                                   .filter(moduleSpecifiedForDeployment -> !deploymentDescriptorModuleNames.contains(
+                                       moduleSpecifiedForDeployment))
                                    .collect(Collectors.toList());
+    }
+
+    private Set<String> getModuleNamesForDeployment(DeploymentDescriptor deploymentDescriptor, List<String> moduleNamesForDeployment) {
+        if (moduleNamesForDeployment == null) {
+            return deploymentDescriptor.getModules()
+                                       .stream()
+                                       .filter(this::shouldDeployModule)
+                                       .map(Module::getName)
+                                       .collect(Collectors.toSet());
+        }
+
+        return new HashSet<>(moduleNamesForDeployment);
+    }
+
+    private boolean shouldDeployModule(Module module) {
+        return !moduleToDeployHelper.shouldSkipDeploy(module);
     }
 
 }

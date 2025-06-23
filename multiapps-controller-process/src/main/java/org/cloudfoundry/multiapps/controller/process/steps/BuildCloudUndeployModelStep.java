@@ -1,9 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,6 +11,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
@@ -33,6 +34,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationS
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ExistingAppsToBackupCalculator;
+import org.cloudfoundry.multiapps.controller.process.util.ModulesToUndeployCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -41,12 +43,9 @@ import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 @Named("buildCloudUndeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -72,7 +71,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
             return StepPhase.DONE;
         }
 
-        List<String> deploymentDescriptorModules = getDeploymentDescriptorModules(context);
+        List<Module> deploymentDescriptorModules = getDeploymentDescriptorModules(context);
         List<ConfigurationSubscription> subscriptionsToCreate = context.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
         Set<String> mtaModules = context.getVariable(Variables.MTA_MODULES);
         List<String> appNames = context.getVariable(Variables.APPS_TO_DEPLOY);
@@ -80,12 +79,14 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
-        List<DeployedMtaApplication> deployedAppsToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames,
-                                                                                       deploymentDescriptorModules);
+        ModulesToUndeployCalculator modulesToUndeployCalculator = new ModulesToUndeployCalculator(deployedMta, mtaModules,
+                                                                                                  deploymentDescriptorModules,
+                                                                                                  moduleToDeployHelper);
+        List<DeployedMtaApplication> deployedAppsToUndeploy = modulesToUndeployCalculator.computeModulesToUndeploy(appNames);
 
         getStepLogger().debug(Messages.MODULES_TO_UNDEPLOY, SecureSerialization.toJson(deployedAppsToUndeploy));
 
-        List<DeployedMtaApplication> appsWithoutChange = computeModulesWithoutChange(deployedAppsToUndeploy, mtaModules, deployedMta);
+        List<DeployedMtaApplication> appsWithoutChange = modulesToUndeployCalculator.computeModulesWithoutChange(deployedAppsToUndeploy);
         getStepLogger().debug(Messages.MODULES_NOT_TO_BE_CHANGED, SecureSerialization.toJson(appsWithoutChange));
 
         List<ConfigurationSubscription> subscriptionsToDelete = computeSubscriptionsToDelete(subscriptionsToCreate, deployedMta,
@@ -103,8 +104,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(deployedAppsToUndeploy, context.getControllerClient());
 
         DeployedMta backupMta = context.getVariable(Variables.BACKUP_MTA);
-        ExistingAppsToBackupCalculator existingAppsToBackupCalculator = new ExistingAppsToBackupCalculator(deployedMta,
-                                                                                                           backupMta,
+        ExistingAppsToBackupCalculator existingAppsToBackupCalculator = new ExistingAppsToBackupCalculator(deployedMta, backupMta,
                                                                                                            descriptorBackupService);
         List<CloudApplication> existingAppsToBackup = computeExistingAppsToBackup(context, appsToUndeploy, existingAppsToBackupCalculator);
 
@@ -127,15 +127,12 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         return Messages.ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL;
     }
 
-    private List<String> getDeploymentDescriptorModules(ProcessContext context) {
+    private List<Module> getDeploymentDescriptorModules(ProcessContext context) {
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         if (deploymentDescriptor == null) {
             return Collections.emptyList();
         }
-        return deploymentDescriptor.getModules()
-                                   .stream()
-                                   .map(Module::getName)
-                                   .collect(Collectors.toList());
+        return deploymentDescriptor.getModules();
     }
 
     private List<String> getAllServiceNames(ProcessContext context) {
@@ -159,27 +156,6 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
             }
         }
         return servicesForApplications;
-    }
-
-    private List<DeployedMtaApplication> computeModulesWithoutChange(List<DeployedMtaApplication> modulesToUndeploy, Set<String> mtaModules,
-                                                                     DeployedMta deployedMta) {
-        return deployedMta.getApplications()
-                          .stream()
-                          .filter(existingModule -> shouldNotUndeployModule(modulesToUndeploy, existingModule))
-                          .filter(existingModule -> shouldNotDeployModule(mtaModules, existingModule))
-                          .collect(Collectors.toList());
-    }
-
-    private boolean shouldNotUndeployModule(List<DeployedMtaApplication> modulesToUndeploy, DeployedMtaApplication existingModule) {
-        String existingModuleName = existingModule.getModuleName();
-        return modulesToUndeploy.stream()
-                                .map(DeployedMtaApplication::getModuleName)
-                                .noneMatch(existingModuleName::equals);
-    }
-
-    private boolean shouldNotDeployModule(Set<String> mtaModules, DeployedMtaApplication existingModule) {
-        String existingModuleName = existingModule.getModuleName();
-        return !mtaModules.contains(existingModuleName);
     }
 
     private void setComponentsToUndeploy(ProcessContext context, List<String> services, List<CloudApplication> apps,
@@ -218,8 +194,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         return appsToKeep.stream()
                          .flatMap(module -> module.getBoundMtaServices()
                                                   .stream())
-                         .noneMatch(serviceName -> serviceName.equalsIgnoreCase(service.getName()))
-            && !servicesForApplications.contains(service.getName()) && !servicesForCurrentDeployment.contains(service.getName());
+                         .noneMatch(serviceName -> serviceName.equalsIgnoreCase(service.getName())) && !servicesForApplications.contains(
+            service.getName()) && !servicesForCurrentDeployment.contains(service.getName());
     }
 
     private boolean isExistingService(ProcessContext context, String serviceName) {
@@ -253,8 +229,9 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
     private List<DeployedMtaServiceKey> computeUnusedServiceKeys(ProcessContext context, List<DeployedMtaServiceKey> deployedServiceKeys) {
         Map<String, List<DeployedMtaServiceKey>> deployedServiceKeysByService = deployedServiceKeys.stream()
-                                                                                                   .collect(groupingBy(key -> key.getServiceInstance()
-                                                                                                                                 .getName()));
+                                                                                                   .collect(groupingBy(
+                                                                                                       key -> key.getServiceInstance()
+                                                                                                                 .getName()));
         getStepLogger().debug(Messages.DEPLOYED_SERVICE_KEYS, deployedServiceKeysByService);
 
         Map<String, List<CloudServiceKey>> additionalServiceKeys = context.getVariable(Variables.SERVICE_KEYS_FOR_CONTENT_DEPLOY);
@@ -342,28 +319,6 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                 .getOrDefault(SupportedParameters.SERVICE_KEY_NAME, resource.getName());
     }
 
-    private List<DeployedMtaApplication> computeModulesToUndeploy(DeployedMta deployedMta, Set<String> mtaModules,
-                                                                  List<String> appsToDeploy, List<String> deploymentDescriptorModules) {
-        return deployedMta.getApplications()
-                          .stream()
-                          .filter(deployedApplication -> shouldBeCheckedForUndeployment(deployedApplication, mtaModules,
-                                                                                        deploymentDescriptorModules))
-                          .filter(deployedApplication -> shouldUndeployModule(deployedApplication, appsToDeploy))
-                          .collect(Collectors.toList());
-    }
-
-    private boolean shouldBeCheckedForUndeployment(DeployedMtaApplication deployedApplication, Set<String> mtaModules,
-                                                   List<String> deploymentDescriptorModules) {
-        return mtaModules.contains(deployedApplication.getModuleName())
-            || !deploymentDescriptorModules.contains(deployedApplication.getModuleName());
-    }
-
-    private boolean shouldUndeployModule(DeployedMtaApplication deployedMtaApplication, List<String> appsToDeploy) {
-        // The deployed module may be in the list of MTA modules, but the actual application that was created from it may have a
-        // different name:
-        return !appsToDeploy.contains(deployedMtaApplication.getName());
-    }
-
     private List<CloudApplication> computeExistingAppsToBackup(ProcessContext context, List<CloudApplication> appsToUndeploy,
                                                                ExistingAppsToBackupCalculator existingAppsToBackupCalculator) {
         boolean shouldBackupExistingApps = context.getVariable(Variables.SHOULD_BACKUP_PREVIOUS_VERSION);
@@ -402,11 +357,11 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     }
 
     private boolean areEqual(ConfigurationSubscription subscription1, ConfigurationSubscription subscription2) {
-        return Objects.equals(subscription1.getAppName(), subscription2.getAppName())
-            && Objects.equals(subscription1.getSpaceId(), subscription2.getSpaceId()) && Objects.equals(subscription1.getResourceDto()
-                                                                                                                     .getName(),
-                                                                                                        subscription2.getResourceDto()
-                                                                                                                     .getName());
+        return Objects.equals(subscription1.getAppName(), subscription2.getAppName()) && Objects.equals(subscription1.getSpaceId(),
+                                                                                                        subscription2.getSpaceId())
+            && Objects.equals(subscription1.getResourceDto()
+                                           .getName(), subscription2.getResourceDto()
+                                                                    .getName());
     }
 
     protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ProcessContext context) {
