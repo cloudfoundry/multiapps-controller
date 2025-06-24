@@ -1,9 +1,0 @@
-_schema-version: "3.3"
-ID: com.test
-extends: com.test
-
-modules:
-  - name: spark-service-admin
-    properties:
-      MAX_SIZE: а
-      MAX_SIZE: а
