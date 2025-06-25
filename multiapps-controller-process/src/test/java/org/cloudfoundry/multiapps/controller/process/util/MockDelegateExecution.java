@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.mockito.Mockito.spy;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +12,8 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.ReadOnlyDelegateExecution;
 import org.flowable.variable.api.persistence.entity.VariableInstance;
 import org.mockito.Mockito;
+
+import static org.mockito.Mockito.spy;
 
 public class MockDelegateExecution implements DelegateExecution {
 
@@ -125,6 +125,11 @@ public class MockDelegateExecution implements DelegateExecution {
     @Override
     public String getCurrentActivityId() {
         return "1";
+    }
+
+    @Override
+    public String getCurrentActivityName() {
+        return "";
     }
 
     @Override

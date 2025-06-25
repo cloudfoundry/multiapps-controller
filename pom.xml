@@ -29,7 +29,7 @@
         <httpclient.version>5.5</httpclient.version>
         <httpcore.version>5.3.4</httpcore.version>
         <eclipselink.version>4.0.6</eclipselink.version>
-        <flowable.version>6.8.0</flowable.version>
+        <flowable.version>7.1.0</flowable.version>
         <mybatis.version>3.5.19</mybatis.version>
         <spring.version>6.2.8</spring.version>
         <spring-security.version>6.5.1</spring-security.version>
