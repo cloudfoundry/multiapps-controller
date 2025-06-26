@@ -109,6 +109,7 @@ public final class Messages {
     public static final String INVALID_SUPPORT_COMPONENTS = "Invalid SUPPORT_COMPONENTS \"{0}\"";
     public static final String INCOMPATIBLE_PARAMETERS = "Module \"{0}\" has parameters {1} that will be replaced by \"{2}\" due to inconsistency";
     public static final String MODULE_0_DEPENDS_ON_MODULE_1_WHICH_CANNOT_BE_RESOLVED = "Module \"{0}\" depends on module \"{1}\", which is not an application and its state cannot be calculated. This dependency will be ignored during deployment.";
+    public static final String MODULE_0_WILL_BE_SKIPPED_DURING_DEPLOYMENT = "Module \"{0}\" will be skipped during deployment";
 
     // Info messages
     public static final String PLATFORMS_NOT_SPECIFIED = "No platforms are specified in the environment.";

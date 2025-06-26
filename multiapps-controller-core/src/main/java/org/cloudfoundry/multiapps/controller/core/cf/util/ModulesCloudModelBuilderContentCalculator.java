@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.cf.util;
 
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -77,23 +76,21 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
         }
         if (!mtaModulesInArchive.contains(module.getName()) || module.getType() == null) {
             if (deployedModules.contains(module.getName())) {
-                printMTAModuleNotFoundWarning(module.getName());
+                printModuleWarningMessage(Messages.NOT_DESCRIBED_MODULE, module.getName());
             }
             return false;
         }
 
         if (moduleToDeployHelper.shouldSkipDeploy(module)) {
-            if (userMessageLogger != null) {
-                userMessageLogger.warn(MessageFormat.format("Module \"{0}\" will be skipped during deployment", module.getName()));
-            }
+            printModuleWarningMessage(Messages.MODULE_0_WILL_BE_SKIPPED_DURING_DEPLOYMENT, module.getName());
             return false;
         }
         return true;
     }
 
-    private void printMTAModuleNotFoundWarning(String name) {
+    private void printModuleWarningMessage(String warningMessage, String moduleName) {
         if (userMessageLogger != null) {
-            userMessageLogger.warn(Messages.NOT_DESCRIBED_MODULE, name);
+            userMessageLogger.warn(warningMessage, moduleName);
         }
     }
 
