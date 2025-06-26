@@ -1,9 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,6 +11,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
@@ -41,12 +42,9 @@ import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 @Named("buildCloudUndeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -72,7 +70,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
             return StepPhase.DONE;
         }
 
-        List<String> deploymentDescriptorModules = getDeploymentDescriptorModules(context);
+        List<Module> deploymentDescriptorModules = getDeploymentDescriptorModules(context);
         List<ConfigurationSubscription> subscriptionsToCreate = context.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
         Set<String> mtaModules = context.getVariable(Variables.MTA_MODULES);
         List<String> appNames = context.getVariable(Variables.APPS_TO_DEPLOY);
@@ -103,8 +101,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(deployedAppsToUndeploy, context.getControllerClient());
 
         DeployedMta backupMta = context.getVariable(Variables.BACKUP_MTA);
-        ExistingAppsToBackupCalculator existingAppsToBackupCalculator = new ExistingAppsToBackupCalculator(deployedMta,
-                                                                                                           backupMta,
+        ExistingAppsToBackupCalculator existingAppsToBackupCalculator = new ExistingAppsToBackupCalculator(deployedMta, backupMta,
                                                                                                            descriptorBackupService);
         List<CloudApplication> existingAppsToBackup = computeExistingAppsToBackup(context, appsToUndeploy, existingAppsToBackupCalculator);
 
@@ -127,15 +124,12 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         return Messages.ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL;
     }
 
-    private List<String> getDeploymentDescriptorModules(ProcessContext context) {
+    private List<Module> getDeploymentDescriptorModules(ProcessContext context) {
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         if (deploymentDescriptor == null) {
             return Collections.emptyList();
         }
-        return deploymentDescriptor.getModules()
-                                   .stream()
-                                   .map(Module::getName)
-                                   .collect(Collectors.toList());
+        return deploymentDescriptor.getModules();
     }
 
     private List<String> getAllServiceNames(ProcessContext context) {
@@ -218,8 +212,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         return appsToKeep.stream()
                          .flatMap(module -> module.getBoundMtaServices()
                                                   .stream())
-                         .noneMatch(serviceName -> serviceName.equalsIgnoreCase(service.getName()))
-            && !servicesForApplications.contains(service.getName()) && !servicesForCurrentDeployment.contains(service.getName());
+                         .noneMatch(serviceName -> serviceName.equalsIgnoreCase(service.getName())) && !servicesForApplications.contains(
+            service.getName()) && !servicesForCurrentDeployment.contains(service.getName());
     }
 
     private boolean isExistingService(ProcessContext context, String serviceName) {
@@ -253,8 +247,9 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
     private List<DeployedMtaServiceKey> computeUnusedServiceKeys(ProcessContext context, List<DeployedMtaServiceKey> deployedServiceKeys) {
         Map<String, List<DeployedMtaServiceKey>> deployedServiceKeysByService = deployedServiceKeys.stream()
-                                                                                                   .collect(groupingBy(key -> key.getServiceInstance()
-                                                                                                                                 .getName()));
+                                                                                                   .collect(groupingBy(
+                                                                                                       key -> key.getServiceInstance()
+                                                                                                                 .getName()));
         getStepLogger().debug(Messages.DEPLOYED_SERVICE_KEYS, deployedServiceKeysByService);
 
         Map<String, List<CloudServiceKey>> additionalServiceKeys = context.getVariable(Variables.SERVICE_KEYS_FOR_CONTENT_DEPLOY);
@@ -343,19 +338,30 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     }
 
     private List<DeployedMtaApplication> computeModulesToUndeploy(DeployedMta deployedMta, Set<String> mtaModules,
-                                                                  List<String> appsToDeploy, List<String> deploymentDescriptorModules) {
+                                                                  List<String> appsToDeploy, List<Module> deploymentDescriptorModules) {
+        List<String> deploymentDescriptorModuleNames = deploymentDescriptorModules.stream()
+                                                                                  .map(Module::getName)
+                                                                                  .collect(Collectors.toList());
         return deployedMta.getApplications()
                           .stream()
                           .filter(deployedApplication -> shouldBeCheckedForUndeployment(deployedApplication, mtaModules,
-                                                                                        deploymentDescriptorModules))
+                                                                                        deploymentDescriptorModules,
+                                                                                        deploymentDescriptorModuleNames))
                           .filter(deployedApplication -> shouldUndeployModule(deployedApplication, appsToDeploy))
                           .collect(Collectors.toList());
     }
 
     private boolean shouldBeCheckedForUndeployment(DeployedMtaApplication deployedApplication, Set<String> mtaModules,
-                                                   List<String> deploymentDescriptorModules) {
-        return mtaModules.contains(deployedApplication.getModuleName())
-            || !deploymentDescriptorModules.contains(deployedApplication.getModuleName());
+                                                   List<Module> deploymentDescriptorModules, List<String> deploymentDescriptorModuleNames) {
+        return mtaModules.contains(deployedApplication.getModuleName()) || !deploymentDescriptorModuleNames.contains(
+            deployedApplication.getModuleName()) || shouldUndeploySkippedModule(deployedApplication, deploymentDescriptorModules);
+    }
+
+    private boolean shouldUndeploySkippedModule(DeployedMtaApplication deployedApplication, List<Module> deploymentDescriptorModules) {
+        return deploymentDescriptorModules.stream()
+                                          .filter(module -> module.getName()
+                                                                  .equals(deployedApplication.getModuleName()))
+                                          .anyMatch(moduleToDeployHelper::shouldSkipDeploy);
     }
 
     private boolean shouldUndeployModule(DeployedMtaApplication deployedMtaApplication, List<String> appsToDeploy) {
@@ -402,11 +408,11 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     }
 
     private boolean areEqual(ConfigurationSubscription subscription1, ConfigurationSubscription subscription2) {
-        return Objects.equals(subscription1.getAppName(), subscription2.getAppName())
-            && Objects.equals(subscription1.getSpaceId(), subscription2.getSpaceId()) && Objects.equals(subscription1.getResourceDto()
-                                                                                                                     .getName(),
-                                                                                                        subscription2.getResourceDto()
-                                                                                                                     .getName());
+        return Objects.equals(subscription1.getAppName(), subscription2.getAppName()) && Objects.equals(subscription1.getSpaceId(),
+                                                                                                        subscription2.getSpaceId())
+            && Objects.equals(subscription1.getResourceDto()
+                                           .getName(), subscription2.getResourceDto()
+                                                                    .getName());
     }
 
     protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ProcessContext context) {

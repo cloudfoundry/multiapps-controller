@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.cf.v2;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -12,6 +10,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
@@ -46,7 +45,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CloudModelBuilderTest {
 
@@ -75,7 +74,7 @@ public class CloudModelBuilderTest {
 
     private static Stream<Arguments> getParameters() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
 				// (01) Full MTA:
 				Arguments.of("/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext",
 						"/mta/cf-platform.json", null, null, false,
@@ -426,8 +425,49 @@ public class CloudModelBuilderTest {
 						new String[] {}, // deployedApps
 						new Expectation("[]"), // services
 						new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps-with-nohostname.json") // applications
-						, DEFAULT_APP_SUFFIX_DETERMINER)
-// @formatter:on
+						, DEFAULT_APP_SUFFIX_DETERMINER),
+				// (45) Test skip-deploy 1 of 2 modules
+				Arguments.of("/mta/skip-deploy/mtad-skip-deploy-true.yaml", "config-01.mtaext", "/mta/cf-platform.json",
+							 null, // deployedMtaLocation
+							 null, // namespace
+							 false, // applyNamespace
+							 new String[] { "skip-deploy-app", "foo" }, // mtaArchiveModules
+							 new String[] { "foo" }, // mtaModules
+							 new String[] {}, // deployedApps
+							 new Expectation("[]"), // expectedServices
+							 new Expectation(Expectation.Type.JSON, "/mta/skip-deploy/apps-skip-deploy-true.json"), // expectedApps (should contain only foo)
+							 DEFAULT_APP_SUFFIX_DETERMINER),
+				// (46) Test skip-deploy module parameter with string "true"
+				Arguments.of(
+							"/mta/skip-deploy/mtad-skip-deploy-string-true.yaml",
+							"config-01.mtaext",
+							"/mta/cf-platform.json",
+							null,
+							null,
+							false,
+							new String[] { "skip-deploy-app", "foo" },
+							new String[] { "foo" },
+							new String[] {},
+							new Expectation("[]"),
+							new Expectation(Expectation.Type.JSON, "/mta/skip-deploy/apps-skip-deploy-true.json"),
+							DEFAULT_APP_SUFFIX_DETERMINER
+				),
+				// (47) Test skip-deploy module parameter with false
+				Arguments.of(
+							"/mta/skip-deploy/mtad-skip-deploy-false.yaml",
+							"config-01.mtaext",
+							"/mta/cf-platform.json",
+							null,
+							null,
+							false,
+							new String[] { "skip-deploy-app", "foo" },
+							new String[] { "skip-deploy-app", "foo" },
+							new String[] {},
+							new Expectation("[]"),
+							new Expectation(Expectation.Type.JSON, "/mta/skip-deploy/apps-skip-deploy-false.json"),
+							DEFAULT_APP_SUFFIX_DETERMINER
+				)
+            // @formatter:on
         );
     }
 
@@ -451,12 +491,11 @@ public class CloudModelBuilderTest {
         return new ServicesCloudModelBuilder(deploymentDescriptor, namespace);
     }
 
-    protected ApplicationCloudModelBuilder
-              getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
-                                              AppSuffixDeterminer appSuffixDeterminer, boolean incrementalInstancesUpdate) {
-        deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor,
-                                                               new ResolverBuilder(),
-                                                               new ResolverBuilder(),
+    protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+                                                                           boolean prettyPrinting, DeployedMta deployedMta,
+                                                                           AppSuffixDeterminer appSuffixDeterminer,
+                                                                           boolean incrementalInstancesUpdate) {
+        deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor, new ResolverBuilder(), new ResolverBuilder(),
                                                                Collections.emptySet()).resolve();
         var client = Mockito.mock(CloudControllerClient.class);
         Mockito.when(client.getApplicationRoutes(Mockito.any()))
@@ -560,15 +599,13 @@ public class CloudModelBuilderTest {
     void testGetApplications(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
                              String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
                              String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps,
-                             AppSuffixDeterminer appSuffixDeterminer)
-        throws Exception {
+                             AppSuffixDeterminer appSuffixDeterminer) throws Exception {
         initializeParameters(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, deployedMtaLocation, namespace,
                              applyNamespace, mtaArchiveModules, mtaModules, deployedApps, appSuffixDeterminer, false);
         tester.test(() -> modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules())
                                            .stream()
                                            .map(module -> appBuilder.build(module, moduleToDeployHelper))
-                                           .toList(),
-                    expectedApps);
+                                           .toList(), expectedApps);
     }
 
     @ParameterizedTest
@@ -576,8 +613,7 @@ public class CloudModelBuilderTest {
     void testGetServices(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
                          String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
                          String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps,
-                         AppSuffixDeterminer appSuffixDeterminer)
-        throws Exception {
+                         AppSuffixDeterminer appSuffixDeterminer) throws Exception {
         initializeParameters(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, deployedMtaLocation, namespace,
                              applyNamespace, mtaArchiveModules, mtaModules, deployedApps, appSuffixDeterminer, false);
         tester.test(() -> servicesBuilder.build(resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources())),
@@ -604,8 +640,7 @@ public class CloudModelBuilderTest {
     protected void initializeParameters(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
                                         String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
                                         String[] mtaModules, String[] deployedApps, AppSuffixDeterminer appSuffixDeterminer,
-                                        boolean incrementalInstancesUpdate)
-        throws Exception {
+                                        boolean incrementalInstancesUpdate) throws Exception {
         this.deploymentDescriptorLocation = deploymentDescriptorLocation;
         this.extensionDescriptorLocation = extensionDescriptorLocation;
         this.platformLocation = platformsLocation;
@@ -632,10 +667,7 @@ public class CloudModelBuilderTest {
 
     private ModulesCloudModelBuilderContentCalculator getModulesCalculator(Set<String> mtaArchiveModules, Set<String> mtaModules,
                                                                            Set<String> deployedApps) {
-        return new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules,
-                                                             deployedApps,
-                                                             null,
-                                                             getUserMessageLogger(),
+        return new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, null, getUserMessageLogger(),
                                                              new ModuleToDeployHelper(),
                                                              List.of(new UnresolvedModulesContentValidator(mtaModules, deployedApps)));
     }
