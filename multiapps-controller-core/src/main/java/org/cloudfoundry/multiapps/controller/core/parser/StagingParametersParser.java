@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.parser;
 
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,9 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                                                                   SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT,
                                                                                   getDefaultHealthCheckHttpEndpoint(healthCheckType));
         Boolean isSshEnabled = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
+        Map<String, Boolean> appFeatures = (Map<String, Boolean>) PropertiesUtil.getPropertyValue(parametersList,
+                                                                                                  SupportedParameters.APP_FEATURES,
+                                                                                                  Collections.emptyMap());
         DockerInfo dockerInfo = new DockerInfoParser().parse(parametersList);
         LifecycleType lifecycleType = parseLifecycleType(parametersList);
 
@@ -53,6 +57,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                .healthCheckType(healthCheckType)
                                .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
                                .isSshEnabled(isSshEnabled)
+                               .appFeatures(appFeatures)
                                .dockerInfo(dockerInfo)
                                .lifecycleType(lifecycleType)
                                .build();
@@ -99,8 +104,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
 
     private void validateDockerInfoWithNonDocker(LifecycleType lifecycleType, DockerInfo dockerInfo) {
         if (lifecycleType != LifecycleType.DOCKER && lifecycleType != null && dockerInfo != null) {
-            throw new ContentException(
-                MessageFormat.format(DOCKER_INFO_NOT_ALLOWED_WITH_LIFECYCLE, lifecycleType));
+            throw new ContentException(MessageFormat.format(DOCKER_INFO_NOT_ALLOWED_WITH_LIFECYCLE, lifecycleType));
         }
     }
 
