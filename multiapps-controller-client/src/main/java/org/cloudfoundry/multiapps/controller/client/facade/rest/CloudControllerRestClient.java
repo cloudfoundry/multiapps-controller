@@ -8,9 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
 import org.cloudfoundry.client.v3.Metadata;
-
 import org.cloudfoundry.multiapps.controller.client.facade.UploadStatusCallback;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
@@ -35,10 +33,10 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVis
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Upload;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.UserRole;
+import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
 
 /**
  * Interface defining operations available for the cloud controller REST client implementations
- *
  */
 public interface CloudControllerRestClient {
 
@@ -50,7 +48,8 @@ public interface CloudControllerRestClient {
 
     Optional<String> bindServiceInstance(String bindingName, String applicationName, String serviceInstanceName);
 
-    Optional<String> bindServiceInstance(String bindingName, String applicationName, String serviceInstanceName, Map<String, Object> parameters);
+    Optional<String> bindServiceInstance(String bindingName, String applicationName, String serviceInstanceName,
+                                         Map<String, Object> parameters);
 
     void createApplication(ApplicationToCreateDto applicationToCreateDto);
 
@@ -109,6 +108,8 @@ public interface CloudControllerRestClient {
     List<CloudRoute> getApplicationRoutes(UUID applicationGuid);
 
     boolean getApplicationSshEnabled(UUID applicationGuid);
+
+    Map<String, Boolean> getApplicationFeatures(UUID applicationGuid);
 
     List<CloudApplication> getApplications();
 

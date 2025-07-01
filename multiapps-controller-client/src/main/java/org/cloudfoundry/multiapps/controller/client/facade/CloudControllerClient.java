@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.cloudfoundry.client.v3.Metadata;
-
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudBuild;
@@ -37,7 +36,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCrea
 
 /**
  * The interface defining operations making up the Cloud Foundry Java client's API.
- *
  */
 public interface CloudControllerClient {
 
@@ -104,7 +102,6 @@ public interface CloudControllerClient {
     String createServiceBroker(CloudServiceBroker serviceBroker);
 
     /**
-     * 
      * @param keyModel service-key cloud object
      * @param serviceInstanceName name of related service instance
      * @return the service-key object populated with new guid
@@ -112,7 +109,6 @@ public interface CloudControllerClient {
     CloudServiceKey createAndFetchServiceKey(CloudServiceKey keyModel, String serviceInstanceName);
 
     /**
-     * 
      * @param keyModel service-key cloud object
      * @param serviceInstanceName name of related service instance
      * @return job id for async polling if present
@@ -121,7 +117,7 @@ public interface CloudControllerClient {
 
     /**
      * Create a service key.
-     * 
+     *
      * @param serviceInstanceName name of service instance
      * @param serviceKeyName name of service-key
      * @param parameters parameters of service-key
@@ -171,7 +167,6 @@ public interface CloudControllerClient {
     void deleteServiceInstance(String serviceInstance);
 
     /**
-     * 
      * @param serviceInstance {@link CloudServiceInstance}
      */
     void deleteServiceInstance(CloudServiceInstance serviceInstance);
@@ -194,7 +189,7 @@ public interface CloudControllerClient {
 
     /**
      * Delete a service binding.
-     * 
+     *
      * @param serviceInstanceName name of service instance
      * @param serviceKeyName name of service key
      * @return job id for async polling if present
@@ -203,7 +198,7 @@ public interface CloudControllerClient {
 
     /**
      * Delete a service binding.
-     * 
+     *
      * @param bindingGuid The GUID of the binding
      * @param serviceBindingOperationCallback callback used for error handling
      * @return job id for async polling if present
@@ -287,6 +282,8 @@ public interface CloudControllerClient {
 
     boolean getApplicationSshEnabled(UUID applicationGuid);
 
+    Map<String, Boolean> getApplicationFeatures(UUID applicationGuid);
+
     /**
      * Get all applications in the currently targeted space. This method has EXTREMELY poor performance for spaces with a lot of
      * applications.
@@ -364,7 +361,7 @@ public interface CloudControllerClient {
 
     /**
      * Get the GUID of a service instance.
-     * 
+     *
      * @param serviceInstanceName the name of the service instance
      * @return the service instance GUID
      */
@@ -447,7 +444,7 @@ public interface CloudControllerClient {
 
     /**
      * Get all user-provided service instance parameters
-     * 
+     *
      * @param guid The service instance guid
      * @return user-provided service instance parameters in key-value pairs
      */
@@ -670,7 +667,7 @@ public interface CloudControllerClient {
 
     /**
      * Get the list of one-off tasks currently known for the given application.
-     * 
+     *
      * @param applicationName the application to look for tasks
      * @return the list of known tasks
      * @throws UnsupportedOperationException if the targeted controller does not support tasks
@@ -679,7 +676,7 @@ public interface CloudControllerClient {
 
     /**
      * Run a one-off task on an application.
-     * 
+     *
      * @param applicationName the application to run the task on
      * @param task the task to run
      * @return the ran task
@@ -689,7 +686,7 @@ public interface CloudControllerClient {
 
     /**
      * Cancel the given task.
-     * 
+     *
      * @param taskGuid the GUID of the task to cancel
      * @return the cancelled task
      */

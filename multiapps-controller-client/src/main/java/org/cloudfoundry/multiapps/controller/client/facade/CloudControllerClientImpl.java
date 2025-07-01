@@ -12,9 +12,6 @@ import java.util.function.Supplier;
 
 import org.cloudfoundry.AbstractCloudFoundryException;
 import org.cloudfoundry.client.v3.Metadata;
-import org.springframework.http.HttpStatus;
-import org.springframework.util.Assert;
-
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudBuild;
@@ -42,10 +39,11 @@ import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCrea
 import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudControllerRestClient;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudControllerRestClientFactory;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.ImmutableCloudControllerRestClientFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.Assert;
 
 /**
  * A Java client to exercise the Cloud Foundry API.
- *
  */
 public class CloudControllerClientImpl implements CloudControllerClient {
 
@@ -61,7 +59,8 @@ public class CloudControllerClientImpl implements CloudControllerClient {
     public CloudControllerClientImpl(URL controllerUrl, CloudCredentials credentials, CloudSpace target, boolean trustSelfSignedCerts) {
         Assert.notNull(controllerUrl, "URL for cloud controller cannot be null");
         CloudControllerRestClientFactory restClientFactory = ImmutableCloudControllerRestClientFactory.builder()
-                                                                                                      .shouldTrustSelfSignedCertificates(trustSelfSignedCerts)
+                                                                                                      .shouldTrustSelfSignedCertificates(
+                                                                                                          trustSelfSignedCerts)
                                                                                                       .build();
         this.delegate = restClientFactory.createClient(controllerUrl, credentials, target);
     }
@@ -262,6 +261,11 @@ public class CloudControllerClientImpl implements CloudControllerClient {
     @Override
     public boolean getApplicationSshEnabled(UUID applicationGuid) {
         return handleExceptions(() -> delegate.getApplicationSshEnabled(applicationGuid));
+    }
+
+    @Override
+    public Map<String, Boolean> getApplicationFeatures(UUID applicationGuid) {
+        return handleExceptions(() -> delegate.getApplicationFeatures(applicationGuid));
     }
 
     @Override

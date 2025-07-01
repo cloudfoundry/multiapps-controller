@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.client.v3.processes.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudBuild;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
@@ -27,8 +29,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
-import org.cloudfoundry.client.v3.Metadata;
-import org.cloudfoundry.client.v3.processes.HealthCheckType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -166,7 +166,8 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
                                                                                             .build())
                     .block();
             CloudProcess cloudProcess = client.getApplicationProcess(applicationGuid);
-            assertEquals(org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType.NONE, cloudProcess.getHealthCheckType());
+            assertEquals(org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType.NONE,
+                         cloudProcess.getHealthCheckType());
         } catch (Exception e) {
             fail(e);
         } finally {
@@ -298,8 +299,7 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         try {
             verifyApplicationWillBeCreated(applicationName, ImmutableStaging.builder()
                                                                             .dockerInfo(dockerInfo)
-                                                                            .build(),
-                                           Set.of(getImmutableCloudRoute()));
+                                                                            .build(), Set.of(getImmutableCloudRoute()));
             UUID applicationGuid = client.getApplicationGuid(applicationName);
             CloudPackage dockerPackage = client.createDockerPackage(applicationGuid, dockerInfo);
             assertEquals(CloudPackage.Type.DOCKER, dockerPackage.getType());
@@ -344,8 +344,7 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         try {
             verifyApplicationWillBeCreated(applicationName, ImmutableStaging.builder()
                                                                             .dockerInfo(dockerInfo)
-                                                                            .build(),
-                                           Set.of(getImmutableCloudRoute()));
+                                                                            .build(), Set.of(getImmutableCloudRoute()));
             UUID applicationGuid = client.getApplicationGuid(applicationName);
             CloudPackage dockerPackage = client.createDockerPackage(applicationGuid, dockerInfo);
             List<CloudPackage> packagesForApplication = client.getPackagesForApplication(applicationGuid);
@@ -374,10 +373,9 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
                                            .map(CloudMetadata::getGuid)
                                            .anyMatch(buildGuid -> buildGuid.equals(build.getGuid())));
             assertEquals(build.getMetadata()
-                              .getGuid(),
-                         client.getBuild(build.getMetadata()
-                                              .getGuid())
-                               .getGuid());
+                              .getGuid(), client.getBuild(build.getMetadata()
+                                                               .getGuid())
+                                                .getGuid());
         } catch (Exception e) {
             fail(e);
         } finally {
@@ -444,6 +442,22 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         }
     }
 
+    @Test
+    @DisplayName("Crete application with enabled SSH and vcap-file-based services feature")
+    void createApplicationWithSshAndVcapFileBasedServices() {
+        String applicationName = "test-app-18";
+        Staging staging = ImmutableStaging.builder()
+                                          .appFeatures(Map.of("file-based-vcap-services", true, "ssh", true))
+                                          .build();
+        try {
+            verifyApplicationWillBeCreated(applicationName, staging, Set.of(getImmutableCloudRoute()));
+        } catch (Exception e) {
+            fail(e);
+        } finally {
+            client.deleteApplication(applicationName);
+        }
+    }
+
     private void verifyApplicationWillBeCreated(String applicationName, Staging staging, Set<CloudRoute> routes) {
         ApplicationToCreateDto applicationToCreateDto = ImmutableApplicationToCreateDto.builder()
                                                                                        .name(applicationName)
@@ -457,8 +471,7 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
                                                          .name(applicationName)
                                                          .state(CloudApplication.State.STOPPED)
                                                          .lifecycle(createLifecycle(staging))
-                                                         .build(),
-                                staging, routes);
+                                                         .build(), staging, routes);
     }
 
     private static void assertApplicationExists(CloudApplication cloudApplication, Staging staging, Set<CloudRoute> routes) {
@@ -473,12 +486,23 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         }
         assertEquals(MEMORY_IN_MB, process.getMemoryInMb());
         assertEquals(DISK_IN_MB, process.getDiskInMb());
+        assertAppFeatures(staging, application);
+    }
+
+    private static void assertAppFeatures(Staging staging, CloudApplication application) {
+        var appFeatures = client.getApplicationFeatures(application.getGuid());
+        for (Map.Entry<String, Boolean> entry : staging.getAppFeatures()
+                                                       .entrySet()) {
+            String featureName = entry.getKey();
+            Boolean expectedValue = entry.getValue();
+            Boolean actualValue = appFeatures.get(featureName);
+            assertEquals(expectedValue, actualValue);
+        }
     }
 
     private void createAndVerifyDefaultApplication(String applicationName) {
         verifyApplicationWillBeCreated(applicationName, ImmutableStaging.builder()
-                                                                        .build(),
-                                       Set.of(getImmutableCloudRoute()));
+                                                                        .build(), Set.of(getImmutableCloudRoute()));
     }
 
     private ImmutableCloudRoute getImmutableCloudRoute() {

@@ -13,6 +13,7 @@
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
+    "moduleName": "foo",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
@@ -20,7 +21,8 @@
       "buildpacks": [
         "java_buildpack",
         "staticfile_buildpack"
-      ]
+      ],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -29,7 +31,7 @@
           "name": "cfapps.neo.ondemand.com"
         },
         "host": "foo",
-        "path" : "",
+        "path": "",
         "url": "foo.cfapps.neo.ondemand.com"
       }
     ],
@@ -38,7 +40,6 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
-    "moduleName": "foo",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],

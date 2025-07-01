@@ -13,11 +13,13 @@
         "mta_id": "c232c91455fc92b226129257682792b2"
       }
     },
+    "moduleName": "java-hello-world",
     "memory": 128,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -26,7 +28,7 @@
           "name": "cfapps.neo.ondemand.com"
         },
         "host": "i027947-java-hello-world",
-        "path" : "",
+        "path": "",
         "url": "i027947-java-hello-world.cfapps.neo.ondemand.com"
       }
     ],
@@ -37,11 +39,8 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "destinations": "[{\"name\":\"java\",\"url\":\"http://i027947-java-hello-world-backend.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     },
-    "moduleName": "java-hello-world",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {

@@ -13,13 +13,15 @@
         "mta_id": "157ed173764cbd03d45546cc8d70248f"
       }
     },
+    "moduleName": "foo",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
       "buildpacks": [
         "git://github.example.com/xs2-java/java-buildpack.git"
-      ]
+      ],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -28,7 +30,7 @@
           "name": "cfapps.neo.ondemand.com"
         },
         "host": "foo",
-        "path" : "",
+        "path": "",
         "url": "foo.cfapps.neo.ondemand.com"
       }
     ],
@@ -37,7 +39,6 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
-    "moduleName": "foo",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],

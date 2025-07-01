@@ -277,6 +277,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public Map<String, Boolean> getApplicationFeatures(UUID applicationGuid) {
+        logger.debug(Messages.GETTING_FEATURES_FOR_APPLICATION_0, applicationGuid);
+        return delegate.getApplicationFeatures(applicationGuid);
+    }
+
+    @Override
     public List<CloudApplication> getApplications() {
         logger.debug(Messages.GETTING_APPLICATIONS);
         return delegate.getApplications();

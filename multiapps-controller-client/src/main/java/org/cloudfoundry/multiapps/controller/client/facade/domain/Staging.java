@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.client.facade.domain;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -54,6 +55,15 @@ public interface Staging {
      */
     @Nullable
     Boolean isSshEnabled();
+
+    /**
+     * Retrieves the application features map. The map contains feature names as keys and their enabled/disabled state as Boolean values.
+     * This allows specifying which features should be enabled or disabled for the application during staging.
+     *
+     * @return a map of application features and their enabled/disabled state
+     */
+    @SkipNulls
+    Map<String, Boolean> getAppFeatures();
 
     /**
      * @return the stack to use when staging the application, or null to use the default stack

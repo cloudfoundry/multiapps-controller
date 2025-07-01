@@ -13,40 +13,42 @@
         "mta_id": "eea6b9aae1732740b3a782ea0fa2ff66"
       }
     },
+    "moduleName": "foo",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
       "buildpacks": [
         "git://github.example.com/xs2-java/java-buildpack.git"
-      ]
+      ],
+      "appFeatures": {}
     },
-    "routes" : [
+    "routes": [
       {
         "appsUsingRoute": 0,
-        "domain" : {
+        "domain": {
           "name": "domain.to.test"
         },
-        "host" : "normal-host",
-        "path" : "",
+        "host": "normal-host",
+        "path": "",
         "url": "normal-host.domain.to.test"
       },
       {
         "appsUsingRoute": 0,
-        "domain" : {
+        "domain": {
           "name": "sub.sub.domain.to.test"
         },
-        "host" : "",
-        "path" : "/with/path",
+        "host": "",
+        "path": "/with/path",
         "url": "sub.sub.domain.to.test/with/path"
       },
       {
         "appsUsingRoute": 0,
-        "domain" : {
+        "domain": {
           "name": "sub.domain.to.test"
         },
-        "host" : "",
-        "path" : "",
+        "host": "",
+        "path": "",
         "url": "sub.domain.to.test"
       }
     ],
@@ -55,33 +57,32 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
-    "moduleName": "foo",
-    "idleRoutes" : [
+    "idleRoutes": [
       {
         "appsUsingRoute": 0,
-        "domain" : {
+        "domain": {
           "name": "domain.to.test"
         },
-        "host" : "normal-host",
-        "path" : "",
+        "host": "normal-host",
+        "path": "",
         "url": "normal-host.domain.to.test"
       },
       {
         "appsUsingRoute": 0,
-        "domain" : {
+        "domain": {
           "name": "sub.sub.domain.to.test"
         },
-        "host" : "",
-        "path" : "/with/path",
+        "host": "",
+        "path": "/with/path",
         "url": "sub.sub.domain.to.test/with/path"
       },
       {
         "appsUsingRoute": 0,
-        "domain" : {
+        "domain": {
           "name": "sub.domain.to.test"
         },
-        "host" : "",
-        "path" : "",
+        "host": "",
+        "path": "",
         "url": "sub.domain.to.test"
       }
     ],

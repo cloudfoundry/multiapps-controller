@@ -5,21 +5,23 @@
       "annotations": {
         "mta_id": "com.sap.sample.mta",
         "mta_version": "0.1.0",
+        "mta_namespace": "something",
         "mta_module": "{\"name\":\"module-1\"}",
         "mta_module_provided_dependencies": "[\"module-1\"]",
-        "mta_bound_services": "[]",
-        "mta_namespace": "something"
+        "mta_bound_services": "[]"
       },
       "labels": {
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
         "mta_namespace": "437b930db84b8079c2dd804a71936b5f"
       }
     },
+    "moduleName": "module-1",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -28,7 +30,7 @@
           "name": "sofd60245639a"
         },
         "host": "test-host",
-        "path" : "/test",
+        "path": "/test",
         "url": "test-host.sofd60245639a/test"
       }
     ],
@@ -37,7 +39,6 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
-    "moduleName": "module-1",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
@@ -59,21 +60,23 @@
       "annotations": {
         "mta_id": "com.sap.sample.mta",
         "mta_version": "0.1.0",
+        "mta_namespace": "something",
         "mta_module": "{\"name\":\"module-2\"}",
         "mta_module_provided_dependencies": "[\"module-2\"]",
-        "mta_bound_services": "[]",
-        "mta_namespace": "something"
+        "mta_bound_services": "[]"
       },
       "labels": {
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
         "mta_namespace": "437b930db84b8079c2dd804a71936b5f"
       }
     },
+    "moduleName": "module-2",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -82,7 +85,7 @@
           "name": "sofd60245639a"
         },
         "host": "module-2",
-        "path" : "",
+        "path": "",
         "url": "module-2.sofd60245639a"
       }
     ],
@@ -91,7 +94,6 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
-    "moduleName": "module-2",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
