@@ -1,41 +1,42 @@
 [
   {
-    "name": "framework",
+    "name": "feature-app",
     "v3Metadata": {
       "annotations": {
-        "mta_id": "com.sap.sample.mta",
-        "mta_version": "1.0.0",
-        "mta_module": "{\"name\":\"framework\"}",
-        "mta_module_provided_dependencies": "[\"framework\"]",
+        "mta_id": "app-features-test",
+        "mta_version": "0.0.1",
+        "mta_module": "{\"name\":\"feature-app\"}",
+        "mta_module_provided_dependencies": "[\"feature-app\"]",
         "mta_bound_services": "[]"
       },
       "labels": {
-        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+        "mta_id": "4572c447a636063e61744a390feb4077"
       }
     },
-    "moduleName": "framework",
+    "moduleName": "feature-app",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
       "buildpacks": [],
-      "appFeatures": {}
+      "appFeatures": {
+        "featureA": true
+      }
     },
     "routes": [
       {
         "appsUsingRoute": 0,
         "domain": {
-          "name": "sofd60245639a"
+          "name": "cfapps.neo.ondemand.com"
         },
-        "host": "framework",
-        "path": "/v2",
-        "url": "framework.sofd60245639a/v2"
+        "host": "feature-app",
+        "path": "",
+        "url": "feature-app.cfapps.neo.ondemand.com"
       }
     ],
     "services": [],
     "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "plugins": "[{\"name\":\"plugins.0\",\"plugin_name\":\"foo\",\"url\":\"https://foo.localhost\"},{\"name\":\"plugins.1\",\"plugin_name\":\"bar\",\"url\":\"https://bar.localhost\"}]"
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
     },
     "idleRoutes": [],
     "bindingParameters": {},

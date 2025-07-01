@@ -13,11 +13,13 @@
         "mta_id": "30a5c6eb633271c624fc7c1f2aec51c4"
       }
     },
+    "moduleName": "module-1",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -26,7 +28,7 @@
           "name": "sofd60245639a"
         },
         "host": "module-1",
-        "path" : "",
+        "path": "",
         "url": "module-1.sofd60245639a"
       }
     ],
@@ -34,7 +36,6 @@
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\",\"no-start\":true}"
     },
-    "moduleName": "module-1",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [
@@ -78,11 +79,13 @@
         "mta_id": "30a5c6eb633271c624fc7c1f2aec51c4"
       }
     },
+    "moduleName": "module-2",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -91,7 +94,7 @@
           "name": "sofd60245639a"
         },
         "host": "module-2",
-        "path" : "",
+        "path": "",
         "url": "module-2.sofd60245639a"
       }
     ],
@@ -99,7 +102,6 @@
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
     },
-    "moduleName": "module-2",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
@@ -129,11 +131,13 @@
         "mta_id": "30a5c6eb633271c624fc7c1f2aec51c4"
       }
     },
+    "moduleName": "module-3",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -142,7 +146,7 @@
           "name": "sofd60245639a"
         },
         "host": "module-3",
-        "path" : "",
+        "path": "",
         "url": "module-3.sofd60245639a"
       }
     ],
@@ -150,7 +154,6 @@
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
     },
-    "moduleName": "module-3",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
@@ -180,11 +183,13 @@
         "mta_id": "30a5c6eb633271c624fc7c1f2aec51c4"
       }
     },
+    "moduleName": "module-4",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -193,7 +198,7 @@
           "name": "sofd60245639a"
         },
         "host": "module-4",
-        "path" : "",
+        "path": "",
         "url": "module-4.sofd60245639a"
       }
     ],
@@ -202,7 +207,6 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\",\"no-start\":false}",
       "tasks": "[{\"command\":\"echo 3\",\"memory\":\"256M\",\"name\":\"task-3\"},{\"command\":\"echo 4\",\"memory\":\"512M\",\"name\":\"task-4\"}]"
     },
-    "moduleName": "module-4",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],

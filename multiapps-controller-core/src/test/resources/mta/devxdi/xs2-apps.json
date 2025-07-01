@@ -13,11 +13,13 @@
         "mta_id": "81530aa8411b2e488fa727eda264e137"
       }
     },
+    "moduleName": "di-core",
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -44,11 +46,8 @@
       "TARGET_RUNTIME": "tomcat",
       "XS_PATH": "/usr/sap/xs2runtime/bin/xs"
     },
-    "moduleName": "di-core",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {
@@ -76,13 +75,15 @@
         "mta_id": "81530aa8411b2e488fa727eda264e137"
       }
     },
+    "moduleName": "di-builder",
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
     "staging": {
       "buildpacks": [
         "http://di-core.sofd60245639a/system/builderbp.git/"
-      ]
+      ],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -105,11 +106,8 @@
       "TARGET_RUNTIME": "tomcat",
       "XS_PATH": "/usr/sap/xs2runtime/bin/xs"
     },
-    "moduleName": "di-builder",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {
@@ -137,11 +135,13 @@
         "mta_id": "81530aa8411b2e488fa727eda264e137"
       }
     },
+    "moduleName": "di-runner",
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -165,11 +165,8 @@
       "UI5_CONTENT_URL": "http://ui5.sofd60245639a",
       "XS_PATH": "/usr/sap/xs2runtime/bin/xs"
     },
-    "moduleName": "di-runner",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {

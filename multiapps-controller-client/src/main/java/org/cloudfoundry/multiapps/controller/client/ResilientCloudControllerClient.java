@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.util.ResilientCloudOperationExecutor;
 import org.cloudfoundry.multiapps.controller.client.facade.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClientImpl;
@@ -188,6 +189,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public boolean getApplicationSshEnabled(UUID applicationGuid) {
         return executeWithRetry(() -> delegate.getApplicationSshEnabled(applicationGuid));
+    }
+
+    @Override
+    public Map<String, Boolean> getApplicationFeatures(UUID applicationGuid) {
+        return executeWithRetry(() -> delegate.getApplicationFeatures(applicationGuid));
     }
 
     @Override

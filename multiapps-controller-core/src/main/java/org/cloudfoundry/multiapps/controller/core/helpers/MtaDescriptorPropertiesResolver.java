@@ -13,6 +13,7 @@ import org.cloudfoundry.multiapps.controller.core.model.MtaDescriptorPropertiesR
 import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationReference;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.AppFeaturesValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.ApplicationNameValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.DomainValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.HostValidator;
@@ -45,17 +46,14 @@ public class MtaDescriptorPropertiesResolver {
 
     public List<ParameterValidator> getValidatorsList() {
         return List.of(new HostValidator(), new DomainValidator(),
-                       new RoutesValidator(context.getNamespace(),
-                                           context.applyNamespaceAppRoutesGlobalLevel(),
-                                           context.applyNamespaceAppRoutesProcessVariable(),
-                                           context.applyNamespaceAsSuffixGlobalLevel(),
+                       new RoutesValidator(context.getNamespace(), context.applyNamespaceAppRoutesGlobalLevel(),
+                                           context.applyNamespaceAppRoutesProcessVariable(), context.applyNamespaceAsSuffixGlobalLevel(),
                                            context.applyNamespaceAsSuffixProcessVariable()),
-                       new IdleRoutesValidator(context.getNamespace(),
-                                               context.applyNamespaceAppRoutesGlobalLevel(),
+                       new IdleRoutesValidator(context.getNamespace(), context.applyNamespaceAppRoutesGlobalLevel(),
                                                context.applyNamespaceAppRoutesProcessVariable(),
                                                context.applyNamespaceAsSuffixGlobalLevel(),
-                                               context.applyNamespaceAsSuffixProcessVariable()),
-                       new TasksValidator(), new VisibilityValidator(), new RestartOnEnvChangeValidator());
+                                               context.applyNamespaceAsSuffixProcessVariable()), new TasksValidator(),
+                       new VisibilityValidator(), new RestartOnEnvChangeValidator(), new AppFeaturesValidator());
     }
 
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {
@@ -122,16 +120,13 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     private DeploymentDescriptor correctEntityNames(DeploymentDescriptor descriptor) {
-        List<ParameterValidator> correctors = Arrays.asList(new ApplicationNameValidator(context.getNamespace(),
-                                                                                         context.applyNamespaceAppNamesGlobalLevel(),
-                                                                                         context.applyNamespaceAppNamesProcessVariable(),
-                                                                                         context.applyNamespaceAsSuffixGlobalLevel(),
-                                                                                         context.applyNamespaceAsSuffixProcessVariable()),
-                                                            new ServiceNameValidator(context.getNamespace(),
-                                                                                     context.applyNamespaceServiceNamesGlobalLevel(),
-                                                                                     context.applyNamespaceServiceNamesProcessVariable(),
-                                                                                     context.applyNamespaceAsSuffixGlobalLevel(),
-                                                                                     context.applyNamespaceAsSuffixProcessVariable()));
+        List<ParameterValidator> correctors = Arrays.asList(
+            new ApplicationNameValidator(context.getNamespace(), context.applyNamespaceAppNamesGlobalLevel(),
+                                         context.applyNamespaceAppNamesProcessVariable(), context.applyNamespaceAsSuffixGlobalLevel(),
+                                         context.applyNamespaceAsSuffixProcessVariable()),
+            new ServiceNameValidator(context.getNamespace(), context.applyNamespaceServiceNamesGlobalLevel(),
+                                     context.applyNamespaceServiceNamesProcessVariable(), context.applyNamespaceAsSuffixGlobalLevel(),
+                                     context.applyNamespaceAsSuffixProcessVariable()));
         return context.getHandlerFactory()
                       .getDescriptorParametersValidator(descriptor, correctors)
                       .validate();

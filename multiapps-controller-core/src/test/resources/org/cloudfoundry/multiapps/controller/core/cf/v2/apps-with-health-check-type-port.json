@@ -13,12 +13,14 @@
         "mta_id": "098f6bcd4621d373cade4e832627b4f6"
       }
     },
+    "moduleName": "foo",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
       "buildpacks": [],
-      "healthCheckType": "port"
+      "healthCheckType": "port",
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -27,7 +29,7 @@
           "name": "sofd60245639a"
         },
         "host": "foo",
-        "path" : "",
+        "path": "",
         "url": "foo.sofd60245639a"
       }
     ],
@@ -35,7 +37,6 @@
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
     },
-    "moduleName": "foo",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],

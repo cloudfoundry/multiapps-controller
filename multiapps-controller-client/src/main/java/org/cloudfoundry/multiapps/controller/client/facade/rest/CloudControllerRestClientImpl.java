@@ -19,67 +19,6 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
-import org.cloudfoundry.multiapps.controller.client.facade.Constants;
-import org.cloudfoundry.multiapps.controller.client.facade.Messages;
-import org.cloudfoundry.multiapps.controller.client.facade.UploadStatusCallback;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudApplication;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudAsyncJob;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudBuild;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudDomain;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudEvent;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudPackage;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudProcess;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudRoute;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudServiceBinding;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudServiceBroker;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudServiceInstance;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudServiceKey;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudServiceOffering;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudServicePlan;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudStack;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudTask;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawInstancesInfo;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawUserRole;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawV3CloudServiceInstance;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.BitsData;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudBuild;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudDomain;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEntity;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEvent;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudProcess;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceOffering;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServicePlan;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudStack;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Derivable;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerCredentials;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerInfo;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.DropletInfo;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ErrorDetails;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDropletInfo;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableErrorDetails;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableInstancesInfo;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableUpload;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.RouteDestination;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVisibility;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Upload;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.UserRole;
-import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
-import org.cloudfoundry.multiapps.controller.client.facade.util.JobV3Util;
 import org.cloudfoundry.AbstractCloudFoundryException;
 import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v3.BuildpackData;
@@ -91,6 +30,7 @@ import org.cloudfoundry.client.v3.Relationship;
 import org.cloudfoundry.client.v3.Resource;
 import org.cloudfoundry.client.v3.ToOneRelationship;
 import org.cloudfoundry.client.v3.applications.Application;
+import org.cloudfoundry.client.v3.applications.ApplicationFeature;
 import org.cloudfoundry.client.v3.applications.ApplicationRelationships;
 import org.cloudfoundry.client.v3.applications.ApplicationState;
 import org.cloudfoundry.client.v3.applications.CreateApplicationRequest;
@@ -108,6 +48,7 @@ import org.cloudfoundry.client.v3.applications.GetApplicationRequest;
 import org.cloudfoundry.client.v3.applications.GetApplicationSshEnabledRequest;
 import org.cloudfoundry.client.v3.applications.GetApplicationSshEnabledResponse;
 import org.cloudfoundry.client.v3.applications.ListApplicationBuildsRequest;
+import org.cloudfoundry.client.v3.applications.ListApplicationFeaturesRequest;
 import org.cloudfoundry.client.v3.applications.ListApplicationPackagesRequest;
 import org.cloudfoundry.client.v3.applications.ListApplicationRoutesRequest;
 import org.cloudfoundry.client.v3.applications.ListApplicationsRequest;
@@ -208,6 +149,67 @@ import org.cloudfoundry.client.v3.tasks.CreateTaskRequest;
 import org.cloudfoundry.client.v3.tasks.GetTaskRequest;
 import org.cloudfoundry.client.v3.tasks.ListTasksRequest;
 import org.cloudfoundry.client.v3.tasks.Task;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.Constants;
+import org.cloudfoundry.multiapps.controller.client.facade.Messages;
+import org.cloudfoundry.multiapps.controller.client.facade.UploadStatusCallback;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudAsyncJob;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudBuild;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudDomain;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudEvent;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudProcess;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudRoute;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudServiceBroker;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudServiceOffering;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudServicePlan;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudStack;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawCloudTask;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawInstancesInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawUserRole;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableRawV3CloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.BitsData;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudBuild;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudDomain;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEntity;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEvent;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudProcess;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceOffering;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServicePlan;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudStack;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Derivable;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerCredentials;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.DropletInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ErrorDetails;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDropletInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableErrorDetails;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableInstancesInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableUpload;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.RouteDestination;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVisibility;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Upload;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.UserRole;
+import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
+import org.cloudfoundry.multiapps.controller.client.facade.util.JobV3Util;
 import org.cloudfoundry.util.PaginationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
@@ -321,8 +323,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
 
         // Determine lifecycle type, defaulting to BUILDPACK if lifecycleType is null
         LifecycleType lifecycleType = staging.getLifecycleType() != null ? LifecycleType.valueOf(staging.getLifecycleType()
-                                                                                                        .name())
-            : LifecycleType.BUILDPACK;
+                                                                                                        .name()) : LifecycleType.BUILDPACK;
 
         return createLifecycleByType(staging, lifecycleType);
     }
@@ -382,9 +383,9 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
     }
 
     private void updateApplicationProcess(UUID applicationGuid, Staging staging) {
-        if (staging.isSshEnabled() != null) {
-            updateSsh(applicationGuid, staging.isSshEnabled());
-        }
+        staging.getAppFeatures()
+               .entrySet()
+               .forEach(entry -> updateAppFeature(applicationGuid, entry.getKey(), entry.getValue()));
         GetApplicationProcessResponse getApplicationProcessResponse = getApplicationProcessResource(applicationGuid);
         UpdateProcessRequest.Builder updateProcessRequestBuilder = UpdateProcessRequest.builder()
                                                                                        .processId(getApplicationProcessResponse.getId())
@@ -397,11 +398,11 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                 .block();
     }
 
-    private void updateSsh(UUID applicationGuid, boolean isSshEnabled) {
+    private void updateAppFeature(UUID applicationGuid, String featureName, boolean enabled) {
         delegate.applicationsV3()
                 .updateFeature(UpdateApplicationFeatureRequest.builder()
-                                                              .featureName("ssh")
-                                                              .enabled(isSshEnabled)
+                                                              .featureName(featureName)
+                                                              .enabled(enabled)
                                                               .applicationId(applicationGuid.toString())
                                                               .build())
                 .block();
@@ -494,9 +495,9 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         CloudServiceInstance serviceInstance = getServiceInstance(serviceInstanceName);
         doCreateServiceKeySync(keyModel.getName(), keyModel.getCredentials(), keyModel.getV3Metadata(), serviceInstance);
 
-        return fetchWithAuxiliaryContent(() -> getServiceKeyResourceByNameAndServiceInstanceGuid(keyModel.getName(),
-                                                                                                 getGuid(serviceInstance)),
-                                         fetchedKey -> zipWithAuxiliaryServiceKeyContent(fetchedKey, serviceInstance));
+        return fetchWithAuxiliaryContent(
+            () -> getServiceKeyResourceByNameAndServiceInstanceGuid(keyModel.getName(), getGuid(serviceInstance)),
+            fetchedKey -> zipWithAuxiliaryServiceKeyContent(fetchedKey, serviceInstance));
     }
 
     @Override
@@ -536,8 +537,8 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
     private CreateServiceBindingRequest buildServiceCredentialBindingRequest(String name, Map<String, Object> parameters, Metadata metadata,
                                                                              CloudServiceInstance serviceInstance) {
         if (serviceInstance.getType() != ServiceInstanceType.MANAGED) {
-            throw new IllegalArgumentException(String.format(Messages.CANT_CREATE_SERVICE_KEY_FOR_USER_PROVIDED_SERVICE,
-                                                             serviceInstance.getName()));
+            throw new IllegalArgumentException(
+                String.format(Messages.CANT_CREATE_SERVICE_KEY_FOR_USER_PROVIDED_SERVICE, serviceInstance.getName()));
         }
         UUID serviceInstanceGuid = getGuid(serviceInstance);
 
@@ -621,8 +622,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         assertSpaceProvided("delete route for domain");
         UUID routeGuid = getRouteGuid(getRequiredDomainGuid(domainName), host, path);
         if (routeGuid == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND,
-                                              "Not Found",
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found",
                                               "Host " + host + " not found for domain " + domainName + ".");
         }
         doDeleteRoute(routeGuid);
@@ -748,6 +748,19 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                        .map(GetApplicationSshEnabledResponse::getEnabled)
                        .defaultIfEmpty(false)
                        .block();
+    }
+
+    @Override
+    public Map<String, Boolean> getApplicationFeatures(UUID applicationGuid) {
+        IntFunction<ListApplicationFeaturesRequest> pageRequestSupplier = page -> ListApplicationFeaturesRequest.builder()
+                                                                                                                .applicationId(
+                                                                                                                    applicationGuid.toString())
+                                                                                                                .page(page)
+                                                                                                                .build();
+        return PaginationUtils.requestClientV3Resources(page -> delegate.applicationsV3()
+                                                                        .listFeatures(pageRequestSupplier.apply(page)))
+                              .collect(Collectors.toMap(ApplicationFeature::getName, ApplicationFeature::getEnabled))
+                              .block();
     }
 
     @Override
@@ -953,11 +966,11 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                                                                   .serviceBindingId(keyGuid)
                                                                   .build())
                        // CF V3 API returns 404 when fetching credentials of a service key which creation failed
-                       .onErrorResume(t -> doesErrorMatchStatusCode(t, HttpStatus.NOT_FOUND),
-                                      t -> Mono.just(GetServiceBindingDetailsResponse.builder()
-                                                                                     .volumeMounts(Collections.emptyList())
-                                                                                     .credentials(Collections.emptyMap())
-                                                                                     .build()))
+                       .onErrorResume(t -> doesErrorMatchStatusCode(t, HttpStatus.NOT_FOUND), t -> Mono.just(
+                           GetServiceBindingDetailsResponse.builder()
+                                                           .volumeMounts(Collections.emptyList())
+                                                           .credentials(Collections.emptyMap())
+                                                           .build()))
                        .map(GetServiceBindingDetailsResponse::getCredentials);
     }
 
@@ -1347,8 +1360,8 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         return currentRoute.getDestinations()
                            .stream()
                            .filter(routeDestination -> Objects.equals(routeDestination.getApplicationGuid(), applicationGuid))
-                           .noneMatch(routeDestination -> Objects.equals(routeDestination.getProtocol(),
-                                                                         updatedRoute.getRequestedProtocol()));
+                           .noneMatch(
+                               routeDestination -> Objects.equals(routeDestination.getProtocol(), updatedRoute.getRequestedProtocol()));
     }
 
     private Set<CloudRoute> getNewRoutes(UUID applicationGuid, List<CloudRoute> currentRoutes, Set<CloudRoute> updatedRoutes) {
@@ -1501,8 +1514,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                                                                                                                              .build())
                                                                        .block();
         if (dropletResponse == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND,
-                                              "Not found",
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not found",
                                               "Application with guid " + applicationGuid + " does not have a droplet");
         }
         return parseDropletInfo(dropletResponse);
@@ -1567,8 +1579,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         return fetch(() -> delegate.jobsV3()
                                    .get(GetJobRequest.builder()
                                                      .jobId(jobId)
-                                                     .build()),
-                     ImmutableRawCloudAsyncJob::of);
+                                                     .build()), ImmutableRawCloudAsyncJob::of);
     }
 
     private void addNonNullDockerCredentials(DockerCredentials dockerCredentials,
@@ -1673,20 +1684,20 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                                                         .getData()
                                                         .getId();
 
-        return getServicePlanResource(servicePlanGuid,
-                                      serviceInstanceResource.getName()).zipWhen(
-                                                                            servicePlan -> getServiceOffering(servicePlan.getRelationships()
-                                                                                                                         .getServiceOffering()
-                                                                                                                         .getData()
-                                                                                                                         .getId()))
-                                                                        .map(tuple -> ImmutableRawCloudServiceInstance.builder()
-                                                                                                                      .resource(
-                                                                                                                          serviceInstanceResource)
-                                                                                                                      .servicePlan(
-                                                                                                                          tuple.getT1())
-                                                                                                                      .serviceOffering(
-                                                                                                                          tuple.getT2())
-                                                                                                                      .build());
+        return getServicePlanResource(servicePlanGuid, serviceInstanceResource.getName()).zipWhen(servicePlan -> getServiceOffering(
+                                                                                             servicePlan.getRelationships()
+                                                                                                        .getServiceOffering()
+                                                                                                        .getData()
+                                                                                                        .getId()))
+                                                                                         .map(
+                                                                                             tuple -> ImmutableRawCloudServiceInstance.builder()
+                                                                                                                                      .resource(
+                                                                                                                                          serviceInstanceResource)
+                                                                                                                                      .servicePlan(
+                                                                                                                                          tuple.getT1())
+                                                                                                                                      .serviceOffering(
+                                                                                                                                          tuple.getT2())
+                                                                                                                                      .build());
     }
 
     private boolean isUserProvided(ServiceInstanceResource serviceInstanceResource) {
@@ -1705,8 +1716,8 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                                                                         .list(pageRequestSupplier.apply(page)));
     }
 
-    private Mono<? extends ServiceBindingResource>
-    getServiceBindingResourceByApplicationGuidAndServiceInstanceGuid(UUID applicationGuid, UUID serviceInstanceGuid) {
+    private Mono<? extends ServiceBindingResource> getServiceBindingResourceByApplicationGuidAndServiceInstanceGuid(UUID applicationGuid,
+                                                                                                                    UUID serviceInstanceGuid) {
         IntFunction<ListServiceBindingsRequest> pageRequestSupplier = page -> ListServiceBindingsRequest.builder()
                                                                                                         .applicationId(
                                                                                                             applicationGuid.toString())
@@ -1726,8 +1737,8 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         return getApplicationServiceBindingResources(pageRequestSupplier);
     }
 
-    private Flux<? extends ServiceBindingResource>
-    getApplicationServiceBindingResources(IntFunction<ListServiceBindingsRequest> pageRequestSupplier) {
+    private Flux<? extends ServiceBindingResource> getApplicationServiceBindingResources(
+        IntFunction<ListServiceBindingsRequest> pageRequestSupplier) {
         return PaginationUtils.requestClientV3Resources(page -> delegate.serviceBindingsV3()
                                                                         .list(pageRequestSupplier.apply(page)));
     }
@@ -1909,8 +1920,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         String domain = route.getDomain()
                              .getName();
         if (!StringUtils.hasLength(domain) || !existingDomains.containsKey(domain)) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND,
-                                              HttpStatus.NOT_FOUND.getReasonPhrase(),
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               "Domain '" + domain + "' not found for URI " + route.getUrl());
         }
     }
@@ -2008,8 +2018,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
     private Optional<String> doUnbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid) {
         UUID serviceBindingGuid = getServiceBindingGuid(applicationGuid, serviceInstanceGuid);
         if (serviceBindingGuid == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND,
-                                              "Not Found",
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found",
                                               "Service binding between service with GUID " + serviceInstanceGuid
                                                   + " and application with GUID " + applicationGuid + " not found.");
         }
@@ -2172,18 +2181,14 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         return delegate.serviceOfferingsV3()
                        .get(request)
                        .onErrorMap(t -> doesErrorMatchStatusCode(t, HttpStatus.FORBIDDEN),
-                                   t -> new CloudOperationException(HttpStatus.FORBIDDEN,
-                                                                    HttpStatus.FORBIDDEN.getReasonPhrase(),
+                                   t -> new CloudOperationException(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.getReasonPhrase(),
                                                                     MessageFormat.format(
-                                                                        Messages.SERVICE_OFFERING_WITH_GUID_0_IS_NOT_AVAILABLE,
-                                                                        offeringId),
+                                                                        Messages.SERVICE_OFFERING_WITH_GUID_0_IS_NOT_AVAILABLE, offeringId),
                                                                     t))
                        .onErrorMap(t -> doesErrorMatchStatusCode(t, HttpStatus.NOT_FOUND),
-                                   t -> new CloudOperationException(HttpStatus.NOT_FOUND,
-                                                                    HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                   t -> new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                                                     MessageFormat.format(Messages.SERVICE_OFFERING_WITH_GUID_0_NOT_FOUND,
-                                                                                         offeringId),
-                                                                    t));
+                                                                                         offeringId), t));
     }
 
     private Flux<? extends ServiceOfferingResource> getServiceResourcesByBrokerGuid(UUID brokerGuid) {
@@ -2245,18 +2250,14 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         return delegate.servicePlansV3()
                        .get(request)
                        .onErrorMap(t -> doesErrorMatchStatusCode(t, HttpStatus.FORBIDDEN),
-                                   t -> new CloudOperationException(HttpStatus.FORBIDDEN,
-                                                                    HttpStatus.FORBIDDEN.getReasonPhrase(),
+                                   t -> new CloudOperationException(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.getReasonPhrase(),
                                                                     MessageFormat.format(
                                                                         Messages.SERVICE_PLAN_WITH_GUID_0_NOT_AVAILABLE_FOR_SERVICE_INSTANCE_1,
-                                                                        servicePlanGuid, serviceInstanceName),
-                                                                    t))
+                                                                        servicePlanGuid, serviceInstanceName), t))
                        .onErrorMap(t -> doesErrorMatchStatusCode(t, HttpStatus.NOT_FOUND),
-                                   t -> new CloudOperationException(HttpStatus.NOT_FOUND,
-                                                                    HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                   t -> new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                                                     MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, servicePlanGuid,
-                                                                                         serviceInstanceName),
-                                                                    t));
+                                                                                         serviceInstanceName), t));
     }
 
     private Flux<? extends ServicePlanResource> getServicePlanResourcesByServiceOfferingGuid(UUID serviceOfferingGuid) {
@@ -2433,9 +2434,9 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
     }
 
     private UUID getRouteGuid(UUID domainGuid, String host, String path) {
-        List<RouteResource> routeEntitiesResource = getRouteResourcesByDomainGuidHostAndPath(domainGuid, host,
-                                                                                             path).collect(Collectors.toList())
-                                                                                                  .block();
+        List<RouteResource> routeEntitiesResource = getRouteResourcesByDomainGuidHostAndPath(domainGuid, host, path).collect(
+                                                                                                                        Collectors.toList())
+                                                                                                                    .block();
         if (CollectionUtils.isEmpty(routeEntitiesResource)) {
             return null;
         }

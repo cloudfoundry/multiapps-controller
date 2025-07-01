@@ -17,7 +17,7 @@ import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationRef
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.ParameterValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersCompatabilityValidator;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersCompatibilityValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersValidator;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
@@ -87,9 +87,9 @@ public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHand
     }
 
     @Override
-    public DescriptorParametersCompatabilityValidator getDescriptorParametersCompatabilityValidator(DeploymentDescriptor descriptor,
+    public DescriptorParametersCompatibilityValidator getDescriptorParametersCompatibilityValidator(DeploymentDescriptor descriptor,
                                                                                                     UserMessageLogger userMessageLogger) {
-        return new DescriptorParametersCompatabilityValidator(descriptor, userMessageLogger);
+        return new DescriptorParametersCompatibilityValidator(descriptor, userMessageLogger);
     }
 
     @Override

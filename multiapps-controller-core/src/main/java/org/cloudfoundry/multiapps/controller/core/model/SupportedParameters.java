@@ -80,6 +80,7 @@ public class SupportedParameters {
     public static final String INSTANCES = "instances";
     public static final String DEFAULT_INSTANCES = "default-instances";
     public static final String ENABLE_SSH = "enable-ssh";
+    public static final String APP_FEATURES = "app-features";
     public static final String NO_HOSTNAME = "no-hostname";
     public static final String NO_ROUTE = "no-route";
     public static final String ROUTE_PROTOCOL = "protocol";
@@ -199,7 +200,7 @@ public class SupportedParameters {
                                                                REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
                                                                REGISTER_SERVICE_URL_SERVICE_URL, MODULE_CONFIG, MANAGED, PATH,
                                                                APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT, APPS_START_TIMEOUT,
-                                                               APPS_STAGE_TIMEOUT, SKIP_DEPLOY);
+                                                               APPS_STAGE_TIMEOUT, SKIP_DEPLOY, APP_FEATURES);
 
     public static final Set<String> RESOURCE_PARAMETERS = Set.of(APPLY_NAMESPACE, SERVICE_CONFIG, SYSLOG_DRAIN_URL, DEFAULT_CONTAINER_NAME,
                                                                  DEFAULT_SERVICE_NAME, DEFAULT_XS_APP_NAME, SERVICE, SERVICE_KEYS,

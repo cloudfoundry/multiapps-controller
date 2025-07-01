@@ -20,7 +20,7 @@ import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationRef
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.ParameterValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersCompatabilityValidator;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersCompatibilityValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersValidator;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
@@ -65,7 +65,7 @@ public interface CloudHandlerFactory extends HandlerFactory {
     DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
                                                                    List<ParameterValidator> parameterValidators, boolean doNotCorrect);
 
-    DescriptorParametersCompatabilityValidator getDescriptorParametersCompatabilityValidator(DeploymentDescriptor descriptor,
+    DescriptorParametersCompatibilityValidator getDescriptorParametersCompatibilityValidator(DeploymentDescriptor descriptor,
                                                                                              UserMessageLogger userMessageLogger);
 
     PlatformMerger getPlatformMerger(Platform platform);
