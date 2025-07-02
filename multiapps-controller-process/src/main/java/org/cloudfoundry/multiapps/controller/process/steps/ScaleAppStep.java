@@ -25,7 +25,7 @@ public class ScaleAppStep extends SyncFlowableStep {
         int desiredInstances = app.getInstances();
         int currentInstances = 1; // default instances when creating an app
         if (existingApp != null) {
-            currentInstances = client.getApplicationProcess(client.getApplicationGuid(existingApp.getName()))
+            currentInstances = client.getApplicationProcess(client.getApplicationGuid(app.getName()))
                                      .getInstances();
         }
 

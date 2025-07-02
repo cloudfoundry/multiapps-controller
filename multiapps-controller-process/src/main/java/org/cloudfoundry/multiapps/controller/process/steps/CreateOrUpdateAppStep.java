@@ -28,8 +28,11 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInjec
 import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
+import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationAttributeUpdater;
@@ -59,6 +62,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
     private WebClientFactory webClientFactory;
     @Inject
     private ApplicationConfiguration configuration;
+    @Inject
+    private ConfigurationSubscriptionService subscriptionService;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws FileStorageException {
@@ -75,6 +80,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         flowHandler.injectServiceKeysCredentialsInAppEnv();
         flowHandler.handleApplicationAttributes();
         flowHandler.handleApplicationServices();
+        flowHandler.handleApplicationName();
         flowHandler.printStepEndMessage();
 
         return StepPhase.DONE;
@@ -94,7 +100,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         return new AppBoundServiceInstanceNamesGetter(configuration, webClientFactory, credentials, correlationId);
     }
 
-    private StepFlowHandler createStepFlowHandler(ProcessContext context, CloudControllerClient client, CloudApplicationExtended app,
+    private StepFlowHandler createStepFlowHandler(ProcessContext context,
+                                                  CloudControllerClient client,
+                                                  CloudApplicationExtended app,
                                                   CloudApplication existingApp) {
         if (existingApp == null) {
             return new CreateAppFlowHandler(context, client, app);
@@ -148,6 +156,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         public abstract void handleApplicationAttributes();
 
+        public abstract void handleApplicationName();
+
         public abstract void handleApplicationServices();
 
         public abstract void printStepEndMessage();
@@ -189,6 +199,10 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         @Override
+        public void handleApplicationName() {
+        }
+
+        @Override
         public void printStepStartMessage() {
             getStepLogger().info(Messages.CREATING_APP_FROM_MODULE, app.getName(), app.getModuleName());
         }
@@ -212,7 +226,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         final CloudApplication existingApp;
 
-        public UpdateAppFlowHandler(ProcessContext context, CloudControllerClient client, CloudApplicationExtended app,
+        public UpdateAppFlowHandler(ProcessContext context,
+                                    CloudControllerClient client,
+                                    CloudApplicationExtended app,
                                     CloudApplication existingApp) {
             super(context, client, app);
             this.existingApp = existingApp;
@@ -279,6 +295,30 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         @Override
+        public void handleApplicationName() {
+            if (!context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY)) {
+                getStepLogger().warn(
+                    Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY + " is set to false. The application name will not be updated.");
+                return;
+            }
+
+            String oldName = existingApp.getName();
+            String newName = BlueGreenApplicationNameSuffix.removeSuffix(oldName);
+            if (oldName.equals(newName)) {
+                getStepLogger().info(Messages.THE_DETECTED_APPLICATION_HAS_THE_SAME_NAME_AS_THE_NEW_ONE);
+                return;
+            }
+            getStepLogger().warn("Renaming application " + oldName + " to " + newName);
+            getStepLogger().info(Messages.RENAMING_APPLICATION_0_TO_1, oldName, newName);
+            client.rename(oldName, newName);
+            context.setVariable(Variables.APP_TO_PROCESS, ImmutableCloudApplicationExtended.copyOf(app)
+                                                                                           .withName(newName));
+
+            getStepLogger().warn("Updating application name in configuration subscriptions");
+            updateConfigurationSubscribers(oldName, newName);
+        }
+
+        @Override
         public void handleApplicationServices() {
             if (context.getVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING)) {
                 return;
@@ -295,6 +335,40 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         @Override
         public void printStepEndMessage() {
             getStepLogger().debug(Messages.APP_UPDATED, app.getName());
+        }
+
+        private void updateConfigurationSubscribers(String oldAppName, String newAppName) {
+            String mtaId = context.getVariable(Variables.MTA_ID);
+            String spaceGuid = context.getVariable(Variables.SPACE_GUID);
+
+            List<ConfigurationSubscription> subscriptions = subscriptionService.createQuery()
+                                                                               .mtaId(mtaId)
+                                                                               .spaceId(spaceGuid)
+                                                                               .list();
+            for (ConfigurationSubscription subscription : subscriptions) {
+                if (oldAppName.equals(subscription.getAppName())) {
+                    getStepLogger().debug(Messages.UPDATING_CONFIGURATION_SUBSCRIPTION_0_WITH_NAME_1, subscription.getAppName(),
+                                          newAppName);
+                    updateConfigurationSubscription(subscription, newAppName);
+                }
+            }
+        }
+
+        private void updateConfigurationSubscription(ConfigurationSubscription subscription, String newAppName) {
+            ConfigurationSubscription newSubscription = createNewSubscription(subscription, newAppName);
+            subscriptionService.update(subscription, newSubscription);
+        }
+
+        private ConfigurationSubscription createNewSubscription(ConfigurationSubscription subscription, String newAppName) {
+            return new ConfigurationSubscription(subscription.getId(),
+                                                 subscription.getMtaId(),
+                                                 subscription.getSpaceId(),
+                                                 newAppName,
+                                                 subscription.getFilter(),
+                                                 subscription.getModuleDto(),
+                                                 subscription.getResourceDto(),
+                                                 subscription.getModuleId(),
+                                                 subscription.getResourceId());
         }
 
         private List<String> getMtaAndExistingServices() {
