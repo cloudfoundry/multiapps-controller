@@ -1,11 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
-
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.Duration;
@@ -29,6 +23,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 class ApplicationConfigurationTest {
 
@@ -75,7 +75,7 @@ class ApplicationConfigurationTest {
     private URL getControllerUrlWithVcapApplication(Map<String, String> vcapApplication) {
         String vcapApplicationJson = JsonUtil.toJson(vcapApplication);
         when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION)).thenReturn(vcapApplicationJson);
-        ApplicationConfiguration testedConfiguration = new ApplicationConfiguration(environment);
+        ApplicationConfiguration testedConfiguration = new ApplicationConfiguration(environment, null);
         return testedConfiguration.getControllerUrl();
     }
 

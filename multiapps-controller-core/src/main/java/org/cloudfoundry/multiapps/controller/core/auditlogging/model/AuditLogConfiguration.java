@@ -3,8 +3,6 @@ package org.cloudfoundry.multiapps.controller.core.auditlogging.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +19,14 @@ public class AuditLogConfiguration implements AuditableConfiguration {
     private final String performedAction;
     private final String configuration;
     private Map<String, String> parameters;
+
+    public AuditLogConfiguration(String spaceId, String performedAction, String configuration) {
+        this.spaceId = spaceId;
+        this.userId = null;
+        this.performedAction = performedAction;
+        this.configuration = configuration;
+        this.parameters = Collections.emptyMap();
+    }
 
     public AuditLogConfiguration(String userId, String spaceId, String performedAction, String configuration) {
         this.spaceId = spaceId;
@@ -59,7 +65,8 @@ public class AuditLogConfiguration implements AuditableConfiguration {
     }
 
     public String getTimeOfPerformedAction() {
-        return LocalDateTime.now().toString();
+        return LocalDateTime.now()
+                            .toString();
     }
 
     @Override

@@ -217,6 +217,8 @@ public final class Messages {
 
     public static final String LIST_FILES_AUDIT_LOG_MESSAGE = "List files in space with id: {0}";
     public static final String DELETE_SUBSCRIPTION_AUDIT_LOG_MESSAGE = "Delete subscription in space with id: {0}";
+    public static final String READ_ENV_FROM_ENVIRONMENT = "Read {0} from environment for space with id: {1}";
+    public static final String ENVIRONMENT_VARIABLE_AUDIT_LOG_CONFIG = "Environment variable";
     public static final String DELETE_ENTRY_AUDIT_LOG_MESSAGE = "Delete entry in space with id: {0}";
     public static final String DELETE_OPERATION_AUDIT_LOG_MESSAGE = "Delete operation in space with id: {0}";
     public static final String DELETE_BACKUP_DESCRIPTOR_AUDIT_LOG_MESSAGE = "Delete backup descriptor in space with id: {0}";

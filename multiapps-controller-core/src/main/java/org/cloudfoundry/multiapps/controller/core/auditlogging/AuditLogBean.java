@@ -1,11 +1,11 @@
 package org.cloudfoundry.multiapps.controller.core.auditlogging;
 
+import javax.sql.DataSource;
+
+import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import jakarta.inject.Inject;
-import javax.sql.DataSource;
 
 @Configuration
 public class AuditLogBean {
@@ -14,6 +14,12 @@ public class AuditLogBean {
     @Inject
     public AuditLoggingFacade buildAuditLoggingFacade(DataSource dataSource, UserInfoProvider userInfoProvider) {
         return new AuditLoggingFacadeSLImpl(dataSource, userInfoProvider);
+    }
+
+    @Bean
+    @Inject
+    public ApplicationConfigurationAuditLog buildApplicationConfigurationAuditLog(AuditLoggingFacade auditLoggingFacade) {
+        return new ApplicationConfigurationAuditLog(auditLoggingFacade);
     }
 
     @Bean
