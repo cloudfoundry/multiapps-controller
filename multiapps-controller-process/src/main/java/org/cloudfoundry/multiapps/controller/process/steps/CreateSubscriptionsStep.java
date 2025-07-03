@@ -1,12 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.text.MessageFormat;
-import java.util.List;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.persistence.NoResultException;
-
+import org.cloudfoundry.multiapps.controller.core.auditlogging.ConfigurationSubscriptionServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription.ResourceDto;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
@@ -15,12 +12,18 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
+import java.text.MessageFormat;
+import java.util.List;
+
 @Named("createSubscriptionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateSubscriptionsStep extends SyncFlowableStep {
 
     @Inject
     private ConfigurationSubscriptionService configurationSubscriptionService;
+
+    @Inject
+    private ConfigurationSubscriptionServiceAuditLog configurationSubscriptionServiceAuditLog;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -29,7 +32,7 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
         List<ConfigurationSubscription> subscriptions = context.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
 
         for (ConfigurationSubscription subscription : subscriptions) {
-            createSubscription(subscription);
+            createSubscription(context, subscription);
             getStepLogger().debug(Messages.CREATED_SUBSCRIPTION, subscription.getId());
         }
 
@@ -42,14 +45,19 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
         return Messages.ERROR_CREATING_SUBSCRIPTIONS;
     }
 
-    protected void createSubscription(ConfigurationSubscription subscription) {
+    protected void createSubscription(ProcessContext context, ConfigurationSubscription subscription) {
         infoSubscriptionCreation(subscription);
         ConfigurationSubscription existingSubscription = detectSubscription(subscription);
         if (existingSubscription != null) {
             configurationSubscriptionService.update(existingSubscription, subscription);
+            configurationSubscriptionServiceAuditLog.logUpdateConfigurationSubscription(context.getVariable(Variables.USER),
+                                                                                        context.getVariable(Variables.SPACE_GUID),
+                                                                                        existingSubscription, subscription);
             return;
         }
         configurationSubscriptionService.add(subscription);
+        configurationSubscriptionServiceAuditLog.logAddConfigurationSubscription(context.getVariable(Variables.USER),
+                                                                                 context.getVariable(Variables.SPACE_GUID), subscription);
     }
 
     private void infoSubscriptionCreation(ConfigurationSubscription subscription) {

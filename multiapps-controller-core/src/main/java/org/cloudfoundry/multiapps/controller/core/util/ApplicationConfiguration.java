@@ -8,6 +8,7 @@ import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.ApplicationConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.configuration.Environment;
 import org.cloudfoundry.multiapps.controller.core.health.model.HealthCheckConfiguration;
 import org.cloudfoundry.multiapps.controller.core.health.model.ImmutableHealthCheckConfiguration;
@@ -37,6 +38,12 @@ public class ApplicationConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfiguration.class);
 
     // Environment variables:
+    static final String CONTROLLER_URL = "CONTROLLER_URL";
+    static final String SPACE_GUID = "SPACE_GUID";
+    static final String ORGANISATION_NAME = "ORGANISATION_NAME";
+    static final String DEPLOY_SERVICE_URL = "DEPLOY_SERVICE_URL";
+    static final String APPLICATION_GUID = "APPLICATION_GUID";
+
     static final String CFG_PLATFORM = "PLATFORM"; // Mandatory
     static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
@@ -218,13 +225,24 @@ public class ApplicationConfiguration {
     private Integer threadsForFileStorageUpload;
     private Boolean isHealthCheckEnabled;
 
-    public ApplicationConfiguration() {
-        this(new Environment());
+    private final ApplicationConfigurationAuditLog applicationConfigurationAuditLog;
+
+    public ApplicationConfiguration(ApplicationConfigurationAuditLog applicationConfigurationAuditLog) {
+        this(new Environment(), applicationConfigurationAuditLog);
     }
 
     @Inject
-    public ApplicationConfiguration(Environment environment) {
+    public ApplicationConfiguration(Environment environment, ApplicationConfigurationAuditLog applicationConfigurationAuditLog) {
         this.environment = environment;
+        this.applicationConfigurationAuditLog = applicationConfigurationAuditLog;
+    }
+
+    private void auditLog(String envVariableName, String space) {
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(envVariableName, space);
+    }
+
+    public void auditLog(String envVariableName) {
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(envVariableName, getSpaceGuid());
     }
 
     public void load() {
@@ -288,6 +306,7 @@ public class ApplicationConfiguration {
         if (controllerUrl == null) {
             controllerUrl = getControllerUrlFromEnvironment();
         }
+        auditLog(CONTROLLER_URL);
         return controllerUrl;
     }
 
@@ -295,6 +314,7 @@ public class ApplicationConfiguration {
         if (platform == null) {
             platform = getPlatformFromEnvironment();
         }
+        auditLog(CFG_PLATFORM);
         return platform;
     }
 
@@ -302,6 +322,7 @@ public class ApplicationConfiguration {
         if (maxUploadSize == null) {
             maxUploadSize = getMaxUploadSizeFromEnvironment();
         }
+        auditLog(CFG_MAX_UPLOAD_SIZE);
         return maxUploadSize;
     }
 
@@ -309,6 +330,7 @@ public class ApplicationConfiguration {
         if (maxMtaDescriptorSize == null) {
             maxMtaDescriptorSize = getMaxMtaDescriptorSizeFromEnvironment();
         }
+        auditLog(CFG_MAX_MTA_DESCRIPTOR_SIZE);
         return maxMtaDescriptorSize;
     }
 
@@ -316,6 +338,7 @@ public class ApplicationConfiguration {
         if (maxManifestSize == null) {
             maxManifestSize = getMaxManifestSizeFromEnvironment();
         }
+        auditLog(CFG_MAX_MANIFEST_SIZE);
         return maxManifestSize;
     }
 
@@ -323,6 +346,7 @@ public class ApplicationConfiguration {
         if (maxResourceFileSize == null) {
             maxResourceFileSize = getMaxResourceFileSizeFromEnvironment();
         }
+        auditLog(CFG_MAX_RESOURCE_FILE_SIZE);
         return maxResourceFileSize;
     }
 
@@ -330,6 +354,7 @@ public class ApplicationConfiguration {
         if (maxResolvedExternalContentSize == null) {
             maxResolvedExternalContentSize = getMaxResolvedExternalContentSizeFromEnvironment();
         }
+        auditLog(CFG_MAX_RESOLVED_EXTERNAL_CONTENT_SIZE);
         return maxResolvedExternalContentSize;
     }
 
@@ -337,6 +362,7 @@ public class ApplicationConfiguration {
         if (cronExpressionForOldData == null) {
             cronExpressionForOldData = getCronExpressionForOldDataFromEnvironment();
         }
+        auditLog(CFG_CRON_EXPRESSION_FOR_OLD_DATA);
         return cronExpressionForOldData;
     }
 
@@ -344,6 +370,7 @@ public class ApplicationConfiguration {
         if (executionTimeForFinishedProcesses == null) {
             executionTimeForFinishedProcesses = getExecutionTimeForFinishedProcessesFromEnvironment();
         }
+        auditLog(CFG_EXECUTION_TIME_FOR_FINISHED_PROCESSES);
         return executionTimeForFinishedProcesses;
     }
 
@@ -351,6 +378,7 @@ public class ApplicationConfiguration {
         if (maxTtlForOldData == null) {
             maxTtlForOldData = getMaxTtlForOldDataFromEnvironment();
         }
+        auditLog(CFG_MAX_TTL_FOR_OLD_DATA);
         return maxTtlForOldData;
     }
 
@@ -358,12 +386,14 @@ public class ApplicationConfiguration {
         if (useXSAuditLogging == null) {
             useXSAuditLogging = shouldUseXSAuditLoggingFromEnvironment();
         }
+        auditLog(CFG_USE_XS_AUDIT_LOGGING);
         return useXSAuditLogging;
     }
 
     public String getSpaceGuid() {
         if (spaceGuid == null) {
             spaceGuid = getSpaceGuidFromEnvironment();
+            auditLog(SPACE_GUID, spaceGuid);
         }
         return spaceGuid;
     }
@@ -372,6 +402,7 @@ public class ApplicationConfiguration {
         if (orgName == null) {
             orgName = getOrgNameFromEnvironment();
         }
+        auditLog(ORGANISATION_NAME);
         return orgName;
     }
 
@@ -379,6 +410,7 @@ public class ApplicationConfiguration {
         if (deployServiceUrl == null) {
             deployServiceUrl = getDeployServiceUrlFromEnvironment();
         }
+        auditLog(DEPLOY_SERVICE_URL);
         return deployServiceUrl;
     }
 
@@ -386,6 +418,7 @@ public class ApplicationConfiguration {
         if (basicAuthEnabled == null) {
             basicAuthEnabled = isBasicAuthEnabledThroughEnvironment();
         }
+        auditLog(CFG_BASIC_AUTH_ENABLED);
         return basicAuthEnabled;
     }
 
@@ -393,6 +426,7 @@ public class ApplicationConfiguration {
         if (springSchedulerTaskExecutorThreads == null) {
             springSchedulerTaskExecutorThreads = getSpringSchedulerTaskExecutorThreadsFromEnvironment();
         }
+        auditLog(CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS);
         return springSchedulerTaskExecutorThreads;
     }
 
@@ -400,6 +434,7 @@ public class ApplicationConfiguration {
         if (filesAsyncUploadExecutorThreads == null) {
             filesAsyncUploadExecutorThreads = getFilesAsyncUploadExecutorMaxThreadsFromEnvironment();
         }
+        auditLog(CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS);
         return filesAsyncUploadExecutorThreads;
     }
 
@@ -407,6 +442,7 @@ public class ApplicationConfiguration {
         if (globalAuditorUser == null) {
             globalAuditorUser = getGlobalAuditorUserFromEnvironment();
         }
+        auditLog(CFG_GLOBAL_AUDITOR_USER);
         return globalAuditorUser;
     }
 
@@ -414,6 +450,7 @@ public class ApplicationConfiguration {
         if (globalAuditorPassword == null) {
             globalAuditorPassword = getGlobalAuditorPasswordFromEnvironment();
         }
+        auditLog(CFG_GLOBAL_AUDITOR_PASSWORD);
         return globalAuditorPassword;
     }
 
@@ -421,6 +458,7 @@ public class ApplicationConfiguration {
         if (globalAuditorOrigin == null) {
             globalAuditorOrigin = getGlobalAuditorOriginFromEnvironment();
         }
+        auditLog(CFG_GLOBAL_AUDITOR_ORIGIN);
         return globalAuditorOrigin;
     }
 
@@ -428,6 +466,7 @@ public class ApplicationConfiguration {
         if (dbConnectionThreads == null) {
             dbConnectionThreads = getDbConnectionThreadsFromEnvironment();
         }
+        auditLog(CFG_DB_CONNECTION_THREADS);
         return dbConnectionThreads;
     }
 
@@ -435,6 +474,7 @@ public class ApplicationConfiguration {
         if (stepPollingIntervalInSeconds == null) {
             stepPollingIntervalInSeconds = getStepPollingIntervalFromEnvironment();
         }
+        auditLog(CFG_STEP_POLLING_INTERVAL_IN_SECONDS);
         return stepPollingIntervalInSeconds;
     }
 
@@ -442,6 +482,7 @@ public class ApplicationConfiguration {
         if (skipSslValidation == null) {
             skipSslValidation = shouldSkipSslValidationBasedOnEnvironment();
         }
+        auditLog(CFG_SKIP_SSL_VALIDATION);
         return skipSslValidation;
     }
 
@@ -449,12 +490,16 @@ public class ApplicationConfiguration {
         if (version == null) {
             version = getVersionFromEnvironment();
         }
+        auditLog(CFG_VERSION);
         return version;
     }
 
     public Integer getChangeLogLockPollRate() {
         if (changeLogLockPollRate == null) {
             changeLogLockPollRate = getChangeLogLockPollRateFromEnvironment();
+        }
+        if (applicationConfigurationAuditLog != null) {
+            auditLog(CFG_CHANGE_LOG_LOCK_POLL_RATE);
         }
         return changeLogLockPollRate;
     }
@@ -463,12 +508,19 @@ public class ApplicationConfiguration {
         if (changeLogLockDuration == null) {
             changeLogLockDuration = getChangeLogLockDurationFromEnvironment();
         }
+        if (applicationConfigurationAuditLog != null) {
+            auditLog(CFG_CHANGE_LOG_LOCK_DURATION);
+        }
+
         return changeLogLockDuration;
     }
 
     public Integer getChangeLogLockAttempts() {
         if (changeLogLockAttempts == null) {
             changeLogLockAttempts = getChangeLogLockAttemptsFromEnvironment();
+        }
+        if (applicationConfigurationAuditLog != null) {
+            auditLog(CFG_CHANGE_LOG_LOCK_ATTEMPTS);
         }
         return changeLogLockAttempts;
     }
@@ -477,6 +529,7 @@ public class ApplicationConfiguration {
         if (globalConfigSpace == null) {
             globalConfigSpace = getGlobalConfigSpaceFromEnvironment();
         }
+        auditLog(CFG_GLOBAL_CONFIG_SPACE);
         return globalConfigSpace;
     }
 
@@ -491,6 +544,7 @@ public class ApplicationConfiguration {
         if (applicationGuid == null) {
             applicationGuid = getApplicationGuidFromEnvironment();
         }
+        auditLog(APPLICATION_GUID);
         return applicationGuid;
     }
 
@@ -498,6 +552,7 @@ public class ApplicationConfiguration {
         if (applicationInstanceIndex == null) {
             applicationInstanceIndex = getApplicationInstanceIndexFromEnvironment();
         }
+        auditLog(CFG_CF_INSTANCE_INDEX);
         return applicationInstanceIndex;
     }
 
@@ -505,6 +560,7 @@ public class ApplicationConfiguration {
         if (auditLogClientCoreThreads == null) {
             auditLogClientCoreThreads = getAuditLogClientCoreThreadsFromEnvironment();
         }
+        auditLog(CFG_AUDIT_LOG_CLIENT_CORE_THREADS);
         return auditLogClientCoreThreads;
     }
 
@@ -512,6 +568,7 @@ public class ApplicationConfiguration {
         if (auditLogClientMaxThreads == null) {
             auditLogClientMaxThreads = getAuditLogClientMaxThreadsFromEnvironment();
         }
+        auditLog(CFG_AUDIT_LOG_CLIENT_MAX_THREADS);
         return auditLogClientMaxThreads;
     }
 
@@ -519,6 +576,7 @@ public class ApplicationConfiguration {
         if (auditLogClientQueueCapacity == null) {
             auditLogClientQueueCapacity = getAuditLogClientQueueCapacityFromEnvironment();
         }
+        auditLog(CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY);
         return auditLogClientQueueCapacity;
     }
 
@@ -526,6 +584,7 @@ public class ApplicationConfiguration {
         if (auditLogClientKeepAlive == null) {
             auditLogClientKeepAlive = getAuditLogClientKeepAliveFromEnvironment();
         }
+        auditLog(CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE);
         return auditLogClientKeepAlive;
     }
 
@@ -533,6 +592,7 @@ public class ApplicationConfiguration {
         if (flowableJobExecutorCoreThreads == null) {
             flowableJobExecutorCoreThreads = getFlowableJobExecutorCoreThreadsFromEnvironment();
         }
+        auditLog(CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS);
         return flowableJobExecutorCoreThreads;
     }
 
@@ -540,6 +600,7 @@ public class ApplicationConfiguration {
         if (flowableJobExecutorMaxThreads == null) {
             flowableJobExecutorMaxThreads = getFlowableJobExecutorMaxThreadsFromEnvironment();
         }
+        auditLog(CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS);
         return flowableJobExecutorMaxThreads;
     }
 
@@ -547,6 +608,7 @@ public class ApplicationConfiguration {
         if (flowableJobExecutorQueueCapacity == null) {
             flowableJobExecutorQueueCapacity = getFlowableJobExecutorQueueCapacityFromEnvironment();
         }
+        auditLog(CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY);
         return flowableJobExecutorQueueCapacity;
     }
 
@@ -554,6 +616,7 @@ public class ApplicationConfiguration {
         if (fssCacheUpdateTimeoutMinutes == null) {
             fssCacheUpdateTimeoutMinutes = getFssCacheUpdateTimeoutMinutesFromEnvironment();
         }
+        auditLog(CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES);
         return fssCacheUpdateTimeoutMinutes;
     }
 
@@ -561,6 +624,7 @@ public class ApplicationConfiguration {
         if (threadMonitorCacheUpdateInSeconds == null) {
             threadMonitorCacheUpdateInSeconds = getThreadMonitorCacheUpdateInSecondsFromEnvironment();
         }
+        auditLog(CFG_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS);
         return threadMonitorCacheUpdateInSeconds;
     }
 
@@ -568,6 +632,7 @@ public class ApplicationConfiguration {
         if (spaceDeveloperCacheTimeInSeconds == null) {
             spaceDeveloperCacheTimeInSeconds = getSpaceDeveloperCacheTimeInSecondsFromEnvironment();
         }
+        auditLog(CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
         return spaceDeveloperCacheTimeInSeconds;
     }
 
@@ -575,6 +640,7 @@ public class ApplicationConfiguration {
         if (controllerClientSslHandshakeTimeout == null) {
             controllerClientSslHandshakeTimeout = getControllerClientSslHandshakeTimeoutFromEnvironment();
         }
+        auditLog(CFG_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS);
         return controllerClientSslHandshakeTimeout;
     }
 
@@ -582,6 +648,7 @@ public class ApplicationConfiguration {
         if (controllerClientConnectTimeout == null) {
             controllerClientConnectTimeout = getControllerClientConnectTimeoutFromEnvironment();
         }
+        auditLog(CFG_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS);
         return controllerClientConnectTimeout;
     }
 
@@ -589,6 +656,7 @@ public class ApplicationConfiguration {
         if (controllerClientConnectionPoolSize == null) {
             controllerClientConnectionPoolSize = getControllerClientConnectionPoolSizeFromEnvironment();
         }
+        auditLog(CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE);
         return controllerClientConnectionPoolSize;
     }
 
@@ -596,6 +664,7 @@ public class ApplicationConfiguration {
         if (controllerClientThreadPoolSize == null) {
             controllerClientThreadPoolSize = getControllerClientThreadPoolSizeFromEnvironment();
         }
+        auditLog(CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE);
         return controllerClientThreadPoolSize;
     }
 
@@ -603,6 +672,7 @@ public class ApplicationConfiguration {
         if (controllerClientResponseTimeout == null) {
             controllerClientResponseTimeout = getControllerClientResponseTimeoutFromEnvironment();
         }
+        auditLog(CFG_CONTROLLER_CLIENT_RESPONSE_TIMEOUT);
         return controllerClientResponseTimeout;
     }
 
@@ -610,6 +680,7 @@ public class ApplicationConfiguration {
         if (certificateCN == null) {
             certificateCN = getCertificateCNFromEnvironment();
         }
+        auditLog(CFG_CERTIFICATE_CN);
         return certificateCN;
     }
 
@@ -617,6 +688,7 @@ public class ApplicationConfiguration {
         if (micrometerStepInSeconds == null) {
             micrometerStepInSeconds = getMicrometerStepInSecondsFromEnvironment();
         }
+        auditLog(CFG_MICROMETER_STEP_IN_SECONDS);
         return micrometerStepInSeconds;
     }
 
@@ -624,6 +696,7 @@ public class ApplicationConfiguration {
         if (dbTransactionTimeoutInSeconds == null) {
             dbTransactionTimeoutInSeconds = getDbTransactionTimeoutInSecondsFromEnvironment();
         }
+        auditLog(CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS);
         return dbTransactionTimeoutInSeconds;
     }
 
@@ -631,6 +704,7 @@ public class ApplicationConfiguration {
         if (snakeyamlMaxAliasesForCollections == null) {
             snakeyamlMaxAliasesForCollections = getSnakeyamlMaxAliasesForCollectionsFromEnvironment();
         }
+        auditLog(CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS);
         return snakeyamlMaxAliasesForCollections;
     }
 
@@ -638,6 +712,7 @@ public class ApplicationConfiguration {
         if (serviceHandlingMaxParallelThreads == null) {
             serviceHandlingMaxParallelThreads = getServiceHandlingMaxParallelThreadsFromEnvironment();
         }
+        auditLog(CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS);
         return serviceHandlingMaxParallelThreads;
     }
 
@@ -645,6 +720,7 @@ public class ApplicationConfiguration {
         if (abortedOperationsTtlInSeconds == null) {
             abortedOperationsTtlInSeconds = getAbortedOperationsTtlInSecondsFromEnvironment();
         }
+        auditLog(CFG_ABORTED_OPERATIONS_TTL_IN_MINUTES);
         return abortedOperationsTtlInSeconds;
     }
 
@@ -652,6 +728,7 @@ public class ApplicationConfiguration {
         if (isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment == null) {
             isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment = isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment();
         }
+        auditLog(CFG_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER);
         return isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment;
     }
 
@@ -659,6 +736,7 @@ public class ApplicationConfiguration {
         if (threadsForFileUploadToController == null) {
             threadsForFileUploadToController = getThreadsForFileUploadToControllerFromEnvironment();
         }
+        auditLog(CFG_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER);
         return threadsForFileUploadToController;
     }
 
@@ -666,6 +744,7 @@ public class ApplicationConfiguration {
         if (threadsForFileStorageUpload == null) {
             threadsForFileStorageUpload = getThreadsForFileStorageUploadFromEnvironment();
         }
+        auditLog(CFG_THREADS_FOR_FILE_STORAGE_UPLOAD);
         return threadsForFileStorageUpload;
     }
 
@@ -673,6 +752,7 @@ public class ApplicationConfiguration {
         if (isHealthCheckEnabled == null) {
             isHealthCheckEnabled = isHealthCheckEnabledFromEnvironment();
         }
+        auditLog(CFG_IS_HEALTH_CHECK_ENABLED);
         return isHealthCheckEnabled;
     }
 
@@ -1135,5 +1215,4 @@ public class ApplicationConfiguration {
         LOGGER.info(format(Messages.CERTIFICATE_CN, value));
         return value;
     }
-
 }
