@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.web.monitoring;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,6 +15,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.MockitoAnnotations;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FssMonitorTest {
 
@@ -36,6 +37,7 @@ class FssMonitorTest {
 
     @BeforeEach
     void setUpBefore() {
+        MockitoAnnotations.openMocks(this);
         ApplicationConfiguration appConfigurations = new ApplicationConfiguration();
         fssMonitor = new FssMonitor(appConfigurations);
     }
@@ -51,7 +53,8 @@ class FssMonitorTest {
 
     static Stream<Arguments> testGetUsedSpace() throws IOException {
         return Stream.of(Arguments.of(tempDir.toFile(), LocalDateTime.now(), 10, 10), Arguments.of(tempDir.toFile(), LocalDateTime.now()
-                                                                                                                                  .minusMinutes(10),
+                                                                                                                                  .minusMinutes(
+                                                                                                                                      10),
                                                                                                    200, 200),
                          Arguments.of(tempDir.toFile(), LocalDateTime.now()
                                                                      .minusMinutes(50),
