@@ -1,10 +1,10 @@
 package org.cloudfoundry.multiapps.controller.core.auditlogging;
 
+import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import jakarta.inject.Inject;
 import javax.sql.DataSource;
 
 @Configuration
@@ -56,5 +56,11 @@ public class AuditLogBean {
     @Inject
     public MtaConfigurationPurgerAuditLog buildMtaConfigurationPurgerAuditLog(AuditLoggingFacade auditLoggingFacade) {
         return new MtaConfigurationPurgerAuditLog(auditLoggingFacade);
+    }
+
+    @Bean
+    @Inject
+    public ApplicationConfigurationAuditLog buildApplicationConfigurationAuditLog(AuditLoggingFacade auditLoggingFacade) {
+        return new ApplicationConfigurationAuditLog(auditLoggingFacade);
     }
 }

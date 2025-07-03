@@ -8,6 +8,7 @@ import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.ApplicationConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.configuration.Environment;
 import org.cloudfoundry.multiapps.controller.core.health.model.HealthCheckConfiguration;
 import org.cloudfoundry.multiapps.controller.core.health.model.ImmutableHealthCheckConfiguration;
@@ -37,6 +38,12 @@ public class ApplicationConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfiguration.class);
 
     // Environment variables:
+    static final String CONTROLLER_URL = "CONTROLLER_URL";
+    static final String SPACE_GUID = "SPACE_GUID";
+    static final String ORGANISATION_NAME = "ORGANISATION_NAME";
+    static final String DEPLOY_SERVICE_URL = "DEPLOY_SERVICE_URL";
+    static final String APPLICATION_GUID = "APPLICATION_GUID";
+
     static final String CFG_PLATFORM = "PLATFORM"; // Mandatory
     static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
@@ -158,6 +165,10 @@ public class ApplicationConfiguration {
     public static final boolean DEFAULT_IS_HEALTH_CHECK_ENABLED = false;
 
     protected final Environment environment;
+
+    @Inject
+    @Lazy
+    private ApplicationConfigurationAuditLog applicationConfigurationAuditLog;
 
     // Cached configuration settings:
     private Map<String, Object> vcapApplication;
@@ -685,6 +696,7 @@ public class ApplicationConfiguration {
         try {
             URL parsedControllerUrl = MiscUtil.getURL(controllerUrlString);
             LOGGER.info(format(Messages.CONTROLLER_URL, parsedControllerUrl));
+            applicationConfigurationAuditLog.logEnvironmentVariableRead(CONTROLLER_URL, getSpaceGuid());
             return parsedControllerUrl;
         } catch (MalformedURLException | IllegalArgumentException e) {
             throw new IllegalArgumentException(format(Messages.INVALID_CONTROLLER_URL, controllerUrlString), e);
@@ -702,12 +714,14 @@ public class ApplicationConfiguration {
     private Long getMaxUploadSizeFromEnvironment() {
         Long value = environment.getLong(CFG_MAX_UPLOAD_SIZE, DEFAULT_MAX_UPLOAD_SIZE);
         LOGGER.info(format(Messages.MAX_UPLOAD_SIZE, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_MAX_UPLOAD_SIZE, getSpaceGuid());
         return value;
     }
 
     private Long getMaxMtaDescriptorSizeFromEnvironment() {
         Long value = environment.getLong(CFG_MAX_MTA_DESCRIPTOR_SIZE, DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
         LOGGER.info(format(Messages.MAX_MTA_DESCRIPTOR_SIZE, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_MAX_MTA_DESCRIPTOR_SIZE, getSpaceGuid());
         return value;
     }
 
@@ -718,54 +732,63 @@ public class ApplicationConfiguration {
         }
         Platform parsedPlatform = new ConfigurationParser().parsePlatformJson(platformJson);
         LOGGER.debug(format(Messages.PLATFORM, JsonUtil.toJson(parsedPlatform, true)));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_PLATFORM, getSpaceGuid());
         return parsedPlatform;
     }
 
     private Long getMaxManifestSizeFromEnvironment() {
         Long value = environment.getLong(CFG_MAX_MANIFEST_SIZE, DEFAULT_MAX_MANIFEST_SIZE);
         LOGGER.info(format(Messages.MAX_MANIFEST_SIZE, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_MAX_MANIFEST_SIZE, getSpaceGuid());
         return value;
     }
 
     private Long getMaxResourceFileSizeFromEnvironment() {
         Long value = environment.getLong(CFG_MAX_RESOURCE_FILE_SIZE, DEFAULT_MAX_RESOURCE_FILE_SIZE);
         LOGGER.info(format(Messages.MAX_RESOURCE_FILE_SIZE, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_MAX_RESOURCE_FILE_SIZE, getSpaceGuid());
         return value;
     }
 
     private Long getMaxResolvedExternalContentSizeFromEnvironment() {
         Long value = environment.getLong(CFG_MAX_RESOLVED_EXTERNAL_CONTENT_SIZE, DEFAULT_CFG_MAX_RESOLVED_EXTERNAL_CONTENT_SIZE);
         LOGGER.info(format(Messages.MAX_RESOLVED_EXTERNAL_CONTENT_SIZE, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_MAX_RESOLVED_EXTERNAL_CONTENT_SIZE, getSpaceGuid());
         return value;
     }
 
     private String getCronExpressionForOldDataFromEnvironment() {
         String value = getCronExpression(CFG_CRON_EXPRESSION_FOR_OLD_DATA, DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA);
         LOGGER.info(format(Messages.CRON_EXPRESSION_FOR_OLD_DATA, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_CRON_EXPRESSION_FOR_OLD_DATA, getSpaceGuid());
         return value;
     }
 
     private String getExecutionTimeForFinishedProcessesFromEnvironment() {
         String value = getCronExpression(CFG_EXECUTION_TIME_FOR_FINISHED_PROCESSES, DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES);
         LOGGER.info(format(Messages.EXECUTION_TIME_FOR_FINISHED_PROCESSES, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_EXECUTION_TIME_FOR_FINISHED_PROCESSES, getSpaceGuid());
         return value;
     }
 
     private Long getMaxTtlForOldDataFromEnvironment() {
         Long value = environment.getLong(CFG_MAX_TTL_FOR_OLD_DATA, DEFAULT_MAX_TTL_FOR_OLD_DATA);
         LOGGER.info(format(Messages.MAX_TTL_FOR_OLD_DATA, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_MAX_TTL_FOR_OLD_DATA, getSpaceGuid());
         return value;
     }
 
     private Boolean shouldUseXSAuditLoggingFromEnvironment() {
         Boolean value = environment.getBoolean(CFG_USE_XS_AUDIT_LOGGING, DEFAULT_USE_XS_AUDIT_LOGGING);
         LOGGER.info(format(Messages.USE_XS_AUDIT_LOGGING, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_USE_XS_AUDIT_LOGGING, getSpaceGuid());
         return value;
     }
 
     private String getSpaceGuidFromEnvironment() {
         Map<String, Object> vcapApplicationMap = getVcapApplication();
         Object spaceGuidValue = vcapApplicationMap.get("space_id");
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(SPACE_GUID, spaceGuidValue != null ? spaceGuidValue.toString() : null);
         if (spaceGuidValue != null) {
             LOGGER.info(format(Messages.SPACE_GUID, spaceGuidValue));
             return spaceGuidValue.toString();
@@ -777,6 +800,7 @@ public class ApplicationConfiguration {
     private String getOrgNameFromEnvironment() {
         Map<String, Object> vcapApplicationMap = getVcapApplication();
         Object orgNameValue = vcapApplicationMap.get("organization_name");
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(ORGANISATION_NAME, getSpaceGuid());
         if (orgNameValue != null) {
             LOGGER.info(format(Messages.ORG_NAME, orgNameValue));
             return orgNameValue.toString();
@@ -788,6 +812,7 @@ public class ApplicationConfiguration {
     private String getDeployServiceUrlFromEnvironment() {
         Map<String, Object> vcapApplicationMap = getVcapApplication();
         List<String> uris = getApplicationUris(vcapApplicationMap);
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(DEPLOY_SERVICE_URL, getSpaceGuid());
         if (!CollectionUtils.isEmpty(uris)) {
             return uris.get(0);
         }
@@ -825,12 +850,14 @@ public class ApplicationConfiguration {
     private Boolean isBasicAuthEnabledThroughEnvironment() {
         Boolean value = environment.getBoolean(CFG_BASIC_AUTH_ENABLED, DEFAULT_BASIC_AUTH_ENABLED);
         LOGGER.info(format(Messages.BASIC_AUTH_ENABLED, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_BASIC_AUTH_ENABLED, getSpaceGuid());
         return value;
     }
 
     private Integer getSpringSchedulerTaskExecutorThreadsFromEnvironment() {
         Integer value = environment.getInteger(CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS, DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS);
         LOGGER.info(format(Messages.SPRING_SCHEDULER_TASK_EXECUTOR_THREADS, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS, getSpaceGuid());
         return value;
     }
 
@@ -838,11 +865,13 @@ public class ApplicationConfiguration {
         Integer value = environment.getInteger(CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS,
                                                DEFAULT_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS);
         LOGGER.info(format(Messages.FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS, getSpaceGuid());
         return value;
     }
 
     private String getGlobalAuditorUserFromEnvironment() {
         String value = environment.getString(CFG_GLOBAL_AUDITOR_USER);
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_GLOBAL_AUDITOR_USER, getSpaceGuid());
         return value;
     }
 
@@ -853,11 +882,13 @@ public class ApplicationConfiguration {
     private String getGlobalAuditorOriginFromEnvironment() {
         String value = environment.getString(CFG_GLOBAL_AUDITOR_ORIGIN, DEFAULT_GLOBAL_AUDITOR_ORIGIN);
         LOGGER.info(format(Messages.GLOBAL_AUDITOR_ORIGIN, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_GLOBAL_AUDITOR_ORIGIN, getSpaceGuid());
         return value;
     }
 
     private Integer getDbConnectionThreadsFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_DB_CONNECTION_THREADS, DEFAULT_DB_CONNECTION_THREADS);
+        ///// applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_DB_CONNECTION_THREADS);
         LOGGER.info(format(Messages.DB_CONNECTION_THREADS, value));
         return value;
     }
@@ -865,42 +896,49 @@ public class ApplicationConfiguration {
     private int getStepPollingIntervalFromEnvironment() {
         int value = environment.getPositiveInteger(CFG_STEP_POLLING_INTERVAL_IN_SECONDS, DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS);
         LOGGER.info(format(Messages.STEP_POLLING_INTERVAL_IN_SECONDS, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_STEP_POLLING_INTERVAL_IN_SECONDS, getSpaceGuid());
         return value;
     }
 
     private Boolean shouldSkipSslValidationBasedOnEnvironment() {
         Boolean value = environment.getBoolean(CFG_SKIP_SSL_VALIDATION, DEFAULT_SKIP_SSL_VALIDATION);
         LOGGER.info(format(Messages.SKIP_SSL_VALIDATION, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_SKIP_SSL_VALIDATION, getSpaceGuid());
         return value;
     }
 
     private String getVersionFromEnvironment() {
         String value = environment.getString(CFG_VERSION, DEFAULT_VERSION);
         LOGGER.info(format(Messages.DS_VERSION, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_VERSION, getSpaceGuid());
         return value;
     }
 
     private Integer getChangeLogLockPollRateFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_CHANGE_LOG_LOCK_POLL_RATE, DEFAULT_CHANGE_LOG_LOCK_POLL_RATE);
         LOGGER.info(format(Messages.CHANGE_LOG_LOCK_POLL_RATE, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_CHANGE_LOG_LOCK_POLL_RATE, getSpaceGuid());
         return value;
     }
 
     private Integer getChangeLogLockDurationFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_CHANGE_LOG_LOCK_DURATION, DEFAULT_CHANGE_LOG_LOCK_DURATION);
         LOGGER.info(format(Messages.CHANGE_LOG_LOCK_DURATION, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_CHANGE_LOG_LOCK_DURATION, getSpaceGuid());
         return value;
     }
 
     private Integer getChangeLogLockAttemptsFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_CHANGE_LOG_LOCK_ATTEMPTS, DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS);
         LOGGER.info(format(Messages.CHANGE_LOG_LOCK_ATTEMPTS, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_CHANGE_LOG_LOCK_ATTEMPTS, getSpaceGuid());
         return value;
     }
 
     private String getGlobalConfigSpaceFromEnvironment() {
         String value = environment.getString(CFG_GLOBAL_CONFIG_SPACE);
         LOGGER.debug(format(Messages.GLOBAL_CONFIG_SPACE, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_GLOBAL_CONFIG_SPACE, getSpaceGuid());
         return value;
     }
 
@@ -919,18 +957,22 @@ public class ApplicationConfiguration {
     }
 
     private String getHealthCheckSpaceGuidFromEnvironment() {
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_HEALTH_CHECK_SPACE_GUID, getSpaceGuid());
         return environment.getString(CFG_HEALTH_CHECK_SPACE_GUID);
     }
 
     private String getHealthCheckMtaIdFromEnvironment() {
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_HEALTH_CHECK_MTA_ID, getSpaceGuid());
         return environment.getString(CFG_HEALTH_CHECK_MTA_ID);
     }
 
     private String getHealthCheckUserFromEnvironment() {
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_HEALTH_CHECK_USER, getSpaceGuid());
         return environment.getString(CFG_HEALTH_CHECK_USER);
     }
 
     private Integer getHealthCheckTimeRangeFromEnvironment() {
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_HEALTH_CHECK_TIME_RANGE, getSpaceGuid());
         return environment.getPositiveInteger(CFG_HEALTH_CHECK_TIME_RANGE, DEFAULT_HEALTH_CHECK_TIME_RANGE);
     }
 
@@ -938,48 +980,56 @@ public class ApplicationConfiguration {
         Map<String, Object> vcapApplicationMap = getVcapApplication();
         String applicationId = (String) vcapApplicationMap.get("application_id");
         LOGGER.info(format(Messages.APPLICATION_GUID, applicationId));
+        ///// applicationConfigurationAuditLog.logEnvironmentVariableRead(APPLICATION_GUID, getSpaceGuid());
         return applicationId;
     }
 
     private Integer getApplicationInstanceIndexFromEnvironment() {
         Integer applicationInstanceIndexFromEnvironment = environment.getInteger(CFG_CF_INSTANCE_INDEX);
         LOGGER.info(format(Messages.APPLICATION_INSTANCE_INDEX, applicationInstanceIndexFromEnvironment));
+        ///// applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_CF_INSTANCE_INDEX, getSpaceGuid());
         return applicationInstanceIndexFromEnvironment;
     }
 
     private Integer getAuditLogClientCoreThreadsFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_AUDIT_LOG_CLIENT_CORE_THREADS, DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS);
         LOGGER.info(format(Messages.AUDIT_LOG_CLIENT_CORE_THREADS, value));
+        ///// applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_AUDIT_LOG_CLIENT_CORE_THREADS, getSpaceGuid());
         return value;
     }
 
     private Integer getAuditLogClientMaxThreadsFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_AUDIT_LOG_CLIENT_MAX_THREADS, DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS);
         LOGGER.info(format(Messages.AUDIT_LOG_CLIENT_MAX_THREADS, value));
+        ////// applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_AUDIT_LOG_CLIENT_MAX_THREADS, getSpaceGuid());
         return value;
     }
 
     private Integer getAuditLogClientQueueCapacityFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY);
         LOGGER.info(format(Messages.AUDIT_LOG_CLIENT_QUEUE_CAPACITY, value));
+        ////// applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, getSpaceGuid());
         return value;
     }
 
     private Integer getAuditLogClientKeepAliveFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE);
         LOGGER.info(format(Messages.AUDIT_LOG_CLIENT_KEEP_ALIVE, value));
+        ////// applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, getSpaceGuid());
         return value;
     }
 
     private Integer getFlowableJobExecutorCoreThreadsFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, DEFAULT_FLOWABLE_JOB_EXECUTOR_CORE_THREADS);
         LOGGER.info(format(Messages.FLOWABLE_JOB_EXECUTOR_CORE_THREADS, value));
+        ///// applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, getSpaceGuid());
         return value;
     }
 
     private Integer getFlowableJobExecutorMaxThreadsFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS, DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS);
         LOGGER.info(format(Messages.FLOWABLE_JOB_EXECUTOR_MAX_THREADS, value));
+        ////// applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS, getSpaceGuid());
         return value;
     }
 
@@ -987,6 +1037,7 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
                                                        DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY);
         LOGGER.info(format(Messages.FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, value));
+        ///// applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, getSpaceGuid());
         return value;
     }
 
@@ -1002,6 +1053,7 @@ public class ApplicationConfiguration {
     private Integer getFssCacheUpdateTimeoutMinutesFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES, DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES);
         LOGGER.info(format(Messages.FSS_CACHE_UPDATE_TIMEOUT, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES, getSpaceGuid());
         return value;
     }
 
@@ -1009,6 +1061,7 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS,
                                                        DEFAULT_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS);
         LOGGER.info(format(Messages.THREAD_MONITOR_CACHE_TIMEOUT, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS, getSpaceGuid());
         return value;
     }
 
@@ -1016,6 +1069,7 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS,
                                                        DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
         LOGGER.info(format(Messages.SPACE_DEVELOPERS_CACHE_TIME_IN_SECONDS, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS, getSpaceGuid());
         return value;
     }
 
@@ -1023,6 +1077,8 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS,
                                                        DEFAULT_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS);
         LOGGER.info(format(Messages.CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS, getSpaceGuid());
+
         return Duration.ofSeconds(value);
     }
 
@@ -1030,6 +1086,7 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS,
                                                        DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS);
         LOGGER.info(format(Messages.CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS, getSpaceGuid());
         return Duration.ofSeconds(value);
     }
 
@@ -1037,12 +1094,14 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
                                                        DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE);
         LOGGER.info(format(Messages.CONTROLLER_CLIENT_CONNECTION_POOL_SIZE, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE, getSpaceGuid());
         return value;
     }
 
     private Integer getControllerClientThreadPoolSizeFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE);
         LOGGER.info(format(Messages.CONTROLLER_CLIENT_THREAD_POOL_SIZE, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, getSpaceGuid());
         return value;
     }
 
@@ -1050,12 +1109,14 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_RESPONSE_TIMEOUT,
                                                        DEFAULT_CONTROLLER_CLIENT_RESPONSE_TIMEOUT_IN_SECONDS);
         LOGGER.info(format(Messages.CONTROLLER_CLIENT_RESPONSE_TIMEOUT, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_CONTROLLER_CLIENT_RESPONSE_TIMEOUT, getSpaceGuid());
         return Duration.ofSeconds(value);
     }
 
     private Integer getMicrometerStepInSecondsFromEnvironment() {
         Integer micrometerStepInSeconds = environment.getInteger(CFG_MICROMETER_STEP_IN_SECONDS, null);
         LOGGER.info(format(Messages.MICROMETER_STEP_IN_SECONDS, micrometerStepInSeconds));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_MICROMETER_STEP_IN_SECONDS, getSpaceGuid());
         return micrometerStepInSeconds;
     }
 
@@ -1063,6 +1124,7 @@ public class ApplicationConfiguration {
         Integer dbTransactionTimeout = environment.getInteger(CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS,
                                                               DEFAULT_DB_TRANSACTION_TIMEOUT_IN_SECONDS);
         LOGGER.info(format(Messages.DB_TRANSACTION_TIMEOUT, dbTransactionTimeout));
+        ///// applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS, getSpaceGuid());
         return dbTransactionTimeout;
     }
 
@@ -1070,6 +1132,7 @@ public class ApplicationConfiguration {
         Integer snakeyamlMaxAliasesForCollections = environment.getPositiveInteger(CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS,
                                                                                    DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS);
         LOGGER.info(format(Messages.SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS, snakeyamlMaxAliasesForCollections));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS, getSpaceGuid());
         return snakeyamlMaxAliasesForCollections;
     }
 
@@ -1077,6 +1140,8 @@ public class ApplicationConfiguration {
         Integer serviceHandlingMaxParallelThreads = environment.getPositiveInteger(CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS,
                                                                                    DEFAULT_SERVICE_HANDLING_MAX_PARALLEL_THREADS);
         LOGGER.info(format(Messages.SERVICE_HANDLING_MAX_PARALLEL_THREADS, serviceHandlingMaxParallelThreads));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS, getSpaceGuid());
+
         return serviceHandlingMaxParallelThreads;
     }
 
@@ -1084,6 +1149,7 @@ public class ApplicationConfiguration {
         Integer abortedOperationsTtlInSeconds = environment.getPositiveInteger(CFG_ABORTED_OPERATIONS_TTL_IN_MINUTES,
                                                                                DEFAULT_ABORTED_OPERATIONS_TTL_IN_SECONDS);
         LOGGER.info(format(Messages.ABORTED_OPERATIONS_TTL_IN_SECONDS, abortedOperationsTtlInSeconds));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_ABORTED_OPERATIONS_TTL_IN_MINUTES, getSpaceGuid());
         return abortedOperationsTtlInSeconds;
     }
 
@@ -1091,33 +1157,39 @@ public class ApplicationConfiguration {
         Boolean isOnStartFilesCleanerWithoutContentEnabled = environment.getBoolean(CFG_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER,
                                                                                     DEFAULT_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER);
         LOGGER.info(format(Messages.ON_START_FILES_CLEANER_WITHOUT_CONTENT_ENABLED_0, isOnStartFilesCleanerWithoutContentEnabled));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER, getSpaceGuid());
         return isOnStartFilesCleanerWithoutContentEnabled;
     }
 
     private int getThreadsForFileUploadToControllerFromEnvironment() {
         int value = environment.getInteger(CFG_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER, DEFAULT_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER);
         LOGGER.info(format(Messages.THREADS_FOR_FILE_STORAGE_UPLOAD_0, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER, getSpaceGuid());
         return value;
     }
 
     private int getThreadsForFileStorageUploadFromEnvironment() {
         int value = environment.getInteger(CFG_THREADS_FOR_FILE_STORAGE_UPLOAD, DEFAULT_THREADS_FOR_FILE_STORAGE_UPLOAD);
         LOGGER.info(format(Messages.THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER_0, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_THREADS_FOR_FILE_STORAGE_UPLOAD, getSpaceGuid());
         return value;
     }
 
     public boolean isHealthCheckEnabledFromEnvironment() {
         boolean value = environment.getBoolean(CFG_IS_HEALTH_CHECK_ENABLED, DEFAULT_IS_HEALTH_CHECK_ENABLED);
         LOGGER.info(format(Messages.IS_HEALTH_CHECK_ENABLED, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_IS_HEALTH_CHECK_ENABLED, getSpaceGuid());
         return value;
     }
 
     public Boolean isInternalEnvironment() {
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(SAP_INTERNAL_DELIVERY, getSpaceGuid());
         return environment.getBoolean(SAP_INTERNAL_DELIVERY, DEFAULT_SAP_INTERNAL_DELIVERY);
     }
 
     public Map<String, Object> getCloudComponents() {
         String value = environment.getString(SUPPORT_COMPONENTS);
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(SUPPORT_COMPONENTS, getSpaceGuid());
         try {
             return JsonUtil.convertJsonToMap(value);
         } catch (ParsingException e) {
@@ -1127,13 +1199,14 @@ public class ApplicationConfiguration {
     }
 
     public String getInternalSupportChannel() {
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(INTERNAL_SUPPORT_CHANNEL, getSpaceGuid());
         return environment.getString(INTERNAL_SUPPORT_CHANNEL);
     }
 
     private String getCertificateCNFromEnvironment() {
         String value = environment.getString(CFG_CERTIFICATE_CN);
         LOGGER.info(format(Messages.CERTIFICATE_CN, value));
+        applicationConfigurationAuditLog.logEnvironmentVariableRead(CFG_CERTIFICATE_CN, getSpaceGuid());
         return value;
     }
-
 }
