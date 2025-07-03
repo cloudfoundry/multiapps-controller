@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.auditlogging.impl;
 
+import javax.sql.DataSource;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
@@ -8,8 +10,7 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacad
 import org.cloudfoundry.multiapps.controller.core.auditlogging.UserInfoProvider;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.model.AuditLogConfiguration;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.model.ConfigurationChangeActions;
-
-import javax.sql.DataSource;
+import org.cloudfoundry.multiapps.mta.model.AuditableConfiguration;
 
 public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
 
@@ -32,6 +33,14 @@ public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
 
     @Override
     public void logConfigurationChangeAuditLog(AuditLogConfiguration configuration, ConfigurationChangeActions configurationAction) {
+        writeMessage(auditLogManager.getConfigLogger(), configuration.getPerformedAction(), Level.WARN);
+    }
+
+    @Override
+    public void logConfigurationChangeAuditLog(AuditLogConfiguration configuration,
+                                               ConfigurationChangeActions configurationAction,
+                                               AuditableConfiguration oldValue,
+                                               AuditableConfiguration newValue) {
         writeMessage(auditLogManager.getConfigLogger(), configuration.getPerformedAction(), Level.WARN);
     }
 

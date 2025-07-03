@@ -57,14 +57,16 @@ class AuthorizationCheckerTest {
     private WebClientFactory webClientFactory;
     @Mock
     private CfRolesGetter rolesGetter;
-    private final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
+
+    private ApplicationConfiguration applicationConfiguration;
     private AuthorizationChecker authorizationChecker;
 
     @BeforeEach
-    void setUp() throws Exception {
-        MockitoAnnotations.openMocks(this)
-                          .close();
-        authorizationChecker = new AuthorizationChecker(clientFactory, tokenService, applicationConfiguration, webClientFactory) {
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        applicationConfiguration = new ApplicationConfiguration();
+        authorizationChecker = new AuthorizationChecker(
+            clientFactory, tokenService, applicationConfiguration, webClientFactory) {
             @Override
             protected CfRolesGetter getRolesGetter(OAuth2AccessTokenWithAdditionalInfo token) {
                 return rolesGetter;

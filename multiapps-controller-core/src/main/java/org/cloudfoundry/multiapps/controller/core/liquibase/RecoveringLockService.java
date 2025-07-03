@@ -1,18 +1,17 @@
 package org.cloudfoundry.multiapps.controller.core.liquibase;
 
-import static java.text.MessageFormat.format;
-
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import liquibase.exception.LockException;
+import liquibase.lockservice.DatabaseChangeLogLock;
+import liquibase.lockservice.StandardLockService;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import liquibase.exception.LockException;
-import liquibase.lockservice.DatabaseChangeLogLock;
-import liquibase.lockservice.StandardLockService;
+import static java.text.MessageFormat.format;
 
 public class RecoveringLockService extends StandardLockService {
 
@@ -31,7 +30,7 @@ public class RecoveringLockService extends StandardLockService {
     @Override
     public int getPriority() {
         return super.getPriority() + 1; // Liquibase chooses which LockService to use based on its priority. This line makes sure that our
-                                        // custom lock service has a higher priority than the standard one (which it extends).
+        // custom lock service has a higher priority than the standard one (which it extends).
     }
 
     @Override

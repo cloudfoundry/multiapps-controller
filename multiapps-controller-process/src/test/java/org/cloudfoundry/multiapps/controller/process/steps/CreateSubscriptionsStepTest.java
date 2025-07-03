@@ -1,17 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
-
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.ConfigurationSubscriptionServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription.ResourceDto;
@@ -26,11 +17,21 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+
 class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubscriptionsStep> {
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (0)
             Arguments.of("create-subscriptions-step-input-00.json", null),
             // (1)
@@ -45,6 +46,9 @@ class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubscriptio
     private ConfigurationSubscriptionService configurationSubscriptionService;
     @Mock(answer = Answers.RETURNS_SELF)
     private ConfigurationSubscriptionQuery configurationSubscriptionQuery;
+
+    @Mock
+    private ConfigurationSubscriptionServiceAuditLog configurationSubscriptionServiceAuditLog;
 
     @ParameterizedTest
     @MethodSource
@@ -87,10 +91,14 @@ class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubscriptio
             if (resourceDto == null) {
                 continue;
             }
-            ConfigurationSubscriptionQuery queryMock = new MockBuilder<>(configurationSubscriptionQuery).on(query -> query.appName(subscription.getAppName()))
-                                                                                                        .on(query -> query.spaceId(subscription.getSpaceId()))
-                                                                                                        .on(query -> query.resourceName(resourceDto.getName()))
-                                                                                                        .on(query -> query.mtaId(subscription.getMtaId()))
+            ConfigurationSubscriptionQuery queryMock = new MockBuilder<>(configurationSubscriptionQuery).on(
+                                                                                                            query -> query.appName(subscription.getAppName()))
+                                                                                                        .on(query -> query.spaceId(
+                                                                                                            subscription.getSpaceId()))
+                                                                                                        .on(query -> query.resourceName(
+                                                                                                            resourceDto.getName()))
+                                                                                                        .on(query -> query.mtaId(
+                                                                                                            subscription.getMtaId()))
                                                                                                         .build();
             doReturn(setId(subscription)).when(queryMock)
                                          .singleResult();

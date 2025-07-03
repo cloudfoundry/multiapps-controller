@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.ConfigurationEntryServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationEntryQuery;
@@ -50,6 +51,9 @@ class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishCo
     private ConfigurationEntryQuery configurationEntryQuery;
     @Mock
     private ConfigurationEntryDynamicParameterResolver dynamicParameterResolver;
+
+    @Mock
+    private ConfigurationEntryServiceAuditLog configurationEntryServiceAuditLog;
 
     public static Stream<Arguments> test() {
         return Stream.of(
