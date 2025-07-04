@@ -95,7 +95,7 @@ In order to use the CF MultiApps Controller you should install the [multiapps](h
 
 If you're using a different [host](multiapps-controller-web/manifests/manifest.yml#L4) than the default for your CF MultiApps Controller either set the following environment variable `MULTIAPPS_CONTROLLER_URL=<URL>` or run CF MTA plugin commands with `-u <URL>` so that they are executed against your instance(s) of the MultiApps Controller.
 
-You could use a modified [spring-music](https://github.com/nvvalchev/spring-music) application, which is extended and adapted to the MTA model to test your newly deployed MultiApps Controller.
+You could try out various [MTA examples](https://github.com/SAP-samples/cf-mta-examples) to test your newly deployed MultiApps Controller.
 
 # How to contribute
 * [Did you find a bug?](CONTRIBUTING.md#did-you-find-a-bug)
