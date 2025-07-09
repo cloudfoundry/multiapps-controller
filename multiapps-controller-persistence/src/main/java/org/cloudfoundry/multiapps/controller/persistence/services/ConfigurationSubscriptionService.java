@@ -1,13 +1,8 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import static java.text.MessageFormat.format;
-
-import java.util.Map;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.persistence.EntityManagerFactory;
-
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
@@ -21,6 +16,10 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubs
 import org.cloudfoundry.multiapps.controller.persistence.model.filters.ConfigurationFilter;
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.ConfigurationSubscriptionQueryImpl;
+
+import java.util.Map;
+
+import static java.text.MessageFormat.format;
 
 @Named
 public class ConfigurationSubscriptionService extends PersistenceService<ConfigurationSubscription, ConfigurationSubscriptionDto, Long> {

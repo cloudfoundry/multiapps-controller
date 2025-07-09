@@ -1,11 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
-
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.Duration;
@@ -16,6 +10,7 @@ import java.util.Map;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.ApplicationConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
 import org.cloudfoundry.multiapps.controller.core.configuration.Environment;
 import org.cloudfoundry.multiapps.controller.core.health.model.HealthCheckConfiguration;
@@ -29,6 +24,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 class ApplicationConfigurationTest {
 
@@ -44,6 +45,9 @@ class ApplicationConfigurationTest {
     private AuditLoggingFacade auditLoggingFacade;
     @InjectMocks
     private ApplicationConfiguration configuration;
+
+    @Mock
+    private ApplicationConfigurationAuditLog applicationConfigurationAuditLog;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -66,7 +70,7 @@ class ApplicationConfigurationTest {
 
     @Test
     void testGetControllerUrlWithInvalidValue() {
-        String invalidUrl = "blabla";
+        String invalidUrl = "blablabla";
         Map<String, String> vcapApplication = Map.of("cf_api", invalidUrl);
         Exception e = assertThrows(IllegalArgumentException.class, () -> getControllerUrlWithVcapApplication(vcapApplication));
         assertEquals(MessageFormat.format(Messages.INVALID_CONTROLLER_URL, invalidUrl), e.getMessage());
@@ -75,7 +79,7 @@ class ApplicationConfigurationTest {
     private URL getControllerUrlWithVcapApplication(Map<String, String> vcapApplication) {
         String vcapApplicationJson = JsonUtil.toJson(vcapApplication);
         when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION)).thenReturn(vcapApplicationJson);
-        ApplicationConfiguration testedConfiguration = new ApplicationConfiguration(environment);
+        ApplicationConfiguration testedConfiguration = new ApplicationConfiguration(environment, applicationConfigurationAuditLog);
         return testedConfiguration.getControllerUrl();
     }
 

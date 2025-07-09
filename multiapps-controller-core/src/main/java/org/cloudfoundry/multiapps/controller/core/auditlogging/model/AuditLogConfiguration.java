@@ -36,6 +36,14 @@ public class AuditLogConfiguration implements AuditableConfiguration {
         this.parameters = parameters;
     }
 
+    public AuditLogConfiguration(String spaceId, String performedAction, String configuration) {
+        this.spaceId = spaceId;
+        this.userId = null;
+        this.performedAction = performedAction;
+        this.configuration = configuration;
+        this.parameters = Collections.emptyMap();
+    }
+
     public String getPerformedAction() {
         return performedAction;
     }
