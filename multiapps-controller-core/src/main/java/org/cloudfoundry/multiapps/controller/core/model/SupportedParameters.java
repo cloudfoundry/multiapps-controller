@@ -199,7 +199,7 @@ public class SupportedParameters {
                                                                REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
                                                                REGISTER_SERVICE_URL_SERVICE_URL, MODULE_CONFIG, MANAGED, PATH,
                                                                APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT, APPS_START_TIMEOUT,
-                                                               APPS_STAGE_TIMEOUT, DELETE_SERVICE_KEY_AFTER_DEPLOYMENT, SKIP_DEPLOY);
+                                                               APPS_STAGE_TIMEOUT, SKIP_DEPLOY);
 
     public static final Set<String> RESOURCE_PARAMETERS = Set.of(APPLY_NAMESPACE, SERVICE_CONFIG, SYSLOG_DRAIN_URL, DEFAULT_CONTAINER_NAME,
                                                                  DEFAULT_SERVICE_NAME, DEFAULT_XS_APP_NAME, SERVICE, SERVICE_KEYS,
@@ -212,7 +212,7 @@ public class SupportedParameters {
                                                                ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE);
 
     public static final Set<String> DEPENDENCY_PARAMETERS = Set.of(BINDING_NAME, ENV_VAR_NAME, VISIBILITY, USE_LIVE_ROUTES,
-                                                                   SERVICE_BINDING_CONFIG);
+                                                                   SERVICE_BINDING_CONFIG, DELETE_SERVICE_KEY_AFTER_DEPLOYMENT);
 
     public static final Set<String> MODULE_HOOK_PARAMETERS = Set.of(NAME, COMMAND, MEMORY, DISK_QUOTA, HOOK_REQUIRES);
 
