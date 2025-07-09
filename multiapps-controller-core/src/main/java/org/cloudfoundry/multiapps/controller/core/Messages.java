@@ -243,6 +243,12 @@ public final class Messages {
 
     public static final String READ_ENV_FROM_ENVIRONMENT = "Read {0} from environment for space with id: {1}";
 
+    public static final String SUBSCRIPTION_CREATE = "Create configuration-subscription in space with id: {0}";
+    public static final String SUBSCRIPTION_UPDATE = "Update configuration-subscription in space with id: {0}";
+
+    public static final String ENTRY_CREATE = "Create configuration-entry in space with id: {0}";
+    public static final String ENTRY_UPDATE = "Update configuration-entry in space with id: {0}";
+
     // Audit log configuration
     public static final String GET_CSRF_TOKEN_AUDIT_LOG_CONFIG = "CSRF token get ";
 
@@ -267,6 +273,10 @@ public final class Messages {
     public static final String MTA_LIST_AUDIT_LOG_CONFIG = "MTA list";
 
     public static final String ENVIRONMENT_VARIABLE_AUDIT_LOG_CONFIG = "Environment variable";
+
+    public static final String SUBSCRIPTION_CONFIG = "Configuration subscription";
+
+    public static final String ENTRY_CONFIG = "Configuration entry";
 
     public static final String API_INFO_AUDIT_LOG_CONFIG = "Api info";
     public static final String IGNORING_NAMESPACE_PARAMETERS = "Ignoring parameter \"{0}\" , as the MTA is not deployed with namespace!";

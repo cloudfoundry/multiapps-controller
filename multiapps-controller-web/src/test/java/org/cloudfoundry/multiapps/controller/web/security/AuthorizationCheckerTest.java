@@ -1,13 +1,5 @@
 package org.cloudfoundry.multiapps.controller.web.security;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Stream;
-
 import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
@@ -16,6 +8,7 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
 import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.ApplicationConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CfRolesGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
@@ -34,6 +27,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -57,14 +58,19 @@ class AuthorizationCheckerTest {
     private WebClientFactory webClientFactory;
     @Mock
     private CfRolesGetter rolesGetter;
-    private final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
+
+    @Mock
+    private ApplicationConfigurationAuditLog applicationConfigurationAuditLog;
+
+    private ApplicationConfiguration applicationConfiguration;
     private AuthorizationChecker authorizationChecker;
 
     @BeforeEach
-    void setUp() throws Exception {
-        MockitoAnnotations.openMocks(this)
-                          .close();
-        authorizationChecker = new AuthorizationChecker(clientFactory, tokenService, applicationConfiguration, webClientFactory) {
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        applicationConfiguration = new ApplicationConfiguration(applicationConfigurationAuditLog);
+        authorizationChecker = new AuthorizationChecker(
+            clientFactory, tokenService, applicationConfiguration, webClientFactory) {
             @Override
             protected CfRolesGetter getRolesGetter(OAuth2AccessTokenWithAdditionalInfo token) {
                 return rolesGetter;

@@ -3,10 +3,10 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.persistence.EntityManagerFactory;
-
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
@@ -19,8 +19,6 @@ import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetada
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationEntryQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.ConfigurationEntryQueryImpl;
 import org.cloudfoundry.multiapps.mta.model.Version;
-
-import com.fasterxml.jackson.core.type.TypeReference;
 
 @Named
 public class ConfigurationEntryService extends PersistenceService<ConfigurationEntry, ConfigurationEntryDto, Long> {

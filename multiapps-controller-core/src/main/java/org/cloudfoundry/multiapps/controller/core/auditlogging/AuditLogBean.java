@@ -63,4 +63,16 @@ public class AuditLogBean {
     public ApplicationConfigurationAuditLog buildApplicationConfigurationAuditLog(AuditLoggingFacade auditLoggingFacade) {
         return new ApplicationConfigurationAuditLog(auditLoggingFacade);
     }
+
+    @Bean
+    @Inject
+    public ConfigurationSubscriptionServiceAuditLog buildAConfigurationSubscriptionServiceAuditLog(AuditLoggingFacade auditLoggingFacade) {
+        return new ConfigurationSubscriptionServiceAuditLog(auditLoggingFacade);
+    }
+
+    @Bean
+    @Inject
+    public ConfigurationEntryServiceAuditLog buildAConfigurationEntryServiceAuditLog(AuditLoggingFacade auditLoggingFacade) {
+        return new ConfigurationEntryServiceAuditLog(auditLoggingFacade);
+    }
 }

@@ -10,6 +10,7 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.model.AuditLogCon
 import org.cloudfoundry.multiapps.controller.core.auditlogging.model.ConfigurationChangeActions;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
 
@@ -32,6 +33,12 @@ public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
 
     @Override
     public void logConfigurationChangeAuditLog(AuditLogConfiguration configuration, ConfigurationChangeActions configurationAction) {
+        writeMessage(auditLogManager.getConfigLogger(), configuration.getPerformedAction(), Level.WARN);
+    }
+
+    @Override
+    public void logConfigurationChangeAuditLog(AuditLogConfiguration configuration, ConfigurationChangeActions configurationAction,
+                                               List<String> attributes) {
         writeMessage(auditLogManager.getConfigLogger(), configuration.getPerformedAction(), Level.WARN);
     }
 
