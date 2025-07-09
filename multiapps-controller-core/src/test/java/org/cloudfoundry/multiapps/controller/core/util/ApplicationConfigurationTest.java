@@ -1,5 +1,12 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
+import java.net.URL;
+import java.text.MessageFormat;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
@@ -17,13 +24,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-
-import java.net.URL;
-import java.text.MessageFormat;
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -70,7 +70,7 @@ class ApplicationConfigurationTest {
 
     @Test
     void testGetControllerUrlWithInvalidValue() {
-        String invalidUrl = "blabla";
+        String invalidUrl = "blablabla";
         Map<String, String> vcapApplication = Map.of("cf_api", invalidUrl);
         Exception e = assertThrows(IllegalArgumentException.class, () -> getControllerUrlWithVcapApplication(vcapApplication));
         assertEquals(MessageFormat.format(Messages.INVALID_CONTROLLER_URL, invalidUrl), e.getMessage());
