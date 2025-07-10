@@ -1,12 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.validators.parameters.v2;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,6 +15,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 class ModuleParametersCompatibilityValidatorTest {
 
     @Mock
@@ -33,7 +33,7 @@ class ModuleParametersCompatibilityValidatorTest {
                           .close();
     }
 
-    static Stream<Arguments> testModuleParametersCompatability() {
+    static Stream<Arguments> testModuleParametersCompatibility() {
         return Stream.of(Arguments.of(List.of(SupportedParameters.HOST, SupportedParameters.ROUTES), true),
                          Arguments.of(List.of(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES), false),
                          Arguments.of(List.of(SupportedParameters.HOSTS, SupportedParameters.DOMAINS, SupportedParameters.ROUTES), true),
@@ -52,10 +52,10 @@ class ModuleParametersCompatibilityValidatorTest {
 
     @ParameterizedTest
     @MethodSource
-    void testModuleParametersCompatability(List<String> moduleParameters, boolean shouldWarnMessage) {
+    void testModuleParametersCompatibility(List<String> moduleParameters, boolean shouldWarnMessage) {
         Module module = buildModule(moduleParameters);
 
-        Module validatedModule = new ModuleParametersCompatabilityValidator(module, userMessageLogger).validate();
+        Module validatedModule = new ModuleParametersCompatibilityValidator(module, userMessageLogger).validate();
 
         assertEquals(module.getParameters(), validatedModule.getParameters());
         verifyUserMessageLogger(shouldWarnMessage);

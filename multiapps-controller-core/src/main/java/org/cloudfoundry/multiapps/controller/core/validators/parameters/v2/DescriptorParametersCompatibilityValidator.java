@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.CompatabilityParametersValidator;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.CompatibilityParametersValidator;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 
-public class DescriptorParametersCompatabilityValidator extends CompatabilityParametersValidator<DeploymentDescriptor> {
+public class DescriptorParametersCompatibilityValidator extends CompatibilityParametersValidator<DeploymentDescriptor> {
 
     private final DeploymentDescriptor descriptor;
 
-    public DescriptorParametersCompatabilityValidator(DeploymentDescriptor descriptor, UserMessageLogger userMessageLogger) {
+    public DescriptorParametersCompatibilityValidator(DeploymentDescriptor descriptor, UserMessageLogger userMessageLogger) {
         super(userMessageLogger);
         this.descriptor = descriptor;
     }
@@ -36,11 +36,11 @@ public class DescriptorParametersCompatabilityValidator extends CompatabilityPar
     }
 
     private Module validate(Module module) {
-        return getModuleParametersCompatabilityValidator(module).validate();
+        return getModuleParametersCompatibilityValidator(module).validate();
     }
 
-    protected ModuleParametersCompatabilityValidator getModuleParametersCompatabilityValidator(Module module) {
-        return new ModuleParametersCompatabilityValidator(module, userMessageLogger);
+    protected ModuleParametersCompatibilityValidator getModuleParametersCompatibilityValidator(Module module) {
+        return new ModuleParametersCompatibilityValidator(module, userMessageLogger);
     }
 
 }

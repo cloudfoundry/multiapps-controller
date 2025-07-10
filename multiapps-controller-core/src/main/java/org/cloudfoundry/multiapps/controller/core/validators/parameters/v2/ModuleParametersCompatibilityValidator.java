@@ -8,34 +8,34 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.CompatabilityParameterValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.CompatabilityParametersValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.IdleRoutesCompatabilityValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesCompatabilityValidator;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.CompatibilityParameterValidator;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.CompatibilityParametersValidator;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.IdleRoutesCompatibilityValidator;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesCompatibilityValidator;
 import org.cloudfoundry.multiapps.mta.model.Module;
 
-public class ModuleParametersCompatabilityValidator extends CompatabilityParametersValidator<Module> {
+public class ModuleParametersCompatibilityValidator extends CompatibilityParametersValidator<Module> {
 
     private final Module module;
 
-    public ModuleParametersCompatabilityValidator(Module module, UserMessageLogger userMessageLogger) {
+    public ModuleParametersCompatibilityValidator(Module module, UserMessageLogger userMessageLogger) {
         super(userMessageLogger);
         this.module = module;
     }
 
     @Override
     public Module validate() {
-        List<CompatabilityParameterValidator> moduleValidators = getModuleValidators();
-        checkParametersCompatability(module.getParameters(), moduleValidators);
+        List<CompatibilityParameterValidator> moduleValidators = getModuleValidators();
+        checkParametersCompatibility(module.getParameters(), moduleValidators);
         return module;
     }
 
-    private List<CompatabilityParameterValidator> getModuleValidators() {
-        return Arrays.asList(new RoutesCompatabilityValidator(), new IdleRoutesCompatabilityValidator());
+    private List<CompatibilityParameterValidator> getModuleValidators() {
+        return Arrays.asList(new RoutesCompatibilityValidator(), new IdleRoutesCompatibilityValidator());
     }
 
-    private void checkParametersCompatability(Map<String, Object> parameters, List<CompatabilityParameterValidator> moduleValidators) {
-        for (CompatabilityParameterValidator validator : moduleValidators) {
+    private void checkParametersCompatibility(Map<String, Object> parameters, List<CompatibilityParameterValidator> moduleValidators) {
+        for (CompatibilityParameterValidator validator : moduleValidators) {
             List<String> incompatibleParameters = getIncompatibleParameters(validator, parameters);
             if (!incompatibleParameters.isEmpty()) {
                 warnForIncompatibleParameters(validator.getParameterName(), incompatibleParameters);
@@ -43,7 +43,7 @@ public class ModuleParametersCompatabilityValidator extends CompatabilityParamet
         }
     }
 
-    private List<String> getIncompatibleParameters(CompatabilityParameterValidator validator, Map<String, Object> parameters) {
+    private List<String> getIncompatibleParameters(CompatibilityParameterValidator validator, Map<String, Object> parameters) {
         String parameterNameToValidate = validator.getParameterName();
         if (parameters.containsKey(parameterNameToValidate)) {
             return parameters.keySet()
