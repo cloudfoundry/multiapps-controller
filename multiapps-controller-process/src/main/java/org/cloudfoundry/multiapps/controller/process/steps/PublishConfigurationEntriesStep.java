@@ -1,17 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.ConfigurationEntryServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
@@ -22,12 +16,21 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Named("publishProvidedDependenciesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PublishConfigurationEntriesStep extends SyncFlowableStep {
 
     @Inject
     private ConfigurationEntryService configurationEntryService;
+
+    @Inject
+    private ConfigurationEntryServiceAuditLog configurationEntryServiceAuditLog;
 
     @Inject
     private ConfigurationEntryDynamicParameterResolver dynamicParameterResolver;
@@ -46,10 +49,11 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
             return StepPhase.DONE;
         }
         Set<DynamicResolvableParameter> dynamicResolvableParameters = context.getVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS);
-        List<ConfigurationEntry> resolvedEntriesToPublish = dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(entriesToPublish,
-                                                                                                                                    dynamicResolvableParameters);
+        List<ConfigurationEntry> resolvedEntriesToPublish = dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(
+            entriesToPublish,
+            dynamicResolvableParameters);
 
-        List<ConfigurationEntry> publishedEntries = publish(resolvedEntriesToPublish);
+        List<ConfigurationEntry> publishedEntries = publish(context, resolvedEntriesToPublish);
 
         getStepLogger().debug(Messages.PUBLISHED_ENTRIES, SecureSerialization.toJson(publishedEntries));
         context.setVariable(Variables.PUBLISHED_ENTRIES, publishedEntries);
@@ -63,18 +67,22 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
         return Messages.ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES;
     }
 
-    private List<ConfigurationEntry> publish(List<ConfigurationEntry> entriesToPublish) {
+    private List<ConfigurationEntry> publish(ProcessContext context, List<ConfigurationEntry> entriesToPublish) {
         return entriesToPublish.stream()
-                               .map(this::publishConfigurationEntry)
+                               .map(entry -> publishConfigurationEntry(context, entry))
                                .collect(Collectors.toList());
     }
 
-    private ConfigurationEntry publishConfigurationEntry(ConfigurationEntry entry) {
+    private ConfigurationEntry publishConfigurationEntry(ProcessContext context, ConfigurationEntry entry) {
         infoConfigurationPublishment(entry);
         ConfigurationEntry currentEntry = getExistingEntry(entry);
         if (currentEntry == null) {
+            configurationEntryServiceAuditLog.logAddConfigurationEntry(context.getVariable(Variables.USER),
+                                                                       context.getVariable(Variables.SPACE_GUID), entry);
             return configurationEntryService.add(entry);
         } else {
+            configurationEntryServiceAuditLog.logUpdateConfigurationEntry(context.getVariable(Variables.USER),
+                                                                          context.getVariable(Variables.SPACE_GUID), currentEntry, entry);
             return configurationEntryService.update(currentEntry, entry);
         }
     }
