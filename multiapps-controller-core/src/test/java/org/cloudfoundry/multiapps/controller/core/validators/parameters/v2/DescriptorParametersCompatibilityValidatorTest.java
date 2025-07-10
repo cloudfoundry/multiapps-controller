@@ -1,8 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.validators.parameters.v2;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-class DescriptorParametersCompatabilityValidatorTest {
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+
+class DescriptorParametersCompatibilityValidatorTest {
 
     private static final String MODULE_NAME = "test-module";
     private static final Map<String, Object> MODULE_PARAMETERS = Map.of("test-param", "test-value");
@@ -23,7 +23,7 @@ class DescriptorParametersCompatabilityValidatorTest {
     @Mock
     private UserMessageLogger userMessageLogger;
     @Mock
-    private ModuleParametersCompatabilityValidator moduleParametersCompatabilityValidator;
+    private ModuleParametersCompatibilityValidator moduleParametersCompatibilityValidator;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -36,13 +36,13 @@ class DescriptorParametersCompatabilityValidatorTest {
         Module module = buildModule();
         DeploymentDescriptor descriptor = buildDeploymentDescriptor(module);
 
-        prepareModuleParametersCompatabilityValidator(module);
+        prepareModuleParametersCompatibilityValidator(module);
 
-        DescriptorParametersCompatabilityValidator descriptorValidator = new DescriptorParametersCompatabilityValidator(descriptor,
+        DescriptorParametersCompatibilityValidator descriptorValidator = new DescriptorParametersCompatibilityValidator(descriptor,
                                                                                                                         userMessageLogger) {
             @Override
-            protected ModuleParametersCompatabilityValidator getModuleParametersCompatabilityValidator(Module module) {
-                return moduleParametersCompatabilityValidator;
+            protected ModuleParametersCompatibilityValidator getModuleParametersCompatibilityValidator(Module module) {
+                return moduleParametersCompatibilityValidator;
             }
 
         };
@@ -62,8 +62,8 @@ class DescriptorParametersCompatabilityValidatorTest {
                                    .setModules(List.of(module));
     }
 
-    private void prepareModuleParametersCompatabilityValidator(Module module) {
-        when(moduleParametersCompatabilityValidator.validate()).thenReturn(module);
+    private void prepareModuleParametersCompatibilityValidator(Module module) {
+        when(moduleParametersCompatibilityValidator.validate()).thenReturn(module);
     }
 
     private void assertModules(Module expectedModule, List<Module> validatedModules) {
