@@ -2,11 +2,11 @@ package org.cloudfoundry.multiapps.controller.core.validators.parameters;
 
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 
-public abstract class CompatabilityParametersValidator<T> {
+public abstract class CompatibilityParametersValidator<T> {
 
     protected final UserMessageLogger userMessageLogger;
 
-    protected CompatabilityParametersValidator(UserMessageLogger userMessageLoger) {
+    protected CompatibilityParametersValidator(UserMessageLogger userMessageLoger) {
         this.userMessageLogger = userMessageLoger;
     }
 

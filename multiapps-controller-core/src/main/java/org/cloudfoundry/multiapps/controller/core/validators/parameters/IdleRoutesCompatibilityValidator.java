@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 
-public class IdleRoutesCompatabilityValidator implements CompatabilityParameterValidator {
+public class IdleRoutesCompatibilityValidator implements CompatibilityParameterValidator {
 
     @Override
     public boolean isCompatible(String parameter) {
