@@ -141,10 +141,27 @@
     <sequenceFlow id="flow84" sourceRef="timerintermediatecatchevent1" targetRef="startAppTask"></sequenceFlow>
     <sequenceFlow id="sid-6C61C071-998D-48F2-8DB8-6CDD50E04F18" sourceRef="sid-F6B2FD75-29A0-4347-B49F-94B4CD7C1469" targetRef="exclusivegateway4"></sequenceFlow>
     <sequenceFlow id="sid-E6050369-B93F-4433-8CDB-D7572FD2F525" sourceRef="sid-70329A91-339F-4215-9AB6-41ED6C769C40" targetRef="stopAppTask"></sequenceFlow>
-    <callActivity id="manageAppServiceBindingCallActivity" name="Manage Application Service Bindings Call Activity Parallel" flowable:async="true" calledElement="manageAppServiceBindingSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="manageAppServiceBindingCallActivity" name="Manage Application Service Bindings Call Activity Parallel" flowable:async="true" calledElement="manageAppServiceBindingSubProcess" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
         <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
         <flowable:in source="servicesToBind" target="servicesToBind"></flowable:in>
+        <flowable:in source="processId" target="processId"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="__TASK_ID" target="__TASK_ID"></flowable:in>
+        <flowable:in source="serviceToUnbindBind" target="serviceToUnbindBind"></flowable:in>
+        <flowable:in source="serviceBindingToDelete" target="serviceBindingToDelete"></flowable:in>
+        <flowable:in source="servicesToUnbindBind" target="servicesToUnbindBind"></flowable:in>
+        <flowable:in source="useLastOperationForServiceBindingDeletion" target="useLastOperationForServiceBindingDeletion"></flowable:in>
+        <flowable:in source="mtaArchiveElements" target="mtaArchiveElements"></flowable:in>
+        <flowable:in source="appArchiveId" target="appArchiveId"></flowable:in>
+        <flowable:in source="archiveEntriesPositions" target="archiveEntriesPositions"></flowable:in>
+        <flowable:in source="bindingName" target="bindingName"></flowable:in>
+        <flowable:in source="userGuid" target="userGuid"></flowable:in>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="shouldRecreateServiceBinding" target="shouldRecreateServiceBinding"></flowable:in>
+        <flowable:in source="serviceBindingParameters" target="serviceBindingParameters"></flowable:in>
+        <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToUnbindBind" flowable:elementVariable="serviceToUnbindBind">
         <extensionElements></extensionElements>
@@ -156,10 +173,27 @@
     <serviceTask id="determineVcapServicesPropertiesChangedTask" name="Determine vcap services properties changed" flowable:async="true" flowable:delegateExpression="${determineVcapServicesPropertiesChangedStep}"></serviceTask>
     <exclusiveGateway id="sid-A9FA4E05-931E-4254-AB32-D476EF047D40" default="sid-C8B6AD2B-DCA7-4CB3-8ECE-CF48DE312ECD"></exclusiveGateway>
     <sequenceFlow id="sid-0B8527EC-8771-4591-BA56-DB02AB9A5B7B" sourceRef="createAppTask" targetRef="sid-A9FA4E05-931E-4254-AB32-D476EF047D40"></sequenceFlow>
-    <callActivity id="sid-4430F9E3-B636-4A4E-B9CB-4485987F1EEF" name="Manage Application Service Bindings Call Activity Sequential" flowable:async="true" calledElement="manageAppServiceBindingSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="sid-4430F9E3-B636-4A4E-B9CB-4485987F1EEF" name="Manage Application Service Bindings Call Activity Sequential" flowable:async="true" calledElement="manageAppServiceBindingSubProcess" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
         <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
         <flowable:in source="servicesToBind" target="servicesToBind"></flowable:in>
+        <flowable:in source="processId" target="processId"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="__TASK_ID" target="__TASK_ID"></flowable:in>
+        <flowable:in source="serviceToUnbindBind" target="serviceToUnbindBind"></flowable:in>
+        <flowable:in source="servicesToUnbindBind" target="servicesToUnbindBind"></flowable:in>
+        <flowable:in source="bindingName" target="bindingName"></flowable:in>
+        <flowable:in source="useLastOperationForServiceBindingDeletion" target="useLastOperationForServiceBindingDeletion"></flowable:in>
+        <flowable:in source="serviceBindingToDelete" target="serviceBindingToDelete"></flowable:in>
+        <flowable:in source="appArchiveId" target="appArchiveId"></flowable:in>
+        <flowable:in source="archiveEntriesPositions" target="archiveEntriesPositions"></flowable:in>
+        <flowable:in source="mtaArchiveElements" target="mtaArchiveElements"></flowable:in>
+        <flowable:in source="userGuid" target="userGuid"></flowable:in>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="shouldRecreateServiceBinding" target="shouldRecreateServiceBinding"></flowable:in>
+        <flowable:in source="serviceBindingParameters" target="serviceBindingParameters"></flowable:in>
+        <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="true" flowable:collection="servicesToUnbindBind" flowable:elementVariable="serviceToUnbindBind">
         <extensionElements></extensionElements>
