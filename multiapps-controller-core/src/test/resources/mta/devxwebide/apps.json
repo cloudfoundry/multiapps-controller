@@ -13,11 +13,13 @@
         "mta_id": "33940e667a1d39f2c6fe8b2f658f9f40"
       }
     },
+    "moduleName": "webide",
     "memory": 128,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -37,11 +39,8 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "destinations": "[{\"name\":\"sapui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"},{\"name\":\"che\",\"url\":\"http://i027947-di-core.cfapps.neo.ondemand.com\"}]"
     },
-    "moduleName": "webide",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {

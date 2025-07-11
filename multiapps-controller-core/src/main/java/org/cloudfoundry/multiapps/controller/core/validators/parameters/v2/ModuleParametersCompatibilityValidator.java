@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.AppFeaturesCompatibilityValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.CompatibilityParameterValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.CompatibilityParametersValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.IdleRoutesCompatibilityValidator;
@@ -31,7 +32,8 @@ public class ModuleParametersCompatibilityValidator extends CompatibilityParamet
     }
 
     private List<CompatibilityParameterValidator> getModuleValidators() {
-        return Arrays.asList(new RoutesCompatibilityValidator(), new IdleRoutesCompatibilityValidator());
+        return Arrays.asList(new RoutesCompatibilityValidator(), new IdleRoutesCompatibilityValidator(),
+                             new AppFeaturesCompatibilityValidator(module.getParameters()));
     }
 
     private void checkParametersCompatibility(Map<String, Object> parameters, List<CompatibilityParameterValidator> moduleValidators) {

@@ -1,11 +1,10 @@
 package org.cloudfoundry.multiapps.controller.core.cf;
 
-import static java.text.MessageFormat.format;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.CloudHandlerFactoryV2;
@@ -21,7 +20,7 @@ import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationRef
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.ParameterValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersCompatabilityValidator;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersCompatibilityValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersValidator;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
@@ -32,7 +31,7 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.cloudfoundry.multiapps.mta.resolvers.LiveRoutesProvidedParametersResolver;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import static java.text.MessageFormat.format;
 
 public interface CloudHandlerFactory extends HandlerFactory {
 
@@ -66,7 +65,7 @@ public interface CloudHandlerFactory extends HandlerFactory {
     DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
                                                                    List<ParameterValidator> parameterValidators, boolean doNotCorrect);
 
-    DescriptorParametersCompatabilityValidator getDescriptorParametersCompatabilityValidator(DeploymentDescriptor descriptor,
+    DescriptorParametersCompatibilityValidator getDescriptorParametersCompatibilityValidator(DeploymentDescriptor descriptor,
                                                                                              UserMessageLogger userMessageLogger);
 
     PlatformMerger getPlatformMerger(Platform platform);

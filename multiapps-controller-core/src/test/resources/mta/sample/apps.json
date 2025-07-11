@@ -13,11 +13,13 @@
         "mta_id": "57675a73021035bde9f4f77efa07dad8"
       }
     },
+    "moduleName": "web-server",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -26,7 +28,7 @@
           "name": "bestprice.sap.com"
         },
         "host": "www",
-        "path" : "",
+        "path": "",
         "url": "www.bestprice.sap.com"
       }
     ],
@@ -39,11 +41,8 @@
       "docu-url": "http://help.sap.com/saphelp_nw74/en/5c",
       "odata.svc_root": "odata/"
     },
-    "moduleName": "web-server",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {
@@ -71,13 +70,15 @@
         "mta_id": "57675a73021035bde9f4f77efa07dad8"
       }
     },
+    "moduleName": "pricing",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
       "buildpacks": [
         "nodejs-test"
-      ]
+      ],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -86,7 +87,7 @@
           "name": "bestprice.sap.com"
         },
         "host": "api",
-        "path" : "",
+        "path": "",
         "url": "api.bestprice.sap.com"
       }
     ],
@@ -101,11 +102,8 @@
       "secret-key": "cd171f7c-560d-4a62-8d65-16b87419a58c",
       "url": "https://marketwatch.il/v2/"
     },
-    "moduleName": "pricing",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {
@@ -133,11 +131,13 @@
         "mta_id": "57675a73021035bde9f4f77efa07dad8"
       }
     },
+    "moduleName": "pricing-db",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -146,7 +146,7 @@
           "name": "cfapps.neo.ondemand.com"
         },
         "host": "pricing-db",
-        "path" : "",
+        "path": "",
         "url": "pricing-db.cfapps.neo.ondemand.com"
       }
     ],
@@ -157,11 +157,8 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "default-locale": "zho"
     },
-    "moduleName": "pricing-db",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {

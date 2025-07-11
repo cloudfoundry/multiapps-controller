@@ -466,6 +466,36 @@ public class CloudModelBuilderTest {
 							new Expectation("[]"),
 							new Expectation(Expectation.Type.JSON, "/mta/skip-deploy/apps-skip-deploy-false.json"),
 							DEFAULT_APP_SUFFIX_DETERMINER
+				),
+				// (48) app-features parameter with multiple features enabled/disabled
+				Arguments.of(
+						"/mta/app-features/mtad-app-features.yaml", "/mta/app-features/config-app-features.mtaext", "/mta/cf-platform.json", null, null, false,
+						new String[] { "feature-app" }, // mtaArchiveModules
+						new String[] { "feature-app" }, // mtaModules
+						new String[] {}, // deployedApps
+						new Expectation("[]"), // services
+						new Expectation(Expectation.Type.JSON, "/mta/app-features/apps-app-features.json"), // applications
+						DEFAULT_APP_SUFFIX_DETERMINER
+				),
+				// (49) app-features parameter with empty map
+				Arguments.of(
+						"/mta/app-features/mtad-app-features-empty.yaml", "/mta/app-features/config-app-features.mtaext", "/mta/cf-platform.json", null, null, false,
+						new String[] { "feature-app" }, // mtaArchiveModules
+						new String[] { "feature-app" }, // mtaModules
+						new String[] {}, // deployedApps
+						new Expectation("[]"), // services
+						new Expectation(Expectation.Type.JSON, "/mta/app-features/apps-app-features-empty.json"), // applications
+						DEFAULT_APP_SUFFIX_DETERMINER
+				),
+				// (50) app-features parameter with only one feature enabled
+				Arguments.of(
+						"/mta/app-features/mtad-app-features-single.yaml", "/mta/app-features/config-app-features.mtaext", "/mta/cf-platform.json", null, null, false,
+						new String[] { "feature-app" }, // mtaArchiveModules
+						new String[] { "feature-app" }, // mtaModules
+						new String[] {}, // deployedApps
+						new Expectation("[]"), // services
+						new Expectation(Expectation.Type.JSON, "/mta/app-features/apps-app-features-single.json"), // applications
+						DEFAULT_APP_SUFFIX_DETERMINER
 				)
             // @formatter:on
         );

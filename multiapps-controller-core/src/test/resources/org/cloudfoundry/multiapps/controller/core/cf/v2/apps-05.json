@@ -13,11 +13,13 @@
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
+    "moduleName": "module-1",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -26,7 +28,7 @@
           "name": "sofd60245639a"
         },
         "host": "module-1",
-        "path" : "",
+        "path": "",
         "url": "module-1.sofd60245639a"
       }
     ],
@@ -35,7 +37,6 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
-    "moduleName": "module-1",
     "idleRoutes": [
       {
         "appsUsingRoute": 0,
@@ -43,7 +44,7 @@
           "name": "localhost"
         },
         "host": "foo",
-        "path" : "",
+        "path": "",
         "url": "foo.localhost"
       },
       {
@@ -52,7 +53,7 @@
           "name": "localhost"
         },
         "host": "bar",
-        "path" : "",
+        "path": "",
         "url": "bar.localhost"
       }
     ],
@@ -84,11 +85,13 @@
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
+    "moduleName": "module-2",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -97,7 +100,7 @@
           "name": "sofd60245639a"
         },
         "host": "module-2",
-        "path" : "",
+        "path": "",
         "url": "module-2.sofd60245639a"
       }
     ],
@@ -106,7 +109,6 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
-    "moduleName": "module-2",
     "idleRoutes": [
       {
         "appsUsingRoute": 0,
@@ -114,7 +116,7 @@
           "name": "localhost"
         },
         "host": "baz",
-        "path" : "",
+        "path": "",
         "url": "baz.localhost"
       },
       {
@@ -123,7 +125,7 @@
           "name": "localhost"
         },
         "host": "qux",
-        "path" : "",
+        "path": "",
         "url": "qux.localhost"
       }
     ],
