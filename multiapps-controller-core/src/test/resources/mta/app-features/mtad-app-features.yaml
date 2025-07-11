@@ -1,0 +1,14 @@
+ID: app-features-test
+_schema-version: '2.1'
+version: 0.0.1
+
+modules:
+  - name: feature-app
+    type: java
+    path: .
+    parameters:
+      app-features:
+        featureA: true
+        featureB: false
+        featureC: true
+

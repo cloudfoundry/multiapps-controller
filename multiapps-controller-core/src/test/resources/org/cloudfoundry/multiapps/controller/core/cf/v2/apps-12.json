@@ -13,13 +13,15 @@
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
+    "moduleName": "foo",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
       "buildpacks": [
         "git://github.example.com/xs2-java/java-buildpack.git"
-      ]
+      ],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -37,7 +39,6 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
-    "moduleName": "foo",
     "idleRoutes": [
       {
         "appsUsingRoute": 0,

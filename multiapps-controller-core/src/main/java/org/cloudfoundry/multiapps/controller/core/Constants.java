@@ -34,6 +34,8 @@ public class Constants {
     public static final int TOKEN_SERVICE_DELETION_MAXIMUM_POOL_SIZE = 3;
     public static final int TOKEN_SERVICE_DELETION_KEEP_ALIVE_THREAD_IN_SECONDS = 30;
 
+    public static final String APP_FEATURE_SSH = "ssh";
+
     protected Constants() {
     }
 }
