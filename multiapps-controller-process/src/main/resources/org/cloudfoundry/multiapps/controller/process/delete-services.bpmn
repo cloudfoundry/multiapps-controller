@@ -16,10 +16,26 @@
     </intermediateCatchEvent>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="waitFlow"></exclusiveGateway>
     <sequenceFlow id="pollingFlow" name="Poll" sourceRef="timerintermediatecatchevent1" targetRef="deleteServiceWithPolling"></sequenceFlow>
-    <callActivity id="deleteServiceBindings" name="Delete service bindings
-" flowable:async="true" calledElement="manageAppServiceBindingSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="deleteServiceBindings" name="Delete service bindings" flowable:async="true" calledElement="manageAppServiceBindingSubProcess" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+        <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
+        <flowable:in source="processId" target="processId"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="__TASK_ID" target="__TASK_ID"></flowable:in>
+        <flowable:in source="serviceToUnbindBind" target="serviceToUnbindBind"></flowable:in>
+        <flowable:in source="userGuid" target="userGuid"></flowable:in>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="serviceBindingParameters" target="serviceBindingParameters"></flowable:in>
+        <flowable:in source="useLastOperationForServiceBindingDeletion" target="useLastOperationForServiceBindingDeletion"></flowable:in>
+        <flowable:in source="bindingName" target="bindingName"></flowable:in>
+        <flowable:in source="shouldRecreateServiceBinding" target="shouldRecreateServiceBinding"></flowable:in>
+        <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="serviceBindingToDelete" target="serviceBindingToDelete"></flowable:in>
+      </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceBindingsToDelete" flowable:elementVariable="serviceBindingToDelete">
-        <extensionElements></extensionElements>
+        <extensionElements>
+        </extensionElements>
       </multiInstanceLoopCharacteristics>
     </callActivity>
     <serviceTask id="determineServiceDeleteActionsToExecuteStep" name="Determine Service Delete Actions To Execute" flowable:async="true" default="sid-766B5EE5-3F06-4A47-86B8-5C2942CF27DD" flowable:delegateExpression="${determineServiceDeleteActionsToExecuteStep}"></serviceTask>
