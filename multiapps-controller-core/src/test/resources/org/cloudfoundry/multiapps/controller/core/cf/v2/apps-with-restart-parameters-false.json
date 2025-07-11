@@ -13,11 +13,13 @@
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
+    "moduleName": "module-1",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -26,15 +28,14 @@
           "name": "sofd60245639a"
         },
         "host": "module-1",
-        "path" : "",
-        "url":  "module-1.sofd60245639a"
+        "path": "",
+        "url": "module-1.sofd60245639a"
       }
     ],
     "services": [],
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
     },
-    "moduleName": "module-1",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
@@ -64,11 +65,13 @@
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
+    "moduleName": "module-2",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -77,7 +80,7 @@
           "name": "sofd60245639a"
         },
         "host": "module-2",
-        "path" : "",
+        "path": "",
         "url": "module-2.sofd60245639a"
       }
     ],
@@ -85,7 +88,6 @@
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
     },
-    "moduleName": "module-2",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
@@ -115,11 +117,13 @@
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
+    "moduleName": "module-3",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -128,7 +132,7 @@
           "name": "sofd60245639a"
         },
         "host": "module-3",
-        "path" : "",
+        "path": "",
         "url": "module-3.sofd60245639a"
       }
     ],
@@ -136,7 +140,6 @@
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
     },
-    "moduleName": "module-3",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],

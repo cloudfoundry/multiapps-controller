@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.DropletInfoFactory;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.HealthCheckInfo;
+import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.util.ElementUpdater.UpdateStrategy;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -39,8 +40,9 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
         var healthCheck = HealthCheckInfo.fromStaging(staging);
         var existingHealthCheck = HealthCheckInfo.fromProcess(existingProcess);
         Map<String, Boolean> appFeaturesWithOverriddenSsh = new HashMap<>(staging.getAppFeatures());
-        if (staging.isSshEnabled() != null) {
-            appFeaturesWithOverriddenSsh.put("ssh", staging.isSshEnabled());
+        if (staging.isSshEnabled() != null && !staging.getAppFeatures()
+                                                      .containsKey(Constants.APP_FEATURE_SSH)) {
+            appFeaturesWithOverriddenSsh.put(Constants.APP_FEATURE_SSH, staging.isSshEnabled());
         }
         var dropletInfo = dropletInfoFactory.createDropletInfo(staging);
         var existingDropletInfo = dropletInfoFactory.createDropletInfo(existingApp, getControllerClient());
@@ -49,11 +51,18 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
             processContext.setVariable(Variables.APP_NEEDS_RESTAGE, true);
             return true;
         }
-        return !healthCheck.equals(existingHealthCheck) || appFeaturesWithOverriddenSsh.equals(existingAppFeatures);
+        return !healthCheck.equals(existingHealthCheck) || areAppFeaturesChanged(staging.getAppFeatures(), existingAppFeatures);
     }
 
     private boolean isCommandDifferent(String newCommand) {
         return !StringUtils.isBlank(newCommand) && !Objects.equals(newCommand, existingProcess.getCommand());
+    }
+
+    private boolean areAppFeaturesChanged(Map<String, Boolean> newAppFeatures, Map<String, Boolean> existingAppFeatures) {
+        return newAppFeatures.entrySet()
+                             .stream()
+                             .anyMatch(newAppFeature -> !Objects.equals(newAppFeature.getValue(),
+                                                                        existingAppFeatures.get(newAppFeature.getKey())));
     }
 
     @Override

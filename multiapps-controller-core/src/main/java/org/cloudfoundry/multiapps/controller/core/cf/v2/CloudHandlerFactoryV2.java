@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
@@ -16,7 +17,7 @@ import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationRef
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.ParameterValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersCompatabilityValidator;
+import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersCompatibilityValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersValidator;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
@@ -26,8 +27,6 @@ import org.cloudfoundry.multiapps.mta.mergers.PlatformMerger;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.cloudfoundry.multiapps.mta.resolvers.LiveRoutesProvidedParametersResolver;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHandlerFactory {
 
@@ -55,16 +54,17 @@ public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHand
                                                                               CloudTarget cloudTarget,
                                                                               ApplicationConfiguration configuration, String namespace) {
         ParametersChainBuilder chainBuilder = new ParametersChainBuilder(deploymentDescriptor, null);
-        org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser filterParser = new org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser(cloudTarget,
-                                                                                                                                                                                           chainBuilder,
-                                                                                                                                                                                           namespace);
+        org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser filterParser = new org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser(
+            cloudTarget,
+            chainBuilder,
+            namespace);
         return new ConfigurationReferencesResolver(configurationEntryService, filterParser, cloudTarget, configuration);
     }
 
     @Override
     public ConfigurationReferencesResolver
-           getConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
-                                              CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+    getConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
+                                       CloudTarget cloudTarget, ApplicationConfiguration configuration) {
         return new ConfigurationReferencesResolver(configurationEntryService, MiscUtil.cast(filterParser), cloudTarget, configuration);
     }
 
@@ -88,9 +88,9 @@ public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHand
     }
 
     @Override
-    public DescriptorParametersCompatabilityValidator getDescriptorParametersCompatabilityValidator(DeploymentDescriptor descriptor,
+    public DescriptorParametersCompatibilityValidator getDescriptorParametersCompatibilityValidator(DeploymentDescriptor descriptor,
                                                                                                     UserMessageLogger userMessageLogger) {
-        return new DescriptorParametersCompatabilityValidator(descriptor, userMessageLogger);
+        return new DescriptorParametersCompatibilityValidator(descriptor, userMessageLogger);
     }
 
     @Override
@@ -100,9 +100,9 @@ public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHand
 
     @Override
     public ConfigurationSubscriptionFactory
-           getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
-                                               Map<String, ResolvedConfigurationReference> resolvedReferences,
-                                               Set<String> dynamicResolvableParameters) {
+    getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
+                                        Map<String, ResolvedConfigurationReference> resolvedReferences,
+                                        Set<String> dynamicResolvableParameters) {
         return new ConfigurationSubscriptionFactory(descriptor, resolvedReferences, dynamicResolvableParameters);
     }
 

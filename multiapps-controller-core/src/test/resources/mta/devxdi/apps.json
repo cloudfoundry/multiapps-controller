@@ -13,13 +13,15 @@
         "mta_id": "81530aa8411b2e488fa727eda264e137"
       }
     },
+    "moduleName": "di-core",
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
     "staging": {
       "buildpacks": [
         "git://github.example.com/xs2-java/java-buildpack.git"
-      ]
+      ],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -44,11 +46,8 @@
       "SERVICE_TO_JNDI_NAME_MAPPING": "{\"di-core-hdi\":\"jdbc/DefaultDB\"}\n",
       "TARGET_RUNTIME": "tomcat"
     },
-    "moduleName": "di-core",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {
@@ -76,13 +75,15 @@
         "mta_id": "81530aa8411b2e488fa727eda264e137"
       }
     },
+    "moduleName": "di-builder",
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
     "staging": {
       "buildpacks": [
         "http://i027947-di-core.cfapps.neo.ondemand.com/system/builderbp.git/"
-      ]
+      ],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -104,11 +105,8 @@
       "JBP_CONFIG_TOMCAT": "[tomcat: {version: 7.0.+}]",
       "TARGET_RUNTIME": "tomcat"
     },
-    "moduleName": "di-builder",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {
@@ -136,13 +134,15 @@
         "mta_id": "81530aa8411b2e488fa727eda264e137"
       }
     },
+    "moduleName": "di-runner",
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
     "staging": {
       "buildpacks": [
         "git://github.example.com/xs2-java/java-buildpack.git"
-      ]
+      ],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -165,11 +165,8 @@
       "TARGET_RUNTIME": "tomcat",
       "UI5_CONTENT_URL": "http://i027947-ui5-content.cfapps.neo.ondemand.com"
     },
-    "moduleName": "di-runner",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {

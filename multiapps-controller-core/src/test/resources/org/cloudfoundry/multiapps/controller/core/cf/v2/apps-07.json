@@ -13,11 +13,13 @@
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
+    "moduleName": "framework",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -26,7 +28,7 @@
           "name": "sofd60245639a"
         },
         "host": "framework",
-        "path" : "",
+        "path": "",
         "url": "framework.sofd60245639a"
       }
     ],
@@ -35,7 +37,6 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "plugins": "[{\"name\":\"plugins.0\",\"plugin_name\":\"plugin-0\",\"url\":\"https://localhost:52001\"},{\"name\":\"plugins.1\",\"plugin_name\":\"plugin-1\"}]"
     },
-    "moduleName": "framework",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
