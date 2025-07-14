@@ -20,7 +20,9 @@
     "staging": {
       "isSshEnabled": true,
       "buildpacks": [],
-      "appFeatures": {}
+      "appFeatures": {
+        "ssh": true
+      }
     },
     "routes": [
       {

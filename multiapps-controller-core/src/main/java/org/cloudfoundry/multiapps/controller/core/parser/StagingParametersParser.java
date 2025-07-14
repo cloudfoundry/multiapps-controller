@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.parser;
 
 import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
 import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.springframework.util.CollectionUtils;
@@ -43,6 +45,10 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         Map<String, Boolean> appFeatures = (Map<String, Boolean>) PropertiesUtil.getPropertyValue(parametersList,
                                                                                                   SupportedParameters.APP_FEATURES,
                                                                                                   Collections.emptyMap());
+        Map<String, Boolean> appFeaturesWithOverriddenSsh = new HashMap<>(appFeatures);
+        if (isSshEnabled != null && !appFeatures.containsKey(Constants.APP_FEATURE_SSH)) {
+            appFeaturesWithOverriddenSsh.put(Constants.APP_FEATURE_SSH, isSshEnabled);
+        }
         DockerInfo dockerInfo = new DockerInfoParser().parse(parametersList);
         LifecycleType lifecycleType = parseLifecycleType(parametersList);
 
@@ -57,7 +63,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                .healthCheckType(healthCheckType)
                                .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
                                .isSshEnabled(isSshEnabled)
-                               .appFeatures(appFeatures)
+                               .appFeatures(appFeaturesWithOverriddenSsh)
                                .dockerInfo(dockerInfo)
                                .lifecycleType(lifecycleType)
                                .build();

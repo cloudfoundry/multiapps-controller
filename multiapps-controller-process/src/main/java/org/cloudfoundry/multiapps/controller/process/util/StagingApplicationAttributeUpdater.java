@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -11,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.DropletInfoFactory;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.HealthCheckInfo;
-import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.util.ElementUpdater.UpdateStrategy;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -39,11 +37,6 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
         String command = staging.getCommand();
         var healthCheck = HealthCheckInfo.fromStaging(staging);
         var existingHealthCheck = HealthCheckInfo.fromProcess(existingProcess);
-        Map<String, Boolean> appFeaturesWithOverriddenSsh = new HashMap<>(staging.getAppFeatures());
-        if (staging.isSshEnabled() != null && !staging.getAppFeatures()
-                                                      .containsKey(Constants.APP_FEATURE_SSH)) {
-            appFeaturesWithOverriddenSsh.put(Constants.APP_FEATURE_SSH, staging.isSshEnabled());
-        }
         var dropletInfo = dropletInfoFactory.createDropletInfo(staging);
         var existingDropletInfo = dropletInfoFactory.createDropletInfo(existingApp, getControllerClient());
 
