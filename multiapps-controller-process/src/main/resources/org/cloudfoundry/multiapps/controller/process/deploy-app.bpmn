@@ -154,6 +154,7 @@
         <flowable:in source="userGuid" target="userGuid"></flowable:in>
         <flowable:in source="user" target="user"></flowable:in>
         <flowable:in source="shouldRecreateServiceBinding" target="shouldRecreateServiceBinding"></flowable:in>
+        <flowable:in source="serviceBindingParameters" target="serviceBindingParameters"></flowable:in>
         <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
         <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
       </extensionElements>
@@ -179,6 +180,7 @@
         <flowable:in source="userGuid" target="userGuid"></flowable:in>
         <flowable:in source="user" target="user"></flowable:in>
         <flowable:in source="shouldRecreateServiceBinding" target="shouldRecreateServiceBinding"></flowable:in>
+        <flowable:in source="serviceBindingParameters" target="serviceBindingParameters"></flowable:in>
         <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
         <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
       </extensionElements>
