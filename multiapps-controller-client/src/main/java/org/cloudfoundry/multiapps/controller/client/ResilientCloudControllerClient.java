@@ -10,10 +10,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.cloudfoundry.client.v3.Metadata;
-import org.cloudfoundry.multiapps.controller.client.util.ResilientCloudOperationExecutor;
-import org.springframework.http.HttpStatus;
-
 import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudControllerClientImpl;
@@ -44,6 +40,9 @@ import com.sap.cloudfoundry.client.facade.domain.Upload;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
 import com.sap.cloudfoundry.client.facade.dto.ApplicationToCreateDto;
 import com.sap.cloudfoundry.client.facade.rest.CloudControllerRestClient;
+import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.util.ResilientCloudOperationExecutor;
+import org.springframework.http.HttpStatus;
 
 public class ResilientCloudControllerClient implements CloudControllerClient {
 
@@ -189,6 +188,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public boolean getApplicationSshEnabled(UUID applicationGuid) {
         return executeWithRetry(() -> delegate.getApplicationSshEnabled(applicationGuid));
+    }
+
+    @Override
+    public Map<String, Boolean> getApplicationFeatures(UUID applicationGuid) {
+        return executeWithRetry(() -> delegate.getApplicationFeatures(applicationGuid));
     }
 
     @Override
@@ -400,11 +404,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     public CloudPackage asyncUploadApplicationWithExponentialBackoff(String applicationName, Path file, UploadStatusCallback callback,
                                                                      Duration overrideTimeout) {
         if (overrideTimeout != null) {
-            return executeWithRetry(() -> delegate.asyncUploadApplicationWithExponentialBackoff(applicationName, file, callback,
-                                                                                                overrideTimeout));
+            return executeWithRetry(
+                () -> delegate.asyncUploadApplicationWithExponentialBackoff(applicationName, file, callback, overrideTimeout));
         }
-        return executeWithExponentialBackoff(timeout -> delegate.asyncUploadApplicationWithExponentialBackoff(applicationName, file,
-                                                                                                              callback, timeout));
+        return executeWithExponentialBackoff(
+            timeout -> delegate.asyncUploadApplicationWithExponentialBackoff(applicationName, file, callback, timeout));
     }
 
     @Override
@@ -550,8 +554,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName,
                                                   ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
-        return executeWithRetry(() -> delegate.unbindServiceInstance(applicationName, serviceInstanceName,
-                                                                     applicationServicesUpdateCallback));
+        return executeWithRetry(
+            () -> delegate.unbindServiceInstance(applicationName, serviceInstanceName, applicationServicesUpdateCallback));
     }
 
     @Override

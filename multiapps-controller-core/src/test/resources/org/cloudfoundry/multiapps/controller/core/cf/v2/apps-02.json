@@ -13,11 +13,13 @@
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
+    "moduleName": "module-1",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -26,7 +28,7 @@
           "name": "sofd60245639a"
         },
         "host": "test-host",
-        "path" : "/test",
+        "path": "/test",
         "url": "test-host.sofd60245639a/test"
       }
     ],
@@ -35,7 +37,6 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
-    "moduleName": "module-1",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],
@@ -65,11 +66,13 @@
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
+    "moduleName": "module-2",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -87,7 +90,6 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
-    "moduleName": "module-2",
     "idleRoutes": [],
     "bindingParameters": {},
     "tasks": [],

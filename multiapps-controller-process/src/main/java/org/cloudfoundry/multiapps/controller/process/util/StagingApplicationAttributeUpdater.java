@@ -1,18 +1,18 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import java.util.Map;
 import java.util.Objects;
-
-import org.apache.commons.lang3.StringUtils;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.DropletInfoFactory;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.HealthCheckInfo;
-import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
-import org.cloudfoundry.multiapps.controller.process.util.ElementUpdater.UpdateStrategy;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudProcess;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
+import org.apache.commons.lang3.StringUtils;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.DropletInfoFactory;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.HealthCheckInfo;
+import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
+import org.cloudfoundry.multiapps.controller.process.util.ElementUpdater.UpdateStrategy;
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
 public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 
@@ -29,15 +29,14 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
     @Override
     protected boolean shouldUpdateAttribute(CloudApplication existingApplication, CloudApplicationExtended application) {
         Staging staging = application.getStaging();
-        boolean isSshEnabled = getControllerClient().getApplicationSshEnabled(existingApplication.getGuid());
-        return hasStagingChanged(staging, existingApplication, isSshEnabled);
+        Map<String, Boolean> appFeatures = getControllerClient().getApplicationFeatures(existingApplication.getGuid());
+        return hasStagingChanged(staging, existingApplication, appFeatures);
     }
 
-    private boolean hasStagingChanged(Staging staging, CloudApplication existingApp, boolean existingSshEnabled) {
+    private boolean hasStagingChanged(Staging staging, CloudApplication existingApp, Map<String, Boolean> existingAppFeatures) {
         String command = staging.getCommand();
         var healthCheck = HealthCheckInfo.fromStaging(staging);
         var existingHealthCheck = HealthCheckInfo.fromProcess(existingProcess);
-        boolean sshEnabled = staging.isSshEnabled() != null && staging.isSshEnabled();
         var dropletInfo = dropletInfoFactory.createDropletInfo(staging);
         var existingDropletInfo = dropletInfoFactory.createDropletInfo(existingApp, getControllerClient());
 
@@ -45,11 +44,18 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
             processContext.setVariable(Variables.APP_NEEDS_RESTAGE, true);
             return true;
         }
-        return !healthCheck.equals(existingHealthCheck) || sshEnabled != existingSshEnabled;
+        return !healthCheck.equals(existingHealthCheck) || isAppFeaturesChanged(staging.getAppFeatures(), existingAppFeatures);
     }
 
     private boolean isCommandDifferent(String newCommand) {
         return !StringUtils.isBlank(newCommand) && !Objects.equals(newCommand, existingProcess.getCommand());
+    }
+
+    private boolean isAppFeaturesChanged(Map<String, Boolean> newAppFeatures, Map<String, Boolean> existingAppFeatures) {
+        return newAppFeatures.entrySet()
+                             .stream()
+                             .anyMatch(newAppFeature -> !Objects.equals(newAppFeature.getValue(),
+                                                                        existingAppFeatures.get(newAppFeature.getKey())));
     }
 
     @Override

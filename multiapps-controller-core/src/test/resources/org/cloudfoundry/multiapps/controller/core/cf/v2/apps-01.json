@@ -13,11 +13,13 @@
         "mta_id": "157ed173764cbd03d45546cc8d70248f"
       }
     },
+    "moduleName": "foo",
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -34,7 +36,6 @@
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
     },
-    "moduleName": "foo",
     "idleRoutes": [],
     "bindingParameters": {
       "bar": {
