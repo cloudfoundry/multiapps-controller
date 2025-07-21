@@ -78,40 +78,42 @@
     <sequenceFlow id="doNotExecuteOneOffTasksFlow" sourceRef="shouldExecuteTasks" targetRef="shouldUpdateConfigurations">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(not executeOneOffTasks)}]]></conditionExpression>
     </sequenceFlow>
-    <callActivity id="executeTasksCallActivity" name="Execute Tasks Call Activity" flowable:async="true" calledElement="executeTasksSubProcess" flowable:calledElementType="key"  flowable:fallbackToDefaultTenant="false">
+    <callActivity id="executeTasksCallActivity" name="Execute Tasks Call Activity" flowable:async="true" calledElement="executeTasksSubProcess" flowable:calledElementType="key" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
-          <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
-          <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
-          <flowable:in source="tasksIndex" target="tasksIndex"></flowable:in>
-          <flowable:in source="user" target="user"></flowable:in>
-          <flowable:in source="userGuid" target="userGuid"></flowable:in>
-          <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
-          <flowable:in source="correlationId" target="correlationId"></flowable:in>
-          <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
-          <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
-          <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
-          <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
-          <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
+        <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
+        <flowable:in source="tasksIndex" target="tasksIndex"></flowable:in>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="userGuid" target="userGuid"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
+        <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+        <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
+        <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
+        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
       </extensionElements>
     </callActivity>
     <sequenceFlow id="sid-26C87D1E-88D5-47E3-907B-0F8EBBCD2C36" sourceRef="executeTasksCallActivity" targetRef="publishProvidedDependenciesTask"></sequenceFlow>
-    <callActivity id="hooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="hooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
-          <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
-          <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
-          <flowable:in source="tasksIndex" target="tasksIndex"></flowable:in>
-          <flowable:in source="user" target="user"></flowable:in>
-          <flowable:in source="userGuid" target="userGuid"></flowable:in>
-          <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
-          <flowable:in source="correlationId" target="correlationId"></flowable:in>
-          <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
-          <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
-          <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
-          <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
-          <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
-          <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
+        <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
+        <flowable:in source="tasksIndex" target="tasksIndex"></flowable:in>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="userGuid" target="userGuid"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
+        <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
+        <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+        <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
+        <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
+        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
       </extensionElements>
-      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution">
+        <extensionElements></extensionElements>
+      </multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="sid-4433C2BB-6626-4F02-8061-F70191657A5A" sourceRef="hooksCallActivity" targetRef="sid-70329A91-339F-4215-9AB6-41ED6C769C40"></sequenceFlow>
     <sequenceFlow id="sid-ADE65EC6-6976-42C4-9D50-5A08086D1533" sourceRef="startEvent" targetRef="reprocessDescriptorTask"></sequenceFlow>
@@ -120,23 +122,25 @@
     <sequenceFlow id="sid-74CBBBDE-B4B8-451B-8193-8B1A08835E23" sourceRef="publishProvidedDependenciesTask" targetRef="shouldDeleteIdleRoutes"></sequenceFlow>
     <sequenceFlow id="flow90" sourceRef="exclusivegateway6" targetRef="timerintermediatecatchevent3"></sequenceFlow>
     <sequenceFlow id="sid-EDE0C6AF-FE13-4120-94B8-406BFCE8A407" sourceRef="stopAppTask" targetRef="hooksCallActivity"></sequenceFlow>
-    <callActivity id="sid-F6B2FD75-29A0-4347-B49F-94B4CD7C1469" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="sid-F6B2FD75-29A0-4347-B49F-94B4CD7C1469" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
-          <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
-          <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
-          <flowable:in source="tasksIndex" target="tasksIndex"></flowable:in>
-          <flowable:in source="user" target="user"></flowable:in>
-          <flowable:in source="userGuid" target="userGuid"></flowable:in>
-          <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
-          <flowable:in source="correlationId" target="correlationId"></flowable:in>
-          <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
-          <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
-          <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
-          <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
-          <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
-          <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
+        <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
+        <flowable:in source="tasksIndex" target="tasksIndex"></flowable:in>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="userGuid" target="userGuid"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
+        <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
+        <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+        <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
+        <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
+        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
       </extensionElements>
-      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution">
+        <extensionElements></extensionElements>
+      </multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow84" sourceRef="timerintermediatecatchevent1" targetRef="startAppTask"></sequenceFlow>
     <sequenceFlow id="sid-6C61C071-998D-48F2-8DB8-6CDD50E04F18" sourceRef="sid-F6B2FD75-29A0-4347-B49F-94B4CD7C1469" targetRef="exclusivegateway4"></sequenceFlow>
@@ -229,12 +233,6 @@
     <sequenceFlow id="doNotStartAppFlow" sourceRef="shouldStartAppGateway" targetRef="sid-C61B3551-0521-40FD-AB98-CEBA5640296E"></sequenceFlow>
     <sequenceFlow id="sid-4C005E01-CE2F-4518-BD81-EE45FB72315A" sourceRef="sid-C61B3551-0521-40FD-AB98-CEBA5640296E" targetRef="shouldExecuteTasks"></sequenceFlow>
     <serviceTask id="sid-34CA5298-C387-45CF-81D8-E1BA40D64477" name="Incremental app instances update" flowable:async="true" flowable:delegateExpression="${incrementalAppInstancesUpdateStep}"></serviceTask>
-    <sequenceFlow id="startAppFlow" sourceRef="shouldStartAppGateway" targetRef="startAppTask">
-      <extensionElements>
-        <flowable:executionListener event="take" delegateExpression="${setBeforeApplicationStartPhase}"></flowable:executionListener>
-      </extensionElements>
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('START') && startApps == true}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="sid-9889CF55-F8D7-441F-B614-4DC6AE18B03D" sourceRef="sid-C61B3551-0521-40FD-AB98-CEBA5640296E" targetRef="sid-34CA5298-C387-45CF-81D8-E1BA40D64477">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('GRADUAL_INSTANCE_UPDATE')}]]></conditionExpression>
     </sequenceFlow>
@@ -252,6 +250,12 @@
     <sequenceFlow id="sid-3C1380EB-6915-4403-9B58-BE8ED5F112FA" sourceRef="sid-EA98EE77-79E9-49A7-A288-0778EF58913A" targetRef="sid-BEA1C560-41D3-44F1-9600-8BCCAC9D53A4"></sequenceFlow>
     <sequenceFlow id="sid-D9DE1B9A-CC6E-4501-800E-6421C0556B12" sourceRef="sid-EA98EE77-79E9-49A7-A288-0778EF58913A" targetRef="shouldExecuteTasks">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="startAppFlow" sourceRef="shouldStartAppGateway" targetRef="startAppTask">
+      <extensionElements>
+        <flowable:executionListener event="take" delegateExpression="${setBeforeApplicationStartPhase}"></flowable:executionListener>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('START') && (startApps == true || appStateActionsToExecute.contains('EXECUTE'))}]]></conditionExpression>
     </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_deployAppSubProcess">
@@ -398,7 +402,7 @@
         <omgdi:waypoint x="1349.0" y="1314.9431490384616"></omgdi:waypoint>
         <omgdi:waypoint x="1349.0" y="1426.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="appUploadedFlow" id="BPMNEdge_appUploadedFlow" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="20.0" flowable:targetDockerY="3.6229066203292746">
+      <bpmndi:BPMNEdge bpmnElement="appUploadedFlow" id="BPMNEdge_appUploadedFlow" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
         <omgdi:waypoint x="1239.9334026622296" y="159.0"></omgdi:waypoint>
         <omgdi:waypoint x="1280.0" y="159.0"></omgdi:waypoint>
         <omgdi:waypoint x="1280.0" y="349.5"></omgdi:waypoint>
@@ -431,18 +435,18 @@
         <omgdi:waypoint x="699.9499999999999" y="159.3399339933993"></omgdi:waypoint>
         <omgdi:waypoint x="749.9999999999998" y="158.6792079207921"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-D72FF628-15C4-4416-B340-7730CA2A182D" id="BPMNEdge_sid-D72FF628-15C4-4416-B340-7730CA2A182D" flowable:sourceDockerX="16.0" flowable:sourceDockerY="15.999999999999943" flowable:targetDockerX="52.5" flowable:targetDockerY="27.5">
-        <omgdi:waypoint x="528.499996232187" y="1211.0"></omgdi:waypoint>
-        <omgdi:waypoint x="292.5" y="1211.0"></omgdi:waypoint>
-        <omgdi:waypoint x="292.5" y="1172.45"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-D72FF628-15C4-4416-B340-7730CA2A182D" id="BPMNEdge_sid-D72FF628-15C4-4416-B340-7730CA2A182D" flowable:sourceDockerX="15.5" flowable:sourceDockerY="15.5" flowable:targetDockerX="52.5" flowable:targetDockerY="27.5">
+        <omgdi:waypoint x="528.5000271969147" y="1210.530654741487"></omgdi:waypoint>
+        <omgdi:waypoint x="292.0" y="1211.0"></omgdi:waypoint>
+        <omgdi:waypoint x="292.2916666666667" y="1172.45"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-8137E681-6544-4DCB-B3C1-75DC7078B09F" id="BPMNEdge_sid-8137E681-6544-4DCB-B3C1-75DC7078B09F" flowable:sourceDockerX="52.5" flowable:sourceDockerY="27.5" flowable:targetDockerX="20.5" flowable:targetDockerY="20.5">
-        <omgdi:waypoint x="344.94999999992433" y="1145.1040674603173"></omgdi:waypoint>
-        <omgdi:waypoint x="524.4602385685866" y="1145.4602385685885"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-8137E681-6544-4DCB-B3C1-75DC7078B09F" id="BPMNEdge_sid-8137E681-6544-4DCB-B3C1-75DC7078B09F" flowable:sourceDockerX="52.5" flowable:sourceDockerY="27.5" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
+        <omgdi:waypoint x="344.94999999915143" y="1145.0"></omgdi:waypoint>
+        <omgdi:waypoint x="524.0" y="1145.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-9889CF55-F8D7-441F-B614-4DC6AE18B03D" id="BPMNEdge_sid-9889CF55-F8D7-441F-B614-4DC6AE18B03D" flowable:sourceDockerX="20.5" flowable:sourceDockerY="20.5" flowable:targetDockerX="52.5" flowable:targetDockerY="27.5">
-        <omgdi:waypoint x="159.50625000000008" y="1145.4372937293729"></omgdi:waypoint>
-        <omgdi:waypoint x="240.0" y="1145.1725328947368"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-9889CF55-F8D7-441F-B614-4DC6AE18B03D" id="BPMNEdge_sid-9889CF55-F8D7-441F-B614-4DC6AE18B03D" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="52.5" flowable:targetDockerY="27.5">
+        <omgdi:waypoint x="159.9434633024802" y="1145.0"></omgdi:waypoint>
+        <omgdi:waypoint x="240.0" y="1145.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="deleteIdleRoutesFlow" id="BPMNEdge_deleteIdleRoutesFlow" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="49.5" flowable:targetDockerY="26.5">
         <omgdi:waypoint x="926.0" y="1420.5"></omgdi:waypoint>
@@ -465,16 +469,16 @@
         <omgdi:waypoint x="347.94999999998214" y="671.2558139534884"></omgdi:waypoint>
         <omgdi:waypoint x="383.09259259258897" y="671.0923611111111"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow82" id="BPMNEdge_flow82" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="20.5" flowable:targetDockerY="20.5">
+      <bpmndi:BPMNEdge bpmnElement="flow82" id="BPMNEdge_flow82" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
         <omgdi:waypoint x="1025.0" y="139.0"></omgdi:waypoint>
         <omgdi:waypoint x="1025.0" y="52.0"></omgdi:waypoint>
         <omgdi:waypoint x="1339.0" y="52.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1339.0" y="369.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1299.5790587219344" y="369.8362068965517"></omgdi:waypoint>
+        <omgdi:waypoint x="1339.0" y="369.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1299.7823529411653" y="369.33193277310926"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-8A62A0A4-B171-49A2-9EFC-C1563CC2C797" id="BPMNEdge_sid-8A62A0A4-B171-49A2-9EFC-C1563CC2C797" flowable:sourceDockerX="20.5" flowable:sourceDockerY="20.5" flowable:targetDockerX="52.5" flowable:targetDockerY="34.0">
-        <omgdi:waypoint x="1260.4518072289156" y="369.9518072289157"></omgdi:waypoint>
-        <omgdi:waypoint x="1124.9499999999819" y="369.6260817307692"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-8A62A0A4-B171-49A2-9EFC-C1563CC2C797" id="BPMNEdge_sid-8A62A0A4-B171-49A2-9EFC-C1563CC2C797" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="52.5" flowable:targetDockerY="34.0">
+        <omgdi:waypoint x="1260.0" y="369.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1124.9499999999996" y="369.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow84" id="BPMNEdge_flow84" flowable:sourceDockerX="15.5" flowable:sourceDockerY="15.5" flowable:targetDockerX="52.5" flowable:targetDockerY="27.5">
         <omgdi:waypoint x="754.5000070136338" y="1005.4834401802698"></omgdi:waypoint>
@@ -485,12 +489,12 @@
         <omgdi:waypoint x="162.8783311560947" y="491.0651960784314"></omgdi:waypoint>
         <omgdi:waypoint x="242.99999999999676" y="491.32786885245906"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="appExecutedFlow" id="BPMNEdge_appExecutedFlow" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="21.0" flowable:targetDockerY="2.1640625">
+      <bpmndi:BPMNEdge bpmnElement="appExecutedFlow" id="BPMNEdge_appExecutedFlow" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
         <omgdi:waypoint x="789.9166944908183" y="898.4666110183643"></omgdi:waypoint>
         <omgdi:waypoint x="1069.0" y="898.0"></omgdi:waypoint>
         <omgdi:waypoint x="1069.0" y="1051.0"></omgdi:waypoint>
         <omgdi:waypoint x="141.0" y="1051.0"></omgdi:waypoint>
-        <omgdi:waypoint x="141.0" y="1126.0"></omgdi:waypoint>
+        <omgdi:waypoint x="140.21" y="1125.2105263157894"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35" flowable:sourceDockerX="61.0" flowable:sourceDockerY="34.5" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
         <omgdi:waypoint x="662.0" y="369.447504302926"></omgdi:waypoint>
@@ -503,9 +507,9 @@
         <omgdi:waypoint x="926.0" y="263.0"></omgdi:waypoint>
         <omgdi:waypoint x="1015.2463054187192" y="169.2206896551724"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-3C1380EB-6915-4403-9B58-BE8ED5F112FA" id="BPMNEdge_sid-3C1380EB-6915-4403-9B58-BE8ED5F112FA" flowable:sourceDockerX="20.5" flowable:sourceDockerY="20.5" flowable:targetDockerX="15.5" flowable:targetDockerY="15.5">
-        <omgdi:waypoint x="544.3527131782946" y="1164.582004643963"></omgdi:waypoint>
-        <omgdi:waypoint x="544.1188427095886" y="1195.0004492772944"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-3C1380EB-6915-4403-9B58-BE8ED5F112FA" id="BPMNEdge_sid-3C1380EB-6915-4403-9B58-BE8ED5F112FA" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="15.5" flowable:targetDockerY="15.5">
+        <omgdi:waypoint x="544.0" y="1164.9347942073173"></omgdi:waypoint>
+        <omgdi:waypoint x="544.0" y="1195.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-5F42B243-1FEF-465A-A68B-BA1A0B1A3150" id="BPMNEdge_sid-5F42B243-1FEF-465A-A68B-BA1A0B1A3150" flowable:sourceDockerX="15.5" flowable:sourceDockerY="15.5" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
         <omgdi:waypoint x="1333.500078495304" y="1210.550490085177"></omgdi:waypoint>
@@ -520,9 +524,9 @@
         <omgdi:waypoint x="44.949997316309634" y="159.0"></omgdi:waypoint>
         <omgdi:waypoint x="60.0" y="159.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-4C005E01-CE2F-4518-BD81-EE45FB72315A" id="BPMNEdge_sid-4C005E01-CE2F-4518-BD81-EE45FB72315A" flowable:sourceDockerX="20.5" flowable:sourceDockerY="20.5" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
-        <omgdi:waypoint x="140.43770491803275" y="1164.505881389253"></omgdi:waypoint>
-        <omgdi:waypoint x="140.06498371335505" y="1278.5651465798046"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-4C005E01-CE2F-4518-BD81-EE45FB72315A" id="BPMNEdge_sid-4C005E01-CE2F-4518-BD81-EE45FB72315A" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
+        <omgdi:waypoint x="140.0" y="1164.943505859375"></omgdi:waypoint>
+        <omgdi:waypoint x="140.0" y="1278.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-2F9781E6-3AAA-4874-849F-9D2A04C7712F" id="BPMNEdge_sid-2F9781E6-3AAA-4874-849F-9D2A04C7712F" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
         <omgdi:waypoint x="519.9466926392415" y="50.5"></omgdi:waypoint>
@@ -536,9 +540,9 @@
         <omgdi:waypoint x="354.94999999995395" y="898.3878205128207"></omgdi:waypoint>
         <omgdi:waypoint x="479.9999999999849" y="898.1206196581198"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-D9DE1B9A-CC6E-4501-800E-6421C0556B12" id="BPMNEdge_sid-D9DE1B9A-CC6E-4501-800E-6421C0556B12" flowable:sourceDockerX="20.5" flowable:sourceDockerY="20.5" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
-        <omgdi:waypoint x="563.4443466585674" y="1145.5"></omgdi:waypoint>
-        <omgdi:waypoint x="712.0" y="1145.5"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-D9DE1B9A-CC6E-4501-800E-6421C0556B12" id="BPMNEdge_sid-D9DE1B9A-CC6E-4501-800E-6421C0556B12" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
+        <omgdi:waypoint x="563.9440660321235" y="1145.0"></omgdi:waypoint>
+        <omgdi:waypoint x="712.0" y="1145.0"></omgdi:waypoint>
         <omgdi:waypoint x="712.0" y="1252.0"></omgdi:waypoint>
         <omgdi:waypoint x="175.0" y="1252.0"></omgdi:waypoint>
         <omgdi:waypoint x="148.56748466257656" y="1287.0889570552147"></omgdi:waypoint>
@@ -636,9 +640,9 @@
         <omgdi:waypoint x="402.53846153846155" y="690.4896153846153"></omgdi:waypoint>
         <omgdi:waypoint x="401.8648608004792" y="719.0042397921873"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-A036CF57-E1E6-4994-85F4-733250CDC074" id="BPMNEdge_sid-A036CF57-E1E6-4994-85F4-733250CDC074" flowable:sourceDockerX="20.5" flowable:sourceDockerY="20.5" flowable:targetDockerX="61.0" flowable:targetDockerY="34.5">
-        <omgdi:waypoint x="1280.5" y="388.9370383036936"></omgdi:waypoint>
-        <omgdi:waypoint x="1280.5" y="443.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-A036CF57-E1E6-4994-85F4-733250CDC074" id="BPMNEdge_sid-A036CF57-E1E6-4994-85F4-733250CDC074" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="61.0" flowable:targetDockerY="34.5">
+        <omgdi:waypoint x="1280.0" y="389.4364470108696"></omgdi:waypoint>
+        <omgdi:waypoint x="1280.0" y="443.0"></omgdi:waypoint>
         <omgdi:waypoint x="723.0" y="443.0"></omgdi:waypoint>
         <omgdi:waypoint x="723.0" y="403.95000000000005"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
@@ -669,11 +673,11 @@
         <omgdi:waypoint x="1215.943484650324" y="1440.5"></omgdi:waypoint>
         <omgdi:waypoint x="1335.0" y="1440.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="doNotStartAppFlow" id="BPMNEdge_doNotStartAppFlow" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="21.0" flowable:targetDockerY="3.78125">
+      <bpmndi:BPMNEdge bpmnElement="doNotStartAppFlow" id="BPMNEdge_doNotStartAppFlow" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
         <omgdi:waypoint x="143.0" y="917.9401335311574"></omgdi:waypoint>
         <omgdi:waypoint x="143.0" y="999.0"></omgdi:waypoint>
         <omgdi:waypoint x="141.0" y="999.0"></omgdi:waypoint>
-        <omgdi:waypoint x="141.0" y="1126.0"></omgdi:waypoint>
+        <omgdi:waypoint x="140.1357142857143" y="1125.1360544217687"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="uploadAppContentFlow" id="BPMNEdge_uploadAppContentFlow" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="52.5" flowable:targetDockerY="28.0">
         <omgdi:waypoint x="1044.94072955389" y="159.0"></omgdi:waypoint>
