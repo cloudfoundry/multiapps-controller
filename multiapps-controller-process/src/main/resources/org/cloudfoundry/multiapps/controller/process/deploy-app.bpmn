@@ -150,7 +150,12 @@
         <flowable:in source="__TASK_ID" target="__TASK_ID"></flowable:in>
         <flowable:in source="serviceToUnbindBind" target="serviceToUnbindBind"></flowable:in>
         <flowable:in source="serviceBindingToDelete" target="serviceBindingToDelete"></flowable:in>
-        <flowable:in source="serviceToUnbindBind" target="serviceToUnbindBind"></flowable:in>
+        <flowable:in source="servicesToUnbindBind" target="servicesToUnbindBind"></flowable:in>
+        <flowable:in source="useLastOperationForServiceBindingDeletion" target="useLastOperationForServiceBindingDeletion"></flowable:in>
+        <flowable:in source="mtaArchiveElements" target="mtaArchiveElements"></flowable:in>
+        <flowable:in source="appArchiveId" target="appArchiveId"></flowable:in>
+        <flowable:in source="archiveEntriesPositions" target="archiveEntriesPositions"></flowable:in>
+        <flowable:in source="bindingName" target="bindingName"></flowable:in>
         <flowable:in source="userGuid" target="userGuid"></flowable:in>
         <flowable:in source="user" target="user"></flowable:in>
         <flowable:in source="shouldRecreateServiceBinding" target="shouldRecreateServiceBinding"></flowable:in>
@@ -176,7 +181,13 @@
         <flowable:in source="correlationId" target="correlationId"></flowable:in>
         <flowable:in source="__TASK_ID" target="__TASK_ID"></flowable:in>
         <flowable:in source="serviceToUnbindBind" target="serviceToUnbindBind"></flowable:in>
+        <flowable:in source="servicesToUnbindBind" target="servicesToUnbindBind"></flowable:in>
+        <flowable:in source="bindingName" target="bindingName"></flowable:in>
+        <flowable:in source="useLastOperationForServiceBindingDeletion" target="useLastOperationForServiceBindingDeletion"></flowable:in>
         <flowable:in source="serviceBindingToDelete" target="serviceBindingToDelete"></flowable:in>
+        <flowable:in source="appArchiveId" target="appArchiveId"></flowable:in>
+        <flowable:in source="archiveEntriesPositions" target="archiveEntriesPositions"></flowable:in>
+        <flowable:in source="mtaArchiveElements" target="mtaArchiveElements"></flowable:in>
         <flowable:in source="userGuid" target="userGuid"></flowable:in>
         <flowable:in source="user" target="user"></flowable:in>
         <flowable:in source="shouldRecreateServiceBinding" target="shouldRecreateServiceBinding"></flowable:in>
