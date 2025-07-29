@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -129,12 +130,26 @@ public class ExtractBatchedServicesWithResolvedDynamicParametersStep extends Syn
                                                                              .map(CloudEntity::getName)
                                                                              .toList();
 
-        Set<String> resolvedServiceInstancesNamesWithoutDuplicates = resolvedServiceInstancesNames.stream()
-                                                                                                  .collect(Collectors.toSet());
-        if (resolvedServiceInstancesNames.size() != resolvedServiceInstancesNamesWithoutDuplicates.size()) {
+        List<String> duplicatedNames = getDuplicatedNames(resolvedServiceInstancesNames);
+        if (!duplicatedNames.isEmpty()) {
             getStepLogger().warn(
-                Messages.ONLY_FIRST_SERVICE_WILL_BE_CREATED);
+                Messages.ONLY_FIRST_SERVICE_WILL_BE_CREATED, String.join(" ", duplicatedNames));
         }
+    }
+
+    private List<String> getDuplicatedNames(List<String> resolvedServiceInstancesNames) {
+        List<String> duplicatedNames = new ArrayList<>();
+        Map<String, Integer> frequencyOfNamesMap = new HashMap<>();
+        for (String name : resolvedServiceInstancesNames) {
+            frequencyOfNamesMap.merge(name, 1, Integer::sum);
+        }
+
+        for (String name : frequencyOfNamesMap.keySet()) {
+            if (frequencyOfNamesMap.get(name) > 1) {
+                duplicatedNames.add(name);
+            }
+        }
+        return duplicatedNames;
     }
 
 }

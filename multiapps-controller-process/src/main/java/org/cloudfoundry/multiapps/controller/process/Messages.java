@@ -267,7 +267,7 @@ public class Messages {
     public static final String SERVICE_INSTANCE_0_PLAN_UPDATE_FAILED_IGNORING_FAILURE = "Service instance: \"{0}\" plan update failed, ignoring failure...";
     public static final String SERVICE_INSTANCE_0_PARAMETERS_UPDATE_FAILED_IGNORING_FAILURE = "Service instance: \"{0}\" parameters update failed, ignoring failure...";
     public static final String SERVICE_INSTANCE_0_TAGS_UPDATE_FAILED_IGNORING_FAILURE = "Service instance: \"{0}\" tags update failed, ignoring failure...";
-    public static final String ONLY_FIRST_SERVICE_WILL_BE_CREATED = "[WARNING] Only the first service will be created because provided 'service-name' fields are duplicated! All other services with the same 'service-name' will be ignored!";
+    public static final String ONLY_FIRST_SERVICE_WILL_BE_CREATED = "Only the first service will be created because the provided 'service-name' fields are duplicated! All other services with the same 'service-name' will be ignored! Duplicated names: {0}";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
