@@ -133,7 +133,7 @@ public class ExtractBatchedServicesWithResolvedDynamicParametersStep extends Syn
         List<String> duplicatedNames = getDuplicatedNames(resolvedServiceInstancesNames);
         if (!duplicatedNames.isEmpty()) {
             getStepLogger().warn(
-                Messages.ONLY_FIRST_SERVICE_WILL_BE_CREATED + String.join(" ", duplicatedNames));
+                Messages.ONLY_FIRST_SERVICE_WILL_BE_CREATED, String.join(" ", duplicatedNames));
         }
     }
 
@@ -141,7 +141,7 @@ public class ExtractBatchedServicesWithResolvedDynamicParametersStep extends Syn
         List<String> duplicatedNames = new ArrayList<>();
         Map<String, Integer> frequencyOfNamesMap = new HashMap<>();
         for (String name : resolvedServiceInstancesNames) {
-            frequencyOfNamesMap.put(name, frequencyOfNamesMap.getOrDefault(name, 0) + 1);
+            frequencyOfNamesMap.merge(name, 1, Integer::sum);
         }
 
         for (String name : frequencyOfNamesMap.keySet()) {
