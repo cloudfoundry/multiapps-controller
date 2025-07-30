@@ -147,7 +147,7 @@ class ExtractBatchedServicesWithResolvedDynamicParametersStepTest
         assertStepFinishedSuccessfully();
         if (expectedWarning) {
             Mockito.verify(stepLogger, Mockito.times(1))
-                   .warn(Messages.ONLY_FIRST_SERVICE_WILL_BE_CREATED, SERVICE_NAME_1);
+                   .warn(Messages.ONLY_FIRST_SERVICE_WILL_BE_CREATED + SERVICE_NAME_1);
         }
 
         List<String> expectedServiceNames = expectedServicesToCreate.stream()
