@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser;
@@ -25,8 +26,6 @@ import org.cloudfoundry.multiapps.mta.mergers.PlatformMerger;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.cloudfoundry.multiapps.mta.resolvers.LiveRoutesProvidedParametersResolver;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 public class CloudHandlerFactoryV3 extends HandlerFactoryV3 implements CloudHandlerFactory {
 
@@ -59,9 +58,10 @@ public class CloudHandlerFactoryV3 extends HandlerFactoryV3 implements CloudHand
     }
 
     @Override
-    public ConfigurationReferencesResolver
-           getConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
-                                              CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+    public ConfigurationReferencesResolver getConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService,
+                                                                              ConfigurationFilterParser filterParser,
+                                                                              CloudTarget cloudTarget,
+                                                                              ApplicationConfiguration configuration) {
         return new ConfigurationReferencesResolver(configurationEntryService, filterParser, cloudTarget, configuration);
     }
 
@@ -96,10 +96,9 @@ public class CloudHandlerFactoryV3 extends HandlerFactoryV3 implements CloudHand
     }
 
     @Override
-    public ConfigurationSubscriptionFactory
-           getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
-                                               Map<String, ResolvedConfigurationReference> resolvedReferences,
-                                               Set<String> dynamicResolvableParameters) {
+    public ConfigurationSubscriptionFactory getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
+                                                                                Map<String, ResolvedConfigurationReference> resolvedReferences,
+                                                                                Set<String> dynamicResolvableParameters) {
         return new ConfigurationSubscriptionFactory(descriptor, resolvedReferences, dynamicResolvableParameters);
     }
 

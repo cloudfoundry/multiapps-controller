@@ -1,14 +1,20 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceCredentialBindingOperation;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
+
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableServiceCredentialBindingOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableBindingDetails;
@@ -26,12 +32,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -52,11 +52,14 @@ class ServiceBindingParametersGetterTest {
     private static final ArchiveEntryWithStreamPositions ARCHIVE_ENTRY_WITH_STREAM_POSITIONS = ImmutableArchiveEntryWithStreamPositions.builder()
                                                                                                                                        .name(
                                                                                                                                            SERVICE_BINDING_PARAMETERS_FILENAME)
-                                                                                                                                       .startPosition(37)
-                                                                                                                                       .endPosition(5012)
+                                                                                                                                       .startPosition(
+                                                                                                                                           37)
+                                                                                                                                       .endPosition(
+                                                                                                                                           5012)
                                                                                                                                        .compressionMethod(
                                                                                                                                            ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
-                                                                                                                                       .isDirectory(false)
+                                                                                                                                       .isDirectory(
+                                                                                                                                           false)
                                                                                                                                        .build();
     private static final String TEST_SPACE_GUID = "test_space_guid";
 
@@ -104,7 +107,8 @@ class ServiceBindingParametersGetterTest {
         prepareMtaArchiveElements(expectedParameters);
         prepareContext(serviceInstance);
         prepareFileService(expectedParameters);
-        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromMta(application, SERVICE_NAME);
+        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromMta(application,
+                                                                                                                  SERVICE_NAME);
 
         assertEquals(expectedParameters, bindingParameters);
     }
@@ -114,7 +118,8 @@ class ServiceBindingParametersGetterTest {
         CloudApplicationExtended application = buildApplication(null);
         when(context.getVariable(Variables.SERVICES_TO_BIND)).thenReturn(Collections.emptyList());
 
-        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromMta(application, SERVICE_NAME);
+        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromMta(application,
+                                                                                                                  SERVICE_NAME);
 
         assertTrue(bindingParameters.isEmpty(), "Binding parameters should be empty map");
     }
@@ -127,7 +132,8 @@ class ServiceBindingParametersGetterTest {
         prepareContext(serviceInstance);
         prepareClient(bindingParametersToReturn, true);
 
-        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application, SERVICE_NAME);
+        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application,
+                                                                                                                               SERVICE_NAME);
 
         assertEquals(bindingParametersToReturn, bindingParameters);
     }
@@ -144,8 +150,8 @@ class ServiceBindingParametersGetterTest {
     }
 
     static Stream<Arguments> testHandleCloudOperationExceptions() {
-        return Stream.of(Arguments.of(HttpStatus.BAD_REQUEST, false), Arguments.of(HttpStatus.NOT_FOUND, true), Arguments.of(HttpStatus.NOT_IMPLEMENTED, false),
-                         Arguments.of(HttpStatus.INTERNAL_SERVER_ERROR, true));
+        return Stream.of(Arguments.of(HttpStatus.BAD_REQUEST, false), Arguments.of(HttpStatus.NOT_FOUND, true),
+                         Arguments.of(HttpStatus.NOT_IMPLEMENTED, false), Arguments.of(HttpStatus.INTERNAL_SERVER_ERROR, true));
     }
 
     @ParameterizedTest
@@ -162,7 +168,8 @@ class ServiceBindingParametersGetterTest {
                          () -> serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application, SERVICE_NAME));
             return;
         }
-        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application, SERVICE_NAME);
+        Map<String, Object> bindingParameters = serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application,
+                                                                                                                               SERVICE_NAME);
         assertNull(bindingParameters, "Returned result from CloudOperationException should be null");
         verify(stepLogger).warnWithoutProgressMessage(anyString(), any(Object[].class));
     }
@@ -171,9 +178,11 @@ class ServiceBindingParametersGetterTest {
         ImmutableCloudApplicationExtended.Builder applicationBuilder = ImmutableCloudApplicationExtended.builder()
                                                                                                         .name(APP_NAME)
                                                                                                         .moduleName(APP_NAME)
-                                                                                                        .metadata(ImmutableCloudMetadata.builder()
-                                                                                                                                        .guid(RANDOM_GUID)
-                                                                                                                                        .build());
+                                                                                                        .metadata(
+                                                                                                            ImmutableCloudMetadata.builder()
+                                                                                                                                  .guid(
+                                                                                                                                      RANDOM_GUID)
+                                                                                                                                  .build());
         if (descriptorParameters != null) {
             applicationBuilder.bindingParameters(Map.of(SERVICE_NAME, ImmutableBindingDetails.builder()
                                                                                              .bindingName(null)
@@ -228,12 +237,13 @@ class ServiceBindingParametersGetterTest {
                                                                              .metadata(ImmutableCloudMetadata.builder()
                                                                                                              .guid(RANDOM_GUID)
                                                                                                              .build())
-                                                                             .serviceBindingOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                                                                .type(
-                                                                                                                                                    ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                                                                .state(
-                                                                                                                                                    ServiceCredentialBindingOperation.State.SUCCEEDED)
-                                                                                                                                                .build())
+                                                                             .serviceBindingOperation(
+                                                                                 ImmutableServiceCredentialBindingOperation.builder()
+                                                                                                                           .type(
+                                                                                                                               ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                                           .state(
+                                                                                                                               ServiceCredentialBindingOperation.State.SUCCEEDED)
+                                                                                                                           .build())
                                                                              .build();
             when(client.getServiceBindingForApplication(RANDOM_GUID, RANDOM_GUID)).thenReturn(serviceBinding);
             return;

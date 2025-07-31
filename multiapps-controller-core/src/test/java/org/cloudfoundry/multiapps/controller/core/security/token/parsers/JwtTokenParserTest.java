@@ -1,15 +1,9 @@
 package org.cloudfoundry.multiapps.controller.core.security.token.parsers;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-
 import java.util.Map;
 import java.util.Optional;
 
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
 import org.cloudfoundry.multiapps.controller.core.security.token.parsing.TokenValidationStrategyFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.parsing.ValidationStrategy;
@@ -17,7 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 
 class JwtTokenParserTest {
 
@@ -60,8 +59,7 @@ class JwtTokenParserTest {
         TokenValidationStrategyFactory tokenValidationStrategyFactory = mockTokenValidationStrategyFactory();
         Mockito.when(tokenValidationStrategyFactory.createStrategy(anyString()))
                .thenReturn(validationStrategy);
-        JwtTokenParser parser = new JwtTokenParserMock(mockUaaClient(false, "RS256", "not-at-all-matters"),
-                                                       true,
+        JwtTokenParser parser = new JwtTokenParserMock(mockUaaClient(false, "RS256", "not-at-all-matters"), true,
                                                        tokenValidationStrategyFactory);
         assertTrue(parser.parse("token-value")
                          .isEmpty());
@@ -75,8 +73,7 @@ class JwtTokenParserTest {
         TokenValidationStrategyFactory tokenValidationStrategyFactory = mockTokenValidationStrategyFactory();
         Mockito.when(tokenValidationStrategyFactory.createStrategy(anyString()))
                .thenReturn(validationStrategy);
-        JwtTokenParser parser = new JwtTokenParserMock(mockUaaClient(false, "RS256", "not-at-all-matters"),
-                                                       true,
+        JwtTokenParser parser = new JwtTokenParserMock(mockUaaClient(false, "RS256", "not-at-all-matters"), true,
                                                        tokenValidationStrategyFactory);
         assertTrue(parser.parse("token-value")
                          .isEmpty());
@@ -90,8 +87,7 @@ class JwtTokenParserTest {
         TokenValidationStrategyFactory tokenValidationStrategyFactory = Mockito.mock(TokenValidationStrategyFactory.class);
         Mockito.when(tokenValidationStrategyFactory.createStrategy(anyString()))
                .thenReturn(validationStrategy);
-        JwtTokenParser parser = new JwtTokenParserMock(mockUaaClient(false, "RS256", "not-at-all-matters"),
-                                                       true,
+        JwtTokenParser parser = new JwtTokenParserMock(mockUaaClient(false, "RS256", "not-at-all-matters"), true,
                                                        tokenValidationStrategyFactory);
         assertDoesNotThrow(() -> parser.parse("token-value"));
     }

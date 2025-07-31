@@ -4,11 +4,11 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.commons.lang3.StringUtils;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;

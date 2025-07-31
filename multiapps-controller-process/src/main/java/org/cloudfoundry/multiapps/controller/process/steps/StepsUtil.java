@@ -13,16 +13,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.adapters.LogCacheClient;
-import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
-import com.sap.cloudfoundry.client.facade.domain.CloudTask;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.LogCacheClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ApplicationLog;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
@@ -127,8 +127,8 @@ public class StepsUtil {
 
     static List<ConfigurationEntry> getDeletedEntriesFromAllProcesses(ProcessContext context, FlowableFacade flowableFacade) {
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
-        List<ConfigurationEntry> configurationEntries = new ArrayList<>(StepsUtil.getDeletedEntriesFromProcess(flowableFacade,
-                                                                                                               correlationId));
+        List<ConfigurationEntry> configurationEntries = new ArrayList<>(
+            StepsUtil.getDeletedEntriesFromProcess(flowableFacade, correlationId));
         List<String> subProcessIds = flowableFacade.getHistoricSubProcessIds(correlationId);
         for (String subProcessId : subProcessIds) {
             configurationEntries.addAll(getDeletedEntriesFromProcess(flowableFacade, subProcessId));

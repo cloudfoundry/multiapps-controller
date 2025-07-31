@@ -1,11 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.controller.client.facade.util.AuthorizationEndpointGetter;
 import org.cloudfoundry.multiapps.controller.core.helpers.SystemParameters;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -14,8 +12,8 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class CollectBlueGreenSystemParametersStepTest extends CollectSystemParametersStepBaseTest {
 

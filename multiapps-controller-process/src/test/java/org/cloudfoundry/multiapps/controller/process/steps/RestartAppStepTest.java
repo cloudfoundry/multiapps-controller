@@ -1,13 +1,10 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import java.time.Duration;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
@@ -27,7 +24,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication.State;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
@@ -46,7 +45,7 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
     @Test
     void testExecuteWhenAppIsStopped() {
         when(processTypeParser.getProcessType(context.getExecution())).thenReturn(ProcessType.DEPLOY);
-        CloudApplicationExtended app = createApplication(APP_NAME, State.STOPPED);
+        CloudApplicationExtended app = createApplication(APP_NAME, CloudApplication.State.STOPPED);
         prepareContextAndClient(app);
         step.execute(execution);
         assertStepFinishedSuccessfully();
@@ -65,7 +64,7 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
     @Test
     void testExecuteWhenAppIsStarted() {
         when(processTypeParser.getProcessType(context.getExecution())).thenReturn(ProcessType.DEPLOY);
-        CloudApplicationExtended app = createApplication(APP_NAME, State.STARTED);
+        CloudApplicationExtended app = createApplication(APP_NAME, CloudApplication.State.STARTED);
         prepareContextAndClient(app);
         step.execute(execution);
         assertStepFinishedSuccessfully();
@@ -78,14 +77,14 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     @Test
     void testGetHookPhasesBeforeStep() {
-        when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_START),
-                                               context)).thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE));
+        when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_START), context)).thenReturn(
+            List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE));
         List<HookPhase> expectedHooks = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE);
         List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesBeforeStep(context);
         assertEquals(expectedHooks, hookPhasesBeforeStep);
     }
 
-    private CloudApplicationExtended createApplication(String name, State state) {
+    private CloudApplicationExtended createApplication(String name, CloudApplication.State state) {
         return ImmutableCloudApplicationExtended.builder()
                                                 .name(name)
                                                 .state(state)
@@ -120,8 +119,8 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
                                                                                      .getDefaultValue());
         context.setVariable(TimeoutType.TASK.getProcessVariable(), TimeoutType.TASK.getProcessVariable()
                                                                                    .getDefaultValue());
-        when(hooksPhaseGetter.getHookPhasesBeforeStop(any(),
-                                                      any())).thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE));
+        when(hooksPhaseGetter.getHookPhasesBeforeStop(any(), any())).thenReturn(
+            List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE));
         Duration timeout = step.getTimeout(context);
         assertEquals(Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE.getDefaultValue(), timeout);
     }

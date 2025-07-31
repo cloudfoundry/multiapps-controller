@@ -4,21 +4,19 @@ import java.text.MessageFormat;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudServiceBrokerException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper.CloudComponents;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.http.HttpStatus;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudControllerException;
-import com.sap.cloudfoundry.client.facade.CloudException;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 
 @Named
 public class ServiceRemover {

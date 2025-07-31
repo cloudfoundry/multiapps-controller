@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.client.facade.ApplicationServicesUpdateCallback;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.DefaultApplicationServicesUpdateCallback;
@@ -14,10 +16,6 @@ import org.cloudfoundry.multiapps.controller.process.util.ServiceBindingPollingF
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
 
 @Named("bindServiceToApplicationStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

@@ -1,17 +1,16 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudTask;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudTask;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudTask;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareToExecuteTasksStep> {
 

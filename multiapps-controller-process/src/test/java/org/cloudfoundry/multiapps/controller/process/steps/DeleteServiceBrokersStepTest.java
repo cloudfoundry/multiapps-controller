@@ -1,9 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +10,12 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.ListUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudServiceBrokerException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBroker;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.steps.CreateOrUpdateServiceBrokerStepTest.SimpleApplication;
@@ -26,12 +28,9 @@ import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerException;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBroker;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteServiceBrokersStep> {
 
@@ -52,7 +51,7 @@ class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteServiceBro
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (1) One service broker should be deleted:
             Arguments.of(new StepInput(List.of(SERVICE_BROKER_NAME), 
                                        List.of(new SimpleApplication(APPLICATION_NAME, Map.of(SupportedParameters.SERVICE_BROKER_NAME, SERVICE_BROKER_NAME,

@@ -7,15 +7,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.criteria.MtaMetadataCriteriaBuilder;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 
 public class CustomServiceKeysClient extends CustomControllerClient {
 
@@ -44,8 +43,8 @@ public class CustomServiceKeysClient extends CustomControllerClient {
                                                          .build()
                                                          .get();
 
-        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> getServiceKeysByMetadataInternal(labelSelector,
-                                                                                                                          services));
+        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(
+            () -> getServiceKeysByMetadataInternal(labelSelector, services));
     }
 
     private List<DeployedMtaServiceKey> getServiceKeysByMetadataInternal(String labelSelector, List<DeployedMtaService> services) {
@@ -73,8 +72,7 @@ public class CustomServiceKeysClient extends CustomControllerClient {
 
     private boolean serviceIsNotUserProvided(DeployedMtaService service) {
         return service.getMetadata() != null && service.getMetadata()
-                                                       .getGuid() != null
-            && service.getType() == ServiceInstanceType.MANAGED;
+                                                       .getGuid() != null && service.getType() == ServiceInstanceType.MANAGED;
     }
 
     protected class ServiceKeysResponseMapper extends ResourcesResponseMapper<DeployedMtaServiceKey> {
@@ -91,8 +89,7 @@ public class CustomServiceKeysClient extends CustomControllerClient {
             if (mtaServices != null) {
                 serviceMapping = mtaServices.stream()
                                             .collect(Collectors.toMap(service -> service.getGuid()
-                                                                                        .toString(),
-                                                                      Function.identity()));
+                                                                                        .toString(), Function.identity()));
             } else {
                 serviceMapping = getIncludedServiceInstancesMapping();
             }

@@ -2,9 +2,8 @@ package org.cloudfoundry.multiapps.controller.core.model;
 
 import java.text.MessageFormat;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.core.Messages;
-
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
 public enum TypedServiceOperationState {
 
@@ -20,8 +19,8 @@ public enum TypedServiceOperationState {
             case IN_PROGRESS:
                 return fromOngoingServiceOperation(serviceOperation);
             default:
-                throw new IllegalStateException(MessageFormat.format(Messages.ILLEGAL_SERVICE_OPERATION_STATE,
-                                                                     serviceOperation.getState()));
+                throw new IllegalStateException(
+                    MessageFormat.format(Messages.ILLEGAL_SERVICE_OPERATION_STATE, serviceOperation.getState()));
         }
     }
 

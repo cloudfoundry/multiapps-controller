@@ -5,8 +5,8 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
-import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
 import org.cloudfoundry.multiapps.controller.client.util.TokenProperties;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;

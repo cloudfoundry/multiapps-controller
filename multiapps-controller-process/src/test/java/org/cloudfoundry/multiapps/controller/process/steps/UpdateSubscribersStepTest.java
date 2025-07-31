@@ -9,16 +9,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudOrganization;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudSpace;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
@@ -225,11 +225,10 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
 
     private boolean isSameSpace(CloudSpace space1, CloudSpace space2) {
         return space1.getName()
-                     .equals(space2.getName())
-            && space1.getOrganization()
-                     .getName()
-                     .equals(space2.getOrganization()
-                                   .getName());
+                     .equals(space2.getName()) && space1.getOrganization()
+                                                        .getName()
+                                                        .equals(space2.getOrganization()
+                                                                      .getName());
     }
 
     private void mockClientInvocations(SubscriberToUpdate subscriber, CloudControllerClient client) {
@@ -241,8 +240,7 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
         }
         if (!userHasPermissions(subscriber.app.getSpace(), UserPermission.WRITE)) {
             doThrow(new CloudOperationException(HttpStatus.FORBIDDEN)).when(client)
-                                                                      .updateApplicationEnv(anyString(),
-                                                                                            any(Map.class));
+                                                                      .updateApplicationEnv(anyString(), any(Map.class));
         }
     }
 
@@ -255,8 +253,7 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
         for (SubscriberToUpdate subscriber : input.subscribersToUpdate) {
             ConfigurationFilter filter = subscriber.subscription.getFilter();
             List<CloudTarget> targets = List.of(new CloudTarget(input.currentSpace.getOrganization()
-                                                                                  .getName(),
-                                                                input.currentSpace.getName()));
+                                                                                  .getName(), input.currentSpace.getName()));
             ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(
                                                                                                    query -> query.providerNid(filter.getProviderNid()))
                                                                                                .on(query -> query.providerId(

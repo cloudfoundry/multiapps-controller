@@ -1,13 +1,14 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
+
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,8 +26,7 @@ class UpdateServicePlanStepTest extends SyncFlowableStepTest<UpdateServicePlanSt
 
         step.execute(execution);
 
-        verify(client).updateServicePlan(serviceToProcess.getName(),
-                                         serviceToProcess.getPlan());
+        verify(client).updateServicePlan(serviceToProcess.getName(), serviceToProcess.getPlan());
     }
 
     @Test

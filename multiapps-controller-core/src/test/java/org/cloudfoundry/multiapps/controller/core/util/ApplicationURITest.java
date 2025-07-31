@@ -1,10 +1,9 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
-import static org.cloudfoundry.multiapps.controller.core.util.TestData.route;
-
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import static org.cloudfoundry.multiapps.controller.core.util.TestData.route;
 
 class ApplicationURITest {
 
@@ -43,7 +42,7 @@ class ApplicationURITest {
     @SuppressWarnings("serial")
     static Stream<Arguments> testGetURIParts() {
         return Stream.of(
-//@formatter:off
+            //@formatter:off
                 Arguments.of("host", "domain.com", "/path",
                              Map.of(SupportedParameters.HOST, "host",
                                     SupportedParameters.DOMAIN, "domain.com",

@@ -1,9 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -11,6 +7,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -19,10 +19,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceInstance;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachServicesFromMtaStep> {
 

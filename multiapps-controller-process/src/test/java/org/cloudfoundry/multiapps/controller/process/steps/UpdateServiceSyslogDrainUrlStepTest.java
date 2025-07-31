@@ -1,5 +1,17 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.util.UUID;
+
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
+
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -7,21 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.UUID;
-
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
-import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.jupiter.api.Test;
-
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
 
 class UpdateServiceSyslogDrainUrlStepTest extends SyncFlowableStepTest<UpdateServiceSyslogDrainUrlStep> {
 
@@ -98,8 +95,8 @@ class UpdateServiceSyslogDrainUrlStepTest extends SyncFlowableStepTest<UpdateSer
 
     private void throwExceptionOnServiceSyslogDrainUrlUpdate(HttpStatus httpStatus) {
         Mockito.doThrow(new CloudOperationException(httpStatus, "Error occurred"))
-                .when(client)
-                .updateServiceSyslogDrainUrl(any(), any());
+               .when(client)
+               .updateServiceSyslogDrainUrl(any(), any());
     }
 
     private CloudServiceInstanceExtended buildServiceWithSkipUpdate() {

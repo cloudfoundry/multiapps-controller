@@ -3,11 +3,10 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.util.function.Consumer;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
 
 public class PollServiceBrokerOperationsExecution extends PollOperationBaseExecution {
 

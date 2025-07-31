@@ -2,13 +2,11 @@ package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
+import org.cloudfoundry.multiapps.controller.client.facade.util.RestUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-import com.sap.cloudfoundry.client.facade.util.RestUtil;
 
 @Named
 public class WebClientFactory {

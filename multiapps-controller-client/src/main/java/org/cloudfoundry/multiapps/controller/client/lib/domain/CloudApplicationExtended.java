@@ -4,17 +4,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.cloudfoundry.multiapps.common.AllowNulls;
-import org.cloudfoundry.multiapps.common.Nullable;
-import org.immutables.value.Value;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.CloudTask;
-import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
-import com.sap.cloudfoundry.client.facade.domain.Staging;
+import org.cloudfoundry.multiapps.common.AllowNulls;
+import org.cloudfoundry.multiapps.common.Nullable;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
+import org.immutables.value.Value;
 
 @Value.Enclosing
 @Value.Immutable
@@ -68,8 +67,8 @@ public abstract class CloudApplicationExtended extends CloudApplication {
     public abstract AttributeUpdateStrategy getAttributesUpdateStrategy();
 
     @Value.Immutable
-    @JsonSerialize(as = ImmutableCloudApplicationExtended.AttributeUpdateStrategy.class)
-    @JsonDeserialize(as = ImmutableCloudApplicationExtended.AttributeUpdateStrategy.class)
+    @JsonSerialize(as = ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.class)
+    @JsonDeserialize(as = ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.class)
     public interface AttributeUpdateStrategy {
 
         @Value.Default

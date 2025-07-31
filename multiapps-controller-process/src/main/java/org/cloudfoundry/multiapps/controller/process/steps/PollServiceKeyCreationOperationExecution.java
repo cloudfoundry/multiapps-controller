@@ -2,11 +2,10 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.function.Consumer;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
 
 public class PollServiceKeyCreationOperationExecution extends PollServiceKeyOperationExecution {
 
@@ -15,7 +14,7 @@ public class PollServiceKeyCreationOperationExecution extends PollServiceKeyOper
         CloudServiceInstanceExtended serviceInstanceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
         return serviceKeyJob -> context.getStepLogger()
                                        .warn(Messages.ASYNC_OPERATION_FOR_OPTIONAL_SERVICE_KEY_FAILED_WITH,
-                                              serviceInstanceToProcess.getName(), serviceKeyJob.getErrors());
+                                             serviceInstanceToProcess.getName(), serviceKeyJob.getErrors());
     }
 
     @Override

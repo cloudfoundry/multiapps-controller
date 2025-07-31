@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.client.util.TokenProperties;
 import org.cloudfoundry.multiapps.controller.persistence.model.AccessToken;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableAccessToken;
@@ -15,7 +15,7 @@ import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.sap.cloudfoundry.client.facade.oauth2.TokenFactory.EXPIRES_AT_KEY;
+import static org.cloudfoundry.multiapps.controller.client.facade.oauth2.TokenFactory.EXPIRES_AT_KEY;
 
 public abstract class TokenGenerator {
 

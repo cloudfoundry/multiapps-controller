@@ -5,7 +5,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Optional;
 
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.core.security.token.parsers.TokenParserChain;
 import org.cloudfoundry.multiapps.controller.persistence.model.AccessToken;
 import org.cloudfoundry.multiapps.controller.persistence.services.AccessTokenService;

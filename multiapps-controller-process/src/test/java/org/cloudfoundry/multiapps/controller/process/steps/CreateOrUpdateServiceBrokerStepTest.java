@@ -1,9 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +11,12 @@ import java.util.stream.Stream;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudServiceBrokerException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBroker;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
@@ -27,12 +29,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerException;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.CloudServiceBrokerException;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBroker;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<CreateOrUpdateServiceBrokerStep> {
 
@@ -52,7 +51,7 @@ class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<CreateOrU
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (1) A service broker should be created, all necessary parameters are present and it isn't space scoped (explicit):
             Arguments.of(new StepInput(new SimpleApplication(APP_NAME, Map.of(SupportedParameters.CREATE_SERVICE_BROKER, true, SupportedParameters.SERVICE_BROKER_NAME, SERVICE_BROKER_NAME,
                                                                            SupportedParameters.SERVICE_BROKER_USERNAME, SERVICE_BROKER_USER, 

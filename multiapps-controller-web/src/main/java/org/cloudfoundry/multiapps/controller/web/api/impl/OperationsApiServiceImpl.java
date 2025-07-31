@@ -15,9 +15,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
-import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.persistence.NoResultException;
@@ -35,6 +32,9 @@ import org.cloudfoundry.multiapps.controller.api.model.MessageType;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ParameterMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.parameters.ParameterConversion;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudOrganization;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.OperationsApiServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
@@ -104,8 +104,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         Operation operation = getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
         List<String> availableOperations = getAvailableActions(operation);
         if (!availableOperations.contains(actionId)) {
-            throw new IllegalArgumentException(MessageFormat.format(Messages.ACTION_0_CANNOT_BE_EXECUTED_OVER_OPERATION_1_IN_STATE_2,
-                                                                    actionId, operationId, operation.getState()));
+            throw new IllegalArgumentException(
+                MessageFormat.format(Messages.ACTION_0_CANNOT_BE_EXECUTED_OVER_OPERATION_1_IN_STATE_2, actionId, operationId,
+                                     operation.getState()));
         }
         ProcessAction action = processActionRegistry.getAction(Action.fromString(actionId));
         action.execute(getAuthenticatedUser(request), operationId);

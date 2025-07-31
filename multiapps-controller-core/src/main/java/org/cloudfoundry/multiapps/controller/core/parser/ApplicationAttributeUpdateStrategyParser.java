@@ -14,7 +14,7 @@ public class ApplicationAttributeUpdateStrategyParser implements ParametersParse
     @Override
     public CloudApplicationExtended.AttributeUpdateStrategy parse(List<Map<String, Object>> parametersList) {
         Map<String, Boolean> attributesUpdateStrategy = getAttributesUpdateStrategyParameter(parametersList);
-        ImmutableCloudApplicationExtended.AttributeUpdateStrategy.Builder builder = ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder();
+        ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.Builder builder = ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.builder();
         Boolean shouldKeepExistingEnv = shouldKeepExistingEnv(attributesUpdateStrategy);
         Boolean shouldKeepExistingRoutes = shouldKeepExistingRoutes(attributesUpdateStrategy);
         Boolean shouldKeepExistingServiceBindings = shouldKeepExistingServiceBindings(attributesUpdateStrategy);
@@ -46,7 +46,8 @@ public class ApplicationAttributeUpdateStrategyParser implements ParametersParse
     }
 
     private Boolean shouldKeepExistingServiceBindings(Map<String, Boolean> attributesUpdateStrategy) {
-        return attributesUpdateStrategy.get(SupportedParameters.ApplicationUpdateStrategy.SERVICE_BINDINGS_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY);
+        return attributesUpdateStrategy.get(
+            SupportedParameters.ApplicationUpdateStrategy.SERVICE_BINDINGS_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY);
     }
 
 }

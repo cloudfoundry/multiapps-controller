@@ -1,14 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +14,16 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.UploadStatusCallback;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudBuild;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.DropletInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudBuild;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerData;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDropletInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
@@ -46,27 +47,30 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.cloudfoundry.client.facade.UploadStatusCallback;
-import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
-import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.DropletInfo;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudBuild;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDropletInfo;
-import com.sap.cloudfoundry.client.facade.domain.Status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
 
     private static final String APP_NAME = "sample-app-backend";
     private static final String APP_FILE = "web.zip";
     private static final ArchiveEntryWithStreamPositions ARCHIVE_ENTRY_WITH_STREAM_POSITIONS = ImmutableArchiveEntryWithStreamPositions.builder()
-                                                                                                                                       .name(APP_FILE)
-                                                                                                                                       .startPosition(37)
-                                                                                                                                       .endPosition(5012)
-                                                                                                                                       .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
-                                                                                                                                       .isDirectory(false)
+                                                                                                                                       .name(
+                                                                                                                                           APP_FILE)
+                                                                                                                                       .startPosition(
+                                                                                                                                           37)
+                                                                                                                                       .endPosition(
+                                                                                                                                           5012)
+                                                                                                                                       .compressionMethod(
+                                                                                                                                           ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
+                                                                                                                                       .isDirectory(
+                                                                                                                                           false)
                                                                                                                                        .build();
     private static final String SPACE = "space";
     private static final String APP_ARCHIVE = "sample-app.mtar";
@@ -105,34 +109,33 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
                                                                  .dropletInfo(ImmutableDropletInfo.builder()
                                                                                                   .guid(UUID.randomUUID())
                                                                                                   .build())
-                                                                 .build()),
-                                      StepPhase.DONE, null),
-                         Arguments.of(List.of(ImmutableCloudBuild.builder()
-                                                                 .metadata(ImmutableCloudMetadata.builder()
-                                                                                                 .createdAt(LocalDateTime.now())
-                                                                                                 .build())
-                                                                 .state(CloudBuild.State.FAILED)
-                                                                 .dropletInfo(ImmutableDropletInfo.builder()
-                                                                                                  .guid(UUID.randomUUID())
-                                                                                                  .build())
-                                                                 .build()),
-                                      StepPhase.POLL, CLOUD_PACKAGE),
-                         Arguments.of(List.of(ImmutableCloudBuild.builder()
-                                                                 .state(CloudBuild.State.STAGING)
-                                                                 .dropletInfo(ImmutableDropletInfo.builder()
-                                                                                                  .guid(UUID.randomUUID())
-                                                                                                  .build())
-                                                                 .build()),
-                                      StepPhase.POLL, CLOUD_PACKAGE));
+                                                                 .build()), StepPhase.DONE, null), Arguments.of(List.of(
+            ImmutableCloudBuild.builder()
+                               .metadata(ImmutableCloudMetadata.builder()
+                                                               .createdAt(LocalDateTime.now())
+                                                               .build())
+                               .state(CloudBuild.State.FAILED)
+                               .dropletInfo(ImmutableDropletInfo.builder()
+                                                                .guid(UUID.randomUUID())
+                                                                .build())
+                               .build()), StepPhase.POLL, CLOUD_PACKAGE), Arguments.of(List.of(ImmutableCloudBuild.builder()
+                                                                                                                  .state(
+                                                                                                                      CloudBuild.State.STAGING)
+                                                                                                                  .dropletInfo(
+                                                                                                                      ImmutableDropletInfo.builder()
+                                                                                                                                          .guid(
+                                                                                                                                              UUID.randomUUID())
+                                                                                                                                          .build())
+                                                                                                                  .build()), StepPhase.POLL,
+                                                                                       CLOUD_PACKAGE));
     }
 
     @BeforeEach
     public void setUp() throws Exception {
         prepareFileService();
         prepareContext();
-        step.applicationZipBuilder = spy(new ApplicationZipBuilderMock(fileService,
-                                                                       new ApplicationArchiveIterator(),
-                                                                       new ArchiveEntryExtractor(fileService)));
+        step.applicationZipBuilder = spy(
+            new ApplicationZipBuilderMock(fileService, new ApplicationArchiveIterator(), new ArchiveEntryExtractor(fileService)));
         step.applicationDigestCalculator = mock(ApplicationDigestCalculator.class);
     }
 
@@ -205,8 +208,8 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         prepareClients(CURRENT_MODULE_DIGEST);
         context.setVariable(Variables.SKIP_APP_DIGEST_CALCULATION, true);
         Map<String, String> deployAttributes = Map.of(Constants.ATTR_APP_CONTENT_DIGEST, CURRENT_MODULE_DIGEST);
-        when(client.getApplicationEnvironment(APP_GUID)).thenReturn(Map.of(Constants.ENV_DEPLOY_ATTRIBUTES,
-                                                                           JsonUtil.toJson(deployAttributes)));
+        when(client.getApplicationEnvironment(APP_GUID)).thenReturn(
+            Map.of(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(deployAttributes)));
         step.execute(execution);
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
         assertTrue(context.getVariable(Variables.SHOULD_UPDATE_APPLICATION_DIGEST));
@@ -225,8 +228,8 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     @ParameterizedTest
     void testWithBuildStates(List<CloudBuild> builds, StepPhase stepPhase, CloudPackage cloudPackage) {
         if (cloudPackage == null) {
-            when(client.getApplicationEnvironment(any(UUID.class))).thenReturn(Map.of("DEPLOY_ATTRIBUTES", "{\"app-content-digest\":\""
-                + CURRENT_MODULE_DIGEST + "\"}"));
+            when(client.getApplicationEnvironment(any(UUID.class))).thenReturn(
+                Map.of("DEPLOY_ATTRIBUTES", "{\"app-content-digest\":\"" + CURRENT_MODULE_DIGEST + "\"}"));
             var dropletPackage = createCloudPackage(Status.READY);
             mockCloudPackagesGetter(dropletPackage);
             when(cloudPackagesGetter.getMostRecentAppPackage(any(), any())).thenReturn(Optional.of(dropletPackage));

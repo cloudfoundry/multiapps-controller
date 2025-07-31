@@ -1,11 +1,10 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
@@ -24,7 +23,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication.State;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
 
@@ -47,14 +46,14 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     private boolean shouldBeStopped;
 
     static Stream<Arguments> testExecute() {
-        return Stream.of(Arguments.of(new SimpleApplicationWithState("test-app-1", 0, State.STARTED),
-                                      new SimpleApplicationWithState("test-app-1", 0, State.STARTED)),
-                         Arguments.of(new SimpleApplicationWithState("test-app-1", 0, State.STARTED),
-                                      new SimpleApplicationWithState("test-app-1", 0, State.STOPPED)),
-                         Arguments.of(new SimpleApplicationWithState("test-app-1", 0, State.STOPPED),
-                                      new SimpleApplicationWithState("test-app-1", 0, State.STOPPED)),
-                         Arguments.of(new SimpleApplicationWithState("test-app-1", 0, State.STOPPED),
-                                      new SimpleApplicationWithState("test-app-1", 0, State.STARTED)));
+        return Stream.of(Arguments.of(new SimpleApplicationWithState("test-app-1", 0, CloudApplication.State.STARTED),
+                                      new SimpleApplicationWithState("test-app-1", 0, CloudApplication.State.STARTED)),
+                         Arguments.of(new SimpleApplicationWithState("test-app-1", 0, CloudApplication.State.STARTED),
+                                      new SimpleApplicationWithState("test-app-1", 0, CloudApplication.State.STOPPED)),
+                         Arguments.of(new SimpleApplicationWithState("test-app-1", 0, CloudApplication.State.STOPPED),
+                                      new SimpleApplicationWithState("test-app-1", 0, CloudApplication.State.STOPPED)),
+                         Arguments.of(new SimpleApplicationWithState("test-app-1", 0, CloudApplication.State.STOPPED),
+                                      new SimpleApplicationWithState("test-app-1", 0, CloudApplication.State.STARTED)));
     }
 
     @MethodSource
@@ -75,7 +74,7 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     private void determineActionForApplication() {
-        shouldBeStopped = existingApplication.state != State.STOPPED;
+        shouldBeStopped = existingApplication.state != CloudApplication.State.STOPPED;
     }
 
     private void prepareContext() {
@@ -145,9 +144,9 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     private static class SimpleApplicationWithState extends SimpleApplication {
-        final State state;
+        final CloudApplication.State state;
 
-        public SimpleApplicationWithState(String name, int instances, State state) {
+        public SimpleApplicationWithState(String name, int instances, CloudApplication.State state) {
             super(name, instances);
             this.state = state;
         }

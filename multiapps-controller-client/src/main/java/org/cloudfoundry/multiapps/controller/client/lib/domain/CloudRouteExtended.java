@@ -1,11 +1,11 @@
 package org.cloudfoundry.multiapps.controller.client.lib.domain;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.immutables.value.Value;
-
-import java.util.List;
 
 @JsonSerialize(as = ImmutableCloudRouteExtended.class)
 @JsonDeserialize(as = ImmutableCloudRouteExtended.class)

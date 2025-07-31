@@ -7,6 +7,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableLifecycle;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -21,12 +26,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableLifecycle;
 
 class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectApplicationsToRenameStep> {
 

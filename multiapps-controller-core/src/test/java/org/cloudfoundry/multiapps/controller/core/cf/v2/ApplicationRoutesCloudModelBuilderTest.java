@@ -1,16 +1,15 @@
 package org.cloudfoundry.multiapps.controller.core.cf.v2;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
@@ -22,10 +21,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudDomain;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRoute;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class ApplicationRoutesCloudModelBuilderTest {
 
@@ -41,8 +40,7 @@ class ApplicationRoutesCloudModelBuilderTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        applicationRoutesCloudModelBuilder = new ApplicationRoutesCloudModelBuilder(deploymentDescriptor,
-                                                                                    client,
+        applicationRoutesCloudModelBuilder = new ApplicationRoutesCloudModelBuilder(deploymentDescriptor, client,
                                                                                     applicationAttributeUpdateStrategy);
     }
 
@@ -53,9 +51,8 @@ class ApplicationRoutesCloudModelBuilderTest {
         List<Map<String, Object>> moduleParameters = List.of(Map.of(SupportedParameters.ROUTES, List.of(route)));
         Module module = Mockito.mock(Module.class);
         DeployedMtaApplication deployedMtaApplication = Mockito.mock(DeployedMtaApplication.class);
-        List<CloudRoute> applicationRoutes = new ArrayList<>(applicationRoutesCloudModelBuilder.getApplicationRoutes(module,
-                                                                                                                     moduleParameters,
-                                                                                                                     deployedMtaApplication));
+        List<CloudRoute> applicationRoutes = new ArrayList<>(
+            applicationRoutesCloudModelBuilder.getApplicationRoutes(module, moduleParameters, deployedMtaApplication));
         assertEquals(1, applicationRoutes.size());
         assertEquals("abc.cfapps.sap.hana.ondemand.com", applicationRoutes.get(0)
                                                                           .getUrl());
@@ -109,9 +106,8 @@ class ApplicationRoutesCloudModelBuilderTest {
     private void assertRouteExists(Set<CloudRoute> routes, String url, String protocol) {
         boolean routeExists = routes.stream()
                                     .anyMatch(route -> route.getUrl()
-                                                            .equals(url)
-                                        && route.getRequestedProtocol()
-                                                .equals(protocol));
+                                                            .equals(url) && route.getRequestedProtocol()
+                                                                                 .equals(protocol));
         if (!routeExists) {
             fail(MessageFormat.format("Route with URL: {0} and protocol {1} does not exists", url, protocol));
         }

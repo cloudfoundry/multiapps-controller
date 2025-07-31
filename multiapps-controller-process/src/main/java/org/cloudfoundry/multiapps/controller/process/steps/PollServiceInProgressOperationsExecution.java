@@ -4,14 +4,13 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
 public class PollServiceInProgressOperationsExecution extends PollServiceOperationsExecution {
 
@@ -51,8 +50,9 @@ public class PollServiceInProgressOperationsExecution extends PollServiceOperati
             case DELETE:
                 return MessageFormat.format(Messages.SERVICE_DELETED, service.getName());
             default:
-                throw new IllegalStateException(MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
-                                                                     type));
+                throw new IllegalStateException(
+                    MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                         type));
         }
     }
 
@@ -68,8 +68,9 @@ public class PollServiceInProgressOperationsExecution extends PollServiceOperati
                 return MessageFormat.format(Messages.ERROR_DELETING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
                                             lastServiceOperation.getDescription());
             default:
-                throw new IllegalStateException(MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
-                                                                     lastServiceOperation.getType()));
+                throw new IllegalStateException(
+                    MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                         lastServiceOperation.getType()));
         }
     }
 

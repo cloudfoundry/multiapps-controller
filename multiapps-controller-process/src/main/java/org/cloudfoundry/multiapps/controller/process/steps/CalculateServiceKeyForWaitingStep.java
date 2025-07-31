@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -13,10 +15,6 @@ import org.cloudfoundry.multiapps.controller.process.util.ServiceUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
 
 @Named("calculateServiceKeyForWaitingStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -39,9 +37,9 @@ public class CalculateServiceKeyForWaitingStep extends SyncFlowableStep {
         }
         return existingServiceKeys.stream()
                                   .filter(key -> key.getServiceKeyOperation()
-                                                    .getState() == ServiceCredentialBindingOperation.State.IN_PROGRESS
-                                      || key.getServiceKeyOperation()
-                                            .getState() == ServiceCredentialBindingOperation.State.INITIAL)
+                                                    .getState() == ServiceCredentialBindingOperation.State.IN_PROGRESS ||
+                                      key.getServiceKeyOperation()
+                                         .getState() == ServiceCredentialBindingOperation.State.INITIAL)
                                   .collect(Collectors.toList());
     }
 

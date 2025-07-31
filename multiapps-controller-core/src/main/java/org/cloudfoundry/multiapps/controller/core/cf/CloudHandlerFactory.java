@@ -1,11 +1,10 @@
 package org.cloudfoundry.multiapps.controller.core.cf;
 
-import static java.text.MessageFormat.format;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.CloudHandlerFactoryV2;
@@ -32,7 +31,7 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.cloudfoundry.multiapps.mta.resolvers.LiveRoutesProvidedParametersResolver;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import static java.text.MessageFormat.format;
 
 public interface CloudHandlerFactory extends HandlerFactory {
 

@@ -39,7 +39,8 @@
         <jackson.databind.version>2.19.1</jackson.databind.version>
         <liquibase.version>4.32.0</liquibase.version>
         <liquibase-slf4j.version>5.1.0</liquibase-slf4j.version>
-        <cloudfoundry-client.version>2.58.0</cloudfoundry-client.version>
+        <cloudfoundry-client.version>5.14.0.RELEASE</cloudfoundry-client.version>
+        <reactor-netty.version>1.2.8</reactor-netty.version>
         <swagger.version>1.6.16</swagger.version>
         <jclouds.version>2.7.0</jclouds.version>
         <guava.version>33.4.8-jre</guava.version>
@@ -58,6 +59,7 @@
         <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
         <bouncycastle.version>2.1.9</bouncycastle.version>
         <apache.compress.version>1.27.1</apache.compress.version>
+        <commons-logging.version>1.3.1</commons-logging.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>
@@ -164,7 +166,7 @@
                         <!-- Surefire excludes nested classes by default, so we need to explicitly specify that nothing should 
                             be excluded. -->
                         <excludes>
-                            <exclude/>
+                            <exclude>**/*IntegrationTest</exclude>
                         </excludes>
                         <runOrder>random</runOrder>
                     </configuration>
@@ -815,11 +817,18 @@
                 <artifactId>java-cfenv-jdbc</artifactId>
                 <version>${java-cfenv.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/com.sap.cloud.lm.sl/cloudfoundry-client-facade -->
+            <!-- https://mvnrepository.com/artifact/org.cloudfoundry/cloudfoundry-client-reactor -->
             <dependency>
-                <groupId>com.sap.cloud.lm.sl</groupId>
-                <artifactId>cloudfoundry-client-facade</artifactId>
+                <groupId>org.cloudfoundry</groupId>
+                <artifactId>cloudfoundry-client-reactor</artifactId>
                 <version>${cloudfoundry-client.version}</version>
+            </dependency>
+            <!-- Transitive dependency from cloudfoundry-client. Pin the version, because the one they're using (1.0.3) contains vulnerabilities -->
+            <!-- https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty -->
+            <dependency>
+                <groupId>io.projectreactor.netty</groupId>
+                <artifactId>reactor-netty</artifactId>
+                <version>${reactor-netty.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.cloudfoundry.multiapps/multiapps-common -->
             <dependency>

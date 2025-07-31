@@ -1,19 +1,18 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.UUID;
 
 import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class DeleteServiceMtaMetadataStepTest extends SyncFlowableStepTest<DeleteServiceMtaMetadataStep> {
 

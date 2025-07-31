@@ -6,9 +6,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 public class TestData {
 

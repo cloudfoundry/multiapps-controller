@@ -8,9 +8,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
@@ -125,10 +125,8 @@ class PollServiceInProgressOperationsExecutionTest extends AsyncStepOperationTes
             ServiceOperation.Type serviceOperationType = servicesOperationTypes.get(i);
             ServiceOperation.State serviceOperationState = servicesOperationStates.get(i);
             if (serviceOperationType != null && serviceOperationState != null) {
-                when(serviceOperationGetter.getLastServiceOperation(any(),
-                                                                    eq(service))).thenReturn(new ServiceOperation(serviceOperationType,
-                                                                                                                  "",
-                                                                                                                  serviceOperationState));
+                when(serviceOperationGetter.getLastServiceOperation(any(), eq(service))).thenReturn(
+                    new ServiceOperation(serviceOperationType, "", serviceOperationState));
             }
         }
     }

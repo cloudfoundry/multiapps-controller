@@ -7,21 +7,19 @@ import java.util.Map;
 import java.util.Objects;
 
 import jakarta.inject.Named;
-
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
 
 @Named("determineServiceKeysToRecreateStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -104,8 +102,8 @@ public class DetermineServiceKeysToRecreateStep extends SyncFlowableStep {
             return metadataA == null && metadataB == null;
         }
 
-        return Objects.equals(metadataA.getAnnotations(), metadataB.getAnnotations())
-            && Objects.equals(metadataA.getLabels(), metadataB.getLabels());
+        return Objects.equals(metadataA.getAnnotations(), metadataB.getAnnotations()) && Objects.equals(metadataA.getLabels(),
+                                                                                                        metadataB.getLabels());
     }
 
     private CloudServiceKey getWithName(List<CloudServiceKey> serviceKeys, String name) {

@@ -8,14 +8,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.common.util.MapUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesValidator;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudDomain;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRoute;
 
 public class IdleRouteParametersParser extends RouteParametersParser {
 
@@ -43,9 +42,8 @@ public class IdleRouteParametersParser extends RouteParametersParser {
     }
 
     private Set<CloudRoute> getIdleRoutes(List<Map<String, Object>> parametersList) {
-        List<Map<String, Object>> idleRoutesMaps = RoutesValidator.applyRoutesType(PropertiesUtil.getPropertyValue(parametersList,
-                                                                                                                   SupportedParameters.IDLE_ROUTES,
-                                                                                                                   null));
+        List<Map<String, Object>> idleRoutesMaps = RoutesValidator.applyRoutesType(
+            PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.IDLE_ROUTES, null));
         return idleRoutesMaps.stream()
                              .map(this::parseIdleRouteMap)
                              .filter(Objects::nonNull)
@@ -87,9 +85,7 @@ public class IdleRouteParametersParser extends RouteParametersParser {
 
         var appUri = new ApplicationURI(defaultHost == null ? inputRoute.getHost() : defaultHost,
                                         defaultDomain == null ? inputRoute.getDomain()
-                                                                          .getName()
-                                            : defaultDomain,
-                                        inputRoute.getPath());
+                                                                          .getName() : defaultDomain, inputRoute.getPath());
         return modifiedRouteBuilder.url(appUri.toCloudRoute()
                                               .getUrl())
                                    .build();

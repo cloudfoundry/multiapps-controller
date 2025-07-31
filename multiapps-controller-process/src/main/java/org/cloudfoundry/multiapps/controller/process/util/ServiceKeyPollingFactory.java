@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.process.steps.AsyncExecution;
 import org.cloudfoundry.multiapps.controller.process.steps.PollServiceKeyCreationOperationExecution;
 import org.cloudfoundry.multiapps.controller.process.steps.PollServiceKeyDeletionLastOperationExecution;
@@ -7,8 +8,6 @@ import org.cloudfoundry.multiapps.controller.process.steps.PollServiceKeyDeletio
 import org.cloudfoundry.multiapps.controller.process.steps.PollServiceKeyLastOperationExecution;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
 
 public class ServiceKeyPollingFactory extends ServiceBindingPollingFactory {
 

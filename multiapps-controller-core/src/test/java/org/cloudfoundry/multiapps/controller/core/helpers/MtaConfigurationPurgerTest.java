@@ -1,11 +1,15 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableLifecycle;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataValidator;
@@ -26,13 +30,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableLifecycle;
-import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 class MtaConfigurationPurgerTest {
 
@@ -76,9 +75,7 @@ class MtaConfigurationPurgerTest {
 
     @Test
     void testPurge() {
-        MtaConfigurationPurger purger = new MtaConfigurationPurger(client,
-                                                                   spaceClient,
-                                                                   configurationEntryService,
+        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, spaceClient, configurationEntryService,
                                                                    configurationSubscriptionService,
                                                                    new MtaMetadataParser(new MtaMetadataValidator()),
                                                                    mtaConfigurationPurgerAuditLog);
@@ -146,16 +143,8 @@ class MtaConfigurationPurgerTest {
     }
 
     private ConfigurationEntry createEntry(int id, String providerId) {
-        return new ConfigurationEntry(id,
-                                      ConfigurationEntriesUtil.PROVIDER_NID,
-                                      providerId,
-                                      Version.parseVersion("1.0.0"),
-                                      null,
-                                      new CloudTarget(TARGET_ORG, TARGET_SPACE),
-                                      null,
-                                      null,
-                                      null,
-                                      null);
+        return new ConfigurationEntry(id, ConfigurationEntriesUtil.PROVIDER_NID, providerId, Version.parseVersion("1.0.0"), null,
+                                      new CloudTarget(TARGET_ORG, TARGET_SPACE), null, null, null, null);
     }
 
 }

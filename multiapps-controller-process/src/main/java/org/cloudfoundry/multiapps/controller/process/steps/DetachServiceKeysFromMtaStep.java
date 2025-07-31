@@ -3,14 +3,12 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.util.List;
 
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 @Named("detachServiceKeysFromMtaStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

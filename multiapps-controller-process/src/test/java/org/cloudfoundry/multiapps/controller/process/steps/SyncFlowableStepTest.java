@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.test.Tester;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;

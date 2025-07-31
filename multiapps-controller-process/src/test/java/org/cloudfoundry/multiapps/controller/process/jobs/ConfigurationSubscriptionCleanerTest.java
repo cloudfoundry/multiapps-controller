@@ -1,15 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -22,8 +19,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ConfigurationSubscriptionCleanerTest {
 
@@ -50,9 +49,7 @@ class ConfigurationSubscriptionCleanerTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        cleaner = new ConfigurationSubscriptionCleaner(configuration,
-                                                       configurationSubscriptionService,
-                                                       oAuthClientFactory,
+        cleaner = new ConfigurationSubscriptionCleaner(configuration, configurationSubscriptionService, oAuthClientFactory,
                                                        mtaConfigurationPurgerAuditLog) {
             @Override
             protected void initSpaceClient() {
@@ -85,37 +82,16 @@ class ConfigurationSubscriptionCleanerTest {
     private List<ConfigurationSubscription> generateConfigurationSubscriptions() {
         List<ConfigurationSubscription> configurationSubscriptions = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            configurationSubscriptions.add(new ConfigurationSubscription(i,
-                                                                         "mtaId" + i,
-                                                                         NON_EXISTING_SPACE.toString(),
-                                                                         "app" + i,
-                                                                         null,
-                                                                         null,
-                                                                         null,
-                                                                         null,
-                                                                         null));
+            configurationSubscriptions.add(
+                new ConfigurationSubscription(i, "mtaId" + i, NON_EXISTING_SPACE.toString(), "app" + i, null, null, null, null, null));
         }
         for (int i = 10; i < 15; i++) {
-            configurationSubscriptions.add(new ConfigurationSubscription(i,
-                                                                         "mtaId" + i,
-                                                                         EXISTING_SPACE_1.toString(),
-                                                                         "app" + i,
-                                                                         null,
-                                                                         null,
-                                                                         null,
-                                                                         null,
-                                                                         null));
+            configurationSubscriptions.add(
+                new ConfigurationSubscription(i, "mtaId" + i, EXISTING_SPACE_1.toString(), "app" + i, null, null, null, null, null));
         }
         for (int i = 15; i < 20; i++) {
-            configurationSubscriptions.add(new ConfigurationSubscription(i,
-                                                                         "mtaId" + i,
-                                                                         EXISTING_SPACE_2.toString(),
-                                                                         "app" + i,
-                                                                         null,
-                                                                         null,
-                                                                         null,
-                                                                         null,
-                                                                         null));
+            configurationSubscriptions.add(
+                new ConfigurationSubscription(i, "mtaId" + i, EXISTING_SPACE_2.toString(), "app" + i, null, null, null, null, null));
         }
         return configurationSubscriptions;
     }

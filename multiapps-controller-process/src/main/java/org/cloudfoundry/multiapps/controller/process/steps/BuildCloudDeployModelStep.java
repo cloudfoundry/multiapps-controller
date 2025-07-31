@@ -8,12 +8,12 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.util.CloudModelBuilderContentCalculator;
@@ -184,7 +184,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
                                              .map(NameUtil::getApplicationName)
                                              .collect(toList());
     }
-    
+
     private List<CloudServiceInstanceExtended> buildServicesForBindings(ServicesCloudModelBuilder servicesCloudModelBuilder,
                                                                         DeploymentDescriptor deploymentDescriptor,
                                                                         List<Module> modulesCalculatedForDeployment) {
@@ -197,9 +197,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
                                                                      List<String> filteredResourceNames,
                                                                      ServicesCloudModelBuilder servicesCloudModelBuilder) {
         CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(
-            filteredResourceNames,
-            getStepLogger(),
-            false);
+            filteredResourceNames, getStepLogger(), false);
         // this always filters the 'isActive', 'isResourceSpecifiedForDeployment' and 'isService' resources
         List<Resource> calculatedFilteredResources = resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(
             deploymentDescriptor.getResources());
@@ -236,44 +234,39 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
                                                                                                                            mtaManifestModuleNames,
                                                                                                                            deployedModuleNames,
                                                                                                                            mtaModuleNamesForDeployment);
-        return modulesCloudModelBuilderContentCalculator.calculateContentForBuilding(getModulesForDeployment(context.getExecution(),
-                                                                                                             deploymentDescriptor));
+        return modulesCloudModelBuilderContentCalculator.calculateContentForBuilding(
+            getModulesForDeployment(context.getExecution(), deploymentDescriptor));
     }
 
     private List<Resource> calculateResourcesForDeployment(ProcessContext context, DeploymentDescriptor deploymentDescriptor) {
         List<String> resourcesSpecifiedForDeployment = context.getVariable(Variables.RESOURCES_FOR_DEPLOYMENT);
         CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(
-            resourcesSpecifiedForDeployment,
-            getStepLogger(),
-            shouldProcessOnlyUserProvidedServices(context));
+            resourcesSpecifiedForDeployment, getStepLogger(), shouldProcessOnlyUserProvidedServices(context));
         return resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());
     }
 
     private boolean shouldProcessOnlyUserProvidedServices(ProcessContext context) {
-        return processTypeParser.getProcessType(context.getExecution()) == ProcessType.ROLLBACK_MTA
-            && context.getVariable(Variables.PROCESS_USER_PROVIDED_SERVICES);
+        return processTypeParser.getProcessType(context.getExecution()) == ProcessType.ROLLBACK_MTA && context.getVariable(
+            Variables.PROCESS_USER_PROVIDED_SERVICES);
     }
 
-    protected ModulesCloudModelBuilderContentCalculator
-    getModulesContentCalculator(ProcessContext context, List<Module> mtaDescriptorModules, Set<String> mtaManifestModuleNames,
-                                Set<String> deployedModuleNames, Set<String> mtaModuleNamesForDeployment) {
+    protected ModulesCloudModelBuilderContentCalculator getModulesContentCalculator(ProcessContext context,
+                                                                                    List<Module> mtaDescriptorModules,
+                                                                                    Set<String> mtaManifestModuleNames,
+                                                                                    Set<String> deployedModuleNames,
+                                                                                    Set<String> mtaModuleNamesForDeployment) {
         List<ModulesContentValidator> modulesValidators = getModuleContentValidators(context.getControllerClient(), mtaDescriptorModules,
                                                                                      mtaModuleNamesForDeployment, deployedModuleNames);
-        return new ModulesCloudModelBuilderContentCalculator(mtaManifestModuleNames,
-                                                             deployedModuleNames,
-                                                             context.getVariable(Variables.MODULES_FOR_DEPLOYMENT),
-                                                             getStepLogger(),
-                                                             moduleToDeployHelper,
-                                                             modulesValidators);
+        return new ModulesCloudModelBuilderContentCalculator(mtaManifestModuleNames, deployedModuleNames,
+                                                             context.getVariable(Variables.MODULES_FOR_DEPLOYMENT), getStepLogger(),
+                                                             moduleToDeployHelper, modulesValidators);
     }
 
     private List<ModulesContentValidator> getModuleContentValidators(CloudControllerClient cloudControllerClient,
                                                                      List<Module> mtaDescriptorModules, Set<String> mtaModulesForDeployment,
                                                                      Set<String> deployedModuleNames) {
         return List.of(new UnresolvedModulesContentValidator(mtaModulesForDeployment, deployedModuleNames),
-                       new DeployedAfterModulesContentValidator(cloudControllerClient,
-                                                                getStepLogger(),
-                                                                moduleToDeployHelper,
+                       new DeployedAfterModulesContentValidator(cloudControllerClient, getStepLogger(), moduleToDeployHelper,
                                                                 mtaDescriptorModules));
     }
 
