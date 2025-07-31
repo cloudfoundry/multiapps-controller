@@ -6,9 +6,11 @@ import java.util.Map;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEntity;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
@@ -18,10 +20,6 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaService;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 
 @Named
 public class MtaMetadataParser extends BaseMtaMetadataParser {
@@ -84,8 +82,7 @@ public class MtaMetadataParser extends BaseMtaMetadataParser {
     public DeployedMtaService parseDeployedMtaService(CloudServiceInstance serviceInstance) {
         mtaMetadataValidator.validate(serviceInstance);
         String resourceName = parseNameAttribute(serviceInstance.getV3Metadata()
-                                                                .getAnnotations(),
-                                                 MtaMetadataAnnotations.MTA_RESOURCE);
+                                                                .getAnnotations(), MtaMetadataAnnotations.MTA_RESOURCE);
 
         return ImmutableDeployedMtaService.builder()
                                           .from(serviceInstance)

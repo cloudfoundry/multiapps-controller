@@ -6,14 +6,12 @@ import java.util.Optional;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 @Named
 public class TokenParserChain {
@@ -40,7 +38,8 @@ public class TokenParserChain {
                            .filter(Optional::isPresent)
                            .map(Optional::get)
                            .findFirst()
-                           .orElseThrow(() -> new InternalAuthenticationServiceException(Messages.NO_TOKEN_PARSER_FOUND_FOR_THE_CURRENT_TOKEN));
+                           .orElseThrow(
+                               () -> new InternalAuthenticationServiceException(Messages.NO_TOKEN_PARSER_FOUND_FOR_THE_CURRENT_TOKEN));
     }
 
     private void logTokenInfo(OAuth2AccessToken accessToken) {

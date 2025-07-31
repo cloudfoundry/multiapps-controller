@@ -1,15 +1,16 @@
 package org.cloudfoundry.multiapps.controller.core.security.data.termination;
 
-import static java.text.MessageFormat.format;
-
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CFOptimizedEventGetter;
@@ -29,10 +30,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.OperationServi
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+import static java.text.MessageFormat.format;
 
 @Named
 public class DataTerminationService {
@@ -96,10 +94,8 @@ public class DataTerminationService {
 
     protected CFOptimizedEventGetter getCfOptimizedEventGetter() {
         CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
-                                                                 configuration.getGlobalAuditorPassword(),
-                                                                 SecurityUtil.CLIENT_ID,
-                                                                 SecurityUtil.CLIENT_SECRET,
-                                                                 configuration.getGlobalAuditorOrigin());
+                                                                 configuration.getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID,
+                                                                 SecurityUtil.CLIENT_SECRET, configuration.getGlobalAuditorOrigin());
         return new CFOptimizedEventGetter(configuration, webClientFactory, cloudCredentials);
     }
 
@@ -118,8 +114,8 @@ public class DataTerminationService {
         if (configurationSubscriptions.isEmpty()) {
             return;
         }
-        configurationSubscriptions.forEach(configurationSubscription -> mtaConfigurationPurgerAuditLog.logDeleteSubscription(spaceId,
-                                                                                                                             configurationSubscription));
+        configurationSubscriptions.forEach(
+            configurationSubscription -> mtaConfigurationPurgerAuditLog.logDeleteSubscription(spaceId, configurationSubscription));
         configurationSubscriptionService.createQuery()
                                         .deleteAll(spaceId);
     }

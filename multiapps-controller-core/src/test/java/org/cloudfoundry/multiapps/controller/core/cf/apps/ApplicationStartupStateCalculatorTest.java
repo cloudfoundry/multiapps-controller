@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.cf.apps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -10,23 +8,24 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableInstanceInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableInstancesInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceState;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
-import com.sap.cloudfoundry.client.facade.domain.InstanceState;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableInstancesInfo;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableInstanceInfo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ApplicationStartupStateCalculatorTest {
 
     public static Stream<Arguments> testComputeCurrentState() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
                 // (0)
                 Arguments.of("started-app.json", ApplicationStartupState.STARTED),
                 // (1)
@@ -53,7 +52,7 @@ class ApplicationStartupStateCalculatorTest {
 
     public static Stream<Arguments> testComputeDesiredState() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
                 // (0)
                 Arguments.of("app-with-no-start-attribute-true.json", true, ApplicationStartupState.STOPPED),
                 // (1)

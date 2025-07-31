@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static java.text.MessageFormat.format;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -10,11 +8,11 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.core.model.TypedServiceOperationState;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+import static java.text.MessageFormat.format;
 
 @Named
 public class ServiceProgressReporter {

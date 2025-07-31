@@ -11,12 +11,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
@@ -34,15 +41,6 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 @Named("determineServiceCreateUpdateActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -230,12 +228,15 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
         ArchiveEntryWithStreamPositions serviceBindingParametersEntry = ArchiveEntryExtractorUtil.findEntry(fileName,
-                                                                                                            context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS));
+                                                                                                            context.getVariable(
+                                                                                                                Variables.ARCHIVE_ENTRIES_POSITIONS));
         byte[] serviceBindingsParametersContent = archiveEntryExtractor.extractEntryBytes(ImmutableFileEntryProperties.builder()
                                                                                                                       .guid(appArchiveId)
-                                                                                                                      .name(serviceBindingParametersEntry.getName())
+                                                                                                                      .name(
+                                                                                                                          serviceBindingParametersEntry.getName())
                                                                                                                       .spaceGuid(spaceGuid)
-                                                                                                                      .maxFileSizeInBytes(configuration.getMaxManifestSize())
+                                                                                                                      .maxFileSizeInBytes(
+                                                                                                                          configuration.getMaxManifestSize())
                                                                                                                       .build(),
                                                                                           serviceBindingParametersEntry);
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(serviceBindingsParametersContent)) {

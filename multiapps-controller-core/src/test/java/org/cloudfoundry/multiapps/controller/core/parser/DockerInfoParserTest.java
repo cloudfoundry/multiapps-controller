@@ -1,19 +1,18 @@
 package org.cloudfoundry.multiapps.controller.core.parser;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerCredentials;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerInfo;
 import org.junit.jupiter.api.Test;
 
-import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerCredentials;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerInfo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class DockerInfoParserTest {
 

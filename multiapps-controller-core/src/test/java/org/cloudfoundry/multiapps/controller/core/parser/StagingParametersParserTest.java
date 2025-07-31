@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
-import com.sap.cloudfoundry.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.CollectionUtils;

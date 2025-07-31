@@ -8,10 +8,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
+
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEntity;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.DynamicResolvableParametersHelper;
@@ -24,6 +25,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.helpers.VisitableObject;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+
 
 @Named("extractBatchedServicesWithResolvedDynamicParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -82,8 +84,8 @@ public class ExtractBatchedServicesWithResolvedDynamicParametersStep extends Syn
                                                                 List<CloudServiceInstanceExtended> servicesCalculatedForDeployment) {
         Map<String, String> existingServiceGuids = new HashMap<>();
         for (var serviceCalculatedForDeployment : servicesCalculatedForDeployment) {
-            if (!serviceCalculatedForDeployment.isManaged()
-                && isServiceInstanceGuidRequired(dynamicResolvableParameters, serviceCalculatedForDeployment)) {
+            if (!serviceCalculatedForDeployment.isManaged() && isServiceInstanceGuidRequired(dynamicResolvableParameters,
+                                                                                             serviceCalculatedForDeployment)) {
                 existingServiceGuids.put(serviceCalculatedForDeployment.getResourceName(),
                                          client.getRequiredServiceInstanceGuid(serviceCalculatedForDeployment.getName())
                                                .toString());

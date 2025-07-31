@@ -1,15 +1,17 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableServiceCredentialBindingOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
@@ -21,12 +23,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceCredentialBindingOperation;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class PollServiceBindingLastOperationExecutionTest extends AsyncStepOperationTest<BindServiceToApplicationStep> {
 
@@ -88,8 +87,9 @@ class PollServiceBindingLastOperationExecutionTest extends AsyncStepOperationTes
         context.setVariable(Variables.APP_TO_PROCESS, buildCloudApplication());
         context.setVariable(Variables.SERVICE_TO_UNBIND_BIND, SERVICE_TO_UNBIND_BIND);
         List<AsyncExecution> asyncExecutions = getAsyncOperations(context);
-        String expectedErrorMessage = MessageFormat.format(Messages.ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1,
-                                                           APP_TO_PROCESS_NAME, SERVICE_TO_UNBIND_BIND);
+        String expectedErrorMessage = MessageFormat.format(
+            Messages.ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1,
+            APP_TO_PROCESS_NAME, SERVICE_TO_UNBIND_BIND);
         asyncExecutions.forEach(asyncExecution -> assertEquals(expectedErrorMessage, asyncExecution.getPollingErrorMessage(context)));
     }
 

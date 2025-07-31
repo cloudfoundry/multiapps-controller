@@ -1,14 +1,15 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerData;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
@@ -23,10 +24,8 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class StepsUtilTest {
 
@@ -123,7 +122,8 @@ class StepsUtilTest {
     @Test
     void testSetAndGetCloudPackage() {
         CloudPackage expectedCloudPackage = ImmutableCloudPackage.builder()
-                                                                 .metadata(ImmutableCloudMetadata.of(UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93")))
+                                                                 .metadata(ImmutableCloudMetadata.of(
+                                                                     UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93")))
                                                                  .type(CloudPackage.Type.DOCKER)
                                                                  .data(ImmutableDockerData.builder()
                                                                                           .image("cloudfoundry/test")

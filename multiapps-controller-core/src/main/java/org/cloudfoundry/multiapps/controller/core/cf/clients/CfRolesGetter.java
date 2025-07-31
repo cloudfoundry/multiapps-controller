@@ -8,10 +8,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.UserRole;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-import com.sap.cloudfoundry.client.facade.domain.UserRole;
 
 public class CfRolesGetter extends CustomControllerClient {
 

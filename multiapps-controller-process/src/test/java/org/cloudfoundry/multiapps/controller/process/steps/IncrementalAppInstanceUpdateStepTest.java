@@ -1,17 +1,16 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.prepareDisablingAutoscaler;
-import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableInstanceInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableInstancesInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceState;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
@@ -31,12 +30,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableInstanceInfo;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableInstancesInfo;
-import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
-import com.sap.cloudfoundry.client.facade.domain.InstanceState;
-import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.prepareDisablingAutoscaler;
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<IncrementalAppInstancesUpdateStep> {
 
@@ -60,7 +59,8 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         prepareAppToProcess(5);
         step.execute(execution);
         verify(client).updateApplicationInstances(APP_TO_PROCESS_NAME, 5);
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         assertEquals(5, incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         assertEquals(1, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
         assertExecutionStepStatus(StepPhase.POLL.toString());
@@ -91,7 +91,8 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         prepareRunningOldApplication();
         prepareAppToProcess(5);
         step.execute(execution);
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         assertEquals(2, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getOldApplicationInstanceCount());
@@ -133,7 +134,8 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         prepareFailingOldApplication();
         prepareAppToProcess(5);
         step.execute(execution);
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         assertEquals(0, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getOldApplicationInstanceCount());
@@ -156,7 +158,8 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         prepareFailingOldApplication();
         prepareAppToProcess(1);
         step.execute(execution);
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         assertEquals(0, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
         assertEquals(1, incrementalAppInstanceUpdateConfiguration.getOldApplicationInstanceCount());
@@ -171,7 +174,8 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         prepareDeployedMtaWithoutApplications();
         prepareAppToProcess(5);
         step.execute(execution);
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         assertEquals(5, incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         assertEquals(1, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
         assertExecutionStepStatus(StepPhase.POLL.toString());
@@ -200,7 +204,8 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
         prepareAppToProcess(5);
         step.execute(execution);
-        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
+        IncrementalAppInstanceUpdateConfiguration incrementalAppInstanceUpdateConfiguration = context.getVariable(
+            Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION);
         assertEquals(5, incrementalAppInstanceUpdateConfiguration.getNewApplicationInstanceCount());
         assertEquals(1, context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX));
         assertNull(incrementalAppInstanceUpdateConfiguration.getOldApplication());

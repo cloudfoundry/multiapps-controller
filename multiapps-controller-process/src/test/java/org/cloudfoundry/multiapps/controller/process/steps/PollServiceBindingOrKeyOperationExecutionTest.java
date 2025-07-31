@@ -1,25 +1,24 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.List;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableServiceCredentialBindingOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceInstance;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceCredentialBindingOperation;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PollServiceBindingOrKeyOperationExecutionTest extends AsyncStepOperationTest<CheckForServiceBindingOrKeyOperationStep> {
 
@@ -125,7 +124,8 @@ class PollServiceBindingOrKeyOperationExecutionTest extends AsyncStepOperationTe
                                            .serviceInstanceGuid(serviceInstance.getGuid())
                                            .serviceBindingOperation(ImmutableServiceCredentialBindingOperation.builder()
                                                                                                               .state(state)
-                                                                                                              .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                              .type(
+                                                                                                                  ServiceCredentialBindingOperation.Type.CREATE)
                                                                                                               .build())
                                            .build();
     }
@@ -135,7 +135,8 @@ class PollServiceBindingOrKeyOperationExecutionTest extends AsyncStepOperationTe
                                        .serviceInstance(serviceInstance)
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
                                                                                                       .state(state)
-                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                      .type(
+                                                                                                          ServiceCredentialBindingOperation.Type.CREATE)
                                                                                                       .build())
                                        .build();
     }

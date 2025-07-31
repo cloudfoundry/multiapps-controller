@@ -1,8 +1,8 @@
 package org.cloudfoundry.multiapps.controller.web.resources;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;

@@ -13,21 +13,20 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaServiceKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceInstance;
-
 public class CloudEntityResourceMapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudEntityResourceMapper.class);
-    
+
     @SuppressWarnings("unchecked")
     public String getRelatedObjectGuid(Map<String, Object> resource, String relationshipName) {
         var relationships = (Map<String, Object>) resource.get("relationships");

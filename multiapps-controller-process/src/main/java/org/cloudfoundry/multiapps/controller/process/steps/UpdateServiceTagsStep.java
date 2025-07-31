@@ -3,10 +3,11 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.function.Supplier;
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+
 import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -56,9 +57,8 @@ public class UpdateServiceTagsStep extends ServiceStep {
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
-        return List.of(
-            new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(), getServiceProgressReporter(),
-                                                             shouldFailOnTagsUpdateFailure(serviceToProcess)));
+        return List.of(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(), getServiceProgressReporter(),
+                                                                        shouldFailOnTagsUpdateFailure(serviceToProcess)));
     }
 
     private Supplier<Boolean> shouldFailOnTagsUpdateFailure(CloudServiceInstanceExtended serviceToProcess) {

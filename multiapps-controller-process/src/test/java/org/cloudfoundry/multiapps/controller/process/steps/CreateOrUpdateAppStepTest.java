@@ -1,13 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.prepareDisablingAutoscaler;
-import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +10,18 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerCredentials;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableServiceCredentialBindingOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
+import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
+import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
@@ -28,18 +32,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerCredentials;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerInfo;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceCredentialBindingOperation;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
-import com.sap.cloudfoundry.client.facade.domain.Staging;
-import com.sap.cloudfoundry.client.facade.dto.ApplicationToCreateDto;
-import com.sap.cloudfoundry.client.facade.dto.ImmutableApplicationToCreateDto;
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.prepareDisablingAutoscaler;
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
 
@@ -53,7 +52,7 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
 
     static Stream<Arguments> testHandleApplicationAttributes() {
         return Stream.of(
-//@formatter:off
+            //@formatter:off
                          // (1) Everything is specified properly and should apply incremental instances update:
                          Arguments.of(ImmutableStaging.builder().command("command1").healthCheckType("none").addBuildpack("buildpackUrl").build(),
                                       128, 256, TestData.routeSet("example.com", "foo-bar.xyz"), Map.of("env-key", "env-value"), true),
@@ -189,8 +188,10 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
                                        .name(SERVICE_KEY_NAME)
                                        .credentials(serviceKeyCredentials)
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                      .state(ServiceCredentialBindingOperation.State.SUCCEEDED)
+                                                                                                      .type(
+                                                                                                          ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                      .state(
+                                                                                                          ServiceCredentialBindingOperation.State.SUCCEEDED)
                                                                                                       .build())
                                        .build();
     }

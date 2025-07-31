@@ -4,15 +4,13 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
 
 @Named("checkServiceKeyOperationStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -23,8 +21,7 @@ public class CheckServiceKeyOperationStep extends AsyncFlowableStep {
         CloudControllerClient controllerClient = context.getControllerClient();
         CloudServiceKey serviceKeyToProcess = context.getVariable(Variables.SERVICE_KEY_TO_PROCESS);
         CloudServiceKey serviceKey = controllerClient.getServiceKey(serviceKeyToProcess.getServiceInstance()
-                                                                                       .getName(),
-                                                                    serviceKeyToProcess.getName());
+                                                                                       .getName(), serviceKeyToProcess.getName());
         if (serviceKey == null) {
             getStepLogger().debug(Messages.SERVICE_KEY_DOES_NOT_EXIST_0, serviceKeyToProcess.getName());
             context.setVariable(Variables.SERVICE_KEY_DOES_NOT_EXIST, true);

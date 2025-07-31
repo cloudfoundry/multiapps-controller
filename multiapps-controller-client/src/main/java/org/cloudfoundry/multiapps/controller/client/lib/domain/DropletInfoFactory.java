@@ -2,11 +2,11 @@ package org.cloudfoundry.multiapps.controller.client.lib.domain;
 
 import java.util.List;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.DockerData;
-import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
-import com.sap.cloudfoundry.client.facade.domain.Staging;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerData;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 
 public class DropletInfoFactory {
 

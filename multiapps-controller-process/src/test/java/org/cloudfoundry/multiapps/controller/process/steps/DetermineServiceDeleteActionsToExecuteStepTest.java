@@ -1,17 +1,18 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.cloudfoundry.multiapps.controller.process.util.ServiceDeletionActions.DELETE_METADATA;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableServiceCredentialBindingOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
@@ -23,13 +24,10 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.junit.jupiter.api.Test;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceCredentialBindingOperation;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class DetermineServiceDeleteActionsToExecuteStepTest extends SyncFlowableStepTest<DetermineServiceDeleteActionsToExecuteStep> {
 
@@ -91,8 +89,7 @@ class DetermineServiceDeleteActionsToExecuteStepTest extends SyncFlowableStepTes
         step.execute(execution);
         assertStepFinishedSuccessfully();
         assertEquals(List.of(ServiceDeletionActions.DELETE_SERVICE_BINDINGS, ServiceDeletionActions.DELETE_SERVICE_KEYS,
-                             ServiceDeletionActions.DELETE_SERVICE_INSTANCE),
-                     context.getVariable(Variables.SERVICE_DELETION_ACTIONS));
+                             ServiceDeletionActions.DELETE_SERVICE_INSTANCE), context.getVariable(Variables.SERVICE_DELETION_ACTIONS));
     }
 
     @Test

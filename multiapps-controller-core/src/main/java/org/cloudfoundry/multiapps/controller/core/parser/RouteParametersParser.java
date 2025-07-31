@@ -9,12 +9,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.common.util.MapUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesValidator;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 public class RouteParametersParser implements ParametersParser<Set<CloudRoute>> {
 
@@ -97,7 +96,7 @@ public class RouteParametersParser implements ParametersParser<Set<CloudRoute>> 
 
     /**
      * This method is doing a DesCartesian multiplication for given hosts and domains and returns constructed routes
-     * 
+     *
      * @param hosts
      * @param domains
      * @return set of all routes created
@@ -122,9 +121,8 @@ public class RouteParametersParser implements ParametersParser<Set<CloudRoute>> 
     }
 
     public Set<CloudRoute> getApplicationRoutes(List<Map<String, Object>> parametersList) {
-        List<Map<String, Object>> routesMaps = RoutesValidator.applyRoutesType(PropertiesUtil.getPropertyValue(parametersList,
-                                                                                                               SupportedParameters.ROUTES,
-                                                                                                               null));
+        List<Map<String, Object>> routesMaps = RoutesValidator.applyRoutesType(
+            PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.ROUTES, null));
 
         return routesMaps.stream()
                          .map(this::parseRouteMap)

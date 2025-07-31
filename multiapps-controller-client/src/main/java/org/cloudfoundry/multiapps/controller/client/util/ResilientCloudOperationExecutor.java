@@ -12,11 +12,10 @@ import java.util.function.Function;
 import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.Messages;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 public class ResilientCloudOperationExecutor extends ResilientOperationExecutor {
 

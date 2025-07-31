@@ -3,13 +3,12 @@ package org.cloudfoundry.multiapps.controller.core.helpers;
 import java.text.MessageFormat;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
 
 public class ClientHelper {
 

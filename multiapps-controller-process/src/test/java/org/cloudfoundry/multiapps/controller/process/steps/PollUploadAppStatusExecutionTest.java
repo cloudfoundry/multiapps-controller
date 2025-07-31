@@ -1,14 +1,18 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerData;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableErrorDetails;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableUpload;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Upload;
 import org.cloudfoundry.multiapps.controller.process.steps.ScaleAppStepTest.SimpleApplication;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,19 +20,15 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableErrorDetails;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableUpload;
-import com.sap.cloudfoundry.client.facade.domain.Status;
-import com.sap.cloudfoundry.client.facade.domain.Upload;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<UploadAppStep> {
 
-    private static final CloudOperationException CLOUD_OPERATION_EXCEPTION_BAD_REQUEST = new CloudOperationException(HttpStatus.BAD_REQUEST);
+    private static final CloudOperationException CLOUD_OPERATION_EXCEPTION_BAD_REQUEST = new CloudOperationException(
+        HttpStatus.BAD_REQUEST);
     private static final CloudOperationException CLOUD_OPERATION_EXCEPTION_NOT_FOUND = new CloudOperationException(HttpStatus.NOT_FOUND);
     private static final UUID PACKAGE_GUID = UUID.fromString("20886182-1802-11e9-ab14-d663bd873d93");
     private static final String APP_NAME = "test-app-1";
@@ -38,7 +38,7 @@ class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<UploadAppS
 
     public static Stream<Arguments> testPollStatus() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (00) The previous step used asynchronous upload but getting the upload progress fails with an exception:
             Arguments.of(null, null, CLOUD_OPERATION_EXCEPTION_BAD_REQUEST),
             // (01) The previous step used asynchronous upload and it finished successfully:

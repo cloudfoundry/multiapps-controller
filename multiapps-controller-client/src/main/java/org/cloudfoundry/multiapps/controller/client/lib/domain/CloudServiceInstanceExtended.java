@@ -2,8 +2,8 @@ package org.cloudfoundry.multiapps.controller.client.lib.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.common.Nullable;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.immutables.value.Value;
 
 @Value.Immutable

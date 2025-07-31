@@ -1,10 +1,9 @@
 package org.cloudfoundry.multiapps.controller.core.application.health.model;
 
-import org.immutables.value.Value;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.sap.cloudfoundry.client.facade.Nullable;
+import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
+import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableApplicationHealthResult.class)

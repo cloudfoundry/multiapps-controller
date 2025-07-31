@@ -1,18 +1,15 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.AdditionalAnswers.returnsFirstArg;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
@@ -30,8 +27,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishConfigurationEntriesStep> {
 
@@ -54,7 +53,7 @@ class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishCo
 
     public static Stream<Arguments> test() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
                 Arguments.of("publish-configuration-entries-step-input-1.json"),
                 Arguments.of("publish-configuration-entries-step-input-2.json"),
                 Arguments.of("publish-configuration-entries-step-input-3.json"),
@@ -65,10 +64,9 @@ class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishCo
 
     @BeforeAll
     public static void loadConfigurationEntries() {
-        existingConfigurationEntries = JsonUtil.fromJson(TestUtil.getResourceAsString("configuration-entries.json",
-                                                                                      PublishConfigurationEntriesStepTest.class),
-                                                         new TypeReference<>() {
-                                                         });
+        existingConfigurationEntries = JsonUtil.fromJson(
+            TestUtil.getResourceAsString("configuration-entries.json", PublishConfigurationEntriesStepTest.class), new TypeReference<>() {
+            });
     }
 
     @ParameterizedTest
@@ -95,19 +93,24 @@ class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishCo
     public void prepareConfigurationEntryService() {
         when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
         for (ConfigurationEntry entry : existingConfigurationEntries) {
-            ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(entry.getProviderNid()))
-                                                                                               .on(query -> query.providerId(entry.getProviderId()))
-                                                                                               .on(query -> query.version(entry.getProviderVersion()
-                                                                                                                               .toString()))
-                                                                                               .on(query -> query.target(Mockito.eq(entry.getTargetSpace())))
+            ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(
+                                                                                                   query -> query.providerNid(entry.getProviderNid()))
+                                                                                               .on(query -> query.providerId(
+                                                                                                   entry.getProviderId()))
+                                                                                               .on(query -> query.version(
+                                                                                                   entry.getProviderVersion()
+                                                                                                        .toString()))
+                                                                                               .on(query -> query.target(
+                                                                                                   Mockito.eq(entry.getTargetSpace())))
                                                                                                .build();
             doReturn(List.of(entry)).when(entryQueryMock)
-                                                      .list();
+                                    .list();
         }
     }
 
     private void prapareDynamicParameterResolver(StepInput input) {
-        when(dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(Mockito.anyList(), Mockito.anySet())).then(returnsFirstArg());
+        when(dynamicParameterResolver.resolveDynamicParametersOfConfigurationEntries(Mockito.anyList(), Mockito.anySet())).then(
+            returnsFirstArg());
     }
 
     private void prepareContext(StepInput input) {

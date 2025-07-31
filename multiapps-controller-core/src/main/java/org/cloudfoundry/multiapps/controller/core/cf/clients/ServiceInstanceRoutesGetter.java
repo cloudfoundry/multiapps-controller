@@ -6,11 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableServiceRouteBinding;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceRouteBinding;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
 public class ServiceInstanceRoutesGetter extends CustomControllerClient {
 

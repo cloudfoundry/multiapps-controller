@@ -1,13 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +9,11 @@ import java.util.stream.Stream;
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
@@ -33,11 +30,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceInstance;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
@@ -71,32 +70,29 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
     static Stream<Arguments> testSetServiceGuidIfPresent() {
         return Stream.of(Arguments.of(
-                                      // (1) Test resolve service guid
-                                      Set.of(ImmutableDynamicResolvableParameter.builder()
-                                                                                .parameterName("service-guid")
-                                                                                .relationshipEntityName("service-1")
-                                                                                .build(),
-                                             ImmutableDynamicResolvableParameter.builder()
-                                                                                .parameterName("service-guid")
-                                                                                .relationshipEntityName("service-2")
-                                                                                .build()),
-                                      ImmutableDynamicResolvableParameter.builder()
-                                                                         .parameterName("service-guid")
-                                                                         .relationshipEntityName("service-1")
-                                                                         .value("beeb5e8d-4ab9-46ee-9205-455a278743f0")
-                                                                         .build()),
+                             // (1) Test resolve service guid
+                             Set.of(ImmutableDynamicResolvableParameter.builder()
+                                                                       .parameterName("service-guid")
+                                                                       .relationshipEntityName("service-1")
+                                                                       .build(), ImmutableDynamicResolvableParameter.builder()
+                                                                                                                    .parameterName("service-guid")
+                                                                                                                    .relationshipEntityName("service-2")
+                                                                                                                    .build()),
+                             ImmutableDynamicResolvableParameter.builder()
+                                                                .parameterName("service-guid")
+                                                                .relationshipEntityName("service-1")
+                                                                .value("beeb5e8d-4ab9-46ee-9205-455a278743f0")
+                                                                .build()),
                          // (2) Test skip resolve of unrelated parameter
                          Arguments.of(Set.of(ImmutableDynamicResolvableParameter.builder()
                                                                                 .parameterName("service-guid")
                                                                                 .relationshipEntityName("service-2")
-                                                                                .build()),
-                                      null),
+                                                                                .build()), null),
                          // (3) Test skip resolve of unrelated parameter due to different parameter type
                          Arguments.of(Set.of(ImmutableDynamicResolvableParameter.builder()
                                                                                 .parameterName("metadata-key")
                                                                                 .relationshipEntityName("service-1")
-                                                                                .build()),
-                                      null));
+                                                                                .build()), null));
     }
 
     private static CloudServiceInstanceExtended createCloudService(UUID serviceGuid) {
@@ -140,10 +136,8 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
     private void prepareServiceOperationsGetter(CloudServiceInstanceExtended service) {
         context.setVariable(Variables.SERVICES_TO_CREATE, List.of(service));
-        when(serviceOperationGetter.getLastServiceOperation(any(),
-                                                            any())).thenReturn(new ServiceOperation(ServiceOperation.Type.CREATE,
-                                                                                                    "create done",
-                                                                                                    ServiceOperation.State.IN_PROGRESS));
+        when(serviceOperationGetter.getLastServiceOperation(any(), any())).thenReturn(
+            new ServiceOperation(ServiceOperation.Type.CREATE, "create done", ServiceOperation.State.IN_PROGRESS));
     }
 
     @Test
@@ -158,8 +152,9 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
         initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, false);
         throwExceptionOnServiceCreation(HttpStatus.UNPROCESSABLE_ENTITY);
         Exception exception = assertThrows(SLException.class, () -> step.execute(execution));
-        assertEquals("Service operation failed: Controller operation failed: 422 Error occurred: Error creating or updating service instance: Could not create service \"service-1\" : Expected Exception message ",
-                     exception.getMessage());
+        assertEquals(
+            "Service operation failed: Controller operation failed: 422 Error occurred: Error creating or updating service instance: Could not create service \"service-1\" : Expected Exception message ",
+            exception.getMessage());
     }
 
     @Test
@@ -173,8 +168,10 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
     @ParameterizedTest
     void testCreateServiceInstanceWhenAlreadyExists(ServiceOperation.State serviceInstanceState, String executionStatus) {
         initializeInput(createCloudService(UUID.randomUUID()), MANAGED_SERVICE_STEPS, true);
-        ImmutableCloudServiceInstance existingCloudServiceInstance = ImmutableCloudServiceInstance.copyOf(createCloudService(UUID.randomUUID()))
-                                                                                                  .withLastOperation(createLastOperation(serviceInstanceState));
+        ImmutableCloudServiceInstance existingCloudServiceInstance = ImmutableCloudServiceInstance.copyOf(
+                                                                                                      createCloudService(UUID.randomUUID()))
+                                                                                                  .withLastOperation(createLastOperation(
+                                                                                                      serviceInstanceState));
         Mockito.when(client.getServiceInstanceWithoutAuxiliaryContent(anyString(), anyBoolean()))
                .thenReturn(existingCloudServiceInstance);
         Mockito.doThrow(new CloudOperationException(HttpStatus.UNPROCESSABLE_ENTITY))

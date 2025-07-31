@@ -8,15 +8,14 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
 
 public class ServiceKeysCloudModelBuilder {
 
@@ -32,9 +31,9 @@ public class ServiceKeysCloudModelBuilder {
 
     public Map<String, List<CloudServiceKey>> build() {
         return descriptor.getResources()
-                                   .stream()
-                                   .filter(CloudModelBuilderUtil::isService)
-                                   .collect(Collectors.toMap(Resource::getName, this::getServiceKeysForService));
+                         .stream()
+                         .filter(CloudModelBuilderUtil::isService)
+                         .collect(Collectors.toMap(Resource::getName, this::getServiceKeysForService));
     }
 
     protected List<CloudServiceKey> getServiceKeysForService(Resource resource) {
@@ -79,8 +78,9 @@ public class ServiceKeysCloudModelBuilder {
 
     protected String getInvalidServiceKeysErrorMessage(String serviceName, Object serviceConfig) {
         return MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.INVALID_TYPE_FOR_KEY,
-                                    org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_KEYS), Map.class.getSimpleName(),
-                                    serviceConfig.getClass()
-                                                 .getSimpleName());
+                                    org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(serviceName,
+                                                                                                 SupportedParameters.SERVICE_KEYS),
+                                    Map.class.getSimpleName(), serviceConfig.getClass()
+                                                                            .getSimpleName());
     }
 }

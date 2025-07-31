@@ -1,18 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
@@ -28,6 +15,13 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.UploadStatusCallback;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerData;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
@@ -45,24 +39,34 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.UploadStatusCallback;
-import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
-import com.sap.cloudfoundry.client.facade.domain.Status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> {
 
     private static final String APP_NAME = "sample-app-backend";
     private static final String APP_FILE = "web.zip";
     private static final ArchiveEntryWithStreamPositions ARCHIVE_ENTRY_WITH_STREAM_POSITIONS = ImmutableArchiveEntryWithStreamPositions.builder()
-                                                                                                                                       .name(APP_FILE)
-                                                                                                                                       .startPosition(37)
-                                                                                                                                       .endPosition(5012)
-                                                                                                                                       .compressionMethod(ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
-                                                                                                                                       .isDirectory(false)
+                                                                                                                                       .name(
+                                                                                                                                           APP_FILE)
+                                                                                                                                       .startPosition(
+                                                                                                                                           37)
+                                                                                                                                       .endPosition(
+                                                                                                                                           5012)
+                                                                                                                                       .compressionMethod(
+                                                                                                                                           ArchiveEntryWithStreamPositions.CompressionMethod.DEFLATED)
+                                                                                                                                       .isDirectory(
+                                                                                                                                           false)
                                                                                                                                        .build();
     private static final String SPACE = "space";
     private static final String APP_ARCHIVE = "sample-app.mtar";

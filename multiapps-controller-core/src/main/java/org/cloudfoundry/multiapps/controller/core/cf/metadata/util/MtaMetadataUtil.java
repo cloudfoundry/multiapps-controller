@@ -5,11 +5,10 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEntity;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.springframework.util.DigestUtils;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
 
 public class MtaMetadataUtil {
 
@@ -30,8 +29,8 @@ public class MtaMetadataUtil {
                                              .keySet();
         Set<String> metadataAnnotations = metadata.getAnnotations()
                                                   .keySet();
-        return metadataLabels.containsAll(MTA_METADATA_MANDATORY_LABELS)
-            && metadataAnnotations.containsAll(MTA_METADATA_MANDATORY_ANNOTATIONS);
+        return metadataLabels.containsAll(MTA_METADATA_MANDATORY_LABELS) && metadataAnnotations.containsAll(
+            MTA_METADATA_MANDATORY_ANNOTATIONS);
     }
 
     public static String getHashedLabel(String mtaLabel) {

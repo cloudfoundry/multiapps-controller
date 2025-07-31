@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.web.resources;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.sql.SQLException;
 import java.util.stream.Stream;
 
@@ -11,6 +9,7 @@ import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -21,7 +20,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CFExceptionMapperTest {
 
@@ -45,11 +44,9 @@ class CFExceptionMapperTest {
                          Arguments.of(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad request"),
                                       new RestResponse(400, "Bad request")),
                          Arguments.of(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong"),
-                                      new RestResponse(500, "Something went wrong")),
-                         Arguments.of(new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS,
-                                                                  HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
-                                                                  "Rate limit exceeded"),
-                                      new RestResponse(429, "429 Too Many Requests: Rate limit exceeded")),
+                                      new RestResponse(500, "Something went wrong")), Arguments.of(
+                new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS, HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
+                                            "Rate limit exceeded"), new RestResponse(429, "429 Too Many Requests: Rate limit exceeded")),
                          Arguments.of(new HttpMediaTypeNotSupportedException("Not supported content type"),
                                       new RestResponse(415, "Not supported content type")),
                          Arguments.of(new IllegalArgumentException("Illegal argument exception"),
@@ -64,8 +61,8 @@ class CFExceptionMapperTest {
     @ParameterizedTest
     @MethodSource
     void testHandleExceptionForCloudOperationExceptionWithAllHttpStatuses(HttpStatus httpStatus) {
-        ResponseEntity<String> response = exceptionMapper.handleException(new CloudOperationException(httpStatus,
-                                                                                                      httpStatus.getReasonPhrase()));
+        ResponseEntity<String> response = exceptionMapper.handleException(
+            new CloudOperationException(httpStatus, httpStatus.getReasonPhrase()));
         StringBuilder expectedMessage = new StringBuilder();
         expectedMessage.append(httpStatus.value());
         expectedMessage.append(" ");
