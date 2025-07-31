@@ -1,13 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.client.v3.jobs.JobState;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudAsyncJob;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -16,9 +16,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudAsyncJob;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 class PollServiceKeyCreationOperationExecutionTest extends AsyncStepOperationTest<CreateServiceKeyStep> {
 

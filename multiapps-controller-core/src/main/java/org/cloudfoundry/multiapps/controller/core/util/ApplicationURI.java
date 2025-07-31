@@ -6,11 +6,10 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudDomain;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRoute;
 
 public class ApplicationURI {
 
@@ -49,8 +48,7 @@ public class ApplicationURI {
             return;
         }
         setParts(route.getHost(), route.getDomain()
-                                       .getName(),
-                 route.getPath());
+                                       .getName(), route.getPath());
     }
 
     public ApplicationURI(String host, String domain, String path) {

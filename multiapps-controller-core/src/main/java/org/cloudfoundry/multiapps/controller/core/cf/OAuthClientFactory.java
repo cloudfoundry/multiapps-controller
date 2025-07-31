@@ -2,12 +2,10 @@ package org.cloudfoundry.multiapps.controller.core.cf;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
+import org.cloudfoundry.multiapps.controller.client.facade.util.RestUtil;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
-
-import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
-import com.sap.cloudfoundry.client.facade.util.RestUtil;
 
 @Named
 public class OAuthClientFactory {

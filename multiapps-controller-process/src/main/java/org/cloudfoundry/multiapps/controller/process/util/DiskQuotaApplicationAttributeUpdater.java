@@ -1,10 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudProcess;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.util.ElementUpdater.UpdateStrategy;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudProcess;
 
 public class DiskQuotaApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 

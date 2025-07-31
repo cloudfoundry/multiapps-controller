@@ -3,15 +3,14 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.util.UUID;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.ServiceBindingOperationCallback;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.http.HttpStatus;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.ServiceBindingOperationCallback;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 
 public class DeletingServiceBindingOperationCallback implements ServiceBindingOperationCallback {
 

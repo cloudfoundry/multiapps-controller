@@ -2,10 +2,9 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.function.Consumer;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
 
 public class PollServiceKeyDeletionOperationExecution extends PollServiceKeyOperationExecution {
 

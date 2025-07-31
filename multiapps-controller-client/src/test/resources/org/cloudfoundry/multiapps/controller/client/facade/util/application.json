@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "guid": "83d048bc-a301-4b48-94a8-848e477fac4d",
+    "url": "/v2/apps/83d048bc-a301-4b48-94a8-848e477fac4d",
+    "created_at": "2019-07-18T17:19:27Z",
+    "updated_at": "2019-07-18T19:55:52Z"
+  },
+  "entity": {
+    "name": "test-flask-5",
+    "production": false,
+    "space_guid": "bbbeed31-f908-477a-aab9-8cdcd19e1348",
+    "stack_guid": "bbbeed31-f908-477a-aab9-8cdcd19e1348",
+    "buildpack": null,
+    "detected_buildpack": "python",
+    "detected_buildpack_guid": "5eb740a2-f70b-4e38-957c-e1c513142c4c",
+    "environment_json": null,
+    "memory": 1024,
+    "instances": 1,
+    "disk_quota": 1024,
+    "state": "STOPPED",
+    "version": "bbbeed31-f908-477a-aab9-8cdcd19e1348",
+    "command": null,
+    "console": false,
+    "debug": null,
+    "staging_task_id": "a50db5f9-713b-4e46-9560-21bd4992df1c",
+    "package_state": "STAGED",
+    "health_check_type": "port",
+    "health_check_timeout": null,
+    "health_check_http_endpoint": null,
+    "staging_failed_reason": null,
+    "staging_failed_description": null,
+    "diego": true,
+    "docker_image": null,
+    "docker_credentials": {
+      "username": null,
+      "password": null
+    },
+    "package_updated_at": "2019-07-18T17:20:54Z",
+    "detected_start_command": "python app.py",
+    "enable_ssh": true,
+    "ports": [
+      8080
+    ],
+    "space_url": "/v2/spaces/e1210c89-158b-4298-a417-96f80d5b9e52"
+  }
+}

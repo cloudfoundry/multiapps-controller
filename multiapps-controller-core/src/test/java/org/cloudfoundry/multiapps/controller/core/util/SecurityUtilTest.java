@@ -1,18 +1,11 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
-import static com.sap.cloudfoundry.client.facade.oauth2.TokenFactory.SCOPE_CC_ADMIN;
-import static org.cloudfoundry.multiapps.controller.client.util.TokenProperties.CLIENT_ID_KEY;
-import static org.cloudfoundry.multiapps.controller.client.util.TokenProperties.USER_ID_KEY;
-import static org.cloudfoundry.multiapps.controller.client.util.TokenProperties.USER_NAME_KEY;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,7 +13,13 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import static org.cloudfoundry.multiapps.controller.client.facade.oauth2.TokenFactory.SCOPE_CC_ADMIN;
+import static org.cloudfoundry.multiapps.controller.client.util.TokenProperties.CLIENT_ID_KEY;
+import static org.cloudfoundry.multiapps.controller.client.util.TokenProperties.USER_ID_KEY;
+import static org.cloudfoundry.multiapps.controller.client.util.TokenProperties.USER_NAME_KEY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SecurityUtilTest {
 

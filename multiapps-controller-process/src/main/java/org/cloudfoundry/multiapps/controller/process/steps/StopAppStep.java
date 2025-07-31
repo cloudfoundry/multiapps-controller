@@ -3,6 +3,10 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.util.List;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -11,13 +15,6 @@ import org.cloudfoundry.multiapps.controller.process.util.DeploymentTypeDetermin
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication.State;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 @Named("stopAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -34,7 +31,7 @@ public class StopAppStep extends SyncFlowableStepWithHooks implements BeforeStep
 
         CloudApplication existingApp = context.getVariable(Variables.EXISTING_APP);
         if (existingApp != null && !existingApp.getState()
-                                               .equals(State.STOPPED)) {
+                                               .equals(CloudApplication.State.STOPPED)) {
             getStepLogger().info(Messages.STOPPING_APP, app.getName());
 
             CloudControllerClient client = context.getControllerClient();

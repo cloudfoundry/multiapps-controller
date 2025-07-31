@@ -8,17 +8,15 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.DropletInfo;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.DropletInfo;
 
 @Named
 public class CloudPackagesGetter {
@@ -26,7 +24,8 @@ public class CloudPackagesGetter {
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudPackagesGetter.class);
 
     public Optional<CloudPackage> getAppPackage(CloudControllerClient client, UUID applicationGuid) {
-        Optional<DropletInfo> currentDropletForApplication = findOrReturnEmpty(() -> client.getCurrentDropletForApplication(applicationGuid));
+        Optional<DropletInfo> currentDropletForApplication = findOrReturnEmpty(
+            () -> client.getCurrentDropletForApplication(applicationGuid));
         if (currentDropletForApplication.isEmpty()) {
             return getMostRecentAppPackage(client, applicationGuid);
         }
@@ -53,8 +52,8 @@ public class CloudPackagesGetter {
 
     public Optional<CloudPackage> getMostRecentAppPackage(CloudControllerClient client, UUID applicationGuid) {
         List<CloudPackage> cloudPackages = client.getPackagesForApplication(applicationGuid);
-        LOGGER.info(MessageFormat.format(Messages.PACKAGES_FOR_APPLICATION_0_ARE_1, applicationGuid,
-                                         SecureSerialization.toJson(cloudPackages)));
+        LOGGER.info(
+            MessageFormat.format(Messages.PACKAGES_FOR_APPLICATION_0_ARE_1, applicationGuid, SecureSerialization.toJson(cloudPackages)));
         return cloudPackages.stream()
                             .max(Comparator.comparing(cloudPackage -> cloudPackage.getMetadata()
                                                                                   .getCreatedAt()));

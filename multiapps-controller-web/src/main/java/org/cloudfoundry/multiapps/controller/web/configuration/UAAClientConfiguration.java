@@ -5,9 +5,8 @@ import java.text.MessageFormat;
 import java.util.Map;
 
 import jakarta.inject.Inject;
-
-import com.sap.cloudfoundry.client.facade.util.RestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.util.RestUtil;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SSLUtil;
@@ -24,8 +23,7 @@ public class UAAClientConfiguration {
         if (configuration.shouldSkipSslValidation()) {
             SSLUtil.disableSSLValidation();
         }
-        return new UAAClient(readTokenEndpoint(configuration.getControllerUrl()),
-                             new RestUtil().createWebClient(false));
+        return new UAAClient(readTokenEndpoint(configuration.getControllerUrl()), new RestUtil().createWebClient(false));
     }
 
     @SuppressWarnings("unchecked")
@@ -36,8 +34,8 @@ public class UAAClientConfiguration {
             var uaa = (Map<String, Object>) links.get("uaa");
             Object endpoint = uaa.get("href");
             if (endpoint == null) {
-                throw new IllegalStateException(MessageFormat.format("Response from {0} does not contain a valid token endpoint",
-                                                                     targetURL.toString()));
+                throw new IllegalStateException(
+                    MessageFormat.format("Response from {0} does not contain a valid token endpoint", targetURL.toString()));
             }
             return new URL(endpoint.toString());
         } catch (Exception e) {

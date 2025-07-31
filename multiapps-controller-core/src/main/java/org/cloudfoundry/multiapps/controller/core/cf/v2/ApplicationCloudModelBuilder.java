@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
@@ -46,10 +49,6 @@ import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.CloudTask;
-
 public class ApplicationCloudModelBuilder {
 
     private static final int MTA_MAJOR_VERSION = 2;
@@ -73,10 +72,8 @@ public class ApplicationCloudModelBuilder {
         this.deploymentDescriptor = builder.deploymentDescriptor;
         this.namespace = builder.namespace;
         this.prettyPrinting = builder.prettyPrinting;
-        this.applicationEnvCloudModelBuilder = new ApplicationEnvironmentCloudModelBuilder(deploymentDescriptor,
-                                                                                           builder.deployId,
-                                                                                           namespace,
-                                                                                           prettyPrinting);
+        this.applicationEnvCloudModelBuilder = new ApplicationEnvironmentCloudModelBuilder(deploymentDescriptor, builder.deployId,
+                                                                                           namespace, prettyPrinting);
         this.deployedMta = builder.deployedMta;
         this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
         this.stepLogger = builder.userMessageLogger;
@@ -293,8 +290,8 @@ public class ApplicationCloudModelBuilder {
     }
 
     public List<String> getApplicationDomains(List<Map<String, Object>> parametersList, Module module) {
-        return getApplicationRoutesCloudModelBuilder(parametersList).getApplicationDomains(module,
-                                                                                           parametersChainBuilder.buildModuleChain(module.getName()));
+        return getApplicationRoutesCloudModelBuilder(parametersList).getApplicationDomains(module, parametersChainBuilder.buildModuleChain(
+            module.getName()));
     }
 
     protected Resource getResource(String dependencyName) {

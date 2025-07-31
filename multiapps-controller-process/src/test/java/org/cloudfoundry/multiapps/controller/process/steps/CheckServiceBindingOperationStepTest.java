@@ -1,15 +1,17 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableServiceCredentialBindingOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
@@ -23,12 +25,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceCredentialBindingOperation;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 class CheckServiceBindingOperationStepTest extends SyncFlowableStepTest<CheckServiceBindingOperationStep> {
 
@@ -79,13 +78,15 @@ class CheckServiceBindingOperationStepTest extends SyncFlowableStepTest<CheckSer
     @Test
     void testThrowExceptionWhenFetchingServiceBinding() {
         when(client.getServiceBindingForApplication(APP_GUID,
-                                                    SERVICE_INSTANCE_GUID)).thenThrow(new CloudOperationException(HttpStatus.SERVICE_UNAVAILABLE));
+                                                    SERVICE_INSTANCE_GUID)).thenThrow(
+            new CloudOperationException(HttpStatus.SERVICE_UNAVAILABLE));
         when(client.getApplicationGuid(APP_NAME)).thenReturn(APP_GUID);
         when(client.getRequiredServiceInstanceGuid(SERVICE_INSTANCE_NAME)).thenReturn(SERVICE_INSTANCE_GUID);
         Exception exception = assertThrows(SLException.class, () -> step.execute(execution));
-        assertEquals("Error while checking service binding operations between app: \"test-app\" and service instance \"test-service-instance\": Controller operation failed: 503 Service Unavailable",
-                     exception.getMessage()
-                              .trim());
+        assertEquals(
+            "Error while checking service binding operations between app: \"test-app\" and service instance \"test-service-instance\": Controller operation failed: 503 Service Unavailable",
+            exception.getMessage()
+                     .trim());
     }
 
     @Test
@@ -137,7 +138,8 @@ class CheckServiceBindingOperationStepTest extends SyncFlowableStepTest<CheckSer
                                            .serviceInstanceGuid(SERVICE_INSTANCE_GUID)
                                            .applicationGuid(APP_GUID)
                                            .serviceBindingOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                              .type(ServiceCredentialBindingOperation.Type.DELETE)
+                                                                                                              .type(
+                                                                                                                  ServiceCredentialBindingOperation.Type.DELETE)
                                                                                                               .state(bindingState)
                                                                                                               .build())
                                            .build();

@@ -8,13 +8,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.mta.model.Module;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 public class ModuleDependencyChecker {
 
@@ -59,18 +58,18 @@ public class ModuleDependencyChecker {
             return true;
         }
         return module.getDeployedAfter()
-                     .isEmpty()
-            || areDependenciesProcessed(module) || areAllDependenciesAlreadyPresent(module);
+                     .isEmpty() || areDependenciesProcessed(module) || areAllDependenciesAlreadyPresent(module);
     }
 
     private boolean areAllDependenciesAlreadyPresent(Module module) {
         boolean allModulesFoundInSpace = module.getDeployedAfter()
                                                .stream()
                                                .allMatch(dependency -> isDependencyPresent(module.getName(), dependency));
-        List<String> modulesNotYetDeployed = module.getDeployedAfter().stream()
-                                                                      .filter(modulesForDeployment::contains)
-                                                                      .filter(dependency -> !modulesAlreadyDeployed.contains(dependency))
-                                                                      .collect(Collectors.toList());
+        List<String> modulesNotYetDeployed = module.getDeployedAfter()
+                                                   .stream()
+                                                   .filter(modulesForDeployment::contains)
+                                                   .filter(dependency -> !modulesAlreadyDeployed.contains(dependency))
+                                                   .collect(Collectors.toList());
         return allModulesFoundInSpace && modulesNotYetDeployed.isEmpty();
     }
 
@@ -103,8 +102,8 @@ public class ModuleDependencyChecker {
         }
         Module dependency = allModulesInDescriptorWithNames.get(dependencyName);
         if (!moduleToDeployHelper.isApplication(dependency)) {
-            userMessageLogger.warn(MessageFormat.format(Messages.MODULE_0_DEPENDS_ON_MODULE_1_WHICH_CANNOT_BE_RESOLVED,
-                                                        moduleName, dependencyName));
+            userMessageLogger.warn(
+                MessageFormat.format(Messages.MODULE_0_DEPENDS_ON_MODULE_1_WHICH_CANNOT_BE_RESOLVED, moduleName, dependencyName));
             return true;
         }
         return appExists(dependencyName);

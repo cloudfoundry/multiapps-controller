@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.core.util;
 import java.io.Serializable;
 import java.security.Principal;
 
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 public class UserInfo implements Principal, Serializable {
 

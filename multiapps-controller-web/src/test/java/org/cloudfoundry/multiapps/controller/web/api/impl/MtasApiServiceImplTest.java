@@ -8,8 +8,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
@@ -17,6 +15,8 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.api.model.Metadata;
 import org.cloudfoundry.multiapps.controller.api.model.Module;
 import org.cloudfoundry.multiapps.controller.api.model.Mta;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtasApiServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaRequiredDataOnlyDetector;
@@ -109,8 +109,7 @@ class MtasApiServiceImplTest {
     void testGetMtasByName() {
         Mta mtaToGet = mtas.get(1);
         Mockito.when(deployedMtaDetector.detectDeployedMtasByName(mtaToGet.getMetadata()
-                                                                          .getId(),
-                                                                  client))
+                                                                          .getId(), client))
                .thenReturn(List.of(getDeployedMta(mtaToGet)));
 
         ResponseEntity<List<Mta>> response = testedClass.getMtas(SPACE_GUID, null, mtaToGet.getMetadata()
@@ -124,13 +123,11 @@ class MtasApiServiceImplTest {
     void testGetMtasByNamespace() {
         Mta mtaToGet = mtas.get(0);
         Mockito.when(deployedMtaDetector.detectDeployedMtasByNamespace(mtaToGet.getMetadata()
-                                                                               .getNamespace(),
-                                                                       client))
+                                                                               .getNamespace(), client))
                .thenReturn(List.of(getDeployedMta(mtaToGet)));
 
         ResponseEntity<List<Mta>> response = testedClass.getMtas(SPACE_GUID, mtaToGet.getMetadata()
-                                                                                     .getNamespace(),
-                                                                 null);
+                                                                                     .getNamespace(), null);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<Mta> responseMtas = response.getBody();
         assertEquals(List.of(mtaToGet), responseMtas);
@@ -140,16 +137,13 @@ class MtasApiServiceImplTest {
     void testGetMtasByNameAndNamespace() {
         Mta mtaToGet = mtas.get(0);
         Mockito.when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(mtaToGet.getMetadata()
-                                                                                     .getId(),
-                                                                             mtaToGet.getMetadata()
-                                                                                     .getNamespace(),
-                                                                             client))
+                                                                                     .getId(), mtaToGet.getMetadata()
+                                                                                                       .getNamespace(), client))
                .thenReturn(Optional.of(getDeployedMta(mtaToGet)));
 
         ResponseEntity<List<Mta>> response = testedClass.getMtas(SPACE_GUID, mtaToGet.getMetadata()
-                                                                                     .getNamespace(),
-                                                                 mtaToGet.getMetadata()
-                                                                         .getId());
+                                                                                     .getNamespace(), mtaToGet.getMetadata()
+                                                                                                              .getId());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<Mta> responseMtas = response.getBody();
         assertEquals(List.of(mtaToGet), responseMtas);
@@ -159,8 +153,7 @@ class MtasApiServiceImplTest {
     void testGetMta() {
         Mta mtaToGet = mtas.get(1);
         Mockito.when(deployedMtaDetector.detectDeployedMtasByName(mtaToGet.getMetadata()
-                                                                          .getId(),
-                                                                  client))
+                                                                          .getId(), client))
                .thenReturn(List.of(getDeployedMta(mtaToGet)));
 
         ResponseEntity<Mta> response = testedClass.getMta(SPACE_GUID, mtaToGet.getMetadata()

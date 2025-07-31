@@ -6,6 +6,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableCloudFoundryClientFactory;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -14,11 +18,6 @@ import org.cloudfoundry.multiapps.mta.model.AuditableConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.adapters.ImmutableCloudFoundryClientFactory;
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 
 public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> implements Cleaner {
 
@@ -96,10 +95,8 @@ public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> impl
 
     protected void initSpaceClient() {
         CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
-                                                                 configuration.getGlobalAuditorPassword(),
-                                                                 SecurityUtil.CLIENT_ID,
-                                                                 SecurityUtil.CLIENT_SECRET,
-                                                                 configuration.getGlobalAuditorOrigin());
+                                                                 configuration.getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID,
+                                                                 SecurityUtil.CLIENT_SECRET, configuration.getGlobalAuditorOrigin());
         var clientFactory = ImmutableCloudFoundryClientFactory.builder()
                                                               .connectTimeout(Duration.ofMinutes(5))
                                                               .responseTimeout(Duration.ofMinutes(5))

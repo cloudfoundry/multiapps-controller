@@ -8,13 +8,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.collections4.SetUtils;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ElementUpdater.UpdateStrategy;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 public class UrisApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 
@@ -44,8 +43,8 @@ public class UrisApplicationAttributeUpdater extends ApplicationAttributeUpdater
         return existingRoute.get()
                             .getDestinations()
                             .stream()
-                            .noneMatch(destination -> Objects.equals(destination.getApplicationGuid(), applicationGuid)
-                                && Objects.equals(destination.getProtocol(), updatedRoute.getRequestedProtocol()));
+                            .noneMatch(destination -> Objects.equals(destination.getApplicationGuid(), applicationGuid) && Objects.equals(
+                                destination.getProtocol(), updatedRoute.getRequestedProtocol()));
     }
 
     private Optional<CloudRoute> findCloudRoute(String url, List<CloudRoute> cloudRoutes) {

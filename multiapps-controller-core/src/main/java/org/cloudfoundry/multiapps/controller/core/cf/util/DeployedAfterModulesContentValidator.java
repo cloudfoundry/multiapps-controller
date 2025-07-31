@@ -8,13 +8,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.mta.model.Module;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 public class DeployedAfterModulesContentValidator implements ModulesContentValidator {
 
@@ -57,17 +56,20 @@ public class DeployedAfterModulesContentValidator implements ModulesContentValid
             return true;
         }
         return moduleDependencies.stream()
-                                 .allMatch(dependency -> isModuleDependencyResolvable(moduleNamesForDeployment, module.getName(), dependency));
+                                 .allMatch(
+                                     dependency -> isModuleDependencyResolvable(moduleNamesForDeployment, module.getName(), dependency));
     }
 
-    private boolean isModuleDependencyResolvable(Set<String> moduleNamesForDeployment, String moduleWithDependency, String dependencyModule) {
+    private boolean isModuleDependencyResolvable(Set<String> moduleNamesForDeployment, String moduleWithDependency,
+                                                 String dependencyModule) {
         if (moduleNamesForDeployment.contains(dependencyModule)) {
             return true;
         }
         Module dependencyNotForDeployment = allModulesInArchive.get(dependencyModule);
         if (dependencyNotForDeployment != null && !moduleToDeployHelper.isApplication(dependencyNotForDeployment)) {
-            userMessageLogger.warn(MessageFormat.format(Messages.MODULE_0_DEPENDS_ON_MODULE_1_WHICH_CANNOT_BE_RESOLVED,
-                                                        moduleWithDependency, dependencyModule));
+            userMessageLogger.warn(
+                MessageFormat.format(Messages.MODULE_0_DEPENDS_ON_MODULE_1_WHICH_CANNOT_BE_RESOLVED, moduleWithDependency,
+                                     dependencyModule));
             return true;
         }
         return doesAppExist(dependencyModule);

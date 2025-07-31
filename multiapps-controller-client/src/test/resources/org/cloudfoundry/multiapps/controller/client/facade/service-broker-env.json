@@ -1,0 +1,27 @@
+{
+  "TARGET_RUNTIME": "tomcat",
+  "CATALOG": {
+    "services": [
+      {
+        "name": "finch",
+        "description": "finch is a small bird",
+        "bindable": true,
+        "plan_updateable": true,
+        "instances_retrievable": true,
+        "bindings_retrievable": true,
+        "plans": [
+          {
+            "name": "white",
+            "description": "white finch",
+            "free": true
+          },
+          {
+            "name": "grey",
+            "description": "grey finch",
+            "free": true
+          }
+        ]
+      }
+    ]
+  }
+}

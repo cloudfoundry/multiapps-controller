@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
 
 public class PollServiceUnbindingLastOperationExecution extends PollServiceBindingLastOperationExecution {
 

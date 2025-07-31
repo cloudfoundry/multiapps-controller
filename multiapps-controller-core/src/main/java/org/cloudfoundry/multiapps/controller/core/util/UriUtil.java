@@ -7,9 +7,8 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.core.Messages;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 public class UriUtil {
 

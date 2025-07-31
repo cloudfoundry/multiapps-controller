@@ -1,19 +1,18 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableServiceCredentialBindingOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceCredentialBindingOperation;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 class CalculateServiceKeyForWaitingStepTest extends SyncFlowableStepTest<CalculateServiceKeyForWaitingStep> {
 
@@ -25,8 +24,8 @@ class CalculateServiceKeyForWaitingStepTest extends SyncFlowableStepTest<Calcula
         CloudServiceKey serviceKeyInProgress = buildCloudServiceKey("key-in-progress", ServiceCredentialBindingOperation.State.IN_PROGRESS);
         CloudServiceKey serviceKeyInSucceededState = buildCloudServiceKey("key-succeeded",
                                                                           ServiceCredentialBindingOperation.State.SUCCEEDED);
-        when(client.getServiceKeysWithCredentials(SERVICE_INSTANCE_NAME)).thenReturn(List.of(serviceKeyInProgress,
-                                                                                             serviceKeyInSucceededState));
+        when(client.getServiceKeysWithCredentials(SERVICE_INSTANCE_NAME)).thenReturn(
+            List.of(serviceKeyInProgress, serviceKeyInSucceededState));
         step.execute(execution);
         assertStepFinishedSuccessfully();
         assertEquals(List.of(serviceKeyInProgress), context.getVariable(Variables.CLOUD_SERVICE_KEYS_FOR_WAITING));
@@ -43,7 +42,8 @@ class CalculateServiceKeyForWaitingStepTest extends SyncFlowableStepTest<Calcula
                                        .name(name)
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
                                                                                                       .state(state)
-                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                      .type(
+                                                                                                          ServiceCredentialBindingOperation.Type.CREATE)
                                                                                                       .build())
                                        .build();
     }

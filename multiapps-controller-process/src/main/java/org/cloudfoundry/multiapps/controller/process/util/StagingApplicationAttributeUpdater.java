@@ -3,16 +3,15 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudProcess;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.DropletInfoFactory;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.HealthCheckInfo;
-import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.util.ElementUpdater.UpdateStrategy;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudProcess;
-import com.sap.cloudfoundry.client.facade.domain.Staging;
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
 public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 

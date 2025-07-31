@@ -1,19 +1,12 @@
 package org.cloudfoundry.multiapps.controller.web.util;
 
-import static com.sap.cloudfoundry.client.facade.oauth2.TokenFactory.EXPIRES_AT_KEY;
-import static com.sap.cloudfoundry.client.facade.oauth2.TokenFactory.USER_NAME;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
-
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.core.security.token.parsers.TokenParserChain;
 import org.cloudfoundry.multiapps.controller.persistence.model.AccessToken;
 import org.cloudfoundry.multiapps.controller.persistence.services.AccessTokenService;
@@ -27,7 +20,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import static org.cloudfoundry.multiapps.controller.client.facade.oauth2.TokenFactory.EXPIRES_AT_KEY;
+import static org.cloudfoundry.multiapps.controller.client.facade.oauth2.TokenFactory.USER_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
 
 class OauthTokenGeneratorTest {
 
@@ -80,7 +79,7 @@ class OauthTokenGeneratorTest {
         mockTokenParserChain(mockedToken);
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                                                          () -> oauthTokenParsingStrategy.generate(TOKEN_STRING));
-        assertEquals(HttpStatus.UNAUTHORIZED,  exception.getStatusCode());
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
     }
 
     @Test

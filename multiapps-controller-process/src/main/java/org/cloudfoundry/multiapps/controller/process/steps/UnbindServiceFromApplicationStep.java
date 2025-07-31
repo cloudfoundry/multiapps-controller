@@ -6,7 +6,11 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.client.facade.ApplicationServicesUpdateCallback;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.ServiceBindingOperationCallback;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.DeletingServiceBindingOperationCallback;
@@ -15,12 +19,6 @@ import org.cloudfoundry.multiapps.controller.process.util.UnbindServiceFromAppli
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.ServiceBindingOperationCallback;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
 
 @Named("unbindServiceFromApplicationStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -31,20 +29,18 @@ public class UnbindServiceFromApplicationStep extends AsyncFlowableStep {
         CloudServiceBinding serviceBindingToDelete = context.getVariable(Variables.SERVICE_BINDING_TO_DELETE);
         CloudControllerClient controllerClient = context.getControllerClient();
         if (serviceBindingToDelete != null) {
-            return deleteServiceBinding(context,
-                                        () -> controllerClient.deleteServiceBinding(serviceBindingToDelete.getGuid(),
-                                                                                    getServiceBindingOperationCallback(context,
-                                                                                                                       controllerClient)),
+            return deleteServiceBinding(context, () -> controllerClient.deleteServiceBinding(serviceBindingToDelete.getGuid(),
+                                                                                             getServiceBindingOperationCallback(context,
+                                                                                                                                controllerClient)),
                                         () -> MessageFormat.format(Messages.DELETION_OF_SERVICE_BINDING_0_FINISHED,
                                                                    serviceBindingToDelete.getGuid()));
         }
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
         String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
         getStepLogger().info(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP, serviceInstanceName, app.getName());
-        return deleteServiceBinding(context,
-                                    () -> controllerClient.unbindServiceInstance(app.getName(), serviceInstanceName,
-                                                                                 getApplicationServicesUpdateCallback(context,
-                                                                                                                      controllerClient)),
+        return deleteServiceBinding(context, () -> controllerClient.unbindServiceInstance(app.getName(), serviceInstanceName,
+                                                                                          getApplicationServicesUpdateCallback(context,
+                                                                                                                               controllerClient)),
                                     () -> MessageFormat.format(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP_FINISHED, serviceInstanceName,
                                                                app.getName()));
     }

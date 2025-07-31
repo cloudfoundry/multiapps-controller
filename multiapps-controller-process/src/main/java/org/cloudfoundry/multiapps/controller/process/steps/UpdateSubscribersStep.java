@@ -11,16 +11,16 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
@@ -204,8 +204,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
                                                                                                                        Variables.MTA_NAMESPACE),
                                                                                                                    getStepLogger(),
                                                                                                                    StepsUtil.getAppSuffixDeterminer(
-                                                                                                                       context),
-                                                                                                                   client, false);
+                                                                                                                       context), client,
+                                                                                                                   false);
 
         Module module = dummyDescriptor.getModules()
                                        .get(0);

@@ -8,13 +8,12 @@ import java.util.Map;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerHeaderConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
 public abstract class CustomControllerClient {
 

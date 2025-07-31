@@ -4,11 +4,10 @@ import java.text.MessageFormat;
 import java.util.function.Consumer;
 
 import org.cloudfoundry.client.v3.jobs.JobState;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.AsyncExecutionState;
 import org.immutables.value.Value;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
 
 @Value.Immutable
 public interface AsyncJobToAsyncExecutionStateAdapter {

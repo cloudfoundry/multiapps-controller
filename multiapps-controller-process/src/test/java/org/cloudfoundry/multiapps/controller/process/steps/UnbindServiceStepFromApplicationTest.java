@@ -1,14 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +7,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.ApplicationServicesUpdateCallback;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableServiceCredentialBindingOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
@@ -25,14 +24,14 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
-import com.sap.cloudfoundry.client.facade.CloudControllerException;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBinding;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceCredentialBindingOperation;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class UnbindServiceStepFromApplicationTest extends SyncFlowableStepTest<UnbindServiceFromApplicationStep> {
 
@@ -66,9 +65,9 @@ class UnbindServiceStepFromApplicationTest extends SyncFlowableStepTest<UnbindSe
         prepareContext();
         when(client.unbindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME),
                                           any(ApplicationServicesUpdateCallback.class))).then(answer -> {
-                                              context.setVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_DELETION, true);
-                                              return Optional.empty();
-                                          });
+            context.setVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_DELETION, true);
+            return Optional.empty();
+        });
         step.execute(execution);
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
         verify(client).unbindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME), any(ApplicationServicesUpdateCallback.class));
@@ -180,10 +179,14 @@ class UnbindServiceStepFromApplicationTest extends SyncFlowableStepTest<UnbindSe
                                            .serviceInstanceGuid(SERVICE_INSTANCE_GUID)
                                            .applicationGuid(APP_GUID)
                                            .serviceBindingOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                              .type(ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                              .state(ServiceCredentialBindingOperation.State.IN_PROGRESS)
-                                                                                                              .createdAt(LocalDateTime.now())
-                                                                                                              .updatedAt(LocalDateTime.now())
+                                                                                                              .type(
+                                                                                                                  ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                              .state(
+                                                                                                                  ServiceCredentialBindingOperation.State.IN_PROGRESS)
+                                                                                                              .createdAt(
+                                                                                                                  LocalDateTime.now())
+                                                                                                              .updatedAt(
+                                                                                                                  LocalDateTime.now())
                                                                                                               .build())
                                            .build();
     }

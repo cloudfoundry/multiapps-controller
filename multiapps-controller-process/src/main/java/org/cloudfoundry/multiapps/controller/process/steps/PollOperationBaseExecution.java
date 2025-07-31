@@ -2,11 +2,10 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.function.Consumer;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.process.util.AsyncJobToAsyncExecutionStateAdapter;
 import org.cloudfoundry.multiapps.controller.process.util.ImmutableAsyncJobToAsyncExecutionStateAdapter;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
 
 public abstract class PollOperationBaseExecution implements AsyncExecution {
 
@@ -24,7 +23,8 @@ public abstract class PollOperationBaseExecution implements AsyncExecution {
                                                             .inProgressHandler(getInProgressHandler(context))
                                                             .onCompleteHandler(getOnCompleteHandler(context))
                                                             .onErrorHandler(getOnErrorHandler(context))
-                                                            .onErrorHandlerForOptionalResource(getOnErrorHandlerForOptionalResource(context))
+                                                            .onErrorHandlerForOptionalResource(
+                                                                getOnErrorHandlerForOptionalResource(context))
                                                             .isOptionalResource(isOptional(context))
                                                             .build();
     }

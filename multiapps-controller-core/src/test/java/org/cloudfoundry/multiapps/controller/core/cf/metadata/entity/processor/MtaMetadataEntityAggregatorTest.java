@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEntity;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataValidator;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,11 +19,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 
 class MtaMetadataEntityAggregatorTest {
     private final Tester tester = Tester.forClass(getClass());
@@ -33,7 +32,7 @@ class MtaMetadataEntityAggregatorTest {
 
     static Stream<Arguments> testAggregate() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
         // (1) 2 mtas in CloudEntities - first has 2 apps and 2 services (with older versions), second had only 1 app
         Arguments.of("input-apps-01.json", "input-services-01.json", new Expectation(Expectation.Type.JSON, "aggregated-deployed-mtas-01.json")),
         // (2) 3 versions of the same mta (2 apps and 1 service) - two with namespaces, the last one without

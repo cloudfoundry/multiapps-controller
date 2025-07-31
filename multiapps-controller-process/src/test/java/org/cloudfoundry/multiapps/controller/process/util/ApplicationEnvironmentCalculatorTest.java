@@ -1,14 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -22,8 +21,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 class ApplicationEnvironmentCalculatorTest {
 
@@ -54,9 +53,10 @@ class ApplicationEnvironmentCalculatorTest {
     @Test
     void testShouldNotKeepExistingEnv() {
         var applicationToDeploy = getApplicationToDeploy();
-        when(applicationToDeploy.getAttributesUpdateStrategy()).thenReturn(ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder()
-                                                                                                                                    .shouldKeepExistingEnv(false)
-                                                                                                                                    .build());
+        when(applicationToDeploy.getAttributesUpdateStrategy()).thenReturn(
+            ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.builder()
+                                                                              .shouldKeepExistingEnv(false)
+                                                                              .build());
         Map<String, String> applicationEnv = applicationEnvironmentCalculator.calculateNewApplicationEnv(context, applicationToDeploy);
         assertEquals(APP_ENV, applicationEnv);
     }
@@ -121,9 +121,10 @@ class ApplicationEnvironmentCalculatorTest {
         when(applicationToDeploy.getEnv()).thenReturn(APP_ENV);
         when(applicationToDeploy.getName()).thenReturn(APP_NAME);
         when(applicationToDeploy.getModuleName()).thenReturn(MODULE_NAME);
-        when(applicationToDeploy.getAttributesUpdateStrategy()).thenReturn(ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder()
-                                                                                                                                    .shouldKeepExistingEnv(true)
-                                                                                                                                    .build());
+        when(applicationToDeploy.getAttributesUpdateStrategy()).thenReturn(
+            ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.builder()
+                                                                              .shouldKeepExistingEnv(true)
+                                                                              .build());
         return applicationToDeploy;
     }
 

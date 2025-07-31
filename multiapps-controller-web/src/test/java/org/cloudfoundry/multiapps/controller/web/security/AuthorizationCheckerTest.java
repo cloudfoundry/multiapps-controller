@@ -8,14 +8,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
-import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
-import com.sap.cloudfoundry.client.facade.domain.UserRole;
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudOrganization;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudOrganization;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudSpace;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.UserRole;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CfRolesGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
@@ -185,11 +185,8 @@ class AuthorizationCheckerTest {
 
     private UserInfo getUserInfo() {
         OAuth2AccessTokenWithAdditionalInfo accessToken = new OAuth2AccessTokenWithAdditionalInfo(
-            new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-                                  "token_value",
-                                  Instant.now(),
-                                  Instant.now()
-                                         .plus(5, ChronoUnit.MINUTES)),
+            new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token_value", Instant.now(), Instant.now()
+                                                                                                           .plus(5, ChronoUnit.MINUTES)),
             Collections.emptyMap());
         return new UserInfo(USER_ID.toString(), USERNAME, accessToken);
     }

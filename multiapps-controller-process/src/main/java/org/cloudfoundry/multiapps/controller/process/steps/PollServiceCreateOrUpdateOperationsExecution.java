@@ -3,8 +3,9 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.function.Supplier;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
@@ -43,8 +44,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
         lastServiceOperation = super.mapOperationState(stepLogger, lastServiceOperation, service);
         if (shouldIgnoreLastOperationFailure(lastServiceOperation)) {
             stepLogger.warn(Messages.FAILED_SERVICE_UPDATE, service.getName(), lastServiceOperation.getDescription());
-            return new ServiceOperation(lastServiceOperation.getType(),
-                                        lastServiceOperation.getDescription(),
+            return new ServiceOperation(lastServiceOperation.getType(), lastServiceOperation.getDescription(),
                                         ServiceOperation.State.SUCCEEDED);
         }
         return lastServiceOperation;
@@ -52,8 +52,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
 
     private boolean shouldIgnoreLastOperationFailure(ServiceOperation lastServiceOperation) {
         return lastServiceOperation.getType() == ServiceOperation.Type.UPDATE
-            && lastServiceOperation.getState() == ServiceOperation.State.FAILED
-            && !shouldFailOnUpdateSupplier.get();
+            && lastServiceOperation.getState() == ServiceOperation.State.FAILED && !shouldFailOnUpdateSupplier.get();
     }
 
     @Override
@@ -88,8 +87,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
                 return MessageFormat.format(Messages.SERVICE_UPDATED, service.getName());
             default:
                 throw new IllegalStateException(
-                    MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
-                                         type));
+                    MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE, type));
         }
     }
 

@@ -1,9 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +7,12 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.controller.api.model.ImmutableMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableServiceCredentialBindingOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
@@ -20,12 +21,9 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableServiceCredentialBindingOperation;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<DetermineServiceKeysToRecreateStep> {
 
@@ -44,7 +42,8 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
         CloudServiceKey serviceKey = buildCloudServiceKey();
         context.setVariable(Variables.SERVICE_TO_PROCESS, serviceInstance);
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Map.of(SERVICE_INSTANCE_NAME, List.of(serviceKey)));
-        when(client.getServiceKeysWithCredentials(SERVICE_INSTANCE_NAME)).thenThrow(new CloudOperationException(HttpStatus.SERVICE_UNAVAILABLE));
+        when(client.getServiceKeysWithCredentials(SERVICE_INSTANCE_NAME)).thenThrow(
+            new CloudOperationException(HttpStatus.SERVICE_UNAVAILABLE));
         step.execute(execution);
         assertStepFinishedSuccessfully();
         assertEquals(Collections.emptyList(), context.getVariable(Variables.CLOUD_SERVICE_KEYS_TO_DELETE));
@@ -114,7 +113,8 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
         CloudServiceKey serviceKeyToCreate = buildCloudServiceKey();
         context.setVariable(Variables.SERVICE_TO_PROCESS, serviceInstance);
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Map.of(SERVICE_INSTANCE_NAME, List.of(serviceKeyToCreate)));
-        when(client.getServiceKeysWithCredentials(SERVICE_INSTANCE_NAME)).thenThrow(new CloudOperationException(HttpStatus.SERVICE_UNAVAILABLE));
+        when(client.getServiceKeysWithCredentials(SERVICE_INSTANCE_NAME)).thenThrow(
+            new CloudOperationException(HttpStatus.SERVICE_UNAVAILABLE));
         Exception exception = assertThrows(SLException.class, () -> step.execute(execution));
         assertEquals("Error while determining service keys to recreate: Controller operation failed: 503 Service Unavailable ",
                      exception.getMessage());
@@ -129,8 +129,9 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
                                                                                                .label(MtaMetadataLabels.MTA_ID, "aaaaa")
                                                                                                .annotation(MtaMetadataAnnotations.MTA_ID,
                                                                                                            "different-test-mta")
-                                                                                               .annotation(MtaMetadataAnnotations.MTA_VERSION,
-                                                                                                           MTA_VERSION)
+                                                                                               .annotation(
+                                                                                                   MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                   MTA_VERSION)
                                                                                                .build());
         context.setVariable(Variables.SERVICE_TO_PROCESS, serviceInstance);
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Map.of(SERVICE_INSTANCE_NAME, List.of(serviceKeyToUpdate)));
@@ -161,8 +162,10 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
                                                            .annotation(MtaMetadataAnnotations.MTA_VERSION, MTA_VERSION)
                                                            .build())
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                      .state(ServiceCredentialBindingOperation.State.SUCCEEDED)
+                                                                                                      .type(
+                                                                                                          ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                      .state(
+                                                                                                          ServiceCredentialBindingOperation.State.SUCCEEDED)
                                                                                                       .build())
                                        .build();
     }
@@ -173,8 +176,10 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
                                        .metadata(ImmutableCloudMetadata.of(SERVICE_KEY_GUID))
                                        .putCredential("test-key", "test-value")
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                      .state(ServiceCredentialBindingOperation.State.SUCCEEDED)
+                                                                                                      .type(
+                                                                                                          ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                      .state(
+                                                                                                          ServiceCredentialBindingOperation.State.SUCCEEDED)
                                                                                                       .build())
                                        .build();
     }
@@ -185,16 +190,20 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
                                            .name(SERVICE_KEY_NAME)
                                            .metadata(ImmutableCloudMetadata.of(SERVICE_KEY_GUID))
                                            .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                          .type(ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                          .state(ServiceCredentialBindingOperation.State.IN_PROGRESS)
+                                                                                                          .type(
+                                                                                                              ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                          .state(
+                                                                                                              ServiceCredentialBindingOperation.State.IN_PROGRESS)
                                                                                                           .build())
                                            .build();
         }
 
         return ImmutableCloudServiceKey.copyOf(original)
                                        .withServiceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                          .type(ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                          .state(ServiceCredentialBindingOperation.State.IN_PROGRESS)
+                                                                                                          .type(
+                                                                                                              ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                          .state(
+                                                                                                              ServiceCredentialBindingOperation.State.IN_PROGRESS)
                                                                                                           .build());
     }
 
@@ -203,8 +212,10 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
                                        .name(EXISTING_SERVICE_KEY_NAME)
                                        .metadata(ImmutableCloudMetadata.of(EXISTING_SERVICE_KEY_GUID))
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
-                                                                                                      .type(ServiceCredentialBindingOperation.Type.CREATE)
-                                                                                                      .state(ServiceCredentialBindingOperation.State.SUCCEEDED)
+                                                                                                      .type(
+                                                                                                          ServiceCredentialBindingOperation.Type.CREATE)
+                                                                                                      .state(
+                                                                                                          ServiceCredentialBindingOperation.State.SUCCEEDED)
                                                                                                       .build())
                                        .build();
     }

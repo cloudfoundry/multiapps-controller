@@ -7,10 +7,10 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.core.cf.util.ModulesCloudModelBuilderContentCalculator;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ServiceKeysCloudModelBuilder;
@@ -143,9 +143,11 @@ class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeplo
         }
 
         @Override
-        protected ModulesCloudModelBuilderContentCalculator
-        getModulesContentCalculator(ProcessContext context, List<Module> mtaDescriptorModules, Set<String> mtaManifestModuleNames,
-                                    Set<String> deployedModuleNames, Set<String> allMtaModuleNames) {
+        protected ModulesCloudModelBuilderContentCalculator getModulesContentCalculator(ProcessContext context,
+                                                                                        List<Module> mtaDescriptorModules,
+                                                                                        Set<String> mtaManifestModuleNames,
+                                                                                        Set<String> deployedModuleNames,
+                                                                                        Set<String> allMtaModuleNames) {
             return modulesCloudModelBuilderContentCalculator;
         }
 

@@ -3,8 +3,11 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationNameSuffixAppender;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
@@ -24,11 +27,6 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 @Named("renameApplicationsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -133,8 +131,8 @@ public class RenameApplicationsStep extends SyncFlowableStep {
                 return liveMtaColor;
             } catch (ConflictException e) {
                 getStepLogger().warn(e.getMessage());
-                ApplicationColor liveMtaColor = applicationColorDetector.detectLiveApplicationColor(deployedMta,
-                                                                                                    context.getVariable(Variables.CORRELATION_ID));
+                ApplicationColor liveMtaColor = applicationColorDetector.detectLiveApplicationColor(deployedMta, context.getVariable(
+                    Variables.CORRELATION_ID));
                 ApplicationColor idleMtaColor = liveMtaColor.getAlternativeColor();
                 getStepLogger().info(Messages.ASSUMED_LIVE_AND_IDLE_COLORS, liveMtaColor, idleMtaColor);
                 return liveMtaColor;
@@ -180,8 +178,9 @@ public class RenameApplicationsStep extends SyncFlowableStep {
             List<DeployedMtaApplication> backupMtaApplications = new ArrayList<>();
             for (DeployedMtaApplication backupMtaApplication : backupMta.getApplications()) {
                 String backupApplicationName = backupMtaApplication.getName();
-                String applicationNameWithoutMtaBackupNamespace = backupApplicationName.substring(NameUtil.getNamespacePrefix(Constants.MTA_BACKUP_NAMESPACE)
-                                                                                                          .length());
+                String applicationNameWithoutMtaBackupNamespace = backupApplicationName.substring(
+                    NameUtil.getNamespacePrefix(Constants.MTA_BACKUP_NAMESPACE)
+                            .length());
                 getStepLogger().info(Messages.RENAME_BACKUP_APPLICATION_0_TO_1, backupApplicationName,
                                      applicationNameWithoutMtaBackupNamespace);
                 client.rename(backupApplicationName, applicationNameWithoutMtaBackupNamespace);

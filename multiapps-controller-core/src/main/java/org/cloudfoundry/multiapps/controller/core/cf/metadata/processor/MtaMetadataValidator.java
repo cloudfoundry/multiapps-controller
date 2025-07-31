@@ -5,17 +5,15 @@ import java.util.List;
 import java.util.Map;
 
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEntity;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 
 @Named
 public class MtaMetadataValidator {
@@ -61,8 +59,8 @@ public class MtaMetadataValidator {
                                  .get(attributeKey);
         Map<String, Object> mtaModuleMap = JsonUtil.convertJsonToMap(mtaModule);
         if (!mtaModuleMap.containsKey(Constants.ATTR_NAME)) {
-            throw new ContentException(MessageFormat.format(Messages.METADATA_OF_0_CONTAINS_INVALID_VALUE_FOR_1, entity.getName(),
-                                                            Constants.ATTR_NAME));
+            throw new ContentException(
+                MessageFormat.format(Messages.METADATA_OF_0_CONTAINS_INVALID_VALUE_FOR_1, entity.getName(), Constants.ATTR_NAME));
         }
     }
 

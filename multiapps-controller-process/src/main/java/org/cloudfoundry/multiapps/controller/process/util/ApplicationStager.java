@@ -1,13 +1,18 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static java.text.MessageFormat.format;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudBuild;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.DropletInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.PackageState;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -16,13 +21,7 @@ import org.cloudfoundry.multiapps.controller.process.steps.StepPhase;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
-import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.DropletInfo;
-import com.sap.cloudfoundry.client.facade.domain.PackageState;
+import static java.text.MessageFormat.format;
 
 public class ApplicationStager {
 
@@ -126,8 +125,7 @@ public class ApplicationStager {
         UUID buildGuid = context.getVariable(Variables.BUILD_GUID);
         client.bindDropletToApp(client.getBuild(buildGuid)
                                       .getDropletInfo()
-                                      .getGuid(),
-                                appGuid);
+                                      .getGuid(), appGuid);
     }
 
     public StepPhase stageApp(CloudApplication app) {

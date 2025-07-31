@@ -3,11 +3,9 @@ package org.cloudfoundry.multiapps.controller.core.cf.metadata.entity.processor;
 import java.util.List;
 
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.criteria.MtaMetadataCriteria;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 @Named
 public class MtaMetadataApplicationCollector implements MtaMetadataEntityCollector<CloudApplication> {

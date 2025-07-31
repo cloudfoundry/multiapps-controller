@@ -1,16 +1,14 @@
 package org.cloudfoundry.multiapps.controller.core.cf.apps;
 
-import jakarta.inject.Named;
+import java.util.Map;
 
+import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceState;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
-import com.sap.cloudfoundry.client.facade.domain.InstanceState;
-import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
-
-import java.util.Map;
 
 @Named
 public class ApplicationStartupStateCalculator {
