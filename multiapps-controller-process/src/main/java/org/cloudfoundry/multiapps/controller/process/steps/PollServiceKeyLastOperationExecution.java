@@ -2,13 +2,12 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
 
 public class PollServiceKeyLastOperationExecution implements AsyncExecution {
 
@@ -17,8 +16,7 @@ public class PollServiceKeyLastOperationExecution implements AsyncExecution {
         CloudControllerClient controllerClient = context.getControllerClient();
         CloudServiceKey serviceKeyToProcess = context.getVariable(Variables.SERVICE_KEY_TO_PROCESS);
         CloudServiceKey serviceKey = controllerClient.getServiceKey(serviceKeyToProcess.getServiceInstance()
-                                                                                       .getName(),
-                                                                    serviceKeyToProcess.getName());
+                                                                                       .getName(), serviceKeyToProcess.getName());
         return checkServiceKeyLastOperation(serviceKey, context);
     }
 

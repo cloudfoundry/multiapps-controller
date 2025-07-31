@@ -1,8 +1,8 @@
 package org.cloudfoundry.multiapps.controller.client.util;
 
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
-
 import java.util.Map;
+
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 
 public class TokenProperties {
 

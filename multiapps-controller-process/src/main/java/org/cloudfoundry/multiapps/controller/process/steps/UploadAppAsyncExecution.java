@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Duration;
@@ -14,6 +12,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.UploadStatusCallbackExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
@@ -32,10 +34,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.Status;
+import static java.text.MessageFormat.format;
 
 public class UploadAppAsyncExecution implements AsyncExecution {
 
@@ -96,7 +95,8 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         MtaArchiveElements mtaArchiveElements = context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
         return ImmutableApplicationToUploadContext.builder()
                                                   .application(applicationToProcess)
-                                                  .moduleFileName(mtaArchiveElements.getModuleFileName(applicationToProcess.getModuleName()))
+                                                  .moduleFileName(
+                                                      mtaArchiveElements.getModuleFileName(applicationToProcess.getModuleName()))
                                                   .spaceGuid(context.getVariable(Variables.SPACE_GUID))
                                                   .correlationId(context.getVariable(Variables.CORRELATION_ID))
                                                   .taskId(context.getVariable(Variables.TASK_ID))
@@ -142,8 +142,8 @@ public class UploadAppAsyncExecution implements AsyncExecution {
 
     private Path extractApplicationFromArchive(ApplicationToUploadContext applicationToUploadContext) {
         LocalDateTime startTime = LocalDateTime.now();
-        Path extractedAppPath = extractFromMtar(createApplicationArchiveContext(applicationToUploadContext,
-                                                                                applicationConfiguration.getMaxResourceFileSize()));
+        Path extractedAppPath = extractFromMtar(
+            createApplicationArchiveContext(applicationToUploadContext, applicationConfiguration.getMaxResourceFileSize()));
         long timeElapsedForUpload = Duration.between(startTime, LocalDateTime.now())
                                             .toMillis();
         applicationToUploadContext.getStepLogger()
@@ -154,10 +154,8 @@ public class UploadAppAsyncExecution implements AsyncExecution {
 
     protected ApplicationArchiveContext createApplicationArchiveContext(ApplicationToUploadContext applicationToUploadContext,
                                                                         long maxSize) {
-        return new ApplicationArchiveContext(applicationToUploadContext.getModuleFileName(),
-                                             maxSize,
-                                             applicationToUploadContext.getArchiveEntries(),
-                                             applicationToUploadContext.getSpaceGuid(),
+        return new ApplicationArchiveContext(applicationToUploadContext.getModuleFileName(), maxSize,
+                                             applicationToUploadContext.getArchiveEntries(), applicationToUploadContext.getSpaceGuid(),
                                              applicationToUploadContext.getAppArchiveId());
     }
 
@@ -169,18 +167,15 @@ public class UploadAppAsyncExecution implements AsyncExecution {
                                 Path extractedModulePath) {
         try {
             return client.asyncUploadApplicationWithExponentialBackoff(applicationToUploadContext.getApplication()
-                                                                                                 .getName(),
-                                                                       extractedModulePath,
-                                                                       getMonitorUploadStatusCallback(applicationToUploadContext.getApplication(),
-                                                                                                      extractedModulePath,
-                                                                                                      applicationToUploadContext.getStepLogger(),
-                                                                                                      applicationToUploadContext.getCorrelationId(),
-                                                                                                      applicationToUploadContext.getTaskId()),
-                                                                       null);
+                                                                                                 .getName(), extractedModulePath,
+                                                                       getMonitorUploadStatusCallback(
+                                                                           applicationToUploadContext.getApplication(), extractedModulePath,
+                                                                           applicationToUploadContext.getStepLogger(),
+                                                                           applicationToUploadContext.getCorrelationId(),
+                                                                           applicationToUploadContext.getTaskId()), null);
         } catch (Exception e) {
             FileUtils.cleanUp(extractedModulePath, LOGGER);
-            throw new SLException(e,
-                                  Messages.ERROR_WHILE_STARTING_ASYNC_UPLOAD_OF_APP_WITH_NAME_0,
+            throw new SLException(e, Messages.ERROR_WHILE_STARTING_ASYNC_UPLOAD_OF_APP_WITH_NAME_0,
                                   applicationToUploadContext.getApplication()
                                                             .getName());
         }

@@ -4,13 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.AsyncJobToAsyncExecutionStateAdapter;
 import org.cloudfoundry.multiapps.controller.process.util.ImmutableAsyncJobToAsyncExecutionStateAdapter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
 
 public class PollServiceBrokersOperationsExecution implements AsyncExecution {
 
@@ -23,8 +22,8 @@ public class PollServiceBrokersOperationsExecution implements AsyncExecution {
             String serviceBrokerName = brokerNameWithJobId.getKey();
             String jobId = brokerNameWithJobId.getValue();
             CloudControllerClient controllerClient = context.getControllerClient();
-            AsyncExecutionState asyncJobStatus = createAsyncJobAdapter(context,
-                                                                       serviceBrokerName).evaluateState(controllerClient.getAsyncJob(jobId));
+            AsyncExecutionState asyncJobStatus = createAsyncJobAdapter(context, serviceBrokerName).evaluateState(
+                controllerClient.getAsyncJob(jobId));
             if (asyncJobStatus == AsyncExecutionState.ERROR) {
                 return AsyncExecutionState.ERROR;
             }
@@ -46,8 +45,8 @@ public class PollServiceBrokersOperationsExecution implements AsyncExecution {
                                                             .inProgressHandler(getInProgressHandler(context, serviceBrokerName))
                                                             .onCompleteHandler(getOnCompleteHandler(context, serviceBrokerName))
                                                             .onErrorHandler(getOnErrorHandler(context, serviceBrokerName))
-                                                            .onErrorHandlerForOptionalResource(getOnErrorHandlerForOptionalResource(context,
-                                                                                                                                    serviceBrokerName))
+                                                            .onErrorHandlerForOptionalResource(
+                                                                getOnErrorHandlerForOptionalResource(context, serviceBrokerName))
                                                             .build();
     }
 

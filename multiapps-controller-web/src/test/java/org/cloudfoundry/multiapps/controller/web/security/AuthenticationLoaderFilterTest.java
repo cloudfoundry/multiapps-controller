@@ -1,13 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.security;
 
-import static com.sap.cloudfoundry.client.facade.oauth2.TokenFactory.EXPIRES_AT_KEY;
-import static org.cloudfoundry.multiapps.controller.client.util.TokenProperties.USER_NAME_KEY;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -18,11 +11,10 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.web.util.TokenGenerator;
 import org.cloudfoundry.multiapps.controller.web.util.TokenGeneratorFactory;
-import org.cloudfoundry.multiapps.mta.Messages;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -37,7 +29,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import static org.cloudfoundry.multiapps.controller.client.facade.oauth2.TokenFactory.EXPIRES_AT_KEY;
+import static org.cloudfoundry.multiapps.controller.client.util.TokenProperties.USER_NAME_KEY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 
 class AuthenticationLoaderFilterTest {
 
@@ -67,7 +63,8 @@ class AuthenticationLoaderFilterTest {
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class,
                                                                        () -> authenticationLoaderFilter.doFilterInternal(request, response,
                                                                                                                          filterChain));
-        assertEquals(HttpStatus.UNAUTHORIZED,  HttpStatus.valueOf(responseStatusException.getStatusCode().value()));
+        assertEquals(HttpStatus.UNAUTHORIZED, HttpStatus.valueOf(responseStatusException.getStatusCode()
+                                                                                        .value()));
     }
 
     @Test
@@ -83,7 +80,7 @@ class AuthenticationLoaderFilterTest {
 
     public static Stream<Arguments> testWithInvalidAuthorizationHeaderBasicAuth() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
                 Arguments.of("Bearer      "),
                 Arguments.of("Basic         ")
 // @formatter:on
@@ -95,10 +92,13 @@ class AuthenticationLoaderFilterTest {
     void testWithInvalidAuthorizationHeaderBasicAuth(String bearerToken) throws ServletException, IOException {
         OAuth2AccessTokenWithAdditionalInfo mockedToken = getMockedOAuth2AccessTokenWithAdditionalInfo();
         Mockito.when(request.getHeader(HttpHeaders.AUTHORIZATION))
-                .thenReturn(bearerToken);
+               .thenReturn(bearerToken);
         mockTokenParsingStrategyFactory(mockedToken);
-        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> authenticationLoaderFilter.doFilterInternal(request, response, filterChain));
-        assertEquals(HttpStatus.UNAUTHORIZED,  HttpStatus.valueOf(responseStatusException.getStatusCode().value()));
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class,
+                                                                       () -> authenticationLoaderFilter.doFilterInternal(request, response,
+                                                                                                                         filterChain));
+        assertEquals(HttpStatus.UNAUTHORIZED, HttpStatus.valueOf(responseStatusException.getStatusCode()
+                                                                                        .value()));
     }
 
     private OAuth2AccessTokenWithAdditionalInfo getMockedOAuth2AccessTokenWithAdditionalInfo() {

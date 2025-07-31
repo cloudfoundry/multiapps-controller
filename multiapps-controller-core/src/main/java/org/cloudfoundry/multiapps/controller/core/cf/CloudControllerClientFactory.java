@@ -6,21 +6,19 @@ import java.util.UUID;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.client.ResilientCloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.LogCacheClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudControllerRestClient;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudControllerRestClientFactory;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.ImmutableCloudControllerRestClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-import com.sap.cloudfoundry.client.facade.adapters.LogCacheClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
-import com.sap.cloudfoundry.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
-import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
-import com.sap.cloudfoundry.client.facade.rest.CloudControllerRestClient;
-import com.sap.cloudfoundry.client.facade.rest.CloudControllerRestClientFactory;
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
-import com.sap.cloudfoundry.client.facade.rest.ImmutableCloudControllerRestClientFactory;
 
 @Named
 public class CloudControllerClientFactory {

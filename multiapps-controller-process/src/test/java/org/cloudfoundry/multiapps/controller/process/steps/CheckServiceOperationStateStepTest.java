@@ -1,15 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.MapUtils;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -17,8 +14,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 class CheckServiceOperationStateStepTest extends SyncFlowableStepTest<CheckServiceOperationStateStep> {
 
@@ -26,20 +23,18 @@ class CheckServiceOperationStateStepTest extends SyncFlowableStepTest<CheckServi
 
     static Stream<Arguments> testExecute() {
         return Stream.of(
-                         // (1) Service exist and it is in progress state
-                         Arguments.of("service-1", true,
-                                      new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.IN_PROGRESS),
-                                      ServiceOperation.Type.CREATE, "POLL"),
-                         // (2) Service does not exist
-                         Arguments.of("service-1", false, null, null, "DONE"),
-                         // (3) Service exist but it is not in progress state
-                         Arguments.of("service-1", true,
-                                      new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.SUCCEEDED), null,
-                                      "DONE"),
-                         // (4) Missing service operation for existing service
-                         Arguments.of("service-1", true, null, null, "DONE"),
-                         // (5) Missing type and state for last operation
-                         Arguments.of("service-1", true, new ServiceOperation(null, null, null), null, "DONE"));
+            // (1) Service exist and it is in progress state
+            Arguments.of("service-1", true, new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.IN_PROGRESS),
+                         ServiceOperation.Type.CREATE, "POLL"),
+            // (2) Service does not exist
+            Arguments.of("service-1", false, null, null, "DONE"),
+            // (3) Service exist but it is not in progress state
+            Arguments.of("service-1", true, new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.SUCCEEDED), null,
+                         "DONE"),
+            // (4) Missing service operation for existing service
+            Arguments.of("service-1", true, null, null, "DONE"),
+            // (5) Missing type and state for last operation
+            Arguments.of("service-1", true, new ServiceOperation(null, null, null), null, "DONE"));
     }
 
     @ParameterizedTest

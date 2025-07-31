@@ -4,7 +4,7 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
@@ -12,8 +12,6 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 @Named("removeNewApplicationsSuffixStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -64,15 +62,9 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
     }
 
     private ConfigurationSubscription createNewSubscription(ConfigurationSubscription subscription, String newAppName) {
-        return new ConfigurationSubscription(subscription.getId(),
-                                             subscription.getMtaId(),
-                                             subscription.getSpaceId(),
-                                             newAppName,
-                                             subscription.getFilter(),
-                                             subscription.getModuleDto(),
-                                             subscription.getResourceDto(),
-                                             subscription.getModuleId(),
-                                             subscription.getResourceId());
+        return new ConfigurationSubscription(subscription.getId(), subscription.getMtaId(), subscription.getSpaceId(), newAppName,
+                                             subscription.getFilter(), subscription.getModuleDto(), subscription.getResourceDto(),
+                                             subscription.getModuleId(), subscription.getResourceId());
     }
 
     @Override

@@ -9,21 +9,21 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
-import com.sap.cloudfoundry.client.facade.domain.HealthCheckType;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudProcess;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerData;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerInfo;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableDropletInfo;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableLifecycle;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
-import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
-import com.sap.cloudfoundry.client.facade.domain.Staging;
-import com.sap.cloudfoundry.client.facade.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudProcess;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerData;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDropletInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableLifecycle;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
+import org.cloudfoundry.multiapps.controller.client.facade.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
@@ -177,10 +177,10 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
                                                                          .isSshEnabled(false)
                                                                          .build())
                                                 .attributesUpdateStrategy(
-                                                    ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder()
-                                                                                                             .shouldKeepExistingEnv(
-                                                                                                                 shouldKeepExistingEnv)
-                                                                                                             .build());
+                                                    ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.builder()
+                                                                                                                      .shouldKeepExistingEnv(
+                                                                                                                          shouldKeepExistingEnv)
+                                                                                                                      .build());
     }
 
     private void prepareContext(CloudApplicationExtended application, boolean shouldSkipServiceRebinding) {
@@ -227,8 +227,8 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
         when(client.getApplicationProcess(application.getGuid())).thenReturn(ImmutableCloudProcess.builder()
                                                                                                   .command(command)
                                                                                                   .diskInMb(disk == null ? 1024 : disk)
-                                                                                                  .memoryInMb(memory == null ? 1024
-                                                                                                                  : memory)
+                                                                                                  .memoryInMb(
+                                                                                                      memory == null ? 1024 : memory)
                                                                                                   .healthCheckType(hcType == null
                                                                                                                        ? HealthCheckType.PORT
                                                                                                                        : HealthCheckType.valueOf(

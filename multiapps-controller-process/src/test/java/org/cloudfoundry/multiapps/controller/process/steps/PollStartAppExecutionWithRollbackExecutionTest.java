@@ -1,15 +1,15 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableInstanceInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableInstancesInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceState;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
@@ -22,13 +22,12 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableInstanceInfo;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableInstancesInfo;
-import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
-import com.sap.cloudfoundry.client.facade.domain.InstanceState;
-import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
+import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationTest<IncrementalAppInstancesUpdateStep> {
 
@@ -136,7 +135,8 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
         context.setVariable(Variables.INCREMENTAL_APP_INSTANCE_UPDATE_CONFIGURATION, updateConfig);
         step.initializeStepLogger(execution);
         ProcessContext wrapper = step.createProcessContext(execution);
-        PollStartAppExecutionWithRollbackExecution asyncExecution = (PollStartAppExecutionWithRollbackExecution) getAsyncOperations(wrapper).get(0);
+        PollStartAppExecutionWithRollbackExecution asyncExecution = (PollStartAppExecutionWithRollbackExecution) getAsyncOperations(
+            wrapper).get(0);
         asyncExecution.onSuccess(wrapper, "App started");
     }
 

@@ -5,17 +5,14 @@ import java.util.Collections;
 import java.util.List;
 
 import jakarta.inject.Named;
-
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation.Type;
 
 @Named("updateServiceSyslogUrlStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -36,8 +33,7 @@ public class UpdateServiceSyslogDrainUrlStep extends ServiceStep {
         } catch (CloudOperationException e) {
             String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_UPDATE_SYSLOG_DRAIN_URL_SERVICE, service.getName(),
                                                                e.getDescription());
-            CloudOperationException cloudOperationException = new CloudOperationException(e.getStatusCode(),
-                                                                                          e.getStatusText(),
+            CloudOperationException cloudOperationException = new CloudOperationException(e.getStatusCode(), e.getStatusText(),
                                                                                           exceptionDescription);
 
             processServiceActionFailure(context, service, cloudOperationException);
@@ -49,12 +45,12 @@ public class UpdateServiceSyslogDrainUrlStep extends ServiceStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return Collections.singletonList(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(),
-                                                                                          getServiceProgressReporter()));
+        return Collections.singletonList(
+            new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(), getServiceProgressReporter()));
     }
 
     @Override
-    protected Type getOperationType() {
+    protected ServiceOperation.Type getOperationType() {
         return ServiceOperation.Type.UPDATE;
     }
 }

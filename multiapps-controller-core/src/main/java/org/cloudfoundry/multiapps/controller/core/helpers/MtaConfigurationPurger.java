@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import static org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil.hasMtaMetadata;
-
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
@@ -9,6 +7,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
@@ -23,10 +25,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationS
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.rest.CloudSpaceClient;
+import static org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil.hasMtaMetadata;
 
 public class MtaConfigurationPurger {
 
@@ -104,9 +103,8 @@ public class MtaConfigurationPurger {
 
     private boolean haveSameProviderIdAndVersion(ConfigurationEntry entry1, ConfigurationEntry entry2) {
         return entry1.getProviderId()
-                     .equals(entry2.getProviderId())
-            && entry1.getProviderVersion()
-                     .equals(entry2.getProviderVersion());
+                     .equals(entry2.getProviderId()) && entry1.getProviderVersion()
+                                                              .equals(entry2.getProviderVersion());
     }
 
     private List<ConfigurationEntry> getStillRelevantConfigurationEntries(List<CloudApplication> apps) {

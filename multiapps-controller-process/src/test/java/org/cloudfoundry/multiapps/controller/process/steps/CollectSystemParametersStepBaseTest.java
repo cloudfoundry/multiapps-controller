@@ -1,12 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudDomain;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.util.AuthorizationEndpointGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.CredentialsGenerator;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
@@ -18,9 +18,8 @@ import org.cloudfoundry.multiapps.mta.model.VersionRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.util.AuthorizationEndpointGetter;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableStepTest<CollectSystemParametersStep> {
 

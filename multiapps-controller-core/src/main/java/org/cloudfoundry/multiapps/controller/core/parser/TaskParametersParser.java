@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudTask;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.TasksValidator;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudTask;
-import com.sap.cloudfoundry.client.facade.domain.CloudTask.Limits;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudTask;
 
 public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
 
@@ -23,9 +21,8 @@ public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
 
     @Override
     public List<CloudTask> parse(List<Map<String, Object>> parametersList) {
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> tasks = (List<Map<String, Object>>) PropertiesUtil.getPropertyValue(parametersList, parameterName,
-                                                                                                      Collections.emptyList());
+        @SuppressWarnings("unchecked") List<Map<String, Object>> tasks = (List<Map<String, Object>>) PropertiesUtil.getPropertyValue(
+            parametersList, parameterName, Collections.emptyList());
 
         return tasks.stream()
                     .map(cloudTaskMapper::toCloudTask)
@@ -42,7 +39,7 @@ public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
                                      .build();
         }
 
-        private Limits parseLimits(Map<String, Object> rawTask) {
+        private CloudTask.Limits parseLimits(Map<String, Object> rawTask) {
             return ImmutableCloudTask.ImmutableLimits.builder()
                                                      .memory(parseMemory(rawTask))
                                                      .disk(parseDiskQuota(rawTask))

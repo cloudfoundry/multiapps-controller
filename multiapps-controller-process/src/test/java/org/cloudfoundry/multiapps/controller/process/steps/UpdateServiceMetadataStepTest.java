@@ -1,20 +1,19 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
+
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-
-import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
-
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
 class UpdateServiceMetadataStepTest extends SyncFlowableStepTest<UpdateServiceMetadataStep> {
 
@@ -27,8 +26,7 @@ class UpdateServiceMetadataStepTest extends SyncFlowableStepTest<UpdateServiceMe
         step.execute(execution);
 
         verify(client).updateServiceInstanceMetadata(serviceToProcess.getMetadata()
-                                                                     .getGuid(),
-                                                     serviceToProcess.getV3Metadata());
+                                                                     .getGuid(), serviceToProcess.getV3Metadata());
     }
 
     @Test

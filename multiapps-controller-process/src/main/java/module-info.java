@@ -15,7 +15,6 @@ open module org.cloudfoundry.multiapps.controller.process {
     exports org.cloudfoundry.multiapps.controller.process.variables;
     exports org.cloudfoundry.multiapps.controller.process.stream;
 
-    requires transitive com.sap.cloudfoundry.client.facade;
     requires transitive flowable.engine;
     requires transitive org.cloudfoundry.multiapps.controller.api;
     requires transitive org.cloudfoundry.multiapps.controller.core;

@@ -2,10 +2,9 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 
 public class PollServiceBindingLastOperationFailSafeExecution extends PollServiceBindingLastOperationExecution {
 

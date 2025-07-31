@@ -1,20 +1,19 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.client.v3.jobs.JobState;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudAsyncJob;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBroker;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudAsyncJob;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudAsyncJob;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceBroker;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 class PollServiceBrokerOperationsExecutionTest extends AsyncStepOperationTest<CreateOrUpdateServiceBrokerStep> {
 
@@ -26,20 +25,16 @@ class PollServiceBrokerOperationsExecutionTest extends AsyncStepOperationTest<Cr
     static Stream<Arguments> testPollStateExecution() {
         return Stream.of(Arguments.of(ImmutableCloudAsyncJob.builder()
                                                             .state(JobState.COMPLETE)
-                                                            .build(),
-                                      AsyncExecutionState.FINISHED),
-                         Arguments.of(ImmutableCloudAsyncJob.builder()
-                                                            .state(JobState.FAILED)
-                                                            .build(),
-                                      AsyncExecutionState.ERROR),
-                         Arguments.of(ImmutableCloudAsyncJob.builder()
-                                                            .state(JobState.POLLING)
-                                                            .build(),
-                                      AsyncExecutionState.RUNNING),
-                         Arguments.of(ImmutableCloudAsyncJob.builder()
-                                                            .state(JobState.PROCESSING)
-                                                            .build(),
-                                      AsyncExecutionState.RUNNING));
+                                                            .build(), AsyncExecutionState.FINISHED), Arguments.of(
+            ImmutableCloudAsyncJob.builder()
+                                  .state(JobState.FAILED)
+                                  .build(), AsyncExecutionState.ERROR), Arguments.of(ImmutableCloudAsyncJob.builder()
+                                                                                                           .state(JobState.POLLING)
+                                                                                                           .build(),
+                                                                                     AsyncExecutionState.RUNNING), Arguments.of(
+            ImmutableCloudAsyncJob.builder()
+                                  .state(JobState.PROCESSING)
+                                  .build(), AsyncExecutionState.RUNNING));
     }
 
     @ParameterizedTest

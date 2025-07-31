@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +8,14 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
@@ -31,14 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
-import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
-import com.sap.cloudfoundry.client.facade.domain.Status;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+import static java.text.MessageFormat.format;
 
 @Named("uploadAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -105,8 +103,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             return StepPhase.POLL;
         }
 
-        if (isPackageInValidState(latestPackage)
-            && (context.getVariable(Variables.APP_NEEDS_RESTAGE) || !packagesMatch(currentPackage.get(), latestPackage))) {
+        if (isPackageInValidState(latestPackage) && (context.getVariable(Variables.APP_NEEDS_RESTAGE) || !packagesMatch(
+            currentPackage.get(), latestPackage))) {
             context.setVariable(Variables.SHOULD_SKIP_APPLICATION_UPLOAD, true);
             return useLatestPackage(context, latestPackage);
         }
@@ -133,9 +131,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     protected ApplicationArchiveContext createApplicationArchiveContext(ProcessContext context, String fileName) {
         long maxSize = configuration.getMaxResourceFileSize();
         List<ArchiveEntryWithStreamPositions> archiveEntryWithStreamPositions = context.getVariable(Variables.ARCHIVE_ENTRIES_POSITIONS);
-        return new ApplicationArchiveContext(fileName,
-                                             maxSize,
-                                             archiveEntryWithStreamPositions,
+        return new ApplicationArchiveContext(fileName, maxSize, archiveEntryWithStreamPositions,
                                              context.getRequiredVariable(Variables.SPACE_GUID),
                                              context.getRequiredVariable(Variables.APP_ARCHIVE_ID));
     }

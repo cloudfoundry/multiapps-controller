@@ -1,9 +1,9 @@
 package org.cloudfoundry.multiapps.controller.client.lib.domain;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudProcess;
-import com.sap.cloudfoundry.client.facade.domain.Staging;
-
 import java.util.Objects;
+
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudProcess;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 
 public class HealthCheckInfo {
 

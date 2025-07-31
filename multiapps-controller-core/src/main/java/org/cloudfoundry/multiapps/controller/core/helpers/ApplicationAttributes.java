@@ -5,10 +5,9 @@ import java.util.Map;
 
 import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.Messages;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 public class ApplicationAttributes {
 
@@ -29,11 +28,8 @@ public class ApplicationAttributes {
         Object attribute = attributes.getOrDefault(attributeName, defaultValue);
         if (!hasCorrectType(attribute, attributeClass)) {
             Class<?> actualAttributeClass = attribute.getClass();
-            throw new ParsingException(Messages.ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3,
-                                       attributeName,
-                                       appName,
-                                       actualAttributeClass.getSimpleName(),
-                                       attributeClass.getSimpleName());
+            throw new ParsingException(Messages.ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3, attributeName, appName,
+                                       actualAttributeClass.getSimpleName(), attributeClass.getSimpleName());
         }
         return (T) attribute;
     }

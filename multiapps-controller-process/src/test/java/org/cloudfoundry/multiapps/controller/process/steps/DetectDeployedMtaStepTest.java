@@ -1,9 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.when;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +8,8 @@ import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
@@ -31,8 +29,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.when;
 
 class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaStep> {
 
@@ -65,7 +64,9 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
 
         when(deployedMtaDetector.detectDeployedMtas(Mockito.any(CloudControllerClient.class))).thenReturn(deployedComponents);
         when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(Mockito.eq(MTA_ID), Mockito.eq(null),
-                                                                     Mockito.any(CloudControllerClient.class))).thenReturn(Optional.of(deployedMta));
+                                                                     Mockito.any(
+                                                                         CloudControllerClient.class))).thenReturn(
+            Optional.of(deployedMta));
         when(customClientMock.getServiceKeysByMetadataAndGuids(Mockito.eq(SPACE_GUID), Mockito.eq(MTA_ID), Mockito.isNull(),
                                                                Mockito.eq(deployedMta.getServices()))).thenReturn(deployedKeys);
 
@@ -99,10 +100,12 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
                                                                                                      .moduleName("test-module")
                                                                                                      .name("test-app")
                                                                                                      .v3Metadata(Metadata.builder()
-                                                                                                                         .annotation(MtaMetadataAnnotations.MTA_VERSION,
-                                                                                                                                     MTA_VERSION_2)
+                                                                                                                         .annotation(
+                                                                                                                             MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                                             MTA_VERSION_2)
                                                                                                                          .build())
-                                                                                                     .productizationState(ProductizationState.LIVE)
+                                                                                                     .productizationState(
+                                                                                                         ProductizationState.LIVE)
                                                                                                      .build())
                                                       .metadata(ImmutableMtaMetadata.builder()
                                                                                     .id(MTA_ID)
@@ -114,10 +117,12 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
                                                                                                    .moduleName("test-module")
                                                                                                    .name("mta-backup-test-app")
                                                                                                    .v3Metadata(Metadata.builder()
-                                                                                                                       .annotation(MtaMetadataAnnotations.MTA_VERSION,
-                                                                                                                                   MTA_VERSION_1)
+                                                                                                                       .annotation(
+                                                                                                                           MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                                           MTA_VERSION_1)
                                                                                                                        .build())
-                                                                                                   .productizationState(ProductizationState.LIVE)
+                                                                                                   .productizationState(
+                                                                                                       ProductizationState.LIVE)
                                                                                                    .build())
                                                     .metadata(ImmutableMtaMetadata.builder()
                                                                                   .id(MTA_ID)
@@ -128,8 +133,9 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
         when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(Mockito.eq(MTA_ID), Mockito.eq(null),
                                                                      Mockito.any())).thenReturn(Optional.of(deployedMta));
         when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(Mockito.eq(MTA_ID),
-                                                                     Mockito.eq(NameUtil.computeUserNamespaceWithSystemNamespace(Constants.MTA_BACKUP_NAMESPACE,
-                                                                                                                                 null)),
+                                                                     Mockito.eq(NameUtil.computeUserNamespaceWithSystemNamespace(
+                                                                         Constants.MTA_BACKUP_NAMESPACE,
+                                                                         null)),
                                                                      Mockito.any())).thenReturn(Optional.of(backupMta));
 
         step.execute(execution);

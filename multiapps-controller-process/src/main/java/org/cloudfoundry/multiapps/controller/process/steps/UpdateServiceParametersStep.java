@@ -3,10 +3,11 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.function.Supplier;
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+
 import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -34,8 +35,9 @@ public class UpdateServiceParametersStep extends ServiceStep {
             if (service.shouldFailOnParametersUpdateFailure() != null && !service.shouldFailOnParametersUpdateFailure()) {
                 getStepLogger().warn(
                     MessageFormat.format(Messages.SERVICE_INSTANCE_0_PARAMETERS_UPDATE_FAILED_IGNORING_FAILURE, service.getName()));
-                LOGGER.error(MessageFormat.format(Messages.SERVICE_INSTANCE_0_PARAMETERS_UPDATE_FAILED_ERROR_1, service.getName(),
-                                                  e.getMessage()), e);
+                LOGGER.error(
+                    MessageFormat.format(Messages.SERVICE_INSTANCE_0_PARAMETERS_UPDATE_FAILED_ERROR_1, service.getName(), e.getMessage()),
+                    e);
                 return OperationExecutionState.FINISHED;
             }
             String exceptionDescription = MessageFormat.format(Messages.COULD_NOT_UPDATE_PARAMETERS_SERVICE, service.getName(),
@@ -52,9 +54,8 @@ public class UpdateServiceParametersStep extends ServiceStep {
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
-        return List.of(
-            new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(), getServiceProgressReporter(),
-                                                             shouldFailOnParametersUpdateFailure(serviceToProcess)));
+        return List.of(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(), getServiceProgressReporter(),
+                                                                        shouldFailOnParametersUpdateFailure(serviceToProcess)));
     }
 
     private Supplier<Boolean> shouldFailOnParametersUpdateFailure(CloudServiceInstanceExtended serviceToProcess) {

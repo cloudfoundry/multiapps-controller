@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.util.Set;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.DynamicResolvableParametersHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
@@ -9,8 +10,6 @@ import org.cloudfoundry.multiapps.controller.core.model.ImmutableDynamicResolvab
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 
 public class DynamicResolvableParametersContextUpdater {
 

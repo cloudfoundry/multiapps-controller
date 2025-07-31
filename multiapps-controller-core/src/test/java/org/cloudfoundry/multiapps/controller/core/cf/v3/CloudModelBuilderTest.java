@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
@@ -20,8 +21,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-
 class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.cf.v2.CloudModelBuilderTest {
 
     @Mock
@@ -29,7 +28,7 @@ class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.c
 
     public static Stream<Arguments> getParameters() {
         return Stream.of(
-// @formatter:off
+            // @formatter:off
             // (00) Test missing resource type definition:
             Arguments.of("mtad-missing-resource-type-definition.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
                     null, false,
@@ -60,25 +59,28 @@ class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.c
     }
 
     @Override
-    protected ApplicationCloudModelBuilder
-              getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
-                                              AppSuffixDeterminer appSuffixDeterminer, boolean incrementalBlueGreen) {
-        deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor,
-                                                               new ResolverBuilder(),
-                                                               new ResolverBuilder(),
+    protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+                                                                           boolean prettyPrinting, DeployedMta deployedMta,
+                                                                           AppSuffixDeterminer appSuffixDeterminer,
+                                                                           boolean incrementalBlueGreen) {
+        deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor, new ResolverBuilder(), new ResolverBuilder(),
                                                                Collections.emptySet()).resolve();
         var client = Mockito.mock(CloudControllerClient.class);
         Mockito.when(client.getApplicationRoutes(Mockito.any()))
                .thenReturn(Collections.emptyList());
-        return new org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder.Builder().deploymentDescriptor(deploymentDescriptor)
+        return new org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder.Builder().deploymentDescriptor(
+                                                                                                              deploymentDescriptor)
                                                                                                           .prettyPrinting(prettyPrinting)
                                                                                                           .deployedMta(deployedMta)
                                                                                                           .deployId(DEPLOY_ID)
                                                                                                           .namespace(namespace)
-                                                                                                          .userMessageLogger(Mockito.mock(UserMessageLogger.class))
-                                                                                                          .appSuffixDeterminer(appSuffixDeterminer)
+                                                                                                          .userMessageLogger(Mockito.mock(
+                                                                                                              UserMessageLogger.class))
+                                                                                                          .appSuffixDeterminer(
+                                                                                                              appSuffixDeterminer)
                                                                                                           .client(client)
-                                                                                                          .incrementalInstancesUpdate(incrementalBlueGreen)
+                                                                                                          .incrementalInstancesUpdate(
+                                                                                                              incrementalBlueGreen)
                                                                                                           .build();
     }
 
@@ -92,8 +94,7 @@ class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.c
     void testWarnMessage(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
                          String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
                          String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps,
-                         AppSuffixDeterminer appSuffixDeterminer)
-        throws Exception {
+                         AppSuffixDeterminer appSuffixDeterminer) throws Exception {
         initializeParameters(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, deployedMtaLocation, namespace,
                              applyNamespace, mtaArchiveModules, mtaModules, deployedApps, appSuffixDeterminer, false);
         resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());

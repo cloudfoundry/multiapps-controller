@@ -1,10 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.mockito.Mockito.verify;
-
 import java.util.UUID;
 
 import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
@@ -17,7 +16,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Version;
 import org.junit.jupiter.api.Test;
 
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import static org.mockito.Mockito.verify;
 
 class RemoveMtaBackupMetadataStepTest extends SyncFlowableStepTest<RemoveMtaBackupMetadataStep> {
 
@@ -64,10 +63,12 @@ class RemoveMtaBackupMetadataStepTest extends SyncFlowableStepTest<RemoveMtaBack
                                                                                   .moduleName(MODULE_NAME)
                                                                                   .name(BACKUP_APP_NAME)
                                                                                   .v3Metadata(Metadata.builder()
-                                                                                                      .label(MtaMetadataLabels.MTA_NAMESPACE,
-                                                                                                             namespace)
-                                                                                                      .annotation(MtaMetadataAnnotations.MTA_NAMESPACE,
-                                                                                                                  namespace)
+                                                                                                      .label(
+                                                                                                          MtaMetadataLabels.MTA_NAMESPACE,
+                                                                                                          namespace)
+                                                                                                      .annotation(
+                                                                                                          MtaMetadataAnnotations.MTA_NAMESPACE,
+                                                                                                          namespace)
                                                                                                       .build())
                                                                                   .productizationState(ProductizationState.LIVE)
                                                                                   .metadata(ImmutableCloudMetadata.builder()

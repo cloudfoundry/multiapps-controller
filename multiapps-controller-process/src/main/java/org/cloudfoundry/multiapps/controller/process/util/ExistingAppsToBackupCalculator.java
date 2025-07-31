@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
@@ -21,8 +22,6 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 public class ExistingAppsToBackupCalculator {
 
@@ -58,8 +57,9 @@ public class ExistingAppsToBackupCalculator {
     private boolean doesDeployedMtaVersionMatchToCurrentDeployment(DeployedMta detectedMta, String mtaVersionOfCurrentDescriptor) {
         return detectedMta != null && detectedMta.getApplications()
                                                  .stream()
-                                                 .allMatch(deployedApplication -> doesMtaVersionMatchToCurrentDeployment(deployedApplication,
-                                                                                                                         mtaVersionOfCurrentDescriptor));
+                                                 .allMatch(
+                                                     deployedApplication -> doesMtaVersionMatchToCurrentDeployment(deployedApplication,
+                                                                                                                   mtaVersionOfCurrentDescriptor));
     }
 
     private boolean doesMtaVersionMatchToCurrentDeployment(DeployedMtaApplication deployedApplication,
@@ -185,7 +185,8 @@ public class ExistingAppsToBackupCalculator {
 
         List<DeployedMtaApplication> deployedAppsToUndeploy = backupMta.getApplications()
                                                                        .stream()
-                                                                       .filter(application -> !appsToBackupNames.contains(application.getName()))
+                                                                       .filter(application -> !appsToBackupNames.contains(
+                                                                           application.getName()))
                                                                        .collect(Collectors.toList());
         appsToUndeploy.addAll(deployedAppsToUndeploy);
         return appsToUndeploy;

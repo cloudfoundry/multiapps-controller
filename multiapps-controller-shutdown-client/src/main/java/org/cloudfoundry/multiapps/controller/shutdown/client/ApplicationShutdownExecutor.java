@@ -5,13 +5,12 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClientImpl;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
 import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.EnvironmentBasedShutdownConfiguration;
 import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.ShutdownConfiguration;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudControllerClientImpl;
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
-import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
 
 public class ApplicationShutdownExecutor {
 
@@ -21,8 +20,9 @@ public class ApplicationShutdownExecutor {
 
     private final ShutdownConfiguration shutdownConfiguration = new EnvironmentBasedShutdownConfiguration();
     private final ShutdownClientFactory shutdownClientFactory = new ShutdownClientFactory();
-    private final ApplicationInstanceShutdownExecutor instanceShutdownExecutor = new ApplicationInstanceShutdownExecutor(shutdownConfiguration,
-                                                                                                                         shutdownClientFactory);
+    private final ApplicationInstanceShutdownExecutor instanceShutdownExecutor = new ApplicationInstanceShutdownExecutor(
+        shutdownConfiguration,
+        shutdownClientFactory);
 
     public void execute() {
         int applicationInstancesCount = getApplicationInstancesCount(shutdownConfiguration);

@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +9,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -19,9 +20,7 @@ import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporte
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerException;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
+import static java.text.MessageFormat.format;
 
 public abstract class PollServiceOperationsExecution implements AsyncExecution {
 
@@ -76,9 +75,8 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         return servicesToPoll;
     }
 
-    protected List<CloudServiceInstanceExtended>
-              getServicesWithTriggeredOperations(Collection<CloudServiceInstanceExtended> services,
-                                                 Map<String, ServiceOperation.Type> triggeredServiceOperations) {
+    protected List<CloudServiceInstanceExtended> getServicesWithTriggeredOperations(Collection<CloudServiceInstanceExtended> services,
+                                                                                    Map<String, ServiceOperation.Type> triggeredServiceOperations) {
         return services.stream()
                        .filter(cloudService -> triggeredServiceOperations.containsKey(cloudService.getName()))
                        .collect(Collectors.toList());
@@ -111,8 +109,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
     protected ServiceOperation mapOperationState(StepLogger stepLogger, ServiceOperation lastServiceOperation,
                                                  CloudServiceInstanceExtended service) {
         if (lastServiceOperation.getDescription() == null && lastServiceOperation.getState() == ServiceOperation.State.FAILED) {
-            return new ServiceOperation(lastServiceOperation.getType(),
-                                        Messages.DEFAULT_FAILED_OPERATION_DESCRIPTION,
+            return new ServiceOperation(lastServiceOperation.getType(), Messages.DEFAULT_FAILED_OPERATION_DESCRIPTION,
                                         lastServiceOperation.getState());
         }
         return lastServiceOperation;
@@ -130,8 +127,8 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         serviceProgressReporter.reportOverallProgress(context, lastServicesOperations, triggeredServiceOperations);
     }
 
-    protected List<CloudServiceInstanceExtended>
-              getRemainingServicesToPoll(Map<CloudServiceInstanceExtended, ServiceOperation> servicesWithLastOperation) {
+    protected List<CloudServiceInstanceExtended> getRemainingServicesToPoll(
+        Map<CloudServiceInstanceExtended, ServiceOperation> servicesWithLastOperation) {
         return servicesWithLastOperation.entrySet()
                                         .stream()
                                         .filter(this::isOperationInProgress)

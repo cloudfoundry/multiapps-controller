@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceKeyPollingFactory;
@@ -14,11 +17,6 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
-
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ServiceCredentialBindingOperation;
 
 @Named("createServiceKeyStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -51,8 +49,7 @@ public class CreateServiceKeyStep extends AsyncFlowableStep {
         } catch (CloudOperationException e) {
             if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
                 CloudServiceKey serviceKey = controllerClient.getServiceKey(serviceKeyToCreate.getServiceInstance()
-                                                                                              .getName(),
-                                                                            serviceKeyToCreate.getName());
+                                                                                              .getName(), serviceKeyToCreate.getName());
                 if (serviceKey != null) {
                     context.setVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_KEY_CREATION, true);
                     return Optional.empty();

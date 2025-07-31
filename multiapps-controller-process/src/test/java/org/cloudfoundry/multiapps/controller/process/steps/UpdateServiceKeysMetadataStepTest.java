@@ -1,14 +1,16 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceKey;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -17,11 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloudfoundry.client.facade.CloudOperationException;
-import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudServiceKey;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 
 class UpdateServiceKeysMetadataStepTest extends SyncFlowableStepTest<UpdateServiceKeysMetadataStep> {
 
@@ -36,8 +35,7 @@ class UpdateServiceKeysMetadataStepTest extends SyncFlowableStepTest<UpdateServi
 
         for (var key : testKeys) {
             verify(client).updateServiceBindingMetadata(key.getMetadata()
-                                                           .getGuid(),
-                                                        key.getV3Metadata());
+                                                           .getGuid(), key.getV3Metadata());
         }
 
     }
@@ -49,14 +47,14 @@ class UpdateServiceKeysMetadataStepTest extends SyncFlowableStepTest<UpdateServi
         CloudServiceKey brokenKey = testKeys.get(1);
         doThrow(new CloudOperationException(HttpStatus.FORBIDDEN, "Test")).when(client)
                                                                           .updateServiceBindingMetadata(Mockito.eq(brokenKey.getGuid()),
-                                                                                                        Mockito.eq(brokenKey.getV3Metadata()));
+                                                                                                        Mockito.eq(
+                                                                                                            brokenKey.getV3Metadata()));
 
         step.execute(execution);
 
         for (var key : testKeys) {
             verify(client).updateServiceBindingMetadata(key.getMetadata()
-                                                           .getGuid(),
-                                                        key.getV3Metadata());
+                                                           .getGuid(), key.getV3Metadata());
         }
         verify(stepLogger).errorWithoutProgressMessage(Mockito.any(CloudOperationException.class),
                                                        Mockito.eq(Messages.UPDATING_SERVICE_KEY_0_METADATA_FAILED),

@@ -14,12 +14,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.adapters.LogCacheClient;
-import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
-import com.sap.cloudfoundry.client.facade.domain.ApplicationLog.MessageType;
-import com.sap.cloudfoundry.client.facade.domain.ImmutableApplicationLog;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.LogCacheClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ApplicationLog;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableApplicationLog;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
@@ -95,31 +94,32 @@ class PollExecuteAppStatusExecutionTest {
     static Stream<Arguments> testStep() {
         return Stream.of(
             // (1) Application is in running state
-            Arguments.of(createAppLog("testMessage", MessageType.STDOUT, APP_SOURCE), null, null, false,
+            Arguments.of(createAppLog("testMessage", ApplicationLog.MessageType.STDOUT, APP_SOURCE), null, null, false,
                          AsyncExecutionState.RUNNING),
             // (2) Application finished execution and should be stopped
-            Arguments.of(createAppLog("SUCCESS", MessageType.STDOUT, APP_SOURCE), null, null, true,
+            Arguments.of(createAppLog("SUCCESS", ApplicationLog.MessageType.STDOUT, APP_SOURCE), null, null, true,
                          AsyncExecutionState.FINISHED),
             // (3) Application finished execution and should be left to run
-            Arguments.of(createAppLog("SUCCESS", MessageType.STDOUT, APP_SOURCE), null, null, false,
+            Arguments.of(createAppLog("SUCCESS", ApplicationLog.MessageType.STDOUT, APP_SOURCE), null, null, false,
                          AsyncExecutionState.FINISHED),
             // (4) Application with Custom success marker
-            Arguments.of(createAppLog("SUCCESS", MessageType.STDOUT, APP_SOURCE), "executed", null, false,
+            Arguments.of(createAppLog("SUCCESS", ApplicationLog.MessageType.STDOUT, APP_SOURCE), "executed", null, false,
                          AsyncExecutionState.RUNNING),
             // (5) Application in failed state
-            Arguments.of(createAppLog("FAILURE", MessageType.STDERR, APP_SOURCE), null, null, false,
+            Arguments.of(createAppLog("FAILURE", ApplicationLog.MessageType.STDERR, APP_SOURCE), null, null, false,
                          AsyncExecutionState.ERROR),
             // (6) Application in failed state and should be stopped
-            Arguments.of(createAppLog("FAILURE", MessageType.STDERR, APP_SOURCE), null, null, true, AsyncExecutionState.ERROR),
+            Arguments.of(createAppLog("FAILURE", ApplicationLog.MessageType.STDERR, APP_SOURCE), null, null, true,
+                         AsyncExecutionState.ERROR),
             // (7) Application with Custom failure marker
-            Arguments.of(createAppLog("FAILURE", MessageType.STDERR, APP_SOURCE), null, "execution failure", false,
+            Arguments.of(createAppLog("FAILURE", ApplicationLog.MessageType.STDERR, APP_SOURCE), null, "execution failure", false,
                          AsyncExecutionState.RUNNING),
             // (8) Log message with non APP Source
-            Arguments.of(createAppLog("info service", MessageType.STDOUT, "service"), null, null, false,
+            Arguments.of(createAppLog("info service", ApplicationLog.MessageType.STDOUT, "service"), null, null, false,
                          AsyncExecutionState.RUNNING));
     }
 
-    private static ApplicationLog createAppLog(String message, MessageType messageType, String sourceName) {
+    private static ApplicationLog createAppLog(String message, ApplicationLog.MessageType messageType, String sourceName) {
         return ImmutableApplicationLog.builder()
                                       .applicationGuid(APPLICATION_GUID)
                                       .message(message)

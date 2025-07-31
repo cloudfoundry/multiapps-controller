@@ -8,10 +8,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.sap.cloudfoundry.client.facade.CloudControllerClient;
-import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
-import com.sap.cloudfoundry.client.facade.domain.ApplicationLog.MessageType;
-import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ApplicationLog;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
@@ -25,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static java.text.MessageFormat.format;
+import static org.cloudfoundry.multiapps.controller.client.facade.domain.ApplicationLog.MessageType;
 
 public class PollExecuteAppStatusExecution implements AsyncExecution {
 
@@ -153,8 +153,8 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         return null;
     }
 
-    private AsyncExecutionState checkAppExecutionStatus(ProcessContext context, CloudApplication app,
-                                                        ApplicationAttributes appAttributes, AppExecutionDetailedStatus status) {
+    private AsyncExecutionState checkAppExecutionStatus(ProcessContext context, CloudApplication app, ApplicationAttributes appAttributes,
+                                                        AppExecutionDetailedStatus status) {
         var execStatus = status.getStatus();
         boolean stopApp = appAttributes.get(SupportedParameters.STOP_APP, Boolean.class, Boolean.FALSE);
 

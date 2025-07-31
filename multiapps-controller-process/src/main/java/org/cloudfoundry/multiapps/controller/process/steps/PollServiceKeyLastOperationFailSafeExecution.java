@@ -1,8 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-
-import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 
 public class PollServiceKeyLastOperationFailSafeExecution extends PollServiceKeyLastOperationExecution {
 

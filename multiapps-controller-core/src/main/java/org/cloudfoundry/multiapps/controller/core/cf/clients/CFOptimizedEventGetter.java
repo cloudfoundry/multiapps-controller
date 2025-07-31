@@ -5,9 +5,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-
-import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
 public class CFOptimizedEventGetter extends CustomControllerClient {
 
