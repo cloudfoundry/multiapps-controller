@@ -13,11 +13,13 @@
         "mta_id": "c232c91455fc92b226129257682792b2"
       }
     },
+    "moduleName": "java-hello-world",
     "memory": 128,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -26,7 +28,7 @@
           "name": "sofd60245639a"
         },
         "host": "java-hello-world",
-        "path" : "",
+        "path": "",
         "url": "java-hello-world.sofd60245639a"
       }
     ],
@@ -37,11 +39,8 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "destinations": "[{\"name\":\"java\",\"url\":\"http://java-hello-world-backend.sofd60245639a\"},{\"name\":\"ui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     },
-    "moduleName": "java-hello-world",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {
@@ -69,11 +68,13 @@
         "mta_id": "c232c91455fc92b226129257682792b2"
       }
     },
+    "moduleName": "java-hello-world-backend",
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [
       {
@@ -82,7 +83,7 @@
           "name": "sofd60245639a"
         },
         "host": "java-hello-world-backend",
-        "path" : "",
+        "path": "",
         "url": "java-hello-world-backend.sofd60245639a"
       }
     ],
@@ -94,11 +95,8 @@
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
-    "moduleName": "java-hello-world-backend",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {
@@ -126,11 +124,13 @@
         "mta_id": "c232c91455fc92b226129257682792b2"
       }
     },
+    "moduleName": "java-hello-world-db",
     "memory": 256,
     "diskQuota": 0,
     "instances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": [],
+      "appFeatures": {}
     },
     "routes": [],
     "services": [
@@ -139,11 +139,8 @@
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\",\"execute-app\":false}"
     },
-    "moduleName": "java-hello-world-db",
     "idleRoutes": [],
-    "bindingParameters": {
-      
-    },
+    "bindingParameters": {},
     "tasks": [],
     "serviceKeysToInject": [],
     "restartParameters": {

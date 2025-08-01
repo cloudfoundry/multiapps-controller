@@ -1,6 +1,8 @@
 package org.cloudfoundry.multiapps.controller.core.parser;
 
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +11,7 @@ import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
 import com.sap.cloudfoundry.client.facade.domain.LifecycleType;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.springframework.util.CollectionUtils;
@@ -39,6 +42,8 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                                                                   SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT,
                                                                                   getDefaultHealthCheckHttpEndpoint(healthCheckType));
         Boolean isSshEnabled = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
+        Map<String, Boolean> appFeatures = getAppFeatures(parametersList);
+        overrideSshFeatureIfMissing(appFeatures, isSshEnabled);
         DockerInfo dockerInfo = new DockerInfoParser().parse(parametersList);
         LifecycleType lifecycleType = parseLifecycleType(parametersList);
 
@@ -53,9 +58,22 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                .healthCheckType(healthCheckType)
                                .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
                                .isSshEnabled(isSshEnabled)
+                               .appFeatures(appFeatures)
                                .dockerInfo(dockerInfo)
                                .lifecycleType(lifecycleType)
                                .build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Boolean> getAppFeatures(List<Map<String, Object>> parametersList) {
+        return new HashMap<>((Map<String, Boolean>) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.APP_FEATURES,
+                                                                                    Collections.emptyMap()));
+    }
+
+    private void overrideSshFeatureIfMissing(Map<String, Boolean> appFeatures, Boolean isSshEnabled) {
+        if (isSshEnabled != null && !appFeatures.containsKey(Constants.APP_FEATURE_SSH)) {
+            appFeatures.put(Constants.APP_FEATURE_SSH, isSshEnabled);
+        }
     }
 
     private LifecycleType parseLifecycleType(List<Map<String, Object>> parametersList) {
@@ -99,8 +117,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
 
     private void validateDockerInfoWithNonDocker(LifecycleType lifecycleType, DockerInfo dockerInfo) {
         if (lifecycleType != LifecycleType.DOCKER && lifecycleType != null && dockerInfo != null) {
-            throw new ContentException(
-                MessageFormat.format(DOCKER_INFO_NOT_ALLOWED_WITH_LIFECYCLE, lifecycleType));
+            throw new ContentException(MessageFormat.format(DOCKER_INFO_NOT_ALLOWED_WITH_LIFECYCLE, lifecycleType));
         }
     }
 

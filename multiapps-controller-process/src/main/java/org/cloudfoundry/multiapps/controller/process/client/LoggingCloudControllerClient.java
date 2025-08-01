@@ -8,12 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.cloudfoundry.client.v3.Metadata;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
-import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
-import org.cloudfoundry.multiapps.controller.process.Messages;
-
 import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.ServiceBindingOperationCallback;
@@ -42,6 +36,11 @@ import com.sap.cloudfoundry.client.facade.domain.Staging;
 import com.sap.cloudfoundry.client.facade.domain.Upload;
 import com.sap.cloudfoundry.client.facade.domain.UserRole;
 import com.sap.cloudfoundry.client.facade.dto.ApplicationToCreateDto;
+import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
+import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 
 public class LoggingCloudControllerClient implements CloudControllerClient {
 
@@ -275,6 +274,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public boolean getApplicationSshEnabled(UUID applicationGuid) {
         logger.debug(Messages.GETTING_SSH_ENABLED_FOR_APPLICATION_0, applicationGuid);
         return delegate.getApplicationSshEnabled(applicationGuid);
+    }
+
+    @Override
+    public Map<String, Boolean> getApplicationFeatures(UUID applicationGuid) {
+        logger.debug(Messages.GETTING_FEATURES_FOR_APPLICATION_0, applicationGuid);
+        return delegate.getApplicationFeatures(applicationGuid);
     }
 
     @Override

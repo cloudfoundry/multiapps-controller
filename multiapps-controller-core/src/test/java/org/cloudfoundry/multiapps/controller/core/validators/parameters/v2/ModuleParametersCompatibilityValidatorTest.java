@@ -1,15 +1,8 @@
 package org.cloudfoundry.multiapps.controller.core.validators.parameters.v2;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
@@ -22,6 +15,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 class ModuleParametersCompatibilityValidatorTest {
 
     @Mock
@@ -33,38 +33,45 @@ class ModuleParametersCompatibilityValidatorTest {
                           .close();
     }
 
-    static Stream<Arguments> testModuleParametersCompatability() {
+    static Stream<Arguments> testModuleParametersCompatibility() {
         return Stream.of(Arguments.of(List.of(SupportedParameters.HOST, SupportedParameters.ROUTES), true),
                          Arguments.of(List.of(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES), false),
                          Arguments.of(List.of(SupportedParameters.HOSTS, SupportedParameters.DOMAINS, SupportedParameters.ROUTES), true),
-                         Arguments.of(List.of(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOST), true),
-                         Arguments.of(List.of(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOSTS,
-                                              SupportedParameters.IDLE_DOMAINS),
-                                      true),
+                         Arguments.of(List.of(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOST), true), Arguments.of(
+                List.of(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_DOMAINS), true),
                          Arguments.of(List.of(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, SupportedParameters.BUILDPACKS),
                                       false),
                          Arguments.of(List.of(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, "not-supported-parameter"),
-                                      false),
-                         Arguments.of(List.of(SupportedParameters.HOSTS, SupportedParameters.ROUTES, SupportedParameters.ROUTE_PATH,
-                                              SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_ROUTES),
-                                      true));
+                                      false), Arguments.of(
+                List.of(SupportedParameters.HOSTS, SupportedParameters.ROUTES, SupportedParameters.ROUTE_PATH,
+                        SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_ROUTES), true),
+                         Arguments.of(List.of(SupportedParameters.ENABLE_SSH), false), Arguments.of(
+                List.of(SupportedParameters.ENABLE_SSH, Map.of(SupportedParameters.APP_FEATURES, Map.of("ssh", true))), true), Arguments.of(
+                List.of(SupportedParameters.ENABLE_SSH,
+                        Map.of(SupportedParameters.APP_FEATURES, Map.of("file-based-vcap-services", false))), false));
     }
 
     @ParameterizedTest
     @MethodSource
-    void testModuleParametersCompatability(List<String> moduleParameters, boolean shouldWarnMessage) {
+    void testModuleParametersCompatibility(List<Object> moduleParameters, boolean shouldWarnMessage) {
         Module module = buildModule(moduleParameters);
 
-        Module validatedModule = new ModuleParametersCompatabilityValidator(module, userMessageLogger).validate();
+        Module validatedModule = new ModuleParametersCompatibilityValidator(module, userMessageLogger).validate();
 
         assertEquals(module.getParameters(), validatedModule.getParameters());
         verifyUserMessageLogger(shouldWarnMessage);
     }
 
-    private Module buildModule(List<String> moduleParameters) {
-        Map<String, Object> moduleParametersMap = moduleParameters.stream()
-                                                                  .collect(Collectors.toMap(parameterName -> parameterName,
-                                                                                            parameterValue -> ""));
+    private Module buildModule(List<Object> moduleParameters) {
+        Map<String, Object> moduleParametersMap = new HashMap<>();
+        for (Object parameter : moduleParameters) {
+            if (parameter instanceof String) {
+                moduleParametersMap.put((String) parameter, "");
+            }
+            if (parameter instanceof Map) {
+                moduleParametersMap.putAll((Map<String, Object>) parameter);
+            }
+        }
         return Module.createV2()
                      .setParameters(moduleParametersMap);
     }
