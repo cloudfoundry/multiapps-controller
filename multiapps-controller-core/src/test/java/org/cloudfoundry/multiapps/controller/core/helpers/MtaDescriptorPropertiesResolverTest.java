@@ -1,8 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
@@ -23,6 +20,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 class MtaDescriptorPropertiesResolverTest {
 
     private final Tester tester = Tester.forClass(getClass());
@@ -36,7 +36,8 @@ class MtaDescriptorPropertiesResolverTest {
 
     static Stream<Arguments> testResolve() {
         return Stream.of(Arguments.of("mtad-properties-resolver-test/mtad-with-route.yaml",
-                                      new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-route-result.json")),
+                                      new Expectation(Expectation.Type.EXCEPTION,
+                                                      "Unable to resolve \"hello-backend#backend#routes/0/route")),
                          Arguments.of("mtad-properties-resolver-test/mtad-with-domain.yaml",
                                       new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-domain-result.json")),
                          Arguments.of("mtad-properties-resolver-test/mtad-with-escaped-references.yaml",
