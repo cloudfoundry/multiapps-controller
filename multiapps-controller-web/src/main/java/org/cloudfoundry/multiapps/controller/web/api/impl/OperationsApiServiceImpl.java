@@ -64,6 +64,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
+import static org.cloudfoundry.multiapps.controller.web.Constants.NAMES_OF_SERVICE_PARAMETERS;
+
 @Named
 public class OperationsApiServiceImpl implements OperationsApiService {
 
@@ -275,10 +277,27 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private Operation addParameterValues(Operation operation, Set<ParameterMetadata> predefinedParameters) {
-        Map<String, Object> parameters = new HashMap<>(operation.getParameters());
-        parameters.putAll(ParameterConversion.toFlowableVariables(predefinedParameters, parameters));
+        Map<String, Object> filteredParameters = filterUnnecessaryParameters(predefinedParameters, operation.getParameters());
+        filteredParameters.putAll(ParameterConversion.toFlowableVariables(predefinedParameters, filteredParameters));
         return ImmutableOperation.copyOf(operation)
-                                 .withParameters(parameters);
+                                 .withParameters(filteredParameters);
+    }
+
+    private Map<String, Object> filterUnnecessaryParameters(Set<ParameterMetadata> predefinedParameters, Map<String, Object> parameters) {
+        Set<String> allowedParameters = getAllowedParameters(predefinedParameters);
+
+        return parameters.entrySet()
+                         .stream()
+                         .filter(entry -> allowedParameters.contains(entry.getKey()))
+                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, HashMap::new));
+    }
+
+    private Set<String> getAllowedParameters(Set<ParameterMetadata> predefinedParameters) {
+        Set<String> allowedParameters = predefinedParameters.stream()
+                                                            .map(ParameterMetadata::getId)
+                                                            .collect(Collectors.toSet());
+        allowedParameters.addAll(NAMES_OF_SERVICE_PARAMETERS);
+        return allowedParameters;
     }
 
     private void ensureRequiredParametersSet(Operation operation, Set<ParameterMetadata> predefinedParameters) {
