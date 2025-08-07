@@ -1,17 +1,16 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.ConfigurationEntryServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationEntryQuery;
@@ -26,6 +25,11 @@ import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
@@ -50,6 +54,9 @@ class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishCo
     private ConfigurationEntryQuery configurationEntryQuery;
     @Mock
     private ConfigurationEntryDynamicParameterResolver dynamicParameterResolver;
+
+    @Mock
+    private ConfigurationEntryServiceAuditLog configurationEntryServiceAuditLog;
 
     public static Stream<Arguments> test() {
         return Stream.of(

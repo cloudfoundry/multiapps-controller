@@ -1,11 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
-
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.Duration;
@@ -29,6 +23,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 class ApplicationConfigurationTest {
 
@@ -176,14 +176,6 @@ class ApplicationConfigurationTest {
                                          ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA))
                .thenReturn(ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA, configuration.getMaxTtlForOldData());
-    }
-
-    @Test
-    void testShouldUseXSAuditLogging() {
-        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_USE_XS_AUDIT_LOGGING,
-                                            ApplicationConfiguration.DEFAULT_USE_XS_AUDIT_LOGGING))
-               .thenReturn(ApplicationConfiguration.DEFAULT_USE_XS_AUDIT_LOGGING);
-        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_USE_XS_AUDIT_LOGGING, configuration.shouldUseXSAuditLogging());
     }
 
     @Test
@@ -349,40 +341,6 @@ class ApplicationConfigurationTest {
         Mockito.when(environment.getInteger(ApplicationConfiguration.CFG_CF_INSTANCE_INDEX))
                .thenReturn(instanceIndex);
         Assertions.assertEquals(instanceIndex, configuration.getApplicationInstanceIndex());
-    }
-
-    @Test
-    void testGetAuditLogClientCoreThreads() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_AUDIT_LOG_CLIENT_CORE_THREADS,
-                                                    ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS))
-               .thenReturn(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS);
-        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS,
-                                configuration.getAuditLogClientCoreThreads());
-    }
-
-    @Test
-    void testGetAuditLogClientMaxThreads() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_AUDIT_LOG_CLIENT_MAX_THREADS,
-                                                    ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS))
-               .thenReturn(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS);
-        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS, configuration.getAuditLogClientMaxThreads());
-    }
-
-    @Test
-    void testGetAuditLogClientQueueCapacity() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
-                                                    ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY))
-               .thenReturn(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY);
-        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
-                                configuration.getAuditLogClientQueueCapacity());
-    }
-
-    @Test
-    void testGetAuditLogClientKeepAlive() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE,
-                                                    ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE))
-               .thenReturn(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE);
-        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE, configuration.getAuditLogClientKeepAlive());
     }
 
     @Test
