@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -277,8 +279,25 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private Operation addParameterValues(Operation operation, Set<ParameterMetadata> predefinedParameters) {
         Map<String, Object> parameters = new HashMap<>(operation.getParameters());
         parameters.putAll(ParameterConversion.toFlowableVariables(predefinedParameters, parameters));
+        filterUnnecessaryParameters(predefinedParameters, parameters);
         return ImmutableOperation.copyOf(operation)
                                  .withParameters(parameters);
+    }
+
+    private void filterUnnecessaryParameters(Set<ParameterMetadata> predefinedParameters, Map<String, Object> parameters) {
+        Set<String> namesOfPredefinedParameters = predefinedParameters.stream()
+                                                                      .map(ParameterMetadata::getId)
+                                                                      .collect(Collectors.toSet());
+        Set<String> namesOfServiceParameters = getNamesOfServiceParameters();
+        Iterator<Map.Entry<String, Object>> it = parameters.entrySet()
+                                                           .iterator();
+        while (it.hasNext()) {
+            String key = it.next()
+                           .getKey();
+            if (!(namesOfPredefinedParameters.contains(key) || namesOfServiceParameters.contains(key))) {
+                it.remove();
+            }
+        }
     }
 
     private void ensureRequiredParametersSet(Operation operation, Set<ParameterMetadata> predefinedParameters) {
@@ -354,6 +373,13 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return operation.getMessages()
                         .stream()
                         .anyMatch(message -> message.getType() == MessageType.ERROR);
+    }
+
+    private Set<String> getNamesOfServiceParameters() {
+        return new HashSet<>(
+            Arrays.asList(Constants.VARIABLE_NAME_SERVICE_ID, Variables.USER.getName(), Variables.USER_GUID.getName(),
+                          Variables.SPACE_NAME.getName(), Variables.SPACE_GUID.getName(), Variables.ORGANIZATION_NAME.getName(),
+                          Variables.ORGANIZATION_GUID.getName(), Variables.TIMESTAMP.getName(), Variables.MTA_NAMESPACE.getName()));
     }
 
 }
