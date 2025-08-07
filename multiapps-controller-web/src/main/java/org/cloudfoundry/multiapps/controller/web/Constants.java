@@ -1,6 +1,11 @@
 package org.cloudfoundry.multiapps.controller.web;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+
+import static org.cloudfoundry.multiapps.controller.persistence.Constants.VARIABLE_NAME_SERVICE_ID;
 
 public class Constants {
 
@@ -58,4 +63,11 @@ public class Constants {
 
         public static final String PURGE = "/purge";
     }
+
+    public static final Set<String> NAMES_OF_SERVICE_PARAMETERS = Set.of(
+        VARIABLE_NAME_SERVICE_ID, Variables.USER.getName(),
+        Variables.USER_GUID.getName(), Variables.SPACE_NAME.getName(), Variables.SPACE_GUID.getName(),
+        Variables.ORGANIZATION_NAME.getName(), Variables.ORGANIZATION_GUID.getName(), Variables.TIMESTAMP.getName(),
+        Variables.MTA_NAMESPACE.getName());
+
 }
