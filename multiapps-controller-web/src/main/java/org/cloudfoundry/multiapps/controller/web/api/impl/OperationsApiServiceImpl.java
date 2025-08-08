@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -255,19 +257,31 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
 
-        parameters.put(Constants.VARIABLE_NAME_SERVICE_ID, processDefinitionKey);
-        parameters.put(Variables.USER.getName(), user);
-        parameters.put(Variables.USER_GUID.getName(), userGuid);
-        parameters.put(Variables.SPACE_NAME.getName(), space.getName());
-        parameters.put(Variables.SPACE_GUID.getName(), spaceGuid);
-        parameters.put(Variables.ORGANIZATION_NAME.getName(), organization.getName());
-        parameters.put(Variables.ORGANIZATION_GUID.getName(), organization.getGuid()
-                                                                          .toString());
-        parameters.put(Variables.TIMESTAMP.getName(), DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-                                                                       .format(ZonedDateTime.now()));
-        String namespace = operation.getNamespace();
-        if (namespace != null) {
-            parameters.put(Variables.MTA_NAMESPACE.getName(), namespace);
+        for (String key : org.cloudfoundry.multiapps.controller.web.Constants.NAMES_OF_SERVICE_PARAMETERS) {
+            if (key.equals(Constants.VARIABLE_NAME_SERVICE_ID)) {
+                parameters.put(key, processDefinitionKey);
+            } else if (key.equals(Variables.USER.getName())) {
+                parameters.put(key, user);
+            } else if (key.equals(Variables.USER_GUID.getName())) {
+                parameters.put(key, userGuid);
+            } else if (key.equals(Variables.SPACE_NAME.getName())) {
+                parameters.put(key, space.getName());
+            } else if (key.equals(Variables.SPACE_GUID.getName())) {
+                parameters.put(key, spaceGuid);
+            } else if (key.equals(Variables.ORGANIZATION_NAME.getName())) {
+                parameters.put(key, organization.getName());
+            } else if (key.equals(Variables.ORGANIZATION_GUID.getName())) {
+                parameters.put(key, organization.getGuid()
+                                                .toString());
+            } else if (key.equals(Variables.TIMESTAMP.getName())) {
+                parameters.put(key, DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                                                     .format(ZonedDateTime.now()));
+            } else if (key.equals(Variables.MTA_NAMESPACE.getName())) {
+                String namespace = operation.getNamespace();
+                if (namespace != null) {
+                    parameters.put(key, namespace);
+                }
+            }
         }
 
         return ImmutableOperation.copyOf(operation)
@@ -277,8 +291,26 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private Operation addParameterValues(Operation operation, Set<ParameterMetadata> predefinedParameters) {
         Map<String, Object> parameters = new HashMap<>(operation.getParameters());
         parameters.putAll(ParameterConversion.toFlowableVariables(predefinedParameters, parameters));
+        Map<String, Object> filteredParameters = filterUnnecessaryParameters(predefinedParameters, parameters);
         return ImmutableOperation.copyOf(operation)
-                                 .withParameters(parameters);
+                                 .withParameters(filteredParameters);
+    }
+
+    private Map<String, Object> filterUnnecessaryParameters(Set<ParameterMetadata> predefinedParameters, Map<String, Object> parameters) {
+        Set<String> allowedParameters = new HashSet<>();
+        Map<String, Object> filteredParameters = new LinkedHashMap<>();
+
+        for (ParameterMetadata parameterMetadata : predefinedParameters) {
+            allowedParameters.add(parameterMetadata.getId());
+        }
+        allowedParameters.addAll(org.cloudfoundry.multiapps.controller.web.Constants.NAMES_OF_SERVICE_PARAMETERS);
+
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            if (allowedParameters.contains(entry.getKey())) {
+                filteredParameters.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return filteredParameters;
     }
 
     private void ensureRequiredParametersSet(Operation operation, Set<ParameterMetadata> predefinedParameters) {
