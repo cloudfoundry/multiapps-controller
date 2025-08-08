@@ -42,6 +42,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -55,7 +56,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.cloudfoundry.multiapps.controller.core.util.SecurityUtil.USER_INFO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -204,37 +204,38 @@ class OperationsApiServiceImplTest {
                .startProcess(Mockito.any(), Mockito.anyMap());
     }
 
+    @Test
     void testStartOperationWithInvalidParametersForTheProcess() {
         Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test", Variables.EXT_DESCRIPTOR_FILE_ID.getName(), "ext_test",
-                                                Variables.CTS_PROCESS_ID.getName(), "cts_test",
-                                                Variables.DEPLOY_URI.getName(), "deploy_test", Variables.CTS_USERNAME.getName(),
-                                                "cts_test_username", Variables.CTS_PASSWORD.getName(), "cts_test_password");
+                                                Variables.CTS_PROCESS_ID.getName(), "cts_test", Variables.DEPLOY_URI.getName(),
+                                                "deploy_test");
         Operation operation = createOperation(null, null, parameters);
         Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
                .thenReturn("deploy");
+
         operationsApiService.startOperation(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, operation);
+
         Mockito.verify(flowableFacade)
-               .startProcess(Mockito.any(), Mockito.anyMap());
-        assertNotEquals(parameters.size(), operation.getParameters()
-                                                    .size());
-        assertEquals(2, operation.getParameters()
-                                 .size());
+               .startProcess(ArgumentMatchers.eq("deploy"), ArgumentMatchers.argThat(
+                   map -> map.containsKey(Variables.MTA_ID.getName()) && map.containsKey(Variables.EXT_DESCRIPTOR_FILE_ID.getName())
+                       && !map.containsKey(Variables.CTS_PROCESS_ID.getName()) && !map.containsKey(Variables.DEPLOY_URI.getName())));
     }
 
+    @Test
     void testStartOperationWithValidParametersForTheProcess() {
         Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test", Variables.EXT_DESCRIPTOR_FILE_ID.getName(), "ext_test",
-                                                Variables.NO_START.getName(), "no_start_test", Variables.MTA_NAMESPACE.getName(),
+                                                Variables.NO_START.getName(), false, Variables.MTA_NAMESPACE.getName(),
                                                 "namespace_test");
         Operation operation = createOperation(null, null, parameters);
         Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
                .thenReturn("deploy");
+
         operationsApiService.startOperation(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, operation);
+
         Mockito.verify(flowableFacade)
-               .startProcess(Mockito.any(), Mockito.anyMap());
-        assertEquals(parameters.size(), operation.getParameters()
-                                                 .size());
-        assertEquals(5, operation.getParameters()
-                                 .size());
+               .startProcess(ArgumentMatchers.eq("deploy"), ArgumentMatchers.argThat(
+                   map -> map.containsKey(Variables.MTA_ID.getName()) && map.containsKey(Variables.EXT_DESCRIPTOR_FILE_ID.getName())
+                       && map.containsKey(Variables.NO_START.getName()) && map.containsKey(Variables.MTA_NAMESPACE.getName())));
     }
 
     @Test
