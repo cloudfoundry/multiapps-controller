@@ -36,8 +36,7 @@ class MtaDescriptorPropertiesResolverTest {
 
     static Stream<Arguments> testResolve() {
         return Stream.of(Arguments.of("mtad-properties-resolver-test/mtad-with-route.yaml",
-                                      new Expectation(Expectation.Type.EXCEPTION,
-                                                      "Unable to resolve \"hello-backend#backend#routes/0/route")),
+                                      new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-route-result.json")),
                          Arguments.of("mtad-properties-resolver-test/mtad-with-domain.yaml",
                                       new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-domain-result.json")),
                          Arguments.of("mtad-properties-resolver-test/mtad-with-escaped-references.yaml",
