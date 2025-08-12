@@ -34,14 +34,15 @@ public class FileMimeTypeValidator {
     }
 
     public void validateFileType(String spaceGuid, String appArchiveId, Consumer<String> stepLogger) {
-        try (InputStream fileInputStream = fileService.openInputStream(spaceGuid, appArchiveId);
-            InputStream inputStreamToValidate = (fileInputStream instanceof DBInputStream)
-                ? fileInputStream
-                : new BufferedInputStream(fileInputStream)) {
-            validateInputStreamMimeType(inputStreamToValidate, stepLogger);
+        try (InputStream fileInputStream = getInputStreamToValidate(fileService.openInputStream(spaceGuid, appArchiveId))) {
+            validateInputStreamMimeType(fileInputStream, stepLogger);
         } catch (FileStorageException | IOException e) {
             throw new SLException(e);
         }
+    }
+
+    private InputStream getInputStreamToValidate(InputStream stream) {
+        return (stream instanceof DBInputStream) ? stream : new BufferedInputStream(stream);
     }
 
     private void validateInputStreamMimeType(InputStream uploadedFileInputStream, Consumer<String> stepLogger) throws IOException {

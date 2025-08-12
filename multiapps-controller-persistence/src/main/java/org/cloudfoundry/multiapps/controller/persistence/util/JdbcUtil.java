@@ -80,7 +80,7 @@ public class JdbcUtil {
     }
 
     public static void setAutoCommitSafely(Connection connection) throws SQLException {
-        if (connection != null) {
+        if (connection != null && !connection.isClosed()) {
             connection.setAutoCommit(true);
         }
     }
