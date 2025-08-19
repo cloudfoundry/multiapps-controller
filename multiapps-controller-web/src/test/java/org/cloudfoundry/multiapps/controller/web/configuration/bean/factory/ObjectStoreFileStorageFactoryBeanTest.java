@@ -1,15 +1,12 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
-
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import io.pivotal.cfenv.core.CfCredentials;
+import io.pivotal.cfenv.core.CfService;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.Constants;
@@ -22,8 +19,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import io.pivotal.cfenv.core.CfCredentials;
-import io.pivotal.cfenv.core.CfService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 class ObjectStoreFileStorageFactoryBeanTest {
 
@@ -36,13 +37,17 @@ class ObjectStoreFileStorageFactoryBeanTest {
     @Mock
     private EnvironmentServicesFinder environmentServicesFinder;
     @Mock
+    private ApplicationConfiguration applicationConfiguration;
+    @Mock
     private ObjectStoreFileStorage objectStoreFileStorage;
 
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        objectStoreFileStorageFactoryBean = new ObjectStoreFileStorageFactoryBeanMock("deploy-service-os", environmentServicesFinder);
+        when(applicationConfiguration.getObjectStoreRegions()).thenReturn(Set.of());
+        objectStoreFileStorageFactoryBean = new ObjectStoreFileStorageFactoryBeanMock("deploy-service-os", environmentServicesFinder,
+                                                                                      applicationConfiguration);
     }
 
     @Test
@@ -87,8 +92,9 @@ class ObjectStoreFileStorageFactoryBeanTest {
 
     private class ObjectStoreFileStorageFactoryBeanMock extends ObjectStoreFileStorageFactoryBean {
 
-        public ObjectStoreFileStorageFactoryBeanMock(String serviceName, EnvironmentServicesFinder environmentServicesFinder) {
-            super(serviceName, environmentServicesFinder);
+        public ObjectStoreFileStorageFactoryBeanMock(String serviceName, EnvironmentServicesFinder environmentServicesFinder,
+                                                     ApplicationConfiguration applicationConfiguration) {
+            super(serviceName, environmentServicesFinder, applicationConfiguration);
         }
 
         @Override

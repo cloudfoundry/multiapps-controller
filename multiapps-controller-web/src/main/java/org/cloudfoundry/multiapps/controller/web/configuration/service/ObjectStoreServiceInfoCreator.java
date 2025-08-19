@@ -70,7 +70,7 @@ public class ObjectStoreServiceInfoCreator {
 
     private ObjectStoreServiceInfo createServiceInfoForCcee(Map<String, Object> credentials) {
         String accessKeyId = (String) credentials.get(Constants.ACCESS_KEY_ID);
-        String containerName = (String) credentials.get(Constants.CONTAINER_NAME_WITH_SLASH);
+        String containerName = (String) credentials.get(Constants.CONTAINER_NAME_WITH_DASH);
         String endpointUrl = (String) credentials.get(Constants.ENDPOINT_URL);
         String region = (String) credentials.get(Constants.REGION);
         String secretAccessKey = (String) credentials.get(Constants.SECRET_ACCESS_KEY);
