@@ -1,13 +1,13 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
+import jakarta.inject.Inject;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.configuration.bean.factory.ObjectStoreFileStorageFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
-
-import jakarta.inject.Inject;
 
 @Configuration
 public class FileStorageConfiguration {
@@ -16,8 +16,9 @@ public class FileStorageConfiguration {
 
     @Inject
     @Bean
-    public ObjectStoreFileStorageFactoryBean objectStoreFileStorage(EnvironmentServicesFinder vcapServiceFinder) {
-        return new ObjectStoreFileStorageFactoryBean(OBJECT_STORE_SERVICE_NAME, vcapServiceFinder);
+    public ObjectStoreFileStorageFactoryBean objectStoreFileStorage(EnvironmentServicesFinder vcapServiceFinder,
+                                                                    ApplicationConfiguration applicationConfiguration) {
+        return new ObjectStoreFileStorageFactoryBean(OBJECT_STORE_SERVICE_NAME, vcapServiceFinder, applicationConfiguration);
     }
 
     @Bean(name = "filterMultipartResolver")

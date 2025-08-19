@@ -126,6 +126,7 @@ public final class Messages {
     public static final String CONTROLLER_URL = "Controller URL: {0}";
     public static final String PLATFORM = "Platform: {0}";
     public static final String MAX_UPLOAD_SIZE = "Max upload size: {0}";
+    public static final String OBJECTSTORE_REGIONS_ARE = "ObjectStore regions are: {0}";
     public static final String MAX_MTA_DESCRIPTOR_SIZE = "Max mta descriptor size: {0}";
     public static final String MAX_MANIFEST_SIZE = "Max manifest size is set to: {0}";
     public static final String MAX_RESOURCE_FILE_SIZE = "Max resource file size is set to: {0}";

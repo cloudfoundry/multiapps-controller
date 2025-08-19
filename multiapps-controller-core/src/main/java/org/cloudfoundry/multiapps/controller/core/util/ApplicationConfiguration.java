@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
@@ -45,6 +46,7 @@ public class ApplicationConfiguration {
 
     static final String CFG_PLATFORM = "PLATFORM"; // Mandatory
     static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
+    static final String OBJECTSTORE_REGIONS = "OBJECTSTORE_REGIONS";
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
     static final String CFG_MAX_MANIFEST_SIZE = "DEFAULT_MAX_MANIFEST_SIZE";
     static final String CFG_MAX_RESOURCE_FILE_SIZE = "DEFAULT_MAX_RESOURCE_FILE_SIZE";
@@ -210,6 +212,7 @@ public class ApplicationConfiguration {
     private Integer threadsForFileUploadToController;
     private Integer threadsForFileStorageUpload;
     private Boolean isHealthCheckEnabled;
+    private Set<String> objectStoreRegions;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -257,6 +260,7 @@ public class ApplicationConfiguration {
         getServiceHandlingMaxParallelThreads();
         getAbortedOperationsTtlInSeconds();
         getFilesAsyncUploadExecutorMaxThreads();
+        getObjectStoreRegions();
     }
 
     public Map<String, String> getNotSensitiveVariables() {
@@ -298,6 +302,13 @@ public class ApplicationConfiguration {
             maxUploadSize = getMaxUploadSizeFromEnvironment();
         }
         return maxUploadSize;
+    }
+
+    public Set<String> getObjectStoreRegions() {
+        if (objectStoreRegions == null) {
+            objectStoreRegions = getObjectStoreRegionsFromEnvironment();
+        }
+        return objectStoreRegions;
     }
 
     public Long getMaxMtaDescriptorSize() {
@@ -664,6 +675,12 @@ public class ApplicationConfiguration {
         Long value = environment.getLong(CFG_MAX_UPLOAD_SIZE, DEFAULT_MAX_UPLOAD_SIZE);
         logEnvironmentVariable(CFG_MAX_UPLOAD_SIZE, Messages.MAX_UPLOAD_SIZE, value);
         return value;
+    }
+
+    private Set<String> getObjectStoreRegionsFromEnvironment() {
+        String value = environment.getString(OBJECTSTORE_REGIONS, Strings.EMPTY);
+        logEnvironmentVariable(OBJECTSTORE_REGIONS, Messages.OBJECTSTORE_REGIONS_ARE, value);
+        return Set.of(value.split(","));
     }
 
     private Long getMaxMtaDescriptorSizeFromEnvironment() {

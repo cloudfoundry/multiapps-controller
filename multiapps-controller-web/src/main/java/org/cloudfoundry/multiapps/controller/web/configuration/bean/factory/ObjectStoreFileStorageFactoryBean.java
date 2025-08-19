@@ -5,9 +5,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.google.common.base.Joiner;
 import io.pivotal.cfenv.core.CfService;
 import org.apache.commons.lang3.StringUtils;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
@@ -15,6 +21,7 @@ import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfo;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfoCreator;
 import org.jclouds.ContextBuilder;
+import org.jclouds.aws.domain.Region;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,14 +31,19 @@ import org.springframework.beans.factory.InitializingBean;
 public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStoreFileStorage>, InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectStoreFileStorageFactoryBean.class);
+    private static final Set<String> CUSTOM_REGIONS = Set.of("eu-south-1");
+    private static final String JCLOUDS_REGIONS = "jclouds.regions";
 
     private final String serviceName;
     private final EnvironmentServicesFinder environmentServicesFinder;
+    private final ApplicationConfiguration applicationConfiguration;
     private ObjectStoreFileStorage objectStoreFileStorage;
 
-    public ObjectStoreFileStorageFactoryBean(String serviceName, EnvironmentServicesFinder environmentServicesFinder) {
+    public ObjectStoreFileStorageFactoryBean(String serviceName, EnvironmentServicesFinder environmentServicesFinder,
+                                             ApplicationConfiguration applicationConfiguration) {
         this.serviceName = serviceName;
         this.environmentServicesFinder = environmentServicesFinder;
+        this.applicationConfiguration = applicationConfiguration;
     }
 
     @Override
@@ -77,7 +89,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
     private BlobStoreContext getBlobStoreContext(ObjectStoreServiceInfo serviceInfo) {
         ContextBuilder contextBuilder = ContextBuilder.newBuilder(serviceInfo.getProvider());
         applyCredentials(serviceInfo, contextBuilder);
-
+        addCustomRegions(contextBuilder);
         resolveContextEndpoint(serviceInfo, contextBuilder);
 
         BlobStoreContext context = contextBuilder.buildView(BlobStoreContext.class);
@@ -86,6 +98,17 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         }
 
         return context;
+    }
+
+    private void addCustomRegions(ContextBuilder contextBuilder) {
+        Properties properties = new Properties();
+        Set<String> mergedRegions = Stream.of(CUSTOM_REGIONS, Region.DEFAULT_REGIONS, applicationConfiguration.getObjectStoreRegions())
+                                          .flatMap(Set::stream)
+                                          .collect(Collectors.toSet());
+        properties.setProperty(JCLOUDS_REGIONS, Joiner.on(',')
+                                                      .join(mergedRegions));
+
+        contextBuilder.overrides(properties);
     }
 
     private void applyCredentials(ObjectStoreServiceInfo serviceInfo, ContextBuilder contextBuilder) {
