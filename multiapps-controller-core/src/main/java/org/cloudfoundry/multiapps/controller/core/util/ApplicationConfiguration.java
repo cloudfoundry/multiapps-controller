@@ -14,7 +14,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.util.Strings;
 import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
@@ -678,9 +677,9 @@ public class ApplicationConfiguration {
     }
 
     private Set<String> getObjectStoreRegionsFromEnvironment() {
-        String value = environment.getString(OBJECTSTORE_REGIONS, Strings.EMPTY);
+        String value = environment.getString(OBJECTSTORE_REGIONS);
         logEnvironmentVariable(OBJECTSTORE_REGIONS, Messages.OBJECTSTORE_REGIONS_ARE, value);
-        return Set.of(value.split(","));
+        return value == null ? Set.of() : Set.of(value.split(","));
     }
 
     private Long getMaxMtaDescriptorSizeFromEnvironment() {
