@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.multiapps.common.ContentException;
-import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
+import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.springframework.util.CollectionUtils;
@@ -41,6 +41,18 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         String healthCheckHttpEndpoint = (String) PropertiesUtil.getPropertyValue(parametersList,
                                                                                   SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT,
                                                                                   getDefaultHealthCheckHttpEndpoint(healthCheckType));
+        String readinessHealthCheckType = (String) PropertiesUtil.getPropertyValue(parametersList,
+                                                                                   SupportedParameters.READINESS_HEALTH_CHECK_TYPE, null);
+        String readinessHealthCheckHttpEndpoint = (String) PropertiesUtil.getPropertyValue(parametersList,
+                                                                                           SupportedParameters.READINESS_HEALTH_CHECK_HTTP_ENDPOINT,
+                                                                                           getDefaultHealthCheckHttpEndpoint(
+                                                                                               readinessHealthCheckType));
+        Integer readinessHealthCheckInvocationTimeout = (Integer) PropertiesUtil.getPropertyValue(parametersList,
+                                                                                                  SupportedParameters.READINESS_HEALTH_CHECK_INVOCATION_TIMEOUT,
+                                                                                                  null);
+        Integer readinessHealthCheckInterval = (Integer) PropertiesUtil.getPropertyValue(parametersList,
+                                                                                         SupportedParameters.READINESS_HEALTH_CHECK_INTERVAL,
+                                                                                         null);
         Boolean isSshEnabled = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
         Map<String, Boolean> appFeatures = getAppFeatures(parametersList);
         overrideSshFeatureIfMissing(appFeatures, isSshEnabled);
@@ -57,6 +69,10 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                .invocationTimeout(healthCheckInvocationTimeout)
                                .healthCheckType(healthCheckType)
                                .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
+                               .readinessHealthCheckType(readinessHealthCheckType)
+                               .readinessHealthCheckHttpEndpoint(readinessHealthCheckHttpEndpoint)
+                               .readinessHealthCheckInvocationTimeout(readinessHealthCheckInvocationTimeout)
+                               .readinessHealthCheckInterval(readinessHealthCheckInterval)
                                .isSshEnabled(isSshEnabled)
                                .appFeatures(appFeatures)
                                .dockerInfo(dockerInfo)

@@ -86,6 +86,8 @@ import org.cloudfoundry.client.v3.packages.UploadPackageRequest;
 import org.cloudfoundry.client.v3.processes.Data;
 import org.cloudfoundry.client.v3.processes.HealthCheck;
 import org.cloudfoundry.client.v3.processes.HealthCheckType;
+import org.cloudfoundry.client.v3.processes.ReadinessHealthCheck;
+import org.cloudfoundry.client.v3.processes.ReadinessHealthCheckType;
 import org.cloudfoundry.client.v3.processes.UpdateProcessRequest;
 import org.cloudfoundry.client.v3.roles.ListRolesRequest;
 import org.cloudfoundry.client.v3.roles.RoleResource;
@@ -393,9 +395,27 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         if (staging.getHealthCheckType() != null) {
             updateProcessRequestBuilder.healthCheck(buildHealthCheck(staging));
         }
+        if (staging.getReadinessHealthCheckType() != null) {
+            updateProcessRequestBuilder.readinessHealthCheck(buildReadinessHealthCheck(staging));
+        }
         delegate.processes()
                 .update(updateProcessRequestBuilder.build())
                 .block();
+    }
+
+    private ReadinessHealthCheck buildReadinessHealthCheck(Staging staging) {
+        return ReadinessHealthCheck.builder()
+                                   .type(ReadinessHealthCheckType.from(staging.getReadinessHealthCheckType()))
+                                   .data(buildReadinessHealthCheckData(staging))
+                                   .build();
+    }
+
+    private Data buildReadinessHealthCheckData(Staging staging) {
+        return Data.builder()
+                   .invocationTimeout(staging.getReadinessHealthCheckInvocationTimeout())
+                   .endpoint(staging.getReadinessHealthCheckHttpEndpoint())
+                   .interval(staging.getReadinessHealthCheckInterval())
+                   .build();
     }
 
     private void updateAppFeature(UUID applicationGuid, String featureName, boolean enabled) {

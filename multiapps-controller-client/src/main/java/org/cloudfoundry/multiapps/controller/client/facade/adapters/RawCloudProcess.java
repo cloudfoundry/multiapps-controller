@@ -3,11 +3,11 @@ package org.cloudfoundry.multiapps.controller.client.facade.adapters;
 import org.cloudfoundry.client.v3.processes.Data;
 import org.cloudfoundry.client.v3.processes.HealthCheck;
 import org.cloudfoundry.client.v3.processes.Process;
-import org.immutables.value.Value;
-
+import org.cloudfoundry.client.v3.processes.ReadinessHealthCheck;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudProcess;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudProcess;
+import org.immutables.value.Value;
 
 @Value.Immutable
 public abstract class RawCloudProcess extends RawCloudEntity<CloudProcess> {
@@ -19,6 +19,7 @@ public abstract class RawCloudProcess extends RawCloudEntity<CloudProcess> {
     public CloudProcess derive() {
         Process process = getProcess();
         HealthCheck healthCheck = process.getHealthCheck();
+        ReadinessHealthCheck readinessHealthCheckType = process.getReadinessHealthCheck();
         Integer healthCheckTimeout = null;
         String healthCheckHttpEndpoint = null;
         Integer healthCheckInvocationTimeout = null;
@@ -27,6 +28,15 @@ public abstract class RawCloudProcess extends RawCloudEntity<CloudProcess> {
             healthCheckTimeout = healthCheckData.getTimeout();
             healthCheckInvocationTimeout = healthCheckData.getInvocationTimeout();
             healthCheckHttpEndpoint = healthCheckData.getEndpoint();
+        }
+        Integer readinessHealthCheckInvocationTimeout = null;
+        String readinessHealthCheckHttpEndpoint = null;
+        Integer readinessHealthCheckInterval = null;
+        if (readinessHealthCheckType.getData() != null) {
+            Data readinessHealthCheckData = readinessHealthCheckType.getData();
+            readinessHealthCheckInvocationTimeout = readinessHealthCheckData.getInvocationTimeout();
+            readinessHealthCheckHttpEndpoint = readinessHealthCheckData.getEndpoint();
+            readinessHealthCheckInterval = readinessHealthCheckData.getInterval();
         }
         return ImmutableCloudProcess.builder()
                                     .command(process.getCommand())
@@ -39,6 +49,11 @@ public abstract class RawCloudProcess extends RawCloudEntity<CloudProcess> {
                                     .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
                                     .healthCheckTimeout(healthCheckTimeout)
                                     .healthCheckInvocationTimeout(healthCheckInvocationTimeout)
+                                    .readinessHealthCheckType(readinessHealthCheckType.getType()
+                                                                                      .getValue())
+                                    .readinessHealthCheckHttpEndpoint(readinessHealthCheckHttpEndpoint)
+                                    .readinessHealthCheckInvocationTimeout(readinessHealthCheckInvocationTimeout)
+                                    .readinessHealthCheckInterval(readinessHealthCheckInterval)
                                     .build();
     }
 }

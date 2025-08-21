@@ -9,6 +9,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplicati
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceState;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
@@ -79,14 +80,13 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         long downInstances = getInstanceCount(appInstances, InstanceState.DOWN);
         long crashedInstances = getInstanceCount(appInstances, InstanceState.CRASHED);
         long startingInstances = getInstanceCount(appInstances, InstanceState.STARTING);
-
         String states = composeStatesMessage(appInstances);
 
         context.getStepLogger()
                .debug(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, appName, runningInstances, expectedInstances, states);
 
         if (runningInstances == expectedInstances) {
-            return StartupStatus.STARTED;
+            return checkIfAppHasStarted(context, appInstances);
         }
         if (startingInstances > 0) {
             return StartupStatus.STARTING;
@@ -98,6 +98,28 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             return StartupStatus.CRASHED;
         }
         return StartupStatus.STARTING;
+    }
+
+    private StartupStatus checkIfAppHasStarted(ProcessContext context, List<InstanceInfo> appInstances) {
+        if (shouldWaitForAppToBecomeRoutable(context)) {
+            if (isThereAtLeastOneRoutedInstance(appInstances)) {
+                return StartupStatus.STARTED;
+            }
+            return StartupStatus.STARTING;
+        }
+        return StartupStatus.STARTED;
+    }
+
+    private boolean shouldWaitForAppToBecomeRoutable(ProcessContext context) {
+        CloudApplicationExtended appToProcess = context.getVariable(Variables.APP_TO_PROCESS);
+
+        return appToProcess.getStaging()
+                           .getReadinessHealthCheckType() != null;
+    }
+
+    private boolean isThereAtLeastOneRoutedInstance(List<InstanceInfo> instanceInfos) {
+        return instanceInfos.stream()
+                            .anyMatch(InstanceInfo::isRoutable);
     }
 
     private AsyncExecutionState checkStartupStatus(ProcessContext context, CloudApplication app, StartupStatus status) {

@@ -51,6 +51,30 @@ public interface Staging {
     String getHealthCheckHttpEndpoint();
 
     /**
+     * @return readiness health check interval
+     */
+    @Nullable
+    Integer getReadinessHealthCheckInterval();
+
+    /**
+     * @return readiness health check timeout
+     */
+    @Nullable
+    Integer getReadinessHealthCheckInvocationTimeout();
+
+    /**
+     * @return readiness health check type
+     */
+    @Nullable
+    String getReadinessHealthCheckType();
+
+    /**
+     * @return readiness health check http endpoint
+     */
+    @Nullable
+    String getReadinessHealthCheckHttpEndpoint();
+
+    /**
      * @return boolean value to see if ssh is enabled
      */
     @Nullable
