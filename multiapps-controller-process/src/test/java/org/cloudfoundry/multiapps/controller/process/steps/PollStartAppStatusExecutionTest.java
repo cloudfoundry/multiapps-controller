@@ -123,6 +123,7 @@ class PollStartAppStatusExecutionTest {
         return ImmutableInstanceInfo.builder()
                                     .index(0)
                                     .state(state)
+                                    .isRoutable(true)
                                     .build();
     }
 

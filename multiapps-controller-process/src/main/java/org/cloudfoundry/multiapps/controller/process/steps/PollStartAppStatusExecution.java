@@ -79,13 +79,13 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         long downInstances = getInstanceCount(appInstances, InstanceState.DOWN);
         long crashedInstances = getInstanceCount(appInstances, InstanceState.CRASHED);
         long startingInstances = getInstanceCount(appInstances, InstanceState.STARTING);
-
+        boolean isThereRoutedInstance = isThereAtLeastOneRoutedInstance(appInstances);
         String states = composeStatesMessage(appInstances);
 
         context.getStepLogger()
                .debug(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, appName, runningInstances, expectedInstances, states);
 
-        if (runningInstances == expectedInstances) {
+        if (runningInstances == expectedInstances && isThereRoutedInstance) {
             return StartupStatus.STARTED;
         }
         if (startingInstances > 0) {
@@ -157,6 +157,11 @@ public class PollStartAppStatusExecution implements AsyncExecution {
                         .filter(instance -> instance.getState()
                                                     .equals(state))
                         .count();
+    }
+
+    private boolean isThereAtLeastOneRoutedInstance(List<InstanceInfo> instanceInfos) {
+        return instanceInfos.stream()
+                            .anyMatch(InstanceInfo::isRoutable);
     }
 
     enum StartupStatus {

@@ -44,7 +44,15 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
             processContext.setVariable(Variables.APP_NEEDS_RESTAGE, true);
             return true;
         }
-        return !healthCheck.equals(existingHealthCheck) || areAppFeaturesChanged(staging.getAppFeatures(), existingAppFeatures);
+        return !healthCheck.equals(existingHealthCheck) || areAppFeaturesChanged(staging.getAppFeatures(), existingAppFeatures)
+            || !hasReadinessHealthCheckChanged(staging);
+    }
+
+    private boolean hasReadinessHealthCheckChanged(Staging newStaging) {
+        return Objects.equals(newStaging.getReadinessHealthCheckHttpEndpoint(), existingProcess.getReadinessHealthCheckHttpEndpoint())
+            && Objects.equals(newStaging.getReadinessHealthCheckInterval(), existingProcess.getReadinessHealthCheckInterval())
+            && Objects.equals(newStaging.getReadinessHealthCheckTimeout(), existingProcess.getReadinessHealthCheckTimeout())
+            && Objects.equals(newStaging.getReadinessHealthCheckType(), existingProcess.getReadinessHealthCheckType());
     }
 
     private boolean isCommandDifferent(String newCommand) {
