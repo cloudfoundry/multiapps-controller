@@ -7,8 +7,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
@@ -76,11 +74,6 @@ public class CloudModelBuilderUtil {
     public static ResourceType getResourceType(Map<String, Object> properties) {
         String type = (String) properties.getOrDefault(SupportedParameters.TYPE, ResourceType.MANAGED_SERVICE.toString());
         return ResourceType.get(type);
-    }
-
-    public static boolean isExistingUserProvidedService(Resource resource, CloudControllerClient client) {
-        CloudServiceInstance serviceInstance = client.getServiceInstance(NameUtil.getServiceName(resource));
-        return serviceInstance.isUserProvided();
     }
 
     private static ResourceType getResourceType(Resource resource) {
