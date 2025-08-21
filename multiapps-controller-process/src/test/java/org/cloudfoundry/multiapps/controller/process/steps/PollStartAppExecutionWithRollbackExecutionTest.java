@@ -66,6 +66,7 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
         InstanceInfo instanceInfo = ImmutableInstanceInfo.builder()
                                                          .index(0)
                                                          .state(InstanceState.CRASHED)
+                                                         .isRoutable(true)
                                                          .build();
         InstancesInfo instancesInfo = ImmutableInstancesInfo.builder()
                                                             .instances(List.of(instanceInfo))

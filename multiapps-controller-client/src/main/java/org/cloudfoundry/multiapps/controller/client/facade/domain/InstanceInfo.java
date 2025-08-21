@@ -1,9 +1,9 @@
 package org.cloudfoundry.multiapps.controller.client.facade.domain;
 
-import org.immutables.value.Value;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
+import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableInstanceInfo.class)
@@ -14,4 +14,6 @@ public interface InstanceInfo {
 
     InstanceState getState();
 
+    @Nullable
+    Boolean isRoutable();
 }

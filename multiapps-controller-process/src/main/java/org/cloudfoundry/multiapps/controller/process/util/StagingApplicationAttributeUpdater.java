@@ -44,7 +44,8 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
             processContext.setVariable(Variables.APP_NEEDS_RESTAGE, true);
             return true;
         }
-        return !healthCheck.equals(existingHealthCheck) || areAppFeaturesChanged(staging.getAppFeatures(), existingAppFeatures);
+        return !healthCheck.equals(existingHealthCheck) || areAppFeaturesChanged(staging.getAppFeatures(), existingAppFeatures)
+            || !hasReadinessHealthCheckNotBeenChanged(staging);
     }
 
     private boolean isCommandDifferent(String newCommand) {
@@ -56,6 +57,14 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
                              .stream()
                              .anyMatch(newAppFeature -> !Objects.equals(newAppFeature.getValue(),
                                                                         existingAppFeatures.get(newAppFeature.getKey())));
+    }
+
+    private boolean hasReadinessHealthCheckNotBeenChanged(Staging newStaging) {
+        return Objects.equals(newStaging.getReadinessHealthCheckHttpEndpoint(), existingProcess.getReadinessHealthCheckHttpEndpoint())
+            && Objects.equals(newStaging.getReadinessHealthCheckInterval(), existingProcess.getReadinessHealthCheckInterval())
+            && Objects.equals(newStaging.getReadinessHealthCheckInvocationTimeout(),
+                              existingProcess.getReadinessHealthCheckInvocationTimeout())
+            && Objects.equals(newStaging.getReadinessHealthCheckType(), existingProcess.getReadinessHealthCheckType());
     }
 
     @Override

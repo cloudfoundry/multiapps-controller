@@ -1,10 +1,9 @@
 package org.cloudfoundry.multiapps.controller.client.facade.domain;
 
-import org.immutables.value.Value;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
+import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableCloudProcess.class)
@@ -29,6 +28,18 @@ public abstract class CloudProcess extends CloudEntity implements Derivable<Clou
 
     @Nullable
     public abstract Integer getHealthCheckTimeout();
+
+    @Nullable
+    public abstract Integer getReadinessHealthCheckInterval();
+
+    @Nullable
+    public abstract Integer getReadinessHealthCheckInvocationTimeout();
+
+    @Nullable
+    public abstract String getReadinessHealthCheckType();
+
+    @Nullable
+    public abstract String getReadinessHealthCheckHttpEndpoint();
 
     @Override
     public CloudProcess derive() {
