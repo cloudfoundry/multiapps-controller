@@ -79,8 +79,8 @@ public class CloudModelBuilderUtil {
     }
 
     public static boolean isExistingUserProvidedService(Resource resource, CloudControllerClient client) {
-        CloudServiceInstance serviceInstance = client.getServiceInstance(NameUtil.getServiceName(resource));
-        return serviceInstance.isUserProvided();
+        CloudServiceInstance serviceInstance = client.getServiceInstanceWithoutAuxiliaryContent(NameUtil.getServiceName(resource), false);
+        return serviceInstance != null && serviceInstance.isUserProvided();
     }
 
     private static ResourceType getResourceType(Resource resource) {
