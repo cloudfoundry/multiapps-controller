@@ -76,7 +76,7 @@ public class CloudModelBuilderUtil {
         return ResourceType.get(type);
     }
 
-    private static ResourceType getResourceType(Resource resource) {
+    public static ResourceType getResourceType(Resource resource) {
         Map<String, Object> resourceParameters = resource.getParameters();
         String type = (String) resourceParameters.get(SupportedParameters.TYPE);
         return ResourceType.get(type);
