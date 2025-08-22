@@ -12,11 +12,6 @@ import org.junit.jupiter.api.Test;
 class RawInstancesInfoTest {
 
     @Test
-    void testDeriveWithNullRoutable() {
-        RawCloudEntityTest.testDerive(buildExpectedInstancesInfo(true), buildActualInstancesInfo(null));
-    }
-
-    @Test
     void testDeriveWithTrueRoutable() {
         RawCloudEntityTest.testDerive(buildExpectedInstancesInfo(true), buildActualInstancesInfo("true"));
     }

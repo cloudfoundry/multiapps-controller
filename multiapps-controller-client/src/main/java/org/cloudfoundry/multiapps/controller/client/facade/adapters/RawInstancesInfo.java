@@ -40,14 +40,7 @@ public abstract class RawInstancesInfo extends RawCloudEntity<InstancesInfo> {
         return ImmutableInstanceInfo.builder()
                                     .index(statsResource.getIndex())
                                     .state(InstanceState.valueOfWithDefault(statsResource.getState()))
-                                    .isRoutable(getRoutableValue(statsResource.getRoutable()))
+                                    .isRoutable(Boolean.parseBoolean(statsResource.getRoutable()))
                                     .build();
-    }
-
-    private static Boolean getRoutableValue(String routable) {
-        if (routable != null) {
-            return Boolean.parseBoolean(routable);
-        }
-        return Boolean.TRUE;
     }
 }
