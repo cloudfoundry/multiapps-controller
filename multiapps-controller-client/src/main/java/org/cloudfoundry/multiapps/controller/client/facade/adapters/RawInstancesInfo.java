@@ -6,13 +6,12 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.v3.applications.GetApplicationProcessStatisticsResponse;
 import org.cloudfoundry.client.v3.processes.ProcessStatisticsResource;
-import org.immutables.value.Value;
-
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableInstanceInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableInstancesInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceState;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
+import org.immutables.value.Value;
 
 @Value.Immutable
 public abstract class RawInstancesInfo extends RawCloudEntity<InstancesInfo> {
@@ -41,7 +40,7 @@ public abstract class RawInstancesInfo extends RawCloudEntity<InstancesInfo> {
         return ImmutableInstanceInfo.builder()
                                     .index(statsResource.getIndex())
                                     .state(InstanceState.valueOfWithDefault(statsResource.getState()))
+                                    .isRoutable(Boolean.parseBoolean(statsResource.getRoutable()))
                                     .build();
     }
-
 }

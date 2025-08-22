@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableInstanceInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableInstancesInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceState;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
@@ -96,6 +97,9 @@ class PollStartAppStatusExecutionTest {
                                                 .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                                 .name(APP_NAME)
                                                 .instances(instancesCount)
+                                                .staging(ImmutableStaging.builder()
+                                                                         .readinessHealthCheckType("test")
+                                                                         .build())
                                                 .build();
     }
 
@@ -123,6 +127,7 @@ class PollStartAppStatusExecutionTest {
         return ImmutableInstanceInfo.builder()
                                     .index(0)
                                     .state(state)
+                                    .isRoutable(true)
                                     .build();
     }
 
