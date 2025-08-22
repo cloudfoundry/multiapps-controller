@@ -11,9 +11,19 @@
     <serviceTask id="deleteApplicationTask" name="Delete Application Step" flowable:async="true" flowable:delegateExpression="${deleteApplicationStep}"></serviceTask>
     <endEvent id="endEvent"></endEvent>
     <exclusiveGateway id="hasStepWithHooksCompleted" default="reExecuteStepFlow"></exclusiveGateway>
-    <callActivity id="executeHooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="executeHooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+        <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="userGuid" target="userGuid"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
+      </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution">
-        <extensionElements></extensionElements>
+        <extensionElements>
+        </extensionElements>
       </multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="checkIfStepHasCompleted" sourceRef="executeHooksCallActivity" targetRef="hasStepWithHooksCompleted"></sequenceFlow>
@@ -26,9 +36,19 @@
     </sequenceFlow>
     <serviceTask id="deleteApplicationRoutesTask" name="Delete Application Routes Step" flowable:async="true" flowable:delegateExpression="${deleteApplicationRoutesStep}"></serviceTask>
     <exclusiveGateway id="sid-C0D28E29-9B86-4F49-940D-0B0B4D49814F" default="sid-5284C7E5-D22E-44C5-AB00-3A8646246978"></exclusiveGateway>
-    <callActivity id="sid-E6248AA7-20A0-416A-BB01-8226A84DDBDA" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="sid-E6248AA7-20A0-416A-BB01-8226A84DDBDA" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+        <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="userGuid" target="userGuid"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
+      </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution">
-        <extensionElements></extensionElements>
+        <extensionElements>
+        </extensionElements>
       </multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="sid-BC0FC2FE-4289-4744-BB2F-C6472CE2C33A" sourceRef="sid-E6248AA7-20A0-416A-BB01-8226A84DDBDA" targetRef="sid-C0D28E29-9B86-4F49-940D-0B0B4D49814F"></sequenceFlow>
