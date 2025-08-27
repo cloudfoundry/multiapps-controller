@@ -15,7 +15,6 @@
       <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
       <flowable:in source="user" target="user"></flowable:in>
       <flowable:in source="userGuid" target="userGuid"></flowable:in>
-      <flowable:in source="namespace" target="namespace"></flowable:in>
       <flowable:in source="correlationId" target="correlationId"></flowable:in>
       <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
       <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
