@@ -190,6 +190,7 @@ public class ApplicationConfiguration {
     private String objectStoreClientType;
     private HealthCheckConfiguration healthCheckConfiguration;
     private String applicationGuid;
+    private Object meteringCredentials;
     private Integer applicationInstanceIndex;
     private Integer flowableJobExecutorCoreThreads;
     private Integer flowableJobExecutorMaxThreads;
@@ -266,6 +267,7 @@ public class ApplicationConfiguration {
         getFilesAsyncUploadExecutorMaxThreads();
         getDeployFromUrlExecutorMaxThreads();
         getObjectStoreRegions();
+        getMeteringCredentials();
     }
 
     public Map<String, String> getNotSensitiveVariables() {
@@ -618,6 +620,13 @@ public class ApplicationConfiguration {
         return dbTransactionTimeoutInSeconds;
     }
 
+    public Object getMeteringCredentials() {
+        if (meteringCredentials == null) {
+            meteringCredentials = getMeteringCredentialsFromEnvironment();
+        }
+        return meteringCredentials;
+    }
+
     public Integer getSnakeyamlMaxAliasesForCollections() {
         if (snakeyamlMaxAliasesForCollections == null) {
             snakeyamlMaxAliasesForCollections = getSnakeyamlMaxAliasesForCollectionsFromEnvironment();
@@ -728,6 +737,11 @@ public class ApplicationConfiguration {
         Long value = environment.getLong(CFG_MAX_RESOURCE_FILE_SIZE, DEFAULT_MAX_RESOURCE_FILE_SIZE);
         logEnvironmentVariable(CFG_MAX_RESOURCE_FILE_SIZE, Messages.MAX_RESOURCE_FILE_SIZE, value);
         return value;
+    }
+
+    private Object getMeteringCredentialsFromEnvironment() {
+        Map<String, Object> value = environment.getVariable("VCAP_SERVICES", JsonUtil::convertJsonToMap);
+        return value.get("metering-service");
     }
 
     private Long getMaxResolvedExternalContentSizeFromEnvironment() {

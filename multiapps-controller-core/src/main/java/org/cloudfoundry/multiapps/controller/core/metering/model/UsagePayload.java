@@ -1,21 +1,41 @@
 package org.cloudfoundry.multiapps.controller.core.metering.model;
 
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public abstract class UsagePayload {
+@JsonSerialize(as = ImmutableUsagePayload.class)
+@JsonDeserialize(as = ImmutableUsagePayload.class)
+public interface UsagePayload {
 
-    @Value.Default
-    public UUID id() {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+
+    default UUID getId() {
         return UUID.randomUUID();
     }
 
-    @Value.Default
-    public Date timestamp() {
-        return null;
+    default String getTimestamp() {
+        return ZonedDateTime.ofInstant(Instant.now(), ZoneOffset.UTC)
+                            .format(formatter);
     }
 
+    default Map<String, Object> getProduct() {
+        return Map.of("service", Map.of("id", "deploy-service", "plan", "standard"));
+    }
+
+    default Map<String, Object> getMeasure() {
+        return Map.of("id", "deploy-started", "value", 1);
+    }
+
+    Consumer getConsumer();
+
+    Map<String, String> getCustomDimensions();
 }

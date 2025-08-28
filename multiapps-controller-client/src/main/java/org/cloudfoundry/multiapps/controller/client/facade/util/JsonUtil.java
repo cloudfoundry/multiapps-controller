@@ -8,19 +8,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.http.MediaType;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.http.MediaType;
 
 /**
  * Some JSON helper utilities used by the Cloud Foundry Java client.
- *
  */
 public class JsonUtil {
 
@@ -82,7 +80,7 @@ public class JsonUtil {
         } else {
             throw new IllegalArgumentException("Value of type " + value.getClass()
                                                                        .getName()
-                + " can not be serialized to JSON.");
+                                                   + " can not be serialized to JSON.");
         }
     }
 
@@ -97,6 +95,10 @@ public class JsonUtil {
             logger.error("Unable to process InputStream", e);
             throw new IllegalArgumentException("Unable to parse JSON from InputStream", e);
         }
+    }
+
+    public static <T> T convertJsonStringToObject(Object jsonString, Class<T> type) {
+        return mapper.convertValue(jsonString, type);
     }
 
 }

@@ -11,5 +11,5 @@ public interface Consumer {
 
     String getRegion();
 
-    Environment getEnvironment();
+    Environment getBtp();
 }
