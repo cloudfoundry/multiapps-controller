@@ -74,6 +74,7 @@ public class ApplicationConfiguration {
     static final String CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS = "FLOWABLE_JOB_EXECUTOR_CORE_THREADS";
     static final String CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS = "FLOWABLE_JOB_EXECUTOR_MAX_THREADS";
     static final String CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = "FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY";
+    static final String IS_READINESS_HEALTH_CHECK_ENABLED = "IS_READINESS_HEALTH_CHECK_ENABLED";
     static final String CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = "FSS_CACHE_UPDATE_TIMEOUT_MINUTES";
     static final String CFG_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS = "THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS";
     static final String CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = "SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS";
@@ -155,6 +156,7 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = 6;
     public static final int DEFAULT_THREADS_FOR_FILE_STORAGE_UPLOAD = 7;
     public static final boolean DEFAULT_IS_HEALTH_CHECK_ENABLED = false;
+    public static final Boolean DEFAULT_IS_READINESS_HEALTH_CHECK_ENABLED = Boolean.FALSE;
 
     protected final Environment environment;
 
@@ -212,6 +214,7 @@ public class ApplicationConfiguration {
     private Integer threadsForFileStorageUpload;
     private Boolean isHealthCheckEnabled;
     private Set<String> objectStoreRegions;
+    private Boolean isReadinessHealthCheckEnabled;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -260,6 +263,7 @@ public class ApplicationConfiguration {
         getAbortedOperationsTtlInSeconds();
         getFilesAsyncUploadExecutorMaxThreads();
         getObjectStoreRegions();
+        getIsReadinessHealthCheckEnabled();
     }
 
     public Map<String, String> getNotSensitiveVariables() {
@@ -526,6 +530,13 @@ public class ApplicationConfiguration {
             fssCacheUpdateTimeoutMinutes = getFssCacheUpdateTimeoutMinutesFromEnvironment();
         }
         return fssCacheUpdateTimeoutMinutes;
+    }
+
+    public Boolean getIsReadinessHealthCheckEnabled() {
+        if (isReadinessHealthCheckEnabled == null) {
+            isReadinessHealthCheckEnabled = getIsReadinessHealthCheckFromEnvironment();
+        }
+        return isReadinessHealthCheckEnabled;
     }
 
     public Integer getThreadMonitorCacheUpdateInSeconds() {
@@ -934,6 +945,12 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
                                                        DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY);
         logEnvironmentVariable(CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, Messages.FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, value);
+        return value;
+    }
+
+    private Boolean getIsReadinessHealthCheckFromEnvironment() {
+        Boolean value = environment.getBoolean(IS_READINESS_HEALTH_CHECK_ENABLED, DEFAULT_IS_READINESS_HEALTH_CHECK_ENABLED);
+        logEnvironmentVariable(IS_READINESS_HEALTH_CHECK_ENABLED, Messages.IS_READINESS_HEALTH_CHECK_ENABLED, value);
         return value;
     }
 

@@ -18,6 +18,8 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -27,6 +29,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInst
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationAttributeUpdater;
@@ -54,6 +57,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
     private TokenService tokenService;
     @Inject
     private WebClientFactory webClientFactory;
+    @Inject
+    private ApplicationConfiguration configuration;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws FileStorageException {
@@ -61,6 +66,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         CloudControllerClient client = context.getControllerClient();
         CloudApplication existingApp = client.getApplication(app.getName(), false);
         context.setVariable(Variables.EXISTING_APP, existingApp);
+        app = getApplicationWithReadinessEnabledInStaging(app);
 
         StepFlowHandler flowHandler = createStepFlowHandler(context, client, app, existingApp);
 
@@ -95,6 +101,17 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             return new CreateAppFlowHandler(context, client, app);
         }
         return new UpdateAppFlowHandler(context, client, app, existingApp);
+    }
+
+    private CloudApplicationExtended getApplicationWithReadinessEnabledInStaging(CloudApplicationExtended app) {
+        Boolean isReadinessHealthCheckEnabled = configuration.getIsReadinessHealthCheckEnabled();
+        if (isReadinessHealthCheckEnabled == null || !isReadinessHealthCheckEnabled) {
+            return app;
+        }
+        Staging newStaging = ImmutableStaging.copyOf(app.getStaging())
+                                             .withIsReadinessHealthCheckEnabled(configuration.getIsReadinessHealthCheckEnabled());
+        return ImmutableCloudApplicationExtended.copyOf(app)
+                                                .withStaging(newStaging);
     }
 
     private abstract class StepFlowHandler {

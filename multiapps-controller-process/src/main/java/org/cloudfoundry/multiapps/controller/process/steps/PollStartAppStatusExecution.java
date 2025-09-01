@@ -112,7 +112,11 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
     private boolean shouldWaitForAppToBecomeRoutable(ProcessContext context) {
         CloudApplicationExtended appToProcess = context.getVariable(Variables.APP_TO_PROCESS);
-
+        Boolean isReadinessHealthCheckEnabled = appToProcess.getStaging()
+                                                            .isReadinessHealthCheckEnabled();
+        if (isReadinessHealthCheckEnabled == null || !isReadinessHealthCheckEnabled) {
+            return false;
+        }
         return appToProcess.getStaging()
                            .getReadinessHealthCheckType() != null;
     }
