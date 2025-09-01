@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.core.metering.client;
 import java.io.IOException;
 import java.net.URI;
 import java.text.MessageFormat;
-import java.util.Map;
+import java.util.List;
 
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -34,37 +34,33 @@ public class MeteringClient {
     }
 
     public void sendTestUsage() {
-        recordUsage(ImmutableUsagePayload.builder()
-                                         .consumer(ImmutableConsumer.builder()
-                                                                    .region("eu10-canary")
-                                                                    .btp(ImmutableEnvironment.builder()
-                                                                                             .subAccount(
-                                                                                                 "b71fc53b-7518-4d2b-b8da-00aaed032e0c")
-                                                                                             .build())
-                                                                    .build())
-                                         .customDimensions(Map.of("test", "test"))
-                                         .build());
+        recordUsage(createUsagePayload("cf-eu10-canary", "b71fc53b-7518-4d2b-b8da-00aaed032e0c"));
     }
 
     public void recordUsage(UsagePayload usagePayload) {
         String url = createUsageIngestionUrl();
 
         HttpPost httpPost = new HttpPost(URI.create(url));
-        LOGGER.error(JsonUtil.convertToJson(usagePayload));
-        httpPost.setEntity(new StringEntity(JsonUtil.convertToJson(usagePayload)));
+        LOGGER.error(JsonUtil.convertToJson(List.of(usagePayload)));
+        httpPost.setEntity(new StringEntity(JsonUtil.convertToJson(List.of(usagePayload))));
         try {
             CloseableHttpResponse a = (CloseableHttpResponse) httpClient.execute(httpPost);
             LOGGER.error(a.getReasonPhrase());
             LOGGER.error(String.valueOf(a.getCode()));
-            LOGGER.error(a.getEntity()
-                          .toString());
-            LOGGER.error(a.getEntity()
-                          .getContent()
-                          .toString());
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private UsagePayload createUsagePayload(String landscape, String organisationId) {
+        return ImmutableUsagePayload.builder()
+                                    .consumer(ImmutableConsumer.builder()
+                                                               .region(landscape)
+                                                               .btp(ImmutableEnvironment.builder()
+                                                                                        .subAccount(organisationId)
+                                                                                        .build())
+                                                               .build())
+                                    .build();
     }
 
     private String createUsageIngestionUrl() {

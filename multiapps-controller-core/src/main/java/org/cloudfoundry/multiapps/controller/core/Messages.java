@@ -130,6 +130,7 @@ public final class Messages {
     public static final String MAX_MTA_DESCRIPTOR_SIZE = "Max mta descriptor size: {0}";
     public static final String MAX_MANIFEST_SIZE = "Max manifest size is set to: {0}";
     public static final String MAX_RESOURCE_FILE_SIZE = "Max resource file size is set to: {0}";
+    public static final String METERING_CREDENTIALS = "Metering credentials: {0}";
     public static final String MAX_RESOLVED_EXTERNAL_CONTENT_SIZE = "Max resolved external content size is set to: {0}";
     public static final String CRON_EXPRESSION_FOR_OLD_DATA = "Cron expression for old data: {0}";
     public static final String EXECUTION_TIME_FOR_FINISHED_PROCESSES = "Execution time for finished processes: {0}";
