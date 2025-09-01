@@ -28,7 +28,7 @@ public interface UsagePayload {
     }
 
     default Map<String, Object> getProduct() {
-        return Map.of("service", Map.of("id", "deploy-service", "plan", "standard"));
+        return Map.of("service", Map.of("id", "TEST", "plan", "standard"));
     }
 
     default Map<String, Object> getMeasure() {
@@ -37,5 +37,7 @@ public interface UsagePayload {
 
     Consumer getConsumer();
 
-    Map<String, String> getCustomDimensions();
+    default Map<String, String> getCustomDimensions() {
+        return Map.of("dimension1", "test", "dimension2", "test");
+    }
 }

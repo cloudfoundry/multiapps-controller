@@ -100,6 +100,8 @@ public class ApplicationConfiguration {
     static final String CFG_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = "THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER";
     static final String CFG_THREADS_FOR_FILE_STORAGE_UPLOAD = "THREADS_FOR_FILE_STORAGE_UPLOAD";
     static final String CFG_IS_HEALTH_CHECK_ENABLED = "IS_HEALTH_CHECK_ENABLED";
+    static final String VCAP_SERVICES = "VCAP_SERVICES";
+    static final String METERING_SERVICE_ENV_NAME = "metering-service";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = List.of("full_application_uris", "application_uris", "uris");
 
@@ -190,7 +192,7 @@ public class ApplicationConfiguration {
     private String objectStoreClientType;
     private HealthCheckConfiguration healthCheckConfiguration;
     private String applicationGuid;
-    private Object meteringCredentials;
+    private Map<String, Object> meteringCredentials;
     private Integer applicationInstanceIndex;
     private Integer flowableJobExecutorCoreThreads;
     private Integer flowableJobExecutorMaxThreads;
@@ -620,7 +622,7 @@ public class ApplicationConfiguration {
         return dbTransactionTimeoutInSeconds;
     }
 
-    public Object getMeteringCredentials() {
+    public Map<String, Object> getMeteringCredentials() {
         if (meteringCredentials == null) {
             meteringCredentials = getMeteringCredentialsFromEnvironment();
         }
@@ -739,9 +741,17 @@ public class ApplicationConfiguration {
         return value;
     }
 
-    private Object getMeteringCredentialsFromEnvironment() {
-        Map<String, Object> value = environment.getVariable("VCAP_SERVICES", JsonUtil::convertJsonToMap);
-        return value.get("metering-service");
+    private Map<String, Object> getMeteringCredentialsFromEnvironment() {
+        Map<String, Object> meteringCredentials = getEnvironmentVariablesFromVcapServices(METERING_SERVICE_ENV_NAME);
+        logEnvironmentVariable(METERING_SERVICE_ENV_NAME, Messages.METERING_CREDENTIALS, meteringCredentials);
+        return meteringCredentials;
+    }
+
+    private Map<String, Object> getEnvironmentVariablesFromVcapServices(String variableName) {
+        Map<String, Object> value = environment.getVariable(VCAP_SERVICES, JsonUtil::convertJsonToMap);
+        List<Object> meteringCredentialsList = MiscUtil.cast(value.get(variableName));
+
+        return MiscUtil.cast(meteringCredentialsList.get(0));
     }
 
     private Long getMaxResolvedExternalContentSizeFromEnvironment() {
