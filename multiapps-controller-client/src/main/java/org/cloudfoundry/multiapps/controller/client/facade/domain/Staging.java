@@ -74,6 +74,9 @@ public interface Staging {
     @Nullable
     String getReadinessHealthCheckHttpEndpoint();
 
+    @Nullable
+    Boolean isReadinessHealthCheckEnabled();
+
     /**
      * @return boolean value to see if ssh is enabled
      */

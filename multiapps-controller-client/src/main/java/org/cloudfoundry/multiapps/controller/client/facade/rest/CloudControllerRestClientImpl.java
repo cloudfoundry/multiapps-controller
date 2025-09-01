@@ -395,7 +395,8 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         if (staging.getHealthCheckType() != null) {
             updateProcessRequestBuilder.healthCheck(buildHealthCheck(staging));
         }
-        if (staging.getReadinessHealthCheckType() != null) {
+        if (staging.isReadinessHealthCheckEnabled() != null && staging.isReadinessHealthCheckEnabled()
+            && staging.getReadinessHealthCheckType() != null) {
             updateProcessRequestBuilder.readinessHealthCheck(buildReadinessHealthCheck(staging));
         }
         delegate.processes()
