@@ -492,6 +492,7 @@ class ApplicationConfigurationTest {
         Mockito.when(environment.getString(ApplicationConfiguration.OBJECTSTORE_REGIONS, Strings.EMPTY))
                .thenReturn(Strings.EMPTY);
         Map<String, Object> vcapApplication = injectFileInEnvironment(VCAP_APPLICATION, ApplicationConfiguration.CFG_VCAP_APPLICATION);
+
         configuration.load();
         Assertions.assertEquals(vcapApplication.get("cf_api"), configuration.getControllerUrl()
                                                                             .toString());
@@ -501,6 +502,8 @@ class ApplicationConfigurationTest {
         String vcapApplicationJson = TestUtil.getResourceAsString(filename, getClass());
         Mockito.when(environment.getString(envVariable))
                .thenReturn(vcapApplicationJson);
+        Mockito.when(environment.getVariable(ApplicationConfiguration.VCAP_SERVICES, JsonUtil::convertJsonToMap))
+               .thenReturn(JsonUtil.convertJsonToMap(vcapApplicationJson));
         return JsonUtil.convertJsonToMap(vcapApplicationJson);
     }
 
