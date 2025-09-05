@@ -7,7 +7,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.facade.Constants;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.OAuthTokenProvider;
 import org.cloudfoundry.multiapps.controller.client.facade.util.JsonUtil;
 import org.cloudfoundry.reactor.TokenProvider;
 import org.springframework.http.HttpHeaders;
@@ -19,9 +21,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
-
-import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.OAuthTokenProvider;
 import reactor.util.retry.Retry;
 import reactor.util.retry.RetryBackoffSpec;
 
@@ -31,6 +30,7 @@ import reactor.util.retry.RetryBackoffSpec;
 public class OAuthClient {
 
     private static final long MAX_RETRY_ATTEMPTS = 3;
+    private static final String EMAIL_ORIGIN_DELIMITER = "@@";
     private static final Duration RETRY_INTERVAL = Duration.ofSeconds(3);
 
     private final URL authorizationUrl;
@@ -92,10 +92,11 @@ public class OAuthClient {
 
     protected OAuth2AccessTokenWithAdditionalInfo createToken() {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("grant_type", "password");
+
         formData.add("client_id", credentials.getClientId());
+        formData.add("grant_type", "password");
         formData.add("client_secret", credentials.getClientSecret());
-        formData.add("username", credentials.getEmail());
+        formData.add("username", getCredentialsUsername());
         formData.add("password", credentials.getPassword());
         formData.add("response_type", "token");
         addLoginHintIfPresent(formData);
@@ -104,12 +105,31 @@ public class OAuthClient {
         return tokenFactory.createToken(oauth2AccessTokenResponse);
     }
 
+    private String getCredentialsUsername() {
+        String email = credentials.getEmail();
+        if (credentials.getEmail()
+                       .contains(EMAIL_ORIGIN_DELIMITER)) {
+            return email.substring(0, email.indexOf(EMAIL_ORIGIN_DELIMITER));
+        } else {
+            return email;
+        }
+    }
+
     private void addLoginHintIfPresent(MultiValueMap<String, String> formData) {
-        if (StringUtils.hasLength(credentials.getOrigin())) {
+        if (StringUtils.hasLength(credentials.getOrigin()) || credentials.getEmail()
+                                                                         .contains(EMAIL_ORIGIN_DELIMITER)) {
+            String origin = credentials.getEmail()
+                                       .contains(EMAIL_ORIGIN_DELIMITER) ? getOriginFromEmail() : credentials.getOrigin();
             Map<String, String> loginHintMap = new HashMap<>();
-            loginHintMap.put(Constants.ORIGIN_KEY, credentials.getOrigin());
+            loginHintMap.put(Constants.ORIGIN_KEY, origin);
             formData.add("login_hint", JsonUtil.convertToJson(loginHintMap));
         }
+    }
+
+    private String getOriginFromEmail() {
+        return credentials.getEmail()
+                          .substring(credentials.getEmail()
+                                                .indexOf(EMAIL_ORIGIN_DELIMITER) + EMAIL_ORIGIN_DELIMITER.length());
     }
 
     private Oauth2AccessTokenResponse fetchOauth2AccessToken(MultiValueMap<String, String> formData) {
