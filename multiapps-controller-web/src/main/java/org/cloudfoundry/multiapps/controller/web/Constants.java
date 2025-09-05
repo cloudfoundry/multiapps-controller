@@ -43,6 +43,12 @@ public class Constants {
     public static final String ALIYUN_OSS = "aliyun-oss";
     public static final String GOOGLE_CLOUD_STORAGE = "google-cloud-storage";
 
+    public static final String AWS = "AWS";
+    public static final String AZURE = "AZURE";
+    public static final String GCP = "GCP";
+    public static final String ALIBABA = "ALIBABA";
+    public static final String OS_LANDSCAPE_ENV = "EXPECTED_OBJECTSTORE_TYPE_TO_BE_CREATED";
+
     public static final String RETRY_LIMIT_PROPERTY = "jdk.httpclient.auth.retrylimit";
 
     public static class Resources {

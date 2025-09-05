@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
+import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfo;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfoCreator;
@@ -56,9 +58,35 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         if (providersServiceInfo.isEmpty()) {
             return null;
         }
-
         Map<String, Exception> exceptions = new HashMap<>();
+        String objectStore = System.getenv(Constants.OS_LANDSCAPE_ENV);
+        if (objectStore == null) {
+            return fallBackToFirstAvailable(exceptions, providersServiceInfo);
+        }
 
+        Optional<ObjectStoreServiceInfo> objectStoreServiceInfo = getAppropriateProvider(objectStore, providersServiceInfo);
+
+        if (objectStoreServiceInfo.isPresent()) {
+            ObjectStoreServiceInfo validobjectStoreServiceInfo = objectStoreServiceInfo.get();
+            try {
+                BlobStoreContext context = getBlobStoreContext(validobjectStoreServiceInfo);
+                ObjectStoreFileStorage fileStorage = createFileStorage(validobjectStoreServiceInfo, context);
+                fileStorage.testConnection();
+                LOGGER.info(MessageFormat.format(Messages.OBJECT_STORE_WITH_PROVIDER_0_CREATED, validobjectStoreServiceInfo.getProvider()));
+                return fileStorage;
+            } catch (Exception e) {
+                exceptions.put(validobjectStoreServiceInfo.getProvider(), e);
+            }
+        }
+
+        exceptions.forEach((provider, exception) -> LOGGER.error(
+            MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0, provider),
+            exception));
+        throw new IllegalStateException(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND);
+    }
+
+    public ObjectStoreFileStorage fallBackToFirstAvailable(Map<String, Exception> exceptions,
+                                                           List<ObjectStoreServiceInfo> providersServiceInfo) {
         for (ObjectStoreServiceInfo objectStoreServiceInfo : providersServiceInfo) {
             try {
                 BlobStoreContext context = getBlobStoreContext(objectStoreServiceInfo);
@@ -71,11 +99,32 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
             }
         }
 
-        exceptions.forEach(
-            (provider, exception) -> LOGGER.error(
-                MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0, provider),
-                exception));
+        exceptions.forEach((provider, exception) -> LOGGER.error(
+            MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0, provider),
+            exception));
         throw new IllegalStateException(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND);
+    }
+
+    private Optional<ObjectStoreServiceInfo> getAppropriateProvider(String objectStore, List<ObjectStoreServiceInfo> providersServiceInfo) {
+        return switch (objectStore) {
+            case Constants.AWS -> providersServiceInfo.stream()
+                                                      .filter(info -> info.getProvider()
+                                                                          .equals(Constants.AWS_S_3))
+                                                      .findFirst();
+            case Constants.AZURE -> providersServiceInfo.stream()
+                                                        .filter(info -> info.getProvider()
+                                                                            .equals(Constants.AZUREBLOB))
+                                                        .findFirst();
+            case Constants.GCP -> providersServiceInfo.stream()
+                                                      .filter(info -> info.getProvider()
+                                                                          .equals(Constants.GOOGLE_CLOUD_STORAGE))
+                                                      .findFirst();
+            case Constants.ALIBABA -> providersServiceInfo.stream()
+                                                          .filter(info -> info.getProvider()
+                                                                              .equals(Constants.ALIYUN_OSS))
+                                                          .findFirst();
+            default -> Optional.empty();
+        };
     }
 
     private List<ObjectStoreServiceInfo> getProvidersServiceInfo() {
