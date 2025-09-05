@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +44,11 @@ public class Constants {
     public static final String ALIYUN_OSS = "aliyun-oss";
     public static final String GOOGLE_CLOUD_STORAGE = "google-cloud-storage";
 
+    public static final String AWS = "aws";
+    public static final String AZURE = "azure";
+    public static final String GCP = "gcp";
+    public static final String ALIBABA = "ali";
+
     public static final String RETRY_LIMIT_PROPERTY = "jdk.httpclient.auth.retrylimit";
 
     public static class Resources {
@@ -70,6 +76,12 @@ public class Constants {
         VARIABLE_NAME_SERVICE_ID, Variables.USER.getName(),
         Variables.USER_GUID.getName(), Variables.SPACE_NAME.getName(), Variables.SPACE_GUID.getName(),
         Variables.ORGANIZATION_NAME.getName(), Variables.ORGANIZATION_GUID.getName(), Variables.TIMESTAMP.getName(),
-        Variables.MTA_NAMESPACE.getName());
+        Variables.MTA_NAMESPACE.getName()
+    );
+
+    public static final Map<String, String> ENV_TO_OS_PROVIDER = Map.of(Constants.AWS, Constants.AWS_S_3, Constants.AZURE,
+                                                                        Constants.AZUREBLOB, Constants.GCP, Constants.GOOGLE_CLOUD_STORAGE,
+                                                                        Constants.ALIBABA, Constants.ALIYUN_OSS
+    );
 
 }
