@@ -23,7 +23,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ObjectStoreFileStorageFactoryBeanTest {
@@ -63,6 +69,48 @@ class ObjectStoreFileStorageFactoryBeanTest {
         objectStoreFileStorageFactoryBean.afterPropertiesSet();
         ObjectStoreFileStorage objectStoreFileStorage = objectStoreFileStorageFactoryBean.getObject();
         assertNotNull(objectStoreFileStorage);
+    }
+
+    @Test
+    void testObjectStoreCreationWhenEnvIsValid() {
+        mockCfService();
+        when(applicationConfiguration.getObjectStoreClientType()).thenReturn(Constants.AWS);
+        ObjectStoreFileStorageFactoryBean spy = spy(objectStoreFileStorageFactoryBean);
+
+        spy.afterPropertiesSet();
+        ObjectStoreFileStorage createdObjectStoreFileStorage = spy.getObject();
+
+        assertNotNull(createdObjectStoreFileStorage);
+        verify(spy, never())
+            .createObjectStoreFromFirstReachableProvider(anyMap(), anyList());
+        verify(objectStoreFileStorage, times(1))
+            .testConnection();
+    }
+
+    @Test
+    void testObjectStoreCreationWhenEnvIsInvalid() {
+        mockCfService();
+        when(applicationConfiguration.getObjectStoreClientType()).thenReturn("WRONG_PROVIDER");
+
+        ObjectStoreFileStorageFactoryBean spy = spy(objectStoreFileStorageFactoryBean);
+
+        spy.afterPropertiesSet();
+        ObjectStoreFileStorage createdObjectStoreFileStorage = spy.getObject();
+
+        assertNotNull(createdObjectStoreFileStorage);
+        verify(spy, times(1))
+            .createObjectStoreFromFirstReachableProvider(anyMap(), anyList());
+    }
+
+    @Test
+    void testObjectStoreCreationWhenEnvProviderFailsToConnect() {
+        mockCfService();
+        when(applicationConfiguration.getObjectStoreClientType()).thenReturn(Constants.AWS);
+        doThrow(new IllegalStateException("Cannot create object store")).when(objectStoreFileStorage)
+                                                                        .testConnection();
+
+        Exception exception = assertThrows(IllegalStateException.class, () -> objectStoreFileStorageFactoryBean.afterPropertiesSet());
+        assertEquals(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND, exception.getMessage());
     }
 
     @Test

@@ -67,6 +67,7 @@ public class ApplicationConfiguration {
     static final String CFG_CHANGE_LOG_LOCK_DURATION = "CHANGE_LOG_LOCK_DURATION";
     static final String CFG_CHANGE_LOG_LOCK_ATTEMPTS = "CHANGE_LOG_LOCK_ATTEMPTS";
     static final String CFG_GLOBAL_CONFIG_SPACE = "GLOBAL_CONFIG_SPACE";
+    static final String OBJECT_STORE_CLIENT_TYPE = "OBJECT_STORE_CLIENT_TYPE";
     static final String CFG_HEALTH_CHECK_SPACE_GUID = "HEALTH_CHECK_SPACE_ID";
     static final String CFG_HEALTH_CHECK_MTA_ID = "HEALTH_CHECK_MTA_ID";
     static final String CFG_HEALTH_CHECK_USER = "HEALTH_CHECK_USER";
@@ -186,6 +187,7 @@ public class ApplicationConfiguration {
     private Integer changeLogLockDuration;
     private Integer changeLogLockAttempts;
     private String globalConfigSpace;
+    private String objectStoreClientType;
     private HealthCheckConfiguration healthCheckConfiguration;
     private String applicationGuid;
     private Integer applicationInstanceIndex;
@@ -480,6 +482,13 @@ public class ApplicationConfiguration {
             globalConfigSpace = getGlobalConfigSpaceFromEnvironment();
         }
         return globalConfigSpace;
+    }
+
+    public String getObjectStoreClientType() {
+        if (objectStoreClientType == null) {
+            objectStoreClientType = getObjectStoreClientTypeFromEnvironment();
+        }
+        return objectStoreClientType;
     }
 
     public HealthCheckConfiguration getHealthCheckConfiguration() {
@@ -883,6 +892,12 @@ public class ApplicationConfiguration {
     private String getGlobalConfigSpaceFromEnvironment() {
         String value = environment.getString(CFG_GLOBAL_CONFIG_SPACE);
         logEnvironmentVariable(CFG_GLOBAL_CONFIG_SPACE, Messages.GLOBAL_CONFIG_SPACE, value);
+        return value;
+    }
+
+    private String getObjectStoreClientTypeFromEnvironment() {
+        String value = environment.getString(OBJECT_STORE_CLIENT_TYPE);
+        logEnvironmentVariable(OBJECT_STORE_CLIENT_TYPE, Messages.OBJECT_STORE_CLIENT_TYPE, value);
         return value;
     }
 
