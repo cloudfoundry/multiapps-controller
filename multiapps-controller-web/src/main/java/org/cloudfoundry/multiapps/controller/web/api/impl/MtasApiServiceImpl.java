@@ -22,7 +22,6 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.MtasApiServiceAud
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
-import org.cloudfoundry.multiapps.controller.core.metering.client.MeteringClient;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
@@ -45,12 +44,8 @@ public class MtasApiServiceImpl implements MtasApiService {
     @Inject
     private MtasApiServiceAuditLog mtasApiServiceAuditLog;
 
-    @Inject
-    private MeteringClient meteringClient;
-
     @Override
     public ResponseEntity<List<Mta>> getMtas(String spaceGuid) {
-        meteringClient.sendTestUsage();
         mtasApiServiceAuditLog.logGetMtas(SecurityContextUtil.getUsername(), spaceGuid);
         CloudControllerClient client = getCloudFoundryClient(spaceGuid);
         List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtasWithoutNamespace(client);
@@ -61,8 +56,6 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     @Override
     public ResponseEntity<Mta> getMta(String spaceGuid, String mtaId) {
-        meteringClient.sendTestUsage();
-        
         mtasApiServiceAuditLog.logGetMta(SecurityContextUtil.getUsername(), spaceGuid, mtaId);
         CloudControllerClient client = getCloudFoundryClient(spaceGuid);
         List<DeployedMta> mtas = deployedMtaDetector.detectDeployedMtasByName(mtaId, client);
@@ -81,8 +74,6 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     @Override
     public ResponseEntity<List<Mta>> getMtas(String spaceGuid, String namespace, String name) {
-        meteringClient.sendTestUsage();
-
         mtasApiServiceAuditLog.logGetMtas(SecurityContextUtil.getUsername(), spaceGuid, namespace, name);
         if (name == null && namespace == null) {
             return getAllMtas(spaceGuid);

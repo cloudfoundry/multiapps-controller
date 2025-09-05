@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import jakarta.inject.Inject;
-
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;

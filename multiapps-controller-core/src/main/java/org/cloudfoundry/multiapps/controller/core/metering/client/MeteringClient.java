@@ -3,7 +3,14 @@ package org.cloudfoundry.multiapps.controller.core.metering.client;
 import java.io.IOException;
 import java.net.URI;
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -23,8 +30,8 @@ public class MeteringClient {
 
     private final Credentials credentials;
     private final HttpClient httpClient;
-    //private final String USAGE_INGESTION_URL_TEMPLATE = "{0}.{1}/v2/accounts/{2}/namespaces/metering/datastreams/{3}/eventBatch";
     private final String USAGE_INGESTION_URL_TEMPLATE = "{0}/v2/accounts/{1}/namespaces/metering/datastreams/{2}/eventBatch";
+    private final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
     private static final Logger LOGGER = LoggerFactory.getLogger(MeteringConfiguration.class);
 
     public MeteringClient(Credentials credentials, HttpClient httpClient) {
@@ -34,10 +41,11 @@ public class MeteringClient {
     }
 
     public void sendTestUsage() {
-        recordUsage(createUsagePayload("cf-eu10-canary", "b71fc53b-7518-4d2b-b8da-00aaed032e0c"));
+        recordUsage("cf-eu10-canary", "b71fc53b-7518-4d2b-b8da-00aaed032e0c", List.of("deploy"), "deploy-started");
     }
 
-    public void recordUsage(UsagePayload usagePayload) {
+    public void recordUsage(String landscape, String organisationId, List<String> customDimensions, String measureMessage) {
+        UsagePayload usagePayload = createUsagePayload(landscape, organisationId, customDimensions, measureMessage);
         String url = createUsageIngestionUrl();
 
         HttpPost httpPost = new HttpPost(URI.create(url));
@@ -45,15 +53,19 @@ public class MeteringClient {
         httpPost.setEntity(new StringEntity(JsonUtil.convertToJson(List.of(usagePayload))));
         try {
             CloseableHttpResponse a = (CloseableHttpResponse) httpClient.execute(httpPost);
-            LOGGER.error(a.getReasonPhrase());
             LOGGER.error(String.valueOf(a.getCode()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private UsagePayload createUsagePayload(String landscape, String organisationId) {
+    private UsagePayload createUsagePayload(String landscape, String organisationId, List<String> customDimensions, String measureMessage) {
         return ImmutableUsagePayload.builder()
+                                    .id(UUID.randomUUID())
+                                    .timestamp(ZonedDateTime.ofInstant(Instant.now(), ZoneOffset.UTC)
+                                                            .format(DATE_TIME_FORMAT))
+                                    .customDimensions(getCustomDimensions(customDimensions))
+                                    .measure(getMeasure(measureMessage))
                                     .consumer(ImmutableConsumer.builder()
                                                                .region(landscape)
                                                                .btp(ImmutableEnvironment.builder()
@@ -61,6 +73,18 @@ public class MeteringClient {
                                                                                         .build())
                                                                .build())
                                     .build();
+    }
+
+    private Map<String, String> getCustomDimensions(List<String> dimensions) {
+        Map<String, String> meteringDimensions = new HashMap<>();
+        for (int i = 0; i < dimensions.size(); i++) {
+            meteringDimensions.put("dimension" + (i + 1), dimensions.get(i));
+        }
+        return meteringDimensions;
+    }
+
+    private Map<String, Object> getMeasure(String message) {
+        return Map.of("id", message, "value", 1);
     }
 
     private String createUsageIngestionUrl() {
