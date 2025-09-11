@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
@@ -31,6 +33,8 @@ import static org.mockito.Mockito.when;
 class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     private static final String APP_NAME = "foo";
+    private static final String READINESS_ERROR_MESSAGE = "None of the instances of the app \"foo\" become routable. Please verify that the defined MTA parameters for the readiness health check align with the app’s code and configuration.";
+    private static final String NORMAL_ERROR_MESSAGE = "Error starting application \"foo\"";
     @Mock
     private MtaMetadataParser mtaMetadataParser;
     @Mock
@@ -45,7 +49,7 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
     @Test
     void testExecuteWhenAppIsStopped() {
         when(processTypeParser.getProcessType(context.getExecution())).thenReturn(ProcessType.DEPLOY);
-        CloudApplicationExtended app = createApplication(APP_NAME, CloudApplication.State.STOPPED);
+        CloudApplicationExtended app = createApplication(APP_NAME, CloudApplication.State.STOPPED, true);
         prepareContextAndClient(app);
         step.execute(execution);
         assertStepFinishedSuccessfully();
@@ -64,7 +68,7 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
     @Test
     void testExecuteWhenAppIsStarted() {
         when(processTypeParser.getProcessType(context.getExecution())).thenReturn(ProcessType.DEPLOY);
-        CloudApplicationExtended app = createApplication(APP_NAME, CloudApplication.State.STARTED);
+        CloudApplicationExtended app = createApplication(APP_NAME, CloudApplication.State.STARTED, true);
         prepareContextAndClient(app);
         step.execute(execution);
         assertStepFinishedSuccessfully();
@@ -84,11 +88,19 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
         assertEquals(expectedHooks, hookPhasesBeforeStep);
     }
 
-    private CloudApplicationExtended createApplication(String name, CloudApplication.State state) {
+    private CloudApplicationExtended createApplication(String name, CloudApplication.State state, boolean isReadinessHealthCheckEnabled) {
         return ImmutableCloudApplicationExtended.builder()
                                                 .name(name)
                                                 .state(state)
+                                                .staging(createStaging(isReadinessHealthCheckEnabled))
                                                 .build();
+    }
+
+    private Staging createStaging(boolean isReadinessHealthCheckEnabled) {
+        return ImmutableStaging.builder()
+                               .isReadinessHealthCheckEnabled(isReadinessHealthCheckEnabled)
+                               .readinessHealthCheckType("http")
+                               .build();
     }
 
     private void prepareContextAndClient(CloudApplicationExtended app) {
@@ -123,6 +135,22 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
             List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE));
         Duration timeout = step.getTimeout(context);
         assertEquals(Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE.getDefaultValue(), timeout);
+    }
+
+    @Test
+    void testErrorMessageWhenReadinessHealthCheckIsEnabled() {
+        CloudApplicationExtended app = createApplication(APP_NAME, CloudApplication.State.STOPPED, true);
+        prepareContextAndClient(app);
+
+        assertEquals(READINESS_ERROR_MESSAGE, step.getStepErrorMessage(context));
+    }
+
+    @Test
+    void testErrorMessageWhenReadinessHealthCheckIsDisabled() {
+        CloudApplicationExtended app = createApplication(APP_NAME, CloudApplication.State.STOPPED, false);
+        prepareContextAndClient(app);
+
+        assertEquals(NORMAL_ERROR_MESSAGE, step.getStepErrorMessage(context));
     }
 
     private List<Hook> buildHooksForExecution() {

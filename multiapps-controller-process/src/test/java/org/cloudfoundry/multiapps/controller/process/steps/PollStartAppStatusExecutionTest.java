@@ -26,6 +26,7 @@ import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -45,6 +46,9 @@ class PollStartAppStatusExecutionTest {
     private static final String APP_NAME = "testApplication";
     private static final long PROCESS_START_TIME = LocalDateTime.of(2019, Month.JANUARY, 1, 0, 0)
                                                                 .toEpochSecond(ZoneOffset.UTC);
+
+    private static final String READINESS_ERROR_MESSAGE = "None of the instances of the app \"testApplication\" become routable. Please verify that the defined MTA parameters for the readiness health check align with the app’s code and configuration.";
+    private static final String NORMAL_ERROR_MESSAGE = "Error starting application \"testApplication\"";
 
     @Mock
     private StepLogger stepLogger;
@@ -81,7 +85,7 @@ class PollStartAppStatusExecutionTest {
     @ParameterizedTest
     @MethodSource
     void testStep(List<InstanceState> instancesStates, boolean failOnCrash, AsyncExecutionState expectedAsyncExecutionState) {
-        CloudApplicationExtended application = buildApplication(instancesStates.size());
+        CloudApplicationExtended application = buildApplication(instancesStates.size(), false);
         prepareContext(application, failOnCrash);
         prepareClientProvider();
         InstancesInfo instancesInfo = buildInstancesInfo(instancesStates);
@@ -92,12 +96,29 @@ class PollStartAppStatusExecutionTest {
         assertEquals(expectedAsyncExecutionState, executionState);
     }
 
-    private CloudApplicationExtended buildApplication(int instancesCount) {
+    @Test
+    void testErrorMessageWhenReadinessHealthCheckIsEnabled() {
+        CloudApplicationExtended app = buildApplication(1, true);
+        prepareContext(app, false);
+
+        assertEquals(READINESS_ERROR_MESSAGE, step.getPollingErrorMessage(context));
+    }
+
+    @Test
+    void testErrorMessageWhenReadinessHealthCheckIsDisabled() {
+        CloudApplicationExtended app = buildApplication(1, false);
+        prepareContext(app, false);
+
+        assertEquals(NORMAL_ERROR_MESSAGE, step.getPollingErrorMessage(context));
+    }
+
+    private CloudApplicationExtended buildApplication(int instancesCount, boolean isReadinessHealthCheckEnabled) {
         return ImmutableCloudApplicationExtended.builder()
                                                 .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                                 .name(APP_NAME)
                                                 .instances(instancesCount)
                                                 .staging(ImmutableStaging.builder()
+                                                                         .isReadinessHealthCheckEnabled(isReadinessHealthCheckEnabled)
                                                                          .readinessHealthCheckType("test")
                                                                          .build())
                                                 .build();

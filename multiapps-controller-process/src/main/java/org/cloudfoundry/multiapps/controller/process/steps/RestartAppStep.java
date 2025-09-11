@@ -13,6 +13,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactor
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ReadinessHealthCheckUtil;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -42,7 +43,11 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
-        return MessageFormat.format(Messages.ERROR_STARTING_APP_0, getAppToRestart(context).getName());
+        String appToRestartName = getAppToRestart(context).getName();
+        if (ReadinessHealthCheckUtil.shouldWaitForAppToBecomeRoutable(context)) {
+            return MessageFormat.format(Messages.ERROR_NONE_OF_THE_INSTANCES_OF_THE_APP_0_BECOME_ROUTABLE, appToRestartName);
+        }
+        return MessageFormat.format(Messages.ERROR_STARTING_APP_0, appToRestartName);
     }
 
     protected CloudApplication getAppToRestart(ProcessContext context) {
