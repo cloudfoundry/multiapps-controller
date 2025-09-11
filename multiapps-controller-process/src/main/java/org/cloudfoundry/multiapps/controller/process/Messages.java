@@ -136,6 +136,7 @@ public class Messages {
         "Error staging application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Error publishing public provided dependencies";
     public static final String ERROR_STARTING_APP_0 = "Error starting application \"{0}\"";
+    public static final String ERROR_NONE_OF_THE_INSTANCES_OF_THE_APP_0_BECOME_ROUTABLE = "None of the instances of the app \"{0}\" become routable. Please verify that the defined MTA parameters for the readiness health check align with the app’s code and configuration.";
     public static final String ERROR_STARTING_APP_0_DESCRIPTION_1 =
         "Error starting application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_EXECUTING_APP_1 = "Error executing application \"{0}\"";
