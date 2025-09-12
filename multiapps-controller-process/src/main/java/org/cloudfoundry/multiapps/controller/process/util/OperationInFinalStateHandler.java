@@ -1,12 +1,18 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.net.ssl.SSLException;
 
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.client.v3.Metadata;
@@ -14,7 +20,9 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -28,6 +36,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
@@ -38,6 +47,9 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 
 import static java.text.MessageFormat.format;
 
@@ -60,6 +72,9 @@ public class OperationInFinalStateHandler {
     private OperationTimeAggregator operationTimeAggregator;
     @Inject
     private DynatracePublisher dynatracePublisher;
+    @Inject
+    private ProcessLogsPersistenceService processLogsPersistenceService;
+
     private final SafeExecutor safeExecutor = new SafeExecutor();
 
     public void handle(DelegateExecution execution, ProcessType processType, Operation.State state) {
@@ -74,6 +89,7 @@ public class OperationInFinalStateHandler {
         safeExecutor.execute(() -> setOperationState(correlationId, state));
         safeExecutor.execute(() -> deletePreviousBackupDescriptors(execution, processType, state));
         safeExecutor.execute(() -> trackOperationDuration(correlationId, execution, processType, state));
+        //        safeExecutor.execute(() -> exportOperationLogsToExternalSystem(execution));
     }
 
     protected void deleteDeploymentFiles(String correlationId, DelegateExecution execution) throws FileStorageException {
@@ -236,6 +252,67 @@ public class OperationInFinalStateHandler {
     private void logProcessTime(String correlationId, String processId, ProcessTime processTime) {
         LOGGER.debug(format(Messages.TIME_STATISTICS_FOR_PROCESS_0_OPERATION_1_DURATION_2_DELAY_3, processId, correlationId,
                             processTime.getProcessDuration(), processTime.getDelayBetweenSteps()));
+    }
+
+    private void exportOperationLogsToExternalSystem(DelegateExecution execution) {
+        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
+        String spaceId = VariableHandling.get(execution, Variables.SPACE_GUID);
+        String userName = StepsUtil.determineCurrentUser(execution);
+        String userGuid = StepsUtil.determineCurrentUserGuid(execution);
+        CloudControllerClient client = clientProvider.getControllerClient(userName, userGuid, spaceId, correlationId);
+        CloudServiceKey loggingServiceKey = client.getServiceKey("test-logging", "test-key");
+        if (loggingServiceKey != null) {
+            LOGGER.info("Exporting operation logs to external system using service key: {}", loggingServiceKey.getName());
+            Map<String, Object> credentials = loggingServiceKey.getCredentials();
+            String endpoint = (String) credentials.get("ingest-mtls-endpoint");
+            String serverCa = (String) credentials.get("server-ca");
+            String ingestMtlsCert = (String) credentials.get("ingest-mtls-cert");
+            String ingestMtlsKey = (String) credentials.get("ingest-mtls-key");
+
+            // Validate that all required credentials are present
+            if (endpoint != null && serverCa != null && ingestMtlsCert != null && ingestMtlsKey != null) {
+                try {
+                    OperationLogsExporter exporter = new OperationLogsExporter(processLogsPersistenceService,
+                                                                               createWebClientWithMtls(endpoint, serverCa, ingestMtlsCert,
+                                                                                                       ingestMtlsKey));
+                    exporter.exportLogs(spaceId, correlationId, endpoint, serverCa, ingestMtlsCert, ingestMtlsKey);
+                } catch (SSLException e) {
+                    LOGGER.error("Failed to create WebClient with mTLS configuration", e);
+                }
+            } else {
+                LOGGER.warn(
+                    "Missing required credentials for SAP Cloud Logging export. Required: endpoint, server-ca, ingest-mtls-cert, ingest-mtls-key");
+            }
+        } else {
+            LOGGER.debug("No logging service key found for operation {}, skipping log export", correlationId);
+        }
+    }
+
+    private WebClient createWebClientWithMtls(String endpointUrl, String serverCa, String clientCert, String clientKey)
+        throws SSLException {
+        LOGGER.debug("Creating WebClient with mTLS configuration for endpoint: {}", endpointUrl);
+
+        // Convert PEM strings to InputStreams
+        InputStream serverCaStream = new ByteArrayInputStream(serverCa.getBytes(StandardCharsets.UTF_8));
+        InputStream clientCertStream = new ByteArrayInputStream(clientCert.getBytes(StandardCharsets.UTF_8));
+        InputStream clientKeyStream = new ByteArrayInputStream(clientKey.getBytes(StandardCharsets.UTF_8));
+
+        // Create SSL context with client certificate and server CA
+        SslContext sslContext = SslContextBuilder.forClient()
+                                                 .keyManager(clientCertStream,
+                                                             clientKeyStream)  // Client certificate and private key for mTLS
+                                                 .trustManager(serverCaStream)                   // Server CA certificate for trust
+                                                 .build();
+
+        // Create HTTP client with custom SSL context
+        HttpClient httpClient = HttpClient.create()
+                                          .secure(sslSpec -> sslSpec.sslContext(sslContext));
+
+        // Build WebClient with the custom HTTP client
+        return WebClient.builder()
+                        .baseUrl(endpointUrl)
+                        .clientConnector(new ReactorClientHttpConnector(httpClient))
+                        .build();
     }
 
 }
