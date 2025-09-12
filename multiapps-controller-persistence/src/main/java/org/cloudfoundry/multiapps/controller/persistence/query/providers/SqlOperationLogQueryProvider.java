@@ -20,10 +20,10 @@ public class SqlOperationLogQueryProvider {
     private static final String ID_COLUMN_LABEL = "id";
     private static final String OPERATION_LOG_COLUMN_LABEL = "operation_log";
     private static final String OPERATION_LOG_NAME_COLUMN_LABEL = "operation_log_name";
-    private static final String SELECT_LOGS_BY_SPACE_ID_OPERATION_ID_AND_OPERATION_LOG_NAME = "SELECT ID, OPERATION_LOG, OPERATION_LOG_NAME FROM %s WHERE SPACE=? AND OPERATION_ID=? AND OPERATION_LOG_NAME=? ORDER BY MODIFIED ASC";
+    private static final String OPERATION_LOG_MODIFIED_COLUMN_LABEL = "modified";
+    private static final String SELECT_LOGS_BY_SPACE_ID_OPERATION_ID_AND_OPERATION_LOG_NAME = "SELECT ID, OPERATION_LOG, OPERATION_LOG_NAME, MODIFIED FROM %s WHERE SPACE=? AND OPERATION_ID=? AND OPERATION_LOG_NAME=? ORDER BY MODIFIED ASC";
     private static final String SELECT_LOGS_BY_SPACE_ID_AND_NAME = "SELECT DISTINCT ID, OPERATION_LOG, OPERATION_LOG_NAME, MODIFIED FROM %s WHERE SPACE=? AND OPERATION_ID=? ORDER BY MODIFIED ASC";
     private final String tableName;
-
 
     public SqlOperationLogQueryProvider(String tableName) {
         this.tableName = tableName;
@@ -115,6 +115,8 @@ public class SqlOperationLogQueryProvider {
                                          .id(resultSet.getString(ID_COLUMN_LABEL))
                                          .operationLog(resultSet.getString(OPERATION_LOG_COLUMN_LABEL))
                                          .operationLogName(resultSet.getString(OPERATION_LOG_NAME_COLUMN_LABEL))
+                                         .modified(resultSet.getTimestamp(OPERATION_LOG_MODIFIED_COLUMN_LABEL)
+                                                            .toLocalDateTime())
                                          .build();
     }
 }
