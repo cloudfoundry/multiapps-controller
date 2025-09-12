@@ -133,7 +133,6 @@
     <sequenceFlow id="flow49" sourceRef="buildUndeployModelTask" targetRef="addDomainsTask"></sequenceFlow>
     <sequenceFlow id="flow151" sourceRef="computeNextModulesToDeployInParallel" targetRef="deployModulesParallel"></sequenceFlow>
     <inclusiveGateway id="setValidationPhaseStartedInclusiveGateway"></inclusiveGateway>
-    <serviceTask id="sid-19B8BC9E-6AEC-4F83-9AC6-C53216797F33" name="Remove New Apps suffix" flowable:async="true" flowable:delegateExpression="${removeNewApplicationsSuffixStep}"></serviceTask>
     <exclusiveGateway id="sid-5B2AE114-1CBF-47C2-82D5-4CB9379C6136" name="Restart Apps Mode Gateway" default="sid-065FFC8D-12B3-4D53-B7F6-A0D2B3EA9420"></exclusiveGateway>
     <sequenceFlow id="sid-91F14D78-6B14-407B-8D03-DE7B6EC32F34" sourceRef="prepareAppsRestartTask" targetRef="sid-5B2AE114-1CBF-47C2-82D5-4CB9379C6136"></sequenceFlow>
     <inclusiveGateway id="restartAppsModeGateway" name="restartAppsModeGateway" default="shouldRestartAppsSequentialFlow"></inclusiveGateway>
@@ -404,9 +403,6 @@
       <bpmndi:BPMNShape bpmnElement="setValidationPhaseStartedInclusiveGateway" id="BPMNShape_setValidationPhaseStartedInclusiveGateway">
         <omgdc:Bounds height="40.0" width="40.0" x="1110.0" y="382.2500000000002"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="sid-19B8BC9E-6AEC-4F83-9AC6-C53216797F33" id="BPMNShape_sid-19B8BC9E-6AEC-4F83-9AC6-C53216797F33">
-        <omgdc:Bounds height="70.0" width="106.0" x="1184.4999823495748" y="734.9999890476466"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-5B2AE114-1CBF-47C2-82D5-4CB9379C6136" id="BPMNShape_sid-5B2AE114-1CBF-47C2-82D5-4CB9379C6136">
         <omgdc:Bounds height="40.0" width="40.0" x="1473.0" y="382.2500000000002"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -439,8 +435,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-80047DB4-2E71-43B5-A93B-687A54A02448" id="BPMNEdge_sid-80047DB4-2E71-43B5-A93B-687A54A02448">
         <omgdi:waypoint x="1387.0" y="679.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1387.0" y="591.4999917820097"></omgdi:waypoint>
-        <omgdi:waypoint x="1229.897575573287" y="591.4999917820097"></omgdi:waypoint>
+        <omgdi:waypoint x="1387.0" y="591.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1229.8975755732627" y="591.3792513986517"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-91F14D78-6B14-407B-8D03-DE7B6EC32F34" id="BPMNEdge_sid-91F14D78-6B14-407B-8D03-DE7B6EC32F34">
         <omgdi:waypoint x="1441.4499999999616" y="402.2500000000002"></omgdi:waypoint>
@@ -687,10 +683,10 @@
         <omgdi:waypoint x="692.2605105341524" y="591.4999990591753"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-82DC4073-CDBC-47E5-AFC3-B5FFD7AB1499" id="BPMNEdge_sid-82DC4073-CDBC-47E5-AFC3-B5FFD7AB1499">
-        <omgdi:waypoint x="1534.0" y="543.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1388.447581415323" y="543.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1388.447581415323" y="591.4999917820097"></omgdi:waypoint>
-        <omgdi:waypoint x="1229.897575573287" y="591.4999917820097"></omgdi:waypoint>
+        <omgdi:waypoint x="1534.0540865384603" y="543.4399399399399"></omgdi:waypoint>
+        <omgdi:waypoint x="1388.0" y="543.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1388.0" y="591.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1229.8975755732326" y="591.3798317349957"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="shouldDeployModulesSequentialFlow" id="BPMNEdge_shouldDeployModulesSequentialFlow">
         <omgdi:waypoint x="346.25862831858393" y="401.80752212389393"></omgdi:waypoint>
