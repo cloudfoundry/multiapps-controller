@@ -42,7 +42,7 @@ public class DeleteServiceStep extends AsyncFlowableStep {
         String serviceInstanceToDelete = context.getVariable(Variables.SERVICE_TO_DELETE);
         getStepLogger().debug(Messages.DELETING_DISCONTINUED_SERVICE_0, serviceInstanceToDelete);
         CloudControllerClient controllerClient = context.getControllerClient();
-        CloudServiceInstance serviceInstance = controllerClient.getServiceInstanceWithoutAuxiliaryContent(serviceInstanceToDelete, false);
+        CloudServiceInstance serviceInstance = controllerClient.getServiceInstance(serviceInstanceToDelete, false);
         if (serviceInstance == null) {
             getStepLogger().info(Messages.SERVICE_IS_ALREADY_DELETED, serviceInstanceToDelete);
             return StepPhase.DONE;

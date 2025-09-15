@@ -99,7 +99,7 @@ class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
     }
 
     private void prepareClient(CloudServiceInstance serviceInstance) {
-        when(client.getServiceInstanceWithoutAuxiliaryContent(SERVICE_NAME, false)).thenReturn(serviceInstance);
+        when(client.getServiceInstance(SERVICE_NAME, false)).thenReturn(serviceInstance);
     }
 
     private void assertStepPhase(StepPhase expectedStepPhase) {
