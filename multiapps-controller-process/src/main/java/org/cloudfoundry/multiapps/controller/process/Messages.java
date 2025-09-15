@@ -183,7 +183,8 @@ public class Messages {
     public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while polling service binding operations between app: \"{0}\" and service instance \"{1}\"";
     public static final String ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while checking service binding operations between app: \"{0}\" and service instance \"{1}\"";
     public static final String ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_0 = "Error while checking service binding operations for service binding: \"{0}\"";
-    public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_WITH = "Async operation for service binding between app \"{0}\" and service instance \"{1}\" failed with \"{2}\"";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_WITH = "Async operation for service binding between app \"{0}\" and service instance \"{1}\" with offering \"{2}\" and plan \"{3}\" failed with \"{4}\"";
+    public static final String ASYNC_OPERATION_FOR_USER_PROVIDED_SERVICE_BINDING_FAILED_WITH = "Async operation for service binding between app \"{0}\" and user-provided service instance \"{1}\" failed with \"{2}\"";
     public static final String ASYNC_OPERATION_FOR_SERVICE_KEY_FAILED_WITH = "Async operation for service key of service instance \"{0}\" failed with \"{1}\"";
     public static final String ASYNC_OPERATION_FOR_OPTIONAL_SERVICE_KEY_FAILED_WITH = "Async operation for service key of optional service instance \"{0}\" failed with \"{1}\"";
     public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FOR_OPTIONAL_SERVICE_FAILED_WITH = "Async operation for service binding for optional service between app \"{0}\" and service instance \"{1}\" failed with \"{2}\"";
