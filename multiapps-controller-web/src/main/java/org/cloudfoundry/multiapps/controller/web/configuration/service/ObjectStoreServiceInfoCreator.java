@@ -9,8 +9,10 @@ import java.util.Map;
 
 import com.google.common.base.Supplier;
 import io.pivotal.cfenv.core.CfService;
+import org.cloudfoundry.multiapps.controller.persistence.dto.ObjectStoreConfiguration;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
+import org.cloudfoundry.multiapps.controller.web.configuration.objectstore.GcpObjectStoreProvider;
 import org.jclouds.domain.Credentials;
 import org.jclouds.googlecloud.GoogleCredentialsFromJson;
 
@@ -97,14 +99,11 @@ public class ObjectStoreServiceInfoCreator {
     }
 
     private ObjectStoreServiceInfo createServiceInfoForGcpCloud(Map<String, Object> credentials) {
-        String bucket = (String) credentials.get(Constants.BUCKET);
-        String region = (String) credentials.get(Constants.REGION);
-        Supplier<Credentials> credentialsSupplier = getGcpCredentialsSupplier(credentials);
+        ObjectStoreConfiguration objectStoreConfiguration = GcpObjectStoreProvider.createObjectStoreStorage(credentials);
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.GOOGLE_CLOUD_STORAGE)
-                                              .credentialsSupplier(credentialsSupplier)
-                                              .container(bucket)
-                                              .region(region)
+                                              .container(objectStoreConfiguration.bucketName())
+                                              .gcpStorage(objectStoreConfiguration.storage())
                                               .build();
     }
 

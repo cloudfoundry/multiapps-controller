@@ -7,6 +7,7 @@ import java.util.Set;
 import io.pivotal.cfenv.core.CfCredentials;
 import io.pivotal.cfenv.core.CfService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.Constants;
@@ -59,7 +60,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
     @Test
     void testObjectStoreCreationWithoutServiceInstance() {
         objectStoreFileStorageFactoryBean.afterPropertiesSet();
-        ObjectStoreFileStorage objectStoreFileStorage = objectStoreFileStorageFactoryBean.getObject();
+        FileStorage objectStoreFileStorage = objectStoreFileStorageFactoryBean.getObject();
         assertNull(objectStoreFileStorage);
     }
 
@@ -67,7 +68,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
     void testObjectStoreCreationWithValidServiceInstance() {
         mockCfService();
         objectStoreFileStorageFactoryBean.afterPropertiesSet();
-        ObjectStoreFileStorage objectStoreFileStorage = objectStoreFileStorageFactoryBean.getObject();
+        FileStorage objectStoreFileStorage = objectStoreFileStorageFactoryBean.getObject();
         assertNotNull(objectStoreFileStorage);
     }
 
@@ -78,7 +79,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
         ObjectStoreFileStorageFactoryBean spy = spy(objectStoreFileStorageFactoryBean);
 
         spy.afterPropertiesSet();
-        ObjectStoreFileStorage createdObjectStoreFileStorage = spy.getObject();
+        FileStorage createdObjectStoreFileStorage = spy.getObject();
 
         assertNotNull(createdObjectStoreFileStorage);
         verify(spy, never())
@@ -95,7 +96,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
         ObjectStoreFileStorageFactoryBean spy = spy(objectStoreFileStorageFactoryBean);
 
         spy.afterPropertiesSet();
-        ObjectStoreFileStorage createdObjectStoreFileStorage = spy.getObject();
+        FileStorage createdObjectStoreFileStorage = spy.getObject();
 
         assertNotNull(createdObjectStoreFileStorage);
         verify(spy, times(1))
