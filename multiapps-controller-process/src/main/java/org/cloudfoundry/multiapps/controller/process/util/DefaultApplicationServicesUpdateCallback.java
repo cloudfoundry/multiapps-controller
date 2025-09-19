@@ -41,7 +41,8 @@ public class DefaultApplicationServicesUpdateCallback implements ApplicationServ
         List<CloudServiceInstanceExtended> servicesToBind = context.getVariable(Variables.SERVICES_TO_BIND);
         if (StepsUtil.isServiceOptional(servicesToBind, serviceInstanceName)) {
             context.getStepLogger()
-                   .warn(e, Messages.COULD_NOT_BIND_OPTIONAL_SERVICE_TO_APP, serviceInstanceName, applicationName);
+                   .warn(String.format("%s: %s", Messages.COULD_NOT_BIND_OPTIONAL_SERVICE_TO_APP, e.getMessage()), serviceInstanceName,
+                         applicationName);
             return;
         }
         throw new SLException(e, Messages.COULD_NOT_BIND_SERVICE_TO_APP, serviceInstanceName, applicationName, e.getMessage());
