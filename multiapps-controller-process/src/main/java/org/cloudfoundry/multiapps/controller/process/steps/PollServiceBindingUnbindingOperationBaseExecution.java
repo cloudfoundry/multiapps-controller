@@ -50,7 +50,10 @@ public abstract class PollServiceBindingUnbindingOperationBaseExecution extends 
     private String buildErrorMessage(CloudApplication app, CloudServiceInstance serviceInstance, String serviceInstanceName,
                                      CloudAsyncJob serviceBindingJob) {
 
-        if (serviceInstance.isUserProvided()) {
+        if (serviceInstance == null) {
+            return MessageFormat.format(Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_INSTANCE_MISSING, app.getName(),
+                                        serviceInstanceName, serviceBindingJob.getErrors());
+        } else if (serviceInstance.isUserProvided()) {
             return MessageFormat.format(Messages.ASYNC_OPERATION_FOR_USER_PROVIDED_SERVICE_BINDING_FAILED_WITH, app.getName(),
                                         serviceInstanceName, serviceBindingJob.getErrors());
         } else {
