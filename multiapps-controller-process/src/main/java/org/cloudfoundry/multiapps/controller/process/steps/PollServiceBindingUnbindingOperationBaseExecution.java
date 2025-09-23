@@ -63,15 +63,15 @@ public abstract class PollServiceBindingUnbindingOperationBaseExecution extends 
                                         serviceInstanceName, serviceBindingJob.getErrors());
         }
 
-        String serviceOffering = displayOrMissing(serviceInstance.getLabel());
-        String servicePlan = displayOrMissing(serviceInstance.getPlan());
+        String serviceOffering = getValueOrMissing(serviceInstance.getLabel());
+        String servicePlan = getValueOrMissing(serviceInstance.getPlan());
 
         return MessageFormat.format(Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_WITH, app.getName(), serviceInstanceName,
                                     serviceOffering, servicePlan, serviceBindingJob.getErrors());
 
     }
 
-    private String displayOrMissing(String value) {
+    private String getValueOrMissing(String value) {
         return Optional.ofNullable(value)
                        .orElse(MISSING_VALUE_PLACEHOLDER);
     }
