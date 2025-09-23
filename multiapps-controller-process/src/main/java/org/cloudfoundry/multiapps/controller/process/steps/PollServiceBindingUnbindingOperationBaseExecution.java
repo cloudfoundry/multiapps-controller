@@ -1,15 +1,21 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
 public abstract class PollServiceBindingUnbindingOperationBaseExecution extends PollOperationBaseExecution {
+
+    private static final String MISSING_VALUE_PLACEHOLDER = "missing";
 
     @Override
     protected boolean isOptional(ProcessContext context) {
@@ -35,9 +41,39 @@ public abstract class PollServiceBindingUnbindingOperationBaseExecution extends 
     protected Consumer<CloudAsyncJob> getOnErrorHandler(ProcessContext context) {
         CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
         String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
+
+        CloudControllerClient client = context.getControllerClient();
+        CloudServiceInstance serviceInstance = client.getServiceInstance(serviceInstanceName, false);
+
         return serviceBindingJob -> context.getStepLogger()
-                                           .error(Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_WITH, app.getName(),
-                                                  serviceInstanceName, serviceBindingJob.getErrors());
+                                           .error(buildErrorMessage(app, serviceInstance, serviceInstanceName, serviceBindingJob));
+
+    }
+
+    private String buildErrorMessage(CloudApplication app, CloudServiceInstance serviceInstance, String serviceInstanceName,
+                                     CloudAsyncJob serviceBindingJob) {
+
+        if (serviceInstance == null) {
+            return MessageFormat.format(Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_INSTANCE_MISSING, app.getName(),
+                                        serviceInstanceName, serviceBindingJob.getErrors());
+        }
+
+        if (serviceInstance.isUserProvided()) {
+            return MessageFormat.format(Messages.ASYNC_OPERATION_FOR_USER_PROVIDED_SERVICE_BINDING_FAILED_WITH, app.getName(),
+                                        serviceInstanceName, serviceBindingJob.getErrors());
+        }
+
+        String serviceOffering = getValueOrMissing(serviceInstance.getLabel());
+        String servicePlan = getValueOrMissing(serviceInstance.getPlan());
+
+        return MessageFormat.format(Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_WITH, app.getName(), serviceInstanceName,
+                                    serviceOffering, servicePlan, serviceBindingJob.getErrors());
+
+    }
+
+    private String getValueOrMissing(String value) {
+        return Optional.ofNullable(value)
+                       .orElse(MISSING_VALUE_PLACEHOLDER);
     }
 
     @Override
