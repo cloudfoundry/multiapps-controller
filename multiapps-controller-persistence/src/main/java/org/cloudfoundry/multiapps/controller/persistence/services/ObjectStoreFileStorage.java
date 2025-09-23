@@ -3,23 +3,18 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
-import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreUtil;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.ContainerNotFoundException;
 import org.jclouds.blobstore.domain.Blob;
@@ -33,7 +28,6 @@ import org.jclouds.io.Payload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
-import org.springframework.util.CollectionUtils;
 
 public class ObjectStoreFileStorage implements FileStorage {
 
@@ -59,7 +53,7 @@ public class ObjectStoreFileStorage implements FileStorage {
                              .contentDisposition(fileEntry.getName())
                              .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
                              .contentLength(fileSize)
-                             .userMetadata(createFileEntryMetadata(fileEntry))
+                             .userMetadata(ObjectStoreUtil.createFileEntryMetadata(fileEntry))
                              .build();
         try {
             putBlobWithRetries(blob, 3);
@@ -87,22 +81,23 @@ public class ObjectStoreFileStorage implements FileStorage {
 
     @Override
     public void deleteFilesBySpaceIds(List<String> spaceIds) {
-        removeBlobsByFilter(blob -> filterBySpaceIds(blob, spaceIds));
+        removeBlobsByFilter(blob -> ObjectStoreUtil.filterBySpaceIds(blob.getUserMetadata(), spaceIds));
     }
 
     @Override
     public void deleteFilesBySpaceAndNamespace(String space, String namespace) {
-        removeBlobsByFilter(blob -> filterBySpaceAndNamespace(blob, space, namespace));
+        removeBlobsByFilter(blob -> ObjectStoreUtil.filterBySpaceAndNamespace(blob.getUserMetadata(), space, namespace));
     }
 
     @Override
     public int deleteFilesModifiedBefore(LocalDateTime modificationTime) {
-        return removeBlobsByFilter(blob -> filterByModificationTime(blob, modificationTime));
+        return removeBlobsByFilter(
+            blob -> ObjectStoreUtil.filterByModificationTime(blob.getUserMetadata(), blob.getName(), modificationTime));
     }
 
     @Override
     public <T> T processFileContent(String space, String id, FileContentProcessor<T> fileContentProcessor) throws FileStorageException {
-        FileEntry fileEntry = createFileEntry(space, id);
+        FileEntry fileEntry = ObjectStoreUtil.createFileEntry(space, id);
         try {
             Payload payload = getBlobPayload(fileEntry);
             return processContent(fileContentProcessor, payload);
@@ -114,7 +109,7 @@ public class ObjectStoreFileStorage implements FileStorage {
     @Override
     public <T> T processArchiveEntryContent(FileContentToProcess fileContentToProcess, FileContentProcessor<T> fileContentProcessor)
         throws FileStorageException {
-        FileEntry fileEntry = createFileEntry(fileContentToProcess.getSpaceGuid(), fileContentToProcess.getGuid());
+        FileEntry fileEntry = ObjectStoreUtil.createFileEntry(fileContentToProcess.getSpaceGuid(), fileContentToProcess.getGuid());
         try {
             Payload payload = getBlobPayloadWithOffset(fileEntry, fileContentToProcess.getStartOffset(),
                                                        fileContentToProcess.getEndOffset());
@@ -160,7 +155,7 @@ public class ObjectStoreFileStorage implements FileStorage {
 
     @Override
     public InputStream openInputStream(String space, String id) throws FileStorageException {
-        FileEntry fileEntry = createFileEntry(space, id);
+        FileEntry fileEntry = ObjectStoreUtil.createFileEntry(space, id);
         Payload payload = getBlobPayload(fileEntry);
         return openPayloadInputStream(payload);
     }
@@ -181,13 +176,6 @@ public class ObjectStoreFileStorage implements FileStorage {
     @Override
     public void deleteFilesByIds(List<String> fileIds) {
         removeBlobsByFilter(blob -> fileIds.contains(blob.getName()));
-    }
-
-    private FileEntry createFileEntry(String space, String id) {
-        return ImmutableFileEntry.builder()
-                                 .space(space)
-                                 .id(id)
-                                 .build();
     }
 
     private <T> T processContent(FileContentProcessor<T> fileContentProcessor, Payload payload) throws FileStorageException {
@@ -232,19 +220,6 @@ public class ObjectStoreFileStorage implements FileStorage {
         return RETRY_BASE_WAIT_TIME_IN_MILLIS;
     }
 
-    private Map<String, String> createFileEntryMetadata(FileEntry fileEntry) {
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put(Constants.FILE_ENTRY_SPACE.toLowerCase(), fileEntry.getSpace());
-        metadata.put(Constants.FILE_ENTRY_MODIFIED.toLowerCase(), Long.toString(fileEntry.getModified()
-                                                                                         .atZone(ZoneId.systemDefault())
-                                                                                         .toInstant()
-                                                                                         .toEpochMilli()));
-        if (fileEntry.getNamespace() != null) {
-            metadata.put(Constants.FILE_ENTRY_NAMESPACE.toLowerCase(), fileEntry.getNamespace());
-        }
-        return metadata;
-    }
-
     private int removeBlobsByFilter(Predicate<? super StorageMetadata> filter) {
         Set<String> entries = getEntryNames(filter);
         if (!entries.isEmpty()) {
@@ -271,45 +246,4 @@ public class ObjectStoreFileStorage implements FileStorage {
         }
         return entries;
     }
-
-    private boolean filterByModificationTime(StorageMetadata blobMetadata, LocalDateTime modificationTime) {
-        Map<String, String> userMetadata = blobMetadata.getUserMetadata();
-        // Clean up any blobStore entries that don't have any metadata as we can't check their creation date
-        if (CollectionUtils.isEmpty(userMetadata)) {
-            LOGGER.warn(MessageFormat.format(Messages.USER_METADATA_OF_BLOB_0_EMPTY_AND_WILL_BE_DELETED, blobMetadata.getName()));
-            return true;
-        }
-        String longString = userMetadata.get(Constants.FILE_ENTRY_MODIFIED.toLowerCase());
-        try {
-            long dateLong = Long.parseLong(longString);
-            LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(dateLong), ZoneId.systemDefault());
-            return date.isBefore(modificationTime);
-        } catch (NumberFormatException e) {
-            // Clean up any blobStore entries that have invalid timestamp
-            LOGGER.warn(MessageFormat.format(Messages.DATE_METADATA_OF_BLOB_0_IS_NOT_IN_PROPER_FORMAT_AND_WILL_BE_DELETED,
-                                             blobMetadata.getName()),
-                        e);
-            return true;
-        }
-    }
-
-    private boolean filterBySpaceIds(StorageMetadata blobMetadata, List<String> spaceIds) {
-        Map<String, String> userMetadata = blobMetadata.getUserMetadata();
-        if (CollectionUtils.isEmpty(userMetadata)) {
-            return false;
-        }
-        String spaceParameter = userMetadata.get(Constants.FILE_ENTRY_SPACE.toLowerCase());
-        return spaceIds.contains(spaceParameter);
-    }
-
-    private boolean filterBySpaceAndNamespace(StorageMetadata blobMetadata, String space, String namespace) {
-        Map<String, String> userMetadata = blobMetadata.getUserMetadata();
-        if (CollectionUtils.isEmpty(userMetadata)) {
-            return false;
-        }
-        String spaceParameter = userMetadata.get(Constants.FILE_ENTRY_SPACE.toLowerCase());
-        String namespaceParameter = userMetadata.get(Constants.FILE_ENTRY_NAMESPACE.toLowerCase());
-        return space.equals(spaceParameter) && namespace.equals(namespaceParameter);
-    }
-
 }
