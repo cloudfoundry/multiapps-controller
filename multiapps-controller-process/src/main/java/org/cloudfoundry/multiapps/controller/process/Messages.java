@@ -336,6 +336,7 @@ public class Messages {
     public static final String DELETING_BACKUP_DESCRIPTOR_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_VERSION_3 = "Deleting backup descriptor with mta id \"{0}\" in space \"{1}\" namespace \"{2}\" and version \"{3}\"";
     public static final String DELETING_BACKUP_DESCRIPTORS_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_SKIP_VERSIONS_3 = "Deleting backup descriptors with mta id \"{0}\" in space \"{1}\" namespace \"{2}\" and skip the following mta versions \"{3}\"";
     public static final String EXISTING_APPS_TO_BACKUP = "Existing apps to backup: {0}";
+    public static final String TASK_0_ON_APPLICATION_1_IS_STILL_2 = "Task \"{0}\" on application \"{1}\" is still \"{2}\"";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";

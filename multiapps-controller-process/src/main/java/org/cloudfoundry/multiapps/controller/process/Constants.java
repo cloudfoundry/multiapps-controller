@@ -26,6 +26,9 @@ public class Constants {
     public static final String MTA_BACKUP_NAMESPACE = "mta-backup";
     public static final String MTA_FOR_DELETION_PREFIX = "to-be-deleted";
 
+    public static final Long LONG_DEFAULT_NULL_VALUE = 0L;
+    public static final int LOG_STALLED_TASK_MINUTE_INTERVAL = 5;
+
     protected Constants() {
     }
 }
