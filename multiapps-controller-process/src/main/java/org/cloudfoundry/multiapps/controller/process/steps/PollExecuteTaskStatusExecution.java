@@ -59,7 +59,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         if (currentState == CloudTask.State.FAILED) {
             context.getStepLogger()
                    .error(Messages.ERROR_EXECUTING_TASK_0_ON_APP_1, taskToPoll.getName(), app.getName());
-            context.setVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP, null);
+            context.setVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP, Constants.LONG_DEFAULT_NULL_VALUE);
             return AsyncExecutionState.ERROR;
         }
         if (currentState == CloudTask.State.RUNNING || currentState == CloudTask.State.PENDING) {
