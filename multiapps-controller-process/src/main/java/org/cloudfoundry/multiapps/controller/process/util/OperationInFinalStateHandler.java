@@ -276,8 +276,8 @@ public class OperationInFinalStateHandler {
                                                                                createWebClientWithMtls(endpoint, serverCa, ingestMtlsCert,
                                                                                                        ingestMtlsKey));
                     exporter.exportLogs(spaceId, correlationId, endpoint, serverCa, ingestMtlsCert, ingestMtlsKey);
-                } catch (SSLException e) {
-                    LOGGER.error("Failed to create WebClient with mTLS configuration", e);
+                } catch (Exception e) {
+                    LOGGER.error("Failure during export logs", e);
                 }
             } else {
                 LOGGER.warn(

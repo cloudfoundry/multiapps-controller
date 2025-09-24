@@ -27,22 +27,17 @@ public class OperationLogsExporter {
         this.webClient = webClient;
     }
 
-    public void exportLogs(String spaceId, String operationId, String endpoint, String serverCa, String clientCert, String clientKey) {
-        try {
-            LOGGER.info("Starting log export for operation {} in space {}", operationId, spaceId);
+    public void exportLogs(String spaceId, String operationId, String endpoint, String serverCa, String clientCert, String clientKey)
+        throws FileStorageException {
+        LOGGER.info("Export logs for operation {} in space {}", operationId, spaceId);
+        List<ExternalOperationLogEntry> externalLogEntries = getExternalLogEntries(spaceId, operationId);
+        webClient.post()
+                 .header("Content-Type", CONTENT_TYPE_JSON)
+                 .bodyValue(JsonUtil.toJson(externalLogEntries))
+                 .retrieve()
+                 .bodyToMono(Void.class)
+                 .block();
 
-            List<ExternalOperationLogEntry> externalLogEntries = getExternalLogEntries(spaceId, operationId);
-
-            webClient.post()
-                     .header("Content-Type", CONTENT_TYPE_JSON)
-                     .bodyValue(JsonUtil.toJson(externalLogEntries))
-                     .retrieve()
-                     .bodyToMono(Void.class)
-                     .block();
-
-        } catch (Exception e) {
-            LOGGER.error("Failure during exporting logs to SAP Cloud Logging for operation {}", operationId, e);
-        }
     }
 
     private List<ExternalOperationLogEntry> getExternalLogEntries(String spaceId, String operationId) throws FileStorageException {

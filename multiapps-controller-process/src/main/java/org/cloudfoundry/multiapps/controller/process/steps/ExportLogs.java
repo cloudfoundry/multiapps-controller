@@ -77,35 +77,34 @@ public class ExportLogs extends SyncFlowableStep {
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
         String spaceId = context.getVariable(Variables.SPACE_GUID);
         CloudServiceKey loggingServiceKey = client.getServiceKey(serviceInstanceName, serviceKeyName);
-        if (loggingServiceKey != null) {
-            LOGGER.info("Exporting operation logs to external system using service key: {}", loggingServiceKey.getName());
-            Map<String, Object> credentials = loggingServiceKey.getCredentials();
-            String endpoint = (String) credentials.get("ingest-mtls-endpoint");
-            String serverCa = (String) credentials.get("server-ca");
-            String ingestMtlsCert = (String) credentials.get("ingest-mtls-cert");
-            String ingestMtlsKey = (String) credentials.get("ingest-mtls-key");
-
-            // Validate that all required credentials are present
-            if (endpoint != null && serverCa != null && ingestMtlsCert != null && ingestMtlsKey != null) {
-                try {
-                    OperationLogsExporter exporter = new OperationLogsExporter(processLogsPersistenceService,
-                                                                               createWebClientWithMtls(endpoint, serverCa, ingestMtlsCert,
-                                                                                                       ingestMtlsKey));
-                    exporter.exportLogs(spaceId, correlationId, endpoint, serverCa, ingestMtlsCert, ingestMtlsKey);
-                    getStepLogger().info("Export of operation logs to external service instance \"{0}\" was successful",
-                                         serviceInstanceName);
-                    return;
-                } catch (SSLException e) {
-                    LOGGER.error("Failed to create WebClient with mTLS configuration", e);
-                    return;
-                }
-            } else {
-                getStepLogger().warn(
-                    "Missing required credentials for SAP Cloud Logging export. Required: endpoint, server-ca, ingest-mtls-cert, ingest-mtls-key");
-                return;
-            }
+        if (loggingServiceKey == null) {
+            getStepLogger().warn("No logging service key found for operation {0}, skipping log export", correlationId);
+            return;
         }
-        getStepLogger().warn("No logging service key found for operation {0}, skipping log export", correlationId);
+        LOGGER.info("Exporting operation logs to external system using service key: {}", loggingServiceKey.getName());
+        Map<String, Object> credentials = loggingServiceKey.getCredentials();
+        String endpoint = (String) credentials.get("ingest-mtls-endpoint");
+        String serverCa = (String) credentials.get("server-ca");
+        String ingestMtlsCert = (String) credentials.get("ingest-mtls-cert");
+        String ingestMtlsKey = (String) credentials.get("ingest-mtls-key");
+
+        // Validate that all required credentials are present
+        if (endpoint == null && serverCa == null && ingestMtlsCert == null && ingestMtlsKey == null) {
+            getStepLogger().warn(
+                "Missing required credentials for SAP Cloud Logging export. Required: endpoint, server-ca, ingest-mtls-cert, ingest-mtls-key");
+            return;
+        }
+        try {
+            OperationLogsExporter exporter = new OperationLogsExporter(processLogsPersistenceService,
+                                                                       createWebClientWithMtls(endpoint, serverCa, ingestMtlsCert,
+                                                                                               ingestMtlsKey));
+            exporter.exportLogs(spaceId, correlationId, endpoint, serverCa, ingestMtlsCert, ingestMtlsKey);
+            getStepLogger().info("Export of operation logs to external service instance \"{0}\" was successful", serviceInstanceName);
+        } catch (Exception e) {
+            getStepLogger().warn(e, "Export of operation logs to external service instance \"{0}\" failed: {1}", serviceInstanceName,
+                                 e.getMessage());
+        }
+
     }
 
     private WebClient createWebClientWithMtls(String endpointUrl, String serverCa, String clientCert, String clientKey)
