@@ -75,7 +75,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         return MessageFormat.format(Messages.ERROR_EXECUTING_TASK_0_ON_APP_1, task.getName(), app.getName());
     }
 
-    protected void logStalledTask(ProcessContext context, CloudTask task, CloudApplicationExtended app, CloudTask.State currentState) {
+    private void logStalledTask(ProcessContext context, CloudTask task, CloudApplicationExtended app, CloudTask.State currentState) {
         Long currentTimeNow = System.currentTimeMillis();
         Long lastLog = context.getVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP);
         if (!lastLog.equals(Constants.LONG_DEFAULT_NULL_VALUE)) {
