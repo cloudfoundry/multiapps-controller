@@ -40,6 +40,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires flowable.variable.service.api;
     requires google.cloud.storage;
     requires google.cloud.core;
+    requires gax;
     requires jakarta.inject;
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.core;
