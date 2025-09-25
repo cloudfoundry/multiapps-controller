@@ -37,4 +37,6 @@
     <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.183.0-persistence.xml"/>
 
     <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.192.0-persistence.xml"/>
+    
+    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.199.1-flowable.xml"/>
 </databaseChangeLog>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="revert_flowable_schema_changes_7_2_0_to_7_1_0_drop_runtime_actinst_completed_by">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="ACT_RU_ACTINST" columnName="COMPLETED_BY_"/>
+        </preConditions>
+        <dropColumn tableName="ACT_RU_ACTINST" columnName="COMPLETED_BY_"/>
+    </changeSet>
+
+    <changeSet author="sap.com" id="revert_flowable_schema_changes_7_2_0_to_7_1_0_drop_historic_actinst_completed_by">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="ACT_HI_ACTINST" columnName="COMPLETED_BY_"/>
+        </preConditions>
+        <dropColumn tableName="ACT_HI_ACTINST" columnName="COMPLETED_BY_"/>
+    </changeSet>
+
+    <changeSet author="sap.com" id="revert_flowable_schema_changes_7_2_0_to_7_1_0_drop_cmmn_runtime_assignee">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="ACT_CMMN_RU_PLAN_ITEM_INST" columnName="ASSIGNEE_"/>
+        </preConditions>
+        <dropColumn tableName="ACT_CMMN_RU_PLAN_ITEM_INST" columnName="ASSIGNEE_"/>
+    </changeSet>
+
+    <changeSet author="sap.com" id="revert_flowable_schema_changes_7_2_0_to_7_1_0_drop_cmmn_runtime_completed_by">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="ACT_CMMN_RU_PLAN_ITEM_INST" columnName="COMPLETED_BY_"/>
+        </preConditions>
+        <dropColumn tableName="ACT_CMMN_RU_PLAN_ITEM_INST" columnName="COMPLETED_BY_"/>
+    </changeSet>
+
+    <changeSet author="sap.com" id="revert_flowable_schema_changes_7_2_0_to_7_1_0_drop_cmmn_historic_assignee">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="ACT_CMMN_HI_PLAN_ITEM_INST" columnName="ASSIGNEE_"/>
+        </preConditions>
+        <dropColumn tableName="ACT_CMMN_HI_PLAN_ITEM_INST" columnName="ASSIGNEE_"/>
+    </changeSet>
+
+    <changeSet author="sap.com" id="revert_flowable_schema_changes_7_2_0_to_7_1_0_drop_cmmn_historic_completed_by">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="ACT_CMMN_HI_PLAN_ITEM_INST" columnName="COMPLETED_BY_"/>
+        </preConditions>
+        <dropColumn tableName="ACT_CMMN_HI_PLAN_ITEM_INST" columnName="COMPLETED_BY_"/>
+    </changeSet>
+
+    <changeSet author="sap.com" id="revert_flowable_schema_changes_7_2_0_to_7_1_0_drop_dmn_foreign_key">
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists foreignKeyName="ACT_FK_DMN_RSRC_DPL"/>
+        </preConditions>
+        <dropForeignKeyConstraint baseTableName="ACT_DMN_DEPLOYMENT_RESOURCE"
+                                  constraintName="ACT_FK_DMN_RSRC_DPL"/>
+    </changeSet>
+
+    <changeSet author="sap.com" id="revert_flowable_schema_changes_7_2_0_to_7_1_0_drop_dmn_index">
+        <preConditions onFail="MARK_RAN">
+            <indexExists tableName="ACT_DMN_DEPLOYMENT_RESOURCE" indexName="ACT_IDX_DMN_RSRC_DPL"/>
+        </preConditions>
+        <dropIndex tableName="ACT_DMN_DEPLOYMENT_RESOURCE"
+                   indexName="ACT_IDX_DMN_RSRC_DPL"/>
+    </changeSet>
+
+    <changeSet author="sap.com" id="revert_flowable_schema_changes_7_2_0_to_7_1_0_drop_event_foreign_key">
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists foreignKeyName="FLW_FK_EVENT_RSRC_DPL"/>
+        </preConditions>
+        <dropForeignKeyConstraint baseTableName="FLW_EVENT_RESOURCE"
+                                  constraintName="FLW_FK_EVENT_RSRC_DPL"/>
+    </changeSet>
+
+    <changeSet author="sap.com" id="revert_flowable_schema_changes_7_2_0_to_7_1_0_drop_event_index">
+        <preConditions onFail="MARK_RAN">
+            <indexExists tableName="FLW_EVENT_RESOURCE" indexName="FLW_IDX_EVENT_RSRC_DPL"/>
+        </preConditions>
+        <dropIndex tableName="FLW_EVENT_RESOURCE"
+                   indexName="FLW_IDX_EVENT_RSRC_DPL"/>
+    </changeSet>
+
+    <changeSet author="sap.com" id="revert_flowable_schema_changes_7_2_0_to_7_1_0_update_act_ge_property_schema_version">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="ACT_GE_PROPERTY"/>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM ACT_GE_PROPERTY WHERE NAME_ = 'schema.version' AND VALUE_ = '7.2.0.2'
+                </sqlCheck>
+            </and>
+        </preConditions>
+
+        <update tableName="ACT_GE_PROPERTY">
+            <column name="VALUE_" value="7.1.0.2"/>
+            <where>NAME_ = 'common.schema.version'</where>
+        </update>
+
+        <update tableName="ACT_GE_PROPERTY">
+            <column name="VALUE_" value="7.1.0.2"/>
+            <where>NAME_ = 'schema.version'</where>
+        </update>
+
+        <update tableName="ACT_GE_PROPERTY">
+            <column name="VALUE_" value="7.1.0.2"/>
+            <where>NAME_ = 'app.schema.version'</where>
+        </update>
+
+        <update tableName="ACT_GE_PROPERTY">
+            <column name="VALUE_" value="7.1.0.2"/>
+            <where>NAME_ = 'cmmn.schema.version'</where>
+        </update>
+
+        <update tableName="ACT_GE_PROPERTY">
+            <column name="VALUE_" value="7.1.0.2"/>
+            <where>NAME_ = 'dmn.schema.version'</where>
+        </update>
+
+        <update tableName="ACT_GE_PROPERTY">
+            <column name="VALUE_" value="7.1.0.2"/>
+            <where>NAME_ = 'eventregistry.schema.version'</where>
+        </update>
+
+        <update tableName="ACT_GE_PROPERTY">
+            <column name="VALUE_" value="upgrade(6.8.0.0->7.1.0.2)"/>
+            <where>NAME_ = 'schema.history'</where>
+        </update>
+    </changeSet>
+
+    <changeSet author="sap.com" id="revert_flowable_schema_changes_7_2_0_to_7_1_0_update_act_id_property_schema_version">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="ACT_ID_PROPERTY"/>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM ACT_ID_PROPERTY WHERE NAME_ = 'schema.version' AND VALUE_ = '7.2.0.2'
+                </sqlCheck>
+            </and>
+        </preConditions>
+
+        <update tableName="ACT_ID_PROPERTY">
+            <column name="VALUE_" value="7.1.0.2"/>
+            <where>NAME_ = 'schema.version'</where>
+        </update>
+    </changeSet>
+</databaseChangeLog>
