@@ -1,8 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -13,15 +18,19 @@ import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysCl
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
+import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -102,7 +111,70 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         var creds = new CloudCredentials(token, true);
 
         CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(creds, context.getVariable(Variables.CORRELATION_ID));
-        return serviceKeysClient.getServiceKeysByMetadataAndGuids(spaceGuid, mtaId, mtaNamespace, deployedMtaServices);
+
+        List<DeployedMtaServiceKey> managedServicesKeys = serviceKeysClient.getServiceKeysByMetadataAndGuids(spaceGuid, mtaId, mtaNamespace,
+                                                                                                             deployedMtaServices);
+        List<DeployedMtaServiceKey> existingServicesKeys = getExistingServicesKeys(context, serviceKeysClient);
+
+        return combineManagedAndExistingServiceKeys(managedServicesKeys, existingServicesKeys);
+    }
+
+    private List<DeployedMtaServiceKey> combineManagedAndExistingServiceKeys(List<DeployedMtaServiceKey> managedServicesKeys,
+                                                                             List<DeployedMtaServiceKey> existingServicesKeys) {
+        Set<DeployedMtaServiceKey> merged = new LinkedHashSet<>();
+        if (managedServicesKeys != null) {
+            merged.addAll(managedServicesKeys);
+        }
+        if (existingServicesKeys != null) {
+            merged.addAll(existingServicesKeys);
+        }
+
+        return new ArrayList<>(merged);
+    }
+
+    private List<DeployedMtaServiceKey> getExistingServicesKeys(ProcessContext context, CustomServiceKeysClient serviceKeysClient) {
+
+        List<String> existingServiceNames = getExistingServiceNamesFromDescriptor(context);
+        List<DeployedMtaServiceKey> existingKeys = Collections.emptyList();
+
+        if (!existingServiceNames.isEmpty()) {
+            CloudControllerClient client = context.getControllerClient();
+
+            List<UUID> existingGuids = new ArrayList<>();
+            for (String name : existingServiceNames) {
+                UUID serviceGuid = client.getServiceInstance(name)
+                                         .getGuid();
+                if (serviceGuid != null) {
+                    existingGuids.add(serviceGuid);
+                }
+            }
+
+            if (!existingGuids.isEmpty()) {
+                existingKeys = serviceKeysClient.getServiceKeysByServiceInstanceGuids(existingGuids);
+            }
+        }
+        return existingKeys;
+
+    }
+
+    private List<String> getExistingServiceNamesFromDescriptor(ProcessContext context) {
+        DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
+
+        if (descriptor == null || descriptor.getResources() == null) {
+            return Collections.emptyList();
+        }
+
+        List<String> existingServicesNames = new ArrayList<>();
+        for (Resource resource : descriptor.getResources()) {
+            ResourceType resourceType = CloudModelBuilderUtil.getResourceType(resource);
+
+            if (resourceType == ResourceType.EXISTING_SERVICE) {
+                existingServicesNames.add(resource.getName());
+            }
+        }
+        return existingServicesNames.stream()
+                                    .distinct()
+                                    .toList();
     }
 
     private void logNoMtaDeployedDetected(String mtaId, String mtaNamespace) {
