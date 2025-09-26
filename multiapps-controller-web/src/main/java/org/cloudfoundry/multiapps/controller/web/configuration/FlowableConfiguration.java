@@ -1,12 +1,12 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-
-import jakarta.inject.Inject;
 import javax.sql.DataSource;
 
+import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
 import org.flowable.common.engine.impl.async.DefaultAsyncTaskExecutor;
@@ -61,6 +61,10 @@ public class FlowableConfiguration {
                                                                        AsyncExecutor jobExecutor,
                                                                        @Lazy FailedJobCommandFactory abortFailedProcessCommandFactory) {
         SpringProcessEngineConfiguration processEngineConfiguration = new SpringProcessEngineConfiguration();
+        //We set custom variable type because when we update a value in the context, we see in your code that it has been updated
+        //but the cache isn't. That's why with custom type we manually update the cache
+        //Link to the Flowable Github issue: https://github.com/flowable/flowable-engine/issues/4130
+        processEngineConfiguration.setCustomPreVariableTypes(List.of(new CustomLongStringType()));
         processEngineConfiguration.setDatabaseSchemaUpdate(DATABASE_SCHEMA_UPDATE);
         processEngineConfiguration.setDataSource(dataSource);
         processEngineConfiguration.setTransactionManager(transactionManager);
@@ -137,5 +141,4 @@ public class FlowableConfiguration {
     public HistoryService historyService(ProcessEngine processEngine) {
         return processEngine.getHistoryService();
     }
-
 }
