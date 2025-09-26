@@ -129,7 +129,7 @@ class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskSt
 
         testExecuteOperations();
 
-        assertEquals(Constants.LONG_DEFAULT_NULL_VALUE, context.getVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP));
+        assertEquals(Constants.UNSET_LAST_LOG_TIMESTAMP_MS, context.getVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP));
     }
 
     private void initializeParameters(CloudTask.State currentTaskState, long currentTime) {

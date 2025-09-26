@@ -59,7 +59,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         if (currentState == CloudTask.State.FAILED) {
             context.getStepLogger()
                    .error(Messages.ERROR_EXECUTING_TASK_0_ON_APP_1, taskToPoll.getName(), app.getName());
-            context.setVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP, Constants.LONG_DEFAULT_NULL_VALUE);
+            context.setVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP, Constants.UNSET_LAST_LOG_TIMESTAMP_MS);
             return AsyncExecutionState.ERROR;
         }
         if (currentState == CloudTask.State.RUNNING || currentState == CloudTask.State.PENDING) {
@@ -78,14 +78,19 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
     private void logStalledTask(ProcessContext context, CloudTask task, CloudApplicationExtended app, CloudTask.State currentState) {
         Long currentTimeNow = System.currentTimeMillis();
         Long lastLog = context.getVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP);
-        if (!lastLog.equals(Constants.LONG_DEFAULT_NULL_VALUE)) {
-            if (currentTimeNow - lastLog >= LOG_INTERVAL_FOR_MESSAGE) {
-                context.getStepLogger()
-                       .info(Messages.TASK_0_ON_APPLICATION_1_IS_STILL_2, task.getName(), app.getName(), currentState.name()
-                                                                                                                     .toLowerCase());
-                context.setVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP, currentTimeNow);
-            }
+        if (!lastLog.equals(Constants.UNSET_LAST_LOG_TIMESTAMP_MS)) {
+            checkIfProgressMessageShouldBeDone(context, task, app, currentState, currentTimeNow, lastLog);
         } else {
+            context.setVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP, currentTimeNow);
+        }
+    }
+
+    private void checkIfProgressMessageShouldBeDone(ProcessContext context, CloudTask task, CloudApplicationExtended app,
+                                                    CloudTask.State currentState, Long currentTimeNow, Long lastLog) {
+        if (currentTimeNow - lastLog >= LOG_INTERVAL_FOR_MESSAGE) {
+            context.getStepLogger()
+                   .info(Messages.TASK_0_ON_APPLICATION_1_IS_STILL_2, task.getName(), app.getName(), currentState.name()
+                                                                                                                 .toLowerCase());
             context.setVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP, currentTimeNow);
         }
     }
