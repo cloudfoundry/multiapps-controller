@@ -1,8 +1,11 @@
 package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -21,6 +24,9 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     private static final String SERVICE_KEYS_RESOURCE_BASE_URI = "/v3/service_credential_bindings";
     private static final String SERVICE_KEYS_BY_METADATA_SELECTOR_URI = SERVICE_KEYS_RESOURCE_BASE_URI + "?type=key&label_selector={value}";
     private static final String INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM = "&include=service_instance";
+
+    private static final String SERVICE_KEYS_BY_SERVICE_GUIDS_URI =
+        SERVICE_KEYS_RESOURCE_BASE_URI + "?type=key&service_instance_guids={guids}" + INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM;
 
     private final CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
 
@@ -45,6 +51,26 @@ public class CustomServiceKeysClient extends CustomControllerClient {
 
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(
             () -> getServiceKeysByMetadataInternal(labelSelector, services));
+    }
+
+    public List<DeployedMtaServiceKey> getServiceKeysByServiceInstanceGuids(Collection<UUID> serviceInstanceGuids) {
+        if (serviceInstanceGuids == null || serviceInstanceGuids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        String guidsCsv = toCsv(serviceInstanceGuids);
+        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(
+            () -> getListOfResources(new ServiceKeysResponseMapper(null),
+                                     SERVICE_KEYS_BY_SERVICE_GUIDS_URI,
+                                     guidsCsv)
+        );
+    }
+
+    private static String toCsv(Collection<?> values) {
+        return values.stream()
+                     .filter(Objects::nonNull)
+                     .map(Object::toString)
+                     .distinct()
+                     .collect(Collectors.joining(","));
     }
 
     private List<DeployedMtaServiceKey> getServiceKeysByMetadataInternal(String labelSelector, List<DeployedMtaService> services) {
