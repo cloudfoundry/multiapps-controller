@@ -208,6 +208,10 @@ public interface Variables {
     Variable<Long> START_TIME = ImmutableSimpleVariable.<Long> builder()
                                                        .name("startTime")
                                                        .build();
+    Variable<Long> LAST_TASK_POLL_LOG_TIMESTAMP = ImmutableSimpleVariable.<Long> builder()
+                                                                         .name("lastTaskPollLogTimestamp")
+                                                                         .defaultValue(0L)
+                                                                         .build();
     Variable<Boolean> SKIP_MANAGE_SERVICE_BROKER = ImmutableSimpleVariable.<Boolean> builder()
                                                                           .name("skipManageServiceBroker")
                                                                           .build();
