@@ -79,14 +79,14 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         Long currentTimeNow = System.currentTimeMillis();
         Long lastLog = context.getVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP);
         if (!lastLog.equals(Constants.UNSET_LAST_LOG_TIMESTAMP_MS)) {
-            checkIfProgressMessageShouldBeDone(context, task, app, currentState, currentTimeNow, lastLog);
+            printTaskExecutionStatusIfDue(context, task, app, currentState, currentTimeNow, lastLog);
         } else {
             context.setVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP, currentTimeNow);
         }
     }
 
-    private void checkIfProgressMessageShouldBeDone(ProcessContext context, CloudTask task, CloudApplicationExtended app,
-                                                    CloudTask.State currentState, Long currentTimeNow, Long lastLog) {
+    private void printTaskExecutionStatusIfDue(ProcessContext context, CloudTask task, CloudApplicationExtended app,
+                                               CloudTask.State currentState, Long currentTimeNow, Long lastLog) {
         if (currentTimeNow - lastLog >= LOG_INTERVAL_FOR_MESSAGE) {
             context.getStepLogger()
                    .info(Messages.TASK_0_ON_APPLICATION_1_IS_STILL_2, task.getName(), app.getName(), currentState.name()
