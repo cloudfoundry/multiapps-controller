@@ -5,15 +5,8 @@ import org.flowable.variable.service.impl.types.LongStringType;
 
 public class CustomLongStringType extends LongStringType {
 
-    private static final String CUSTOM_TYPE_NAME = "deployServiceLongString";
-
-    public CustomLongStringType() {
-        super(4000);
-    }
-
-    @Override
-    public String getTypeName() {
-        return CUSTOM_TYPE_NAME;
+    public CustomLongStringType(int minLength) {
+        super(minLength);
     }
 
     @Override
