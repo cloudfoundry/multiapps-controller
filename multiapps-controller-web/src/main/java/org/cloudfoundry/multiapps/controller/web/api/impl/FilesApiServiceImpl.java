@@ -1,33 +1,17 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpClient.Redirect;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.ProxyInputStream;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.FilesApiService;
 import org.cloudfoundry.multiapps.controller.api.model.AsyncUploadResult;
@@ -36,18 +20,13 @@ import org.cloudfoundry.multiapps.controller.api.model.FileUrl;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableAsyncUploadResult;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableFileMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
-import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
-import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.FilesApiServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
-import org.cloudfoundry.multiapps.controller.core.model.CachedMap;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry.State;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableAsyncUploadJobEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
@@ -56,11 +35,10 @@ import org.cloudfoundry.multiapps.controller.process.util.PriorityCallable;
 import org.cloudfoundry.multiapps.controller.process.util.PriorityFuture;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
+import org.cloudfoundry.multiapps.controller.web.upload.AsyncUploadJobOrchestrator;
+import org.cloudfoundry.multiapps.controller.web.upload.exception.RejectedAsyncUploadJobException;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.cloudfoundry.multiapps.controller.web.util.ServletUtil;
-import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
-import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
-import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -69,25 +47,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 @Named
 public class FilesApiServiceImpl implements FilesApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilesApiServiceImpl.class);
-    private static final int ERROR_RESPONSE_BODY_MAX_LENGTH = 4 * 1024;
-    private static final int INPUT_STREAM_BUFFER_SIZE = 16 * 1024;
-    private static final Duration HTTP_CONNECT_TIMEOUT = Duration.ofMinutes(10);
     private static final String RETRY_AFTER_SECONDS = "30";
-    private static final String USERNAME_PASSWORD_URL_FORMAT = "{0}:{1}";
+    private static final int INPUT_STREAM_BUFFER_SIZE = 16 * 1024;
+    private static final int UPDATE_JOB_TIMEOUT = 30;
+
     static {
         System.setProperty(Constants.RETRY_LIMIT_PROPERTY, "0");
     }
 
-    private final CachedMap<String, AtomicLong> jobCounters = new CachedMap<>(Duration.ofHours(1));
-    private final CachedMap<String, Future<?>> runningTasks = new CachedMap<>(Duration.ofHours(1));
-    private final ResilientOperationExecutor resilientOperationExecutor = getResilientOperationExecutor();
     @Inject
     @Named("fileService")
     private FileService fileService;
@@ -98,10 +69,9 @@ public class FilesApiServiceImpl implements FilesApiService {
     @Inject
     private AsyncUploadJobService uploadJobService;
     @Inject
-    @Named("asyncFileUploadExecutor")
-    private ExecutorService deployFromUrlExecutor;
-    @Inject
     private FilesApiServiceAuditLog filesApiServiceAuditLog;
+    @Inject
+    private AsyncUploadJobOrchestrator asyncUploadJobOrchestrator;
     @Inject
     private ExecutorService fileStorageThreadPool;
 
@@ -148,19 +118,23 @@ public class FilesApiServiceImpl implements FilesApiService {
         LOGGER.trace(Messages.RECEIVED_UPLOAD_FROM_URL_REQUEST, urlWithoutUserInfo);
         filesApiServiceAuditLog.logStartUploadFromUrl(SecurityContextUtil.getUsername(), spaceGuid, decodedUrl);
         var existingJob = getExistingJob(spaceGuid, namespace, urlWithoutUserInfo);
-        if (existingJob != null) {
-            if (runningTasks.get(existingJob.getId()) != null) {
-                LOGGER.info(Messages.ASYNC_UPLOAD_JOB_EXISTS, urlWithoutUserInfo, existingJob);
-                return ResponseEntity.status(HttpStatus.SEE_OTHER)
-                                     .header(HttpHeaders.LOCATION, getLocationHeader(spaceGuid, existingJob.getId()))
-                                     .header("x-cf-app-instance", configuration.getApplicationGuid() + ":" + existingJob.getInstanceIndex())
-                                     .build();
-            } else {
-                LOGGER.warn(Messages.THE_JOB_EXISTS_BUT_IT_IS_NOT_RUNNING_DELETING);
-                deleteAsyncJobEntry(existingJob);
-            }
+        if (existingJob == null) {
+            return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, fileUrl.getUserCredentials());
         }
-        return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, fileUrl.getUserCredentials());
+        if (hasJobStuck(existingJob)) {
+            deleteAsyncJobEntry(existingJob);
+            return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, fileUrl.getUserCredentials());
+        }
+        LOGGER.info(Messages.ASYNC_UPLOAD_JOB_EXISTS, urlWithoutUserInfo, existingJob);
+        return ResponseEntity.status(HttpStatus.SEE_OTHER)
+                             .header(HttpHeaders.LOCATION, getLocationHeader(spaceGuid, existingJob.getId()))
+                             .build();
+    }
+
+    private boolean hasJobStuck(AsyncUploadJobEntry existingJob) {
+        return existingJob.getUpdatedAt()
+                          .isBefore(LocalDateTime.now()
+                                                 .minusSeconds(UPDATE_JOB_TIMEOUT));
     }
 
     private String getLocationHeader(String spaceGuid, String jobId) {
@@ -175,51 +149,37 @@ public class FilesApiServiceImpl implements FilesApiService {
             return ResponseEntity.notFound()
                                  .build();
         }
-        return getAsyncUploadResult(spaceGuid, namespace, job);
+        return getAsyncUploadResult(job);
     }
 
-    private ResponseEntity<AsyncUploadResult> getAsyncUploadResult(String spaceGuid, String namespace, AsyncUploadJobEntry job) {
+    private ResponseEntity<AsyncUploadResult> getAsyncUploadResult(AsyncUploadJobEntry job) {
         if (job.getState() == State.RUNNING || job.getState() == State.INITIAL) {
-            Future<?> futureTask = runningTasks.get(job.getId());
-            if (futureTask == null) {
-                LOGGER.error(MessageFormat.format(Messages.JOB_0_WAS_NOT_FOUND_IN_THE_RUNNING_TASKS, job.getId()));
-                return ResponseEntity.ok(createErrorResult(Messages.JOB_IS_NOT_BEING_EXECUTED,
-                                                           AsyncUploadResult.ClientAction.RETRY_UPLOAD));
+            if (hasJobStuck(job)) {
+                LOGGER.info(Messages.JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS, job.getId(), UPDATE_JOB_TIMEOUT);
+                return ResponseEntity.ok(
+                    createErrorResult(MessageFormat.format(Messages.JOB_NOT_UPDATED_FOR_0_SECONDS, UPDATE_JOB_TIMEOUT),
+                                      AsyncUploadResult.ClientAction.RETRY_UPLOAD));
             }
-            if (!futureTask.isDone()) {
-                var count = jobCounters.getOrDefault(job.getId(), new AtomicLong(-1));
-                return ResponseEntity.ok(ImmutableAsyncUploadResult.builder()
-                                                                   .status(AsyncUploadResult.JobStatus.RUNNING)
-                                                                   .bytes(count.get())
-                                                                   .build());
-            }
-            var jobWithLatestState = getJob(job.getId(), spaceGuid, namespace);
-            if (jobWithLatestState.getState() == State.RUNNING || jobWithLatestState.getState() == State.INITIAL) {
-                LOGGER.error(MessageFormat.format(Messages.JOB_0_EXISTS_IN_STATE_1_BUT_DOES_NOT_EXISTS_IN_THE_RUNNING_TASKS, job.getId(),
-                                                  jobWithLatestState.getState()));
-                return ResponseEntity.ok(createErrorResult(Messages.JOB_THREAD_IS_NOT_RUNNING_BUT_STATE_IS_STILL_IN_PROGRESS_UPLOAD_FAILED,
-                                                           AsyncUploadResult.ClientAction.RETRY_UPLOAD));
-            }
+            return ResponseEntity.ok(ImmutableAsyncUploadResult.builder()
+                                                               .status(AsyncUploadResult.JobStatus.RUNNING)
+                                                               .bytes(job.getBytesRead())
+                                                               .build());
         }
         if (job.getState() == State.ERROR) {
-            jobCounters.remove(job.getId());
-            runningTasks.remove(job.getId());
             return ResponseEntity.ok(createErrorResult(job.getError()));
         }
-        return addFileEntryToAsyncUploadResult(spaceGuid, job);
+        return addFileEntryToAsyncUploadResult(job);
     }
 
-    private ResponseEntity<AsyncUploadResult> addFileEntryToAsyncUploadResult(String spaceGuid, AsyncUploadJobEntry job) {
+    private ResponseEntity<AsyncUploadResult> addFileEntryToAsyncUploadResult(AsyncUploadJobEntry job) {
         FileEntry fileEntry;
         try {
-            fileEntry = fileService.getFile(spaceGuid, job.getFileId());
+            fileEntry = fileService.getFile(job.getSpaceGuid(), job.getFileId());
         } catch (FileStorageException e) {
-            LOGGER.error(MessageFormat.format(Messages.FETCHING_FILE_FAILED, job.getFileId(), spaceGuid, e.getMessage()), e);
+            LOGGER.error(MessageFormat.format(Messages.FETCHING_FILE_FAILED, job.getFileId(), job.getSpaceGuid(), e.getMessage()), e);
             return ResponseEntity.ok(createErrorResult(e.getMessage()));
         }
         FileMetadata file = parseFileEntry(fileEntry);
-        jobCounters.remove(job.getId());
-        runningTasks.remove(job.getId());
         return ResponseEntity.status(HttpStatus.CREATED)
                              .body(ImmutableAsyncUploadResult.builder()
                                                              .status(AsyncUploadResult.JobStatus.FINISHED)
@@ -254,10 +214,6 @@ public class FilesApiServiceImpl implements FilesApiService {
                                    in);
     }
 
-    protected ResilientOperationExecutor getResilientOperationExecutor() {
-        return new ResilientOperationExecutor();
-    }
-
     private FileMetadata parseFileEntry(FileEntry fileEntry) {
         return ImmutableFileMetadata.builder()
                                     .id(fileEntry.getId())
@@ -276,7 +232,6 @@ public class FilesApiServiceImpl implements FilesApiService {
                                    .user(SecurityContextUtil.getUsername())
                                    .namespace(namespace)
                                    .url(url)
-                                   .instanceIndex(configuration.getApplicationInstanceIndex())
                                    .withoutFinishedAt()
                                    .withStateAnyOf(State.INITIAL, State.RUNNING)
                                    .list();
@@ -295,39 +250,21 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     private ResponseEntity<Void> triggerUploadFromUrl(String spaceGuid, String namespace, String urlWithoutUserInfo, String decodedUrl,
                                                       UserCredentials userCredentials) {
-        var entry = createJobEntry(spaceGuid, namespace, urlWithoutUserInfo);
-        LOGGER.debug(Messages.CREATING_ASYNC_UPLOAD_JOB, urlWithoutUserInfo, entry.getId());
-        uploadJobService.add(entry);
         try {
-            Future<?> runningTask = deployFromUrlExecutor.submit(() -> uploadFileFromUrl(entry, spaceGuid, namespace, decodedUrl,
-                                                                                         userCredentials));
-            runningTasks.put(entry.getId(), runningTask);
-        } catch (RejectedExecutionException ignored) {
-            LOGGER.debug(Messages.ASYNC_UPLOAD_JOB_REJECTED, entry.getId());
-            deleteAsyncJobEntry(entry);
+            AsyncUploadJobEntry entry = asyncUploadJobOrchestrator.executeUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo,
+                                                                                        decodedUrl, userCredentials);
+            return ResponseEntity.accepted()
+                                 .header(HttpHeaders.LOCATION, getLocationHeader(spaceGuid, entry.getId()))
+                                 .build();
+        } catch (RejectedAsyncUploadJobException rejectedJobException) {
+            LOGGER.debug(Messages.ASYNC_UPLOAD_JOB_REJECTED, spaceGuid, namespace, urlWithoutUserInfo);
+            if (rejectedJobException.getAsyncUploadJobEntry() != null) {
+                deleteAsyncJobEntry(rejectedJobException.getAsyncUploadJobEntry());
+            }
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                                  .header(HttpHeaders.RETRY_AFTER, RETRY_AFTER_SECONDS)
                                  .build();
         }
-        return ResponseEntity.accepted()
-                             .header("x-cf-app-instance",
-                                     configuration.getApplicationGuid() + ":" + configuration.getApplicationInstanceIndex())
-                             .header(HttpHeaders.LOCATION, getLocationHeader(spaceGuid, entry.getId()))
-                             .build();
-    }
-
-    private AsyncUploadJobEntry createJobEntry(String spaceGuid, String namespace, String url) {
-        return ImmutableAsyncUploadJobEntry.builder()
-                                           .id(UUID.randomUUID()
-                                                   .toString())
-                                           .user(SecurityContextUtil.getUsername())
-                                           .addedAt(LocalDateTime.now())
-                                           .spaceGuid(spaceGuid)
-                                           .namespace(namespace)
-                                           .instanceIndex(configuration.getApplicationInstanceIndex())
-                                           .url(url)
-                                           .state(State.INITIAL)
-                                           .build();
     }
 
     private AsyncUploadJobEntry getJob(String id, String spaceGuid, String namespace) {
@@ -338,7 +275,6 @@ public class FilesApiServiceImpl implements FilesApiService {
                                    .spaceGuid(spaceGuid)
                                    .user(SecurityContextUtil.getUsername())
                                    .namespace(namespace)
-                                   .instanceIndex(configuration.getApplicationInstanceIndex())
                                    .list();
         return jobs.isEmpty() ? null : jobs.get(0);
     }
@@ -349,184 +285,6 @@ public class FilesApiServiceImpl implements FilesApiService {
                                          .error(error)
                                          .clientActions(List.of(clientActions))
                                          .build();
-    }
-
-    private void uploadFileFromUrl(AsyncUploadJobEntry jobEntry, String spaceGuid, String namespace, String fileUrl,
-                                   UserCredentials userCredentials) {
-        var counter = new AtomicLong(0);
-        jobCounters.put(jobEntry.getId(), counter);
-        LOGGER.info(Messages.STARTING_DOWNLOAD_OF_MTAR, jobEntry.getUrl());
-        var startTime = LocalDateTime.now();
-        AsyncUploadJobEntry jobEntryWithStartTime = ImmutableAsyncUploadJobEntry.copyOf(jobEntry)
-                                                                                .withState(State.RUNNING)
-                                                                                .withStartedAt(startTime);
-        try {
-            jobEntryWithStartTime = uploadJobService.update(jobEntry, jobEntryWithStartTime);
-            FileEntry fileEntry = resilientOperationExecutor.execute((CheckedSupplier<FileEntry>) () -> doUploadFileFromUrl(spaceGuid,
-                                                                                                                            namespace,
-                                                                                                                            fileUrl,
-                                                                                                                            counter,
-                                                                                                                            userCredentials));
-            LOGGER.trace(Messages.UPLOADED_MTAR_FROM_REMOTE_ENDPOINT_AND_JOB_ID, jobEntry.getUrl(), jobEntry.getId(),
-                         ChronoUnit.MILLIS.between(startTime, LocalDateTime.now()));
-            var descriptor = fileService.processFileContent(spaceGuid, fileEntry.getId(), this::extractDeploymentDescriptor);
-            LOGGER.debug(Messages.ASYNC_UPLOAD_JOB_FINISHED, jobEntry.getId());
-            uploadJobService.update(jobEntryWithStartTime, ImmutableAsyncUploadJobEntry.copyOf(jobEntryWithStartTime)
-                                                                                       .withFileId(fileEntry.getId())
-                                                                                       .withMtaId(descriptor.getId())
-                                                                                       .withFinishedAt(LocalDateTime.now())
-                                                                                       .withState(State.FINISHED));
-        } catch (Exception e) {
-            LOGGER.error(MessageFormat.format(Messages.ASYNC_UPLOAD_JOB_FAILED, jobEntry.getId(), e.getMessage()), e);
-            uploadJobService.update(jobEntryWithStartTime, ImmutableAsyncUploadJobEntry.copyOf(jobEntryWithStartTime)
-                                                                                       .withError(e.getMessage())
-                                                                                       .withState(State.ERROR));
-        }
-    }
-
-    private FileEntry doUploadFileFromUrl(String spaceGuid, String namespace, String fileUrl, AtomicLong counter,
-                                          UserCredentials userCredentials)
-        throws Exception {
-        if (!UriUtil.isUrlSecure(fileUrl)) {
-            throw new SLException(Messages.MTAR_ENDPOINT_NOT_SECURE);
-        }
-        UriUtil.validateUrl(fileUrl);
-        HttpClient client = buildHttpClient(fileUrl);
-
-        HttpResponse<InputStream> response = callRemoteEndpointWithRetry(client, fileUrl, userCredentials);
-        long fileSize = response.headers()
-                                .firstValueAsLong(Constants.CONTENT_LENGTH)
-                                .orElseThrow(() -> new SLException(Messages.FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH));
-
-        long maxUploadSize = configuration.getMaxUploadSize();
-        if (fileSize > maxUploadSize) {
-            throw new SLException(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED, maxUploadSize));
-        }
-
-        String fileName = extractFileName(fileUrl);
-        FileUtils.validateFileHasExtension(fileName);
-        resetCounterOnRetry(counter);
-        // Normal stream returned from the http response always returns 0 when InputStream::available() is executed which seems to break
-        // JClods library: https://issues.apache.org/jira/browse/JCLOUDS-1623
-        try (CountingInputStream source = new CountingInputStream(response.body(), counter);
-            BufferedInputStream bufferedContent = new BufferedInputStream(source, INPUT_STREAM_BUFFER_SIZE)) {
-            LOGGER.debug(Messages.UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT, response.uri());
-            return fileService.addFile(ImmutableFileEntry.builder()
-                                                         .space(spaceGuid)
-                                                         .namespace(namespace)
-                                                         .name(fileName)
-                                                         .size(BigInteger.valueOf(fileSize))
-                                                         .build(),
-                                       bufferedContent);
-        }
-    }
-
-    public HttpResponse<InputStream> callRemoteEndpointWithRetry(HttpClient client, String decodedUrl, UserCredentials userCredentials)
-        throws Exception {
-        return resilientOperationExecutor.execute((CheckedSupplier<HttpResponse<InputStream>>) () -> {
-            var request = buildFetchFileRequest(decodedUrl, userCredentials);
-            LOGGER.debug(Messages.CALLING_REMOTE_MTAR_ENDPOINT, getMaskedUri(urlDecodeUrl(decodedUrl)));
-            var response = client.send(request, BodyHandlers.ofInputStream());
-            if (response.statusCode() / 100 != 2) {
-                String error = readErrorBodyFromResponse(response);
-                LOGGER.error(error);
-                if (response.statusCode() == HttpStatus.UNAUTHORIZED.value()) {
-                    String errorMessage = MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS,
-                                                               UriUtil.stripUserInfo(decodedUrl));
-                    throw new SLException(errorMessage);
-                }
-                throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, getMaskedUri(urlDecodeUrl(decodedUrl)),
-                                                           response.statusCode(), error));
-            }
-            return response;
-        });
-    }
-
-    private String getMaskedUri(String url) {
-        if (url.contains("@")) {
-            return url.substring(url.lastIndexOf("@"))
-                      .replace("@", "...");
-        } else {
-            return url;
-        }
-    }
-
-    private String urlDecodeUrl(String url) {
-        return URLDecoder.decode(url, StandardCharsets.UTF_8);
-    }
-
-    private void resetCounterOnRetry(AtomicLong counter) {
-        counter.set(0);
-    }
-
-    protected HttpClient buildHttpClient(String decodedUrl) {
-        return HttpClient.newBuilder()
-                         .version(HttpClient.Version.HTTP_2)
-                         .connectTimeout(HTTP_CONNECT_TIMEOUT)
-                         .followRedirects(Redirect.NORMAL)
-                         .build();
-    }
-
-    private HttpRequest buildFetchFileRequest(String decodedUrl, UserCredentials userCredentials) {
-        var builder = HttpRequest.newBuilder()
-                                 .GET()
-                                 .timeout(Duration.ofMinutes(15));
-        var uri = URI.create(decodedUrl);
-        var userInfo = uri.getUserInfo();
-        if (userCredentials != null) {
-            builder.uri(uri);
-            String userCredentialsUrlFormat = MessageFormat.format(USERNAME_PASSWORD_URL_FORMAT, userCredentials.getUsername(),
-                                                                   userCredentials.getPassword());
-            String encodedAuth = Base64.getEncoder()
-                                       .encodeToString(userCredentialsUrlFormat.getBytes());
-            builder.header(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
-        } else if (userInfo != null) {
-            builder.uri(URI.create(decodedUrl.replace(uri.getRawUserInfo() + "@", "")));
-            String encodedAuth = Base64.getEncoder()
-                                       .encodeToString(userInfo.getBytes());
-            builder.header(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
-        } else {
-            builder.uri(uri);
-        }
-        return builder.build();
-    }
-
-    private String readErrorBodyFromResponse(HttpResponse<InputStream> response) throws IOException {
-        try (InputStream is = response.body()) {
-            byte[] buffer = new byte[ERROR_RESPONSE_BODY_MAX_LENGTH];
-            int read = IOUtils.read(is, buffer);
-            return new String(Arrays.copyOf(buffer, read));
-        }
-    }
-
-    private String extractFileName(String url) {
-        String path = URI.create(url)
-                         .getPath();
-        if (path.indexOf('/') == -1) {
-            return path;
-        }
-        String[] pathFragments = path.split("/");
-        return pathFragments[pathFragments.length - 1];
-    }
-
-    private DeploymentDescriptor extractDeploymentDescriptor(InputStream appArchiveStream) {
-        String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, configuration.getMaxMtaDescriptorSize());
-        DescriptorParserFacade descriptorParserFacade = descriptorParserFactory.getInstance();
-        return descriptorParserFacade.parseDeploymentDescriptor(descriptorString);
-    }
-
-    private static class CountingInputStream extends ProxyInputStream {
-        private final AtomicLong bytes;
-
-        public CountingInputStream(InputStream proxy, AtomicLong counterRef) {
-            super(proxy);
-            bytes = counterRef;
-        }
-
-        @Override
-        protected void afterRead(int n) {
-            bytes.addAndGet(n);
-        }
     }
 
 }

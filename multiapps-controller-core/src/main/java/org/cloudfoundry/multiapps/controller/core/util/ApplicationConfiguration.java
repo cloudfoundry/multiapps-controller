@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
@@ -27,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.support.CronExpression;
-
 import static java.text.MessageFormat.format;
 
 @Named
@@ -96,6 +94,7 @@ public class ApplicationConfiguration {
     static final String CFG_ABORTED_OPERATIONS_TTL_IN_MINUTES = "ABORTED_OPERATIONS_TTL_IN_SECONDS";
     static final String CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = "SPRING_SCHEDULER_TASK_EXECUTOR_THREADS";
     static final String CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = "FILES_ASYNC_UPLOAD_EXECUTOR_THREADS";
+    static final String CFG_DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS = "DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS";
     static final String CFG_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER = "ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER";
     static final String CFG_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = "THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER";
     static final String CFG_THREADS_FOR_FILE_STORAGE_UPLOAD = "THREADS_FOR_FILE_STORAGE_UPLOAD";
@@ -153,6 +152,7 @@ public class ApplicationConfiguration {
     public static final String DEFAULT_GLOBAL_AUDITOR_ORIGIN = "uaa";
     public static final int DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = 3;
     public static final int DEFAULT_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = 6;
+    public static final int DEFAULT_DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS = 26;
     public static final boolean DEFAULT_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER = false;
     public static final int DEFAULT_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = 6;
     public static final int DEFAULT_THREADS_FOR_FILE_STORAGE_UPLOAD = 7;
@@ -211,6 +211,7 @@ public class ApplicationConfiguration {
     private Integer abortedOperationsTtlInSeconds;
     private Integer springSchedulerTaskExecutorThreads;
     private Integer filesAsyncUploadExecutorThreads;
+    private Integer deployFromUrlExecutorMaxThreads;
     private Boolean isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment;
     private Integer threadsForFileUploadToController;
     private Integer threadsForFileStorageUpload;
@@ -264,6 +265,7 @@ public class ApplicationConfiguration {
         getServiceHandlingMaxParallelThreads();
         getAbortedOperationsTtlInSeconds();
         getFilesAsyncUploadExecutorMaxThreads();
+        getDeployFromUrlExecutorMaxThreads();
         getObjectStoreRegions();
         getIsReadinessHealthCheckEnabled();
     }
@@ -405,6 +407,13 @@ public class ApplicationConfiguration {
             filesAsyncUploadExecutorThreads = getFilesAsyncUploadExecutorMaxThreadsFromEnvironment();
         }
         return filesAsyncUploadExecutorThreads;
+    }
+
+    public Integer getDeployFromUrlExecutorMaxThreads() {
+        if (deployFromUrlExecutorMaxThreads == null) {
+            deployFromUrlExecutorMaxThreads = getDeployFromUrlExecutorMaxThreadsFromEnvironment();
+        }
+        return deployFromUrlExecutorMaxThreads;
     }
 
     public String getGlobalAuditorUser() {
@@ -829,6 +838,12 @@ public class ApplicationConfiguration {
         Integer value = environment.getInteger(CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS,
                                                DEFAULT_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS);
         logEnvironmentVariable(CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS, Messages.FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS, value);
+        return value;
+    }
+
+    private Integer getDeployFromUrlExecutorMaxThreadsFromEnvironment() {
+        Integer value = environment.getInteger(CFG_DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS, DEFAULT_DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS);
+        logEnvironmentVariable(CFG_DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS, Messages.DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS, value);
         return value;
     }
 
