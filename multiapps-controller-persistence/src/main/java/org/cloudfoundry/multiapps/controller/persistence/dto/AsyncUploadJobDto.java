@@ -1,12 +1,10 @@
 package org.cloudfoundry.multiapps.controller.persistence.dto;
 
 import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata;
 
 @Entity
@@ -31,6 +29,8 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
         public static final String FILE_ID = "fileId";
         public static final String ERROR = "error";
         public static final String INSTANCE_INDEX = "instanceIndex";
+        public static final String BYTES_READ = "bytesRead";
+        public static final String UPDATED_AT = "updatedAt";
     }
 
     @Id
@@ -73,13 +73,19 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
     @Column(name = PersistenceMetadata.TableColumnNames.ASYNC_UPLOAD_JOB_INSTANCE_INDEX, nullable = false)
     private Integer instanceIndex;
 
+    @Column(name = PersistenceMetadata.TableColumnNames.ASYNC_UPLOAD_JOB_BYTES_READ)
+    private Long bytesRead;
+
+    @Column(name = PersistenceMetadata.TableColumnNames.ASYNC_UPLOAD_JOB_UPDATED_AT)
+    private LocalDateTime updatedAt;
+
     public AsyncUploadJobDto() {
         // Required by JPA
     }
 
     public AsyncUploadJobDto(String id, String mtaUser, String state, String url, LocalDateTime addedAt, LocalDateTime startedAt,
                              LocalDateTime finishedAt, String namespace, String spaceGuid, String mtaId, String fileId, String error,
-                             Integer instanceIndex) {
+                             Integer instanceIndex, Long bytesRead, LocalDateTime updatedAt) {
         this.id = id;
         this.mtaUser = mtaUser;
         this.state = state;
@@ -93,6 +99,8 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
         this.fileId = fileId;
         this.error = error;
         this.instanceIndex = instanceIndex;
+        this.bytesRead = bytesRead;
+        this.updatedAt = updatedAt;
     }
 
     @Override
@@ -201,22 +209,40 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
         this.instanceIndex = instanceIndex;
     }
 
+    public Long getBytesRead() {
+        return bytesRead;
+    }
+
+    public void setBytesRead(Long bytesRead) {
+        this.bytesRead = bytesRead;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     @Override
     public String toString() {
         return "AsyncUploadJobDto{" +
-                "id='" + id + '\'' +
-                ", mtaUser='" + mtaUser + '\'' +
-                ", state='" + state + '\'' +
-                ", url='" + url + '\'' +
-                ", addedAt=" + addedAt +
-                ", startedAt=" + startedAt +
-                ", finishedAt=" + finishedAt +
-                ", namespace='" + namespace + '\'' +
-                ", spaceGuid='" + spaceGuid + '\'' +
-                ", mtaId='" + mtaId + '\'' +
-                ", fileId='" + fileId + '\'' +
-                ", error='" + error + '\'' +
-                ", instanceIndex=" + instanceIndex +
-                '}';
+            "id='" + id + '\'' +
+            ", mtaUser='" + mtaUser + '\'' +
+            ", state='" + state + '\'' +
+            ", url='" + url + '\'' +
+            ", addedAt=" + addedAt +
+            ", startedAt=" + startedAt +
+            ", finishedAt=" + finishedAt +
+            ", namespace='" + namespace + '\'' +
+            ", spaceGuid='" + spaceGuid + '\'' +
+            ", mtaId='" + mtaId + '\'' +
+            ", fileId='" + fileId + '\'' +
+            ", error='" + error + '\'' +
+            ", instanceIndex=" + instanceIndex +
+            ", bytesRead=" + bytesRead +
+            ", updatedAt=" + updatedAt +
+            '}';
     }
 }
