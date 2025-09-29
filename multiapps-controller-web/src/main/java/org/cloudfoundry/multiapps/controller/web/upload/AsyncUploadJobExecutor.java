@@ -1,0 +1,365 @@
+package org.cloudfoundry.multiapps.controller.web.upload;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import org.apache.commons.io.IOUtils;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
+import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
+import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
+import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
+import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
+import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
+import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableAsyncUploadJobEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
+import org.cloudfoundry.multiapps.controller.web.Constants;
+import org.cloudfoundry.multiapps.controller.web.Messages;
+import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
+import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
+import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+
+@Named
+public class AsyncUploadJobExecutor {
+
+    private static final int INPUT_STREAM_BUFFER_SIZE = 16 * 1024;
+
+    private static final Duration HTTP_CONNECT_TIMEOUT = Duration.ofMinutes(10);
+    private static final String USERNAME_PASSWORD_URL_FORMAT = "{0}:{1}";
+    private static final int ERROR_RESPONSE_BODY_MAX_LENGTH = 4 * 1024;
+
+    private static final long WAIT_TIME_BETWEEN_ASYNC_JOB_UPDATES_IN_MILLIS = Duration.ofSeconds(3)
+                                                                                      .toMillis();
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncUploadJobExecutor.class);
+    private final ResilientOperationExecutor resilientOperationExecutor = getResilientOperationExecutor();
+
+    private final ExecutorService asyncFileUploadExecutor;
+    private final ExecutorService deployFromUrlExecutor;
+    private final ApplicationConfiguration applicationConfiguration;
+    private final AsyncUploadJobService asyncUploadJobService;
+    private final FileService fileService;
+    private final DescriptorParserFacadeFactory descriptorParserFactory;
+    private final HttpClient httpClient;
+
+    @Inject
+    public AsyncUploadJobExecutor(ExecutorService asyncFileUploadExecutor, ExecutorService deployFromUrlExecutor,
+                                  ApplicationConfiguration applicationConfiguration, AsyncUploadJobService asyncUploadJobService,
+                                  FileService fileService, DescriptorParserFacadeFactory descriptorParserFactory) {
+        this.asyncFileUploadExecutor = asyncFileUploadExecutor;
+        this.deployFromUrlExecutor = deployFromUrlExecutor;
+        this.applicationConfiguration = applicationConfiguration;
+        this.asyncUploadJobService = asyncUploadJobService;
+        this.fileService = fileService;
+        this.descriptorParserFactory = descriptorParserFactory;
+        httpClient = buildHttpClient();
+    }
+
+    public AsyncUploadJobEntry executeUploadFromUrl(String spaceGuid, String namespace, String urlWithoutUserInfo, String decodedUrl,
+                                                    UserCredentials userCredentials) {
+        var entry = createJobEntry(spaceGuid, namespace, urlWithoutUserInfo);
+        LOGGER.info(Messages.CREATING_ASYNC_UPLOAD_JOB, urlWithoutUserInfo, entry.getId());
+        asyncUploadJobService.add(entry);
+        deployFromUrlExecutor.submit(() -> deployFromUrl(entry, decodedUrl, userCredentials));
+        return entry;
+    }
+
+    private AsyncUploadJobEntry createJobEntry(String spaceGuid, String namespace, String url) {
+        return ImmutableAsyncUploadJobEntry.builder()
+                                           .id(UUID.randomUUID()
+                                                   .toString())
+                                           .user(SecurityContextUtil.getUsername())
+                                           .addedAt(LocalDateTime.now())
+                                           .spaceGuid(spaceGuid)
+                                           .namespace(namespace)
+                                           .instanceIndex(applicationConfiguration.getApplicationInstanceIndex())
+                                           .url(url)
+                                           .state(AsyncUploadJobEntry.State.INITIAL)
+                                           .updatedAt(LocalDateTime.now())
+                                           .bytesRead(0L)
+                                           .build();
+    }
+
+    private void deployFromUrl(AsyncUploadJobEntry jobEntry, String fileUrl, UserCredentials userCredentials) {
+        LOGGER.info(Messages.STARTING_DOWNLOAD_OF_MTAR, jobEntry.getUrl());
+        var startTime = LocalDateTime.now();
+        Lock lock = new ReentrantLock();
+        AtomicLong counterRef = new AtomicLong();
+        try {
+            var updatedJobEntry = asyncUploadJobService.update(jobEntry, ImmutableAsyncUploadJobEntry.copyOf(jobEntry)
+                                                                                                     .withState(
+                                                                                                         AsyncUploadJobEntry.State.RUNNING)
+                                                                                                     .withUpdatedAt(LocalDateTime.now())
+                                                                                                     .withStartedAt(startTime));
+            startAsyncUploadFromUrlUpload(ImmutableUploadFromUrlContext.builder()
+                                                                       .jobEntry(updatedJobEntry)
+                                                                       .fileUrl(fileUrl)
+                                                                       .userCredentials(userCredentials)
+                                                                       .counterRef(counterRef)
+                                                                       .startTime(startTime)
+                                                                       .build(), lock);
+            updatedJobEntry = asyncUploadJobService.createQuery()
+                                                   .id(updatedJobEntry.getId())
+                                                   .singleResult();
+            monitorAsyncUploadJob(updatedJobEntry, lock, counterRef);
+        } catch (Exception e) {
+            LOGGER.error(MessageFormat.format(Messages.ASYNC_UPLOAD_JOB_FAILED, jobEntry.getId(), e.getMessage()), e);
+            updateFailedAsyncUploadJob(jobEntry, e, lock);
+        }
+    }
+
+    private void startAsyncUploadFromUrlUpload(UploadFromUrlContext uploadFromUrlContext, Lock lock) {
+        asyncFileUploadExecutor.submit(() -> {
+            try {
+                startSyncUploadFromUrlUpload(uploadFromUrlContext, lock);
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+                updateFailedAsyncUploadJob(uploadFromUrlContext.getJobEntry(), e, lock);
+                throw new SLException(e, e.getMessage());
+            }
+        });
+    }
+
+    private void startSyncUploadFromUrlUpload(UploadFromUrlContext uploadFromUrlContext, Lock lock) throws Exception {
+        FileEntry fileEntry = resilientOperationExecutor.execute(
+            (CheckedSupplier<FileEntry>) () -> doUploadMtarFromUrl(uploadFromUrlContext, lock));
+        LOGGER.trace(Messages.UPLOADED_MTAR_FROM_REMOTE_ENDPOINT_AND_JOB_ID, uploadFromUrlContext.getJobEntry()
+                                                                                                 .getUrl(),
+                     uploadFromUrlContext.getJobEntry()
+                                         .getId(), ChronoUnit.MILLIS.between(uploadFromUrlContext.getStartTime(), LocalDateTime.now()));
+        var descriptor = fileService.processFileContent(uploadFromUrlContext.getJobEntry()
+                                                                            .getSpaceGuid(), fileEntry.getId(),
+                                                        this::extractDeploymentDescriptor);
+        LOGGER.debug(Messages.ASYNC_UPLOAD_JOB_FINISHED, uploadFromUrlContext.getJobEntry()
+                                                                             .getId());
+        try {
+            lock.lock();
+            var uploadedEntry = asyncUploadJobService.createQuery()
+                                                     .id(uploadFromUrlContext.getJobEntry()
+                                                                             .getId())
+                                                     .singleResult();
+            asyncUploadJobService.update(uploadedEntry, ImmutableAsyncUploadJobEntry.copyOf(uploadedEntry)
+                                                                                    .withFileId(fileEntry.getId())
+                                                                                    .withMtaId(descriptor.getId())
+                                                                                    .withFinishedAt(LocalDateTime.now())
+                                                                                    .withUpdatedAt(LocalDateTime.now())
+                                                                                    .withBytesRead(uploadFromUrlContext.getCounterRef()
+                                                                                                                       .get())
+                                                                                    .withState(AsyncUploadJobEntry.State.FINISHED));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private FileEntry doUploadMtarFromUrl(UploadFromUrlContext uploadFromUrlContext, Lock lock) throws Exception {
+        if (!UriUtil.isUrlSecure(uploadFromUrlContext.getFileUrl())) {
+            throw new SLException(Messages.MTAR_ENDPOINT_NOT_SECURE);
+        }
+        UriUtil.validateUrl(uploadFromUrlContext.getFileUrl());
+
+        HttpResponse<InputStream> response = callRemoteEndpointWithRetry(uploadFromUrlContext.getFileUrl(),
+                                                                         uploadFromUrlContext.getUserCredentials());
+        long fileSize = response.headers()
+                                .firstValueAsLong(Constants.CONTENT_LENGTH)
+                                .orElseThrow(() -> new SLException(Messages.FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH));
+
+        long maxUploadSize = applicationConfiguration.getMaxUploadSize();
+        if (fileSize > maxUploadSize) {
+            throw new SLException(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED, maxUploadSize));
+        }
+
+        String fileName = extractFileName(uploadFromUrlContext.getFileUrl());
+        FileUtils.validateFileHasExtension(fileName);
+        resetCounterOnRetry(uploadFromUrlContext.getJobEntry()
+                                                .getId(), lock);
+        // Normal stream returned from the http response always returns 0 when InputStream::available() is executed which seems to break
+        // JClods library: https://issues.apache.org/jira/browse/JCLOUDS-1623
+        try (CountingInputStream source = new CountingInputStream(response.body(), uploadFromUrlContext.getCounterRef());
+            BufferedInputStream bufferedContent = new BufferedInputStream(source, INPUT_STREAM_BUFFER_SIZE)) {
+            LOGGER.debug(Messages.UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT, response.uri());
+            return fileService.addFile(ImmutableFileEntry.builder()
+                                                         .space(uploadFromUrlContext.getJobEntry()
+                                                                                    .getSpaceGuid())
+                                                         .namespace(uploadFromUrlContext.getJobEntry()
+                                                                                        .getNamespace())
+                                                         .name(fileName)
+                                                         .size(BigInteger.valueOf(fileSize))
+                                                         .build(), bufferedContent);
+        }
+    }
+
+    public HttpResponse<InputStream> callRemoteEndpointWithRetry(String decodedUrl, UserCredentials userCredentials)
+        throws Exception {
+        return resilientOperationExecutor.execute((CheckedSupplier<HttpResponse<InputStream>>) () -> {
+            var request = buildFetchFileRequest(decodedUrl, userCredentials);
+            LOGGER.debug(Messages.CALLING_REMOTE_MTAR_ENDPOINT, getMaskedUri(urlDecodeUrl(decodedUrl)));
+            var response = httpClient.send(request, BodyHandlers.ofInputStream());
+            if (response.statusCode() / 100 != 2) {
+                String error = readErrorBodyFromResponse(response);
+                LOGGER.error(error);
+                if (response.statusCode() == HttpStatus.UNAUTHORIZED.value()) {
+                    String errorMessage = MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS,
+                                                               UriUtil.stripUserInfo(decodedUrl));
+                    throw new SLException(errorMessage);
+                }
+                throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, getMaskedUri(urlDecodeUrl(decodedUrl)),
+                                                           response.statusCode(), error));
+            }
+            return response;
+        });
+    }
+
+    private String getMaskedUri(String url) {
+        if (url.contains("@")) {
+            return url.substring(url.lastIndexOf("@"))
+                      .replace("@", "...");
+        } else {
+            return url;
+        }
+    }
+
+    private String urlDecodeUrl(String url) {
+        return URLDecoder.decode(url, StandardCharsets.UTF_8);
+    }
+
+    private void resetCounterOnRetry(String jobGuid, Lock lock) {
+
+        try {
+            lock.lock();
+            AsyncUploadJobEntry asyncUploadJobEntry = asyncUploadJobService.createQuery()
+                                                                           .id(jobGuid)
+                                                                           .singleResult();
+            asyncUploadJobService.update(asyncUploadJobEntry, ImmutableAsyncUploadJobEntry.copyOf(asyncUploadJobEntry)
+                                                                                          .withUpdatedAt(LocalDateTime.now())
+                                                                                          .withBytesRead(0L));
+        } finally {
+            lock.unlock();
+        }
+
+    }
+
+    protected HttpClient buildHttpClient() {
+        return HttpClient.newBuilder()
+                         .version(HttpClient.Version.HTTP_2)
+                         .connectTimeout(HTTP_CONNECT_TIMEOUT)
+                         .followRedirects(HttpClient.Redirect.NORMAL)
+                         .build();
+    }
+
+    private HttpRequest buildFetchFileRequest(String decodedUrl, UserCredentials userCredentials) {
+        var builder = HttpRequest.newBuilder()
+                                 .GET()
+                                 .timeout(Duration.ofMinutes(15));
+        var uri = URI.create(decodedUrl);
+        var userInfo = uri.getUserInfo();
+        if (userCredentials != null) {
+            builder.uri(uri);
+            String userCredentialsUrlFormat = MessageFormat.format(USERNAME_PASSWORD_URL_FORMAT, userCredentials.getUsername(),
+                                                                   userCredentials.getPassword());
+            String encodedAuth = Base64.getEncoder()
+                                       .encodeToString(userCredentialsUrlFormat.getBytes());
+            builder.header(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
+        } else if (userInfo != null) {
+            builder.uri(URI.create(decodedUrl.replace(uri.getRawUserInfo() + "@", "")));
+            String encodedAuth = Base64.getEncoder()
+                                       .encodeToString(userInfo.getBytes());
+            builder.header(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
+        } else {
+            builder.uri(uri);
+        }
+        return builder.build();
+    }
+
+    private String readErrorBodyFromResponse(HttpResponse<InputStream> response) throws IOException {
+        try (InputStream is = response.body()) {
+            byte[] buffer = new byte[ERROR_RESPONSE_BODY_MAX_LENGTH];
+            int read = IOUtils.read(is, buffer);
+            return new String(Arrays.copyOf(buffer, read));
+        }
+    }
+
+    private String extractFileName(String url) {
+        String path = URI.create(url)
+                         .getPath();
+        if (path.indexOf('/') == -1) {
+            return path;
+        }
+        String[] pathFragments = path.split("/");
+        return pathFragments[pathFragments.length - 1];
+    }
+
+    private DeploymentDescriptor extractDeploymentDescriptor(InputStream appArchiveStream) {
+        String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, applicationConfiguration.getMaxMtaDescriptorSize());
+        DescriptorParserFacade descriptorParserFacade = descriptorParserFactory.getInstance();
+        return descriptorParserFacade.parseDeploymentDescriptor(descriptorString);
+    }
+
+    private void monitorAsyncUploadJob(AsyncUploadJobEntry updatedJobEntry, Lock lock, AtomicLong counterRef) {
+        while (updatedJobEntry.getState() == AsyncUploadJobEntry.State.RUNNING) {
+            MiscUtil.sleep(WAIT_TIME_BETWEEN_ASYNC_JOB_UPDATES_IN_MILLIS);
+            try {
+                lock.lock();
+                updatedJobEntry = asyncUploadJobService.createQuery()
+                                                       .id(updatedJobEntry.getId())
+                                                       .singleResult();
+                updatedJobEntry = asyncUploadJobService.update(updatedJobEntry, ImmutableAsyncUploadJobEntry.copyOf(updatedJobEntry)
+                                                                                                            .withBytesRead(counterRef.get())
+                                                                                                            .withUpdatedAt(
+                                                                                                                LocalDateTime.now()));
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+
+    private void updateFailedAsyncUploadJob(AsyncUploadJobEntry jobEntry, Exception e, Lock lock) {
+        try {
+            lock.lock();
+            var failedEntry = asyncUploadJobService.createQuery()
+                                                   .id(jobEntry.getId())
+                                                   .singleResult();
+            asyncUploadJobService.update(failedEntry, ImmutableAsyncUploadJobEntry.copyOf(failedEntry)
+                                                                                  .withError(e.getMessage())
+                                                                                  .withState(AsyncUploadJobEntry.State.ERROR));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    protected ResilientOperationExecutor getResilientOperationExecutor() {
+        return new ResilientOperationExecutor();
+    }
+
+}

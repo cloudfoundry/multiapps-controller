@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.persistence.EntityManagerFactory;
-
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
@@ -58,6 +57,8 @@ public class AsyncUploadJobService extends PersistenceService<AsyncUploadJobEntr
                                                .fileId(dto.getFileId())
                                                .error(dto.getError())
                                                .instanceIndex(dto.getInstanceIndex())
+                                               .bytesRead(dto.getBytesRead())
+                                               .updatedAt(dto.getUpdatedAt())
                                                .build();
         }
 
@@ -76,7 +77,9 @@ public class AsyncUploadJobService extends PersistenceService<AsyncUploadJobEntr
                                          entry.getMtaId(),
                                          entry.getFileId(),
                                          entry.getError(),
-                                         entry.getInstanceIndex());
+                                         entry.getInstanceIndex(),
+                                         entry.getBytesRead(),
+                                         entry.getUpdatedAt());
         }
     }
 

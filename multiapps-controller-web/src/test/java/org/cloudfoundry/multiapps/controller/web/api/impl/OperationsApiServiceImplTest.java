@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import jakarta.persistence.NoResultException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.cloudfoundry.multiapps.common.ContentException;
@@ -53,7 +52,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.server.ResponseStatusException;
-
 import static org.cloudfoundry.multiapps.controller.core.util.SecurityUtil.USER_INFO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
