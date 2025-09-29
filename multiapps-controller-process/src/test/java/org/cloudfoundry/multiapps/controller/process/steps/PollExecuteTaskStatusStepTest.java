@@ -14,7 +14,9 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -22,6 +24,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.AssertionsKt.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -83,6 +87,49 @@ class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskSt
         this.expectedExecutionStatus = expectedExecutionStatus;
         initializeParameters(currentTaskState, currentTime);
         testExecuteOperations();
+    }
+
+    @Test
+    void testFirstTimeOnlyInitializesTimestamp() {
+        initializeParameters(CloudTask.State.PENDING, System.currentTimeMillis());
+
+        context.setVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP, null);
+        this.expectedExecutionStatus = AsyncExecutionState.RUNNING;
+
+        testExecuteOperations();
+
+        Long timeStamp = context.getVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP);
+        assertTrue(timeStamp > 0);
+    }
+
+    @Test
+    void testTimestampIsChangedWhenIntervalPassed() {
+        initializeParameters(CloudTask.State.PENDING, System.currentTimeMillis());
+        long logInterval = Duration.ofMinutes(Constants.LOG_STALLED_TASK_MINUTE_INTERVAL)
+                                   .toMillis();
+
+        long currentTime = System.currentTimeMillis();
+        long fakeLastTimestampOfLog = currentTime - logInterval - 3000;
+        context.setVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP, fakeLastTimestampOfLog);
+
+        this.expectedExecutionStatus = AsyncExecutionState.RUNNING;
+
+        testExecuteOperations();
+
+        Long updatedTimeStampOfLog = context.getVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP);
+        assertNotNull(updatedTimeStampOfLog);
+        assertTrue(updatedTimeStampOfLog >= fakeLastTimestampOfLog + logInterval);
+    }
+
+    @Test
+    void testTimestampIsClearedOnFailed() {
+        initializeParameters(CloudTask.State.FAILED, System.currentTimeMillis());
+        context.setVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP, System.currentTimeMillis());
+        this.expectedExecutionStatus = AsyncExecutionState.ERROR;
+
+        testExecuteOperations();
+
+        assertEquals(Constants.UNSET_LAST_LOG_TIMESTAMP_MS, context.getVariable(Variables.LAST_TASK_POLL_LOG_TIMESTAMP));
     }
 
     private void initializeParameters(CloudTask.State currentTaskState, long currentTime) {
