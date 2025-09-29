@@ -18,6 +18,7 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
@@ -296,9 +297,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationName() {
-            if (!context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY)) {
-                getStepLogger().warn(
-                    Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY + " is set to false. The application name will not be updated.");
+            boolean processIsBlueGreenWithIdleSuffix = StepsUtil.getAppSuffixDeterminer(context)
+                                                                .shouldAppendIdleSuffix();
+            if (!processIsBlueGreenWithIdleSuffix) {
                 return;
             }
 
@@ -308,13 +309,15 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                 getStepLogger().info(Messages.THE_DETECTED_APPLICATION_HAS_THE_SAME_NAME_AS_THE_NEW_ONE);
                 return;
             }
-            getStepLogger().warn("Renaming application " + oldName + " to " + newName);
+
             getStepLogger().info(Messages.RENAMING_APPLICATION_0_TO_1, oldName, newName);
             client.rename(oldName, newName);
+
+            context.setVariable(Variables.EXISTING_APP, ImmutableCloudApplication.copyOf(existingApp)
+                                                                                 .withName(newName));
             context.setVariable(Variables.APP_TO_PROCESS, ImmutableCloudApplicationExtended.copyOf(app)
                                                                                            .withName(newName));
 
-            getStepLogger().warn("Updating application name in configuration subscriptions");
             updateConfigurationSubscribers(oldName, newName);
         }
 
