@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -40,14 +41,22 @@ public abstract class PollServiceBindingUnbindingOperationBaseExecution extends 
     @Override
     protected Consumer<CloudAsyncJob> getOnErrorHandler(ProcessContext context) {
         CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
-        String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
-
         CloudControllerClient client = context.getControllerClient();
-        CloudServiceInstance serviceInstance = client.getServiceInstance(serviceInstanceName, false);
+
+        String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
+        if (serviceInstanceName == null) {
+            CloudServiceBinding serviceBinding = context.getVariable(Variables.SERVICE_BINDING_TO_DELETE);
+            if (serviceBinding != null) {
+                serviceInstanceName = client.getServiceInstanceName(serviceBinding.getServiceInstanceGuid());
+            }
+        }
+
+        String finalServiceInstanceName = serviceInstanceName;
+
+        CloudServiceInstance serviceInstance = (serviceInstanceName != null) ? client.getServiceInstance(serviceInstanceName, false) : null;
 
         return serviceBindingJob -> context.getStepLogger()
-                                           .error(buildErrorMessage(app, serviceInstance, serviceInstanceName, serviceBindingJob));
-
+                                           .error(buildErrorMessage(app, serviceInstance, finalServiceInstanceName, serviceBindingJob));
     }
 
     private String buildErrorMessage(CloudApplication app, CloudServiceInstance serviceInstance, String serviceInstanceName,
