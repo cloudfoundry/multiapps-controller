@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,7 @@ public class OperationLogsExporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationLogsExporter.class);
     private static final String CONTENT_TYPE_JSON = "application/json";
+    private static final long MAX_LIMIT_REQUEST_SIZE_BYTES = 3 * 1024 * 1024 + 512 * 1024; // 3.5MB
 
     private final ProcessLogsPersistenceService processLogsPersistenceService;
     private final WebClient webClient;
@@ -31,12 +33,16 @@ public class OperationLogsExporter {
         throws FileStorageException {
         LOGGER.info("Export logs for operation {} in space {}", operationId, spaceId);
         List<ExternalOperationLogEntry> externalLogEntries = getExternalLogEntries(spaceId, operationId);
-        webClient.post()
-                 .header("Content-Type", CONTENT_TYPE_JSON)
-                 .bodyValue(JsonUtil.toJson(externalLogEntries))
-                 .retrieve()
-                 .bodyToMono(Void.class)
-                 .block();
+        List<List<ExternalOperationLogEntry>> logEntryBatches = getLogEntryBatches(externalLogEntries);
+        LOGGER.info("Exporting {} log entries into {} batches", externalLogEntries.size(), logEntryBatches.size());
+        for (List<ExternalOperationLogEntry> logEntryBatch : logEntryBatches) {
+            webClient.post()
+                     .header("Content-Type", CONTENT_TYPE_JSON)
+                     .bodyValue(JsonUtil.toJson(logEntryBatch))
+                     .retrieve()
+                     .bodyToMono(Void.class)
+                     .block();
+        }
 
     }
 
@@ -58,6 +64,30 @@ public class OperationLogsExporter {
                                                  .message(logEntry.getOperationLog())
                                                  .correlationId(operationId)
                                                  .build();
+    }
+
+    private List<List<ExternalOperationLogEntry>> getLogEntryBatches(List<ExternalOperationLogEntry> externalLogEntries) {
+        List<List<ExternalOperationLogEntry>> batches = new ArrayList<>();
+        List<ExternalOperationLogEntry> currentBatch = new ArrayList<>();
+        long currentChunkSize = 0L;
+
+        for (ExternalOperationLogEntry entry : externalLogEntries) {
+            String entryJson = JsonUtil.toJson(entry);
+            int entrySize = entryJson.getBytes().length;
+
+            if (currentChunkSize + entrySize > MAX_LIMIT_REQUEST_SIZE_BYTES && !currentBatch.isEmpty()) {
+                batches.add(new ArrayList<>(currentBatch));
+                currentBatch.clear();
+                currentChunkSize = 0L;
+            }
+
+            currentBatch.add(entry);
+            currentChunkSize += entrySize;
+        }
+        if (!currentBatch.isEmpty()) {
+            batches.add(currentBatch);
+        }
+        return batches;
     }
 
 }

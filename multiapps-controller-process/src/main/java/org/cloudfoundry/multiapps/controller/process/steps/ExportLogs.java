@@ -11,6 +11,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
@@ -63,7 +64,7 @@ public class ExportLogs extends SyncFlowableStep {
                 ? currentTargetSpace
                 : externalLoggingServiceConfiguration.getTargetSpace();
 
-            if (!targetOrg.equals(currentTargetOrg) && !targetSpace.equals(currentTargetSpace)) {
+            if (!targetOrg.equals(currentTargetOrg) || !targetSpace.equals(currentTargetSpace)) {
                 client = clientFactory.createClient(tokenService.getToken(null, context.getVariable(Variables.USER_GUID)), targetOrg,
                                                     targetSpace, context.getVariable(Variables.CORRELATION_ID));
             }
@@ -89,7 +90,7 @@ public class ExportLogs extends SyncFlowableStep {
         String ingestMtlsKey = (String) credentials.get("ingest-mtls-key");
 
         // Validate that all required credentials are present
-        if (endpoint == null && serverCa == null && ingestMtlsCert == null && ingestMtlsKey == null) {
+        if (endpoint == null || serverCa == null || ingestMtlsCert == null || ingestMtlsKey == null) {
             getStepLogger().warn(
                 "Missing required credentials for SAP Cloud Logging export. Required: endpoint, server-ca, ingest-mtls-cert, ingest-mtls-key");
             return;
@@ -103,6 +104,7 @@ public class ExportLogs extends SyncFlowableStep {
         } catch (Exception e) {
             getStepLogger().warn(e, "Export of operation logs to external service instance \"{0}\" failed: {1}", serviceInstanceName,
                                  e.getMessage());
+            throw new SLException(e, e.getMessage());
         }
 
     }
