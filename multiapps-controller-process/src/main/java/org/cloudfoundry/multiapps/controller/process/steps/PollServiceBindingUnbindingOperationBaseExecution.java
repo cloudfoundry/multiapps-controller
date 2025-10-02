@@ -42,7 +42,15 @@ public abstract class PollServiceBindingUnbindingOperationBaseExecution extends 
     protected Consumer<CloudAsyncJob> getOnErrorHandler(ProcessContext context) {
         CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
         CloudControllerClient client = context.getControllerClient();
+        String serviceInstanceName = resolveServiceInstanceName(context, client);
 
+        CloudServiceInstance serviceInstance = serviceInstanceName != null ? client.getServiceInstance(serviceInstanceName, false) : null;
+
+        return serviceBindingJob -> context.getStepLogger()
+                                           .error(buildErrorMessage(app, serviceInstance, serviceInstanceName, serviceBindingJob));
+    }
+
+    private String resolveServiceInstanceName(ProcessContext context, CloudControllerClient client) {
         String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
         if (serviceInstanceName == null) {
             CloudServiceBinding serviceBinding = context.getVariable(Variables.SERVICE_BINDING_TO_DELETE);
@@ -50,13 +58,7 @@ public abstract class PollServiceBindingUnbindingOperationBaseExecution extends 
                 serviceInstanceName = client.getServiceInstanceName(serviceBinding.getServiceInstanceGuid());
             }
         }
-
-        String finalServiceInstanceName = serviceInstanceName;
-
-        CloudServiceInstance serviceInstance = (serviceInstanceName != null) ? client.getServiceInstance(serviceInstanceName, false) : null;
-
-        return serviceBindingJob -> context.getStepLogger()
-                                           .error(buildErrorMessage(app, serviceInstance, finalServiceInstanceName, serviceBindingJob));
+        return serviceInstanceName;
     }
 
     private String buildErrorMessage(CloudApplication app, CloudServiceInstance serviceInstance, String serviceInstanceName,
