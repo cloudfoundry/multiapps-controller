@@ -51,10 +51,7 @@ public abstract class PollServiceBindingUnbindingOperationBaseExecution extends 
     private String resolveServiceInstanceName(ProcessContext context) {
         String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
         if (serviceInstanceName == null) {
-            String serviceInstanceToDelete = context.getVariable(Variables.SERVICE_TO_DELETE);
-            if (serviceInstanceToDelete != null) {
-                serviceInstanceName = serviceInstanceToDelete;
-            }
+            return context.getVariable(Variables.SERVICE_TO_DELETE);
         }
         return serviceInstanceName;
     }
