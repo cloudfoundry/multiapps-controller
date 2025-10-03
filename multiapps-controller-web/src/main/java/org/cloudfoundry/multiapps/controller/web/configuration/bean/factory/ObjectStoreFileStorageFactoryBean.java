@@ -57,12 +57,12 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
 
     private FileStorage createObjectStoreFileStorage() {
         List<ObjectStoreServiceInfo> providersServiceInfo = getProvidersServiceInfo();
-        if ("a" != null) {
-            ObjectStoreServiceInfo gcpConfig = getAppropriateProvider(Constants.GCP,
-                                                                      providersServiceInfo).get();
-            LOGGER.error("Creating new object storeeee");
-            return new GcpObjectStoreFileStorage(gcpConfig.getContainer(), gcpConfig.getGcpStorage());
-        }
+        //        if ("a" != null) {
+        //            ObjectStoreServiceInfo gcpConfig = getAppropriateProvider(Constants.GCP,
+        //                                                                      providersServiceInfo).get();
+        //            LOGGER.error("Creating new object storeeee");
+        //            return new GcpObjectStoreFileStorage(gcpConfig.getContainer(), gcpConfig.getGcpStorage());
+        //        }
         if (providersServiceInfo.isEmpty()) {
             return null;
         }
@@ -86,13 +86,22 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
         throw buildNoValidObjectStoreException(exceptions);
     }
 
-    public ObjectStoreFileStorage createObjectStoreFromFirstReachableProvider(Map<String, Exception> exceptions,
-                                                                              List<ObjectStoreServiceInfo> providersServiceInfo) {
+    public FileStorage createObjectStoreFromFirstReachableProvider(Map<String, Exception> exceptions,
+                                                                   List<ObjectStoreServiceInfo> providersServiceInfo) {
         for (ObjectStoreServiceInfo objectStoreServiceInfo : providersServiceInfo) {
             Optional<ObjectStoreFileStorage> createdObjectStoreOptional = tryToCreateObjectStore(objectStoreServiceInfo, exceptions);
             if (createdObjectStoreOptional.isPresent()) {
                 return createdObjectStoreOptional.get();
             }
+        }
+
+        Optional<ObjectStoreServiceInfo> gcpObjectStoreServiceInfo = getAppropriateProvider(Constants.GCP, providersServiceInfo);
+
+        if (gcpObjectStoreServiceInfo.isPresent()) {
+            LOGGER.info("TEEEES");
+            return new GcpObjectStoreFileStorage(gcpObjectStoreServiceInfo.get()
+                                                                          .getContainer(), gcpObjectStoreServiceInfo.get()
+                                                                                                                    .getGcpStorage());
         }
         throw buildNoValidObjectStoreException(exceptions);
     }
@@ -131,7 +140,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
         }
     }
 
-    private List<ObjectStoreServiceInfo> getProvidersServiceInfo() {
+    public List<ObjectStoreServiceInfo> getProvidersServiceInfo() {
         CfService service = environmentServicesFinder.findService(serviceName);
         if (service == null) {
             return Collections.emptyList();

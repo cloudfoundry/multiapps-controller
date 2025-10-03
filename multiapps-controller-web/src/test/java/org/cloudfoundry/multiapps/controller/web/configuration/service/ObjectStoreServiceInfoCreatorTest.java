@@ -1,8 +1,5 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.service;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -12,18 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.contrib.nio.testing.LocalStorageHelper;
+import io.pivotal.cfenv.core.CfCredentials;
+import io.pivotal.cfenv.core.CfService;
 import org.cloudfoundry.multiapps.controller.web.Constants;
-import org.jclouds.domain.Credentials;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-import com.google.common.base.Supplier;
-
-import io.pivotal.cfenv.core.CfCredentials;
-import io.pivotal.cfenv.core.CfService;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 class ObjectStoreServiceInfoCreatorTest {
 
@@ -36,7 +34,8 @@ class ObjectStoreServiceInfoCreatorTest {
     private static final String SAS_TOKEN_VALUE = "sas_token_value";
     private static final String CONTAINER_NAME_VALUE = "container_name_value";
     private static final String CONTAINER_URI_VALUE = "https://container.com:8080";
-    private static final Supplier<Credentials> CREDENTIALS_SUPPLIER = () -> null;
+    private static final Storage STORAGE = LocalStorageHelper.getOptions()
+                                                             .getService();
 
     private ObjectStoreServiceInfoCreator objectStoreServiceInfoCreator;
 
@@ -127,7 +126,6 @@ class ObjectStoreServiceInfoCreatorTest {
     private static Map<String, Object> buildGcpCredentials() {
         Map<String, Object> credentials = new HashMap<>();
         credentials.put(Constants.BUCKET, BUCKET_VALUE);
-        credentials.put(Constants.REGION, REGION_VALUE);
         credentials.put(Constants.BASE_64_ENCODED_PRIVATE_KEY_DATA, Base64.getEncoder()
                                                                           .encodeToString("encoded_data".getBytes(StandardCharsets.UTF_8)));
         return credentials;
@@ -136,17 +134,15 @@ class ObjectStoreServiceInfoCreatorTest {
     private static ObjectStoreServiceInfo buildGcpObjectStoreServiceInfo() {
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.GOOGLE_CLOUD_STORAGE)
-                                              .credentialsSupplier(CREDENTIALS_SUPPLIER)
+                                              .gcpStorage(STORAGE)
                                               .container(BUCKET_VALUE)
-                                              .region(REGION_VALUE)
                                               .build();
     }
 
     private static class ObjectStoreServiceInfoCreatorMock extends ObjectStoreServiceInfoCreator {
-
         @Override
-        protected Supplier<Credentials> getGcpCredentialsSupplier(Map<String, Object> credentials) {
-            return ObjectStoreServiceInfoCreatorTest.CREDENTIALS_SUPPLIER;
+        public Storage createObjectStoreStorage(Map<String, Object> credentials) {
+            return STORAGE;
         }
     }
 }

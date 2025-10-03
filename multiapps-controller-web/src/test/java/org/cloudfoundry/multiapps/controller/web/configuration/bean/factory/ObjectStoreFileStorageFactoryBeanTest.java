@@ -1,9 +1,12 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.contrib.nio.testing.LocalStorageHelper;
 import io.pivotal.cfenv.core.CfCredentials;
 import io.pivotal.cfenv.core.CfService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -13,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentService
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfo;
+import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfoCreator;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -149,6 +153,25 @@ class ObjectStoreFileStorageFactoryBeanTest {
         @Override
         protected ObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo, BlobStoreContext context) {
             return ObjectStoreFileStorageFactoryBeanTest.this.objectStoreFileStorage;
+        }
+
+        @Override
+        public List<ObjectStoreServiceInfo> getProvidersServiceInfo() {
+            CfService service = environmentServicesFinder.findService("deploy-service-os");
+            if (service != null) {
+                return new ObjectStoreServiceInfoCreatorMock().getAllProvidersServiceInfo(service);
+            } else {
+                return List.of();
+            }
+        }
+    }
+
+    private class ObjectStoreServiceInfoCreatorMock extends ObjectStoreServiceInfoCreator {
+
+        @Override
+        public Storage createObjectStoreStorage(Map<String, Object> credentials) {
+            return LocalStorageHelper.getOptions()
+                                     .getService();
         }
     }
 }

@@ -79,7 +79,7 @@ public class GcpObjectStoreFileStorage implements FileStorage {
 
     @Override
     public void deleteFile(String id, String space) {
-        storage.delete(id);
+        storage.delete(bucketName, id);
     }
 
     @Override
@@ -168,7 +168,8 @@ public class GcpObjectStoreFileStorage implements FileStorage {
 
     @Override
     public void testConnection() {
-        storage.get("test");
+        LOGGER.info("TEEEEEEEEE");
+        //storage.get(bucketName, "test");
     }
 
     @Override
