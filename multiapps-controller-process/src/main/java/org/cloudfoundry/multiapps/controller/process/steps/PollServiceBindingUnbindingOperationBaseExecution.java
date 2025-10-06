@@ -40,14 +40,20 @@ public abstract class PollServiceBindingUnbindingOperationBaseExecution extends 
     @Override
     protected Consumer<CloudAsyncJob> getOnErrorHandler(ProcessContext context) {
         CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
-        String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
-
         CloudControllerClient client = context.getControllerClient();
-        CloudServiceInstance serviceInstance = client.getServiceInstance(serviceInstanceName, false);
+        String serviceInstanceName = resolveServiceInstanceName(context);
+        CloudServiceInstance serviceInstance = serviceInstanceName != null ? client.getServiceInstance(serviceInstanceName, false) : null;
 
         return serviceBindingJob -> context.getStepLogger()
                                            .error(buildErrorMessage(app, serviceInstance, serviceInstanceName, serviceBindingJob));
+    }
 
+    private String resolveServiceInstanceName(ProcessContext context) {
+        String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
+        if (serviceInstanceName == null) {
+            return context.getVariable(Variables.SERVICE_TO_DELETE);
+        }
+        return serviceInstanceName;
     }
 
     private String buildErrorMessage(CloudApplication app, CloudServiceInstance serviceInstance, String serviceInstanceName,
