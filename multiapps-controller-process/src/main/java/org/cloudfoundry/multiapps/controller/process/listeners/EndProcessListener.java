@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -67,4 +66,5 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
                                                                             .build();
         dynatracePublisher.publishProcessEvent(finishedEvent, getLogger());
     }
+    
 }

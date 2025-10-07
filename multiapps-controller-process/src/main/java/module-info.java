@@ -56,5 +56,9 @@ open module org.cloudfoundry.multiapps.controller.process {
 
     requires static java.compiler;
     requires static org.immutables.value;
+    requires spring.webflux;
+    requires annotations;
+    requires reactor.netty.core;
+    requires reactor.netty.http;
 
 }
