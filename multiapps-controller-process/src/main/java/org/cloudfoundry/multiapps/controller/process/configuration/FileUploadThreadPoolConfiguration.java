@@ -76,12 +76,14 @@ public class FileUploadThreadPoolConfiguration {
     @Bean(name = "deployFromUrlExecutor")
     public ExecutorService deployFromUrlExecutor() {
         return new ThreadPoolExecutor(5,
+                                      // The max thread count should match the maximum capacity of asyncFileUploadExecutor (queue size + max threads).
+                                      // A lower value may cause unnecessary task rejections.
+                                      // A higher value may cause job failures when asyncFileUploadExecutor becomes full.
                                       applicationConfiguration.getDeployFromUrlExecutorMaxThreads(),
                                       // As the threads are only updating a row and waiting it is ok to have more threads
                                       30,
                                       TimeUnit.SECONDS,
                                       new SynchronousQueue<>()); // A synchronous queue is used so deploy from url jobs immediately start
         // a new thread that updates the database job entry
-
     }
 }

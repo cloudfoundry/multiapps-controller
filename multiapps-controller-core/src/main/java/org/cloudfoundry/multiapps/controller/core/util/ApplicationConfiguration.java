@@ -152,7 +152,7 @@ public class ApplicationConfiguration {
     public static final String DEFAULT_GLOBAL_AUDITOR_ORIGIN = "uaa";
     public static final int DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = 3;
     public static final int DEFAULT_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = 6;
-    public static final int DEFAULT_DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS = 30;
+    public static final int DEFAULT_DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS = 26;
     public static final boolean DEFAULT_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER = false;
     public static final int DEFAULT_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = 6;
     public static final int DEFAULT_THREADS_FOR_FILE_STORAGE_UPLOAD = 7;
