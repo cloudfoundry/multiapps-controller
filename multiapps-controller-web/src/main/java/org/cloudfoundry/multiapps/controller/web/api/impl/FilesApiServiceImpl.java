@@ -118,15 +118,17 @@ public class FilesApiServiceImpl implements FilesApiService {
         LOGGER.trace(Messages.RECEIVED_UPLOAD_FROM_URL_REQUEST, urlWithoutUserInfo);
         filesApiServiceAuditLog.logStartUploadFromUrl(SecurityContextUtil.getUsername(), spaceGuid, decodedUrl);
         var existingJob = getExistingJob(spaceGuid, namespace, urlWithoutUserInfo);
-        if (existingJob != null && hasJobStuck(existingJob)) {
-            deleteAsyncJobEntry(existingJob);
-        } else if (existingJob != null) {
-            LOGGER.info(Messages.ASYNC_UPLOAD_JOB_EXISTS, urlWithoutUserInfo, existingJob);
-            return ResponseEntity.status(HttpStatus.SEE_OTHER)
-                                 .header(HttpHeaders.LOCATION, getLocationHeader(spaceGuid, existingJob.getId()))
-                                 .build();
+        if (existingJob == null) {
+            return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, fileUrl.getUserCredentials());
         }
-        return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, fileUrl.getUserCredentials());
+        if (hasJobStuck(existingJob)) {
+            deleteAsyncJobEntry(existingJob);
+            return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, fileUrl.getUserCredentials());
+        }
+        LOGGER.info(Messages.ASYNC_UPLOAD_JOB_EXISTS, urlWithoutUserInfo, existingJob);
+        return ResponseEntity.status(HttpStatus.SEE_OTHER)
+                             .header(HttpHeaders.LOCATION, getLocationHeader(spaceGuid, existingJob.getId()))
+                             .build();
     }
 
     private boolean hasJobStuck(AsyncUploadJobEntry existingJob) {

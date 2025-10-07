@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.web.upload;
+package org.cloudfoundry.multiapps.controller.process.stream;
 
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicLong;
