@@ -29,7 +29,7 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
         public static final String FILE_ID = "fileId";
         public static final String ERROR = "error";
         public static final String INSTANCE_INDEX = "instanceIndex";
-        public static final String BYRES_READ = "bytesRead";
+        public static final String BYTES_READ = "bytesRead";
         public static final String UPDATED_AT = "updatedAt";
     }
 
@@ -73,7 +73,7 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
     @Column(name = PersistenceMetadata.TableColumnNames.ASYNC_UPLOAD_JOB_INSTANCE_INDEX, nullable = false)
     private Integer instanceIndex;
 
-    @Column(name = PersistenceMetadata.TableColumnNames.ASYNC_UPLOAD_JOB_BYRES_READ)
+    @Column(name = PersistenceMetadata.TableColumnNames.ASYNC_UPLOAD_JOB_BYTES_READ)
     private Long bytesRead;
 
     @Column(name = PersistenceMetadata.TableColumnNames.ASYNC_UPLOAD_JOB_UPDATED_AT)

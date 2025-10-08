@@ -38,6 +38,6 @@
 
     <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.192.0-persistence.xml"/>
 
-    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.200.0-persistence.xml"/>
+    <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-2.34.0-persistence.xml"/>
 
 </databaseChangeLog>

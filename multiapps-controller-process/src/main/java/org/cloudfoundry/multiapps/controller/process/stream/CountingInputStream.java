@@ -15,7 +15,9 @@ public class CountingInputStream extends ProxyInputStream {
 
     @Override
     protected void afterRead(int n) {
-        bytes.addAndGet(n);
+        if (n > 0) {
+            bytes.addAndGet(n);
+        }
     }
 
 }

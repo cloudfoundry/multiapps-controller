@@ -102,7 +102,7 @@ public class PersistenceMetadata {
         public static final String ASYNC_UPLOAD_JOB_FILE_ID = "file_id";
         public static final String ASYNC_UPLOAD_JOB_ERROR = "error";
         public static final String ASYNC_UPLOAD_JOB_INSTANCE_INDEX = "instance_index";
-        public static final String ASYNC_UPLOAD_JOB_BYRES_READ = "bytes_read";
+        public static final String ASYNC_UPLOAD_JOB_BYTES_READ = "bytes_read";
         public static final String ASYNC_UPLOAD_JOB_UPDATED_AT = "updated_at";
 
         public static final String BACKUP_DESCRIPTOR_ID = "id";
