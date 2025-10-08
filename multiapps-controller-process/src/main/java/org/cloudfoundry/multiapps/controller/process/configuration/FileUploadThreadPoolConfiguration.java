@@ -8,15 +8,13 @@ import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
+import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.process.util.PriorityCallable;
 import org.cloudfoundry.multiapps.controller.process.util.PriorityFuture;
 import org.cloudfoundry.multiapps.controller.process.util.PriorityFutureComparator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import jakarta.inject.Inject;
 
 @Configuration
 public class FileUploadThreadPoolConfiguration {
@@ -75,4 +73,17 @@ public class FileUploadThreadPoolConfiguration {
                                       fileUploadFromUrlQueue);
     }
 
+    @Bean(name = "deployFromUrlExecutor")
+    public ExecutorService deployFromUrlExecutor() {
+        return new ThreadPoolExecutor(5,
+                                      // The max thread count should match the maximum capacity of asyncFileUploadExecutor (queue size + max threads).
+                                      // A lower value may cause unnecessary task rejections.
+                                      // A higher value may cause job failures when asyncFileUploadExecutor becomes full.
+                                      applicationConfiguration.getDeployFromUrlExecutorMaxThreads(),
+                                      // As the threads are only updating a row and waiting it is ok to have more threads
+                                      30,
+                                      TimeUnit.SECONDS,
+                                      new SynchronousQueue<>()); // A synchronous queue is used so deploy from url jobs immediately start
+        // a new thread that updates the database job entry
+    }
 }

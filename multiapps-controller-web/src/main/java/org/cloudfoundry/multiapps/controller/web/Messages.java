@@ -24,6 +24,7 @@ public final class Messages {
     public static final String NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND = "No valid Object Store configuration found!";
     public static final String MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER = "Missing properties for creating the specific provider!";
     public static final String DEPLOY_FROM_URL_WRONG_CREDENTIALS = "Credentials to {0} are wrong. Make sure that they are correct.";
+    public static final String JOB_NOT_UPDATED_FOR_0_SECONDS = "Job not updated for {0} seconds";
 
     public static final String FAILED_TO_CREATE_BLOB_STORE_CONTEXT = "Failed to create BlobStoreContext";
 
@@ -54,13 +55,8 @@ public final class Messages {
     public static final String CLEARING_FLOWABLE_LOCK_OWNER_THREW_AN_EXCEPTION_0 = "Clearing Flowable lock owner on JVM shutdown threw an exception: {0}";
     public static final String FETCHING_FILE_FAILED = "Fetching file {0} in space {1} failed with: {2}";
     public static final String ASYNC_UPLOAD_JOB_FAILED = "Async upload job {0} failed with: {1}";
-    public static final String JOB_0_WAS_NOT_FOUND_IN_THE_RUNNING_TASKS = "Job \"{0}\" was not found in the running tasks";
-    public static final String JOB_IS_NOT_BEING_EXECUTED = "Job is not being executed";
-    public static final String JOB_0_EXISTS_IN_STATE_1_BUT_DOES_NOT_EXISTS_IN_THE_RUNNING_TASKS = "Job \"{0}\" exists in state \"{1}\" but does not exists in the running tasks";
-    public static final String JOB_THREAD_IS_NOT_RUNNING_BUT_STATE_IS_STILL_IN_PROGRESS_UPLOAD_FAILED = "Job thread is not running but state is still in progress. Upload failed";
 
     // WARN log messages
-    public static final String THE_JOB_EXISTS_BUT_IT_IS_NOT_RUNNING_DELETING = "The job exists but it is not running. Deleting";
 
     // INFO log messages
     public static final String ALM_SERVICE_ENV_INITIALIZED = "Deploy service environment initialized";
@@ -72,6 +68,7 @@ public final class Messages {
     public static final String CLEARING_LOCK_OWNER = "Clearing lock owner {0}...";
     public static final String CLEARED_LOCK_OWNER = "Cleared lock owner {0}";
     public static final String OBJECT_STORE_WITH_PROVIDER_0_CREATED = "Object store with provider: {0} created";
+    public static final String JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS = "Job with ID: {} was not updated within: {} seconds";
 
     // DEBUG log messages
     public static final String RECEIVED_UPLOAD_REQUEST = "Received upload request on URI: {}";
@@ -79,7 +76,7 @@ public final class Messages {
     public static final String UPLOADED_FILE = "Uploaded file \"{}\" with name {}, size {}, space {}, and digest {} (algorithm {}) for {} ms.";
     public static final String ASYNC_UPLOAD_JOB_EXISTS = "Async upload job for URL {} exists: {}";
     public static final String CREATING_ASYNC_UPLOAD_JOB = "Creating async upload job for URL {} with ID: {}";
-    public static final String ASYNC_UPLOAD_JOB_REJECTED = "Async upload job {} rejected. Deleting entry";
+    public static final String ASYNC_UPLOAD_JOB_REJECTED = "Async upload job with space guid: {}, namespace: {}, URL: {} rejected.";
     public static final String STARTING_DOWNLOAD_OF_MTAR = "Starting download of MTAR from remote endpoint: {}";
     public static final String UPLOADED_MTAR_FROM_REMOTE_ENDPOINT_AND_JOB_ID = "Uploaded MTAR from remote endpoint {} with job id: {} in {} ms";
     public static final String ASYNC_UPLOAD_JOB_FINISHED = "Async upload job {} finished";
