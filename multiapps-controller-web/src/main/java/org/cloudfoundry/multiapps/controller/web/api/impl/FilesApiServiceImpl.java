@@ -36,7 +36,7 @@ import org.cloudfoundry.multiapps.controller.process.util.PriorityCallable;
 import org.cloudfoundry.multiapps.controller.process.util.PriorityFuture;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
-import org.cloudfoundry.multiapps.controller.web.upload.AsyncUploadJobExecutor;
+import org.cloudfoundry.multiapps.controller.web.upload.AsyncUploadJobOrchestrator;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.cloudfoundry.multiapps.controller.web.util.ServletUtil;
 import org.slf4j.Logger;
@@ -71,7 +71,7 @@ public class FilesApiServiceImpl implements FilesApiService {
     @Inject
     private FilesApiServiceAuditLog filesApiServiceAuditLog;
     @Inject
-    private AsyncUploadJobExecutor asyncUploadJobExecutor;
+    private AsyncUploadJobOrchestrator asyncUploadJobOrchestrator;
     @Inject
     private ExecutorService fileStorageThreadPool;
 
@@ -252,7 +252,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                                                       UserCredentials userCredentials) {
         AsyncUploadJobEntry entry = null;
         try {
-            entry = asyncUploadJobExecutor.executeUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, userCredentials);
+            entry = asyncUploadJobOrchestrator.executeUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, userCredentials);
             return ResponseEntity.accepted()
                                  .header(HttpHeaders.LOCATION, getLocationHeader(spaceGuid, entry.getId()))
                                  .build();

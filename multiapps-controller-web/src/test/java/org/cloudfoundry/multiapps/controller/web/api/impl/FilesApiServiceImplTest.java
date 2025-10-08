@@ -31,7 +31,7 @@ import org.cloudfoundry.multiapps.controller.persistence.query.AsyncUploadJobsQu
 import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
-import org.cloudfoundry.multiapps.controller.web.upload.AsyncUploadJobExecutor;
+import org.cloudfoundry.multiapps.controller.web.upload.AsyncUploadJobOrchestrator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,7 +79,7 @@ class FilesApiServiceImplTest {
     @Mock(name = "fileStorageThreadPool")
     private ExecutorService fileStorageThreadPool;
     @Mock
-    private AsyncUploadJobExecutor asyncUploadJobExecutor;
+    private AsyncUploadJobOrchestrator asyncUploadJobOrchestrator;
     @Mock
     private AsyncUploadJobService uploadJobService;
 
@@ -202,7 +202,7 @@ class FilesApiServiceImplTest {
 
         String expectedJobId = UUID.randomUUID()
                                    .toString();
-        when(asyncUploadJobExecutor.executeUploadFromUrl(any(), any(), any(), any(), any()))
+        when(asyncUploadJobOrchestrator.executeUploadFromUrl(any(), any(), any(), any(), any()))
             .thenReturn(ImmutableAsyncUploadJobEntry.builder()
                                                     .id(expectedJobId)
                                                     .url(DECODED_URL_WITH_CREDENTIALS_IN_THE_URL)
@@ -219,7 +219,7 @@ class FilesApiServiceImplTest {
         assertEquals("spaces/" + SPACE_GUID + "/files/jobs/" + expectedJobId, response.getHeaders()
                                                                                       .getLocation()
                                                                                       .toString());
-        Mockito.verify(asyncUploadJobExecutor)
+        Mockito.verify(asyncUploadJobOrchestrator)
                .executeUploadFromUrl(
                    eq(SPACE_GUID),
                    eq(NAMESPACE),
@@ -235,7 +235,7 @@ class FilesApiServiceImplTest {
         when(uploadJobService.createQuery()).thenReturn(asyncUploadJobsQuery);
         when(asyncUploadJobsQuery.list()).thenReturn(Collections.emptyList());
 
-        when(asyncUploadJobExecutor.executeUploadFromUrl(any(), any(), any(), any(), any()))
+        when(asyncUploadJobOrchestrator.executeUploadFromUrl(any(), any(), any(), any(), any()))
             .thenThrow(new RejectedExecutionException("Thread pool is full"));
 
         ResponseEntity<Void> response = testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.builder()
@@ -246,7 +246,7 @@ class FilesApiServiceImplTest {
         assertEquals("30", response.getHeaders()
                                    .getFirst("Retry-After"));
 
-        Mockito.verify(asyncUploadJobExecutor)
+        Mockito.verify(asyncUploadJobOrchestrator)
                .executeUploadFromUrl(
                    eq(SPACE_GUID),
                    eq(NAMESPACE),
@@ -281,7 +281,7 @@ class FilesApiServiceImplTest {
 
         String newJobId = UUID.randomUUID()
                               .toString();
-        when(asyncUploadJobExecutor.executeUploadFromUrl(any(), any(), any(), any(), any()))
+        when(asyncUploadJobOrchestrator.executeUploadFromUrl(any(), any(), any(), any(), any()))
             .thenReturn(ImmutableAsyncUploadJobEntry.builder()
                                                     .id(newJobId)
                                                     .url(DECODED_URL_WITH_CREDENTIALS_IN_THE_URL)
@@ -305,7 +305,7 @@ class FilesApiServiceImplTest {
                .id(existingJobId);
         Mockito.verify(asyncUploadJobsQuery)
                .delete();
-        Mockito.verify(asyncUploadJobExecutor)
+        Mockito.verify(asyncUploadJobOrchestrator)
                .executeUploadFromUrl(
                    eq(SPACE_GUID),
                    eq(NAMESPACE),
@@ -350,7 +350,7 @@ class FilesApiServiceImplTest {
                .id(any());
         Mockito.verify(asyncUploadJobsQuery, Mockito.never())
                .delete();
-        Mockito.verify(asyncUploadJobExecutor, Mockito.never())
+        Mockito.verify(asyncUploadJobOrchestrator, Mockito.never())
                .executeUploadFromUrl(any(), any(), any(), any(), any());
     }
 

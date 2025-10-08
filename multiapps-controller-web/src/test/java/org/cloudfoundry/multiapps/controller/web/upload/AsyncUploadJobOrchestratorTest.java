@@ -39,7 +39,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class AsyncUploadJobExecutorTest {
+class AsyncUploadJobOrchestratorTest {
 
     private static final String SPACE_GUID = "space-123";
     private static final String NAMESPACE = "test-namespace";
@@ -85,7 +85,7 @@ class AsyncUploadJobExecutorTest {
     @Mock
     private AsyncUploadJobsQuery asyncUploadJobsQuery;
 
-    private TestableAsyncUploadJobExecutor asyncUploadJobExecutor;
+    private TestableAsyncUploadJobOrchestrator asyncUploadJobExecutor;
     private AtomicBoolean asyncFileExecutorCalled;
     private AtomicBoolean deployFromUrlExecutorCalled;
 
@@ -112,7 +112,7 @@ class AsyncUploadJobExecutorTest {
         }).when(asyncFileUploadExecutor)
           .submit(any(Runnable.class));
 
-        asyncUploadJobExecutor = new TestableAsyncUploadJobExecutor(
+        asyncUploadJobExecutor = new TestableAsyncUploadJobOrchestrator(
             asyncFileUploadExecutor,
             deployFromUrlExecutor,
             applicationConfiguration,
@@ -428,13 +428,13 @@ class AsyncUploadJobExecutorTest {
         when(deployFromUrlRemoteClient.downloadFileFromUrl(any())).thenReturn(fileFromUrlData);
     }
 
-    private static class TestableAsyncUploadJobExecutor extends AsyncUploadJobExecutor {
+    private static class TestableAsyncUploadJobOrchestrator extends AsyncUploadJobOrchestrator {
 
-        public TestableAsyncUploadJobExecutor(ExecutorService asyncFileUploadExecutor, ExecutorService deployFromUrlExecutor,
-                                              ApplicationConfiguration applicationConfiguration,
-                                              AsyncUploadJobService asyncUploadJobService,
-                                              FileService fileService, DescriptorParserFacadeFactory descriptorParserFactory,
-                                              DeployFromUrlRemoteClient deployFromUrlRemoteClient) {
+        public TestableAsyncUploadJobOrchestrator(ExecutorService asyncFileUploadExecutor, ExecutorService deployFromUrlExecutor,
+                                                  ApplicationConfiguration applicationConfiguration,
+                                                  AsyncUploadJobService asyncUploadJobService,
+                                                  FileService fileService, DescriptorParserFacadeFactory descriptorParserFactory,
+                                                  DeployFromUrlRemoteClient deployFromUrlRemoteClient) {
             super(asyncFileUploadExecutor, deployFromUrlExecutor, applicationConfiguration,
                   asyncUploadJobService, fileService, descriptorParserFactory, deployFromUrlRemoteClient);
         }

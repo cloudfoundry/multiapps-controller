@@ -41,14 +41,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Named
-public class AsyncUploadJobExecutor {
+public class AsyncUploadJobOrchestrator {
 
     private static final int INPUT_STREAM_BUFFER_SIZE = 16 * 1024;
 
     private static final long WAIT_TIME_BETWEEN_ASYNC_JOB_UPDATES_IN_MILLIS = Duration.ofSeconds(3)
                                                                                       .toMillis();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncUploadJobExecutor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncUploadJobOrchestrator.class);
+
     private final ResilientOperationExecutor resilientOperationExecutor = getResilientOperationExecutor();
 
     private final ExecutorService asyncFileUploadExecutor;
@@ -60,10 +61,10 @@ public class AsyncUploadJobExecutor {
     private final DeployFromUrlRemoteClient deployFromUrlRemoteClient;
 
     @Inject
-    public AsyncUploadJobExecutor(ExecutorService asyncFileUploadExecutor, ExecutorService deployFromUrlExecutor,
-                                  ApplicationConfiguration applicationConfiguration, AsyncUploadJobService asyncUploadJobService,
-                                  FileService fileService, DescriptorParserFacadeFactory descriptorParserFactory,
-                                  DeployFromUrlRemoteClient deployFromUrlRemoteClient) {
+    public AsyncUploadJobOrchestrator(ExecutorService asyncFileUploadExecutor, ExecutorService deployFromUrlExecutor,
+                                      ApplicationConfiguration applicationConfiguration, AsyncUploadJobService asyncUploadJobService,
+                                      FileService fileService, DescriptorParserFacadeFactory descriptorParserFactory,
+                                      DeployFromUrlRemoteClient deployFromUrlRemoteClient) {
         this.asyncFileUploadExecutor = asyncFileUploadExecutor;
         this.deployFromUrlExecutor = deployFromUrlExecutor;
         this.applicationConfiguration = applicationConfiguration;
@@ -159,8 +160,8 @@ public class AsyncUploadJobExecutor {
             asyncUploadJobService.update(uploadedEntry, ImmutableAsyncUploadJobEntry.copyOf(uploadedEntry)
                                                                                     .withFileId(fileEntry.getId())
                                                                                     .withMtaId(descriptor.getId())
-                                                                                    .withFinishedAt(LocalDateTime.now())
                                                                                     .withUpdatedAt(LocalDateTime.now())
+                                                                                    .withFinishedAt(LocalDateTime.now())
                                                                                     .withBytesRead(uploadFromUrlContext.getCounterRef()
                                                                                                                        .get())
                                                                                     .withState(AsyncUploadJobEntry.State.FINISHED));
@@ -173,8 +174,7 @@ public class AsyncUploadJobExecutor {
         FileFromUrlData fileFromUrlData = deployFromUrlRemoteClient.downloadFileFromUrl(uploadFromUrlContext);
         String fileName = extractFileName(uploadFromUrlContext.getFileUrl());
         FileUtils.validateFileHasExtension(fileName);
-        resetCounterOnRetry(uploadFromUrlContext.getJobEntry()
-                                                .getId(), lock);
+        resetCounterOnRetry(uploadFromUrlContext, lock);
         // Normal stream returned from the http response always returns 0 when InputStream::available() is executed which seems to break
         // JClods library: https://issues.apache.org/jira/browse/JCLOUDS-1623
         try (CountingInputStream source = new CountingInputStream(fileFromUrlData.fileInputStream(), uploadFromUrlContext.getCounterRef());
@@ -191,11 +191,14 @@ public class AsyncUploadJobExecutor {
         }
     }
 
-    private void resetCounterOnRetry(String jobGuid, Lock lock) {
+    private void resetCounterOnRetry(UploadFromUrlContext upload, Lock lock) {
         try {
             lock.lock();
+            upload.getCounterRef()
+                  .set(0);
             AsyncUploadJobEntry asyncUploadJobEntry = asyncUploadJobService.createQuery()
-                                                                           .id(jobGuid)
+                                                                           .id(upload.getJobEntry()
+                                                                                     .getId())
                                                                            .singleResult();
             asyncUploadJobService.update(asyncUploadJobEntry, ImmutableAsyncUploadJobEntry.copyOf(asyncUploadJobEntry)
                                                                                           .withUpdatedAt(LocalDateTime.now())
@@ -223,7 +226,6 @@ public class AsyncUploadJobExecutor {
 
     private void monitorAsyncUploadJob(AsyncUploadJobEntry updatedJobEntry, Lock lock, AtomicLong counterRef) {
         while (updatedJobEntry.getState() == AsyncUploadJobEntry.State.RUNNING) {
-            MiscUtil.sleep(WAIT_TIME_BETWEEN_ASYNC_JOB_UPDATES_IN_MILLIS);
             try {
                 lock.lock();
                 updatedJobEntry = asyncUploadJobService.createQuery()
@@ -236,6 +238,7 @@ public class AsyncUploadJobExecutor {
             } finally {
                 lock.unlock();
             }
+            MiscUtil.sleep(WAIT_TIME_BETWEEN_ASYNC_JOB_UPDATES_IN_MILLIS);
         }
     }
 
@@ -246,6 +249,8 @@ public class AsyncUploadJobExecutor {
                                                    .id(jobEntry.getId())
                                                    .singleResult();
             asyncUploadJobService.update(failedEntry, ImmutableAsyncUploadJobEntry.copyOf(failedEntry)
+                                                                                  .withUpdatedAt(LocalDateTime.now())
+                                                                                  .withFinishedAt(LocalDateTime.now())
                                                                                   .withError(e.getMessage())
                                                                                   .withState(AsyncUploadJobEntry.State.ERROR));
         } finally {

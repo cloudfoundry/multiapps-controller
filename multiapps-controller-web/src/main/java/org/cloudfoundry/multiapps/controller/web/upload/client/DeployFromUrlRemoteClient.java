@@ -38,15 +38,14 @@ public class DeployFromUrlRemoteClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeployFromUrlRemoteClient.class);
 
+    private final HttpClient httpClient = buildHttpClient();
+    private final ResilientOperationExecutor resilientOperationExecutor = getResilientOperationExecutor();
+
     private final ApplicationConfiguration applicationConfiguration;
-    private final HttpClient httpClient;
-    private final ResilientOperationExecutor resilientOperationExecutor;
 
     @Inject
     public DeployFromUrlRemoteClient(ApplicationConfiguration applicationConfiguration) {
         this.applicationConfiguration = applicationConfiguration;
-        httpClient = buildHttpClient();
-        resilientOperationExecutor = getResilientOperationExecutor();
     }
 
     public FileFromUrlData downloadFileFromUrl(UploadFromUrlContext uploadFromUrlContext) throws Exception {
