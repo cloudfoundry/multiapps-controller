@@ -81,7 +81,6 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         flowHandler.injectServiceKeysCredentialsInAppEnv();
         flowHandler.handleApplicationAttributes();
         flowHandler.handleApplicationServices();
-        flowHandler.handleApplicationName();
         flowHandler.printStepEndMessage();
 
         return StepPhase.DONE;
@@ -158,8 +157,6 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         public abstract void handleApplicationAttributes();
 
-        public abstract void handleApplicationName();
-
         public abstract void handleApplicationServices();
 
         public abstract void printStepEndMessage();
@@ -198,10 +195,6 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         @Override
         public void handleApplicationServices() {
             context.setVariable(Variables.SERVICES_TO_UNBIND_BIND, app.getServices());
-        }
-
-        @Override
-        public void handleApplicationName() {
         }
 
         @Override
@@ -248,7 +241,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
             reportApplicationUpdateStatus(app, arePropertiesChanged);
             context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, arePropertiesChanged);
+
             updateApplicationEnvironment();
+            updateApplicationName();
         }
 
         private void updateApplicationEnvironment() {
@@ -296,8 +291,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                       .shouldKeepExistingEnv() ? UpdateStrategy.MERGE : UpdateStrategy.REPLACE;
         }
 
-        @Override
-        public void handleApplicationName() {
+        public void updateApplicationName() {
             boolean processIsBlueGreenWithIdleSuffix = StepsUtil.getAppSuffixDeterminer(context)
                                                                 .shouldAppendIdleSuffix();
             if (!processIsBlueGreenWithIdleSuffix) {
