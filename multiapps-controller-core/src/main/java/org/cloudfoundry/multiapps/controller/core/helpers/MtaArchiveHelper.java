@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public class MtaArchiveHelper {
 
     // Attribute names:
+    private static final String ATTR_CREATED_BY = "Created-By";
     public static final String ATTR_MTA_RESOURCE = "MTA-Resource";
     public static final String ATTR_MTA_REQUIRES_DEPENDENCY = "MTA-Requires";
     public static final String ATTR_MTA_MODULE = "MTA-Module";
@@ -23,6 +24,10 @@ public class MtaArchiveHelper {
 
     private Map<String, String> mtaArchiveResources;
     private Map<String, String> mtaArchiveModules;
+
+    public String getCreatedBy() {
+        return this.manifest.getMainAttributes().getValue(ATTR_CREATED_BY);
+    }
     private Map<String, String> mtaArchiveRequiresDependencies;
 
     public MtaArchiveHelper(Manifest manifest) {

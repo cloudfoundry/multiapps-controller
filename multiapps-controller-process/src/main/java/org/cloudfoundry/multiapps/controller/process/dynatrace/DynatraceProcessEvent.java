@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.dynatrace;
 
+import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -11,6 +12,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public abstract class DynatraceProcessEvent implements DyntraceProcessEntity {
 
     public abstract EventType getEventType();
+
+    @Nullable
+    public abstract String getCreatedBy();
 
     public enum EventType {
 
