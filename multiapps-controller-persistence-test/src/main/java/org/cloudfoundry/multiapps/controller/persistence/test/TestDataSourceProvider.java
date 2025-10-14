@@ -3,21 +3,24 @@ package org.cloudfoundry.multiapps.controller.persistence.test;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
 import javax.sql.DataSource;
-
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 public final class TestDataSourceProvider {
 
     private TestDataSourceProvider() {
 
+    }
+
+    public static DataSource getDataSource() throws Exception {
+        Connection connection = createH2InMemoryConnection();
+        return new SingleConnectionDataSource(connection, true);
     }
 
     public static DataSource getDataSource(String liquibaseChangelogLocation) throws Exception {
