@@ -23,6 +23,10 @@ public class MtaArchiveHelper {
 
     private Map<String, String> mtaArchiveResources;
     private Map<String, String> mtaArchiveModules;
+
+    public String getCreatedBy() {
+        return this.manifest.getMainAttributes().getValue("Created-By");
+    }
     private Map<String, String> mtaArchiveRequiresDependencies;
 
     public MtaArchiveHelper(Manifest manifest) {

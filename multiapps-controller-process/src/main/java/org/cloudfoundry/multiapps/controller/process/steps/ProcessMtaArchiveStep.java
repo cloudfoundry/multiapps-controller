@@ -60,7 +60,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
             context.getRequiredVariable(Variables.SPACE_GUID), appArchiveId);
         context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, archiveEntriesWithStreamPositions);
         MtaArchiveHelper helper = createMtaArchiveHelperFromManifest(context, appArchiveId, archiveEntriesWithStreamPositions);
-
+        context.setVariable(Variables.MTA_ARCHIVE_CREATED_BY, helper.getCreatedBy());
         DeploymentDescriptor deploymentDescriptor = extractDeploymentDescriptor(context, appArchiveId, archiveEntriesWithStreamPositions);
 
         if (context.getVariable(Variables.SHOULD_BACKUP_PREVIOUS_VERSION)) {

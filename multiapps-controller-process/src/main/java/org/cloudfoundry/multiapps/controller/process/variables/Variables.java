@@ -338,6 +338,10 @@ public interface Variables {
                                                                                    .type(Variable.typeReference(MtaArchiveElements.class))
                                                                                    .defaultValue(new MtaArchiveElements())
                                                                                    .build();
+    Variable<String> MTA_ARCHIVE_CREATED_BY = ImmutableJsonStringVariable.<String> builder()
+                                                           .name("mtaArchiveCreatedBy")
+                                                           .defaultValue(null)
+                                                           .build();
     Variable<CloudServiceInstanceExtended> SERVICE_TO_PROCESS = ImmutableJsonStringVariable.<CloudServiceInstanceExtended> builder()
                                                                                            .name("serviceToProcess")
                                                                                            .type(Variable.typeReference(

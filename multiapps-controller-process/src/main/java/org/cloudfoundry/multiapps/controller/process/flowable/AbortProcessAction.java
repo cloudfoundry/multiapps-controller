@@ -22,6 +22,8 @@ import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessE
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.ImmutableDynatraceProcessEvent;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessConflictPreventer;
+import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
