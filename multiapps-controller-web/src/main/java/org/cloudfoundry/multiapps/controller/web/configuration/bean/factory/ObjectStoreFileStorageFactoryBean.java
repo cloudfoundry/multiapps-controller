@@ -16,6 +16,8 @@ import io.pivotal.cfenv.core.CfService;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.services.GcpObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.Constants;
@@ -30,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
-public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStoreFileStorage>, InitializingBean {
+public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorage>, InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectStoreFileStorageFactoryBean.class);
     private static final Set<String> CUSTOM_REGIONS = Set.of("eu-south-1");
@@ -39,7 +41,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
     private final String serviceName;
     private final EnvironmentServicesFinder environmentServicesFinder;
     private final ApplicationConfiguration applicationConfiguration;
-    private ObjectStoreFileStorage objectStoreFileStorage;
+    private FileStorage objectStoreFileStorage;
 
     public ObjectStoreFileStorageFactoryBean(String serviceName, EnvironmentServicesFinder environmentServicesFinder,
                                              ApplicationConfiguration applicationConfiguration) {
@@ -53,7 +55,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         this.objectStoreFileStorage = createObjectStoreFileStorage();
     }
 
-    private ObjectStoreFileStorage createObjectStoreFileStorage() {
+    private FileStorage createObjectStoreFileStorage() {
         List<ObjectStoreServiceInfo> providersServiceInfo = getProvidersServiceInfo();
         if (providersServiceInfo.isEmpty()) {
             return null;
@@ -69,7 +71,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
 
         if (objectStoreServiceInfoOptional.isPresent()) {
             ObjectStoreServiceInfo objectStoreServiceInfo = objectStoreServiceInfoOptional.get();
-            Optional<ObjectStoreFileStorage> createdObjectStore = tryToCreateObjectStore(objectStoreServiceInfo, exceptions);
+            Optional<FileStorage> createdObjectStore = tryToCreateObjectStore(objectStoreServiceInfo, exceptions);
             if (createdObjectStore.isPresent()) {
                 return createdObjectStore.get();
             }
@@ -78,14 +80,15 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         throw buildNoValidObjectStoreException(exceptions);
     }
 
-    public ObjectStoreFileStorage createObjectStoreFromFirstReachableProvider(Map<String, Exception> exceptions,
-                                                                              List<ObjectStoreServiceInfo> providersServiceInfo) {
+    public FileStorage createObjectStoreFromFirstReachableProvider(Map<String, Exception> exceptions,
+                                                                   List<ObjectStoreServiceInfo> providersServiceInfo) {
         for (ObjectStoreServiceInfo objectStoreServiceInfo : providersServiceInfo) {
-            Optional<ObjectStoreFileStorage> createdObjectStoreOptional = tryToCreateObjectStore(objectStoreServiceInfo, exceptions);
+            Optional<FileStorage> createdObjectStoreOptional = tryToCreateObjectStore(objectStoreServiceInfo, exceptions);
             if (createdObjectStoreOptional.isPresent()) {
                 return createdObjectStoreOptional.get();
             }
         }
+
         throw buildNoValidObjectStoreException(exceptions);
     }
 
@@ -109,11 +112,10 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         return new IllegalStateException(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND);
     }
 
-    private Optional<ObjectStoreFileStorage> tryToCreateObjectStore(ObjectStoreServiceInfo objectStoreServiceInfo,
-                                                                    Map<String, Exception> exceptions) {
+    private Optional<FileStorage> tryToCreateObjectStore(ObjectStoreServiceInfo objectStoreServiceInfo,
+                                                         Map<String, Exception> exceptions) {
         try {
-            BlobStoreContext context = getBlobStoreContext(objectStoreServiceInfo);
-            ObjectStoreFileStorage fileStorage = createFileStorage(objectStoreServiceInfo, context);
+            FileStorage fileStorage = getFileStorageBasedOnProvider(objectStoreServiceInfo);
             fileStorage.testConnection();
             LOGGER.info(MessageFormat.format(Messages.OBJECT_STORE_WITH_PROVIDER_0_CREATED, objectStoreServiceInfo.getProvider()));
             return Optional.of(fileStorage);
@@ -123,7 +125,16 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         }
     }
 
-    private List<ObjectStoreServiceInfo> getProvidersServiceInfo() {
+    private FileStorage getFileStorageBasedOnProvider(ObjectStoreServiceInfo objectStoreServiceInfo) {
+        if (Constants.GOOGLE_CLOUD_STORAGE.equals(objectStoreServiceInfo.getProvider())) {
+            return createFileStorage(objectStoreServiceInfo);
+        } else {
+            BlobStoreContext context = getBlobStoreContext(objectStoreServiceInfo);
+            return createFileStorage(objectStoreServiceInfo, context);
+        }
+    }
+
+    public List<ObjectStoreServiceInfo> getProvidersServiceInfo() {
         CfService service = environmentServicesFinder.findService(serviceName);
         if (service == null) {
             return Collections.emptyList();
@@ -185,8 +196,12 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         return new ObjectStoreFileStorage(context.getBlobStore(), objectStoreServiceInfo.getContainer());
     }
 
+    protected GcpObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
+        return new GcpObjectStoreFileStorage(objectStoreServiceInfo.getContainer(), objectStoreServiceInfo.getGcpStorage());
+    }
+
     @Override
-    public ObjectStoreFileStorage getObject() {
+    public FileStorage getObject() {
         return objectStoreFileStorage;
     }
 

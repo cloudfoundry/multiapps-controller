@@ -1,18 +1,20 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Supplier;
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import io.pivotal.cfenv.core.CfService;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
-import org.jclouds.domain.Credentials;
-import org.jclouds.googlecloud.GoogleCredentialsFromJson;
 
 public class ObjectStoreServiceInfoCreator {
 
@@ -97,25 +99,33 @@ public class ObjectStoreServiceInfoCreator {
     }
 
     private ObjectStoreServiceInfo createServiceInfoForGcpCloud(Map<String, Object> credentials) {
-        String bucket = (String) credentials.get(Constants.BUCKET);
-        String region = (String) credentials.get(Constants.REGION);
-        Supplier<Credentials> credentialsSupplier = getGcpCredentialsSupplier(credentials);
+        String bucketName = (String) credentials.get(Constants.BUCKET);
+        Storage storage = createObjectStoreStorage(credentials);
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.GOOGLE_CLOUD_STORAGE)
-                                              .credentialsSupplier(credentialsSupplier)
-                                              .container(bucket)
-                                              .region(region)
+                                              .container(bucketName)
+                                              .gcpStorage(storage)
                                               .build();
     }
 
-    protected Supplier<Credentials> getGcpCredentialsSupplier(Map<String, Object> credentials) {
+    public Storage createObjectStoreStorage(Map<String, Object> credentials) {
+        return StorageOptions.newBuilder()
+                             .setCredentials(getGcpCredentialsSupplier(credentials))
+                             .build()
+                             .getService();
+    }
+
+    private Credentials getGcpCredentialsSupplier(Map<String, Object> credentials) {
         if (!credentials.containsKey(Constants.BASE_64_ENCODED_PRIVATE_KEY_DATA)) {
-            return () -> null;
+            return null;
         }
         byte[] decodedKey = Base64.getDecoder()
                                   .decode((String) credentials.get(Constants.BASE_64_ENCODED_PRIVATE_KEY_DATA));
-        String decodedCredential = new String(decodedKey, StandardCharsets.UTF_8);
-        return new GoogleCredentialsFromJson(decodedCredential);
+        try {
+            return GoogleCredentials.fromStream(new ByteArrayInputStream(decodedKey));
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
 }
