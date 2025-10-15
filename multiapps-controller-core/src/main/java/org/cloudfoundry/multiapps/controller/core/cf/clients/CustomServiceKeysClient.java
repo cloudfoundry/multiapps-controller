@@ -3,8 +3,10 @@ package org.cloudfoundry.multiapps.controller.core.cf.clients;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
@@ -30,7 +32,8 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     }
 
     public List<DeployedMtaServiceKey> getServiceKeysByMetadataAndGuids(String spaceGuid, String mtaId, String mtaNamespace,
-                                                                        List<DeployedMtaService> services) {
+                                                                        List<DeployedMtaService> services,
+                                                                        List<String> existingServiceGuids) {
         String labelSelector = MtaMetadataCriteriaBuilder.builder()
                                                          .label(MtaMetadataLabels.SPACE_GUID)
                                                          .hasValue(spaceGuid)
@@ -43,20 +46,46 @@ public class CustomServiceKeysClient extends CustomControllerClient {
                                                          .build()
                                                          .get();
 
-        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(
-            () -> getServiceKeysByMetadataInternal(labelSelector, services));
+        List<String> managedGuids = extractManagedServiceGuids(services);
+
+        List<String> allServiceGuids = Stream.concat(managedGuids.stream(), existingServiceGuids.stream())
+                                             .filter(Objects::nonNull)
+                                             .distinct()
+                                             .toList();
+
+        if (allServiceGuids.isEmpty()) {
+            return List.of();
+        }
+
+        return getServiceKeysByMetadataInternal(labelSelector, allServiceGuids);
     }
 
-    private List<DeployedMtaServiceKey> getServiceKeysByMetadataInternal(String labelSelector, List<DeployedMtaService> services) {
-        String uriSuffix = INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM;
-        List<DeployedMtaService> managedServices = getManagedServices(services);
-        if (managedServices != null) {
-            uriSuffix += "&service_instance_guids=" + managedServices.stream()
-                                                                     .map(service -> service.getGuid()
-                                                                                            .toString())
-                                                                     .collect(Collectors.joining(","));
+    private List<String> extractManagedServiceGuids(List<DeployedMtaService> services) {
+        if (services == null || services.isEmpty()) {
+            return List.of();
         }
-        return getListOfResources(new ServiceKeysResponseMapper(managedServices), SERVICE_KEYS_BY_METADATA_SELECTOR_URI + uriSuffix,
+        List<DeployedMtaService> managed = getManagedServices(services);
+        if (managed == null || managed.isEmpty()) {
+            return List.of();
+        }
+        return managed.stream()
+                      .map(s -> s.getGuid() != null ? s.getGuid()
+                                                       .toString() : null)
+                      .filter(Objects::nonNull)
+                      .distinct()
+                      .toList();
+    }
+
+    private List<DeployedMtaServiceKey> getServiceKeysByMetadataInternal(String labelSelector, List<String> guids) {
+
+        if (guids == null || guids.isEmpty()) {
+            return List.of();
+        }
+        String uriSuffix = INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM
+            + "&service_instance_guids=" + String.join(",", guids);
+
+        return getListOfResources(new ServiceKeysResponseMapper(null),
+                                  SERVICE_KEYS_BY_METADATA_SELECTOR_URI + uriSuffix,
                                   labelSelector);
     }
 
