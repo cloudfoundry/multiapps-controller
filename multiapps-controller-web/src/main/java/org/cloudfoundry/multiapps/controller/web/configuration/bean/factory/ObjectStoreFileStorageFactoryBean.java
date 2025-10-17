@@ -127,7 +127,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
 
     private FileStorage getFileStorageBasedOnProvider(ObjectStoreServiceInfo objectStoreServiceInfo) {
         if (Constants.GOOGLE_CLOUD_STORAGE.equals(objectStoreServiceInfo.getProvider())) {
-            return createFileStorage(objectStoreServiceInfo);
+            return createGcpFileStorage(objectStoreServiceInfo);
         } else {
             BlobStoreContext context = getBlobStoreContext(objectStoreServiceInfo);
             return createFileStorage(objectStoreServiceInfo, context);
@@ -196,7 +196,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
         return new ObjectStoreFileStorage(context.getBlobStore(), objectStoreServiceInfo.getContainer());
     }
 
-    protected GcpObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
+    protected GcpObjectStoreFileStorage createGcpFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
         return new GcpObjectStoreFileStorage(objectStoreServiceInfo.getContainer(), objectStoreServiceInfo.getGcpStorage());
     }
 
