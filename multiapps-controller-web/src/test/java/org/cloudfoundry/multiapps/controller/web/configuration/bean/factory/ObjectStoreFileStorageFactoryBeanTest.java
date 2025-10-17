@@ -162,7 +162,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
         }
 
         @Override
-        protected GcpObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
+        protected GcpObjectStoreFileStorage createGcpFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
             return ObjectStoreFileStorageFactoryBeanTest.this.gcpObjectStoreFileStorage;
         }
 

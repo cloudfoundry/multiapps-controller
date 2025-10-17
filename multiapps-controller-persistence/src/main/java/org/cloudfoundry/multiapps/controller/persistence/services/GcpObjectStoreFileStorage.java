@@ -15,11 +15,11 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageException;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreUtil;
-import org.jclouds.http.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -29,6 +29,7 @@ public class GcpObjectStoreFileStorage implements FileStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger(GcpObjectStoreFileStorage.class);
     private final String bucketName;
     private final Storage storage;
+    private static final long RETRY_WAIT_TIME = 5000L;
 
     public GcpObjectStoreFileStorage(String bucketName, Storage storage) {
         this.bucketName = bucketName;
@@ -52,13 +53,11 @@ public class GcpObjectStoreFileStorage implements FileStorage {
             try {
                 storage.createFrom(blobInfo, content);
                 return;
-            } catch (HttpResponseException e) {
+            } catch (IOException e) {
                 LOGGER.warn(MessageFormat.format(Messages.ATTEMPT_TO_UPLOAD_BLOB_FAILED, i, retries, e.getMessage()), e);
                 if (i == retries) {
-                    throw e;
+                    throw new FileStorageException(e);
                 }
-            } catch (IOException e) {
-                throw new FileStorageException(e);
             }
             MiscUtil.sleep(i * getRetryWaitTime());
         }
@@ -109,42 +108,39 @@ public class GcpObjectStoreFileStorage implements FileStorage {
                                     FileContentProcessor<T> fileContentProcessor) throws FileStorageException {
         FileEntry fileEntry = ObjectStoreUtil.createFileEntry(space, id);
         try (InputStream inputStream = openBlobStreamWithRetries(fileEntry, 3)) {
-            if (inputStream == null) {
-                throw new FileStorageException(
-                    MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST,
-                                         fileEntry.getId(), fileEntry.getSpace()));
-            }
             return fileContentProcessor.process(inputStream);
         } catch (Exception e) {
             throw new FileStorageException(e);
         }
     }
 
-    private InputStream openBlobStreamWithRetries(FileEntry fileEntry, int maxAttempts) {
+    private InputStream openBlobStreamWithRetries(FileEntry fileEntry, int maxAttempts) throws FileStorageException {
         Blob blob = getBlobWithRetries(fileEntry, maxAttempts);
         if (blob == null) {
-            return null;
+            throw new FileStorageException(
+                MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST,
+                                     fileEntry.getId(), fileEntry.getSpace()));
         }
         return Channels.newInputStream(blob.reader());
     }
 
     private Blob getBlobWithRetries(FileEntry fileEntry, int retries) {
         for (int i = 1; i <= retries; i++) {
-            Blob blob = storage.get(bucketName, fileEntry.getId());
-            if (blob != null) {
-                return blob;
+            try {
+                return storage.get(bucketName, fileEntry.getId());
+            } catch (StorageException e) {
+                LOGGER.warn(MessageFormat.format(Messages.ATTEMPT_TO_DOWNLOAD_MISSING_BLOB, i, retries, fileEntry.getId()));
+                if (i == retries) {
+                    break;
+                }
+                MiscUtil.sleep(i * getRetryWaitTime());
             }
-            LOGGER.warn(MessageFormat.format(Messages.ATTEMPT_TO_DOWNLOAD_MISSING_BLOB, i, retries, fileEntry.getId()));
-            if (i == retries) {
-                break;
-            }
-            MiscUtil.sleep(i * getRetryWaitTime());
         }
         return null;
     }
 
     protected long getRetryWaitTime() {
-        return 5000L;
+        return RETRY_WAIT_TIME;
     }
 
     @Override
@@ -197,18 +193,18 @@ public class GcpObjectStoreFileStorage implements FileStorage {
                       .collect(Collectors.toSet());
     }
 
-    private int removeBlobsByFilter(Predicate<? super Blob> filter) {
-        Set<String> entries = getEntryNames(filter);
+    protected int removeBlobsByFilter(Predicate<? super Blob> filter) {
+        List<BlobId> blobIds = getEntryNames(filter).stream()
+                                                    .map(entry -> BlobId.of(bucketName, entry))
+                                                    .toList();
 
-        if (!entries.isEmpty()) {
-            for (String name : entries) {
-                storage.delete(bucketName, name);
-            }
+        if (!blobIds.isEmpty()) {
+            storage.delete(blobIds);
         }
-        return entries.size();
+        return blobIds.size();
     }
 
-    private Set<String> getEntryNames(Predicate<? super Blob> filter) {
+    protected Set<String> getEntryNames(Predicate<? super Blob> filter) {
         return storage.list(bucketName)
                       .streamAll()
                       .filter(filter)

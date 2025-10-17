@@ -1,10 +1,5 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +17,6 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.xml.bind.DatatypeConverter;
-
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
@@ -35,22 +29,27 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 class ObjectStoreFileStorageTest {
 
-    private static final String TEST_FILE_LOCATION = "src/test/resources/pexels-photo-401794.jpeg";
-    private static final String SECOND_FILE_TEST_LOCATION = "src/test/resources/pexels-photo-463467.jpeg";
-    private static final String DIGEST_METHOD = "MD5";
-    private static final String CONTAINER = "container4e";
+    protected static final String TEST_FILE_LOCATION = "src/test/resources/pexels-photo-401794.jpeg";
+    protected static final String SECOND_FILE_TEST_LOCATION = "src/test/resources/pexels-photo-463467.jpeg";
+    protected static final String DIGEST_METHOD = "MD5";
+    protected static final String CONTAINER = "container4e";
 
-    private String spaceId;
-    private String namespace;
+    protected String spaceId;
+    protected String namespace;
 
-    private FileStorage fileStorage;
+    protected FileStorage fileStorage;
 
     private BlobStoreContext blobStoreContext;
 
     @BeforeEach
-    public void setUp() {
+    protected void setUp() {
         createBlobStoreContext();
         fileStorage = new ObjectStoreFileStorage(blobStoreContext.getBlobStore(), CONTAINER) {
             @Override
@@ -72,7 +71,7 @@ class ObjectStoreFileStorageTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    protected void tearDown() {
         if (blobStoreContext != null) {
             blobStoreContext.close();
         }
@@ -163,6 +162,10 @@ class ObjectStoreFileStorageTest {
         assertFileExists(true, fileEntryToRemain2);
         assertFileExists(false, fileEntryToDelete1);
         assertFileExists(false, fileEntryToDelete2);
+        assertBlobInNull(blobWithNoMetadataId);
+    }
+
+    protected void assertBlobInNull(String blobWithNoMetadataId) {
         assertNull(blobStoreContext.getBlobStore()
                                    .getBlob(CONTAINER, blobWithNoMetadataId));
     }
@@ -176,11 +179,10 @@ class ObjectStoreFileStorageTest {
     void testDeleteFilesByIds() throws Exception {
         FileEntry fileEntry = addFile(TEST_FILE_LOCATION);
         fileStorage.deleteFilesByIds(List.of(fileEntry.getId()));
-        assertNull(blobStoreContext.getBlobStore()
-                                   .getBlob(CONTAINER, fileEntry.getId()));
+        assertBlobInNull(fileEntry.getId());
     }
 
-    private String addBlobWithNoMetadata() throws Exception {
+    protected String addBlobWithNoMetadata() throws Exception {
         BlobStore blobStore = blobStoreContext.getBlobStore();
         Path path = Paths.get(TEST_FILE_LOCATION);
         long fileSize = Files.size(path);
@@ -218,7 +220,7 @@ class ObjectStoreFileStorageTest {
         assertThrows(FileStorageException.class, () -> validateFileContent(dummyFileEntry, fileDigest));
     }
 
-    private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {
+    protected void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {
         fileStorage.processFileContent(storedFile.getSpace(), storedFile.getId(), contentStream -> {
             // make a digest out of the content and compare it to the original
             final byte[] digest = calculateFileDigest(contentStream);
@@ -242,21 +244,21 @@ class ObjectStoreFileStorageTest {
         }
     }
 
-    private void addBigAmountOfEntries() throws Exception {
+    protected void addBigAmountOfEntries() throws Exception {
         for (int i = 0; i < 3001; i++) {
             addFileContent("test-file-" + i, "test".getBytes());
         }
     }
 
-    private FileEntry addFile(String pathString) throws Exception {
+    protected FileEntry addFile(String pathString) throws Exception {
         return addFile(pathString, spaceId, namespace);
     }
 
-    private FileEntry addFile(String pathString, String space, String namespace) throws Exception {
+    protected FileEntry addFile(String pathString, String space, String namespace) throws Exception {
         return addFile(pathString, space, namespace, null);
     }
 
-    private FileEntry addFile(String pathString, String space, String namespace, LocalDateTime date) throws Exception {
+    protected FileEntry addFile(String pathString, String space, String namespace, LocalDateTime date) throws Exception {
         Path testFilePath = Paths.get(pathString)
                                  .toAbsolutePath();
         FileEntry fileEntry = createFileEntry(space, namespace);
@@ -311,7 +313,7 @@ class ObjectStoreFileStorageTest {
                                  .build();
     }
 
-    private void assertFileExists(boolean exceptedFileExist, FileEntry actualFile) {
+    protected void assertFileExists(boolean exceptedFileExist, FileEntry actualFile) {
         Blob blob = blobStoreContext.getBlobStore()
                                     .getBlob(CONTAINER, actualFile.getId());
         boolean blobExists = blob != null;
