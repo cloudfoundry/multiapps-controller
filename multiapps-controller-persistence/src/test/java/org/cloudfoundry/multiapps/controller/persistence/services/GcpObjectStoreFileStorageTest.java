@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -29,10 +30,11 @@ class GcpObjectStoreFileStorageTest extends ObjectStoreFileStorageTest {
     public void setUp() {
         storage = LocalStorageHelper.getOptions()
                                     .getService();
-        fileStorage = new GcpObjectStoreFileStorage(CONTAINER, storage) {
+        fileStorage = new GcpObjectStoreFileStorage(Map.of("bucket", CONTAINER)) {
+
             @Override
-            protected long getRetryWaitTime() {
-                return 0;
+            protected Storage createObjectStoreStorage(Map<String, Object> credentials) {
+                return storage;
             }
 
             @Override

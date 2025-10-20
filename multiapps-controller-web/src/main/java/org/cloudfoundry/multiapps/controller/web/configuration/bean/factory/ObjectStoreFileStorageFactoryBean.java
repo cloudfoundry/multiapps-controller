@@ -22,6 +22,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFil
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
+import org.cloudfoundry.multiapps.controller.web.configuration.service.ImmutableObjectStoreServiceInfo;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfo;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfoCreator;
 import org.jclouds.ContextBuilder;
@@ -66,15 +67,11 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
             return createObjectStoreFromFirstReachableProvider(exceptions, providersServiceInfo);
         }
 
-        Optional<ObjectStoreServiceInfo> objectStoreServiceInfoOptional = getAppropriateProvider(objectStoreProviderName,
-                                                                                                 providersServiceInfo);
+        Optional<FileStorage> optionalFileStorage = createObjectStoreBasedOnProvider(objectStoreProviderName, providersServiceInfo,
+                                                                                     exceptions);
 
-        if (objectStoreServiceInfoOptional.isPresent()) {
-            ObjectStoreServiceInfo objectStoreServiceInfo = objectStoreServiceInfoOptional.get();
-            Optional<FileStorage> createdObjectStore = tryToCreateObjectStore(objectStoreServiceInfo, exceptions);
-            if (createdObjectStore.isPresent()) {
-                return createdObjectStore.get();
-            }
+        if (optionalFileStorage.isPresent()) {
+            return optionalFileStorage.get();
         }
 
         throw buildNoValidObjectStoreException(exceptions);
@@ -83,13 +80,31 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
     public FileStorage createObjectStoreFromFirstReachableProvider(Map<String, Exception> exceptions,
                                                                    List<ObjectStoreServiceInfo> providersServiceInfo) {
         for (ObjectStoreServiceInfo objectStoreServiceInfo : providersServiceInfo) {
-            Optional<FileStorage> createdObjectStoreOptional = tryToCreateObjectStore(objectStoreServiceInfo, exceptions);
-            if (createdObjectStoreOptional.isPresent()) {
-                return createdObjectStoreOptional.get();
+            Optional<FileStorage> createdObjectStore = tryToCreateObjectStore(objectStoreServiceInfo, exceptions);
+            if (createdObjectStore.isPresent()) {
+                return createdObjectStore.get();
             }
         }
-
+        Optional<FileStorage> gcpObjectStoreOpt = tryToCreateGcpObjectStore(exceptions);
+        if (gcpObjectStoreOpt.isPresent()) {
+            return gcpObjectStoreOpt.get();
+        }
         throw buildNoValidObjectStoreException(exceptions);
+    }
+
+    private Optional<FileStorage> createObjectStoreBasedOnProvider(String objectStoreProviderName,
+                                                                   List<ObjectStoreServiceInfo> providersServiceInfo,
+                                                                   Map<String, Exception> exceptions) {
+        Optional<ObjectStoreServiceInfo> objectStoreServiceInfoOptional = getAppropriateProvider(objectStoreProviderName,
+                                                                                                 providersServiceInfo);
+        Optional<FileStorage> createdObjectStore;
+        if (objectStoreServiceInfoOptional.isPresent()) {
+            ObjectStoreServiceInfo objectStoreServiceInfo = objectStoreServiceInfoOptional.get();
+            createdObjectStore = tryToCreateObjectStore(objectStoreServiceInfo, exceptions);
+        } else {
+            createdObjectStore = tryToCreateGcpObjectStore(exceptions);
+        }
+        return createdObjectStore;
     }
 
     private Optional<ObjectStoreServiceInfo> getAppropriateProvider(String objectStoreProviderName,
@@ -100,16 +115,10 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
                                    .findFirst();
     }
 
-    private boolean isObjectStoreEnvValid(String objectStoreProviderName) {
-        return objectStoreProviderName != null && !objectStoreProviderName.isEmpty() && Constants.ENV_TO_OS_PROVIDER.containsKey(
-            objectStoreProviderName);
-    }
-
-    private IllegalStateException buildNoValidObjectStoreException(Map<String, Exception> exceptions) {
-        exceptions.forEach((provider, exception) -> LOGGER.error(
-            MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0, provider),
-            exception));
-        return new IllegalStateException(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND);
+    private Optional<FileStorage> tryToCreateGcpObjectStore(Map<String, Exception> exceptions) {
+        return tryToCreateObjectStore(ImmutableObjectStoreServiceInfo.builder()
+                                                                     .provider(Constants.GOOGLE_CLOUD_STORAGE)
+                                                                     .build(), exceptions);
     }
 
     private Optional<FileStorage> tryToCreateObjectStore(ObjectStoreServiceInfo objectStoreServiceInfo,
@@ -127,19 +136,40 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
 
     private FileStorage getFileStorageBasedOnProvider(ObjectStoreServiceInfo objectStoreServiceInfo) {
         if (Constants.GOOGLE_CLOUD_STORAGE.equals(objectStoreServiceInfo.getProvider())) {
-            return createGcpFileStorage(objectStoreServiceInfo);
+            return createGcpFileStorage();
         } else {
             BlobStoreContext context = getBlobStoreContext(objectStoreServiceInfo);
             return createFileStorage(objectStoreServiceInfo, context);
         }
     }
 
+    private boolean isObjectStoreEnvValid(String objectStoreProviderName) {
+        return objectStoreProviderName != null && !objectStoreProviderName.isEmpty() && Constants.ENV_TO_OS_PROVIDER.containsKey(
+            objectStoreProviderName);
+    }
+
+    private IllegalStateException buildNoValidObjectStoreException(Map<String, Exception> exceptions) {
+        exceptions.forEach((provider, exception) -> LOGGER.error(
+            MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0, provider),
+            exception));
+        return new IllegalStateException(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND);
+    }
+
     public List<ObjectStoreServiceInfo> getProvidersServiceInfo() {
-        CfService service = environmentServicesFinder.findService(serviceName);
-        if (service == null) {
+        Map<String, Object> credentials = getServiceCredentials();
+        if (credentials.isEmpty()) {
             return Collections.emptyList();
         }
-        return new ObjectStoreServiceInfoCreator().getAllProvidersServiceInfo(service);
+        return new ObjectStoreServiceInfoCreator().getAllProvidersServiceInfo(credentials);
+    }
+
+    private Map<String, Object> getServiceCredentials() {
+        CfService service = environmentServicesFinder.findService(serviceName);
+        if (service == null) {
+            return Map.of();
+        }
+        return service.getCredentials()
+                      .getMap();
     }
 
     private BlobStoreContext getBlobStoreContext(ObjectStoreServiceInfo serviceInfo) {
@@ -196,8 +226,9 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
         return new ObjectStoreFileStorage(context.getBlobStore(), objectStoreServiceInfo.getContainer());
     }
 
-    protected GcpObjectStoreFileStorage createGcpFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
-        return new GcpObjectStoreFileStorage(objectStoreServiceInfo.getContainer(), objectStoreServiceInfo.getGcpStorage());
+    protected GcpObjectStoreFileStorage createGcpFileStorage() {
+        Map<String, Object> credentials = getServiceCredentials();
+        return new GcpObjectStoreFileStorage(credentials);
     }
 
     @Override
