@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.contrib.nio.testing.LocalStorageHelper;
 import io.pivotal.cfenv.core.CfCredentials;
 import io.pivotal.cfenv.core.CfService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -162,7 +160,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
         }
 
         @Override
-        protected GcpObjectStoreFileStorage createGcpFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
+        protected GcpObjectStoreFileStorage createGcpFileStorage() {
             return ObjectStoreFileStorageFactoryBeanTest.this.gcpObjectStoreFileStorage;
         }
 
@@ -170,7 +168,8 @@ class ObjectStoreFileStorageFactoryBeanTest {
         public List<ObjectStoreServiceInfo> getProvidersServiceInfo() {
             CfService service = environmentServicesFinder.findService("deploy-service-os");
             if (service != null) {
-                return new ObjectStoreServiceInfoCreatorMock().getAllProvidersServiceInfo(service);
+                return new ObjectStoreServiceInfoCreatorMock().getAllProvidersServiceInfo(service.getCredentials()
+                                                                                                 .getMap());
             } else {
                 return List.of();
             }
@@ -178,11 +177,5 @@ class ObjectStoreFileStorageFactoryBeanTest {
     }
 
     private class ObjectStoreServiceInfoCreatorMock extends ObjectStoreServiceInfoCreator {
-
-        @Override
-        public Storage createObjectStoreStorage(Map<String, Object> credentials) {
-            return LocalStorageHelper.getOptions()
-                                     .getService();
-        }
     }
 }

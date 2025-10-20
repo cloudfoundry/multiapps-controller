@@ -2,8 +2,6 @@ package org.cloudfoundry.multiapps.controller.web.configuration.service;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,14 +45,15 @@ class ObjectStoreServiceInfoCreatorTest {
     static Stream<Arguments> testDifferentProviders() throws MalformedURLException {
         return Stream.of(Arguments.of(buildCfService(buildAliCloudCredentials()), buildAliCloudObjectStoreServiceInfo()),
                          Arguments.of(buildCfService(buildAwsCredentials()), buildAwsObjectStoreServiceInfo()),
-                         Arguments.of(buildCfService(buildAzureCredentials()), buildAzureObjectStoreServiceInfo()),
-                         Arguments.of(buildCfService(buildGcpCredentials()), buildGcpObjectStoreServiceInfo()));
+                         Arguments.of(buildCfService(buildAzureCredentials()), buildAzureObjectStoreServiceInfo()));
     }
 
     @ParameterizedTest
     @MethodSource
     void testDifferentProviders(CfService cfService, ObjectStoreServiceInfo exprectedObjectStoreServiceInfo) {
-        List<ObjectStoreServiceInfo> providersServiceInfo = objectStoreServiceInfoCreator.getAllProvidersServiceInfo(cfService);
+        List<ObjectStoreServiceInfo> providersServiceInfo = objectStoreServiceInfoCreator.getAllProvidersServiceInfo(
+            cfService.getCredentials()
+                     .getMap());
         assertTrue(providersServiceInfo.contains(exprectedObjectStoreServiceInfo));
     }
 
@@ -123,26 +122,6 @@ class ObjectStoreServiceInfoCreatorTest {
                                               .build();
     }
 
-    private static Map<String, Object> buildGcpCredentials() {
-        Map<String, Object> credentials = new HashMap<>();
-        credentials.put(Constants.BUCKET, BUCKET_VALUE);
-        credentials.put(Constants.BASE_64_ENCODED_PRIVATE_KEY_DATA, Base64.getEncoder()
-                                                                          .encodeToString("encoded_data".getBytes(StandardCharsets.UTF_8)));
-        return credentials;
-    }
-
-    private static ObjectStoreServiceInfo buildGcpObjectStoreServiceInfo() {
-        return ImmutableObjectStoreServiceInfo.builder()
-                                              .provider(Constants.GOOGLE_CLOUD_STORAGE)
-                                              .gcpStorage(STORAGE)
-                                              .container(BUCKET_VALUE)
-                                              .build();
-    }
-
     private static class ObjectStoreServiceInfoCreatorMock extends ObjectStoreServiceInfoCreator {
-        @Override
-        public Storage createObjectStoreStorage(Map<String, Object> credentials) {
-            return STORAGE;
-        }
     }
 }
