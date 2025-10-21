@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:flowable="http://flowable.org/bpmn"
+             targetNamespace="http://flowable.org/test">
+  <process id="mtaDeploymentTest" name="MTA Deployment Test Process" isExecutable="true">
+    <startEvent id="start"/>
+    <serviceTask id="processVariablesTask" name="Process Variables Task"
+                 flowable:delegateExpression="${testVariableTask}"/>
+    <endEvent id="end"/>
+    <sequenceFlow id="flow1" sourceRef="start" targetRef="processVariablesTask"/>
+    <sequenceFlow id="flow2" sourceRef="processVariablesTask" targetRef="end"/>
+  </process>
+</definitions>

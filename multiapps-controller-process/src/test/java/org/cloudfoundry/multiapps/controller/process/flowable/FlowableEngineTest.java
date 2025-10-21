@@ -59,26 +59,9 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
  * Integration test for Flowable engine with in-memory H2 database. Tests real BPMN process creation, variable setting and retrieval using
  * the multiapps-controller variable handling system.
  */
-//@FlowableTest
-//@ConfigurationResource("flowable-config.xml")
 class FlowableEngineTest {
 
     private static final String TEST_PROCESS_KEY = "mtaDeploymentTest";
-    private static final String TEST_BPMN_CONTENT = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
-                     xmlns:flowable="http://flowable.org/bpmn"
-                     targetNamespace="http://flowable.org/test">
-          <process id="mtaDeploymentTest" name="MTA Deployment Test Process" isExecutable="true">
-            <startEvent id="start"/>
-            <serviceTask id="processVariablesTask" name="Process Variables Task" 
-                         flowable:delegateExpression="${testVariableTask}"/>
-            <endEvent id="end"/>
-            <sequenceFlow id="flow1" sourceRef="start" targetRef="processVariablesTask"/>
-            <sequenceFlow id="flow2" sourceRef="processVariablesTask" targetRef="end"/>
-          </process>
-        </definitions>
-        """;
 
     @Mock
     private FlowableMailClient flowableMailClient;
@@ -99,15 +82,13 @@ class FlowableEngineTest {
         configuration.setDefaultMailClient(flowableMailClient);
         configuration.setDatabaseSchemaUpdate("create-drop");
         configuration.setBeans(Map.of("testVariableTask", testVariableTask));
-        configuration.setAsyncExecutorActivate(false);
         processEngine = configuration.buildProcessEngine();
         repositoryService = processEngine.getRepositoryService();
         runtimeService = processEngine.getRuntimeService();
-
-        // Deploy test process
         deploymentId = repositoryService.createDeployment()
                                         .name("MTA Deployment Test")
-                                        .addString("mta-deployment-test.bpmn20.xml", TEST_BPMN_CONTENT)
+                                        .addClasspathResource(
+                                            "org/cloudfoundry/multiapps/controller/process/flowable/test-bpmn-diagram.bpmn")
                                         .deploy()
                                         .getId();
     }
@@ -267,41 +248,26 @@ class FlowableEngineTest {
 
         runtimeService.startProcessInstanceByKey(TEST_PROCESS_KEY, initialVariables);
 
-        String retrievedCorrelationId = getDeserializedValue(testVariableTask.capturedVariables, Variables.CORRELATION_ID);
-        Boolean retrievedDeleteServices = getDeserializedValue(testVariableTask.capturedVariables, Variables.DELETE_SERVICES);
-        String retrievedMtaId = getDeserializedValue(testVariableTask.capturedVariables, Variables.MTA_ID);
-        DeploymentDescriptor retrievedSmallDeploymentDescriptor = getDeserializedValue(testVariableTask.capturedVariables,
-                                                                                       Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
-        DeploymentDescriptor retrievedBigDeploymentDescriptor = getDeserializedValue(testVariableTask.capturedVariables,
-                                                                                     Variables.DEPLOYMENT_DESCRIPTOR);
-        DeployedMta retrievedDeployedMta = getDeserializedValue(testVariableTask.capturedVariables, Variables.DEPLOYED_MTA);
-        List<CloudRoute> retrievedCloudRoutes = getDeserializedValue(testVariableTask.capturedVariables, Variables.CURRENT_ROUTES);
-        StepPhase retrievedStepPhase = getDeserializedValue(testVariableTask.capturedVariables, Variables.STEP_PHASE);
-        List<ApplicationStateAction> retrievedAppStateActionsToExecute = getDeserializedValue(testVariableTask.capturedVariables,
-                                                                                              Variables.APP_STATE_ACTIONS_TO_EXECUTE);
-        List<CloudServiceKey> retrievedServiceKeysToCreate = getDeserializedValue(testVariableTask.capturedVariables,
-                                                                                  Variables.CLOUD_SERVICE_KEYS_TO_CREATE);
-        List<String> retrievedModulesForDeployment = getDeserializedValue(testVariableTask.capturedVariables,
-                                                                          Variables.MODULES_FOR_DEPLOYMENT);
-        List<ExtensionDescriptor> retrievedExtensionDescriptors = getDeserializedValue(testVariableTask.capturedVariables,
-                                                                                       Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN);
-
-        assertEquals(correlationId, retrievedCorrelationId);
-        assertEquals(deleteServices, retrievedDeleteServices);
-        assertEquals(mtaId, retrievedMtaId);
-        assertEquals(JsonUtil.toJson(smallDeploymentDescriptor), JsonUtil.toJson(retrievedSmallDeploymentDescriptor));
+        assertEquals(correlationId, getDeserializedValue(testVariableTask.capturedVariables, Variables.CORRELATION_ID));
+        assertEquals(deleteServices, getDeserializedValue(testVariableTask.capturedVariables, Variables.DELETE_SERVICES));
+        assertEquals(mtaId, getDeserializedValue(testVariableTask.capturedVariables, Variables.MTA_ID));
+        assertEquals(JsonUtil.toJson(smallDeploymentDescriptor), JsonUtil.toJson(
+            getDeserializedValue(testVariableTask.capturedVariables, Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS)));
         // This assertion intentionally checks that the modified deployment descriptor is different from the initially set one because of flowable caching regression
         // https://github.com/flowable/flowable-engine/issues/4130
         // The original behaviour must be to have same deployment descriptor as it was set in the task. Modify the test to assert for matching values when the issue is fixed.
-        assertNotEquals(JsonUtil.toJson(modifiedBigDeploymentDescriptor), JsonUtil.toJson(retrievedBigDeploymentDescriptor));
-        assertEquals(newDeployedMta, retrievedDeployedMta);
-        assertEquals(liveRoutes, retrievedCloudRoutes);
-        assertEquals(donePhase, retrievedStepPhase);
-        assertEquals(liveAppStateActionsToExecute, retrievedAppStateActionsToExecute);
-        assertEquals(serviceKeysToCreate, retrievedServiceKeysToCreate);
-        assertEquals(modulesForDeployment, retrievedModulesForDeployment);
+        assertNotEquals(JsonUtil.toJson(modifiedBigDeploymentDescriptor),
+                        JsonUtil.toJson(getDeserializedValue(testVariableTask.capturedVariables, Variables.DEPLOYMENT_DESCRIPTOR)));
+        assertEquals(newDeployedMta, getDeserializedValue(testVariableTask.capturedVariables, Variables.DEPLOYED_MTA));
+        assertEquals(liveRoutes, getDeserializedValue(testVariableTask.capturedVariables, Variables.CURRENT_ROUTES));
+        assertEquals(donePhase, getDeserializedValue(testVariableTask.capturedVariables, Variables.STEP_PHASE));
+        assertEquals(liveAppStateActionsToExecute,
+                     getDeserializedValue(testVariableTask.capturedVariables, Variables.APP_STATE_ACTIONS_TO_EXECUTE));
+        assertEquals(serviceKeysToCreate, getDeserializedValue(testVariableTask.capturedVariables, Variables.CLOUD_SERVICE_KEYS_TO_CREATE));
+        assertEquals(modulesForDeployment, getDeserializedValue(testVariableTask.capturedVariables, Variables.MODULES_FOR_DEPLOYMENT));
         assertEquals(JsonUtil.toJson(extensionDescriptors, JsonSerializationStrategy.ALLOW_NULLS),
-                     JsonUtil.toJson(retrievedExtensionDescriptors, JsonSerializationStrategy.ALLOW_NULLS));
+                     JsonUtil.toJson(getDeserializedValue(testVariableTask.capturedVariables, Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN),
+                                     JsonSerializationStrategy.ALLOW_NULLS));
     }
 
     @Test
@@ -337,38 +303,26 @@ class FlowableEngineTest {
 
         runtimeService.startProcessInstanceByKey(TEST_PROCESS_KEY);
 
-        String retrievedCorrelationId = getDeserializedValue(testVariableTask.capturedVariables, Variables.CORRELATION_ID);
-        Boolean retrievedDeleteServices = getDeserializedValue(testVariableTask.capturedVariables, Variables.DELETE_SERVICES);
-        String retrievedMtaId = getDeserializedValue(testVariableTask.capturedVariables, Variables.MTA_ID);
-        DeploymentDescriptor retrievedSmallDeploymentDescriptor = getDeserializedValue(testVariableTask.capturedVariables,
-                                                                                       Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
-        DeploymentDescriptor retrievedBigDeploymentDescriptor = getDeserializedValue(testVariableTask.capturedVariables,
-                                                                                     Variables.DEPLOYMENT_DESCRIPTOR);
-        DeployedMta retrievedDeployedMta = getDeserializedValue(testVariableTask.capturedVariables, Variables.DEPLOYED_MTA);
-        List<CloudRoute> retrievedCloudRoutes = getDeserializedValue(testVariableTask.capturedVariables, Variables.CURRENT_ROUTES);
-        StepPhase retrievedStepPhase = getDeserializedValue(testVariableTask.capturedVariables, Variables.STEP_PHASE);
-        List<ApplicationStateAction> retrievedAppStateActionsToExecute = getDeserializedValue(testVariableTask.capturedVariables,
-                                                                                              Variables.APP_STATE_ACTIONS_TO_EXECUTE);
-        List<CloudServiceKey> retrievedServiceKeysToCreate = getDeserializedValue(testVariableTask.capturedVariables,
-                                                                                  Variables.CLOUD_SERVICE_KEYS_TO_CREATE);
-        List<String> retrievedModulesForDeployment = getDeserializedValue(testVariableTask.capturedVariables,
-                                                                          Variables.MODULES_FOR_DEPLOYMENT);
-        List<ExtensionDescriptor> retrievedExtensionDescriptors = getDeserializedValue(testVariableTask.capturedVariables,
-                                                                                       Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN);
-
-        assertEquals(correlationId, retrievedCorrelationId);
-        assertEquals(deleteServices, retrievedDeleteServices);
-        assertEquals(mtaId, retrievedMtaId);
-        assertEquals(JsonUtil.toJson(smallDeploymentDescriptor), JsonUtil.toJson(retrievedSmallDeploymentDescriptor));
-        assertEquals(JsonUtil.toJson(bigDeploymentDescriptor), JsonUtil.toJson(retrievedBigDeploymentDescriptor));
-        assertEquals(deployedMta, retrievedDeployedMta);
-        assertEquals(cloudRoutes, retrievedCloudRoutes);
-        assertEquals(stepPhase, retrievedStepPhase);
-        assertEquals(appStateActionsToExecute, retrievedAppStateActionsToExecute);
-        assertEquals(serviceKeysToCreate, retrievedServiceKeysToCreate);
-        assertEquals(modulesForDeployment, retrievedModulesForDeployment);
+        assertEquals(correlationId, getDeserializedValue(testVariableTask.capturedVariables, Variables.CORRELATION_ID));
+        assertEquals(deleteServices, getDeserializedValue(testVariableTask.capturedVariables, Variables.DELETE_SERVICES));
+        assertEquals(mtaId, getDeserializedValue(testVariableTask.capturedVariables, Variables.MTA_ID));
+        assertEquals(JsonUtil.toJson(smallDeploymentDescriptor), JsonUtil.toJson(getDeserializedValue(testVariableTask.capturedVariables,
+                                                                                                      Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS)));
+        assertEquals(JsonUtil.toJson(bigDeploymentDescriptor), JsonUtil.toJson(getDeserializedValue(testVariableTask.capturedVariables,
+                                                                                                    Variables.DEPLOYMENT_DESCRIPTOR)));
+        assertEquals(deployedMta, getDeserializedValue(testVariableTask.capturedVariables, Variables.DEPLOYED_MTA));
+        assertEquals(cloudRoutes, getDeserializedValue(testVariableTask.capturedVariables, Variables.CURRENT_ROUTES));
+        assertEquals(stepPhase, getDeserializedValue(testVariableTask.capturedVariables, Variables.STEP_PHASE));
+        assertEquals(appStateActionsToExecute, getDeserializedValue(testVariableTask.capturedVariables,
+                                                                    Variables.APP_STATE_ACTIONS_TO_EXECUTE));
+        assertEquals(serviceKeysToCreate, getDeserializedValue(testVariableTask.capturedVariables,
+                                                               Variables.CLOUD_SERVICE_KEYS_TO_CREATE));
+        assertEquals(modulesForDeployment, getDeserializedValue(testVariableTask.capturedVariables,
+                                                                Variables.MODULES_FOR_DEPLOYMENT));
         assertEquals(JsonUtil.toJson(extensionDescriptors, JsonSerializationStrategy.ALLOW_NULLS),
-                     JsonUtil.toJson(retrievedExtensionDescriptors, JsonSerializationStrategy.ALLOW_NULLS));
+                     JsonUtil.toJson(getDeserializedValue(testVariableTask.capturedVariables,
+                                                          Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN),
+                                     JsonSerializationStrategy.ALLOW_NULLS));
     }
 
     private <T> void setSerializedValueInMap(Map<String, Object> variables, Variable<T> variable, T value) {
@@ -514,7 +468,6 @@ class FlowableEngineTest {
     }
 
     private List<CloudRoute> createCloudRoutes(String... routes) {
-        //        return List.of("route-1.example.com/foo-bar", "route-2.example.com", "route-3.example.com")
         return Stream.of(routes)
                      .map(route -> new ApplicationURI(route, false, null).toCloudRoute())
                      .collect(Collectors.toList());
