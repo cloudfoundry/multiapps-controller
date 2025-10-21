@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,7 +83,7 @@ public class CustomServiceKeysClient extends CustomControllerClient {
         String uriSuffix = INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM
             + "&service_instance_guids=" + String.join(",", guids);
 
-        return getListOfResources(new ServiceKeysResponseMapper(null),
+        return getListOfResources(new ServiceKeysResponseMapper(),
                                   SERVICE_KEYS_BY_METADATA_SELECTOR_URI + uriSuffix,
                                   labelSelector);
     }
@@ -105,23 +104,12 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     }
 
     protected class ServiceKeysResponseMapper extends ResourcesResponseMapper<DeployedMtaServiceKey> {
-
-        List<DeployedMtaService> mtaServices;
-
-        public ServiceKeysResponseMapper(List<DeployedMtaService> mtaServices) {
-            this.mtaServices = mtaServices;
+        public ServiceKeysResponseMapper() {
         }
 
         @Override
         public List<DeployedMtaServiceKey> getMappedResources() {
-            Map<String, CloudServiceInstance> serviceMapping;
-            if (mtaServices != null) {
-                serviceMapping = mtaServices.stream()
-                                            .collect(Collectors.toMap(service -> service.getGuid()
-                                                                                        .toString(), Function.identity()));
-            } else {
-                serviceMapping = getIncludedServiceInstancesMapping();
-            }
+            Map<String, CloudServiceInstance> serviceMapping = getIncludedServiceInstancesMapping();
             return getQueriedResources().stream()
                                         .map(resource -> resourceMapper.mapServiceKeyResource(resource, serviceMapping))
                                         .collect(Collectors.toList());
