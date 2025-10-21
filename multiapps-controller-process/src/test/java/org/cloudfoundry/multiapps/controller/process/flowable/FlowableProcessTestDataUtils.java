@@ -33,6 +33,86 @@ import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.model.Version;
 
 public class FlowableProcessTestDataUtils {
+
+    // MTA and test identifiers
+    private static final String DEFAULT_MTA_ID = "test-mta";
+    private static final String DEFAULT_MTA_VERSION = "1.0.0";
+    private static final String UPDATE_SCENARIO_MTA_ID = "test-mta-2";
+    private static final String UPDATE_SCENARIO_VERSION_V2 = "2.0.0";
+    private static final String TEST_USER_EMAIL = "test-user@example.com";
+
+    // Module names and types
+    private static final String MODULE_1_NAME = "module-1";
+    private static final String MODULE_2_NAME = "module-2";
+    private static final String MODULE_3_NAME = "module-3";
+    private static final String MEMORY_1G = "1G";
+    private static final String MODULE_TYPE_JAVASCRIPT = "javascript";
+    private static final String MODULE_TYPE_JAVA = "java";
+    private static final int MODULES_COUNT = 5;
+
+    // Memory and disk quota values
+    private static final String MEMORY_512M = "512M";
+    private static final String DISK_QUOTA_256M = "256M";
+    private static final String DISK_QUOTA_4096M = "4096M";
+    private static final int INSTANCES_COUNT_2 = 2;
+
+    // Route configurations
+    private static final String ROUTE_1_EXAMPLE_COM = "route-1.example.com/foo-bar";
+    private static final String ROUTE_2_EXAMPLE_COM = "route-2.example.com";
+    private static final String ROUTE_3_EXAMPLE_COM = "route-3.example.com";
+    private static final String ROUTE_1_IDLE_EXAMPLE_COM = "route-1-idle.example.com/bar-foo";
+    private static final String ROUTE_2_IDLE_EXAMPLE_COM = "route-2-idle.example.com";
+    private static final String MODULE_1_ROUTE_EXAMPLE_COM = "module-1-route.example.com";
+    private static final String MODULE_2_ROUTE_EXAMPLE_COM = "module-2-route.example.com";
+    private static final String MODULE_3_ROUTE_EXAMPLE_COM = "module-3-route.example.com";
+
+    // Resource names
+    private static final String RESOURCE_DB_NAME = "db";
+    private static final String RESOURCE_CACHE_NAME = "cache";
+    private static final String RESOURCE_AUTOSCALER_NAME = "autoscaler";
+    private static final String RESOURCE_APPLICATION_LOGS_NAME = "application-logs";
+
+    // Service configurations
+    private static final String SERVICE_TYPE_MANAGED = "org.cloudfoundry.managed-service";
+    private static final String SERVICE_TYPE_USER_PROVIDED = "org.cloudfoundry.user-provided-service";
+    private static final String TEST_DB_SERVICE = "test-db-service";
+    private static final String TEST_CACHE_SERVICE = "test-cache-service";
+    private static final String APP_AUTOSCALER_SERVICE = "app-autoscaler";
+    private static final String SERVICE_PLAN_FREE = "free";
+    private static final String SERVICE_PLAN_DEFAULT = "default";
+
+    // Task configurations
+    private static final String TASK_1_NAME = "task-1";
+    private static final String TASK_1_COMMAND = "migrate-db.sh";
+    private static final String TASK_NAME_KEY = "name";
+    private static final String TASK_COMMAND_KEY = "command";
+
+    // Application and service names
+    private static final String APP_1_NAME = "app-1";
+    private static final String APP_2_NAME = "app-2";
+    private static final String APP_3_NAME = "app-3";
+    private static final String SERVICE_1_NAME = "service-1";
+    private static final String SERVICE_2_NAME = "service-2";
+    private static final String SERVICE_3_NAME = "service-3";
+
+    // Service key names
+    private static final String SERVICE_KEY_1_NAME = "service-key-1";
+    private static final String SERVICE_KEY_2_NAME = "service-key-2";
+
+    // Extension descriptor configurations
+    private static final String TEST_EXTENSION_ID = "test-extension";
+    private static final String TEST_PARAMETER_KEY = "test-parameter";
+
+    // API configurations
+    private static final String PROVIDED_DEPENDENCY_MY_API = "my-api";
+    private static final String API_URL_KEY = "url";
+    private static final String API_URL_VALUE = "https://api.example.com";
+
+    // Parameter values
+    private static final String NEW_PARAM_KEY = "new-param";
+    private static final String NEW_PARAM_VALUE = "new-value";
+    private static final String SYSLOG_DRAIN_URL_VALUE = "syslog://logs.example.com:514";
+
     private FlowableProcessTestDataUtils() {
     }
 
@@ -40,59 +120,72 @@ public class FlowableProcessTestDataUtils {
     }
 
     public static FlowableProcessTestData predefinedScenario() {
-        String mtaId = "test-mta";
-        String mtaVersion = "1.0.0";
-        return baseBuilder(mtaId, mtaVersion).keepFiles(true)
-                                             .modulesCount(5)
-                                             .bigDescriptor(createBigDescriptor(mtaId, mtaVersion))
-                                             .routes(
-                                                 createRoutes("route-1.example.com/foo-bar", "route-2.example.com", "route-3.example.com"))
-                                             .stepPhase(StepPhase.DONE)
-                                             .appActions(List.of(ApplicationStateAction.STAGE, ApplicationStateAction.START))
-                                             .build();
+        return baseBuilder(DEFAULT_MTA_ID, DEFAULT_MTA_VERSION).keepFiles(true)
+                                                               .modulesCount(MODULES_COUNT)
+                                                               .bigDescriptor(createBigDescriptor(DEFAULT_MTA_ID, DEFAULT_MTA_VERSION))
+                                                               .routes(createRoutes(ROUTE_1_EXAMPLE_COM, ROUTE_2_EXAMPLE_COM,
+                                                                                    ROUTE_3_EXAMPLE_COM))
+                                                               .stepPhase(StepPhase.DONE)
+                                                               .appActions(
+                                                                   List.of(ApplicationStateAction.STAGE, ApplicationStateAction.START))
+                                                               .build();
     }
 
     public static UpdateScenario updateScenario() {
-        String id = "test-mta-2";
-        DeploymentDescriptor bigDescriptorV1 = createBigDescriptor(id, "1.0.0");
-        DeploymentDescriptor bigDescriptorV2 = DeploymentDescriptor.copyOf(createBigDescriptor(id, "2.0.0"))
-                                                                   .setParameters(Map.of("new-param", "new-value"));
-        FlowableProcessTestData initial = baseBuilder(id, "1.0.0").deleteServices(true)
-                                                                  .bigDescriptor(bigDescriptorV1)
-                                                                  .deployedMta(createDeployed(id, "1.0.0"))
-                                                                  .routes(
-                                                                      createRoutes("route-1-idle.example.com/bar-foo",
-                                                                                   "route-2-idle.example.com"))
-                                                                  .stepPhase(
-                                                                      org.cloudfoundry.multiapps.controller.process.steps.StepPhase.POLL)
-                                                                  .appActions(
-                                                                      List.of(ApplicationStateAction.STAGE, ApplicationStateAction.START))
-                                                                  .build();
-        FlowableProcessTestData updated = baseBuilder(id, "2.0.0").deleteServices(true)
-                                                                  .smallDescriptor(createSmallDescriptor(id, "2.0.0"))
-                                                                  .bigDescriptor(bigDescriptorV2)
-                                                                  .deployedMta(createDeployed(id, "2.0.0"))
-                                                                  .routes(createRoutes("route-1.example.com/foo-bar", "route-2.example.com",
-                                                                                       "route-3.example.com"))
-                                                                  .stepPhase(
-                                                                      org.cloudfoundry.multiapps.controller.process.steps.StepPhase.DONE)
-                                                                  .appActions(
-                                                                      List.of(ApplicationStateAction.EXECUTE, ApplicationStateAction.STOP))
-                                                                  .build();
+        DeploymentDescriptor bigDescriptorV1 = createBigDescriptor(UPDATE_SCENARIO_MTA_ID, DEFAULT_MTA_VERSION);
+        DeploymentDescriptor bigDescriptorV2 = DeploymentDescriptor.copyOf(
+                                                                       createBigDescriptor(UPDATE_SCENARIO_MTA_ID, UPDATE_SCENARIO_VERSION_V2))
+                                                                   .setParameters(Map.of(NEW_PARAM_KEY, NEW_PARAM_VALUE));
+        FlowableProcessTestData initial = baseBuilder(UPDATE_SCENARIO_MTA_ID, DEFAULT_MTA_VERSION).deleteServices(true)
+                                                                                                  .bigDescriptor(bigDescriptorV1)
+                                                                                                  .deployedMta(
+                                                                                                      createDeployed(UPDATE_SCENARIO_MTA_ID,
+                                                                                                                     DEFAULT_MTA_VERSION))
+                                                                                                  .routes(
+                                                                                                      createRoutes(ROUTE_1_IDLE_EXAMPLE_COM,
+                                                                                                                   ROUTE_2_IDLE_EXAMPLE_COM))
+                                                                                                  .stepPhase(
+                                                                                                      org.cloudfoundry.multiapps.controller.process.steps.StepPhase.POLL)
+                                                                                                  .appActions(
+                                                                                                      List.of(ApplicationStateAction.STAGE,
+                                                                                                              ApplicationStateAction.START))
+                                                                                                  .build();
+        FlowableProcessTestData updated = baseBuilder(UPDATE_SCENARIO_MTA_ID, UPDATE_SCENARIO_VERSION_V2).deleteServices(true)
+                                                                                                         .smallDescriptor(
+                                                                                                             createSmallDescriptor(
+                                                                                                                 UPDATE_SCENARIO_MTA_ID,
+                                                                                                                 UPDATE_SCENARIO_VERSION_V2))
+                                                                                                         .bigDescriptor(bigDescriptorV2)
+                                                                                                         .deployedMta(createDeployed(
+                                                                                                             UPDATE_SCENARIO_MTA_ID,
+                                                                                                             UPDATE_SCENARIO_VERSION_V2))
+                                                                                                         .routes(createRoutes(
+                                                                                                             ROUTE_1_EXAMPLE_COM,
+                                                                                                             ROUTE_2_EXAMPLE_COM,
+                                                                                                             ROUTE_3_EXAMPLE_COM))
+                                                                                                         .stepPhase(
+                                                                                                             org.cloudfoundry.multiapps.controller.process.steps.StepPhase.DONE)
+                                                                                                         .appActions(List.of(
+                                                                                                             ApplicationStateAction.EXECUTE,
+                                                                                                             ApplicationStateAction.STOP))
+                                                                                                         .build();
         return new UpdateScenario(initial, updated);
     }
 
     public static FlowableProcessTestData insideStepScenario() {
-        String id = "test-mta-2";
-        String mtaVersion = "2.0.0";
-        return baseBuilder(id, mtaVersion).deleteServices(true)
-                                          .smallDescriptor(createSmallDescriptor(id, mtaVersion))
-                                          .bigDescriptor(createBigDescriptor(id, mtaVersion))
-                                          .deployedMta(createDeployed(id, mtaVersion))
-                                          .routes(createRoutes("route-1.example.com/foo-bar", "route-2.example.com", "route-3.example.com"))
-                                          .stepPhase(org.cloudfoundry.multiapps.controller.process.steps.StepPhase.DONE)
-                                          .appActions(List.of(ApplicationStateAction.STAGE, ApplicationStateAction.START))
-                                          .build();
+        return baseBuilder(UPDATE_SCENARIO_MTA_ID, UPDATE_SCENARIO_VERSION_V2).deleteServices(true)
+                                                                              .smallDescriptor(createSmallDescriptor(UPDATE_SCENARIO_MTA_ID,
+                                                                                                                     UPDATE_SCENARIO_VERSION_V2))
+                                                                              .bigDescriptor(createBigDescriptor(UPDATE_SCENARIO_MTA_ID,
+                                                                                                                 UPDATE_SCENARIO_VERSION_V2))
+                                                                              .deployedMta(createDeployed(UPDATE_SCENARIO_MTA_ID,
+                                                                                                          UPDATE_SCENARIO_VERSION_V2))
+                                                                              .routes(createRoutes(ROUTE_1_EXAMPLE_COM, ROUTE_2_EXAMPLE_COM,
+                                                                                                   ROUTE_3_EXAMPLE_COM))
+                                                                              .stepPhase(StepPhase.DONE)
+                                                                              .appActions(List.of(ApplicationStateAction.STAGE,
+                                                                                                  ApplicationStateAction.START))
+                                                                              .build();
     }
 
     private static ImmutableFlowableProcessTestData.Builder baseBuilder(String mtaId, String mtaVersion) {
@@ -103,7 +196,7 @@ public class FlowableProcessTestDataUtils {
                                                               .toString())
                                                .orgGuid(UUID.randomUUID()
                                                             .toString())
-                                               .username("test-user@example.com")
+                                               .username(TEST_USER_EMAIL)
                                                .userGuid(UUID.randomUUID()
                                                              .toString())
                                                .mtaId(mtaId)
@@ -113,7 +206,7 @@ public class FlowableProcessTestDataUtils {
                                                .deployedMta(createDeployed(mtaId, mtaVersion))
                                                .stepPhase(StepPhase.DONE)
                                                .serviceKeys(createServiceKeys())
-                                               .modulesForDeployment(List.of("module-1", "module-2", "module-3"))
+                                               .modulesForDeployment(List.of(MODULE_1_NAME, MODULE_2_NAME, MODULE_3_NAME))
                                                .extensionDescriptors(createExtensionDescriptorsWithNullValues(mtaId));
     }
 
@@ -122,19 +215,22 @@ public class FlowableProcessTestDataUtils {
                                    .setId(id)
                                    .setVersion(mtaVersion)
                                    .setModules(List.of(Module.createV3()
-                                                             .setName("module-1")
-                                                             .setType("javascript")
-                                                             .setParameters(
-                                                                 Map.of(SupportedParameters.MEMORY, "512M", SupportedParameters.DISK_QUOTA,
-                                                                        "256M", SupportedParameters.ROUTES,
-                                                                        List.of(SupportedParameters.ROUTE, "module-1-route.example.com")))
+                                                             .setName(MODULE_1_NAME)
+                                                             .setType(MODULE_TYPE_JAVASCRIPT)
+                                                             .setParameters(Map.of(SupportedParameters.MEMORY, MEMORY_512M,
+                                                                                   SupportedParameters.DISK_QUOTA, DISK_QUOTA_256M,
+                                                                                   SupportedParameters.ROUTES,
+                                                                                   List.of(SupportedParameters.ROUTE,
+                                                                                           MODULE_1_ROUTE_EXAMPLE_COM)))
                                                              .setRequiredDependencies(List.of(RequiredDependency.createV3()
-                                                                                                                .setName("db")))))
+                                                                                                                .setName(
+                                                                                                                    RESOURCE_DB_NAME)))))
                                    .setResources(List.of(Resource.createV3()
-                                                                 .setName("db")
-                                                                 .setType("org.cloudfoundry.managed-service")
-                                                                 .setParameters(Map.of(SupportedParameters.SERVICE, "test-db-service",
-                                                                                       SupportedParameters.SERVICE_PLAN, "free"))));
+                                                                 .setName(RESOURCE_DB_NAME)
+                                                                 .setType(SERVICE_TYPE_MANAGED)
+                                                                 .setParameters(Map.of(SupportedParameters.SERVICE, TEST_DB_SERVICE,
+                                                                                       SupportedParameters.SERVICE_PLAN,
+                                                                                       SERVICE_PLAN_FREE))));
     }
 
     private static DeploymentDescriptor createBigDescriptor(String id, String mtaVersion) {
@@ -143,86 +239,98 @@ public class FlowableProcessTestDataUtils {
                                    .setVersion(mtaVersion)
                                    .setParameters(Map.of(SupportedParameters.ENABLE_PARALLEL_DEPLOYMENTS, true))
                                    .setModules(List.of(Module.createV3()
-                                                             .setName("module-1")
-                                                             .setType("javascript")
-                                                             .setParameters(
-                                                                 Map.of(SupportedParameters.MEMORY, "512M", SupportedParameters.DISK_QUOTA,
-                                                                        "256M", SupportedParameters.ROUTES,
-                                                                        List.of(SupportedParameters.ROUTE, "module-1-route.example.com"),
-                                                                        SupportedParameters.TASKS,
-                                                                        List.of(Map.of("name", "task-1", "command", "migrate-db.sh"))))
+                                                             .setName(MODULE_1_NAME)
+                                                             .setType(MODULE_TYPE_JAVASCRIPT)
+                                                             .setParameters(Map.of(SupportedParameters.MEMORY, MEMORY_512M,
+                                                                                   SupportedParameters.DISK_QUOTA, DISK_QUOTA_256M,
+                                                                                   SupportedParameters.ROUTES,
+                                                                                   List.of(SupportedParameters.ROUTE,
+                                                                                           MODULE_1_ROUTE_EXAMPLE_COM),
+                                                                                   SupportedParameters.TASKS, List.of(
+                                                                     Map.of(TASK_NAME_KEY, TASK_1_NAME, TASK_COMMAND_KEY, TASK_1_COMMAND))))
                                                              .setRequiredDependencies(List.of(RequiredDependency.createV3()
-                                                                                                                .setName("db"),
+                                                                                                                .setName(RESOURCE_DB_NAME),
                                                                                               RequiredDependency.createV3()
                                                                                                                 .setName(
-                                                                                                                    "application-logs"))),
+                                                                                                                    RESOURCE_APPLICATION_LOGS_NAME))),
                                                        Module.createV3()
-                                                             .setName("module-2")
-                                                             .setType("java")
-                                                             .setParameters(
-                                                                 Map.of(SupportedParameters.MEMORY, "1G", SupportedParameters.DISK_QUOTA,
-                                                                        "4096M", SupportedParameters.INSTANCES, 2,
-                                                                        SupportedParameters.ROUTES,
-                                                                        List.of(SupportedParameters.ROUTE, "module-2-route.example.com")))
+                                                             .setName(MODULE_2_NAME)
+                                                             .setType(MODULE_TYPE_JAVA)
+                                                             .setParameters(Map.of(SupportedParameters.MEMORY, MEMORY_1G,
+                                                                                   SupportedParameters.DISK_QUOTA, DISK_QUOTA_4096M,
+                                                                                   SupportedParameters.INSTANCES, INSTANCES_COUNT_2,
+                                                                                   SupportedParameters.ROUTES,
+                                                                                   List.of(SupportedParameters.ROUTE,
+                                                                                           MODULE_2_ROUTE_EXAMPLE_COM)))
                                                              .setRequiredDependencies(List.of(RequiredDependency.createV3()
-                                                                                                                .setName("db"),
-                                                                                              RequiredDependency.createV3()
-                                                                                                                .setName("cache"),
-                                                                                              RequiredDependency.createV3()
-                                                                                                                .setName("autoscaler"),
+                                                                                                                .setName(RESOURCE_DB_NAME),
                                                                                               RequiredDependency.createV3()
                                                                                                                 .setName(
-                                                                                                                    "application-logs"))),
+                                                                                                                    RESOURCE_CACHE_NAME),
+                                                                                              RequiredDependency.createV3()
+                                                                                                                .setName(
+                                                                                                                    RESOURCE_AUTOSCALER_NAME),
+                                                                                              RequiredDependency.createV3()
+                                                                                                                .setName(
+                                                                                                                    RESOURCE_APPLICATION_LOGS_NAME))),
                                                        Module.createV3()
-                                                             .setName("module-3")
-                                                             .setType("javascript")
+                                                             .setName(MODULE_3_NAME)
+                                                             .setType(MODULE_TYPE_JAVASCRIPT)
                                                              .setParameters(
-                                                                 Map.of(SupportedParameters.MEMORY, "512M", SupportedParameters.DISK_QUOTA,
-                                                                        "256M", SupportedParameters.ROUTES,
-                                                                        List.of(SupportedParameters.ROUTE, "module-3-route.example.com")))
+                                                                 Map.of(SupportedParameters.MEMORY, MEMORY_512M,
+                                                                        SupportedParameters.DISK_QUOTA,
+                                                                        DISK_QUOTA_256M, SupportedParameters.ROUTES,
+                                                                        List.of(SupportedParameters.ROUTE, MODULE_3_ROUTE_EXAMPLE_COM)))
                                                              .setRequiredDependencies(List.of(RequiredDependency.createV3()
-                                                                                                                .setName("db"),
-                                                                                              RequiredDependency.createV3()
-                                                                                                                .setName("cache"),
-                                                                                              RequiredDependency.createV3()
-                                                                                                                .setName("autoscaler"),
+                                                                                                                .setName(RESOURCE_DB_NAME),
                                                                                               RequiredDependency.createV3()
                                                                                                                 .setName(
-                                                                                                                    "application-logs")))
+                                                                                                                    RESOURCE_CACHE_NAME),
+                                                                                              RequiredDependency.createV3()
+                                                                                                                .setName(
+                                                                                                                    RESOURCE_AUTOSCALER_NAME),
+                                                                                              RequiredDependency.createV3()
+                                                                                                                .setName(
+                                                                                                                    RESOURCE_APPLICATION_LOGS_NAME)))
                                                              .setProvidedDependencies(List.of(ProvidedDependency.createV3()
-                                                                                                                .setName("my-api")
-                                                                                                                .setProperties(Map.of("url",
-                                                                                                                                      "https://api.example.com"))))))
+                                                                                                                .setName(
+                                                                                                                    PROVIDED_DEPENDENCY_MY_API)
+                                                                                                                .setProperties(
+                                                                                                                    Map.of(API_URL_KEY,
+                                                                                                                           API_URL_VALUE))))))
                                    .setResources(List.of(Resource.createV3()
-                                                                 .setName("db")
-                                                                 .setType("org.cloudfoundry.managed-service")
-                                                                 .setParameters(Map.of(SupportedParameters.SERVICE, "test-db-service",
-                                                                                       SupportedParameters.SERVICE_PLAN, "free")),
+                                                                 .setName(RESOURCE_DB_NAME)
+                                                                 .setType(SERVICE_TYPE_MANAGED)
+                                                                 .setParameters(Map.of(SupportedParameters.SERVICE, TEST_DB_SERVICE,
+                                                                                       SupportedParameters.SERVICE_PLAN,
+                                                                                       SERVICE_PLAN_FREE)),
                                                          Resource.createV3()
-                                                                 .setName("cache")
-                                                                 .setType("org.cloudfoundry.managed-service")
-                                                                 .setParameters(Map.of(SupportedParameters.SERVICE, "test-cache-service",
-                                                                                       SupportedParameters.SERVICE_PLAN, "free")),
+                                                                 .setName(RESOURCE_CACHE_NAME)
+                                                                 .setType(SERVICE_TYPE_MANAGED)
+                                                                 .setParameters(Map.of(SupportedParameters.SERVICE, TEST_CACHE_SERVICE,
+                                                                                       SupportedParameters.SERVICE_PLAN,
+                                                                                       SERVICE_PLAN_FREE)),
                                                          Resource.createV3()
-                                                                 .setName("autoscaler")
-                                                                 .setType("org.cloudfoundry.managed-service")
-                                                                 .setParameters(Map.of(SupportedParameters.SERVICE, "app-autoscaler",
-                                                                                       SupportedParameters.SERVICE_PLAN, "default")),
+                                                                 .setName(RESOURCE_AUTOSCALER_NAME)
+                                                                 .setType(SERVICE_TYPE_MANAGED)
+                                                                 .setParameters(Map.of(SupportedParameters.SERVICE, APP_AUTOSCALER_SERVICE,
+                                                                                       SupportedParameters.SERVICE_PLAN,
+                                                                                       SERVICE_PLAN_DEFAULT)),
                                                          Resource.createV3()
-                                                                 .setName("application-logs")
-                                                                 .setType("org.cloudfoundry.user-provided-service")
+                                                                 .setName(RESOURCE_APPLICATION_LOGS_NAME)
+                                                                 .setType(SERVICE_TYPE_USER_PROVIDED)
                                                                  .setParameters(Map.of(SupportedParameters.SYSLOG_DRAIN_URL,
-                                                                                       "syslog://logs.example.com:514"))));
+                                                                                       SYSLOG_DRAIN_URL_VALUE))));
     }
 
     private static DeployedMta createDeployed(String id, String mtaVersion) {
-        List<DeployedMtaApplication> apps = Stream.of("app-1", "app-2", "app-3")
+        List<DeployedMtaApplication> apps = Stream.of(APP_1_NAME, APP_2_NAME, APP_3_NAME)
                                                   .map(app -> ImmutableDeployedMtaApplication.builder()
                                                                                              .name(app)
                                                                                              .moduleName(app)
                                                                                              .build())
                                                   .collect(Collectors.toList());
-        List<DeployedMtaService> services = Stream.of("service-1", "service-2", "service-3")
+        List<DeployedMtaService> services = Stream.of(SERVICE_1_NAME, SERVICE_2_NAME, SERVICE_3_NAME)
                                                   .map(service -> ImmutableDeployedMtaService.builder()
                                                                                              .name(service)
                                                                                              .build())
@@ -230,9 +338,7 @@ public class FlowableProcessTestDataUtils {
         return ImmutableDeployedMta.builder()
                                    .metadata(ImmutableMtaMetadata.builder()
                                                                  .id(id)
-                                                                 .version(
-                                                                     Version.parseVersion(
-                                                                         mtaVersion))
+                                                                 .version(Version.parseVersion(mtaVersion))
                                                                  .build())
                                    .applications(apps)
                                    .services(services)
@@ -247,27 +353,27 @@ public class FlowableProcessTestDataUtils {
 
     private static List<CloudServiceKey> createServiceKeys() {
         return List.of(ImmutableCloudServiceKey.builder()
-                                               .name("service-key-1")
+                                               .name(SERVICE_KEY_1_NAME)
                                                .build(), ImmutableCloudServiceKey.builder()
-                                                                                 .name("service-key-2")
+                                                                                 .name(SERVICE_KEY_2_NAME)
                                                                                  .build());
     }
 
     private static List<ExtensionDescriptor> createExtensionDescriptorsWithNullValues(String mtaId) {
         Map<String, Object> moduleParams = new HashMap<>();
         moduleParams.put(SupportedParameters.MEMORY, null);
-        moduleParams.put(SupportedParameters.DISK_QUOTA, "256M");
-        moduleParams.put(SupportedParameters.ROUTES, List.of(SupportedParameters.ROUTE, "module-1-route.example.com"));
+        moduleParams.put(SupportedParameters.DISK_QUOTA, DISK_QUOTA_256M);
+        moduleParams.put(SupportedParameters.ROUTES, List.of(SupportedParameters.ROUTE, MODULE_1_ROUTE_EXAMPLE_COM));
         Map<String, Object> resourceParams = new HashMap<>();
-        resourceParams.put("test-parameter", null);
+        resourceParams.put(TEST_PARAMETER_KEY, null);
         return List.of(ExtensionDescriptor.createV3()
-                                          .setId("test-extension")
+                                          .setId(TEST_EXTENSION_ID)
                                           .setParentId(mtaId)
                                           .setModules(List.of(ExtensionModule.createV3()
-                                                                             .setName("module-1")
+                                                                             .setName(MODULE_1_NAME)
                                                                              .setParameters(moduleParams)))
                                           .setResources(List.of(ExtensionResource.createV3()
-                                                                                 .setName("db")
+                                                                                 .setName(RESOURCE_DB_NAME)
                                                                                  .setParameters(resourceParams))));
     }
 

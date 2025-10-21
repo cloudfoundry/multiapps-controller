@@ -36,6 +36,11 @@ class FlowableEngineTest {
 
     private static final String TEST_PROCESS_KEY = "mtaDeploymentTest";
     private static final String MTA_DEPLOYMENT_TEST_PROCESS = "MTA Deployment Test Process";
+    private static final String FLOWABLE_DB_SCHEMA_STRATEGY_CREATE_DROP = "create-drop";
+    private static final String TEST_VARIABLE_TASK_BEAN_NAME = "testVariableTask";
+    private static final String DEPLOYMENT_NAME_OF_DIAGRAM = "MTA Deployment Test";
+    private static final String TEST_BPMN_DIAGRAM_RESOURCE =
+        "org/cloudfoundry/multiapps/controller/process/flowable/test-bpmn-diagram.bpmn";
 
     @Mock
     private FlowableMailClient flowableMailClient;
@@ -54,15 +59,15 @@ class FlowableEngineTest {
         ProcessEngineConfiguration configuration = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration();
         configuration.setDataSource(dataSource);
         configuration.setDefaultMailClient(flowableMailClient);
-        configuration.setDatabaseSchemaUpdate("create-drop");
-        configuration.setBeans(Map.of("testVariableTask", testVariableTask));
+        configuration.setDatabaseSchemaUpdate(FLOWABLE_DB_SCHEMA_STRATEGY_CREATE_DROP);
+        configuration.setBeans(Map.of(TEST_VARIABLE_TASK_BEAN_NAME, testVariableTask));
         processEngine = configuration.buildProcessEngine();
         repositoryService = processEngine.getRepositoryService();
         runtimeService = processEngine.getRuntimeService();
         deploymentId = repositoryService.createDeployment()
-                                        .name("MTA Deployment Test")
+                                        .name(DEPLOYMENT_NAME_OF_DIAGRAM)
                                         .addClasspathResource(
-                                            "org/cloudfoundry/multiapps/controller/process/flowable/test-bpmn-diagram.bpmn")
+                                            TEST_BPMN_DIAGRAM_RESOURCE)
                                         .deploy()
                                         .getId();
     }
