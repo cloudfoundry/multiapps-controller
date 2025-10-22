@@ -60,26 +60,22 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     }
 
     private List<String> extractManagedServiceGuids(List<DeployedMtaService> services) {
-        if (services == null || services.isEmpty()) {
-            return List.of();
+        if (services != null) {
+            List<DeployedMtaService> managed = getManagedServices(services);
+            if (!managed.isEmpty()) {
+                return managed.stream()
+                              .map(s -> s.getGuid() != null ? s.getGuid()
+                                                               .toString() : null)
+                              .filter(Objects::nonNull)
+                              .distinct()
+                              .toList();
+            }
         }
-        List<DeployedMtaService> managed = getManagedServices(services);
-        if (managed == null || managed.isEmpty()) {
-            return List.of();
-        }
-        return managed.stream()
-                      .map(s -> s.getGuid() != null ? s.getGuid()
-                                                       .toString() : null)
-                      .filter(Objects::nonNull)
-                      .distinct()
-                      .toList();
+        return List.of();
     }
 
     private List<DeployedMtaServiceKey> getServiceKeysByMetadataInternal(String labelSelector, List<String> guids) {
 
-        if (guids == null || guids.isEmpty()) {
-            return List.of();
-        }
         String uriSuffix = INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM
             + "&service_instance_guids=" + String.join(",", guids);
 
@@ -89,13 +85,12 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     }
 
     private List<DeployedMtaService> getManagedServices(List<DeployedMtaService> services) {
-        if (services == null) {
-            return null;
+        if (services != null) {
+            return services.stream()
+                           .filter(this::serviceIsNotUserProvided)
+                           .collect(Collectors.toList());
         }
-        List<DeployedMtaService> managedServices = services.stream()
-                                                           .filter(this::serviceIsNotUserProvided)
-                                                           .collect(Collectors.toList());
-        return managedServices.isEmpty() ? null : managedServices;
+        return List.of();
     }
 
     private boolean serviceIsNotUserProvided(DeployedMtaService service) {
