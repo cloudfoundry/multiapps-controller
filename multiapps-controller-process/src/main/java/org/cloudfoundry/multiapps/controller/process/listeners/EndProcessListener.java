@@ -61,6 +61,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
                                                                             .processId(VariableHandling.get(execution,
                                                                                                             Variables.CORRELATION_ID))
                                                                             .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
+                                                                            .createdBy(VariableHandling.get(execution, Variables.MTA_ARCHIVE_CREATED_BY))
                                                                             .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
                                                                             .eventType(DynatraceProcessEvent.EventType.FINISHED)
                                                                             .processType(processType)

@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class MtaArchiveHelperTest {
 
@@ -61,23 +62,32 @@ class MtaArchiveHelperTest {
 
     @Test
     void testGetResourceFileAttributes() throws IOException {
-        Manifest manifest = getManifest();
+        Manifest manifest = getManifest("mta-archive-helper-manifest.txt");
         helper = new MtaArchiveHelper(manifest);
         Map<String, List<String>> result = helper.getResourceFileAttributes();
         assertEquals(Map.of("config.json", List.of("parameters-service", "parameters-service-2")), result);
     }
 
-    private Manifest getManifest() throws IOException {
-        InputStream fileInputStream = getClass().getResourceAsStream("mta-archive-helper-manifest.txt");
-        return new Manifest(fileInputStream);
-    }
-
     @Test
     void getRequiresDependenciesFileAttributes() throws IOException {
-        Manifest manifest = getManifest();
+        Manifest manifest = getManifest("mta-archive-helper-manifest.txt");
         helper = new MtaArchiveHelper(manifest);
         Map<String, List<String>> result = helper.getRequiresDependenciesFileAttributes();
         assertEquals(Map.of("config-bind.json", List.of("anatz/my-required-application", "anatz/my-required-application-2")), result);
+    }
+
+    @Test
+    void getCreatedByAttribute() throws IOException {
+        Manifest manifest = getManifest("mta-archive-helper-manifest-with-created-by.txt");
+        helper = new MtaArchiveHelper(manifest);
+        assertEquals("SAP Application Archive Builder 1.2.34", helper.getCreatedBy());
+    }
+
+    @Test
+    void getCreatedByAttributeWithNull() throws IOException {
+        Manifest manifest = getManifest("mta-archive-helper-manifest-with-created-by-null.txt");
+        helper = new MtaArchiveHelper(manifest);
+        assertNull(helper.getCreatedBy());
     }
 
     private void initializeParameters(String mtarLocation, String deploymentDescriptorLocation) {
@@ -89,6 +99,11 @@ class MtaArchiveHelperTest {
             getClass().getResourceAsStream(deploymentDescriptorLocation));
         descriptor = parser.parseDeploymentDescriptor(deploymentDescriptorMap);
         helper.init();
+    }
+
+    private Manifest getManifest(String file) throws IOException {
+        InputStream fileInputStream = getClass().getResourceAsStream(file);
+        return new Manifest(fileInputStream);
     }
 
     private Set<String> getResourcesNamesFromDescriptor() {
