@@ -136,6 +136,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
                            .toString();
         } catch (CloudOperationException e) {
             if (isOptionalOrInactive(resource)) {
+                getStepLogger().debug(Messages.IGNORING_NOT_FOUND_OPTIONAL_OR_INACTIVE_SERVICE, resource.getName());
                 return null;
             }
             throw e;
@@ -143,7 +144,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
     }
 
     private boolean isOptionalOrInactive(Resource resource) {
-        return Boolean.TRUE.equals(resource.isOptional()) || Boolean.FALSE.equals(resource.isActive());
+        return resource.isOptional() || !resource.isActive();
     }
 
     private List<Resource> getExistingServiceResourcesFromDescriptor(ProcessContext context) {

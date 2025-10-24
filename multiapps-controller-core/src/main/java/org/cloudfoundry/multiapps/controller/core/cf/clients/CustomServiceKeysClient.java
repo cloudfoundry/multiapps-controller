@@ -79,7 +79,7 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     private List<DeployedMtaService> getManagedServices(List<DeployedMtaService> services) {
         return services.stream()
                        .filter(this::serviceIsNotUserProvided)
-                       .collect(Collectors.toList());
+                       .toList();
     }
 
     private boolean serviceIsNotUserProvided(DeployedMtaService service) {
