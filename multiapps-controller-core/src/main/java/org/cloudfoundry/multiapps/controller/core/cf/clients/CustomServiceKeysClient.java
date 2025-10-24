@@ -3,8 +3,10 @@ package org.cloudfoundry.multiapps.controller.core.cf.clients;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
@@ -30,7 +32,8 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     }
 
     public List<DeployedMtaServiceKey> getServiceKeysByMetadataAndGuids(String spaceGuid, String mtaId, String mtaNamespace,
-                                                                        List<DeployedMtaService> services) {
+                                                                        List<DeployedMtaService> services,
+                                                                        List<String> existingServiceGuids) {
         String labelSelector = MtaMetadataCriteriaBuilder.builder()
                                                          .label(MtaMetadataLabels.SPACE_GUID)
                                                          .hasValue(spaceGuid)
@@ -43,31 +46,40 @@ public class CustomServiceKeysClient extends CustomControllerClient {
                                                          .build()
                                                          .get();
 
+        List<String> managedGuids = extractManagedServiceGuids(services);
+
+        List<String> allServiceGuids = Stream.concat(managedGuids.stream(), existingServiceGuids.stream())
+                                             .filter(Objects::nonNull)
+                                             .toList();
+
+        if (allServiceGuids.isEmpty()) {
+            return List.of();
+        }
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(
-            () -> getServiceKeysByMetadataInternal(labelSelector, services));
+            () -> getServiceKeysByMetadataInternal(labelSelector, allServiceGuids));
     }
 
-    private List<DeployedMtaServiceKey> getServiceKeysByMetadataInternal(String labelSelector, List<DeployedMtaService> services) {
-        String uriSuffix = INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM;
-        List<DeployedMtaService> managedServices = getManagedServices(services);
-        if (managedServices != null) {
-            uriSuffix += "&service_instance_guids=" + managedServices.stream()
-                                                                     .map(service -> service.getGuid()
-                                                                                            .toString())
-                                                                     .collect(Collectors.joining(","));
-        }
-        return getListOfResources(new ServiceKeysResponseMapper(managedServices), SERVICE_KEYS_BY_METADATA_SELECTOR_URI + uriSuffix,
+    private List<String> extractManagedServiceGuids(List<DeployedMtaService> services) {
+        return getManagedServices(services).stream()
+                                           .map(DeployedMtaService::getGuid)
+                                           .map(UUID::toString)
+                                           .toList();
+    }
+
+    private List<DeployedMtaServiceKey> getServiceKeysByMetadataInternal(String labelSelector, List<String> guids) {
+
+        String uriSuffix = INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM
+            + "&service_instance_guids=" + String.join(",", guids);
+
+        return getListOfResources(new ServiceKeysResponseMapper(),
+                                  SERVICE_KEYS_BY_METADATA_SELECTOR_URI + uriSuffix,
                                   labelSelector);
     }
 
     private List<DeployedMtaService> getManagedServices(List<DeployedMtaService> services) {
-        if (services == null) {
-            return null;
-        }
-        List<DeployedMtaService> managedServices = services.stream()
-                                                           .filter(this::serviceIsNotUserProvided)
-                                                           .collect(Collectors.toList());
-        return managedServices.isEmpty() ? null : managedServices;
+        return services.stream()
+                       .filter(this::serviceIsNotUserProvided)
+                       .toList();
     }
 
     private boolean serviceIsNotUserProvided(DeployedMtaService service) {
@@ -76,23 +88,12 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     }
 
     protected class ServiceKeysResponseMapper extends ResourcesResponseMapper<DeployedMtaServiceKey> {
-
-        List<DeployedMtaService> mtaServices;
-
-        public ServiceKeysResponseMapper(List<DeployedMtaService> mtaServices) {
-            this.mtaServices = mtaServices;
+        public ServiceKeysResponseMapper() {
         }
 
         @Override
         public List<DeployedMtaServiceKey> getMappedResources() {
-            Map<String, CloudServiceInstance> serviceMapping;
-            if (mtaServices != null) {
-                serviceMapping = mtaServices.stream()
-                                            .collect(Collectors.toMap(service -> service.getGuid()
-                                                                                        .toString(), Function.identity()));
-            } else {
-                serviceMapping = getIncludedServiceInstancesMapping();
-            }
+            Map<String, CloudServiceInstance> serviceMapping = getIncludedServiceInstancesMapping();
             return getQueriedResources().stream()
                                         .map(resource -> resourceMapper.mapServiceKeyResource(resource, serviceMapping))
                                         .collect(Collectors.toList());
