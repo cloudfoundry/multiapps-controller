@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -49,29 +50,20 @@ public class CustomServiceKeysClient extends CustomControllerClient {
 
         List<String> allServiceGuids = Stream.concat(managedGuids.stream(), existingServiceGuids.stream())
                                              .filter(Objects::nonNull)
-                                             .distinct()
                                              .toList();
 
         if (allServiceGuids.isEmpty()) {
             return List.of();
         }
-
-        return getServiceKeysByMetadataInternal(labelSelector, allServiceGuids);
+        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(
+            () -> getServiceKeysByMetadataInternal(labelSelector, allServiceGuids));
     }
 
     private List<String> extractManagedServiceGuids(List<DeployedMtaService> services) {
-        if (services != null) {
-            List<DeployedMtaService> managed = getManagedServices(services);
-            if (!managed.isEmpty()) {
-                return managed.stream()
-                              .map(s -> s.getGuid() != null ? s.getGuid()
-                                                               .toString() : null)
-                              .filter(Objects::nonNull)
-                              .distinct()
-                              .toList();
-            }
-        }
-        return List.of();
+        return getManagedServices(services).stream()
+                                           .map(DeployedMtaService::getGuid)
+                                           .map(UUID::toString)
+                                           .toList();
     }
 
     private List<DeployedMtaServiceKey> getServiceKeysByMetadataInternal(String labelSelector, List<String> guids) {
@@ -85,12 +77,9 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     }
 
     private List<DeployedMtaService> getManagedServices(List<DeployedMtaService> services) {
-        if (services != null) {
-            return services.stream()
-                           .filter(this::serviceIsNotUserProvided)
-                           .collect(Collectors.toList());
-        }
-        return List.of();
+        return services.stream()
+                       .filter(this::serviceIsNotUserProvided)
+                       .collect(Collectors.toList());
     }
 
     private boolean serviceIsNotUserProvided(DeployedMtaService service) {

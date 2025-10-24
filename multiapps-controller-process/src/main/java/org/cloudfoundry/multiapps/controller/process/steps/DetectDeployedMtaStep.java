@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.inject.Inject;
@@ -9,6 +10,7 @@ import jakarta.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
@@ -99,7 +101,9 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
 
     private List<DeployedMtaServiceKey> detectDeployedServiceKeys(String mtaId, String mtaNamespace, DeployedMta deployedMta,
                                                                   ProcessContext context) {
-        List<DeployedMtaService> deployedManagedMtaServices = deployedMta == null ? null : deployedMta.getServices();
+        List<DeployedMtaService> deployedManagedMtaServices = Optional.ofNullable(deployedMta)
+                                                                      .map(DeployedMta::getServices)
+                                                                      .orElse(List.of());
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
         String user = context.getVariable(Variables.USER);
         String userGuid = context.getVariable(Variables.USER_GUID);
@@ -117,30 +121,40 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
 
     private List<String> getExistingServiceGuids(ProcessContext context) {
         CloudControllerClient client = context.getControllerClient();
-        List<String> existingNames = getExistingServiceNamesFromDescriptor(context);
+        List<Resource> resources = getExistingServiceResourcesFromDescriptor(context);
 
-        return existingNames.stream()
-                            .map(name -> resolveServiceGuid(client, name))
-                            .toList();
+        return resources.stream()
+                        .map(resource -> resolveServiceGuid(client, resource))
+                        .filter(Objects::nonNull)
+                        .toList();
     }
 
-    private String resolveServiceGuid(CloudControllerClient client, String serviceName) {
-        CloudServiceInstance instance = client.getServiceInstance(serviceName, false);
-        return instance != null ? instance.getGuid()
-                                          .toString() : null;
+    private String resolveServiceGuid(CloudControllerClient client, Resource resource) {
+        try {
+            CloudServiceInstance instance = client.getServiceInstance(resource.getName());
+            return instance.getGuid()
+                           .toString();
+        } catch (CloudOperationException e) {
+            if (isOptionalOrInactive(resource)) {
+                return null;
+            }
+            throw e;
+        }
     }
 
-    private List<String> getExistingServiceNamesFromDescriptor(ProcessContext context) {
+    private boolean isOptionalOrInactive(Resource resource) {
+        return Boolean.TRUE.equals(resource.isOptional()) || Boolean.FALSE.equals(resource.isActive());
+    }
+
+    private List<Resource> getExistingServiceResourcesFromDescriptor(ProcessContext context) {
         DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
 
-        if (descriptor == null || descriptor.getResources() == null) {
+        if (descriptor == null) {
             return List.of();
         }
         return descriptor.getResources()
                          .stream()
                          .filter(resource -> CloudModelBuilderUtil.getResourceType(resource) == ResourceType.EXISTING_SERVICE)
-                         .map(Resource::getName)
-                         .distinct()
                          .toList();
     }
 
