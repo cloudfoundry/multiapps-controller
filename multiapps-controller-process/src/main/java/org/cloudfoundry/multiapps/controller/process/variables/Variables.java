@@ -29,6 +29,7 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
+import org.cloudfoundry.multiapps.controller.core.model.ExternalLoggingServiceConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.IncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.model.SubprocessPhase;
@@ -920,4 +921,14 @@ public interface Variables {
                                                                               .name("processUserProvidedServices")
                                                                               .defaultValue(false)
                                                                               .build();
+
+    Variable<List<ExternalLoggingServiceConfiguration>> EXTERNAL_LOGGING_SERVICE_CONFIGURATIONS = ImmutableJsonStringListVariable.<ExternalLoggingServiceConfiguration> builder()
+                                                                                                                                 .name(
+                                                                                                                                     "externalLoggingServiceConfigurations")
+                                                                                                                                 .type(
+                                                                                                                                     Variable.typeReference(
+                                                                                                                                         ExternalLoggingServiceConfiguration.class))
+                                                                                                                                 .defaultValue(
+                                                                                                                                     Collections.emptyList())
+                                                                                                                                 .build();
 }
