@@ -29,7 +29,6 @@
         <httpcore.version>5.3.4</httpcore.version>
         <eclipselink.version>4.0.7</eclipselink.version>
         <flowable.version>7.2.0</flowable.version>
-        <mybatis.version>3.5.19</mybatis.version>
         <spring.version>6.2.11</spring.version>
         <spring-security.version>6.5.4</spring-security.version>
         <json-smart.version>2.5.2</json-smart.version>
@@ -552,12 +551,6 @@
                 <groupId>org.flowable</groupId>
                 <artifactId>flowable-spring-common</artifactId>
                 <version>${flowable.version}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.mybatis/mybatis -->
-            <dependency>
-                <groupId>org.mybatis</groupId>
-                <artifactId>mybatis</artifactId>
-                <version>${mybatis.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.springframework/spring-core -->
             <dependency>
