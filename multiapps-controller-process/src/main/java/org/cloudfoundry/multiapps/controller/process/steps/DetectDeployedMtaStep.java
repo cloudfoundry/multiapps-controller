@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.inject.Inject;
@@ -29,6 +28,8 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -44,6 +45,8 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
     private TokenService tokenService;
     @Inject
     private WebClientFactory webClientFactory;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DetectDeployedMtaStep.class);
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -125,26 +128,31 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
 
         return resources.stream()
                         .map(resource -> resolveServiceGuid(client, resource))
-                        .filter(Objects::nonNull)
+                        .flatMap(Optional::stream)
                         .toList();
     }
 
-    private String resolveServiceGuid(CloudControllerClient client, Resource resource) {
+    private Optional<String> resolveServiceGuid(CloudControllerClient client, Resource resource) {
         try {
             CloudServiceInstance instance = client.getServiceInstance(resource.getName());
-            return instance.getGuid()
-                           .toString();
+            return Optional.of(instance.getGuid()
+                                       .toString());
         } catch (CloudOperationException e) {
-            if (isOptionalOrInactive(resource)) {
-                getStepLogger().debug(Messages.IGNORING_NOT_FOUND_OPTIONAL_OR_INACTIVE_SERVICE, resource.getName());
-                return null;
+            if (resource.isOptional()) {
+                logIgnoredService(Messages.IGNORING_NOT_FOUND_OPTIONAL_SERVICE, resource.getName());
+                return Optional.empty();
+            }
+            if (!resource.isActive()) {
+                logIgnoredService(Messages.IGNORING_NOT_FOUND_INACTIVE_SERVICE, resource.getName());
+                return Optional.empty();
             }
             throw e;
         }
     }
 
-    private boolean isOptionalOrInactive(Resource resource) {
-        return resource.isOptional() || !resource.isActive();
+    private void logIgnoredService(String message, String serviceName) {
+        getStepLogger().debug(message, serviceName);
+        LOGGER.error(message, serviceName);
     }
 
     private List<Resource> getExistingServiceResourcesFromDescriptor(ProcessContext context) {
