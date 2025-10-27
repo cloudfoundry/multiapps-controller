@@ -80,7 +80,8 @@ public class PersistenceMetadata {
         public static final String HISTORIC_OPERATION_EVENT_TIMESTAMP = "timestamp";
 
         public static final String ACCESS_TOKEN_ID = "id";
-        public static final String ACCESS_TOKEN_VALUE = "value";
+        // Add escaping quotes due to reserved word in some DBMS(h2).
+        public static final String ACCESS_TOKEN_VALUE = "\"value\"";
         public static final String ACCESS_TOKEN_USERNAME = "username";
         public static final String ACCESS_TOKEN_EXPIRES_AT = "expires_at";
         public static final String ACCESS_TOKEN_USER_GUID = "user_guid";

@@ -18,7 +18,6 @@
         <junit.version>5.13.4</junit.version>
         <junit-platform.version>1.13.2</junit-platform.version>
         <mockito.version>5.18.0</mockito.version>
-        <derby.version>10.16.1.1</derby.version> <!-- Upper versions of Derby(10.17.1.0) are not compatible with Java 17 -->
         <h2.version>2.2.224</h2.version>
         <servlet-api.version>6.1.0</servlet-api.version>
         <log4j.version>2.25.1</log4j.version>
@@ -383,27 +382,6 @@
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
                 <version>${swagger.version}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.derby/derby -->
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derby</artifactId>
-                <version>${derby.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.derby/derbyclient -->
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derbyclient</artifactId>
-                <version>${derby.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.derby/derbynet -->
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derbynet</artifactId>
-                <version>${derby.version}</version>
-                <scope>test</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
             <dependency>
