@@ -14,9 +14,9 @@
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptorDto</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
-            <property name="jakarta.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />
+            <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver" />
             <property name="jakarta.persistence.jdbc.url"
-                value="jdbc:derby:memory:configuration-subscriptions;create=true" />
+                value="jdbc:h2:mem:configuration-subscriptions:DB_CLOSE_DELAY=-1" />
             <property name="jakarta.persistence.jdbc.user" value="root" />
             <property name="jakarta.persistence.jdbc.password" value="root" />
 
