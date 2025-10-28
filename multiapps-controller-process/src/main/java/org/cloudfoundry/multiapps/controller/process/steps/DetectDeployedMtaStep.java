@@ -139,20 +139,21 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
                                        .toString());
         } catch (CloudOperationException e) {
             if (resource.isOptional()) {
-                logIgnoredService(Messages.IGNORING_NOT_FOUND_OPTIONAL_SERVICE, resource.getName());
+                logIgnoredService(Messages.IGNORING_NOT_FOUND_OPTIONAL_SERVICE, resource.getName(), e);
                 return Optional.empty();
             }
             if (!resource.isActive()) {
-                logIgnoredService(Messages.IGNORING_NOT_FOUND_INACTIVE_SERVICE, resource.getName());
+                logIgnoredService(Messages.IGNORING_NOT_FOUND_INACTIVE_SERVICE, resource.getName(), e);
                 return Optional.empty();
             }
             throw e;
         }
     }
 
-    private void logIgnoredService(String message, String serviceName) {
-        getStepLogger().debug(message, serviceName);
-        LOGGER.error(message, serviceName);
+    private void logIgnoredService(String message, String serviceName, Exception e) {
+        String formattedMessage = MessageFormat.format(message, serviceName);
+        getStepLogger().debug(formattedMessage);
+        LOGGER.error(formattedMessage, e);
     }
 
     private List<Resource> getExistingServiceResourcesFromDescriptor(ProcessContext context) {
