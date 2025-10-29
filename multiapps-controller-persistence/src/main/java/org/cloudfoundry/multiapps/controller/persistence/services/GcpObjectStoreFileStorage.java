@@ -25,11 +25,10 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRetryStrategy;
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.threeten.bp.Duration;
 
@@ -44,7 +43,6 @@ public class GcpObjectStoreFileStorage implements FileStorage {
     private static final Duration OBJECTSTORE_MAX_RETRY_DELAY_CONFIG = Duration.ofSeconds(10);
     private static final Duration OBJECTSTORE_INITIAL_RETRY_DELAY_CONFIG = Duration.ofMillis(250);
     private static final String BASE_64_ENCODED_PRIVATE_KEY_DATA = "base64EncodedPrivateKeyData";
-    private static final Logger LOGGER = LoggerFactory.getLogger(GcpObjectStoreFileStorage.class);
 
     public GcpObjectStoreFileStorage(Map<String, Object> credentials) {
         this.bucketName = (String) credentials.get(BUCKET);
@@ -169,8 +167,6 @@ public class GcpObjectStoreFileStorage implements FileStorage {
 
     @Override
     public void testConnection() {
-        LOGGER.error("Test: " + storage.getClass()
-                                       .getName());
         storage.get(bucketName, "test");
     }
 
@@ -211,12 +207,10 @@ public class GcpObjectStoreFileStorage implements FileStorage {
         if (!blobIds.isEmpty()) {
             deletedBlobsResults = storage.delete(blobIds);
         }
-        return deletedBlobsResults.stream()
-                                  .filter(Boolean::booleanValue)
-                                  .toList()
-                                  .size();
+        return MiscUtil.cast(deletedBlobsResults.stream()
+                                                .count());
     }
-    
+
     protected Set<String> getEntryNames(Predicate<? super Blob> filter) {
         return storage.list(bucketName)
                       .streamAll()
