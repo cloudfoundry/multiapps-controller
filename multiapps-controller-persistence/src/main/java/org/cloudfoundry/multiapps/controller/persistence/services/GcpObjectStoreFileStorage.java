@@ -208,6 +208,7 @@ public class GcpObjectStoreFileStorage implements FileStorage {
             deletedBlobsResults = storage.delete(blobIds);
         }
         return MiscUtil.cast(deletedBlobsResults.stream()
+                                                .filter(Boolean::booleanValue)
                                                 .count());
     }
 
