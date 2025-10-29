@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,8 @@ import com.google.cloud.storage.StorageRetryStrategy;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.threeten.bp.Duration;
 
@@ -35,7 +38,13 @@ public class GcpObjectStoreFileStorage implements FileStorage {
     private final String bucketName;
     private final Storage storage;
     private static final String BUCKET = "bucket";
+    private static final int OBJECTSTORE_MAX_ATTEMPTS_CONFIG = 6;
+    private static final double OBJECTSTORE_RETRY_DELAY_MULTIPLIER_CONFIG = 2.0;
+    private static final Duration OBJECTSTORE_TOTAL_TIMEOUT_CONFIG = Duration.ofMinutes(10);
+    private static final Duration OBJECTSTORE_MAX_RETRY_DELAY_CONFIG = Duration.ofSeconds(10);
+    private static final Duration OBJECTSTORE_INITIAL_RETRY_DELAY_CONFIG = Duration.ofMillis(250);
     private static final String BASE_64_ENCODED_PRIVATE_KEY_DATA = "base64EncodedPrivateKeyData";
+    private static final Logger LOGGER = LoggerFactory.getLogger(GcpObjectStoreFileStorage.class);
 
     public GcpObjectStoreFileStorage(Map<String, Object> credentials) {
         this.bucketName = (String) credentials.get(BUCKET);
@@ -43,19 +52,16 @@ public class GcpObjectStoreFileStorage implements FileStorage {
     }
 
     protected Storage createObjectStoreStorage(Map<String, Object> credentials) {
-        return StorageOptions.newBuilder()
+        return StorageOptions.http()
                              .setCredentials(getGcpCredentialsSupplier(credentials))
                              .setStorageRetryStrategy(StorageRetryStrategy.getDefaultStorageRetryStrategy())
                              .setRetrySettings(
                                  RetrySettings.newBuilder()
-                                              .setMaxAttempts(6)
-                                              .setInitialRetryDelay(Duration.ofMillis(250))
-                                              .setRetryDelayMultiplier(2.0)
-                                              .setMaxRetryDelay(Duration.ofSeconds(10))
-                                              .setInitialRpcTimeout(Duration.ofSeconds(60))
-                                              .setRpcTimeoutMultiplier(1.0)
-                                              .setMaxRpcTimeout(Duration.ofSeconds(60))
-                                              .setTotalTimeout(Duration.ofMinutes(10))
+                                              .setMaxAttempts(OBJECTSTORE_MAX_ATTEMPTS_CONFIG)
+                                              .setTotalTimeout(OBJECTSTORE_TOTAL_TIMEOUT_CONFIG)
+                                              .setMaxRetryDelay(OBJECTSTORE_MAX_RETRY_DELAY_CONFIG)
+                                              .setInitialRetryDelay(OBJECTSTORE_INITIAL_RETRY_DELAY_CONFIG)
+                                              .setRetryDelayMultiplier(OBJECTSTORE_RETRY_DELAY_MULTIPLIER_CONFIG)
                                               .build())
                              .build()
                              .getService();
@@ -163,6 +169,8 @@ public class GcpObjectStoreFileStorage implements FileStorage {
 
     @Override
     public void testConnection() {
+        LOGGER.error("Test: " + storage.getClass()
+                                       .getName());
         storage.get(bucketName, "test");
     }
 
@@ -199,13 +207,16 @@ public class GcpObjectStoreFileStorage implements FileStorage {
         List<BlobId> blobIds = getEntryNames(filter).stream()
                                                     .map(entry -> BlobId.of(bucketName, entry))
                                                     .toList();
-
+        List<Boolean> deletedBlobsResults = new ArrayList<>();
         if (!blobIds.isEmpty()) {
-            storage.delete(blobIds);
+            deletedBlobsResults = storage.delete(blobIds);
         }
-        return blobIds.size();
+        return deletedBlobsResults.stream()
+                                  .filter(Boolean::booleanValue)
+                                  .toList()
+                                  .size();
     }
-
+    
     protected Set<String> getEntryNames(Predicate<? super Blob> filter) {
         return storage.list(bucketName)
                       .streamAll()
