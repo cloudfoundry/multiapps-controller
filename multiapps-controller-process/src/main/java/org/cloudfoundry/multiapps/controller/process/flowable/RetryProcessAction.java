@@ -5,9 +5,9 @@ import java.util.ListIterator;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
@@ -32,10 +32,10 @@ public class RetryProcessAction extends ProcessAction {
     }
 
     @Override
-    protected void executeActualProcessAction(String user, String superProcessInstanceId) {
+    protected void executeActualProcessAction(UserInfo userInfo, String superProcessInstanceId) {
         List<String> subProcessIds = getActiveExecutionIds(superProcessInstanceId);
         ListIterator<String> subProcessesIdsIterator = subProcessIds.listIterator(subProcessIds.size());
-        updateUserIfNecessary(user, superProcessInstanceId, subProcessIds);
+        updateUserIfNecessary(userInfo, superProcessInstanceId, subProcessIds);
         while (subProcessesIdsIterator.hasPrevious()) {
             String subProcessId = subProcessesIdsIterator.previous();
             retryProcess(subProcessId);

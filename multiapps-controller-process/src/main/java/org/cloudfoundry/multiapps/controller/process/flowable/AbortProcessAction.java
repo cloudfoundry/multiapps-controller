@@ -1,15 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.flowable;
 
-import static java.text.MessageFormat.format;
-
 import java.util.List;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
+import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage;
@@ -24,6 +22,8 @@ import org.cloudfoundry.multiapps.controller.process.dynatrace.ImmutableDynatrac
 import org.cloudfoundry.multiapps.controller.process.util.ProcessConflictPreventer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.text.MessageFormat.format;
 
 @Named
 public class AbortProcessAction extends ProcessAction {
@@ -47,7 +47,7 @@ public class AbortProcessAction extends ProcessAction {
     }
 
     @Override
-    public void executeActualProcessAction(String user, String superProcessInstanceId) {
+    public void executeActualProcessAction(UserInfo userInfo, String superProcessInstanceId) {
         releaseOperationLock(superProcessInstanceId, Operation.State.ABORTED);
         historicEventService.add(ImmutableHistoricOperationEvent.of(superProcessInstanceId, HistoricOperationEvent.EventType.ABORTED));
         historicEventService.add(ImmutableHistoricOperationEvent.of(superProcessInstanceId,

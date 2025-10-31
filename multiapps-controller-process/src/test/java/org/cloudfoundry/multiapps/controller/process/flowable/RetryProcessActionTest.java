@@ -20,7 +20,7 @@ class RetryProcessActionTest extends ProcessActionTest {
 
     @Test
     void testRetryActionWithoutAnyExceptions() {
-        processAction.execute("fake-user", PROCESS_GUID);
+        processAction.execute(USER_INFO, PROCESS_GUID);
         Mockito.verify(flowableFacade)
                .executeJob(PROCESS_GUID);
         verifySubprocessesAreExecuted();
@@ -34,7 +34,7 @@ class RetryProcessActionTest extends ProcessActionTest {
         Mockito.doThrow(new RuntimeException())
                .when(flowableFacade)
                .executeJob(PROCESS_GUID);
-        processAction.execute("fake-user", PROCESS_GUID);
+        processAction.execute(USER_INFO, PROCESS_GUID);
         verifySubprocessesAreExecuted();
         Mockito.verify(historicOperationEventService)
                .add(ImmutableHistoricOperationEvent.of(PROCESS_GUID, HistoricOperationEvent.EventType.RETRIED));

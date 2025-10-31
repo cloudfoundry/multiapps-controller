@@ -152,11 +152,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Override
     public ResponseEntity<Operation> startOperation(HttpServletRequest request, String spaceGuid, Operation operation) {
         operationsApiServiceAuditLog.logStartOperation(SecurityContextUtil.getUsername(), spaceGuid, operation);
-        String user = getAuthenticatedUser(request);
+        UserInfo authenticatedUser = getAuthenticatedUser(request);
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
                                                                              .getParameters();
-        operation = addServiceParameters(operation, spaceGuid, user, SecurityContextUtil.getUserGuid());
+        operation = addServiceParameters(operation, spaceGuid, authenticatedUser.getName(), authenticatedUser.getId());
         operation = addParameterValues(operation, predefinedParameters);
         ensureRequiredParametersSet(operation, predefinedParameters);
         ProcessInstance processInstance = flowableFacade.startProcess(processDefinitionKey, operation.getParameters());
@@ -328,12 +328,12 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return "spaces/" + spaceId + "/operations/" + processInstanceId + "?embed=messages";
     }
 
-    private String getAuthenticatedUser(HttpServletRequest request) {
+    private UserInfo getAuthenticatedUser(HttpServletRequest request) {
         Principal principal = request.getUserPrincipal();
         if (principal == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
-        return SecurityContextUtil.getUsername(principal);
+        return SecurityContextUtil.getUserInfo();
     }
 
     private CloudSpaceClient getSpaceClient() {

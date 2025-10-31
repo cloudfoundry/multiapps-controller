@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.flowable;
 
-import static org.mockito.ArgumentMatchers.anyString;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -10,6 +8,7 @@ import java.util.function.Supplier;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.OperationQueryImpl;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.flowable.engine.HistoryService;
@@ -22,6 +21,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import static org.mockito.ArgumentMatchers.anyString;
+
 abstract class ProcessActionTest {
 
     private static final Supplier<String> RANDOM_UUID_SUPPLIER = () -> UUID.randomUUID()
@@ -30,6 +31,7 @@ abstract class ProcessActionTest {
     static final String PROCESS_GUID = RANDOM_UUID_SUPPLIER.get();
     static final String SUBPROCESS_1_ID = RANDOM_UUID_SUPPLIER.get();
     static final String SUBPROCESS_2_ID = RANDOM_UUID_SUPPLIER.get();
+    static final UserInfo USER_INFO = new UserInfo("fake-user-guid", "fake-user", null);
 
     protected ProcessAction processAction;
     @Mock
