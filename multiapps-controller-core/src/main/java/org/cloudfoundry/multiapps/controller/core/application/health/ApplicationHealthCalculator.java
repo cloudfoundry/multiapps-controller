@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -29,7 +30,7 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationInstanceNameUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.DatabaseHealthService;
 import org.cloudfoundry.multiapps.controller.persistence.services.DatabaseMonitoringService;
-import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class ApplicationHealthCalculator {
     // timeout
     private static final int TOTAL_TASK_TIMEOUT_IN_SECONDS = 3 * SINGLE_TASK_TIMEOUT_IN_SECONDS;
 
-    private final ObjectStoreFileStorage objectStoreFileStorage;
+    private final FileStorage objectStoreFileStorage;
     private final ApplicationConfiguration applicationConfiguration;
     private final DatabaseHealthService databaseHealthService;
     private final DatabaseMonitoringService databaseMonitoringService;
@@ -74,7 +75,7 @@ public class ApplicationHealthCalculator {
     private final ResilientOperationExecutor resilientOperationExecutor = getResilienceExecutor();
 
     @Inject
-    public ApplicationHealthCalculator(@Autowired(required = false) ObjectStoreFileStorage objectStoreFileStorage,
+    public ApplicationHealthCalculator(@Autowired(required = false) FileStorage objectStoreFileStorage,
                                        ApplicationConfiguration applicationConfiguration, DatabaseHealthService databaseHealthService,
                                        DatabaseMonitoringService databaseMonitoringService,
                                        DatabaseWaitingLocksAnalyzer databaseWaitingLocksAnalyzer) {
