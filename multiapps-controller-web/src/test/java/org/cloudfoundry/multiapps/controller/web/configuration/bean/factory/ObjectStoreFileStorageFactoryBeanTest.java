@@ -1,17 +1,21 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import io.pivotal.cfenv.core.CfCredentials;
 import io.pivotal.cfenv.core.CfService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.services.GcpObjectStoreFileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.services.JCloudsObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfo;
+import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfoCreator;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +49,10 @@ class ObjectStoreFileStorageFactoryBeanTest {
     @Mock
     private ApplicationConfiguration applicationConfiguration;
     @Mock
-    private ObjectStoreFileStorage objectStoreFileStorage;
+    private JCloudsObjectStoreFileStorage jCloudsObjectStoreFileStorage;
+
+    @Mock
+    private GcpObjectStoreFileStorage gcpObjectStoreFileStorage;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -59,7 +66,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
     @Test
     void testObjectStoreCreationWithoutServiceInstance() {
         objectStoreFileStorageFactoryBean.afterPropertiesSet();
-        ObjectStoreFileStorage objectStoreFileStorage = objectStoreFileStorageFactoryBean.getObject();
+        FileStorage objectStoreFileStorage = objectStoreFileStorageFactoryBean.getObject();
         assertNull(objectStoreFileStorage);
     }
 
@@ -67,7 +74,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
     void testObjectStoreCreationWithValidServiceInstance() {
         mockCfService();
         objectStoreFileStorageFactoryBean.afterPropertiesSet();
-        ObjectStoreFileStorage objectStoreFileStorage = objectStoreFileStorageFactoryBean.getObject();
+        FileStorage objectStoreFileStorage = objectStoreFileStorageFactoryBean.getObject();
         assertNotNull(objectStoreFileStorage);
     }
 
@@ -78,12 +85,12 @@ class ObjectStoreFileStorageFactoryBeanTest {
         ObjectStoreFileStorageFactoryBean spy = spy(objectStoreFileStorageFactoryBean);
 
         spy.afterPropertiesSet();
-        ObjectStoreFileStorage createdObjectStoreFileStorage = spy.getObject();
+        FileStorage createdObjectStoreFileStorage = spy.getObject();
 
         assertNotNull(createdObjectStoreFileStorage);
         verify(spy, never())
             .createObjectStoreFromFirstReachableProvider(anyMap(), anyList());
-        verify(objectStoreFileStorage, times(1))
+        verify(jCloudsObjectStoreFileStorage, times(1))
             .testConnection();
     }
 
@@ -95,7 +102,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
         ObjectStoreFileStorageFactoryBean spy = spy(objectStoreFileStorageFactoryBean);
 
         spy.afterPropertiesSet();
-        ObjectStoreFileStorage createdObjectStoreFileStorage = spy.getObject();
+        FileStorage createdObjectStoreFileStorage = spy.getObject();
 
         assertNotNull(createdObjectStoreFileStorage);
         verify(spy, times(1))
@@ -106,7 +113,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
     void testObjectStoreCreationWhenEnvProviderFailsToConnect() {
         mockCfService();
         when(applicationConfiguration.getObjectStoreClientType()).thenReturn(Constants.AWS);
-        doThrow(new IllegalStateException("Cannot create object store")).when(objectStoreFileStorage)
+        doThrow(new IllegalStateException("Cannot create object store")).when(jCloudsObjectStoreFileStorage)
                                                                         .testConnection();
 
         Exception exception = assertThrows(IllegalStateException.class, () -> objectStoreFileStorageFactoryBean.afterPropertiesSet());
@@ -116,7 +123,9 @@ class ObjectStoreFileStorageFactoryBeanTest {
     @Test
     void testObjectStoreCreationWithoutValidServiceInstance() {
         mockCfService();
-        doThrow(new IllegalStateException("Cannot create object store")).when(objectStoreFileStorage)
+        doThrow(new IllegalStateException("Cannot create object store")).when(jCloudsObjectStoreFileStorage)
+                                                                        .testConnection();
+        doThrow(new IllegalStateException("Cannot create object store")).when(gcpObjectStoreFileStorage)
                                                                         .testConnection();
         Exception exception = assertThrows(IllegalStateException.class, () -> objectStoreFileStorageFactoryBean.afterPropertiesSet());
         assertEquals(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND, exception.getMessage());
@@ -146,8 +155,27 @@ class ObjectStoreFileStorageFactoryBeanTest {
         }
 
         @Override
-        protected ObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo, BlobStoreContext context) {
-            return ObjectStoreFileStorageFactoryBeanTest.this.objectStoreFileStorage;
+        protected JCloudsObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo, BlobStoreContext context) {
+            return ObjectStoreFileStorageFactoryBeanTest.this.jCloudsObjectStoreFileStorage;
         }
+
+        @Override
+        protected GcpObjectStoreFileStorage createGcpFileStorage() {
+            return ObjectStoreFileStorageFactoryBeanTest.this.gcpObjectStoreFileStorage;
+        }
+
+        @Override
+        public List<ObjectStoreServiceInfo> getProvidersServiceInfo() {
+            CfService service = environmentServicesFinder.findService("deploy-service-os");
+            if (service != null) {
+                return new ObjectStoreServiceInfoCreatorMock().getAllProvidersServiceInfo(service.getCredentials()
+                                                                                                 .getMap());
+            } else {
+                return List.of();
+            }
+        }
+    }
+
+    private class ObjectStoreServiceInfoCreatorMock extends ObjectStoreServiceInfoCreator {
     }
 }

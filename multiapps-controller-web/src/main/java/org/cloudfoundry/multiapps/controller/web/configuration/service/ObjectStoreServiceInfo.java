@@ -30,5 +30,4 @@ public interface ObjectStoreServiceInfo {
 
     @Nullable
     String getHost();
-
 }
