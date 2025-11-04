@@ -66,7 +66,7 @@ class GcpObjectStoreFileStorageTest extends ObjectStoreFileStorageTest {
     }
 
     @Override
-    protected void assertBlobInNull(String blobWithNoMetadataId) {
+    protected void assertBlobDoesNotExist(String blobWithNoMetadataId) {
         assertNull(storage.get(blobWithNoMetadataId));
     }
 

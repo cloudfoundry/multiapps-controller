@@ -14,7 +14,8 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreUtil;
+import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
+import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.ContainerNotFoundException;
 import org.jclouds.blobstore.domain.Blob;
@@ -53,7 +54,7 @@ public class ObjectStoreFileStorage implements FileStorage {
                              .contentDisposition(fileEntry.getName())
                              .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
                              .contentLength(fileSize)
-                             .userMetadata(ObjectStoreUtil.createFileEntryMetadata(fileEntry))
+                             .userMetadata(ObjectStoreMapper.createFileEntryMetadata(fileEntry))
                              .build();
         try {
             putBlobWithRetries(blob, 3);
@@ -81,23 +82,23 @@ public class ObjectStoreFileStorage implements FileStorage {
 
     @Override
     public void deleteFilesBySpaceIds(List<String> spaceIds) {
-        removeBlobsByFilter(blob -> ObjectStoreUtil.filterBySpaceIds(blob.getUserMetadata(), spaceIds));
+        removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceIds(blob.getUserMetadata(), spaceIds));
     }
 
     @Override
     public void deleteFilesBySpaceAndNamespace(String space, String namespace) {
-        removeBlobsByFilter(blob -> ObjectStoreUtil.filterBySpaceAndNamespace(blob.getUserMetadata(), space, namespace));
+        removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceAndNamespace(blob.getUserMetadata(), space, namespace));
     }
 
     @Override
     public int deleteFilesModifiedBefore(LocalDateTime modificationTime) {
         return removeBlobsByFilter(
-            blob -> ObjectStoreUtil.filterByModificationTime(blob.getUserMetadata(), blob.getName(), modificationTime));
+            blob -> ObjectStoreFilter.filterByModificationTime(blob.getUserMetadata(), blob.getName(), modificationTime));
     }
 
     @Override
     public <T> T processFileContent(String space, String id, FileContentProcessor<T> fileContentProcessor) throws FileStorageException {
-        FileEntry fileEntry = ObjectStoreUtil.createFileEntry(space, id);
+        FileEntry fileEntry = ObjectStoreMapper.createFileEntry(space, id);
         try {
             Payload payload = getBlobPayload(fileEntry);
             return processContent(fileContentProcessor, payload);
@@ -109,7 +110,7 @@ public class ObjectStoreFileStorage implements FileStorage {
     @Override
     public <T> T processArchiveEntryContent(FileContentToProcess fileContentToProcess, FileContentProcessor<T> fileContentProcessor)
         throws FileStorageException {
-        FileEntry fileEntry = ObjectStoreUtil.createFileEntry(fileContentToProcess.getSpaceGuid(), fileContentToProcess.getGuid());
+        FileEntry fileEntry = ObjectStoreMapper.createFileEntry(fileContentToProcess.getSpaceGuid(), fileContentToProcess.getGuid());
         try {
             Payload payload = getBlobPayloadWithOffset(fileEntry, fileContentToProcess.getStartOffset(),
                                                        fileContentToProcess.getEndOffset());
@@ -155,7 +156,7 @@ public class ObjectStoreFileStorage implements FileStorage {
 
     @Override
     public InputStream openInputStream(String space, String id) throws FileStorageException {
-        FileEntry fileEntry = ObjectStoreUtil.createFileEntry(space, id);
+        FileEntry fileEntry = ObjectStoreMapper.createFileEntry(space, id);
         Payload payload = getBlobPayload(fileEntry);
         return openPayloadInputStream(payload);
     }

@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.service;
 
-import com.google.cloud.storage.Storage;
 import com.google.common.base.Supplier;
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
@@ -31,8 +30,4 @@ public interface ObjectStoreServiceInfo {
 
     @Nullable
     String getHost();
-
-    @Nullable
-    Storage getGcpStorage();
-
 }

@@ -4,21 +4,18 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
-import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-public class ObjectStoreUtil {
+public class ObjectStoreFilter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ObjectStoreUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ObjectStoreFilter.class);
 
     public static boolean filterBySpaceIds(Map<String, String> metadata, List<String> spaceIds) {
         if (CollectionUtils.isEmpty(metadata)) {
@@ -58,27 +55,4 @@ public class ObjectStoreUtil {
             return true;
         }
     }
-
-    public static Map<String, String> createFileEntryMetadata(FileEntry fileEntry) {
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put(Constants.FILE_ENTRY_SPACE.toLowerCase(), fileEntry.getSpace());
-        metadata.put(Constants.FILE_ENTRY_MODIFIED.toLowerCase(),
-                     Long.toString(fileEntry.getModified()
-                                            .atZone(
-                                                ZoneId.systemDefault())
-                                            .toInstant()
-                                            .toEpochMilli()));
-        if (fileEntry.getNamespace() != null) {
-            metadata.put(Constants.FILE_ENTRY_NAMESPACE.toLowerCase(), fileEntry.getNamespace());
-        }
-        return metadata;
-    }
-
-    public static FileEntry createFileEntry(String space, String id) {
-        return ImmutableFileEntry.builder()
-                                 .space(space)
-                                 .id(id)
-                                 .build();
-    }
-
 }
