@@ -40,9 +40,9 @@ public class GcpObjectStoreFileStorage implements FileStorage {
     private static final String BUCKET = "bucket";
     private static final int OBJECTSTORE_MAX_ATTEMPTS_CONFIG = 6;
     private static final double OBJECTSTORE_RETRY_DELAY_MULTIPLIER_CONFIG = 2.0;
-    private static final Duration OBJECTSTORE_TOTAL_TIMEOUT_CONFIG = Duration.ofMinutes(10);
-    private static final Duration OBJECTSTORE_MAX_RETRY_DELAY_CONFIG = Duration.ofSeconds(10);
-    private static final Duration OBJECTSTORE_INITIAL_RETRY_DELAY_CONFIG = Duration.ofMillis(250);
+    private static final Duration OBJECTSTORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES = Duration.ofMinutes(10);
+    private static final Duration OBJECTSTORE_MAX_RETRY_DELAY_CONFIG_IN_SECONDS = Duration.ofSeconds(10);
+    private static final Duration OBJECTSTORE_INITIAL_RETRY_DELAY_CONFIG_IN_MILLIS = Duration.ofMillis(250);
     private static final String BASE_64_ENCODED_PRIVATE_KEY_DATA = "base64EncodedPrivateKeyData";
 
     public GcpObjectStoreFileStorage(Map<String, Object> credentials) {
@@ -57,9 +57,9 @@ public class GcpObjectStoreFileStorage implements FileStorage {
                              .setRetrySettings(
                                  RetrySettings.newBuilder()
                                               .setMaxAttempts(OBJECTSTORE_MAX_ATTEMPTS_CONFIG)
-                                              .setTotalTimeout(OBJECTSTORE_TOTAL_TIMEOUT_CONFIG)
-                                              .setMaxRetryDelay(OBJECTSTORE_MAX_RETRY_DELAY_CONFIG)
-                                              .setInitialRetryDelay(OBJECTSTORE_INITIAL_RETRY_DELAY_CONFIG)
+                                              .setTotalTimeout(OBJECTSTORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
+                                              .setMaxRetryDelay(OBJECTSTORE_MAX_RETRY_DELAY_CONFIG_IN_SECONDS)
+                                              .setInitialRetryDelay(OBJECTSTORE_INITIAL_RETRY_DELAY_CONFIG_IN_MILLIS)
                                               .setRetryDelayMultiplier(OBJECTSTORE_RETRY_DELAY_MULTIPLIER_CONFIG)
                                               .build())
                              .build()
