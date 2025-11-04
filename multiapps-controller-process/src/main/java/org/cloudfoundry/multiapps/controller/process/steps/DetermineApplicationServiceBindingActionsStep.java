@@ -143,10 +143,9 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
     }
 
     private boolean doesServiceBindingExist(String serviceName, UUID appGuid, ProcessContext context) {
-        String user = context.getVariable(Variables.USER);
         String userGuid = context.getVariable(Variables.USER_GUID);
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
-        var token = tokenService.getToken(user, userGuid);
+        var token = tokenService.getToken(userGuid);
         var creds = new CloudCredentials(token, true);
 
         var serviceNamesGetter = getAppServicesGetter(creds, correlationId);

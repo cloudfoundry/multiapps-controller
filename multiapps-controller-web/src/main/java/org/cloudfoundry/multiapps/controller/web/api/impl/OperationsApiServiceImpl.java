@@ -338,7 +338,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private CloudSpaceClient getSpaceClient() {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientFactory.createSpaceClient(tokenService.getToken(userInfo.getName(), userInfo.getId()));
+        return clientFactory.createSpaceClient(tokenService.getToken(userInfo.getId()));
     }
 
     private List<Message> getOperationMessages(Operation operation) {

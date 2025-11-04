@@ -108,9 +108,8 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
                                                                       .map(DeployedMta::getServices)
                                                                       .orElse(List.of());
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
-        String user = context.getVariable(Variables.USER);
         String userGuid = context.getVariable(Variables.USER_GUID);
-        var token = tokenService.getToken(user, userGuid);
+        var token = tokenService.getToken(userGuid);
         var creds = new CloudCredentials(token, true);
 
         CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(creds, context.getVariable(Variables.CORRELATION_ID));

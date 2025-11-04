@@ -122,7 +122,7 @@ class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildCloudUnd
             Mockito.when(client.getApplication(application.getName(), false))
                    .thenReturn(application);
         }
-        Mockito.when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), anyString()))
+        Mockito.when(clientProvider.getControllerClient(anyString(), anyString(), anyString()))
                .thenReturn(client);
     }
 

@@ -62,7 +62,7 @@ class ApplicationStagerTest {
         this.context = new ProcessContext(MockDelegateExecution.createSpyInstance(), stepLogger, clientProvider);
         context.setVariable(Variables.USER, "whatever");
         context.setVariable(Variables.USER_GUID, "123-456-789");
-        Mockito.when(clientProvider.getControllerClient(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(clientProvider.getControllerClient(Mockito.any(), Mockito.any(), Mockito.any()))
                .thenReturn(client);
         this.applicationStager = new ApplicationStager(context);
         setCloudPackage();

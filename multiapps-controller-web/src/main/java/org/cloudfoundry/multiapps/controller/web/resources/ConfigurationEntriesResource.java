@@ -49,11 +49,11 @@ public class ConfigurationEntriesResource {
     public ResponseEntity<Void> purgeConfigurationRegistry(@RequestParam(REQUEST_PARAM_ORGANIZATION) String organization,
                                                            @RequestParam(REQUEST_PARAM_SPACE) String space) {
         UserInfo user = SecurityContextUtil.getUserInfo();
-        var spaceClient = clientFactory.createSpaceClient(tokenService.getToken(user.getName(), user.getId()));
+        var spaceClient = clientFactory.createSpaceClient(tokenService.getToken(user.getId()));
 
         var cloudSpace = spaceClient.getSpace(organization, space);
 
-        CloudControllerClient client = clientProvider.getControllerClientWithNoCorrelation(user.getName(), user.getId(),
+        CloudControllerClient client = clientProvider.getControllerClientWithNoCorrelation(user.getId(),
                                                                                            cloudSpace.getGuid()
                                                                                                      .toString());
         MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client, spaceClient, configurationEntryService,

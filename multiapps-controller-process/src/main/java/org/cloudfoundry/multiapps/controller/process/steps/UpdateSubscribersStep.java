@@ -133,9 +133,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     private CloudSpaceClient createSpaceClient(ProcessContext context) {
-        var user = context.getVariable(Variables.USER);
         var userGuid = context.getVariable(Variables.USER_GUID);
-        var token = tokenService.getToken(user, userGuid);
+        var token = tokenService.getToken(userGuid);
         return clientFactory.createSpaceClient(token);
     }
 

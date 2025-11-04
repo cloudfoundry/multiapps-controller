@@ -48,7 +48,7 @@ class ApplicationWaitAfterStopVariableGetterTest {
                           .close();
         Mockito.when(client.getApplicationEnvironment(Mockito.any(UUID.class)))
                .thenReturn(Collections.emptyMap());
-        Mockito.when(clientProvider.getControllerClient(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(clientProvider.getControllerClient(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                .thenReturn(client);
         context = new ProcessContext(MockDelegateExecution.createSpyInstance(), stepLogger, clientProvider);
         context.setVariable(Variables.USER, "user");
