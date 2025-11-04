@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -31,18 +32,17 @@ import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
 import org.springframework.http.MediaType;
-import org.threeten.bp.Duration;
 
 public class GcpObjectStoreFileStorage implements FileStorage {
 
     private final String bucketName;
     private final Storage storage;
     private static final String BUCKET = "bucket";
-    private static final int OBJECTSTORE_MAX_ATTEMPTS_CONFIG = 6;
-    private static final double OBJECTSTORE_RETRY_DELAY_MULTIPLIER_CONFIG = 2.0;
-    private static final Duration OBJECTSTORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES = Duration.ofMinutes(10);
-    private static final Duration OBJECTSTORE_MAX_RETRY_DELAY_CONFIG_IN_SECONDS = Duration.ofSeconds(10);
-    private static final Duration OBJECTSTORE_INITIAL_RETRY_DELAY_CONFIG_IN_MILLIS = Duration.ofMillis(250);
+    private static final int OBJECT_STORE_MAX_ATTEMPTS_CONFIG = 6;
+    private static final double OBJECT_STORE_RETRY_DELAY_MULTIPLIER_CONFIG = 2.0;
+    private static final Duration OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES = Duration.ofMinutes(10);
+    private static final Duration OBJECT_STORE_MAX_RETRY_DELAY_CONFIG_IN_SECONDS = Duration.ofSeconds(10);
+    private static final Duration OBJECT_STORE_INITIAL_RETRY_DELAY_CONFIG_IN_MILLIS = Duration.ofMillis(250);
     private static final String BASE_64_ENCODED_PRIVATE_KEY_DATA = "base64EncodedPrivateKeyData";
 
     public GcpObjectStoreFileStorage(Map<String, Object> credentials) {
@@ -56,11 +56,11 @@ public class GcpObjectStoreFileStorage implements FileStorage {
                              .setStorageRetryStrategy(StorageRetryStrategy.getDefaultStorageRetryStrategy())
                              .setRetrySettings(
                                  RetrySettings.newBuilder()
-                                              .setMaxAttempts(OBJECTSTORE_MAX_ATTEMPTS_CONFIG)
-                                              .setTotalTimeout(OBJECTSTORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
-                                              .setMaxRetryDelay(OBJECTSTORE_MAX_RETRY_DELAY_CONFIG_IN_SECONDS)
-                                              .setInitialRetryDelay(OBJECTSTORE_INITIAL_RETRY_DELAY_CONFIG_IN_MILLIS)
-                                              .setRetryDelayMultiplier(OBJECTSTORE_RETRY_DELAY_MULTIPLIER_CONFIG)
+                                              .setMaxAttempts(OBJECT_STORE_MAX_ATTEMPTS_CONFIG)
+                                              .setTotalTimeoutDuration(OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
+                                              .setMaxRetryDelayDuration(OBJECT_STORE_MAX_RETRY_DELAY_CONFIG_IN_SECONDS)
+                                              .setInitialRetryDelayDuration(OBJECT_STORE_INITIAL_RETRY_DELAY_CONFIG_IN_MILLIS)
+                                              .setRetryDelayMultiplier(OBJECT_STORE_RETRY_DELAY_MULTIPLIER_CONFIG)
                                               .build())
                              .build()
                              .getService();
