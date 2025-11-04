@@ -61,7 +61,7 @@
         <tika-core.version>3.2.2</tika-core.version>
         <commons-logging.version>1.3.1</commons-logging.version>
         <google-cloud.version>2.59.0</google-cloud.version>
-        <google-cloud-nio.version>0.128.5</google-cloud-nio.version>
+        <google-cloud-nio.version>0.128.7</google-cloud-nio.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>

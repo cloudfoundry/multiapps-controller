@@ -30,6 +30,8 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires aliyun.sdk.oss;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
+    requires com.google.auth;
+    requires com.google.auth.oauth2;
     requires com.google.auto.service;
     requires com.google.common;
     requires com.google.guice;
@@ -50,6 +52,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires org.cloudfoundry.multiapps.common;
     requires org.eclipse.persistence.core;
     requires org.slf4j;
+    requires org.threeten.bp;
     requires spring.context;
     requires spring.core;
 
@@ -57,7 +60,4 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires static org.immutables.value;
     requires jakarta.xml.bind;
     requires org.bouncycastle.fips.pkix;
-    requires com.google.auth.oauth2;
-    requires com.google.auth;
-    requires org.threeten.bp;
 }
