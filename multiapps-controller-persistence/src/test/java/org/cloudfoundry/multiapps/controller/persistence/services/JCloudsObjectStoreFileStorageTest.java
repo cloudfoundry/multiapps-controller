@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class ObjectStoreFileStorageTest {
+class JCloudsObjectStoreFileStorageTest {
 
     protected static final String TEST_FILE_LOCATION = "src/test/resources/pexels-photo-401794.jpeg";
     protected static final String SECOND_FILE_TEST_LOCATION = "src/test/resources/pexels-photo-463467.jpeg";
@@ -51,7 +51,7 @@ class ObjectStoreFileStorageTest {
     @BeforeEach
     protected void setUp() {
         createBlobStoreContext();
-        fileStorage = new ObjectStoreFileStorage(blobStoreContext.getBlobStore(), CONTAINER) {
+        fileStorage = new JCloudsObjectStoreFileStorage(blobStoreContext.getBlobStore(), CONTAINER) {
             @Override
             protected long getRetryWaitTime() {
                 return 1;

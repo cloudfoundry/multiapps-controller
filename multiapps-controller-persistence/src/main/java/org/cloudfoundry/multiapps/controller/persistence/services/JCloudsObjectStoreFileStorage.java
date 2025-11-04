@@ -30,16 +30,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 
-public class ObjectStoreFileStorage implements FileStorage {
+public class JCloudsObjectStoreFileStorage implements FileStorage {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ObjectStoreFileStorage.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JCloudsObjectStoreFileStorage.class);
     private static final int MAX_RETRIES_COUNT = 3;
     private static final long RETRY_BASE_WAIT_TIME_IN_MILLIS = 5000L;
 
     private final BlobStore blobStore;
     private final String container;
 
-    public ObjectStoreFileStorage(BlobStore blobStore, String container) {
+    public JCloudsObjectStoreFileStorage(BlobStore blobStore, String container) {
         this.blobStore = blobStore;
         this.container = container;
     }

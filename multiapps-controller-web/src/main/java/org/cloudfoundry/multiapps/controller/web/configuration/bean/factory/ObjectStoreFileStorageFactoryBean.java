@@ -18,7 +18,7 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.GcpObjectStoreFileStorage;
-import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.services.JCloudsObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
@@ -222,8 +222,8 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
         }
     }
 
-    protected ObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo, BlobStoreContext context) {
-        return new ObjectStoreFileStorage(context.getBlobStore(), objectStoreServiceInfo.getContainer());
+    protected JCloudsObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo, BlobStoreContext context) {
+        return new JCloudsObjectStoreFileStorage(context.getBlobStore(), objectStoreServiceInfo.getContainer());
     }
 
     protected GcpObjectStoreFileStorage createGcpFileStorage() {
