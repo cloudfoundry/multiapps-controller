@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.contrib.nio.testing.LocalStorageHelper;
 import io.pivotal.cfenv.core.CfCredentials;
 import io.pivotal.cfenv.core.CfService;
 import org.cloudfoundry.multiapps.controller.web.Constants;
@@ -32,8 +30,6 @@ class ObjectStoreServiceInfoCreatorTest {
     private static final String SAS_TOKEN_VALUE = "sas_token_value";
     private static final String CONTAINER_NAME_VALUE = "container_name_value";
     private static final String CONTAINER_URI_VALUE = "https://container.com:8080";
-    private static final Storage STORAGE = LocalStorageHelper.getOptions()
-                                                             .getService();
 
     private ObjectStoreServiceInfoCreator objectStoreServiceInfoCreator;
 

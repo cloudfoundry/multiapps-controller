@@ -238,7 +238,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
 
     @Override
     public Class<?> getObjectType() {
-        return ObjectStoreFileStorage.class;
+        return FileStorage.class;
     }
 
 }

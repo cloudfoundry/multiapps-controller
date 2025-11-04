@@ -162,10 +162,10 @@ class ObjectStoreFileStorageTest {
         assertFileExists(true, fileEntryToRemain2);
         assertFileExists(false, fileEntryToDelete1);
         assertFileExists(false, fileEntryToDelete2);
-        assertBlobInNull(blobWithNoMetadataId);
+        assertBlobDoesNotExist(blobWithNoMetadataId);
     }
 
-    protected void assertBlobInNull(String blobWithNoMetadataId) {
+    protected void assertBlobDoesNotExist(String blobWithNoMetadataId) {
         assertNull(blobStoreContext.getBlobStore()
                                    .getBlob(CONTAINER, blobWithNoMetadataId));
     }
@@ -179,7 +179,7 @@ class ObjectStoreFileStorageTest {
     void testDeleteFilesByIds() throws Exception {
         FileEntry fileEntry = addFile(TEST_FILE_LOCATION);
         fileStorage.deleteFilesByIds(List.of(fileEntry.getId()));
-        assertBlobInNull(fileEntry.getId());
+        assertBlobDoesNotExist(fileEntry.getId());
     }
 
     protected String addBlobWithNoMetadata() throws Exception {
@@ -313,12 +313,12 @@ class ObjectStoreFileStorageTest {
                                  .build();
     }
 
-    protected void assertFileExists(boolean exceptedFileExist, FileEntry actualFile) {
+    protected void assertFileExists(boolean expectedFileExist, FileEntry actualFile) {
         Blob blob = blobStoreContext.getBlobStore()
                                     .getBlob(CONTAINER, actualFile.getId());
         boolean blobExists = blob != null;
 
-        assertEquals(exceptedFileExist, blobExists);
+        assertEquals(expectedFileExist, blobExists);
     }
 
 }

@@ -28,7 +28,8 @@ import com.google.cloud.storage.StorageRetryStrategy;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreUtil;
+import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
+import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
 import org.springframework.http.MediaType;
 import org.threeten.bp.Duration;
 
@@ -84,7 +85,7 @@ public class GcpObjectStoreFileStorage implements FileStorage {
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
                                     .setContentDisposition(fileEntry.getName())
                                     .setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
-                                    .setMetadata(ObjectStoreUtil.createFileEntryMetadata(fileEntry))
+                                    .setMetadata(ObjectStoreMapper.createFileEntryMetadata(fileEntry))
                                     .build();
 
         putBlob(blobInfo, content);
@@ -99,7 +100,7 @@ public class GcpObjectStoreFileStorage implements FileStorage {
     }
 
     @Override
-    public List<FileEntry> getFileEntriesWithoutContent(List<FileEntry> fileEntries) throws FileStorageException {
+    public List<FileEntry> getFileEntriesWithoutContent(List<FileEntry> fileEntries) {
         Set<String> existingFiles = getAllEntries().stream()
                                                    .map(Blob::getName)
                                                    .collect(Collectors.toSet());
@@ -115,24 +116,24 @@ public class GcpObjectStoreFileStorage implements FileStorage {
 
     @Override
     public void deleteFilesBySpaceIds(List<String> spaceIds) {
-        removeBlobsByFilter(blob -> ObjectStoreUtil.filterBySpaceIds(blob.getMetadata(), spaceIds));
+        removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceIds(blob.getMetadata(), spaceIds));
     }
 
     @Override
     public void deleteFilesBySpaceAndNamespace(String space, String namespace) {
-        removeBlobsByFilter(blob -> ObjectStoreUtil.filterBySpaceAndNamespace(blob.getMetadata(), space, namespace));
+        removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceAndNamespace(blob.getMetadata(), space, namespace));
     }
 
     @Override
     public int deleteFilesModifiedBefore(LocalDateTime modificationTime) {
         return removeBlobsByFilter(
-            blob -> ObjectStoreUtil.filterByModificationTime(blob.getMetadata(), blob.getName(), modificationTime));
+            blob -> ObjectStoreFilter.filterByModificationTime(blob.getMetadata(), blob.getName(), modificationTime));
     }
 
     @Override
     public <T> T processFileContent(String space, String id,
                                     FileContentProcessor<T> fileContentProcessor) throws FileStorageException {
-        FileEntry fileEntry = ObjectStoreUtil.createFileEntry(space, id);
+        FileEntry fileEntry = ObjectStoreMapper.createFileEntry(space, id);
         try (InputStream inputStream = openBlobStream(fileEntry)) {
             return fileContentProcessor.process(inputStream);
         } catch (Exception e) {
@@ -161,7 +162,7 @@ public class GcpObjectStoreFileStorage implements FileStorage {
 
     @Override
     public InputStream openInputStream(String space, String id) throws FileStorageException {
-        FileEntry fileEntry = ObjectStoreUtil.createFileEntry(space, id);
+        FileEntry fileEntry = ObjectStoreMapper.createFileEntry(space, id);
         return openBlobStream(fileEntry);
     }
 
@@ -171,14 +172,14 @@ public class GcpObjectStoreFileStorage implements FileStorage {
     }
 
     @Override
-    public void deleteFilesByIds(List<String> fileIds) throws FileStorageException {
+    public void deleteFilesByIds(List<String> fileIds) {
         removeBlobsByFilter(blob -> fileIds.contains(blob.getName()));
     }
 
     @Override
     public <T> T processArchiveEntryContent(FileContentToProcess fileContentToProcess, FileContentProcessor<T> fileContentProcessor)
         throws FileStorageException {
-        FileEntry fileEntry = ObjectStoreUtil.createFileEntry(fileContentToProcess.getSpaceGuid(), fileContentToProcess.getGuid());
+        FileEntry fileEntry = ObjectStoreMapper.createFileEntry(fileContentToProcess.getSpaceGuid(), fileContentToProcess.getGuid());
         InputStream blobPayload = getBlobPayloadWithOffset(fileEntry, fileContentToProcess.getStartOffset(),
                                                            fileContentToProcess.getEndOffset());
         return processContent(fileContentProcessor, blobPayload);
