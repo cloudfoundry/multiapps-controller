@@ -21,7 +21,7 @@ import org.springframework.http.MediaType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-class GcpObjectStoreFileStorageTest extends ObjectStoreFileStorageTest {
+class GcpObjectStoreFileStorageTest extends JCloudsObjectStoreFileStorageTest {
 
     private Storage storage;
 

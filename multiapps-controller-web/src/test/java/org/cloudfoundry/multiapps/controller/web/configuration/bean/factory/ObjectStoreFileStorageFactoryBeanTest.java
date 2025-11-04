@@ -10,7 +10,7 @@ import io.pivotal.cfenv.core.CfService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.GcpObjectStoreFileStorage;
-import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.services.JCloudsObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
@@ -49,7 +49,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
     @Mock
     private ApplicationConfiguration applicationConfiguration;
     @Mock
-    private ObjectStoreFileStorage objectStoreFileStorage;
+    private JCloudsObjectStoreFileStorage jCloudsObjectStoreFileStorage;
 
     @Mock
     private GcpObjectStoreFileStorage gcpObjectStoreFileStorage;
@@ -90,7 +90,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
         assertNotNull(createdObjectStoreFileStorage);
         verify(spy, never())
             .createObjectStoreFromFirstReachableProvider(anyMap(), anyList());
-        verify(objectStoreFileStorage, times(1))
+        verify(jCloudsObjectStoreFileStorage, times(1))
             .testConnection();
     }
 
@@ -113,7 +113,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
     void testObjectStoreCreationWhenEnvProviderFailsToConnect() {
         mockCfService();
         when(applicationConfiguration.getObjectStoreClientType()).thenReturn(Constants.AWS);
-        doThrow(new IllegalStateException("Cannot create object store")).when(objectStoreFileStorage)
+        doThrow(new IllegalStateException("Cannot create object store")).when(jCloudsObjectStoreFileStorage)
                                                                         .testConnection();
 
         Exception exception = assertThrows(IllegalStateException.class, () -> objectStoreFileStorageFactoryBean.afterPropertiesSet());
@@ -123,7 +123,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
     @Test
     void testObjectStoreCreationWithoutValidServiceInstance() {
         mockCfService();
-        doThrow(new IllegalStateException("Cannot create object store")).when(objectStoreFileStorage)
+        doThrow(new IllegalStateException("Cannot create object store")).when(jCloudsObjectStoreFileStorage)
                                                                         .testConnection();
         doThrow(new IllegalStateException("Cannot create object store")).when(gcpObjectStoreFileStorage)
                                                                         .testConnection();
@@ -155,8 +155,8 @@ class ObjectStoreFileStorageFactoryBeanTest {
         }
 
         @Override
-        protected ObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo, BlobStoreContext context) {
-            return ObjectStoreFileStorageFactoryBeanTest.this.objectStoreFileStorage;
+        protected JCloudsObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo, BlobStoreContext context) {
+            return ObjectStoreFileStorageFactoryBeanTest.this.jCloudsObjectStoreFileStorage;
         }
 
         @Override
