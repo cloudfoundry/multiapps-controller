@@ -57,7 +57,7 @@ public class JCloudsObjectStoreFileStorage implements FileStorage {
                              .userMetadata(ObjectStoreMapper.createFileEntryMetadata(fileEntry))
                              .build();
         try {
-            putBlobWithRetries(blob, 3);
+            putBlobWithRetries(blob, MAX_RETRIES_COUNT);
             LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1, fileEntry.getId(), fileSize));
         } catch (ContainerNotFoundException e) {
             throw new FileStorageException(MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(),
@@ -146,7 +146,7 @@ public class JCloudsObjectStoreFileStorage implements FileStorage {
     }
 
     private Payload getBlobPayload(FileEntry fileEntry) throws FileStorageException {
-        Blob blob = getBlobWithRetries(fileEntry, 3);
+        Blob blob = getBlobWithRetries(fileEntry, MAX_RETRIES_COUNT);
         if (blob == null) {
             throw new FileStorageException(MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(),
                                                                 fileEntry.getSpace()));
