@@ -1,33 +1,39 @@
 package org.cloudfoundry.multiapps.controller.database.migration;
 
+import java.io.IOException;
+import java.io.InputStream;
+import javax.sql.DataSource;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.database.migration.executor.DatabaseSequenceMigrationExecutor;
 import org.cloudfoundry.multiapps.controller.database.migration.executor.DatabaseTableMigrationExecutor;
 import org.cloudfoundry.multiapps.controller.database.migration.executor.ImmutableDatabaseSequenceMigrationExecutor;
 import org.cloudfoundry.multiapps.controller.database.migration.executor.ImmutableDatabaseTableMigrationExecutor;
 import org.cloudfoundry.multiapps.controller.database.migration.extractor.DataSourceEnvironmentExtractor;
-
-import java.io.IOException;
-import java.io.InputStream;
-import javax.sql.DataSource;
+import org.cloudfoundry.multiapps.controller.persistence.dto.DatabaseServiceKey;
 
 public class DatabaseMigration {
 
     private static final Logger LOGGER = (Logger) LogManager.getLogger(DatabaseMigration.class);
+    private static final String DATABASE_TARGET_SERVICE_KEY = "DATABASE_TARGET_SERVICE_KEY";
 
     public static void main(String[] args) {
         configureLogger();
-        LOGGER.info("Starting database migration...");
+        DatabaseServiceKey databaseServiceKey = createDatabaseServiceKey();
+
         DataSourceEnvironmentExtractor environmentExtractor = new DataSourceEnvironmentExtractor();
-        DataSource sourceDataSource = environmentExtractor.extractDataSource("deploy-service-database-source");
         DataSource targetDataSource = environmentExtractor.extractDataSource("deploy-service-database");
+        DataSource sourceDataSource = environmentExtractor.extractDataSource(databaseServiceKey);
 
         DatabaseSequenceMigrationExecutor sequenceMigrationExecutor = ImmutableDatabaseSequenceMigrationExecutor.builder()
-                                                                                                                .sourceDataSource(sourceDataSource)
-                                                                                                                .targetDataSource(targetDataSource)
+                                                                                                                .sourceDataSource(
+                                                                                                                    sourceDataSource)
+                                                                                                                .targetDataSource(
+                                                                                                                    targetDataSource)
                                                                                                                 .build();
 
         DatabaseTableMigrationExecutor tableMigrationExecutor = ImmutableDatabaseTableMigrationExecutor.builder()
@@ -36,11 +42,15 @@ public class DatabaseMigration {
                                                                                                        .build();
         sequenceMigrationExecutor.executeMigration("configuration_entry_sequence");
         sequenceMigrationExecutor.executeMigration("configuration_subscription_sequence");
-
         tableMigrationExecutor.executeMigration("configuration_registry");
         tableMigrationExecutor.executeMigration("configuration_subscription");
 
         LOGGER.info("Database migration completed.");
+    }
+
+    private static DatabaseServiceKey createDatabaseServiceKey() {
+        String databaseTargetServiceKey = System.getenv(DATABASE_TARGET_SERVICE_KEY);
+        return new DatabaseServiceKey(JsonUtil.convertJsonToMap(databaseTargetServiceKey));
     }
 
     private static void configureLogger() {
