@@ -87,10 +87,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
     }
 
     protected AppBoundServiceInstanceNamesGetter getAppBoundServiceInstanceNamesGetter(ProcessContext context) {
-        String user = context.getVariable(Variables.USER);
         String userGuid = context.getVariable(Variables.USER_GUID);
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
-        var token = tokenService.getToken(user, userGuid);
+        var token = tokenService.getToken(userGuid);
         var credentials = new CloudCredentials(token, true);
         return new AppBoundServiceInstanceNamesGetter(configuration, webClientFactory, credentials, correlationId);
     }

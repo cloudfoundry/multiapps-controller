@@ -43,6 +43,8 @@ class ServiceRemoverTest {
     private static final String TEST_USER = "test-user";
     private static final String TEST_USER_GUID = UUID.randomUUID()
                                                      .toString();
+    private static final String TEST_CORRELATION_ID = UUID.randomUUID()
+                                                          .toString();
     private static final String TEST_SPACE = "test-space";
     private static final String SERVICE_NAME = "test-service";
     private static final String SERVICE_LABEL = "test-label";
@@ -71,10 +73,11 @@ class ServiceRemoverTest {
     }
 
     private void prepareExecution() {
-        when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), any())).thenReturn(client);
+        when(clientProvider.getControllerClient(anyString(), anyString(), anyString())).thenReturn(client);
         context = new ProcessContext(execution, stepLogger, clientProvider);
         context.setVariable(Variables.USER, TEST_USER);
         context.setVariable(Variables.USER_GUID, TEST_USER_GUID);
+        context.setVariable(Variables.CORRELATION_ID, TEST_CORRELATION_ID);
         execution.setVariable(org.cloudfoundry.multiapps.controller.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE);
     }
 

@@ -39,9 +39,9 @@ class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribers
 
         // Then:
         Mockito.verify(clientProvider, Mockito.atLeastOnce())
-               .getControllerClient(eq(USER_NAME), eq(USER_GUID), eq(FOO_SPACE_GUID.toString()), anyString());
+               .getControllerClient(eq(USER_GUID), eq(FOO_SPACE_GUID.toString()), anyString());
         Mockito.verify(clientProvider, Mockito.atLeastOnce())
-               .getControllerClient(eq(USER_NAME), eq(USER_GUID), eq(BAR_SPACE_GUID.toString()), anyString());
+               .getControllerClient(eq(USER_GUID), eq(BAR_SPACE_GUID.toString()), anyString());
     }
 
     @Test
@@ -51,9 +51,9 @@ class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribers
 
         CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class);
         CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class);
-        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(USER_GUID), eq(FOO_SPACE_GUID.toString()), anyString()))
+        Mockito.when(clientProvider.getControllerClient(eq(USER_GUID), eq(FOO_SPACE_GUID.toString()), anyString()))
                .thenReturn(clientForSpaceFoo);
-        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(USER_GUID), eq(BAR_SPACE_GUID.toString()), anyString()))
+        Mockito.when(clientProvider.getControllerClient(eq(USER_GUID), eq(BAR_SPACE_GUID.toString()), anyString()))
                .thenReturn(clientForSpaceBar);
 
         // When:
@@ -79,9 +79,9 @@ class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribers
         CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class);
         CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class);
 
-        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(USER_GUID), eq(FOO_SPACE_GUID.toString()), anyString()))
+        Mockito.when(clientProvider.getControllerClient(eq(USER_GUID), eq(FOO_SPACE_GUID.toString()), anyString()))
                .thenReturn(clientForSpaceFoo);
-        Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq(USER_GUID), eq(BAR_SPACE_GUID.toString()), anyString()))
+        Mockito.when(clientProvider.getControllerClient(eq(USER_GUID), eq(BAR_SPACE_GUID.toString()), anyString()))
                .thenReturn(clientForSpaceBar);
 
         // When:

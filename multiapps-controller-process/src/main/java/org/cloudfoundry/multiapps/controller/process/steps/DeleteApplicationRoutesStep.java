@@ -62,10 +62,9 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
     }
 
     private List<CloudRouteExtended> getApplicationRoutes(CloudControllerClient client, CloudApplication app, ProcessContext context) {
-        String user = context.getVariable(Variables.USER);
         String userGuid = context.getVariable(Variables.USER_GUID);
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
-        var token = tokenService.getToken(user, userGuid);
+        var token = tokenService.getToken(userGuid);
         var credentials = new CloudCredentials(token, true);
         var serviceInstanceRoutesGetter = getServiceRoutesGetter(credentials, correlationId);
 

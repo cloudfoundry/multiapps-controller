@@ -191,7 +191,7 @@ class MtasApiServiceImplTest {
                .thenReturn(auth);
         Mockito.when(client.getApplicationRoutes(Mockito.any(UUID.class)))
                .thenReturn(Collections.emptyList());
-        Mockito.when(clientProvider.getControllerClientWithNoCorrelation(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(clientProvider.getControllerClientWithNoCorrelation(Mockito.anyString(), Mockito.anyString()))
                .thenReturn(client);
     }
 

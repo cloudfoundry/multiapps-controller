@@ -171,9 +171,8 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
     }
 
     protected AuthorizationEndpointGetter getAuthorizationEndpointGetter(ProcessContext context) {
-        String user = context.getVariable(Variables.USER);
         String userGuid = context.getVariable(Variables.USER_GUID);
-        var token = tokenService.getToken(user, userGuid);
+        var token = tokenService.getToken(userGuid);
         var creds = new CloudCredentials(token, true);
         return new AuthorizationEndpointGetter(webClientFactory.getWebClient(creds));
     }

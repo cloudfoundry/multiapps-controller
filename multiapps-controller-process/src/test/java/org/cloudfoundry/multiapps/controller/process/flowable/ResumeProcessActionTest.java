@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.flowable;
 
-import static org.mockito.Mockito.times;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -12,13 +10,15 @@ import org.flowable.engine.runtime.Execution;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static org.mockito.Mockito.times;
+
 class ResumeProcessActionTest extends ProcessActionTest {
 
     @Test
     void testResumeExecutionWithExecutionsAtReceiveTask() {
-        processAction.execute("fake-user", PROCESS_GUID);
+        processAction.execute(USER_INFO, PROCESS_GUID);
         Mockito.verify(flowableFacade, times(2))
-               .trigger(EXECUTION_ID, Map.of(Variables.USER.getName(), "fake-user"));
+               .trigger(EXECUTION_ID, Map.of(Variables.USER.getName(), "fake-user", Variables.USER_GUID.getName(), "fake-user-guid"));
         assertStateUpdated(Operation.State.RUNNING);
     }
 
@@ -28,9 +28,9 @@ class ResumeProcessActionTest extends ProcessActionTest {
         Mockito.when(flowableFacade.findExecutionsAtReceiveTask(PROCESS_GUID))
                .thenReturn(mockedExecutions)
                .thenReturn(Collections.emptyList());
-        processAction.execute("fake-user", PROCESS_GUID);
+        processAction.execute(USER_INFO, PROCESS_GUID);
         Mockito.verify(flowableFacade)
-               .trigger(EXECUTION_ID, Map.of(Variables.USER.getName(), "fake-user"));
+               .trigger(EXECUTION_ID, Map.of(Variables.USER.getName(), "fake-user", Variables.USER_GUID.getName(), "fake-user-guid"));
         assertStateUpdated(Operation.State.RUNNING);
     }
 

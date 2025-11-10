@@ -153,7 +153,7 @@ class AuthorizationCheckerTest {
 
     private void setUpMocks(Set<UserRole> spaceRoles, Exception exception) {
         var token = Mockito.mock(OAuth2AccessTokenWithAdditionalInfo.class);
-        when(tokenService.getToken(anyString(), anyString())).thenReturn(token);
+        when(tokenService.getToken(anyString())).thenReturn(token);
         if (exception != null) {
             when(rolesGetter.getRoles(SPACE_ID, USER_ID)).thenThrow(exception);
         } else {

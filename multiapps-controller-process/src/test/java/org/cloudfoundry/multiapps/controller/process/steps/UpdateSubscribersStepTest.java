@@ -201,7 +201,7 @@ class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersSt
 
     private void prepareClientProvider(CloudSpace space, CloudControllerClient clientMock) {
         String spaceName = space.getName();
-        when(clientProvider.getControllerClient(eq(USER), eq(USER_GUID), eq(spaceName), anyString())).thenReturn(clientMock);
+        when(clientProvider.getControllerClient(eq(USER_GUID), eq(spaceName), anyString())).thenReturn(clientMock);
     }
 
     private Map<CloudSpace, CloudControllerClient> createClientsForSpacesOfSubscribedApps() {

@@ -44,10 +44,9 @@ public class PollStageAppStatusExecution implements AsyncExecution {
 
         ProcessLoggerProvider processLoggerProvider = stepLogger.getProcessLoggerProvider();
 
-        var user = context.getVariable(Variables.USER);
         var userGuid = context.getVariable(Variables.USER_GUID);
         var correlationId = context.getVariable(Variables.CORRELATION_ID);
-        var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(user, userGuid), correlationId);
+        var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(userGuid), correlationId);
 
         UUID appGuid = client.getApplicationGuid(application.getName());
         StepsUtil.saveAppLogs(context, logCacheClient, appGuid, application.getName(), LOGGER, processLoggerProvider);

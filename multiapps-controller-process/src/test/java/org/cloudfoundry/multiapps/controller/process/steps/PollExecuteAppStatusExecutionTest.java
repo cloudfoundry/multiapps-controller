@@ -185,7 +185,7 @@ class PollExecuteAppStatusExecutionTest {
         when(logCacheClient.getRecentLogs(any(), any())).thenReturn(List.of(applicationLog));
         when(clientFactory.createLogCacheClient(any(), any())).thenReturn(logCacheClient);
         when(client.getApplicationGuid(eq(APPLICATION_NAME))).thenReturn(UUID.fromString(APPLICATION_GUID));
-        when(clientProvider.getControllerClient(any(), any(), any(), any())).thenReturn(client);
+        when(clientProvider.getControllerClient(any(), any(), any())).thenReturn(client);
     }
 
     @Test

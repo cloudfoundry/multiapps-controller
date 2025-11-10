@@ -47,7 +47,7 @@ class TokenServiceTest {
     void testGetTokenWhenThereAreNoTokensForUser() {
         AccessTokenQuery accessTokenQuery = Mockito.mock(AccessTokenQuery.class);
         mockAccessTokenService(accessTokenQuery);
-        Exception exception = assertThrows(IllegalStateException.class, () -> tokenService.getToken("deploy-service-user", "123"));
+        Exception exception = assertThrows(IllegalStateException.class, () -> tokenService.getToken("123"));
         assertEquals("No valid access token was found for user guid \"123\"", exception.getMessage());
     }
 
@@ -62,10 +62,10 @@ class TokenServiceTest {
         mockAccessTokenService(accessTokenQuery);
         OAuth2AccessTokenWithAdditionalInfo mockedToken = Mockito.mock(OAuth2AccessTokenWithAdditionalInfo.class);
         Mockito.when(mockedToken.getAdditionalInfo())
-               .thenReturn(Map.of(TokenProperties.USER_NAME_KEY, "deploy-service-user", TokenProperties.USER_ID_KEY, "123"));
+               .thenReturn(Map.of(TokenProperties.USER_ID_KEY, "123"));
         Mockito.when(tokenParserChain.parse(any()))
                .thenReturn(mockedToken);
-        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken("deploy-service-user", "123");
+        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken("123");
         assertEquals(mockedToken, token);
     }
 
@@ -75,10 +75,10 @@ class TokenServiceTest {
         mockAccessTokenService(accessTokenQuery);
         OAuth2AccessTokenWithAdditionalInfo mockedToken = Mockito.mock(OAuth2AccessTokenWithAdditionalInfo.class);
         Mockito.when(mockedToken.getAdditionalInfo())
-               .thenReturn(Map.of(TokenProperties.USER_NAME_KEY, "deploy-service-user", TokenProperties.USER_ID_KEY, "123"));
+               .thenReturn(Map.of(TokenProperties.USER_ID_KEY, "123"));
         Mockito.when(tokenParserChain.parse(any()))
                .thenReturn(mockedToken);
-        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken("deploy-service-user", "123");
+        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken("123");
         assertEquals(mockedToken, token);
     }
 
@@ -94,11 +94,11 @@ class TokenServiceTest {
         Mockito.when(mockedToken.getOAuth2AccessToken())
                .thenReturn(oAuth2AccessToken);
         Mockito.when(mockedToken.getAdditionalInfo())
-               .thenReturn(Map.of(TokenProperties.USER_NAME_KEY, "deploy-service-user", TokenProperties.USER_ID_KEY, "123"));
+               .thenReturn(Map.of(TokenProperties.USER_ID_KEY, "123"));
         Mockito.when(tokenParserChain.parse(any()))
                .thenReturn(mockedToken);
-        tokenService.getToken("deploy-service-user", "123");
-        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken("deploy-service-user", "123");
+        tokenService.getToken("123");
+        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken("123");
         assertEquals(mockedToken, token);
     }
 

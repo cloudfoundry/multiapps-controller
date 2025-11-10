@@ -49,20 +49,16 @@ public class TokenService implements DisposableBean {
     /**
      * Chooses a token among all tokens for this user in the access token table.
      *
-     * @param username the username
      * @param userGuid the userGuid
      * @return the latest token, or throw an exception if token is not found
      */
-    public OAuth2AccessTokenWithAdditionalInfo getToken(String username, String userGuid) {
-        if (userGuid != null) {
-            OAuth2AccessTokenWithAdditionalInfo cachedAccessToken = cachedTokens.get(userGuid);
-            if (shouldUseCachedToken(cachedAccessToken)) {
-                return cachedAccessToken;
-            }
-            return getLatestAccessTokenByUserGuid(userGuid);
+    public OAuth2AccessTokenWithAdditionalInfo getToken(String userGuid) {
+        OAuth2AccessTokenWithAdditionalInfo cachedAccessToken = cachedTokens.get(userGuid);
+        if (shouldUseCachedToken(cachedAccessToken)) {
+            return cachedAccessToken;
         }
-        // TODO: If no tokens are found for the userGuid, try to find tokens by username. This is temporary and should be removed in the next release.
-        return getLatestAccessTokenByUsername(username);
+        return getLatestAccessTokenByUserGuid(userGuid);
+
     }
 
     private boolean shouldUseCachedToken(OAuth2AccessTokenWithAdditionalInfo cachedAccessToken) {
@@ -95,21 +91,6 @@ public class TokenService implements DisposableBean {
         if (accessTokens.size() > 1) {
             deleteTokens(accessTokens.subList(1, accessTokens.size()));
         }
-    }
-
-    private OAuth2AccessTokenWithAdditionalInfo getLatestAccessTokenByUsername(String username) {
-        List<AccessToken> tokensByUsername = getSortedAccessTokensByUsername(username);
-        if (tokensByUsername.isEmpty()) {
-            throw new IllegalStateException(MessageFormat.format(Messages.NO_VALID_TOKEN_FOUND, username));
-        }
-        return getLatestToken(tokensByUsername);
-    }
-
-    private List<AccessToken> getSortedAccessTokensByUsername(String username) {
-        return accessTokenService.createQuery()
-                                 .username(username)
-                                 .orderByExpiresAt(OrderDirection.DESCENDING)
-                                 .list();
     }
 
     private OAuth2AccessTokenWithAdditionalInfo getLatestToken(List<AccessToken> accessTokens) {

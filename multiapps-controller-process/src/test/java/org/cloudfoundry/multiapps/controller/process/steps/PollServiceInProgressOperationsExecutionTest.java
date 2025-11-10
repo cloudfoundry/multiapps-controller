@@ -113,7 +113,7 @@ class PollServiceInProgressOperationsExecutionTest extends AsyncStepOperationTes
         prepareServiceOperationGetter(services, servicesOperationTypes, servicesOperationStates);
         prepareServicesData(services);
         prepareTriggeredServiceOperations(serviceNames, servicesOperationTypes);
-        when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
+        when(clientProvider.getControllerClient(anyString(), anyString(), anyString())).thenReturn(client);
 
     }
 

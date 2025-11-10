@@ -92,7 +92,7 @@ public class AuthorizationChecker implements DisposableBean {
         if (hasAdminScope(userInfo)) {
             return true;
         }
-        var userToken = tokenService.getToken(userInfo.getName(), userInfo.getId());
+        var userToken = tokenService.getToken(userInfo.getId());
         var spaceClient = clientFactory.createSpaceClient(userToken);
         var space = spaceClient.getSpace(orgName, spaceName);
 
@@ -109,7 +109,7 @@ public class AuthorizationChecker implements DisposableBean {
         if (hasAdminScope(userInfo)) {
             return true;
         }
-        var userToken = tokenService.getToken(userInfo.getName(), userInfo.getId());
+        var userToken = tokenService.getToken(userInfo.getId());
         CfRolesGetter rolesGetter = getRolesGetter(userToken);
         UUID userGuid = UUID.fromString(userInfo.getId());
         UUID spaceGuid = convertSpaceIdToUUID(spaceId);

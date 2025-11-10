@@ -122,7 +122,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         context.setVariable(Variables.USER, USER_NAME);
         context.setVariable(Variables.USER_GUID, USER_GUID);
         context.setVariable(Variables.ORGANIZATION_NAME, ORG_NAME);
-        when(clientProvider.getControllerClient(any(), any(), any(), any())).thenReturn(client);
+        when(clientProvider.getControllerClient(any(), any(), any())).thenReturn(client);
         execution.setVariable("correlationId", getCorrelationId());
         execution.setVariable("__TASK_ID", getTaskId());
         prepareProcessEngineConfiguration();

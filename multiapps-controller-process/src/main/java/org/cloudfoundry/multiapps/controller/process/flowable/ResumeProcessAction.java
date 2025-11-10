@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.runtime.Execution;
@@ -28,27 +28,28 @@ public class ResumeProcessAction extends ProcessAction {
     }
 
     @Override
-    public void executeActualProcessAction(String user, String superProcessInstanceId) {
+    public void executeActualProcessAction(UserInfo userInfo, String superProcessInstanceId) {
         List<String> activeProcessIds = getActiveExecutionIds(superProcessInstanceId);
         List<String> processesAtReceiveTask = activeProcessIds.stream()
                                                               .filter(processId -> !flowableFacade.findExecutionsAtReceiveTask(processId)
                                                                                                   .isEmpty())
                                                               .collect(Collectors.toList());
-        updateUserIfNecessary(user, superProcessInstanceId, activeProcessIds);
+        updateUserIfNecessary(userInfo, superProcessInstanceId, activeProcessIds);
         for (String processAtReceiveTask : processesAtReceiveTask) {
-            triggerProcessInstance(user, processAtReceiveTask);
+            triggerProcessInstance(userInfo, processAtReceiveTask);
         }
         updateOperationState(superProcessInstanceId, Operation.State.RUNNING);
     }
 
-    private void triggerProcessInstance(String user, String processId) {
+    private void triggerProcessInstance(UserInfo userInfo, String processId) {
         List<Execution> executionsAtReceiveTask = flowableFacade.findExecutionsAtReceiveTask(processId);
         if (executionsAtReceiveTask.isEmpty()) {
             LOGGER.warn(MessageFormat.format("Process with id {0} is in undetermined process state", processId));
             return;
         }
         for (Execution execution : executionsAtReceiveTask) {
-            flowableFacade.trigger(execution.getId(), Map.of(Variables.USER.getName(), user));
+            flowableFacade.trigger(execution.getId(),
+                                   Map.of(Variables.USER.getName(), userInfo.getName(), Variables.USER_GUID.getName(), userInfo.getId()));
         }
     }
 
