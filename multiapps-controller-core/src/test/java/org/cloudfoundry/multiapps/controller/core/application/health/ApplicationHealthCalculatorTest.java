@@ -1,5 +1,9 @@
 package org.cloudfoundry.multiapps.controller.core.application.health;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.core.application.health.database.DatabaseWaitingLocksAnalyzer;
@@ -7,7 +11,7 @@ import org.cloudfoundry.multiapps.controller.core.application.health.model.Appli
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.DatabaseHealthService;
 import org.cloudfoundry.multiapps.controller.persistence.services.DatabaseMonitoringService;
-import org.cloudfoundry.multiapps.controller.persistence.services.JCloudsObjectStoreFileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -16,14 +20,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class ApplicationHealthCalculatorTest {
 
     @Mock
-    private JCloudsObjectStoreFileStorage jCloudsObjectStoreFileStorage;
+    private ObjectStoreFileStorage objectStoreFileStorage;
     @Mock
     private ApplicationConfiguration applicationConfiguration;
     @Mock
@@ -41,7 +41,7 @@ class ApplicationHealthCalculatorTest {
                           .close();
         Mockito.when(applicationConfiguration.isHealthCheckEnabled())
                .thenReturn(true);
-        applicationHealthCalculator = new ApplicationHealthCalculatorMock(jCloudsObjectStoreFileStorage,
+        applicationHealthCalculator = new ApplicationHealthCalculatorMock(objectStoreFileStorage,
                                                                           applicationConfiguration,
                                                                           databaseHealthService,
                                                                           databaseMonitoringService,
@@ -51,7 +51,7 @@ class ApplicationHealthCalculatorTest {
     @Test
     void testUpdateWithFailingObjectStore() {
         Mockito.doThrow(new SLException("Object store not working"))
-               .when(jCloudsObjectStoreFileStorage)
+               .when(objectStoreFileStorage)
                .testConnection();
         applicationHealthCalculator.updateHealthStatus();
         ResponseEntity<ApplicationHealthResult> applicationHealthResultResponseEntity = applicationHealthCalculator.calculateApplicationHealth();
@@ -117,12 +117,12 @@ class ApplicationHealthCalculatorTest {
     }
 
     private static class ApplicationHealthCalculatorMock extends ApplicationHealthCalculator {
-        public ApplicationHealthCalculatorMock(JCloudsObjectStoreFileStorage JCloudsObjectStoreFileStorage,
+        public ApplicationHealthCalculatorMock(ObjectStoreFileStorage objectStoreFileStorage,
                                                ApplicationConfiguration applicationConfiguration,
                                                DatabaseHealthService databaseHealthService,
                                                DatabaseMonitoringService databaseMonitoringService,
                                                DatabaseWaitingLocksAnalyzer databaseWaitingLocksAnalyzer) {
-            super(JCloudsObjectStoreFileStorage,
+            super(objectStoreFileStorage,
                   applicationConfiguration,
                   databaseHealthService,
                   databaseMonitoringService,

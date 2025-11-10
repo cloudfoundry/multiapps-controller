@@ -2,10 +2,12 @@ package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.services.DatabaseFileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,15 +23,15 @@ public class FileServiceFactoryBean implements FactoryBean<FileService>, Initial
     @Inject
     private DataSourceWithDialect dataSourceWithDialect;
     @Autowired(required = false)
-    private FileStorage objectStoreFileStorage;
-
+    private ObjectStoreFileStorage objectStoreFileStorage;
     private FileService fileService;
 
     @Override
     public void afterPropertiesSet() {
-        if (objectStoreFileStorage != null) {
+        FileStorage fileStorage = objectStoreFileStorage;
+        if (fileStorage != null) {
             LOGGER.info(Messages.OBJECTSTORE_FOR_BINARIES_STORAGE);
-            this.fileService = new FileService(dataSourceWithDialect, objectStoreFileStorage);
+            this.fileService = new FileService(dataSourceWithDialect, fileStorage);
         } else {
             LOGGER.info(Messages.DATABASE_FOR_BINARIES_STORAGE);
             this.fileService = new DatabaseFileService(dataSourceWithDialect);
