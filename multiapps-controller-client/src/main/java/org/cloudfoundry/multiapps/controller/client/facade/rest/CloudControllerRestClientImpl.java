@@ -2409,7 +2409,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                 }
             }
         }
-        throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found", "Service plan " + service.getPlan() + " not found.");
+        throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found", "Service plan " + planName + " not found.");
     }
 
     private List<CloudServiceOffering> getServiceOfferings(CloudServiceInstance service) {
