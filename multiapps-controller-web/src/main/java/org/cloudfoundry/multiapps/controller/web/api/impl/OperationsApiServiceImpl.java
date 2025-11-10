@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
-import java.security.Principal;
 import java.text.MessageFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.persistence.NoResultException;
-import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
@@ -101,7 +99,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     @Override
-    public ResponseEntity<Void> executeOperationAction(HttpServletRequest request, String spaceGuid, String operationId, String actionId) {
+    public ResponseEntity<Void> executeOperationAction(String spaceGuid, String operationId, String actionId) {
         operationsApiServiceAuditLog.logExecuteOperationAction(SecurityContextUtil.getUsername(), spaceGuid, operationId, actionId);
         Operation operation = getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
         List<String> availableOperations = getAvailableActions(operation);
@@ -111,7 +109,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                                      operation.getState()));
         }
         ProcessAction action = processActionRegistry.getAction(Action.fromString(actionId));
-        action.execute(getAuthenticatedUser(request), operationId);
+        action.execute(getAuthenticatedUser(), operationId);
         return ResponseEntity.accepted()
                              .header("Location", getLocationHeader(operationId, spaceGuid))
                              .build();
@@ -150,9 +148,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     @Override
-    public ResponseEntity<Operation> startOperation(HttpServletRequest request, String spaceGuid, Operation operation) {
+    public ResponseEntity<Operation> startOperation(String spaceGuid, Operation operation) {
         operationsApiServiceAuditLog.logStartOperation(SecurityContextUtil.getUsername(), spaceGuid, operation);
-        UserInfo authenticatedUser = getAuthenticatedUser(request);
+        UserInfo authenticatedUser = getAuthenticatedUser();
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
                                                                              .getParameters();
@@ -328,12 +326,12 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return "spaces/" + spaceId + "/operations/" + processInstanceId + "?embed=messages";
     }
 
-    private UserInfo getAuthenticatedUser(HttpServletRequest request) {
-        Principal principal = request.getUserPrincipal();
-        if (principal == null) {
+    private UserInfo getAuthenticatedUser() {
+        UserInfo userInfo = SecurityContextUtil.getUserInfo();
+        if (userInfo == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
-        return SecurityContextUtil.getUserInfo();
+        return userInfo;
     }
 
     private CloudSpaceClient getSpaceClient() {

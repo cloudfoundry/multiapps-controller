@@ -122,7 +122,7 @@ class OperationsApiServiceImplTest {
         setupOperationsHelperMock();
         mockProcessActionRegistry();
         mockFlowableFacade();
-        mockClientProvider(EXAMPLE_USER);
+        mockClientProvider(true);
     }
 
     @Test
@@ -166,31 +166,28 @@ class OperationsApiServiceImplTest {
     @Test
     void testExecuteOperationAction() {
         String processId = RUNNING_PROCESS;
-        operationsApiService.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, processId,
-                                                    Action.ABORT.getActionId());
+        operationsApiService.executeOperationAction(SPACE_GUID, processId, Action.ABORT.getActionId());
         Mockito.verify(processAction)
                .execute(Mockito.argThat(userInfo -> EXAMPLE_USER.equals(userInfo.getName())), Mockito.eq(processId));
     }
 
     @Test
     void testExecuteOperationActionMissingProcess() {
-        Assertions.assertThrows(NotFoundException.class,
-                                () -> operationsApiService.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID,
-                                                                                  "notavalidpprocess", Action.ABORT.getActionId()));
+        Assertions.assertThrows(NotFoundException.class, () -> operationsApiService.executeOperationAction(SPACE_GUID, "notavalidpprocess",
+                                                                                                           Action.ABORT.getActionId()));
     }
 
     @Test
     void testExecuteOperationActionInvalidAction() {
         assertThrows(IllegalArgumentException.class,
-                     () -> operationsApiService.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, RUNNING_PROCESS,
-                                                                       Action.START.getActionId()));
+                     () -> operationsApiService.executeOperationAction(SPACE_GUID, RUNNING_PROCESS, Action.START.getActionId()));
     }
 
     @Test
     void testExecuteOperationActionUnauthorized() {
+        mockClientProvider(false);
         Assertions.assertThrows(ResponseStatusException.class,
-                                () -> operationsApiService.executeOperationAction(mockHttpServletRequest(null), SPACE_GUID, RUNNING_PROCESS,
-                                                                                  Action.ABORT.getActionId()));
+                                () -> operationsApiService.executeOperationAction(SPACE_GUID, RUNNING_PROCESS, Action.ABORT.getActionId()));
     }
 
     @Test
@@ -199,7 +196,7 @@ class OperationsApiServiceImplTest {
         Operation operation = createOperation(null, null, parameters);
         Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
                .thenReturn("deploy");
-        operationsApiService.startOperation(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, operation);
+        operationsApiService.startOperation(SPACE_GUID, operation);
         Mockito.verify(flowableFacade)
                .startProcess(Mockito.any(), Mockito.anyMap());
     }
@@ -213,7 +210,7 @@ class OperationsApiServiceImplTest {
         Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
                .thenReturn("deploy");
 
-        operationsApiService.startOperation(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, operation);
+        operationsApiService.startOperation(SPACE_GUID, operation);
 
         Mockito.verify(flowableFacade)
                .startProcess(ArgumentMatchers.eq("deploy"), ArgumentMatchers.argThat(
@@ -224,13 +221,12 @@ class OperationsApiServiceImplTest {
     @Test
     void testStartOperationWithValidParametersForTheProcess() {
         Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test", Variables.EXT_DESCRIPTOR_FILE_ID.getName(), "ext_test",
-                                                Variables.NO_START.getName(), false, Variables.MTA_NAMESPACE.getName(),
-                                                "namespace_test");
+                                                Variables.NO_START.getName(), false, Variables.MTA_NAMESPACE.getName(), "namespace_test");
         Operation operation = createOperation(null, null, parameters);
         Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
                .thenReturn("deploy");
 
-        operationsApiService.startOperation(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, operation);
+        operationsApiService.startOperation(SPACE_GUID, operation);
 
         Mockito.verify(flowableFacade)
                .startProcess(ArgumentMatchers.eq("deploy"), ArgumentMatchers.argThat(
@@ -325,24 +321,33 @@ class OperationsApiServiceImplTest {
                .thenReturn(Mockito.mock(ProcessInstance.class));
     }
 
-    private void mockClientProvider(String user) {
-        org.cloudfoundry.multiapps.controller.core.util.UserInfo userInfo = new org.cloudfoundry.multiapps.controller.core.util.UserInfo(
-            USER_GUID, user, new OAuth2AccessTokenWithAdditionalInfo(null, Map.of(TokenProperties.USER_ID_KEY, USER_GUID)));
-        OAuth2AuthenticationToken auth = Mockito.mock(OAuth2AuthenticationToken.class);
-        Map<String, Object> attributes = Map.of(USER_INFO, userInfo);
-        OAuth2User principal = Mockito.mock(OAuth2User.class);
-        Mockito.when(principal.getAttributes())
-               .thenReturn(attributes);
-        Mockito.when(auth.getPrincipal())
-               .thenReturn(principal);
-        org.springframework.security.core.context.SecurityContext securityContextMock = Mockito.mock(
-            org.springframework.security.core.context.SecurityContext.class);
-        SecurityContextHolder.setContext(securityContextMock);
-        Mockito.when(securityContextMock.getAuthentication())
-               .thenReturn(auth);
+    private void mockClientProvider(boolean shouldReturnAuthorizedClient) {
+        mockClientAuth(shouldReturnAuthorizedClient);
         CloudSpaceClient mockedClient = mockClient();
         Mockito.when(clientFactory.createSpaceClient(Mockito.any()))
                .thenReturn(mockedClient);
+    }
+
+    private void mockClientAuth(boolean shouldReturnAuthorizedClient) {
+        org.springframework.security.core.context.SecurityContext securityContextMock = Mockito.mock(
+            org.springframework.security.core.context.SecurityContext.class);
+        SecurityContextHolder.setContext(securityContextMock);
+        if (shouldReturnAuthorizedClient) {
+            org.cloudfoundry.multiapps.controller.core.util.UserInfo userInfo = new org.cloudfoundry.multiapps.controller.core.util.UserInfo(
+                USER_GUID, EXAMPLE_USER, new OAuth2AccessTokenWithAdditionalInfo(null, Map.of(TokenProperties.USER_ID_KEY, USER_GUID)));
+            OAuth2AuthenticationToken auth = Mockito.mock(OAuth2AuthenticationToken.class);
+            Map<String, Object> attributes = Map.of(USER_INFO, userInfo);
+            OAuth2User principal = Mockito.mock(OAuth2User.class);
+            Mockito.when(principal.getAttributes())
+                   .thenReturn(attributes);
+            Mockito.when(auth.getPrincipal())
+                   .thenReturn(principal);
+            Mockito.when(securityContextMock.getAuthentication())
+                   .thenReturn(auth);
+            return;
+        }
+        Mockito.when(securityContextMock.getAuthentication())
+               .thenReturn(null);
     }
 
     private CloudSpaceClient mockClient() {

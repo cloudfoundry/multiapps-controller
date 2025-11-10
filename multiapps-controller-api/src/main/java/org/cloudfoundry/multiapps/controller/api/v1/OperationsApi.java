@@ -2,9 +2,13 @@ package org.cloudfoundry.multiapps.controller.api.v1;
 
 import java.util.List;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.cloudfoundry.multiapps.controller.api.Constants.Endpoints;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.QueryVariables;
@@ -23,13 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
-
 @Api
 @RestController
 @RequestMapping(Resources.OPERATIONS)
@@ -44,10 +41,10 @@ public class OperationsApi {
 
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted") })
-    public ResponseEntity<Void> executeOperationAction(HttpServletRequest request, @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+    public ResponseEntity<Void> executeOperationAction(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                                                        @PathVariable(PathVariables.OPERATION_ID) String operationId,
                                                        @RequestParam(PathVariables.ACTION_ID) String actionId) {
-        return delegate.executeOperationAction(request, spaceGuid, operationId, actionId);
+        return delegate.executeOperationAction(spaceGuid, operationId, actionId);
     }
 
     @GetMapping(path = Endpoints.OPERATION, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -57,9 +54,9 @@ public class OperationsApi {
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Operation.class) })
     public ResponseEntity<Operation>
-           getOperation(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                        @PathVariable(PathVariables.OPERATION_ID) String operationId,
-                        @ApiParam(value = "Adds the specified property in the response body ") @RequestParam(name = "embed", required = false) String embed) {
+    getOperation(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                 @PathVariable(PathVariables.OPERATION_ID) String operationId,
+                 @ApiParam(value = "Adds the specified property in the response body ") @RequestParam(name = "embed", required = false) String embed) {
         return delegate.getOperation(spaceGuid, operationId, embed);
     }
 
@@ -116,9 +113,9 @@ public class OperationsApi {
 
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted") })
-    public ResponseEntity<Operation> startOperation(HttpServletRequest request, @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+    public ResponseEntity<Operation> startOperation(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                                                     @RequestBody Operation operation) {
-        return delegate.startOperation(request, spaceGuid, operation);
+        return delegate.startOperation(spaceGuid, operation);
     }
 
 }
