@@ -14,8 +14,8 @@ open module org.cloudfoundry.multiapps.controller.api {
     requires static java.compiler;
     requires static jakarta.inject;
     requires static org.immutables.value;
+    requires static io.swagger.annotations;
     requires jakarta.servlet;
     requires jakarta.xml.bind;
-    requires io.swagger.annotations;
 
 }
