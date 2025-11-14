@@ -23,7 +23,7 @@ public final class Messages {
     public static final String SERVICE_PLAN_WITH_GUID_0_NOT_AVAILABLE_FOR_SERVICE_INSTANCE_1 = "Service plan with guid \"{0}\" is not available for service instance \"{1}\".";
     public static final String SERVICE_OFFERING_WITH_GUID_0_IS_NOT_AVAILABLE = "Service offering with guid \"{0}\" is not available.";
     public static final String SERVICE_OFFERING_WITH_GUID_0_NOT_FOUND = "Service offering with guid \"{0}\" not found.";
-    public static final String FAILED_TO_FETCH_APP_LOGS_FOR_APP = "Failed to fetch app logs for app: %s";
+    public static final String FAILED_TO_FETCH_APP_LOGS_FOR_APP = "Failed to fetch app logs for app: {0}";
 
     public static final String BUILDPACKS_ARE_REQUIRED_FOR_CNB_LIFECYCLE_TYPE = "Buildpacks are required for CNB lifecycle type.";
 
