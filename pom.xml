@@ -28,12 +28,12 @@
         <httpcore.version>5.3.6</httpcore.version>
         <eclipselink.version>4.0.8</eclipselink.version>
         <flowable.version>7.2.0</flowable.version>
-        <spring.version>6.2.12</spring.version>
+        <spring.version>6.2.13</spring.version>
         <spring-security.version>6.5.6</spring-security.version>
         <hikari.version>7.0.2</hikari.version>
         <jackson-annotations.version>2.20</jackson-annotations.version>
         <jackson.version>3.0.2</jackson.version>
-        <liquibase.version>5.0.1</liquibase.version>
+        <liquibase.version>4.33.0</liquibase.version>
         <liquibase-slf4j.version>5.1.0</liquibase-slf4j.version>
         <cloudfoundry-client.version>5.14.0.RELEASE</cloudfoundry-client.version>
         <reactor-netty.version>1.2.12</reactor-netty.version>
@@ -381,11 +381,11 @@
                 <artifactId>micrometer-registry-jmx</artifactId>
                 <version>${micrometer.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations -->
+            <!-- https://mvnrepository.com/artifact/io.swagger/swagger-annotations -->
             <dependency>
-                <groupId>io.swagger.core.v3</groupId>
+                <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>2.2.40</version>
+                <version>${swagger.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
             <dependency>
