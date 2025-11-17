@@ -9,19 +9,27 @@ import jakarta.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
+import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -37,6 +45,8 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
     private TokenService tokenService;
     @Inject
     private WebClientFactory webClientFactory;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DetectDeployedMtaStep.class);
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -94,14 +104,73 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
 
     private List<DeployedMtaServiceKey> detectDeployedServiceKeys(String mtaId, String mtaNamespace, DeployedMta deployedMta,
                                                                   ProcessContext context) {
-        List<DeployedMtaService> deployedMtaServices = deployedMta == null ? null : deployedMta.getServices();
+        List<DeployedMtaService> deployedManagedMtaServices = Optional.ofNullable(deployedMta)
+                                                                      .map(DeployedMta::getServices)
+                                                                      .orElse(List.of());
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
         String userGuid = context.getVariable(Variables.USER_GUID);
         var token = tokenService.getToken(userGuid);
         var creds = new CloudCredentials(token, true);
 
         CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(creds, context.getVariable(Variables.CORRELATION_ID));
-        return serviceKeysClient.getServiceKeysByMetadataAndGuids(spaceGuid, mtaId, mtaNamespace, deployedMtaServices);
+
+        List<String> existingInstanceGuids = getExistingServiceGuids(context);
+
+        return serviceKeysClient.getServiceKeysByMetadataAndGuids(
+            spaceGuid, mtaId, mtaNamespace, deployedManagedMtaServices, existingInstanceGuids
+        );
+    }
+
+    private List<String> getExistingServiceGuids(ProcessContext context) {
+        CloudControllerClient client = context.getControllerClient();
+        List<Resource> resources = getExistingServiceResourcesFromDescriptor(context);
+
+        return resources.stream()
+                        .map(resource -> resolveServiceGuid(client, resource))
+                        .flatMap(Optional::stream)
+                        .toList();
+    }
+
+    private Optional<String> resolveServiceGuid(CloudControllerClient client, Resource resource) {
+        String serviceInstanceName = NameUtil.getServiceName(resource);
+
+        if (serviceInstanceName == null || serviceInstanceName.isBlank()) {
+            serviceInstanceName = resource.getName();
+        }
+
+        try {
+            CloudServiceInstance instance = client.getServiceInstance(serviceInstanceName);
+            return Optional.of(instance.getGuid()
+                                       .toString());
+        } catch (CloudOperationException e) {
+            if (resource.isOptional()) {
+                logIgnoredService(Messages.IGNORING_NOT_FOUND_OPTIONAL_SERVICE, resource.getName(), e);
+                return Optional.empty();
+            }
+            if (!resource.isActive()) {
+                logIgnoredService(Messages.IGNORING_NOT_FOUND_INACTIVE_SERVICE, resource.getName(), e);
+                return Optional.empty();
+            }
+            throw e;
+        }
+    }
+
+    private void logIgnoredService(String message, String serviceName, Exception e) {
+        String formattedMessage = MessageFormat.format(message, serviceName);
+        getStepLogger().debug(formattedMessage);
+        LOGGER.error(formattedMessage, e);
+    }
+
+    private List<Resource> getExistingServiceResourcesFromDescriptor(ProcessContext context) {
+        DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
+
+        if (descriptor == null) {
+            return List.of();
+        }
+        return descriptor.getResources()
+                         .stream()
+                         .filter(resource -> CloudModelBuilderUtil.getResourceType(resource) == ResourceType.EXISTING_SERVICE)
+                         .toList();
     }
 
     private void logNoMtaDeployedDetected(String mtaId, String mtaNamespace) {
