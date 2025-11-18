@@ -1,15 +1,19 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil.NameRequirements;
+import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NameUtilTest {
 
@@ -94,4 +98,43 @@ class NameUtilTest {
                      NameUtil.computeNamespacedNameWithLength(name, namespace, applyNamespace, applyNamespaceAsSuffix, maxLength));
     }
 
+    @Test
+    void testGetServiceInstanceNameOrDefault_UsesServiceNameParameter() {
+        Resource resource = createResource("resource-name", "service-name-from-param");
+
+        String serviceInstanceName = NameUtil.getServiceInstanceNameOrDefault(resource);
+
+        assertEquals("service-name-from-param", serviceInstanceName);
+    }
+
+    @Test
+    void testGetServiceInstanceNameOrDefault_FallsBackToResourceNameWhenServiceNameMissing() {
+        Resource resource = createResource("resource-name-1", null);
+
+        String serviceInstanceName = NameUtil.getServiceInstanceNameOrDefault(resource);
+
+        assertEquals("resource-name-1", serviceInstanceName);
+    }
+
+    @Test
+    void testGetServiceInstanceNameOrDefault_FallsBackToResourceNameWhenServiceNameBlank() {
+        Resource resource = createResource("resource-name-2", "   ");
+
+        String serviceInstanceName = NameUtil.getServiceInstanceNameOrDefault(resource);
+
+        assertEquals("resource-name-2", serviceInstanceName);
+    }
+
+    private Resource createResource(String name, String paramValue) {
+        Resource resource = Resource.createV3();
+        resource.setName(name);
+
+        Map<String, Object> params = new HashMap<>();
+        if (paramValue != null) {
+            params.put(SupportedParameters.SERVICE_NAME, paramValue);
+        }
+        resource.setParameters(params);
+
+        return resource;
+    }
 }
