@@ -132,12 +132,8 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
     }
 
     private Optional<String> resolveServiceGuid(CloudControllerClient client, Resource resource) {
-        String serviceInstanceName = NameUtil.getServiceName(resource);
-
-        if (serviceInstanceName == null || serviceInstanceName.isBlank()) {
-            serviceInstanceName = resource.getName();
-        }
-
+        String serviceInstanceName = NameUtil.getServiceInstanceNameOrDefault(resource);
+        
         try {
             CloudServiceInstance instance = client.getServiceInstance(serviceInstanceName);
             return Optional.of(instance.getGuid()
