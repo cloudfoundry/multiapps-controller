@@ -125,13 +125,13 @@ class NameUtilTest {
         assertEquals("resource-name-2", serviceInstanceName);
     }
 
-    private Resource createResource(String name, String paramValue) {
+    private Resource createResource(String resourceName, String serviceInstanceName) {
         Resource resource = Resource.createV3();
-        resource.setName(name);
+        resource.setName(resourceName);
 
         Map<String, Object> params = new HashMap<>();
-        if (paramValue != null) {
-            params.put(SupportedParameters.SERVICE_NAME, paramValue);
+        if (serviceInstanceName != null) {
+            params.put(SupportedParameters.SERVICE_NAME, serviceInstanceName);
         }
         resource.setParameters(params);
 
