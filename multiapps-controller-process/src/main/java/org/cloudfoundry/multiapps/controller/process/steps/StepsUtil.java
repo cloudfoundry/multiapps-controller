@@ -216,7 +216,7 @@ public class StepsUtil {
                                                               shouldApplyIncrementalInstancesUpdate(context));
     }
 
-    static AppSuffixDeterminer getAppSuffixDeterminer(ProcessContext context) {
+    public static AppSuffixDeterminer getAppSuffixDeterminer(ProcessContext context) {
         boolean keepOriginalNamesAfterDeploy = context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY);
         boolean isAfterResumePhase = context.getVariable(Variables.PHASE) == Phase.AFTER_RESUME;
         return new AppSuffixDeterminer(keepOriginalNamesAfterDeploy, isAfterResumePhase);
