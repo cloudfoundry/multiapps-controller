@@ -23,8 +23,7 @@ public class DatabaseMigration {
 
     public static void main(String[] args) {
         configureLogger();
-        DatabaseServiceKey databaseServiceKey = createDatabaseServiceKey();
-
+        DatabaseServiceKey databaseServiceKey = getServiceKeyFromEnvironment();
         DataSourceEnvironmentExtractor environmentExtractor = new DataSourceEnvironmentExtractor();
         DataSource targetDataSource = environmentExtractor.extractDataSource("deploy-service-database");
         DataSource sourceDataSource = environmentExtractor.extractDataSource(databaseServiceKey);
@@ -48,7 +47,7 @@ public class DatabaseMigration {
         LOGGER.info("Database migration completed.");
     }
 
-    private static DatabaseServiceKey createDatabaseServiceKey() {
+    private static DatabaseServiceKey getServiceKeyFromEnvironment() {
         String databaseTargetServiceKey = System.getenv(DATABASE_TARGET_SERVICE_KEY);
         return new DatabaseServiceKey(JsonUtil.convertJsonToMap(databaseTargetServiceKey));
     }
