@@ -28,7 +28,6 @@ public class LazyArchiveInputStream extends InputStream {
     private final long archiveSize;
     private final AtomicInteger totalBytesRead;
     private final AtomicInteger partIndex;
-
     private InputStream currentInputStream;
 
     public LazyArchiveInputStream(FileService fileService, List<FileEntry> archiveFileEntries, StepLogger stepLogger, long archiveSize) {
@@ -52,8 +51,7 @@ public class LazyArchiveInputStream extends InputStream {
             currentInputStream = openBufferedInputStream(archiveFileEntries.get(partIndex.incrementAndGet()));
             c = currentInputStream.read();
         } else if (c == -1) {
-            LOGGER.info(MessageFormat.format(Messages.CLOSING_STREAM_FOR_PART_STREAM_FINISHED_0, partIndex));
-            IOUtils.closeQuietly(currentInputStream, e -> LOGGER.warn(e.getMessage(), e));
+            LOGGER.info(MessageFormat.format(Messages.REACHED_THE_END_OF_THE_INPUTSTREAM, partIndex));
         }
         if (c >= 0) {
             totalBytesRead.incrementAndGet();
@@ -73,8 +71,7 @@ public class LazyArchiveInputStream extends InputStream {
             currentInputStream = openBufferedInputStream(archiveFileEntries.get(partIndex.incrementAndGet()));
             bytesRead = currentInputStream.read(b, off, len);
         } else if (bytesRead == -1) {
-            LOGGER.info(MessageFormat.format(Messages.CLOSING_STREAM_FOR_PART_STREAM_FINISHED_0, partIndex));
-            IOUtils.closeQuietly(currentInputStream, e -> LOGGER.warn(e.getMessage(), e));
+            LOGGER.info(MessageFormat.format(Messages.REACHED_THE_END_OF_THE_INPUTSTREAM, partIndex));
         }
         if (bytesRead > 0) {
             totalBytesRead.addAndGet(bytesRead);
@@ -107,6 +104,8 @@ public class LazyArchiveInputStream extends InputStream {
         try {
             stepLogger.debug(Messages.OPENING_A_NEW_INPUT_STREAM_FOR_FILE_WITH_ID_0_AND_NAME_1, archiveFileEntry.getId(),
                              archiveFileEntry.getName());
+            LOGGER.info(MessageFormat.format(Messages.OPENING_A_NEW_INPUT_STREAM_FOR_FILE_WITH_ID_0_AND_NAME_1, archiveFileEntry.getId(),
+                                             archiveFileEntry.getName()));
             InputStream inputStream = fileService.openInputStream(archiveFileEntry.getSpace(), archiveFileEntry.getId());
             return new BufferedInputStream(inputStream, BUFFERED_SIZE);
         } catch (FileStorageException e) {

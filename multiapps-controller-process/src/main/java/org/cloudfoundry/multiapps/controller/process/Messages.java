@@ -327,7 +327,7 @@ public class Messages {
     public static final String DELETED_FILE_ENTRIES_0 = "Deleted file entries: {0}";
     public static final String APPLICATION_WITH_NAME_0_SAVED_TO_1 = "Application with name \"{0}\" saved to \"{1}\"";
     public static final String CLOSING_STREAM_FOR_PART_0 = "Closing stream for part: {0}";
-    public static final String CLOSING_STREAM_FOR_PART_STREAM_FINISHED_0 = "Closing stream for part, stream finished: {0}";
+    public static final String REACHED_THE_END_OF_THE_INPUTSTREAM = "Reached the end of the InputStream";
     public static final String CLOSING_LAST_STREAM_FOR_PART_0 = "Closing the last stream, part: {0}";
     public static final String SCALING_UP_OLD_APPLICATION = "Scaling up old application: \"{0}\" to {1} instances";
     public static final String FILE_WITH_ID_0_WAS_DELETED = "File with id \"{0}\" was deleted";

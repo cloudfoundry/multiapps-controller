@@ -1,12 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -21,6 +14,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class LazyArchiveInputStreamTest {
 
@@ -71,7 +71,6 @@ class LazyArchiveInputStreamTest {
         assertEquals(-1, read);
         assertEquals(0, lazyArchiveInputStream.available());
         verify(firstPartInputStream).close();
-        verify(secondPartInputStream).close();
     }
 
     @Test
@@ -104,7 +103,6 @@ class LazyArchiveInputStreamTest {
         assertEquals(-1, read);
         assertEquals(0, lazyArchiveInputStream.available());
         verify(firstPartInputStream).close();
-        verify(secondPartInputStream).close();
     }
 
     private void prepareStream(int archiveSize) {

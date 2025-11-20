@@ -30,6 +30,8 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires aliyun.sdk.oss;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
+    requires com.google.auth;
+    requires com.google.auth.oauth2;
     requires com.google.auto.service;
     requires com.google.common;
     requires com.google.guice;
@@ -37,6 +39,10 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires flowable.engine;
     requires flowable.engine.common.api;
     requires flowable.variable.service.api;
+    requires gax;
+    requires google.cloud.core;
+    requires google.cloud.nio;
+    requires google.cloud.storage;
     requires jakarta.inject;
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.core;
@@ -53,5 +59,4 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires static org.immutables.value;
     requires jakarta.xml.bind;
     requires org.bouncycastle.fips.pkix;
-
 }
