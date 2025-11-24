@@ -6,7 +6,6 @@ import org.cloudfoundry.multiapps.controller.core.application.health.database.Da
 import org.cloudfoundry.multiapps.controller.core.application.health.model.ApplicationHealthResult;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.DatabaseHealthService;
-import org.cloudfoundry.multiapps.controller.persistence.services.DatabaseMonitoringService;
 import org.cloudfoundry.multiapps.controller.persistence.services.JCloudsObjectStoreFileStorage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,8 +26,6 @@ class ApplicationHealthCalculatorTest {
     private ApplicationConfiguration applicationConfiguration;
     @Mock
     private DatabaseHealthService databaseHealthService;
-    @Mock
-    private DatabaseMonitoringService databaseMonitoringService;
     @Mock
     private DatabaseWaitingLocksAnalyzer databaseWaitingLocksAnalyzer;
 
@@ -44,7 +40,6 @@ class ApplicationHealthCalculatorTest {
         applicationHealthCalculator = new ApplicationHealthCalculatorMock(jCloudsObjectStoreFileStorage,
                                                                           applicationConfiguration,
                                                                           databaseHealthService,
-                                                                          databaseMonitoringService,
                                                                           databaseWaitingLocksAnalyzer);
     }
 
@@ -105,7 +100,6 @@ class ApplicationHealthCalculatorTest {
         applicationHealthCalculator = new ApplicationHealthCalculatorMock(null,
                                                                           applicationConfiguration,
                                                                           databaseHealthService,
-                                                                          databaseMonitoringService,
                                                                           databaseWaitingLocksAnalyzer);
         applicationHealthCalculator.updateHealthStatus();
         ResponseEntity<ApplicationHealthResult> applicationHealthResultResponseEntity = applicationHealthCalculator.calculateApplicationHealth();
@@ -120,12 +114,10 @@ class ApplicationHealthCalculatorTest {
         public ApplicationHealthCalculatorMock(JCloudsObjectStoreFileStorage JCloudsObjectStoreFileStorage,
                                                ApplicationConfiguration applicationConfiguration,
                                                DatabaseHealthService databaseHealthService,
-                                               DatabaseMonitoringService databaseMonitoringService,
                                                DatabaseWaitingLocksAnalyzer databaseWaitingLocksAnalyzer) {
             super(JCloudsObjectStoreFileStorage,
                   applicationConfiguration,
                   databaseHealthService,
-                  databaseMonitoringService,
                   databaseWaitingLocksAnalyzer);
         }
 

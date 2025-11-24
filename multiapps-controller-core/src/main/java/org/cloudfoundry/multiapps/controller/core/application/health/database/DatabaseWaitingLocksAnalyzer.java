@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.CachedObject;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -15,9 +16,6 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationInstanceNameUt
 import org.cloudfoundry.multiapps.controller.persistence.services.DatabaseMonitoringService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 @Named
 public class DatabaseWaitingLocksAnalyzer {
@@ -59,7 +57,8 @@ public class DatabaseWaitingLocksAnalyzer {
     }
 
     private void takeLocksSample() {
-        waitingLocksSamples.add(new CachedObject<>(databaseMonitoringService.getProcessesWaitingForLocks(ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration)),
+        waitingLocksSamples.add(new CachedObject<>(databaseMonitoringService.getProcessesWaitingForLocks(
+            ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration)),
                                                    MAXIMUM_VALIDITY_OF_LOCKS_SAMPLE_IN_MINUTES));
     }
 
@@ -73,10 +72,11 @@ public class DatabaseWaitingLocksAnalyzer {
         double calculatedIncreasingOrEqualIndex = calculateIncreasingOrEqualIndex();
         boolean hasIncreasedLocks = calculatedIncreasingOrEqualIndex >= MAXIMAL_ACCEPTABLE_INCREMENTAL_LOCKS_DEVIATION_INDEX
             && checkIfLastOneThirdOfSequenceHasIncreasedOrIsEqualComparedToFirstOneThird(minimumRequiredSamplesCount);
-        if (shouldLogValues()) {
+        if (hasIncreasedLocks || shouldLogValues()) {
             LOGGER.info(MessageFormat.format(Messages.VALUES_IN_INSTANCE_IN_THE_WAITING_FOR_LOCKS_SAMPLES,
                                              applicationConfiguration.getApplicationInstanceIndex(), waitingLocksSamples.stream()
-                                                                                                                        .map(CachedObject::get)
+                                                                                                                        .map(
+                                                                                                                            CachedObject::get)
                                                                                                                         .toList()));
         }
         return hasIncreasedLocks;

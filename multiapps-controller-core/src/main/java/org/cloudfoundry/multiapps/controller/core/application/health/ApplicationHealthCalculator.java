@@ -14,8 +14,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -27,9 +25,7 @@ import org.cloudfoundry.multiapps.controller.core.application.health.model.Appli
 import org.cloudfoundry.multiapps.controller.core.application.health.model.ImmutableApplicationHealthResult;
 import org.cloudfoundry.multiapps.controller.core.model.CachedObject;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationInstanceNameUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.DatabaseHealthService;
-import org.cloudfoundry.multiapps.controller.persistence.services.DatabaseMonitoringService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +46,6 @@ public class ApplicationHealthCalculator {
     private final FileStorage objectStoreFileStorage;
     private final ApplicationConfiguration applicationConfiguration;
     private final DatabaseHealthService databaseHealthService;
-    private final DatabaseMonitoringService databaseMonitoringService;
     private final DatabaseWaitingLocksAnalyzer databaseWaitingLocksAnalyzer;
 
     private final CachedObject<Boolean> objectStoreFileStorageHealthCache = new CachedObject<>(
@@ -77,12 +72,10 @@ public class ApplicationHealthCalculator {
     @Inject
     public ApplicationHealthCalculator(@Autowired(required = false) FileStorage objectStoreFileStorage,
                                        ApplicationConfiguration applicationConfiguration, DatabaseHealthService databaseHealthService,
-                                       DatabaseMonitoringService databaseMonitoringService,
                                        DatabaseWaitingLocksAnalyzer databaseWaitingLocksAnalyzer) {
         this.objectStoreFileStorage = objectStoreFileStorage;
         this.applicationConfiguration = applicationConfiguration;
         this.databaseHealthService = databaseHealthService;
-        this.databaseMonitoringService = databaseMonitoringService;
         this.databaseWaitingLocksAnalyzer = databaseWaitingLocksAnalyzer;
         scheduleRegularHealthUpdate();
     }
@@ -155,16 +148,10 @@ public class ApplicationHealthCalculator {
             LOGGER.warn(
                 MessageFormat.format(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE_0_GETTING_THE_LOCKS,
                                      applicationConfiguration.getApplicationInstanceIndex()));
-            long countOfProcessesWaitingForLocks = resilientOperationExecutor.execute(
-                (Supplier<Long>) () -> databaseMonitoringService.getProcessesWaitingForLocks(
-                    ApplicationInstanceNameUtil.buildApplicationInstanceTemplate(applicationConfiguration)));
-            LOGGER.warn(MessageFormat.format(Messages.DETECTED_INCREASED_NUMBER_OF_PROCESSES_WAITING_FOR_LOCKS_FOR_INSTANCE,
-                                             countOfProcessesWaitingForLocks, applicationConfiguration.getApplicationInstanceIndex()));
             return ResponseEntity.ok(ImmutableApplicationHealthResult.builder() // TODO: Make this return 503 instead of 200 when the
                                                                      // detection is trustworthy
                                                                      .status(ApplicationHealthResult.Status.DOWN)
                                                                      .hasIncreasedLocks(true)
-                                                                     .countOfProcessesWaitingForLocks(countOfProcessesWaitingForLocks)
                                                                      .build());
         }
         return ResponseEntity.ok(ImmutableApplicationHealthResult.builder()
