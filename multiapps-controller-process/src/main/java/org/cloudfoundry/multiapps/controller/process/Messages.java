@@ -183,12 +183,12 @@ public class Messages {
     public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while polling service binding operations between app: \"{0}\" and service instance \"{1}\"";
     public static final String ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while checking service binding operations between app: \"{0}\" and service instance \"{1}\"";
     public static final String ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_0 = "Error while checking service binding operations for service binding: \"{0}\"";
-    public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_WITH = "Async operation for service binding between app \"{0}\" and service instance \"{1}\" with offering \"{2}\" and plan \"{3}\" failed with \"{4}\"";
-    public static final String ASYNC_OPERATION_FOR_USER_PROVIDED_SERVICE_BINDING_FAILED_WITH = "Async operation for service binding between app \"{0}\" and user-provided service instance \"{1}\" failed with \"{2}\"";
-    public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_INSTANCE_MISSING = "Async operation for service binding between app \"{0}\" and service instance \"{1}\" failed: Instance not found. Cause: {2}";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_WITH = "Async operation for service binding \"{0}\" between app \"{1}\" and service instance \"{2}\" with offering \"{3}\" and plan \"{4}\" failed with \"{5}\"";
+    public static final String ASYNC_OPERATION_FOR_USER_PROVIDED_SERVICE_BINDING_FAILED_WITH = "Async operation for service binding \"{0}\" between app \"{1}\" and user-provided service instance \"{2}\" failed with \"{3}\"";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_INSTANCE_MISSING = "Async operation for service binding \"{0}\" between app \"{1}\" and service instance \"{2}\" failed: Instance not found. Cause: {3}";
     public static final String ASYNC_OPERATION_FOR_SERVICE_KEY_FAILED_WITH = "Async operation for service key of service instance \"{0}\" failed with \"{1}\"";
     public static final String ASYNC_OPERATION_FOR_OPTIONAL_SERVICE_KEY_FAILED_WITH = "Async operation for service key of optional service instance \"{0}\" failed with \"{1}\"";
-    public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FOR_OPTIONAL_SERVICE_FAILED_WITH = "Async operation for service binding for optional service between app \"{0}\" and service instance \"{1}\" failed with \"{2}\"";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FOR_OPTIONAL_SERVICE_FAILED_WITH = "Async operation for service binding \"{0}\" for optional service between app \"{1}\" and service instance \"{2}\" failed with \"{3}\"";
     public static final String ERROR_WHILE_CALCULATING_SERVICE_BINDINGS_TO_DELETE_0 = "Error while calculating service bindings to delete \"{0}\"";
     public static final String ERROR_WHILE_CREATING_SERVICE_KEY_0 = "Error while creating service key \"{0}\"";
     public static final String ERROR_WHILE_DETERMINING_SERVICE_BINDINGS_TO_DELETE = "Error while determining service bindings to delete";
@@ -694,7 +694,7 @@ public class Messages {
     public static final String CHECK_SHOULD_REBIND_APPLICATION_SERVICE_INSTANCE = "Check should rebind application \"{0}\" and service instance \"{1}\"";
     public static final String POLLING_ASYNC_OPERATION_SERVICE_BROKER = "Polling async operation of service broker \"{0}\"";
     public static final String ASYNC_OPERATION_SERVICE_BROKER_IN_STATE_WITH_WARNINGS = "Async operation of service broker \"{0}\" is in state \"{1}\" warnings \"{2}\"";
-    public static final String ASYNC_OPERATION_SERVICE_BINDING_IN_STATE_WITH_WARNINGS = "Async operation of service binding is in state \"{0}\" warnings \"{1}\"";
+    public static final String ASYNC_OPERATION_SERVICE_BINDING_IN_STATE_WITH_WARNINGS = "Async operation of service binding \"{0}\" is in state \"{1}\" warnings \"{2}\"";
     public static final String ASYNC_OPERATION_SERVICE_KEY_IN_STATE_WITH_WARNINGS = "Async operation of service key is in state \"{0}\" warnings \"{1}\"";
     public static final String SETTING_WAIT_AFTER_STOP_FOR_APP_0_TO_1_SECONDS = "Setting wait after stop for \"{0}\" to \"{1}\" seconds";
     public static final String DETECTING_SERVICE_KEYS_FOR_DELETION = "Detecting service keys to delete.";
