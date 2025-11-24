@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
@@ -28,6 +27,7 @@ public abstract class PollServiceBindingUnbindingOperationBaseExecution extends 
     protected Consumer<CloudAsyncJob> getInProgressHandler(ProcessContext context) {
         return serviceBindingJob -> context.getStepLogger()
                                            .debug(Messages.ASYNC_OPERATION_SERVICE_BINDING_IN_STATE_WITH_WARNINGS,
+                                                  serviceBindingJob.getGuid(),
                                                   serviceBindingJob.getState(), serviceBindingJob.getWarnings());
     }
 
@@ -60,19 +60,22 @@ public abstract class PollServiceBindingUnbindingOperationBaseExecution extends 
                                      CloudAsyncJob serviceBindingJob) {
 
         if (serviceInstance == null) {
-            return MessageFormat.format(Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_INSTANCE_MISSING, app.getName(),
+            return MessageFormat.format(Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_INSTANCE_MISSING, serviceBindingJob.getGuid(),
+                                        app.getName(),
                                         serviceInstanceName, serviceBindingJob.getErrors());
         }
 
         if (serviceInstance.isUserProvided()) {
-            return MessageFormat.format(Messages.ASYNC_OPERATION_FOR_USER_PROVIDED_SERVICE_BINDING_FAILED_WITH, app.getName(),
+            return MessageFormat.format(Messages.ASYNC_OPERATION_FOR_USER_PROVIDED_SERVICE_BINDING_FAILED_WITH, serviceBindingJob.getGuid(),
+                                        app.getName(),
                                         serviceInstanceName, serviceBindingJob.getErrors());
         }
 
         String serviceOffering = getValueOrMissing(serviceInstance.getLabel());
         String servicePlan = getValueOrMissing(serviceInstance.getPlan());
 
-        return MessageFormat.format(Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_WITH, app.getName(), serviceInstanceName,
+        return MessageFormat.format(Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_WITH, serviceBindingJob.getGuid(), app.getName(),
+                                    serviceInstanceName,
                                     serviceOffering, servicePlan, serviceBindingJob.getErrors());
 
     }
@@ -88,7 +91,8 @@ public abstract class PollServiceBindingUnbindingOperationBaseExecution extends 
         String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
         return serviceBindingJob -> context.getStepLogger()
                                            .warnWithoutProgressMessage(
-                                               Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FOR_OPTIONAL_SERVICE_FAILED_WITH, app.getName(),
+                                               Messages.ASYNC_OPERATION_FOR_SERVICE_BINDING_FOR_OPTIONAL_SERVICE_FAILED_WITH,
+                                               serviceBindingJob.getGuid(), app.getName(),
                                                serviceInstanceName, serviceBindingJob.getErrors());
     }
 
