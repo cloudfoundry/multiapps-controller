@@ -26,7 +26,6 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRetryStrategy;
-import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
@@ -200,17 +199,21 @@ public class GcpObjectStoreFileStorage implements FileStorage {
                       .collect(Collectors.toSet());
     }
 
-    protected int removeBlobsByFilter(Predicate<? super Blob> filter) {
+    private int removeBlobsByFilter(Predicate<? super Blob> filter) {
         List<BlobId> blobIds = getEntryNames(filter).stream()
                                                     .map(entry -> BlobId.of(bucketName, entry))
                                                     .toList();
         List<Boolean> deletedBlobsResults = new ArrayList<>();
         if (!blobIds.isEmpty()) {
-            deletedBlobsResults = storage.delete(blobIds);
+            deletedBlobsResults = deleteBlobs(blobIds);
         }
-        return MiscUtil.cast(deletedBlobsResults.stream()
-                                                .filter(Boolean::booleanValue)
-                                                .count());
+
+        deletedBlobsResults.removeIf(Boolean.FALSE::equals);
+        return deletedBlobsResults.size();
+    }
+
+    protected List<Boolean> deleteBlobs(List<BlobId> blobIds) {
+        return storage.delete(blobIds);
     }
 
     protected Set<String> getEntryNames(Predicate<? super Blob> filter) {
