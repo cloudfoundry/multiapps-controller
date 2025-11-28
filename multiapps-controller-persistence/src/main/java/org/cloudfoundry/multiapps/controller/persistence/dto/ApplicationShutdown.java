@@ -1,9 +1,8 @@
-package org.cloudfoundry.multiapps.controller.core.model;
-
-import org.immutables.value.Value;
+package org.cloudfoundry.multiapps.controller.persistence.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableApplicationShutdown.class)
@@ -11,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public interface ApplicationShutdown {
 
     enum Status {
-        FINISHED, RUNNING
+        FINISHED, RUNNING,
     }
 
     String getApplicationId();

@@ -19,6 +19,7 @@ public class PersistenceMetadata {
         public static final String ACCESS_TOKEN_TABLE = "access_token";
         public static final String LOCK_OWNERS_TABLE = "lock_owners";
         public static final String ASYNC_UPLOAD_JOB_TABLE = "async_upload_job";
+        public static final String APPLICATION_SHUTDOWN_TABLE = "application_shutdown";
         public static final String BACKUP_DESCRIPTOR_TABLE = "backup_descriptor";
 
     }
@@ -36,7 +37,7 @@ public class PersistenceMetadata {
         public static final String ACCESS_TOKEN_SEQUENCE = "access_token_sequence";
         public static final String LOCK_OWNERS_SEQUENCE = "lock_owners_sequence";
         public static final String BACKUP_DESCRIPTOR_SEQUENCE = "backup_descriptor_sequence";
-
+        public static final String APPLICATION_SHUTDOWN_SEQUENCE = "application_shutdown_sequence";
     }
 
     public static class TableColumnNames {
@@ -113,6 +114,10 @@ public class PersistenceMetadata {
         public static final String BACKUP_DESCRIPTOR_SPACE_ID = "space_id";
         public static final String BACKUP_DESCRIPTOR_NAMESPACE = "namespace";
         public static final String BACKUP_DESCRIPTOR_TIMESTAMP = "timestamp";
+
+        public static final String APPLICATION_ID = "application_id";
+        public static final String APPLICATION_INSTANCE_ID = "application_instance_id";
+        public static final String APPLICATION_INSTANCE_INDEX = "application_instance_index";
     }
 
 }

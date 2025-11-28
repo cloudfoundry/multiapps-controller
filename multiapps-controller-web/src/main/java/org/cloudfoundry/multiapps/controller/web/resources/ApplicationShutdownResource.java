@@ -1,15 +1,10 @@
 package org.cloudfoundry.multiapps.controller.web.resources;
 
-import java.text.MessageFormat;
-import java.util.concurrent.CompletableFuture;
-
-import org.cloudfoundry.multiapps.controller.core.Messages;
-import org.cloudfoundry.multiapps.controller.core.model.ApplicationShutdown;
-import org.cloudfoundry.multiapps.controller.core.model.ImmutableApplicationShutdown;
+import jakarta.inject.Inject;
+import org.cloudfoundry.multiapps.controller.core.application.shutdown.ApplicationShutdownScheduler;
+import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.web.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,37 +12,23 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.inject.Inject;
-
 @RestController
 @RequestMapping(value = Constants.Resources.APPLICATION_SHUTDOWN)
 public class ApplicationShutdownResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationShutdownResource.class);
-
     @Inject
     private FlowableFacade flowableFacade;
 
+    @Inject
+    private ApplicationShutdownScheduler applicationShutdownScheduler;
+
     @PostMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
     public ApplicationShutdown
-           shutdownFlowableJobExecutor(@RequestHeader(name = "x-cf-applicationid", required = false) String applicationId,
-                                       @RequestHeader(name = "x-cf-instanceid", required = false) String applicationInstanceId,
-                                       @RequestHeader(name = "x-cf-instanceindex", required = false) String applicationInstanceIndex) {
+    shutdownFlowableJobExecutor(@RequestHeader(name = "x-cf-applicationid", required = false) String applicationId,
+                                @RequestHeader(name = "x-cf-instanceid", required = false) String applicationInstanceId,
+                                @RequestHeader(name = "x-cf-instanceindex", required = false) String applicationInstanceIndex) {
 
-        CompletableFuture.runAsync(() -> {
-            LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWN_REQUEST, applicationId, applicationInstanceId,
-                                             applicationInstanceIndex));
-            flowableFacade.shutdownJobExecutor();
-        })
-                         .thenRun(() -> LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWNED, applicationId, applicationInstanceId,
-                                                                         applicationInstanceIndex)));
-
-        return ImmutableApplicationShutdown.builder()
-                                           .status(getShutdownStatus())
-                                           .applicationInstanceIndex(Integer.parseInt(applicationInstanceIndex))
-                                           .applicationId(applicationId)
-                                           .applicationInstanceId(applicationInstanceId)
-                                           .build();
+        return applicationShutdownScheduler.scheduleApplicationForShutdown(applicationInstanceId, applicationId, applicationInstanceIndex);
     }
 
     private ApplicationShutdown.Status getShutdownStatus() {
@@ -56,21 +37,11 @@ public class ApplicationShutdownResource {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ApplicationShutdown
-           getFlowableJobExecutorShutdownStatus(@RequestHeader(name = "x-cf-applicationid", required = false) String applicationId,
-                                                @RequestHeader(name = "x-cf-instanceid", required = false) String applicationInstanceId,
-                                                @RequestHeader(name = "x-cf-instanceindex", required = false) String applicationInstanceIndex) {
-
-        ApplicationShutdown applicationShutdown = ImmutableApplicationShutdown.builder()
-                                                                              .status(getShutdownStatus())
-                                                                              .applicationInstanceIndex(Integer.parseInt(applicationInstanceIndex))
-                                                                              .applicationId(applicationId)
-                                                                              .applicationInstanceId(applicationInstanceId)
-                                                                              .build();
-
-        LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWN_STATUS_MONITOR, applicationId, applicationInstanceId,
-                                         applicationInstanceIndex, applicationShutdown.getStatus()));
-
-        return applicationShutdown;
+    getFlowableJobExecutorShutdownStatus(@RequestHeader(name = "x-cf-applicationid", required = false) String applicationId,
+                                         @RequestHeader(name = "x-cf-instanceid", required = false) String applicationInstanceId,
+                                         @RequestHeader(name = "x-cf-instanceindex", required = false) String applicationInstanceIndex) {
+        return applicationShutdownScheduler.getScheduledApplicationForShutdown(applicationInstanceId, applicationId,
+                                                                               applicationInstanceIndex);
     }
 
 }

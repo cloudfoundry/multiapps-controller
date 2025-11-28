@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="add_table_application_shutdown">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="application_shutdown"/>
+            </not>
+        </preConditions>
+        <createSequence sequenceName="application_shutdown_sequence" startValue="1" incrementBy="1"/>
+        <createTable tableName="application_shutdown">
+            <column name="application_instance_id" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="backup_descriptor_pk"/>
+            </column>
+            <column name="application_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_instance_index" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

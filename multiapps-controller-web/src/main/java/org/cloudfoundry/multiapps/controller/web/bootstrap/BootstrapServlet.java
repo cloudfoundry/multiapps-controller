@@ -1,17 +1,14 @@
 package org.cloudfoundry.multiapps.controller.web.bootstrap;
 
-import static java.text.MessageFormat.format;
-
 import java.text.MessageFormat;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import javax.naming.NamingException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
-import javax.sql.DataSource;
-
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.LockOwnerService;
@@ -22,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
+import static java.text.MessageFormat.format;
 
 public class BootstrapServlet extends HttpServlet {
 
@@ -49,6 +48,9 @@ public class BootstrapServlet extends HttpServlet {
     @Inject
     protected LockOwnerReleaser lockOwnerReleaser;
 
+    //    @Inject
+    //    protected ApplicationShutdownScheduler applicationShutdownScheduler;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -60,6 +62,7 @@ public class BootstrapServlet extends HttpServlet {
             processEngine.getProcessEngineConfiguration()
                          .getAsyncExecutor()
                          .start();
+            deleteOldScheduledApplication();
             LOGGER.info(Messages.ALM_SERVICE_ENV_INITIALIZED);
         } catch (Exception e) {
             LOGGER.error("Initialization error", e);
@@ -71,6 +74,16 @@ public class BootstrapServlet extends HttpServlet {
         configuration.load();
         LOGGER.info(format(org.cloudfoundry.multiapps.controller.core.Messages.ORG_NAME, configuration.getOrgName()));
         LOGGER.info(format(org.cloudfoundry.multiapps.controller.core.Messages.GLOBAL_CONFIG_SPACE, configuration.getGlobalConfigSpace()));
+    }
+
+    private void deleteOldScheduledApplication() {
+        int applicationIndex = configuration.getApplicationInstanceIndex();
+        //        ApplicationShutdown applicationShutdown = applicationShutdownScheduler.getScheduledApplicationForShutdownByIndex(applicationIndex);
+        //
+        //        if (applicationShutdown != null) {
+        //            LOGGER.info(org.cloudfoundry.multiapps.controller.core.Messages.CLEARING_OLD_ENTRY + applicationIndex);
+        //            applicationShutdownScheduler.deleteScheduledApplication(applicationIndex);
+        //        }
     }
 
     protected void initializeFileService() {
