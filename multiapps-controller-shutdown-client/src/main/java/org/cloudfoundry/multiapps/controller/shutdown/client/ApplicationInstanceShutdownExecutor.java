@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
-import org.cloudfoundry.multiapps.controller.core.model.ApplicationShutdown;
+import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
 import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.ShutdownClientConfiguration;
 import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.ShutdownConfiguration;
 import org.slf4j.Logger;
