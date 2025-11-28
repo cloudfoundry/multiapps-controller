@@ -3,10 +3,10 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
@@ -38,13 +38,12 @@ class GcpObjectStoreFileStorageTest extends JCloudsObjectStoreFileStorageTest {
             }
 
             @Override
-            protected int removeBlobsByFilter(Predicate<? super Blob> filter) {
-                Set<String> entries = getEntryNames(filter);
-                for (String entry : entries) {
-                    storage.delete(CONTAINER, entry);
+            protected List<Boolean> deleteBlobs(List<BlobId> blobIds) {
+                List<Boolean> deletedBlobsResults = new ArrayList<>();
+                for (BlobId blobId : blobIds) {
+                    deletedBlobsResults.add(storage.delete(blobId));
                 }
-
-                return entries.size();
+                return deletedBlobsResults;
             }
         };
         spaceId = UUID.randomUUID()
