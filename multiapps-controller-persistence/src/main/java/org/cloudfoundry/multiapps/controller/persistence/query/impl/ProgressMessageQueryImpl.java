@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManager;
-
 import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ProgressMessageDto;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ProgressMessageDto.AttributeNames;
@@ -111,8 +110,10 @@ public class ProgressMessageQueryImpl extends AbstractQueryImpl<ProgressMessage,
     @Override
     public List<ProgressMessage> list() {
         return executeInTransaction(manager -> createQuery(manager, queryCriteria, getDtoClass()).getResultList()).stream()
-                                                                                                                  .map(progressMessageFactory::fromDto)
-                                                                                                                  .collect(Collectors.toList());
+                                                                                                                  .map(
+                                                                                                                      progressMessageFactory::fromDto)
+                                                                                                                  .collect(
+                                                                                                                      Collectors.toList());
     }
 
     @Override

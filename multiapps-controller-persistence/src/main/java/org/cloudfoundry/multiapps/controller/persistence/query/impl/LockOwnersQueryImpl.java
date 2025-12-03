@@ -1,5 +1,13 @@
 package org.cloudfoundry.multiapps.controller.persistence.query.impl;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.NonUniqueResultException;
+import jakarta.persistence.criteria.Expression;
 import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.dto.LockOwnerDto;
 import org.cloudfoundry.multiapps.controller.persistence.model.LockOwnerEntry;
@@ -7,14 +15,6 @@ import org.cloudfoundry.multiapps.controller.persistence.query.LockOwnersQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.criteria.ImmutableQueryAttributeRestriction;
 import org.cloudfoundry.multiapps.controller.persistence.query.criteria.QueryCriteria;
 import org.cloudfoundry.multiapps.controller.persistence.services.LockOwnerService.LockOwnersMapper;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.NonUniqueResultException;
-import jakarta.persistence.criteria.Expression;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class LockOwnersQueryImpl extends AbstractQueryImpl<LockOwnerEntry, LockOwnersQuery> implements LockOwnersQuery {
 

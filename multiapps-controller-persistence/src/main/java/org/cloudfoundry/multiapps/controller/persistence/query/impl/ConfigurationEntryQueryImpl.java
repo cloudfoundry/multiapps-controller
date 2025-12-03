@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ConfigurationEntryDto;

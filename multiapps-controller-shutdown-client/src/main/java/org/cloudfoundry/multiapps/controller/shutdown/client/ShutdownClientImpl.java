@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.UUID;
+
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
@@ -13,7 +14,7 @@ import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.http.CsrfHttpClient;
-import org.cloudfoundry.multiapps.controller.core.model.ApplicationShutdown;
+import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
 
 class ShutdownClientImpl implements ShutdownClient {
 

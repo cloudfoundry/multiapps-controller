@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
-
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ConfigurationSubscriptionDto;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ConfigurationSubscriptionDto.AttributeNames;

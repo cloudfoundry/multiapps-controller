@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManager;
-
 import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.dto.HistoricOperationEventDto;
 import org.cloudfoundry.multiapps.controller.persistence.dto.HistoricOperationEventDto.AttributeNames;
