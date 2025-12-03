@@ -65,17 +65,9 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
 
-        List<DeployedMtaServiceKey> serviceKeysToDelete = computeServiceKeysToDelete(context);
-        getStepLogger().debug(Messages.SERVICE_KEYS_FOR_DELETION, serviceKeysToDelete);
-
         if (deployedMta == null) {
             setComponentsToUndeploy(context, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
                                     Collections.emptyList(), Collections.emptyList());
-
-            if (!serviceKeysToDelete.isEmpty()) {
-                context.setVariable(Variables.SERVICE_KEYS_TO_DELETE,
-                                    getServiceKeysToDelete(context, serviceKeysToDelete));
-            }
             return StepPhase.DONE;
         }
 
@@ -105,6 +97,9 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         List<String> servicesToDelete = computeServicesToDelete(context, appsWithoutChange, deployedMta.getServices(),
                                                                 servicesForApplications, serviceNames);
         getStepLogger().debug(Messages.SERVICES_TO_DELETE, servicesToDelete);
+
+        List<DeployedMtaServiceKey> serviceKeysToDelete = computeServiceKeysToDelete(context);
+        getStepLogger().debug(Messages.SERVICE_KEYS_FOR_DELETION, serviceKeysToDelete);
 
         List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(deployedAppsToUndeploy, context.getControllerClient());
 
