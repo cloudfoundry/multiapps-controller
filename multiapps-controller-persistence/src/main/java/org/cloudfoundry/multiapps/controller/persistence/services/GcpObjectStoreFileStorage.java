@@ -205,7 +205,7 @@ public class GcpObjectStoreFileStorage implements FileStorage {
                                                     .toList();
         List<Boolean> deletedBlobsResults = new ArrayList<>();
         if (!blobIds.isEmpty()) {
-            deletedBlobsResults = deleteBlobs(blobIds);
+            deletedBlobsResults.addAll(deleteBlobs(blobIds));
         }
 
         deletedBlobsResults.removeIf(Boolean.FALSE::equals);
