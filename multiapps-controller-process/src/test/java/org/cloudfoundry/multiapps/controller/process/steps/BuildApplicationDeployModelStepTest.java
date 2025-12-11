@@ -1,21 +1,24 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
+import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationEnvironmentCalculator;
+import org.cloudfoundry.multiapps.controller.process.util.DependentModuleStopResolver;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class BuildApplicationDeployModelStepTest extends SyncFlowableStepTest<BuildApplicationDeployModelStep> {
 
@@ -23,6 +26,8 @@ class BuildApplicationDeployModelStepTest extends SyncFlowableStepTest<BuildAppl
     private ModuleToDeployHelper moduleToDeployHelper;
     @Mock
     private ApplicationEnvironmentCalculator applicationEnvironmentCalculator;
+    @Mock
+    private DependentModuleStopResolver moduleStopResolver;
 
     @Test
     void testModuleResolutionAsyncServiceBindings() {
@@ -31,6 +36,27 @@ class BuildApplicationDeployModelStepTest extends SyncFlowableStepTest<BuildAppl
         setUpMocks(module);
         step.execute(execution);
         assertTrue(context.getVariable(Variables.SHOULD_UNBIND_BIND_SERVICES_IN_PARALLEL));
+        assertStepFinishedSuccessfully();
+    }
+
+    @Test
+    void testModuleResolutionAsyncServiceBindings1() {
+        Module module = Module.createV3()
+                              .setName("test-module");
+        setUpMocks(module);
+        List<Module> modulesToStop = List.of(Module.createV3()
+                                                   .setName("test-returned-module"));
+        when(moduleStopResolver.resolveDependentModulesToStop(any(), any())).thenReturn(modulesToStop);
+        context.setVariable(Variables.PHASE, Phase.AFTER_RESUME);
+        step.execute(execution);
+        assertTrue(context.getVariable(Variables.SHOULD_UNBIND_BIND_SERVICES_IN_PARALLEL));
+        assertEquals(
+            modulesToStop.stream()
+                         .map(Module::getName)
+                         .toList(),
+            modulesToStop.stream()
+                         .map(Module::getName)
+                         .toList());
         assertStepFinishedSuccessfully();
     }
 
