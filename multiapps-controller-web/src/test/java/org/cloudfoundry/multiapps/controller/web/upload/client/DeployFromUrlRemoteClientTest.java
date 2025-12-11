@@ -14,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
 import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.upload.UploadFromUrlContext;
@@ -57,6 +58,9 @@ class DeployFromUrlRemoteClientTest {
     @Mock
     private UploadFromUrlContext uploadContext;
 
+    @Mock
+    private AsyncUploadJobEntry jobEntry;
+
     private TestableDeployFromUrlRemoteClient client;
 
     private class TestableDeployFromUrlRemoteClient extends DeployFromUrlRemoteClient {
@@ -89,6 +93,8 @@ class DeployFromUrlRemoteClientTest {
         when(applicationConfiguration.getMaxUploadSize()).thenReturn(MAX_UPLOAD_SIZE);
         when(uploadContext.getFileUrl()).thenReturn(SECURE_URL);
         when(uploadContext.getUserCredentials()).thenReturn(userCredentials);
+        when(uploadContext.getJobEntry()).thenReturn(jobEntry);
+        when(jobEntry.getId()).thenReturn("test-job-id");
         when(userCredentials.getUsername()).thenReturn("testUser");
         when(userCredentials.getPassword()).thenReturn("testPassword");
     }
@@ -115,7 +121,7 @@ class DeployFromUrlRemoteClientTest {
         when(uploadContext.getFileUrl()).thenReturn(INSECURE_URL);
         Exception exception = assertThrows(SLException.class,
                                            () -> client.downloadFileFromUrl(uploadContext));
-        assertEquals(Messages.MTAR_ENDPOINT_NOT_SECURE, exception.getMessage());
+        assertEquals(MessageFormat.format(Messages.MTAR_ENDPOINT_NOT_SECURE_FOR_JOB_WITH_ID, "test-job-id"), exception.getMessage());
     }
 
     @Test
@@ -127,7 +133,7 @@ class DeployFromUrlRemoteClientTest {
 
         SLException exception = assertThrows(SLException.class,
                                              () -> client.downloadFileFromUrl(uploadContext));
-        assertEquals(Messages.FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH, exception.getMessage());
+        assertEquals(MessageFormat.format(Messages.FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH_FOR_JOB_WITH_ID, "test-job-id"), exception.getMessage());
 
     }
 
@@ -141,7 +147,7 @@ class DeployFromUrlRemoteClientTest {
 
         SLException exception = assertThrows(SLException.class,
                                              () -> client.downloadFileFromUrl(uploadContext));
-        assertEquals(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED, MAX_UPLOAD_SIZE),
+        assertEquals(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED_FOR_JOB_WITH_ID, MAX_UPLOAD_SIZE, "test-job-id"),
                      exception.getMessage());
 
     }
@@ -170,7 +176,7 @@ class DeployFromUrlRemoteClientTest {
 
         SLException exception = assertThrows(SLException.class,
                                              () -> client.downloadFileFromUrl(uploadContext));
-        assertEquals("Credentials to https://example.com/file.zip are wrong. Make sure that they are correct.", exception.getMessage());
+        assertEquals(MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID, "https://example.com/file.zip", "test-job-id"), exception.getMessage());
     }
 
     @Test

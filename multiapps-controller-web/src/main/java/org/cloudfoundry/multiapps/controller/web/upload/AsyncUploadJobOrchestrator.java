@@ -106,7 +106,7 @@ public class AsyncUploadJobOrchestrator {
     }
 
     private void deployFromUrl(AsyncUploadJobEntry jobEntry, String fileUrl, UserCredentials userCredentials) {
-        LOGGER.info(Messages.STARTING_DOWNLOAD_OF_MTAR, jobEntry.getUrl());
+        LOGGER.info(Messages.STARTING_DOWNLOAD_OF_MTAR_WITH_JOB_ID, jobEntry.getUrl(), jobEntry.getId());
         var startTime = LocalDateTime.now();
         Lock lock = new ReentrantLock();
         AtomicLong counterRef = new AtomicLong();
@@ -185,7 +185,9 @@ public class AsyncUploadJobOrchestrator {
         // JClods library: https://issues.apache.org/jira/browse/JCLOUDS-1623
         try (CountingInputStream source = new CountingInputStream(fileFromUrlData.fileInputStream(), uploadFromUrlContext.getCounterRef());
             BufferedInputStream bufferedContent = new BufferedInputStream(source, INPUT_STREAM_BUFFER_SIZE)) {
-            LOGGER.debug(Messages.UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT, fileFromUrlData.uri());
+            LOGGER.debug(Messages.UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT_WITH_JOB_ID, fileFromUrlData.uri(),
+                         uploadFromUrlContext.getJobEntry()
+                                             .getId());
             return fileService.addFile(ImmutableFileEntry.builder()
                                                          .space(uploadFromUrlContext.getJobEntry()
                                                                                     .getSpaceGuid())
