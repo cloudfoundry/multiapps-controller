@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -16,6 +17,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
+import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
@@ -61,7 +63,41 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         buildConfigurationEntries(context, modifiedApp);
         context.setVariable(Variables.TASKS_TO_EXECUTE, modifiedApp.getTasks());
         getStepLogger().debug(Messages.CLOUD_APP_MODEL_BUILT);
+        stopDependencies(context, module);
         return StepPhase.DONE;
+    }
+
+    private void stopDependencies(ProcessContext context, Module module) {
+        boolean isAfterResumePhase = context.getVariable(Variables.PHASE) == Phase.AFTER_RESUME;
+        if (isAfterResumePhase) {
+            DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
+            List<Module> matchingModules = findMatchingModules(descriptor.getModules(), module.getName());
+            logMatchingModules(module.getName(), matchingModules);
+            context.setVariable(Variables.DEPENDENT_MODULES_TO_STOP, matchingModules);
+        }
+    }
+
+    private List<Module> findMatchingModules(List<Module> modules, String targetName) {
+        return modules.stream()
+                      .filter(m -> {
+                          List<String> deps = m.getDeployedAfter();
+                          return deps != null
+                              && !deps.isEmpty()
+                              && deps.stream()
+                                     .anyMatch(targetName::equals);
+                      })
+                      .collect(Collectors.toList());
+    }
+
+    private void logMatchingModules(String targetName, List<Module> matchingModules) {
+        List<String> names = matchingModules.stream()
+                                            .map(Module::getName)
+                                            .collect(Collectors.toList());
+
+        if (names.isEmpty())
+            return;
+        getStepLogger().error("Matching modules with deployed-after \"{0}\": {1}",
+                              targetName, names);
     }
 
     private Module findModuleInDeploymentDescriptor(ProcessContext context, String module) {

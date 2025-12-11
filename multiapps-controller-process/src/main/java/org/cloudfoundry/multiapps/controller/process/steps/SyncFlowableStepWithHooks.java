@@ -1,8 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
+import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.util.HooksCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.HooksExecutor;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseBuilder;
@@ -13,8 +17,6 @@ import org.cloudfoundry.multiapps.controller.process.util.ModuleDeterminer;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.cloudfoundry.multiapps.mta.model.Module;
-
-import jakarta.inject.Inject;
 
 public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
@@ -62,4 +64,24 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
     protected abstract StepPhase executeStepInternal(ProcessContext context);
 
+    private List<Hook> collectHooksWithPhase(List<HookPhase> hookPhasesForCurrentStepPhase, Module moduleToDeploy) {
+        return getModuleHooks(moduleToDeploy).stream()
+                                             .filter(hook -> shouldCollectHook(hook.getPhases(), hookPhasesForCurrentStepPhase))
+                                             .collect(Collectors.toList());
+    }
+
+    private List<Hook> getModuleHooks(Module moduleToDeploy) {
+        return moduleToDeploy.getMajorSchemaVersion() < 3 ? Collections.emptyList() : moduleToDeploy.getHooks();
+    }
+
+    private boolean shouldCollectHook(List<String> hookPhases, List<HookPhase> hookTypeForCurrentStepPhase) {
+        List<HookPhase> resolvedHookPhases = mapToHookPhases(hookPhases);
+        return !Collections.disjoint(resolvedHookPhases, hookTypeForCurrentStepPhase);
+    }
+
+    private List<HookPhase> mapToHookPhases(List<String> hookPhases) {
+        return hookPhases.stream()
+                         .map(HookPhase::fromString)
+                         .collect(Collectors.toList());
+    }
 }
