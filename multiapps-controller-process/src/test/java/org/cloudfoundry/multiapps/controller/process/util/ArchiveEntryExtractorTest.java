@@ -1,5 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.UUID;
+import java.util.stream.Stream;
+
 import org.apache.commons.io.input.BoundedInputStream;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
@@ -12,12 +18,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -93,7 +93,7 @@ class ArchiveEntryExtractorTest {
     private void assertDeploymentDescriptorAreEqual(String actualDeploymentDescriptor) throws IOException {
         String expectedDeploymentDescriptor = new String(getClass().getResourceAsStream("expected-mtad.yaml")
                                                                    .readAllBytes());
-        assertEquals(expectedDeploymentDescriptor, actualDeploymentDescriptor);
+        assertEquals(expectedDeploymentDescriptor.replace("\r", ""), actualDeploymentDescriptor.replace("\r", ""));
     }
 
     static Stream<Arguments> processFileEntryBytes() {
