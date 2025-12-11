@@ -50,39 +50,48 @@ public class DeployFromUrlRemoteClient {
 
     public FileFromUrlData downloadFileFromUrl(UploadFromUrlContext uploadFromUrlContext) throws Exception {
         if (!UriUtil.isUrlSecure(uploadFromUrlContext.getFileUrl())) {
-            throw new SLException(Messages.MTAR_ENDPOINT_NOT_SECURE);
+            throw new SLException(Messages.MTAR_ENDPOINT_NOT_SECURE_FOR_JOB_WITH_ID, uploadFromUrlContext.getJobEntry()
+                                                                                                         .getId());
         }
         UriUtil.validateUrl(uploadFromUrlContext.getFileUrl());
 
         HttpResponse<InputStream> response = callRemoteEndpointWithRetry(uploadFromUrlContext.getFileUrl(),
+                                                                         uploadFromUrlContext.getJobEntry()
+                                                                                             .getId(),
                                                                          uploadFromUrlContext.getUserCredentials());
         long fileSize = response.headers()
                                 .firstValueAsLong(Constants.CONTENT_LENGTH)
-                                .orElseThrow(() -> new SLException(Messages.FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH));
+                                .orElseThrow(() -> new SLException(
+                                    MessageFormat.format(Messages.FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH_FOR_JOB_WITH_ID,
+                                                         uploadFromUrlContext.getJobEntry()
+                                                                             .getId())));
 
         long maxUploadSize = applicationConfiguration.getMaxUploadSize();
         if (fileSize > maxUploadSize) {
-            throw new SLException(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED, maxUploadSize));
+            throw new SLException(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED_FOR_JOB_WITH_ID, maxUploadSize,
+                                                       uploadFromUrlContext.getJobEntry()
+                                                                           .getId()));
         }
         return new FileFromUrlData(response.body(), response.uri(), fileSize);
     }
 
-    private HttpResponse<InputStream> callRemoteEndpointWithRetry(String decodedUrl, UserCredentials userCredentials)
+    private HttpResponse<InputStream> callRemoteEndpointWithRetry(String decodedUrl, String jobId, UserCredentials userCredentials)
         throws Exception {
         return resilientOperationExecutor.execute((CheckedSupplier<HttpResponse<InputStream>>) () -> {
             var request = buildFetchFileRequest(decodedUrl, userCredentials);
-            LOGGER.debug(Messages.CALLING_REMOTE_MTAR_ENDPOINT, getMaskedUri(urlDecodeUrl(decodedUrl)));
+            LOGGER.debug(Messages.CALLING_REMOTE_MTAR_ENDPOINT_FOR_JOB_WITH_ID, getMaskedUri(urlDecodeUrl(decodedUrl)), jobId);
             var response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
             if (response.statusCode() / 100 != 2) {
                 String error = readErrorBodyFromResponse(response);
                 LOGGER.error(error);
                 if (response.statusCode() == HttpStatus.UNAUTHORIZED.value()) {
-                    String errorMessage = MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS,
-                                                               UriUtil.stripUserInfo(decodedUrl));
+                    String errorMessage = MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID,
+                                                               UriUtil.stripUserInfo(decodedUrl), jobId);
                     throw new SLException(errorMessage);
                 }
-                throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT, getMaskedUri(urlDecodeUrl(decodedUrl)),
-                                                           response.statusCode(), error));
+                throw new SLException(
+                    MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT_FOR_JOB_WITH_ID, getMaskedUri(urlDecodeUrl(decodedUrl)),
+                                         response.statusCode(), error, jobId));
             }
             return response;
         });

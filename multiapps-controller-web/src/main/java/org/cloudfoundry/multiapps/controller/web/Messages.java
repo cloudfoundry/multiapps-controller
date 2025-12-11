@@ -7,23 +7,23 @@ public final class Messages {
 
     // Exception messages
     public static final String ERROR_EXECUTING_REST_API_CALL = "Error occurred while executing REST API call";
-    public static final String MAX_UPLOAD_SIZE_EXCEEDED = "Cannot upload file, size is bigger than the configured maximum upload size \"{0}\" bytes";
+    public static final String MAX_UPLOAD_SIZE_EXCEEDED_FOR_JOB_WITH_ID = "Cannot upload file, size is bigger than the configured maximum upload size \"{0}\" bytes. Job id: {1}";
     public static final String COULD_NOT_GET_FILES_0 = "Could not get files: {0}";
     public static final String COULD_NOT_UPLOAD_FILE_0 = "Could not upload file: {0}";
     public static final String NO_FILES_TO_UPLOAD = "Request has no files to upload!";
     public static final String ACTION_0_CANNOT_BE_EXECUTED_OVER_OPERATION_1_IN_STATE_2 = "Action \"{0}\" cannot be executed over operation \"{1}\" in state \"{2}\".";
     public static final String OPERATION_0_NOT_FOUND = "Operation \"{0}\" was not found.";
     public static final String TEMPORARY_PROBLEM_WITH_PERSISTENCE_LAYER = "Temporary problem with persistence layer of the service";
-    public static final String FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH = "File URL response did not return Content-Length header";
-    public static final String ERROR_FROM_REMOTE_MTAR_ENDPOINT = "Error from remote MTAR endpoint {0} with status code {1}, message: {2}";
-    public static final String MTAR_ENDPOINT_NOT_SECURE = "Remote MTAR endpoint is not a secure connection. HTTPS required";
+    public static final String FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH_FOR_JOB_WITH_ID = "File URL response did not return Content-Length header. Job id: {0}";
+    public static final String ERROR_FROM_REMOTE_MTAR_ENDPOINT_FOR_JOB_WITH_ID = "Error from remote MTAR endpoint {0} with status code {1}, message: {2}. Job id: {3}";
+    public static final String MTAR_ENDPOINT_NOT_SECURE_FOR_JOB_WITH_ID = "Remote MTAR endpoint is not a secure connection. HTTPS required. Job id: {0}";
     public static final String CANNOT_PARSE_CONTAINER_URI_OF_OBJECT_STORE = "Cannot parse container_uri of object store";
     public static final String REQUEST_0_1_FAILED_WITH_2 = "Request \"{0} {1}\" failed with \"{2}\"";
     public static final String ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY = "Error occurred while deleting job entry";
     public static final String CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0 = "Cannot create Object Store client with provider: {0}";
     public static final String NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND = "No valid Object Store configuration found!";
     public static final String MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER = "Missing properties for creating the specific provider!";
-    public static final String DEPLOY_FROM_URL_WRONG_CREDENTIALS = "Credentials to {0} are wrong. Make sure that they are correct.";
+    public static final String DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID = "Credentials to {0} are wrong. Make sure that they are correct. Job id: {1}";
     public static final String JOB_NOT_UPDATED_FOR_0_SECONDS = "Job not updated for {0} seconds";
 
     public static final String FAILED_TO_CREATE_BLOB_STORE_CONTEXT = "Failed to create BlobStoreContext";
@@ -77,11 +77,11 @@ public final class Messages {
     public static final String ASYNC_UPLOAD_JOB_EXISTS = "Async upload job for URL {} exists: {}";
     public static final String CREATING_ASYNC_UPLOAD_JOB = "Creating async upload job for URL {} with ID: {}";
     public static final String ASYNC_UPLOAD_JOB_REJECTED = "Async upload job with space guid: {}, namespace: {}, URL: {} rejected.";
-    public static final String STARTING_DOWNLOAD_OF_MTAR = "Starting download of MTAR from remote endpoint: {}";
-    public static final String UPLOADED_MTAR_FROM_REMOTE_ENDPOINT_AND_JOB_ID = "Uploaded MTAR from remote endpoint {} with job id: {} in {} ms";
+    public static final String STARTING_DOWNLOAD_OF_MTAR_WITH_JOB_ID = "Starting download of MTAR from remote endpoint: {}. Job id: {}";
+    public static final String UPLOADED_MTAR_FROM_REMOTE_ENDPOINT_AND_JOB_ID = "Uploaded MTAR from remote endpoint {}. Job id: {} in {} ms";
     public static final String ASYNC_UPLOAD_JOB_FINISHED = "Async upload job {} finished";
-    public static final String UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT = "Uploading MTAR stream from remote endpoint: {}";
-    public static final String CALLING_REMOTE_MTAR_ENDPOINT = "Calling remote MTAR endpoint {}";
+    public static final String UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT_WITH_JOB_ID = "Uploading MTAR stream from remote endpoint: {}. Job id: {}";
+    public static final String CALLING_REMOTE_MTAR_ENDPOINT_FOR_JOB_WITH_ID = "Calling remote MTAR endpoint {}. Job id: {}";
 
     private Messages() {
     }
