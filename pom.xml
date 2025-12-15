@@ -28,7 +28,7 @@
         <httpcore.version>5.3.6</httpcore.version>
         <eclipselink.version>4.0.8</eclipselink.version>
         <flowable.version>7.2.0</flowable.version>
-        <spring.version>6.2.14</spring.version>
+        <spring.version>6.2.15</spring.version>
         <spring-security.version>6.5.7</spring-security.version>
         <hikari.version>7.0.2</hikari.version>
         <jackson-annotations.version>2.20</jackson-annotations.version>

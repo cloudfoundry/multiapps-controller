@@ -58,6 +58,7 @@ import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
@@ -79,6 +80,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Inject
     private ProcessLogsPersistenceService logsService;
     @Inject
+    @Lazy
     private FlowableFacade flowableFacade;
     @Inject
     private OperationsHelper operationsHelper;
