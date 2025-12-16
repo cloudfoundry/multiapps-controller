@@ -4,7 +4,6 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Map;
 
-import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.util.RestUtil;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
@@ -17,7 +16,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class UAAClientConfiguration {
 
-    @Inject
     @Bean
     public UAAClient uaaClient(ApplicationConfiguration configuration) {
         if (configuration.shouldSkipSslValidation()) {

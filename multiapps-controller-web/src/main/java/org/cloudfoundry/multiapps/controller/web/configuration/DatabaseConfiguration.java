@@ -1,8 +1,8 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
-import jakarta.inject.Inject;
 import javax.sql.DataSource;
 
+import liquibase.integration.spring.SpringLiquibase;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.dialects.DataSourceDialect;
@@ -18,8 +18,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
 
-import liquibase.integration.spring.SpringLiquibase;
-
 @Configuration
 public class DatabaseConfiguration {
 
@@ -27,7 +25,6 @@ public class DatabaseConfiguration {
     private static final String LIQUIBASE_CHANGELOG = "classpath:/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog.xml";
     private static final String ENTITY_MANAGER_DEFAULT_PERSISTENCE_UNIT_NAME = "Default";
 
-    @Inject
     @Bean
     public CloudDataSourceFactoryBean dataSource(DataSourceFactory dataSourceFactory, EnvironmentServicesFinder vcapServiceFinder,
                                                  ApplicationConfiguration configuration) {
@@ -39,13 +36,11 @@ public class DatabaseConfiguration {
         return new DefaultDataSourceDialect();
     }
 
-    @Inject
     @Bean
     public DataSourceWithDialect dataSourceWithDialect(DataSource dataSource, DataSourceDialect dataSourceDialect) {
         return new DataSourceWithDialect(dataSource, dataSourceDialect);
     }
 
-    @Inject
     @Bean
     public DataSourceTransactionManager transactionManager(DataSource dataSource, ApplicationConfiguration applicationConfiguration) {
         DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager(dataSource);
@@ -80,7 +75,6 @@ public class DatabaseConfiguration {
         return eclipseLinkJpaVendorAdapter;
     }
 
-    @Inject
     @Bean
     public SpringLiquibase liquibaseChangelog(DataSource dataSource) {
         return getLiquibaseTemplate(dataSource, LIQUIBASE_CHANGELOG);
