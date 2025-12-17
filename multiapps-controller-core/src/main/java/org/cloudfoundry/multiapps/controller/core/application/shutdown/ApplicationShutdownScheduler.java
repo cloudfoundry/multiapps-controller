@@ -1,8 +1,11 @@
 package org.cloudfoundry.multiapps.controller.core.application.shutdown;
 
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -49,6 +52,9 @@ public class ApplicationShutdownScheduler {
     private ApplicationShutdown buildApplicationShutdown(String applicationId,
                                                          int applicationInstanceIndex) {
         return ImmutableApplicationShutdown.builder()
+                                           .id(UUID.randomUUID()
+                                                   .toString())
+                                           .staredAt(Date.from(Instant.now()))
                                            .applicationId(applicationId)
                                            .applicationInstanceIndex(applicationInstanceIndex)
                                            .build();

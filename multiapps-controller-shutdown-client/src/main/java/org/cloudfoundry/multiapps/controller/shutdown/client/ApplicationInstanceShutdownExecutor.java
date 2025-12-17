@@ -1,8 +1,9 @@
 package org.cloudfoundry.multiapps.controller.shutdown.client;
 
+import java.text.MessageFormat;
+import java.util.List;
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
 import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.ShutdownClientConfiguration;
@@ -38,21 +39,28 @@ public class ApplicationInstanceShutdownExecutor {
     }
 
     private static void shutdown(ShutdownClient shutdownClient, UUID applicationGuid, int applicationInstanceIndex) {
-        ApplicationShutdown shutdown = shutdownClient.triggerShutdown(applicationGuid, applicationInstanceIndex);
+        List<ApplicationShutdown> shutdown = shutdownClient.triggerShutdown(applicationGuid, applicationInstanceIndex);
         while (!hasFinished(shutdown)) {
             print(shutdown);
             MiscUtil.sleep(SHUTDOWN_POLLING_INTERVAL);
-            shutdown = shutdownClient.getStatus(applicationGuid, applicationInstanceIndex);
+            shutdown = shutdownClient.getStatus(applicationGuid);
         }
     }
 
-    private static boolean hasFinished(ApplicationShutdown shutdown) {
-        return ApplicationShutdown.Status.FINISHED.equals(shutdown.getStatus());
+    private static boolean hasFinished(List<ApplicationShutdown> shutdown) {
+        return shutdown.stream()
+                       .anyMatch(applicationShutdown -> !applicationShutdown.getStatus()
+                                                                            .equals(ApplicationShutdown.Status.FINISHED.name()));
     }
 
-    private static void print(ApplicationShutdown shutdown) {
-        LOGGER.info("Shutdown status of application with GUID {}, instance {}: {}", shutdown.getApplicationId(),
-                    shutdown.getApplicationInstanceIndex(), JsonUtil.toJson(shutdown, true));
+    private static void print(List<ApplicationShutdown> shutdown) {
+        for (ApplicationShutdown applicationShutdown : shutdown) {
+            System.out.println(
+                MessageFormat.format("Shutdown status of application with GUID {}, instance {}: {}", applicationShutdown.getApplicationId(),
+                                     applicationShutdown.getApplicationInstanceIndex(), applicationShutdown.getStatus()));
+            LOGGER.info("Shutdown status of application with GUID {}, instance {}: {}", applicationShutdown.getApplicationId(),
+                        applicationShutdown.getApplicationInstanceIndex(), applicationShutdown.getStatus());
+        }
     }
 
 }

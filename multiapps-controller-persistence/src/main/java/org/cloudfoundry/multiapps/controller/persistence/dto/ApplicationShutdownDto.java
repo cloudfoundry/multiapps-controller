@@ -1,12 +1,14 @@
 package org.cloudfoundry.multiapps.controller.persistence.dto;
 
+import java.util.Date;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "application_shutdown")
@@ -20,10 +22,10 @@ public class ApplicationShutdownDto implements DtoWithPrimaryKey<String> {
         public static final String APPLICATION_ID = "applicationId";
         public static final String APPLICATION_INSTANCE_INDEX = "applicationInstanceIndex";
         public static final String SHUTDOWN_STATUS = "shutdownStatus";
+        public static final String STARTED_AT = "startedAt";
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false, unique = true)
     private String id;
 
@@ -36,14 +38,20 @@ public class ApplicationShutdownDto implements DtoWithPrimaryKey<String> {
     @Column(name = "shutdown_status", nullable = false)
     private String shutdownStatus;
 
+    @Column(name = "started_at", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startedAt;
+
     public ApplicationShutdownDto() {
         // Required by JPA
     }
 
-    public ApplicationShutdownDto(String applicationId, int applicationInstanceIndex, String shutdownStatus) {
+    public ApplicationShutdownDto(String id, String applicationId, int applicationInstanceIndex, String shutdownStatus, Date startedAt) {
+        this.id = id;
         this.applicationId = applicationId;
         this.applicationInstanceIndex = applicationInstanceIndex;
         this.shutdownStatus = shutdownStatus;
+        this.startedAt = startedAt;
     }
 
     @Override
@@ -68,6 +76,10 @@ public class ApplicationShutdownDto implements DtoWithPrimaryKey<String> {
         return shutdownStatus;
     }
 
+    public Date getStartedAt() {
+        return startedAt;
+    }
+
     @Override
     public String toString() {
         return "ApplicationShutdownDto{" +
@@ -75,6 +87,7 @@ public class ApplicationShutdownDto implements DtoWithPrimaryKey<String> {
             ", applicationId='" + applicationId + '\'' +
             ", shutdownStatus='" + shutdownStatus + '\'' +
             ", applicationInstanceIndex='" + applicationInstanceIndex + '\'' +
+            ", startedAt='" + startedAt + '\'' +
             '}';
     }
 }

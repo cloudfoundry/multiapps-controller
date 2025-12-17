@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -20,12 +21,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 public class ApplicationShutdownJob {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationShutdownJob.class);
+    private static final int TIMEOUT_IN_SECONDS = 1800; // 30 minutes
 
     private final FlowableFacade flowableFacade;
     private final ApplicationShutdownService applicationShutdownService;
     private final ApplicationConfiguration applicationConfiguration;
 
-    //todo add timeout if exeeded just accept the instance has stopped and update status.
     @Inject
     public ApplicationShutdownJob(FlowableFacade flowableFacade, ApplicationShutdownService applicationShutdownService,
                                   ApplicationConfiguration applicationConfiguration) {
@@ -36,24 +37,43 @@ public class ApplicationShutdownJob {
 
     @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
     public void run() {
-        String applicationId = applicationConfiguration.getApplicationGuid();
-        int applicationInstanceIndex = applicationConfiguration.getApplicationInstanceIndex();
+        ApplicationShutdown applicationShutdown = getApplicationToShutdown();
 
-        ApplicationShutdown applicationShutdown = applicationShutdownService.createQuery()
-                                                                            .applicationId(applicationId)
-                                                                            .applicationInstanceIndex(applicationInstanceIndex)
-                                                                            .singleResult();
         if (applicationShutdown == null || applicationShutdown.getStatus()
                                                               .equals(Status.FINISHED.name())) {
             return;
         }
-        Status currentShutdownStatus = getShutdownStatus();
-        if (currentShutdownStatus == Status.INITIAL) {
+        if (applicationShutdown.getStatus()
+                               .equals(Status.INITIAL.name())) {
             shutdownApplication(applicationShutdown);
-        } else if (currentShutdownStatus == Status.FINISHED) {
+            applicationShutdownService.updateApplicationShutdownStatus(applicationShutdown,
+                                                                       Status.RUNNING.name());
+        } else if (hasTheShutdownFinished(applicationShutdown)) {
             applicationShutdownService.updateApplicationShutdownStatus(applicationShutdown,
                                                                        Status.FINISHED.name());
         }
+    }
+
+    private ApplicationShutdown getApplicationToShutdown() {
+        String applicationId = applicationConfiguration.getApplicationGuid();
+        int applicationInstanceIndex = applicationConfiguration.getApplicationInstanceIndex();
+
+        return applicationShutdownService.createQuery()
+                                         .applicationId(applicationId)
+                                         .applicationInstanceIndex(applicationInstanceIndex)
+                                         .singleResult();
+    }
+
+    private boolean hasTheShutdownFinished(ApplicationShutdown applicationShutdown) {
+        return getShutdownStatus() == Status.FINISHED || isTimeoutExceeded(applicationShutdown);
+    }
+
+    private boolean isTimeoutExceeded(ApplicationShutdown applicationShutdown) {
+        Instant thirtyMinutesAfterStartedDate = Instant.from(applicationShutdown.getStaredAt()
+                                                                                .toInstant())
+                                                       .plusSeconds(TIMEOUT_IN_SECONDS);
+        Instant timeNow = Instant.now();
+        return timeNow.isAfter(thirtyMinutesAfterStartedDate);
     }
 
     private Status getShutdownStatus() {
@@ -63,8 +83,6 @@ public class ApplicationShutdownJob {
     private void shutdownApplication(ApplicationShutdown applicationShutdown) {
         CompletableFuture.runAsync(() -> {
                              logProgressOfShuttingDown(applicationShutdown, Messages.SHUTTING_DOWN_APPLICATION_WITH_ID_AND_INDEX);
-                             applicationShutdownService.updateApplicationShutdownStatus(applicationShutdown,
-                                                                                        Status.RUNNING.name());
                              flowableFacade.shutdownJobExecutor();
                          })
                          .thenRun(() -> logProgressOfShuttingDown(applicationShutdown, Messages.SHUT_DOWN_APPLICATION_WITH_ID_AND_INDEX));

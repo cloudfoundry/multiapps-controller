@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.persistence.query;
 
+import java.util.Date;
+
 import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
 
 public interface ApplicationShutdownQuery extends Query<ApplicationShutdown, ApplicationShutdownQuery> {
@@ -9,4 +11,6 @@ public interface ApplicationShutdownQuery extends Query<ApplicationShutdown, App
     ApplicationShutdownQuery applicationInstanceIndex(int applicationInstanceIndex);
 
     ApplicationShutdownQuery shutdownStatus(String shutdownStatus);
+
+    ApplicationShutdownQuery startedAt(Date startedAt);
 }

@@ -3,9 +3,11 @@ package org.cloudfoundry.multiapps.controller.shutdown.client;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
@@ -18,8 +20,9 @@ import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown
 
 class ShutdownClientImpl implements ShutdownClient {
 
-    private static final String X_CF_APP_INSTANCE = "x-cf-app-instance";
-    private static final String SHUTDOWN_ENDPOINT = "/admin/shutdown";
+    private static final String SHUTDOWN_ENDPOINT = "/rest/admin/shutdown";
+    private static final String TRIGGER_SHUTDOWN_ENDPOINT = "https://{0}{1}?applicationId={2}&instancesCount={3}";
+    private static final String SHUTDOWN_STATUS_ENDPOINT = "https://{0}{1}?applicationId={2}";
 
     private final String applicationUrl;
     /**
@@ -34,45 +37,48 @@ class ShutdownClientImpl implements ShutdownClient {
     }
 
     @Override
-    public ApplicationShutdown triggerShutdown(UUID applicationGuid, int applicationInstanceIndex) {
-        HttpPost request = new HttpPost(getShutdownEndpoint());
-        return makeShutdownApiRequest(applicationGuid, applicationInstanceIndex, request);
+    public List<ApplicationShutdown> triggerShutdown(UUID applicationGuid, int applicationInstancesCount) {
+        String a = getTriggerShutdownEndpoint(applicationGuid, applicationInstancesCount);
+
+        HttpPost request = new HttpPost(a);
+        return makeShutdownApiRequest(request);
     }
 
     @Override
-    public ApplicationShutdown getStatus(UUID applicationGuid, int applicationInstanceIndex) {
-        HttpGet request = new HttpGet(getShutdownEndpoint());
-        return makeShutdownApiRequest(applicationGuid, applicationInstanceIndex, request);
+    public List<ApplicationShutdown> getStatus(UUID applicationGuid) {
+        HttpGet request = new HttpGet(getShutdownStatusEndpoint(applicationGuid));
+        return makeShutdownApiRequest(request);
     }
 
-    private String getShutdownEndpoint() {
-        return applicationUrl + SHUTDOWN_ENDPOINT;
+    private String getShutdownStatusEndpoint(UUID applicationGuid) {
+        return MessageFormat.format(SHUTDOWN_STATUS_ENDPOINT, applicationUrl, SHUTDOWN_ENDPOINT, applicationGuid);
     }
 
-    private ApplicationShutdown makeShutdownApiRequest(UUID applicationGuid, int applicationInstanceIndex, HttpUriRequest httpRequest) {
-        try (CsrfHttpClient csrfHttpClient = createCsrfHttpClient(applicationGuid, applicationInstanceIndex)) {
+    private String getTriggerShutdownEndpoint(UUID applicationGuid, int applicationInstancesCount) {
+        return MessageFormat.format(TRIGGER_SHUTDOWN_ENDPOINT, applicationUrl, SHUTDOWN_ENDPOINT, applicationGuid,
+                                    applicationInstancesCount);
+    }
+
+    private List<ApplicationShutdown> makeShutdownApiRequest(HttpUriRequest httpRequest) {
+        try (CsrfHttpClient csrfHttpClient = createCsrfHttpClient()) {
             return csrfHttpClient.execute(httpRequest, ShutdownClientImpl::parse);
         } catch (IOException e) {
             throw new IllegalStateException(MessageFormat.format("Could not parse shutdown API response: {0}", e.getMessage()), e);
         }
     }
 
-    private CsrfHttpClient createCsrfHttpClient(UUID applicationGuid, int applicationInstanceIndex) {
-        String applicationInstanceHeaderValue = computeApplicationInstanceHeaderValue(applicationGuid, applicationInstanceIndex);
-        return httpClientFactory.create(Map.of(X_CF_APP_INSTANCE, applicationInstanceHeaderValue));
+    private CsrfHttpClient createCsrfHttpClient() {
+        return httpClientFactory.create(Map.of());
     }
 
-    private static String computeApplicationInstanceHeaderValue(UUID applicationGuid, int applicationInstanceIndex) {
-        return String.format("%s:%d", applicationGuid, applicationInstanceIndex);
-    }
-
-    private static ApplicationShutdown parse(ClassicHttpResponse response) throws IOException, ParseException {
+    private static List<ApplicationShutdown> parse(ClassicHttpResponse response) throws IOException, ParseException {
         String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
         return parse(body);
     }
 
-    private static ApplicationShutdown parse(String body) {
-        return JsonUtil.fromJson(body, ApplicationShutdown.class);
+    private static List<ApplicationShutdown> parse(String body) {
+        return JsonUtil.fromJson(body, new TypeReference<List<ApplicationShutdown>>() {
+        });
     }
 
 }

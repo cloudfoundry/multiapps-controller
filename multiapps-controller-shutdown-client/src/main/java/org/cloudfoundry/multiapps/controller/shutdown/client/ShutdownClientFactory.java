@@ -1,17 +1,26 @@
 package org.cloudfoundry.multiapps.controller.shutdown.client;
 
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Map;
+import javax.net.ssl.SSLContext;
+
 import org.apache.hc.client5.http.HttpRequestRetryStrategy;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.DefaultHttpRequestRetryStrategy;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.TrustAllStrategy;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
@@ -40,26 +49,67 @@ public class ShutdownClientFactory {
     }
 
     private CloseableHttpClient createHttpClient() {
-        return HttpClientBuilder.create()
-                                .setRetryStrategy(createRetryStrategy())
-                                .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
-                                                                                               .setDefaultSocketConfig(
-                                                                                                   SocketConfig.custom()
-                                                                                                               .setSoTimeout(
-                                                                                                                   SOCKET_TIMEOUT)
-                                                                                                               .build())
-                                                                                               .setDefaultConnectionConfig(
-                                                                                                   ConnectionConfig.custom()
-                                                                                                                   .setConnectTimeout(
-                                                                                                                       CONNECT_TIMEOUT)
-                                                                                                                   .setSocketTimeout(
-                                                                                                                       SOCKET_TIMEOUT)
-                                                                                                                   .build())
-                                                                                               .build())
-                                .setDefaultRequestConfig(RequestConfig.custom()
-                                                                      .setResponseTimeout(RESPONSE_TIMEOUT)
-                                                                      .build())
-                                .build();
+        SSLContext sslContext = null;
+        try {
+            sslContext = SSLContexts.custom()
+                                    .loadTrustMaterial(null, TrustAllStrategy.INSTANCE)
+                                    .build();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (KeyManagementException e) {
+            throw new RuntimeException(e);
+        } catch (KeyStoreException e) {
+            throw new RuntimeException(e);
+        }
+
+        DefaultClientTlsStrategy tlsStrategy =
+            new DefaultClientTlsStrategy(
+                sslContext,
+                NoopHostnameVerifier.INSTANCE
+            );
+
+        return HttpClients.custom()
+                          .setRetryStrategy(createRetryStrategy())
+                          .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+                                                                                         .setTlsSocketStrategy(tlsStrategy)
+                                                                                         .setDefaultSocketConfig(
+                                                                                             SocketConfig.custom()
+                                                                                                         .setSoTimeout(
+                                                                                                             SOCKET_TIMEOUT)
+                                                                                                         .build())
+                                                                                         .setDefaultConnectionConfig(
+                                                                                             ConnectionConfig.custom()
+                                                                                                             .setConnectTimeout(
+                                                                                                                 CONNECT_TIMEOUT)
+                                                                                                             .setSocketTimeout(
+                                                                                                                 SOCKET_TIMEOUT)
+                                                                                                             .build())
+                                                                                         .build())
+                          .setDefaultRequestConfig(RequestConfig.custom()
+                                                                .setResponseTimeout(RESPONSE_TIMEOUT)
+                                                                .build())
+                          .build();
+        //        return HttpClientBuilder.create()
+        //                                .setRetryStrategy(createRetryStrategy())
+        //                                .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+        //                                                                                               .setTlsSocketStrategy(tlsStrategy)
+        //                                                                                               .setDefaultSocketConfig(
+        //                                                                                                   SocketConfig.custom()
+        //                                                                                                               .setSoTimeout(
+        //                                                                                                                   SOCKET_TIMEOUT)
+        //                                                                                                               .build())
+        //                                                                                               .setDefaultConnectionConfig(
+        //                                                                                                   ConnectionConfig.custom()
+        //                                                                                                                   .setConnectTimeout(
+        //                                                                                                                       CONNECT_TIMEOUT)
+        //                                                                                                                   .setSocketTimeout(
+        //                                                                                                                       SOCKET_TIMEOUT)
+        //                                                                                                                   .build())
+        //                                                                                               .build())
+        //                                .setDefaultRequestConfig(RequestConfig.custom()
+        //                                                                      .setResponseTimeout(RESPONSE_TIMEOUT)
+        //                                                                      .build())
+        //                                .build();
     }
 
     private HttpRequestRetryStrategy createRetryStrategy() {
@@ -67,7 +117,7 @@ public class ShutdownClientFactory {
     }
 
     private String computeCsrfTokenUrl(ShutdownClientConfiguration configuration) {
-        return configuration.getApplicationUrl() + CSRF_TOKEN_ENDPOINT;
+        return "https://" + configuration.getApplicationUrl() + CSRF_TOKEN_ENDPOINT;
     }
 
     private Map<String, String> computeHeaders(ShutdownClientConfiguration configuration) {

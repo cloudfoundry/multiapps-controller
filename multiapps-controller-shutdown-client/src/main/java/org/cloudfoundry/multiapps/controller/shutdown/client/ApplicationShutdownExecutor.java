@@ -31,9 +31,7 @@ public class ApplicationShutdownExecutor {
 
     private void shutdownInstances(int applicationInstancesCount) {
         UUID applicationGuid = shutdownConfiguration.getApplicationGuid();
-        for (int i = 0; i < applicationInstancesCount; i++) {
-            instanceShutdownExecutor.execute(applicationGuid, i);
-        }
+        instanceShutdownExecutor.execute(applicationGuid, applicationInstancesCount);
     }
 
     private static int getApplicationInstancesCount(ShutdownConfiguration shutdownConfiguration) {
@@ -45,7 +43,7 @@ public class ApplicationShutdownExecutor {
 
     private static CloudControllerClient createCloudControllerClient(ShutdownConfiguration shutdownConfiguration) {
         URL cloudControllerUrl = toURL(shutdownConfiguration.getCloudControllerUrl());
-        return new CloudControllerClientImpl(cloudControllerUrl, createCloudCredentials(shutdownConfiguration));
+        return new CloudControllerClientImpl(cloudControllerUrl, createCloudCredentials(shutdownConfiguration), null, true);
     }
 
     private static URL toURL(String string) {

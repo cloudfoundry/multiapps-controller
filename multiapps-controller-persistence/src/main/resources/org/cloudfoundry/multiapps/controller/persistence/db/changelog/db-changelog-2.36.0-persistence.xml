@@ -24,6 +24,9 @@
             <column name="shutdown_status" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="started_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
