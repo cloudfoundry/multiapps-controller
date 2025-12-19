@@ -16,7 +16,9 @@ import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorPropertie
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableMtaDescriptorPropertiesResolverContext;
 import org.cloudfoundry.multiapps.controller.core.model.MtaDescriptorPropertiesResolverContext;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
@@ -55,6 +57,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         context.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptions);
 
         setDynamicResolvableParametersIfAbsent(context, resolver);
+        Set<String> parametersToHide = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, descriptor);
         // Set MTA modules in the context
         List<String> modulesForDeployment = context.getVariable(Variables.MODULES_FOR_DEPLOYMENT);
@@ -67,8 +70,9 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         Set<String> mtaModules = getModuleNamesForDeployment(descriptor, modulesForDeployment);
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
         context.setVariable(Variables.MTA_MODULES, mtaModules);
-
-        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(descriptor));
+        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(parametersToHide);
+        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
+                              dynamicSecureSerialization.toJson(descriptor));
         getStepLogger().debug(Messages.DESCRIPTOR_PROPERTIES_RESOLVED);
 
         return StepPhase.DONE;

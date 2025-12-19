@@ -1,5 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
@@ -7,7 +13,8 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.ConfigurationEntryServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -15,12 +22,6 @@ import org.cloudfoundry.multiapps.controller.process.util.ConfigurationEntryDyna
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Named("publishProvidedDependenciesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -54,8 +55,10 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
             dynamicResolvableParameters);
 
         List<ConfigurationEntry> publishedEntries = publish(context, resolvedEntriesToPublish);
+        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
 
-        getStepLogger().debug(Messages.PUBLISHED_ENTRIES, SecureSerialization.toJson(publishedEntries));
+        getStepLogger().debug(Messages.PUBLISHED_ENTRIES, dynamicSecureSerialization.toJson(publishedEntries));
         context.setVariable(Variables.PUBLISHED_ENTRIES, publishedEntries);
 
         getStepLogger().debug(Messages.PUBLIC_PROVIDED_DEPENDENCIES_PUBLISHED);

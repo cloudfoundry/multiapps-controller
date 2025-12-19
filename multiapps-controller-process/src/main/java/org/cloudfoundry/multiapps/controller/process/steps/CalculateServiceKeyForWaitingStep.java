@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Named;
@@ -9,7 +10,8 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -26,7 +28,9 @@ public class CalculateServiceKeyForWaitingStep extends SyncFlowableStep {
         CloudControllerClient controllerClient = context.getControllerClient();
         List<CloudServiceKey> existingServiceKeys = ServiceUtil.getExistingServiceKeys(controllerClient, serviceToProcess, getStepLogger());
         List<CloudServiceKey> serviceKeysInProgress = getServiceKeysInProgress(existingServiceKeys);
-        getStepLogger().debug(Messages.SERVICE_KEYS_SCHEDULED_FOR_WAITING_0, SecureSerialization.toJson(serviceKeysInProgress));
+        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        getStepLogger().debug(Messages.SERVICE_KEYS_SCHEDULED_FOR_WAITING_0, dynamicSecureSerialization.toJson(serviceKeysInProgress));
         context.setVariable(Variables.CLOUD_SERVICE_KEYS_FOR_WAITING, serviceKeysInProgress);
         return StepPhase.DONE;
     }

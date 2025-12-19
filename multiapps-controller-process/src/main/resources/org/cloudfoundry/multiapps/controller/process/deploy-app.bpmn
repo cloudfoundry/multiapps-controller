@@ -166,6 +166,7 @@
         <flowable:in source="serviceBindingParameters" target="serviceBindingParameters"></flowable:in>
         <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
         <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToUnbindBind" flowable:elementVariable="serviceToUnbindBind">
         <extensionElements></extensionElements>
@@ -198,6 +199,7 @@
         <flowable:in source="serviceBindingParameters" target="serviceBindingParameters"></flowable:in>
         <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
         <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="true" flowable:collection="servicesToUnbindBind" flowable:elementVariable="serviceToUnbindBind">
         <extensionElements></extensionElements>

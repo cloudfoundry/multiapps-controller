@@ -58,6 +58,7 @@ public class CtsDeployMetadataTest extends MetadataBaseTest {
                 Variables.APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE.getName(),
                 Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE.getName(),
                 Variables.SKIP_APP_DIGEST_CALCULATION.getName(),
+                Variables.IS_SECURITY_ENABLED.getName()
             // @formatter:on
         };
     }
