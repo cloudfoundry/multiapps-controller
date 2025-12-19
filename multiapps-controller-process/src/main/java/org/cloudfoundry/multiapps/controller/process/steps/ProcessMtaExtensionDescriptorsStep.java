@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,7 +8,6 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
@@ -25,6 +22,8 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+
+import static java.text.MessageFormat.format;
 
 @Named("processMtaExtensionDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -77,7 +76,23 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
             for (String extensionDescriptorFileId : fileIds) {
                 fileService.consumeFileContent(spaceId, extensionDescriptorFileId, extensionDescriptorConsumer);
             }
-            getStepLogger().debug(Messages.PROVIDED_EXTENSION_DESCRIPTORS, SecureSerialization.toJson(extensionDescriptors));
+
+            boolean isSecureExtensionDescriptorPresent = extensionDescriptors.stream()
+                                                                             .anyMatch(extensionDescriptor -> extensionDescriptor.getId()
+                                                                                                                                 .equals(
+                                                                                                                                     "__mta.secure"));
+            List<ExtensionDescriptor> extensionDescriptorsWithoutSecure = null;
+            if (isSecureExtensionDescriptorPresent) {
+                extensionDescriptorsWithoutSecure = extensionDescriptors.stream()
+                                                                        .filter(extensionDescriptor -> !extensionDescriptor.getId()
+                                                                                                                           .equals(
+                                                                                                                               "__mta.secure"))
+                                                                        .toList();
+                getStepLogger().debug(Messages.PROVIDED_EXTENSION_DESCRIPTORS, SecureSerialization.toJson(extensionDescriptorsWithoutSecure)
+                    + "\n\"SECURE EXTENSION DESCRIPTOR CONSTRUCTED AND APPLIED FROM ENVIRONMENT VARIABLES\"");
+            } else {
+                getStepLogger().debug(Messages.PROVIDED_EXTENSION_DESCRIPTORS, SecureSerialization.toJson(extensionDescriptors));
+            }
             return extensionDescriptors;
         } catch (FileStorageException e) {
             throw new SLException(e, e.getMessage());

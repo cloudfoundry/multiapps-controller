@@ -20,6 +20,11 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.SecretTransformationStrategy;
+import org.cloudfoundry.multiapps.controller.process.security.resolver.SecretTokenKeyContainer;
+import org.cloudfoundry.multiapps.controller.process.security.resolver.SecretTokenKeyResolver;
+import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStore;
+import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStoreFactory;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper.CloudComponents;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
@@ -46,6 +51,12 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     protected ProcessStepHelper stepHelper;
     @Inject
     protected ApplicationConfiguration configuration;
+    @Inject
+    protected SecretTokenStoreFactory secretTokenStoreFactory;
+    @Inject
+    protected SecretTokenKeyResolver secretTokenKeyResolver;
+    @Inject
+    protected SecretTransformationStrategy secretTransformationStrategy;
     @Inject
     private StepLogger.Factory stepLoggerFactory;
     @Inject
@@ -89,6 +100,16 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     }
 
     protected ProcessContext createProcessContext(DelegateExecution execution) {
+        boolean isSecurityEnabled = VariableHandling.get(execution,
+                                                         Variables.IS_SECURITY_ENABLED);
+        if (isSecurityEnabled) {
+            SecretTokenKeyContainer secretTokenKeyContainer = secretTokenKeyResolver.resolve(execution);
+            SecretTokenStore secretTokenStore = secretTokenStoreFactory.createSecretTokenStore(secretTokenKeyContainer.key(),
+                                                                                               secretTokenKeyContainer.keyId());
+            return SecureProcessContextFactory.ofSecureProcessContext(execution, stepLogger, clientProvider, secretTokenStore,
+                                                                      secretTransformationStrategy);
+        }
+
         return new ProcessContext(execution, stepLogger, clientProvider);
     }
 

@@ -1,8 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.util.Set;
+
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.client.LoggingCloudControllerClient;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
@@ -36,14 +40,18 @@ public class ProcessContext {
         String spaceGuid = getVariable(Variables.SPACE_GUID);
         String correlationId = getVariable(Variables.CORRELATION_ID);
         CloudControllerClient delegate = clientProvider.getControllerClient(userGuid, spaceGuid, correlationId);
-        return new LoggingCloudControllerClient(delegate, stepLogger);
+        Set<String> secretParameters = VariableHandling.get(execution, Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        return new LoggingCloudControllerClient(delegate, stepLogger, dynamicSecureSerialization);
     }
 
     public CloudControllerClient getControllerClient(String spaceGuid) {
         String userGuid = StepsUtil.determineCurrentUserGuid(execution);
         String correlationId = getVariable(Variables.CORRELATION_ID);
         CloudControllerClient delegate = clientProvider.getControllerClient(userGuid, spaceGuid, correlationId);
-        return new LoggingCloudControllerClient(delegate, stepLogger);
+        Set<String> secretParameters = VariableHandling.get(execution, Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        return new LoggingCloudControllerClient(delegate, stepLogger, dynamicSecureSerialization);
     }
 
     public <T> T getRequiredVariable(Variable<T> variable) {

@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -13,7 +14,8 @@ import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotat
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication.ProductizationState;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -51,7 +53,7 @@ public class ExistingAppsToBackupCalculator {
             return Collections.emptyList();
         }
 
-        return getAppsWithLiveProductizationState(appsToUndeploy);
+        return getAppsWithLiveProductizationState(appsToUndeploy, context);
     }
 
     private boolean doesDeployedMtaVersionMatchToCurrentDeployment(DeployedMta detectedMta, String mtaVersionOfCurrentDescriptor) {
@@ -133,7 +135,7 @@ public class ExistingAppsToBackupCalculator {
                           .get();
     }
 
-    private List<CloudApplication> getAppsWithLiveProductizationState(List<CloudApplication> appsToUndeploy) {
+    private List<CloudApplication> getAppsWithLiveProductizationState(List<CloudApplication> appsToUndeploy, ProcessContext context) {
         List<CloudApplication> appsToBackup = new ArrayList<>();
         for (CloudApplication appToUndeploy : appsToUndeploy) {
             ProductizationState productizationStateOfDeployedApplication = getProductizationStateOfApplication(appToUndeploy);
@@ -141,7 +143,9 @@ public class ExistingAppsToBackupCalculator {
                 appsToBackup.add(appToUndeploy);
             }
         }
-        LOGGER.info(MessageFormat.format(Messages.EXISTING_APPS_TO_BACKUP, SecureSerialization.toJson(appsToBackup)));
+        Collection<String> parametersToHide = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(parametersToHide);
+        LOGGER.info(MessageFormat.format(Messages.EXISTING_APPS_TO_BACKUP, dynamicSecureSerialization.toJson(appsToBackup)));
         return appsToBackup;
     }
 

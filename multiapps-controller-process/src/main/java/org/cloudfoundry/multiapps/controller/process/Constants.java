@@ -26,6 +26,12 @@ public class Constants {
     public static final String MTA_BACKUP_NAMESPACE = "mta-backup";
     public static final String MTA_FOR_DELETION_PREFIX = "to-be-deleted";
 
+    public static final String USER_PROVIDED_SERVICE_PREFIX_NAME_ENCRYPTION_DECRYPTION = "__mta-secure-";
+    public static final String ENCRYPTION_KEY = "encryptionKey";
+    public static final String KEY_ID = "keyId";
+    public static final String PLACEHOLDER_PREFIX = "${";
+    public static final String PLACEHOLDER_POSTFIX = "}";
+
     public static final Long UNSET_LAST_LOG_TIMESTAMP_MS = 0L;
     public static final int LOG_STALLED_TASK_MINUTE_INTERVAL = 5;
 

@@ -14,7 +14,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.DropletInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.PackageState;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.steps.StepPhase;
@@ -86,7 +86,7 @@ public class ApplicationStager {
         }
     }
 
-    public boolean isApplicationStagedCorrectly(CloudApplication app) {
+    public boolean isApplicationStagedCorrectly(CloudApplication app, DynamicSecureSerialization dynamicSecureSerialization) {
         List<CloudBuild> buildsForApplication = client.getBuildsForApplication(app.getGuid());
         if (buildsForApplication.isEmpty()) {
             logger.debug(Messages.NO_BUILD_FOUND_FOR_APPLICATION, app.getName());
@@ -101,7 +101,7 @@ public class ApplicationStager {
         if (isBuildStagedCorrectly(build)) {
             return true;
         }
-        logMessages(app, build);
+        logMessages(app, build, dynamicSecureSerialization);
         return false;
     }
 
@@ -116,9 +116,9 @@ public class ApplicationStager {
         return build.getState() == CloudBuild.State.STAGED && build.getDropletInfo() != null && build.getError() == null;
     }
 
-    private void logMessages(CloudApplication app, CloudBuild build) {
+    private void logMessages(CloudApplication app, CloudBuild build, DynamicSecureSerialization dynamicSecureSerialization) {
         logger.info(Messages.APPLICATION_NOT_STAGED_CORRECTLY, app.getName());
-        logger.debug(Messages.LAST_BUILD, SecureSerialization.toJson(build));
+        logger.debug(Messages.LAST_BUILD, dynamicSecureSerialization.toJson(build));
     }
 
     public void bindDropletToApplication(UUID appGuid) {

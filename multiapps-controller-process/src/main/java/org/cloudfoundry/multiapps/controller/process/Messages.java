@@ -82,6 +82,10 @@ public class Messages {
     public static final String SERVICE_INSTANCE_0_PLAN_UPDATE_FAILED_ERROR_1 = "Service instance: \"{0}\" plan update failed, error: \"{1}\"";
     public static final String SERVICE_INSTANCE_0_PARAMETERS_UPDATE_FAILED_ERROR_1 = "Service instance: \"{0}\" parameters update failed, error: \"{1}\"";
     public static final String SERVICE_INSTANCE_0_TAGS_UPDATE_FAILED_ERROR_1 = "Service instance: \"{0}\" tags update failed, error: \"{1}\"";
+    public static final String COULD_NOT_RETRIEVE_USER_PROVIDED_SERVICE_INSTANCE_ENCRYPTION_RELATED = "Could not retrieve service instance (user provided service instance for encryption/decryption related)!";
+    public static final String COULD_NOT_RETRIEVE_CREDENTIALS_FROM_USER_PROVIDED_SERVICE_INSTANCE_ENCRYPTION_RELATED = "Could not retrieve credentials from service instance (user provided service instance for encryption/decryption related)!";
+    public static final String JSON_TRANSFORMATION_FAILED_FOR_VARIABLE_0 = "Secret token JSON transformation failed for variable \"{0}\":";
+    public static final String SECRET_VALUE_NOT_FOUND_FOR_TOKEN_0_PID_1_VARIABLE_2 = "Secret value not found for token \"{0}\" (process instance id=\"{1}\", variable=\"{2}\")";
 
     // Audit log messages
 
@@ -300,6 +304,7 @@ public class Messages {
     public static final String DELETED_PROGRESS_MESSAGES_0 = "Deleted progress messages: {0}";
     public static final String DELETED_HISTORIC_OPERATION_EVENTS_0 = "Deleted historic operation events: {0}";
     public static final String REMOVED_TOKENS_0 = "Removed tokens: {0}";
+    public static final String REMOVED_SECRET_TOKENS_0 = "Removed secret tokens: {0}";
     public static final String DELETED_DATA_FOR_NON_EXISTING_USERS = "Deleted data for no-longer existing users.";
     public static final String CREATING_APP_FROM_DOCKER_IMAGE = "Creating app \"{0}\" from Docker image \"{1}\"...";
     public static final String CREATE_SUPPORT_TICKET_GENERIC_MESSAGE = "If the problem persists, please create a support ticket.";
@@ -561,6 +566,7 @@ public class Messages {
     public static final String DELETING_PROCESS_LOGS_MODIFIED_BEFORE_0 = "Deleting process logs modified before \"{0}\"...";
     public static final String DELETING_PROGRESS_MESSAGES_STORED_BEFORE_0 = "Deleting progress messages stored before \"{0}\"...";
     public static final String REMOVING_EXPIRED_TOKENS_FROM_TOKEN_STORE = "Removing expired tokens from the token store...";
+    public static final String REMOVING_EXPIRED_SECRET_TOKENS = "Removing expired secret tokens...";
     public static final String DELETING_HISTORIC_OPERATION_EVENTS_STORED_BEFORE_0 = "Deleting historic operation events stored before \"{0}\"...";
     public static final String DELETING_DATA_FOR_NON_EXISTING_USERS = "Deleting data for no-longer existing users...";
     public static final String REGISTERED_CLEANERS_IN_CLEAN_UP_JOB_0 = "Registered cleaners in clean-up job: {0}";

@@ -2,12 +2,13 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ConfigurationEntriesUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
@@ -32,7 +33,9 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
         getStepLogger().debug(Messages.DELETING_PUBLISHED_DEPENDENCIES);
 
         List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(context);
-        deleteConfigurationEntries(entriesToDelete, context);
+        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        deleteConfigurationEntries(entriesToDelete, context, dynamicSecureSerialization);
 
         getStepLogger().debug(Messages.PUBLISHED_DEPENDENCIES_DELETED);
         return StepPhase.DONE;
@@ -55,7 +58,8 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
                                       .collect(Collectors.toList());
     }
 
-    private void deleteConfigurationEntries(List<ConfigurationEntry> entriesToDelete, ProcessContext context) {        
+    private void deleteConfigurationEntries(List<ConfigurationEntry> entriesToDelete, ProcessContext context,
+                                            DynamicSecureSerialization dynamicSecureSerialization) {
         for (ConfigurationEntry entry : entriesToDelete) {
             getStepLogger().info(MessageFormat.format(Messages.DELETING_DISCONTINUED_DEPENDENCY_0, entry.getProviderId()));
             int deletedEntries = configurationEntryService.createQuery()
@@ -65,13 +69,13 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
                 getStepLogger().warn(Messages.COULD_NOT_DELETE_PROVIDED_DEPENDENCY, entry.getProviderId());
             }
         }
-        getStepLogger().debug(Messages.DELETED_ENTRIES, SecureSerialization.toJson(entriesToDelete));
+        getStepLogger().debug(Messages.DELETED_ENTRIES, dynamicSecureSerialization.toJson(entriesToDelete));
         context.setVariable(Variables.DELETED_ENTRIES, entriesToDelete);
     }
 
     private List<ConfigurationEntry> getEntries(ProcessContext context) {
         String mtaId = context.getVariable(Variables.MTA_ID);
-        String spaceGuid =  context.getVariable(Variables.SPACE_GUID);
+        String spaceGuid = context.getVariable(Variables.SPACE_GUID);
         String namespace = context.getVariable(Variables.MTA_NAMESPACE);
 
         return configurationEntryService.createQuery()

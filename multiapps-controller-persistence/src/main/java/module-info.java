@@ -59,4 +59,6 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires static org.immutables.value;
     requires jakarta.xml.bind;
     requires org.bouncycastle.fips.pkix;
+    requires org.bouncycastle.fips.core;
+    requires liquibase.core;
 }

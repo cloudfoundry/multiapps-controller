@@ -29,10 +29,14 @@ public class Constants {
 
     public static final String B3_TRACE_ID_HEADER = "X-B3-TraceId";
     public static final String B3_SPAN_ID_HEADER = "X-B3-SpanId";
+    public static final String CYPHER_TRANSFORMATION_NAME = "AES/GCM/NoPadding";
+    public static final String ENCRYPTION_DECRYPTION_ALGORITHM_NAME = "AES";
 
     public static final int TOKEN_SERVICE_DELETION_CORE_POOL_SIZE = 1;
     public static final int TOKEN_SERVICE_DELETION_MAXIMUM_POOL_SIZE = 3;
     public static final int TOKEN_SERVICE_DELETION_KEEP_ALIVE_THREAD_IN_SECONDS = 30;
+    public static final int INITIALISATION_VECTOR_LENGTH = 12;
+    public static final int GCM_AUTHENTICATION_TAG_LENGTH = 128;
 
     public static final String APP_FEATURE_SSH = "ssh";
 

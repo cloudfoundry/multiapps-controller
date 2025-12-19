@@ -232,7 +232,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
                 Map.of("DEPLOY_ATTRIBUTES", "{\"app-content-digest\":\"" + CURRENT_MODULE_DIGEST + "\"}"));
             var dropletPackage = createCloudPackage(Status.READY);
             mockCloudPackagesGetter(dropletPackage);
-            when(cloudPackagesGetter.getMostRecentAppPackage(any(), any())).thenReturn(Optional.of(dropletPackage));
+            when(cloudPackagesGetter.getMostRecentAppPackage(any(), any(), any())).thenReturn(Optional.of(dropletPackage));
         }
         when(client.getCurrentDropletForApplication(APP_GUID)).thenReturn(createDropletInfo(DROPLET_GUID, PACKAGE_GUID));
         when(client.getBuildsForApplication(any())).thenReturn(builds);
@@ -259,8 +259,8 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     }
 
     private void mockCloudPackagesGetter(CloudPackage cloudPackage) {
-        when(cloudPackagesGetter.getAppPackage(any(), any())).thenReturn(Optional.of(cloudPackage));
-        when(cloudPackagesGetter.getMostRecentAppPackage(any(), any())).thenReturn(Optional.of(cloudPackage));
+        when(cloudPackagesGetter.getAppPackage(any(), any(), any())).thenReturn(Optional.of(cloudPackage));
+        when(cloudPackagesGetter.getMostRecentAppPackage(any(), any(), any())).thenReturn(Optional.of(cloudPackage));
     }
 
     private void prepareClients(String applicationDigest) {

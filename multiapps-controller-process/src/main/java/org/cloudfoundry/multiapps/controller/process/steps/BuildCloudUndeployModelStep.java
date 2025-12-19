@@ -27,7 +27,8 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
@@ -63,6 +64,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
+        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
 
         List<DeployedMtaServiceKey> serviceKeysToDelete = computeServiceKeysToDelete(context);
@@ -91,14 +94,14 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                                                                                   moduleToDeployHelper);
         List<DeployedMtaApplication> deployedAppsToUndeploy = modulesToUndeployCalculator.computeModulesToUndeploy(appNames);
 
-        getStepLogger().debug(Messages.MODULES_TO_UNDEPLOY, SecureSerialization.toJson(deployedAppsToUndeploy));
+        getStepLogger().debug(Messages.MODULES_TO_UNDEPLOY, dynamicSecureSerialization.toJson(deployedAppsToUndeploy));
 
         List<DeployedMtaApplication> appsWithoutChange = modulesToUndeployCalculator.computeModulesWithoutChange(deployedAppsToUndeploy);
-        getStepLogger().debug(Messages.MODULES_NOT_TO_BE_CHANGED, SecureSerialization.toJson(appsWithoutChange));
+        getStepLogger().debug(Messages.MODULES_NOT_TO_BE_CHANGED, dynamicSecureSerialization.toJson(appsWithoutChange));
 
         List<ConfigurationSubscription> subscriptionsToDelete = computeSubscriptionsToDelete(subscriptionsToCreate, deployedMta,
                                                                                              context.getVariable(Variables.SPACE_GUID));
-        getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, SecureSerialization.toJson(subscriptionsToDelete));
+        getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, dynamicSecureSerialization.toJson(subscriptionsToDelete));
 
         Set<String> servicesForApplications = getServicesForApplications(context);
         List<String> servicesToDelete = computeServicesToDelete(context, appsWithoutChange, deployedMta.getServices(),
@@ -117,7 +120,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         appsToUndeploy.removeAll(existingAppsToBackup);
         appsToUndeploy.addAll(backupAppsToUndeploy);
 
-        getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, SecureSerialization.toJson(appsToUndeploy));
+        getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, dynamicSecureSerialization.toJson(appsToUndeploy));
 
         setComponentsToUndeploy(context, servicesToDelete, appsToUndeploy, subscriptionsToDelete, serviceKeysToDelete,
                                 existingAppsToBackup);

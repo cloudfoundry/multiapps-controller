@@ -38,6 +38,7 @@ open module org.cloudfoundry.multiapps.controller.core {
     exports org.cloudfoundry.multiapps.controller.core.validators.parameters;
     exports org.cloudfoundry.multiapps.controller.core.validators.parameters.v2;
     exports org.cloudfoundry.multiapps.controller.core.validators.parameters.v3;
+    exports org.cloudfoundry.multiapps.controller.core.security.encryption;
 
     requires transitive jakarta.persistence;
     requires transitive org.cloudfoundry.multiapps.controller.client;
@@ -80,5 +81,8 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires static java.compiler;
     requires static org.immutables.value;
     requires spring.security.oauth2.client;
+    requires java.desktop;
+    requires io.netty.common;
+    requires org.bouncycastle.fips.core;
 
 }
