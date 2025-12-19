@@ -53,6 +53,7 @@ public class DatabaseConfiguration {
         return dataSourceTransactionManager;
     }
 
+    @Inject
     @Bean
     @Primary
     public LocalContainerEntityManagerFactoryBean defaultEntityManagerFactory(DataSource dataSource,

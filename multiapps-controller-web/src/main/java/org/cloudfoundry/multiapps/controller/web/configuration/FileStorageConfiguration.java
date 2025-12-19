@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
+import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.configuration.bean.factory.ObjectStoreFileStorageFactoryBean;
@@ -13,6 +14,7 @@ public class FileStorageConfiguration {
 
     private static final String OBJECT_STORE_SERVICE_NAME = "deploy-service-os";
 
+    @Inject
     @Bean
     public ObjectStoreFileStorageFactoryBean objectStoreFileStorage(EnvironmentServicesFinder vcapServiceFinder,
                                                                     ApplicationConfiguration applicationConfiguration) {
