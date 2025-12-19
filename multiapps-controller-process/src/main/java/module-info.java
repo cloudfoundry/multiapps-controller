@@ -14,6 +14,10 @@ open module org.cloudfoundry.multiapps.controller.process {
     exports org.cloudfoundry.multiapps.controller.process.util;
     exports org.cloudfoundry.multiapps.controller.process.variables;
     exports org.cloudfoundry.multiapps.controller.process.stream;
+    exports org.cloudfoundry.multiapps.controller.process.security;
+    exports org.cloudfoundry.multiapps.controller.process.security.util;
+    exports org.cloudfoundry.multiapps.controller.process.security.resolver;
+    exports org.cloudfoundry.multiapps.controller.process.security.store;
 
     requires transitive flowable.engine;
     requires transitive org.cloudfoundry.multiapps.controller.api;
@@ -57,5 +61,9 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires static java.compiler;
     requires static org.immutables.value;
     requires org.cloudfoundry.multiapps.controller.shutdown.client;
+    requires jakarta.annotation;
+    requires org.bouncycastle.fips.core;
+    requires com.google.common;
+    requires org.checkerframework.checker.qual;
 
 }

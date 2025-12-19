@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Named;
@@ -18,7 +19,8 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper.CloudComponents;
@@ -35,12 +37,13 @@ public class CreateOrUpdateServiceBrokerStep extends TimeoutAsyncFlowableStep {
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
         getStepLogger().debug(Messages.CREATING_SERVICE_BROKERS);
-
+        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
         CloudServiceBroker serviceBroker = getServiceBrokerToCreate(context);
         if (serviceBroker == null) {
             return StepPhase.DONE;
         }
-        getStepLogger().debug(MessageFormat.format(Messages.SERVICE_BROKER, SecureSerialization.toJson(serviceBroker)));
+        getStepLogger().debug(MessageFormat.format(Messages.SERVICE_BROKER, dynamicSecureSerialization.toJson(serviceBroker)));
 
         CloudControllerClient client = context.getControllerClient();
         List<CloudServiceBroker> existingServiceBrokers = client.getServiceBrokers();

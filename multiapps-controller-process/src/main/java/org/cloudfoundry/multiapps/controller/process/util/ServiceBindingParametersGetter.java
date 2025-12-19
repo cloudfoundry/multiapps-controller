@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,8 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
@@ -44,6 +46,9 @@ public class ServiceBindingParametersGetter {
     }
 
     public Map<String, Object> getServiceBindingParametersFromMta(CloudApplicationExtended app, String serviceName) {
+        Collection<String> parametersToHide = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(parametersToHide);
+
         Optional<CloudServiceInstanceExtended> service = getService(context.getVariable(Variables.SERVICES_TO_BIND), serviceName);
         if (service.isEmpty()) {
             return Collections.emptyMap();
@@ -57,7 +62,7 @@ public class ServiceBindingParametersGetter {
         }
 
         context.getStepLogger()
-               .debug(Messages.BINDING_PARAMETERS_FOR_APPLICATION, app.getName(), SecureSerialization.toJson(bindingParameters));
+               .debug(Messages.BINDING_PARAMETERS_FOR_APPLICATION, app.getName(), dynamicSecureSerialization.toJson(bindingParameters));
         return bindingParameters;
     }
 

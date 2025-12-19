@@ -130,6 +130,11 @@ public class BlueGreenDeployMetadata {
                                                                                  .customConverter(new TimeoutParameterConverter(
                                                                                      Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE))
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.IS_SECURITY_ENABLED.getName())
+                                                                                 .type(ParameterType.BOOLEAN)
+                                                                                 .defaultValue(false)
+                                                                                 .build())
                                          // Special blue green deploy parameters:
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.NO_CONFIRM.getName())

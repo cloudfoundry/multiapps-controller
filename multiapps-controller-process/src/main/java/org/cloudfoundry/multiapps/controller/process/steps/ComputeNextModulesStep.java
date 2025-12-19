@@ -1,14 +1,15 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ModuleDependencyChecker;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -52,7 +53,10 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
         // Mark next iteration data as computed
         context.setVariable(Variables.ITERATED_MODULES_IN_PARALLEL, ListUtils.union(completedModules, modulesForNextIteration));
 
-        getStepLogger().debug(Messages.COMPUTED_NEXT_MODULES_FOR_PARALLEL_ITERATION, SecureSerialization.toJson(modulesForNextIteration));
+        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        getStepLogger().debug(Messages.COMPUTED_NEXT_MODULES_FOR_PARALLEL_ITERATION,
+                              dynamicSecureSerialization.toJson(modulesForNextIteration));
         return StepPhase.DONE;
     }
 

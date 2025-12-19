@@ -4,7 +4,8 @@ import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorMerger;
 import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorValidator;
@@ -28,11 +29,13 @@ public class MtaDescriptorMerger {
         this.userMessageLogger = userMessageLogger;
     }
 
-    public DeploymentDescriptor merge(DeploymentDescriptor deploymentDescriptor, List<ExtensionDescriptor> extensionDescriptors) {
+    public DeploymentDescriptor merge(DeploymentDescriptor deploymentDescriptor, List<ExtensionDescriptor> extensionDescriptors,
+                                      List<String> parameterNamesToBeCensored) {
         DescriptorValidator validator = handlerFactory.getDescriptorValidator();
         validator.validateDeploymentDescriptor(deploymentDescriptor, platform);
         validator.validateExtensionDescriptors(extensionDescriptors, deploymentDescriptor);
 
+        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(parameterNamesToBeCensored);
         DescriptorMerger merger = handlerFactory.getDescriptorMerger();
 
         // Merge the passed set of descriptors into one deployment descriptor. The deployment descriptor at the root of
@@ -45,7 +48,7 @@ public class MtaDescriptorMerger {
 
         deploymentDescriptor = handlerFactory.getDescriptorParametersCompatibilityValidator(mergedDescriptor, userMessageLogger)
                                              .validate();
-        logDebug(Messages.MERGED_DESCRIPTOR, SecureSerialization.toJson(deploymentDescriptor));
+        logDebug(Messages.MERGED_DESCRIPTOR, dynamicSecureSerialization.toJson(deploymentDescriptor));
 
         return deploymentDescriptor;
     }

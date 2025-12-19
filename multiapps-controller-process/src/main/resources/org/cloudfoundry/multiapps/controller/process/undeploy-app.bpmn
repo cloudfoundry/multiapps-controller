@@ -90,6 +90,7 @@
             <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
             <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
             <flowable:in source="serviceBindingToDelete" target="serviceBindingToDelete"></flowable:in>
+            <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
           </extensionElements>
           <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceBindingsToDelete" flowable:elementVariable="serviceBindingToDelete">
             <extensionElements>
