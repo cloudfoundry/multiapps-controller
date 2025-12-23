@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import java.text.MessageFormat;
-import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +20,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 public class ApplicationShutdownJob {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationShutdownJob.class);
-    private static final int TIMEOUT_IN_SECONDS = 1800; // 30 minutes
 
     private final FlowableFacade flowableFacade;
     private final ApplicationShutdownService applicationShutdownService;
@@ -48,7 +46,7 @@ public class ApplicationShutdownJob {
             shutdownApplication(applicationShutdown);
             applicationShutdownService.updateApplicationShutdownStatus(applicationShutdown,
                                                                        Status.RUNNING.name());
-        } else if (hasTheShutdownFinished(applicationShutdown)) {
+        } else if (getShutdownStatus() == Status.FINISHED) {
             applicationShutdownService.updateApplicationShutdownStatus(applicationShutdown,
                                                                        Status.FINISHED.name());
         }
@@ -62,18 +60,6 @@ public class ApplicationShutdownJob {
                                          .applicationId(applicationId)
                                          .applicationInstanceIndex(applicationInstanceIndex)
                                          .singleResult();
-    }
-
-    private boolean hasTheShutdownFinished(ApplicationShutdown applicationShutdown) {
-        return getShutdownStatus() == Status.FINISHED || isTimeoutExceeded(applicationShutdown);
-    }
-
-    private boolean isTimeoutExceeded(ApplicationShutdown applicationShutdown) {
-        Instant thirtyMinutesAfterStartedDate = Instant.from(applicationShutdown.getStaredAt()
-                                                                                .toInstant())
-                                                       .plusSeconds(TIMEOUT_IN_SECONDS);
-        Instant timeNow = Instant.now();
-        return timeNow.isAfter(thirtyMinutesAfterStartedDate);
     }
 
     private Status getShutdownStatus() {

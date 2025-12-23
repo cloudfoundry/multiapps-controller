@@ -12,7 +12,7 @@ import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown
 import org.cloudfoundry.multiapps.controller.persistence.query.ApplicationShutdownQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.criteria.ImmutableQueryAttributeRestriction;
 import org.cloudfoundry.multiapps.controller.persistence.query.criteria.QueryCriteria;
-import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownService.ApplicationShutdownMapper;
+import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownMapper;
 
 public class ApplicationShutdownQueryImpl extends AbstractQueryImpl<ApplicationShutdown, ApplicationShutdownQuery>
     implements ApplicationShutdownQuery {
@@ -23,6 +23,16 @@ public class ApplicationShutdownQueryImpl extends AbstractQueryImpl<ApplicationS
                                         ApplicationShutdownMapper applicationShutdownMapper) {
         super(entityManager);
         this.applicationShutdownMapper = applicationShutdownMapper;
+    }
+
+    @Override
+    public ApplicationShutdownQuery id(String instanceId) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.ID)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(instanceId)
+                                                                       .build());
+        return this;
     }
 
     @Override

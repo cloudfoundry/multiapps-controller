@@ -19,6 +19,7 @@ public class ApplicationShutdownDto implements DtoWithPrimaryKey<String> {
         private AttributeNames() {
         }
 
+        public static final String ID = "id";
         public static final String APPLICATION_ID = "applicationId";
         public static final String APPLICATION_INSTANCE_INDEX = "applicationInstanceIndex";
         public static final String SHUTDOWN_STATUS = "shutdownStatus";

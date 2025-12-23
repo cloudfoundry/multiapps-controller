@@ -1,61 +1,60 @@
 package org.cloudfoundry.multiapps.controller.shutdown.client;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.MessageFormat;
-import java.util.UUID;
+import java.util.List;
 
-import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
-import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClientImpl;
-import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
-import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.EnvironmentBasedShutdownConfiguration;
-import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.ShutdownConfiguration;
+import jakarta.persistence.EntityManagerFactory;
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
+import org.cloudfoundry.multiapps.controller.core.application.shutdown.ApplicationShutdownScheduler;
+import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
+import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownMapper;
+import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownService;
+import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.DatabaseConnector;
+import org.cloudfoundry.multiapps.controller.shutdown.client.util.ShutdownUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ApplicationShutdownExecutor {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationShutdownExecutor.class);
+    private static final long SHUTDOWN_POLLING_INTERVAL = 5000L;
+
     public static void main(String[] args) {
-        new ApplicationShutdownExecutor().execute();
+        String applicationId = args[0];
+        int applicationInstanceCount = Integer.parseInt(args[1]);
+        new ApplicationShutdownExecutor().execute(applicationId, applicationInstanceCount);
     }
 
-    private final ShutdownConfiguration shutdownConfiguration = new EnvironmentBasedShutdownConfiguration();
-    private final ShutdownClientFactory shutdownClientFactory = new ShutdownClientFactory();
-    private final ApplicationInstanceShutdownExecutor instanceShutdownExecutor = new ApplicationInstanceShutdownExecutor(
-        shutdownConfiguration,
-        shutdownClientFactory);
+    public void execute(String applicationId, int applicationInstanceCount) {
+        ApplicationShutdownScheduler applicationShutdownScheduler = getApplicationShutdownScheduler();
+        List<ApplicationShutdown> scheduledApplicationShutdowns = applicationShutdownScheduler.scheduleApplicationForShutdown(applicationId,
+                                                                                                                              applicationInstanceCount);
+        List<String> applicationShutdownInstancesIds = getApplicationShutdownInstancesIds(scheduledApplicationShutdowns);
+        List<ApplicationShutdown> applicationShutdowns = applicationShutdownScheduler.getScheduledApplicationInstancesForShutdown(
+            applicationId, applicationShutdownInstancesIds);
 
-    public void execute() {
-        int applicationInstancesCount = getApplicationInstancesCount(shutdownConfiguration);
-        shutdownInstances(applicationInstancesCount);
-    }
-
-    private void shutdownInstances(int applicationInstancesCount) {
-        UUID applicationGuid = shutdownConfiguration.getApplicationGuid();
-        instanceShutdownExecutor.execute(applicationGuid, applicationInstancesCount);
-    }
-
-    private static int getApplicationInstancesCount(ShutdownConfiguration shutdownConfiguration) {
-        CloudControllerClient client = createCloudControllerClient(shutdownConfiguration);
-        InstancesInfo instances = client.getApplicationInstances(shutdownConfiguration.getApplicationGuid());
-        return instances.getInstances()
-                        .size();
-    }
-
-    private static CloudControllerClient createCloudControllerClient(ShutdownConfiguration shutdownConfiguration) {
-        URL cloudControllerUrl = toURL(shutdownConfiguration.getCloudControllerUrl());
-        return new CloudControllerClientImpl(cloudControllerUrl, createCloudCredentials(shutdownConfiguration), null, true);
-    }
-
-    private static URL toURL(String string) {
-        try {
-            return new URL(string);
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException(MessageFormat.format("{0} is not a valid URL.", string));
+        while (ShutdownUtil.areThereUnstoppedInstances(applicationShutdowns) && !ShutdownUtil.isTimeoutExceeded(
+            applicationShutdowns.get(0))) {
+            ShutdownUtil.print(applicationShutdowns);
+            MiscUtil.sleep(SHUTDOWN_POLLING_INTERVAL);
+            applicationShutdowns = applicationShutdownScheduler.getScheduledApplicationInstancesForShutdown(
+                applicationId, applicationShutdownInstancesIds);
         }
+        LOGGER.info(Messages.FINISHED_SHUTTING_DOWN);
     }
 
-    private static CloudCredentials createCloudCredentials(ShutdownConfiguration shutdownConfiguration) {
-        return new CloudCredentials(shutdownConfiguration.getUsername(), shutdownConfiguration.getPassword());
+    private List<String> getApplicationShutdownInstancesIds(List<ApplicationShutdown> applicationShutdowns) {
+        return applicationShutdowns.stream()
+                                   .map(ApplicationShutdown::getId)
+                                   .toList();
     }
 
+    private static ApplicationShutdownScheduler getApplicationShutdownScheduler() {
+        DatabaseConnector databaseConnector = new DatabaseConnector();
+        EntityManagerFactory entityManagerFactory = databaseConnector.createEntityManagerFactory();
+        ApplicationShutdownMapper applicationShutdownMapper = new ApplicationShutdownMapper();
+        ApplicationShutdownService applicationShutdownService = new ApplicationShutdownService(entityManagerFactory,
+                                                                                               applicationShutdownMapper);
+
+        return new ApplicationShutdownScheduler(applicationShutdownService);
+    }
 }

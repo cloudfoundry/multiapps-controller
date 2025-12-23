@@ -7,46 +7,40 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ImmutableApplicationShutdown;
 import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 
-@Named
 public class ApplicationShutdownScheduler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationShutdownScheduler.class);
     private final ApplicationShutdownService applicationShutdownService;
 
-    @Inject
     public ApplicationShutdownScheduler(ApplicationShutdownService applicationShutdownService) {
         this.applicationShutdownService = applicationShutdownService;
     }
 
-    public ResponseEntity<List<ApplicationShutdown>> scheduleApplicationForShutdown(String applicationId, int instancesCount) {
+    public List<ApplicationShutdown> scheduleApplicationForShutdown(String applicationId, int instancesCount) {
         List<ApplicationShutdown> applicationInstancesForShutdown = new ArrayList<>();
         for (int i = 0; i < instancesCount; i++) {
-            LOGGER.info(MessageFormat.format(Messages.APP_INSTANCE_WITH_ID_AND_INDEX_SCHEDULED_FOR_DELETION, applicationId, i));
             ApplicationShutdown applicationShutdown = buildApplicationShutdown(applicationId, i);
             applicationShutdownService.add(applicationShutdown);
             applicationInstancesForShutdown.add(applicationShutdown);
+            LOGGER.info(MessageFormat.format(Messages.APP_INSTANCE_WITH_ID_AND_INDEX_SCHEDULED_FOR_DELETION, applicationId, i));
         }
-        return ResponseEntity.ok()
-                             .body(applicationInstancesForShutdown);
+        return applicationInstancesForShutdown;
     }
 
-    public ResponseEntity<List<ApplicationShutdown>> getScheduledApplicationInstancesForShutdown(String applicationId) {
-        List<ApplicationShutdown> applicationToShutdown = applicationShutdownService.getApplicationsByApplicationId(applicationId);
-
-        LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWN_STATUS_MONITOR, applicationId));
-
-        return ResponseEntity.ok()
-                             .body(applicationToShutdown);
+    public List<ApplicationShutdown> getScheduledApplicationInstancesForShutdown(String applicationId,
+                                                                                 List<String> instancesIds) {
+        List<ApplicationShutdown> instances = new ArrayList<>();
+        for (String instanceId : instancesIds) {
+            instances.add(applicationShutdownService.getApplicationShutdownInstanceByInstanceId(instanceId, applicationId));
+        }
+        return instances;
     }
 
     private ApplicationShutdown buildApplicationShutdown(String applicationId,
