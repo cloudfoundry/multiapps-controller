@@ -14,11 +14,12 @@
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.LockOwnerDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.AsyncUploadJobDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptorDto</class>
+        <class>org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdownDto</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
-            <property name="eclipselink.weaving" value="static" />
+            <property name="eclipselink.weaving" value="static"/>
             <property name="eclipselink.logging.logger"
-                value="org.eclipse.persistence.logging.slf4j.SLF4JLogger" />
+                      value="org.eclipse.persistence.logging.slf4j.SLF4JLogger"/>
             <property name="eclipselink.cache.shared.default" value="false"/>
         </properties>
     </persistence-unit>

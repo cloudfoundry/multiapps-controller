@@ -1,9 +1,10 @@
-package org.cloudfoundry.multiapps.controller.core.model;
+package org.cloudfoundry.multiapps.controller.persistence.dto;
 
-import org.immutables.value.Value;
+import java.util.Date;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableApplicationShutdown.class)
@@ -11,18 +12,20 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public interface ApplicationShutdown {
 
     enum Status {
-        FINISHED, RUNNING
+        FINISHED, RUNNING, INITIAL
     }
+
+    String getId();
 
     String getApplicationId();
 
-    String getApplicationInstanceId();
-
     int getApplicationInstanceIndex();
 
+    Date getStaredAt();
+
     @Value.Default
-    default Status getStatus() {
-        return Status.RUNNING;
+    default String getStatus() {
+        return Status.INITIAL.name();
     }
 
 }
