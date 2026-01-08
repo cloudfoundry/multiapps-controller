@@ -802,7 +802,8 @@
             <!-- https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty -->
             <dependency>
                 <groupId>io.projectreactor.netty</groupId>
-                <artifactId>reactor-netty</artifactId><version>${reactor-netty.version}</version>
+                <artifactId>reactor-netty</artifactId>
+                <version>${reactor-netty.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.cloudfoundry.multiapps/multiapps-common -->
             <dependency>
