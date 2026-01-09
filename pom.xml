@@ -15,50 +15,50 @@
         <sonar.organization>cloudfoundry</sonar.organization>
         <sonar.coverage.jacoco.xmlReportPaths>../multiapps-controller-coverage/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
-        <junit.version>5.13.4</junit.version>
-        <junit-platform.version>1.13.2</junit-platform.version>
-        <mockito.version>5.18.0</mockito.version>
-        <h2.version>2.2.224</h2.version>
+        <junit.version>6.0.1</junit.version>
+        <mockito.version>5.21.0</mockito.version>
+        <h2.version>2.4.240</h2.version>
         <servlet-api.version>6.1.0</servlet-api.version>
-        <log4j.version>2.25.1</log4j.version>
+        <log4j.version>2.25.3</log4j.version>
         <slf4j.version>2.0.17</slf4j.version>
-        <commons-io.version>2.20.0</commons-io.version>
+        <commons-io.version>2.21.0</commons-io.version>
         <commons-collections4.version>4.5.0</commons-collections4.version>
-        <snakeyaml.version>2.4</snakeyaml.version>
-        <httpclient.version>5.5</httpclient.version>
-        <httpcore.version>5.3.4</httpcore.version>
-        <eclipselink.version>4.0.7</eclipselink.version>
+        <snakeyaml.version>2.5</snakeyaml.version>
+        <httpclient.version>5.6</httpclient.version>
+        <httpcore.version>5.4</httpcore.version>
+        <eclipselink.version>4.0.9</eclipselink.version>
         <flowable.version>7.2.0</flowable.version>
         <spring.version>6.2.11</spring.version>
         <spring-security.version>6.5.4</spring-security.version>
-        <hikari.version>6.3.0</hikari.version>
-        <jackson.version>2.19.2</jackson.version>
+        <hikari.version>7.0.2</hikari.version>
+        <jackson-annotations.version>2.20</jackson-annotations.version>
+        <jackson.version>3.0.3</jackson.version>
         <liquibase.version>4.33.0</liquibase.version>
         <liquibase-slf4j.version>5.1.0</liquibase-slf4j.version>
-        <cloudfoundry-client.version>5.14.0.RELEASE</cloudfoundry-client.version>
-        <reactor-netty.version>1.2.10</reactor-netty.version>
+        <cloudfoundry-client.version>5.15.0.RELEASE</cloudfoundry-client.version>
+        <reactor-netty.version>1.2.13</reactor-netty.version>
         <swagger.version>1.6.16</swagger.version>
         <jclouds.version>2.7.0</jclouds.version>
-        <guava.version>33.4.8-jre</guava.version>
+        <guava.version>33.5.0-jre</guava.version>
         <resilience4j.version>2.3.0</resilience4j.version>
-        <immutables.version>2.10.1</immutables.version>
-        <micrometer.version>1.15.3</micrometer.version>
-        <aliyun-sdk-oss.version>3.18.3</aliyun-sdk-oss.version>
+        <immutables.version>2.12.1</immutables.version>
+        <micrometer.version>1.16.1</micrometer.version>
+        <aliyun-sdk-oss.version>3.18.4</aliyun-sdk-oss.version>
+        <!-- auto-service hasn't had a new release since 12.06.2023 - should check for alternatives in the future -->
         <auto-service.version>1.1.1</auto-service.version>
-        <commons-codec.version>1.18.0</commons-codec.version>
+        <commons-codec.version>1.20.0</commons-codec.version>
         <multiapps.version>2.42.0</multiapps.version>
         <java-cfenv.version>3.5.0</java-cfenv.version>
-        <jaxb-api.version>4.0.2</jaxb-api.version>
-        <jaxb-core.version>4.0.5</jaxb-core.version>
-        <jaxb-impl.version>4.0.5</jaxb-impl.version>
+        <jaxb-api.version>4.0.4</jaxb-api.version>
+        <jaxb-core.version>4.0.6</jaxb-core.version>
         <jakarta.inject-api.version>2.0.1</jakarta.inject-api.version>
         <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
-        <bouncycastle.version>2.1.9</bouncycastle.version>
+        <bouncycastle.version>2.1.10</bouncycastle.version>
         <apache.compress.version>1.28.0</apache.compress.version>
-        <tika-core.version>3.2.2</tika-core.version>
-        <commons-logging.version>1.3.1</commons-logging.version>
-        <google-cloud.version>2.60.0</google-cloud.version>
-        <google-cloud-nio.version>0.128.7</google-cloud-nio.version>
+        <tika-core.version>3.2.3</tika-core.version>
+        <commons-logging.version>1.3.5</commons-logging.version>
+        <google-cloud.version>2.61.0</google-cloud.version>
+        <google-cloud-nio.version>0.128.9</google-cloud-nio.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>
@@ -115,7 +115,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.14.0</version>
+                    <version>3.14.1</version>
                     <configuration>
                         <source>17</source>
                         <target>17</target>
@@ -142,25 +142,25 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.5.0</version>
                 </plugin>
                 <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-war-plugin -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>3.4.0</version>
+                    <version>3.5.1</version>
                 </plugin>
                 <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-resources-plugin -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.4.0</version>
                 </plugin>
                 <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.3</version>
+                    <version>3.5.4</version>
                     <configuration>
                         <!-- Surefire excludes nested classes by default, so we need to explicitly specify that nothing should 
                             be excluded. -->
@@ -186,13 +186,13 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.11.2</version>
+                    <version>3.12.0</version>
                 </plugin>
                 <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-release-plugin -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.3.1</version>
                 </plugin>
                 <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-gpg-plugin -->
                 <plugin>
@@ -241,7 +241,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.13</version>
+                    <version>0.8.14</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -326,7 +326,7 @@
             <dependency>
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-launcher</artifactId>
-                <version>${junit-platform.version}</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
@@ -367,12 +367,6 @@
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-core</artifactId>
                 <version>${jaxb-core.version}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl -->
-            <dependency>
-                <groupId>org.glassfish.jaxb</groupId>
-                <artifactId>jaxb-runtime</artifactId>
-                <version>${jaxb-impl.version}</version>
             </dependency>
             <!-- Transitive dependency from multiapps-common and liquibase. Pin the version to make sure we're always using 
                 the correct one. -->
@@ -690,17 +684,17 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson-annotations.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+            <!-- https://mvnrepository.com/artifact/tools.jackson.core/jackson-core -->
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
+                <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+            <!-- https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind -->
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
+                <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
@@ -885,17 +879,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <distributionManagement>
-        <!--<snapshotRepository>
-            <id>central</id>
-            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-        </snapshotRepository>-->
-        <!--<repository>
-            <id>central</id>
-            <url>https://central.sonatype.com</url>
-        </repository>-->
-    </distributionManagement>
 
     <repositories>
         <repository>
