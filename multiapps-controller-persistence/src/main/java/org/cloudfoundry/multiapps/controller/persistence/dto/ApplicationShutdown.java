@@ -21,11 +21,11 @@ public interface ApplicationShutdown {
 
     int getApplicationInstanceIndex();
 
-    Date getStaredAt();
+    Date getStartedAt();
 
     @Value.Default
-    default String getStatus() {
-        return Status.INITIAL.name();
+    default Status getStatus() {
+        return Status.INITIAL;
     }
 
 }

@@ -4,11 +4,11 @@ import java.text.MessageFormat;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown.Status;
+import org.cloudfoundry.multiapps.controller.persistence.dto.ImmutableApplicationShutdown;
 import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
@@ -25,7 +25,6 @@ public class ApplicationShutdownJob {
     private final ApplicationShutdownService applicationShutdownService;
     private final ApplicationConfiguration applicationConfiguration;
 
-    @Inject
     public ApplicationShutdownJob(FlowableFacade flowableFacade, ApplicationShutdownService applicationShutdownService,
                                   ApplicationConfiguration applicationConfiguration) {
         this.flowableFacade = flowableFacade;
@@ -38,17 +37,18 @@ public class ApplicationShutdownJob {
         ApplicationShutdown applicationShutdown = getApplicationToShutdown();
 
         if (applicationShutdown == null || applicationShutdown.getStatus()
-                                                              .equals(Status.FINISHED.name())) {
+                                                              .equals(Status.FINISHED)) {
             return;
         }
         if (applicationShutdown.getStatus()
-                               .equals(Status.INITIAL.name())) {
+                               .equals(Status.INITIAL)) {
             shutdownApplication(applicationShutdown);
-            applicationShutdownService.updateApplicationShutdownStatus(applicationShutdown,
-                                                                       Status.RUNNING.name());
-        } else if (getShutdownStatus() == Status.FINISHED) {
-            applicationShutdownService.updateApplicationShutdownStatus(applicationShutdown,
-                                                                       Status.FINISHED.name());
+            updateApplicationShutdownStatus(applicationShutdown,
+                                            Status.RUNNING);
+        }
+        if (getShutdownStatus().equals(Status.FINISHED)) {
+            updateApplicationShutdownStatus(applicationShutdown,
+                                            Status.FINISHED);
         }
     }
 
@@ -62,16 +62,24 @@ public class ApplicationShutdownJob {
                                          .singleResult();
     }
 
+    private void updateApplicationShutdownStatus(ApplicationShutdown oldApplicationShutdown,
+                                                 ApplicationShutdown.Status status) {
+        ApplicationShutdown newApplicationShutdown = ImmutableApplicationShutdown.copyOf(oldApplicationShutdown)
+                                                                                 .withStatus(status);
+        applicationShutdownService.update(oldApplicationShutdown, newApplicationShutdown);
+    }
+
     private Status getShutdownStatus() {
         return flowableFacade.isJobExecutorActive() ? Status.RUNNING : Status.FINISHED;
     }
 
     private void shutdownApplication(ApplicationShutdown applicationShutdown) {
         CompletableFuture.runAsync(() -> {
-                             logProgressOfShuttingDown(applicationShutdown, Messages.SHUTTING_DOWN_APPLICATION_WITH_ID_AND_INDEX);
+                             logProgressOfShuttingDown(applicationShutdown, Messages.STARTED_SHUTTING_DOWN_APPLICATION_WITH_ID_AND_INDEX);
                              flowableFacade.shutdownJobExecutor();
                          })
-                         .thenRun(() -> logProgressOfShuttingDown(applicationShutdown, Messages.SHUT_DOWN_APPLICATION_WITH_ID_AND_INDEX));
+                         .thenRun(() -> logProgressOfShuttingDown(applicationShutdown,
+                                                                  Messages.SHUT_DOWN_APPLICATION_WITH_ID_AND_INDEX_FINISHED_SUCCESSFULLY));
     }
 
     private void logProgressOfShuttingDown(ApplicationShutdown applicationShutdown, String message) {

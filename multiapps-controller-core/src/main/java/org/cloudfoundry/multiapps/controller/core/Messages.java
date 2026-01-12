@@ -177,9 +177,6 @@ public final class Messages {
     public static final String FSS_CACHE_UPDATE_TIMEOUT = "Fss cache update timeout: {0} minutes";
     public static final String THREAD_MONITOR_CACHE_TIMEOUT = "Flowable thread monitor cache timeout: {0} seconds";
     public static final String SPACE_DEVELOPERS_CACHE_TIME_IN_SECONDS = "Cache for list of space developers per SpaceGUID: {0} seconds";
-    public static final String APP_SHUTDOWN_STATUS_MONITOR = "Monitor shutdown status of application with id:\"{0}\"";
-    public static final String APP_INSTANCE_WITH_ID_AND_INDEX_SCHEDULED_FOR_DELETION = "Application with ID \"{0}\" and index \"{1}\" has been scheduled for deletion";
-    public static final String CLEARING_OLD_ENTRY = "Clearing old entry with id: ";
     public static final String CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS = "Controller client SSL handshake timeout in seconds: {0}";
     public static final String CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = "Controller client connect timeout in seconds: {0}";
     public static final String CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = "Controller client connection pool size: {0}";

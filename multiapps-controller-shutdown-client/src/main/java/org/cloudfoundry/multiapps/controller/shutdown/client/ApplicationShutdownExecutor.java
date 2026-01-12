@@ -4,9 +4,7 @@ import java.util.List;
 
 import jakarta.persistence.EntityManagerFactory;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
-import org.cloudfoundry.multiapps.controller.core.application.shutdown.ApplicationShutdownScheduler;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
-import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownMapper;
 import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownService;
 import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.DatabaseConnector;
 import org.cloudfoundry.multiapps.controller.shutdown.client.util.ShutdownUtil;
@@ -34,7 +32,7 @@ public class ApplicationShutdownExecutor {
 
         while (ShutdownUtil.areThereUnstoppedInstances(applicationShutdowns) && !ShutdownUtil.isTimeoutExceeded(
             applicationShutdowns.get(0))) {
-            ShutdownUtil.print(applicationShutdowns);
+            ShutdownUtil.logShutdownStatus(applicationShutdowns);
             MiscUtil.sleep(SHUTDOWN_POLLING_INTERVAL);
             applicationShutdowns = applicationShutdownScheduler.getScheduledApplicationInstancesForShutdown(
                 applicationId, applicationShutdownInstancesIds);
@@ -42,16 +40,16 @@ public class ApplicationShutdownExecutor {
         LOGGER.info(Messages.FINISHED_SHUTTING_DOWN);
     }
 
-    private List<String> getApplicationShutdownInstancesIds(List<ApplicationShutdown> applicationShutdowns) {
+    public List<String> getApplicationShutdownInstancesIds(List<ApplicationShutdown> applicationShutdowns) {
         return applicationShutdowns.stream()
                                    .map(ApplicationShutdown::getId)
                                    .toList();
     }
 
-    private static ApplicationShutdownScheduler getApplicationShutdownScheduler() {
+    public ApplicationShutdownScheduler getApplicationShutdownScheduler() {
         DatabaseConnector databaseConnector = new DatabaseConnector();
         EntityManagerFactory entityManagerFactory = databaseConnector.createEntityManagerFactory();
-        ApplicationShutdownMapper applicationShutdownMapper = new ApplicationShutdownMapper();
+        ApplicationShutdownService.ApplicationShutdownMapper applicationShutdownMapper = new ApplicationShutdownService.ApplicationShutdownMapper();
         ApplicationShutdownService applicationShutdownService = new ApplicationShutdownService(entityManagerFactory,
                                                                                                applicationShutdownMapper);
 

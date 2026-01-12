@@ -14,9 +14,10 @@ import org.cloudfoundry.multiapps.controller.persistence.query.impl.ApplicationS
 @Named
 public class ApplicationShutdownService extends PersistenceService<ApplicationShutdown, ApplicationShutdownDto, String> {
 
-    private final ApplicationShutdownMapper applicationShutdownMapper;
+    private final ApplicationShutdownService.ApplicationShutdownMapper applicationShutdownMapper;
 
-    public ApplicationShutdownService(EntityManagerFactory entityManagerFactory, ApplicationShutdownMapper applicationShutdownMapper) {
+    public ApplicationShutdownService(EntityManagerFactory entityManagerFactory,
+                                      ApplicationShutdownService.ApplicationShutdownMapper applicationShutdownMapper) {
         super(entityManagerFactory);
         this.applicationShutdownMapper = applicationShutdownMapper;
     }
@@ -40,25 +41,25 @@ public class ApplicationShutdownService extends PersistenceService<ApplicationSh
         throw new NotFoundException(Messages.APPLICATION_SHUTDOWN_WITH_APPLICATION_INSTANCE_ID_DOES_NOT_EXIST, primaryKey);
     }
 
-    public ApplicationShutdown getApplicationShutdownInstanceByInstanceId(String instanceId, String applicationId) {
-        return createQuery().id(instanceId)
-                            .applicationId(applicationId)
-                            .singleResult();
+    @Named
+    public static class ApplicationShutdownMapper implements PersistenceObjectMapper<ApplicationShutdown, ApplicationShutdownDto> {
+
+        @Override
+        public ApplicationShutdown fromDto(ApplicationShutdownDto dto) {
+            return ImmutableApplicationShutdown.builder()
+                                               .id(dto.getPrimaryKey())
+                                               .applicationId(dto.getАpplicationId())
+                                               .applicationInstanceIndex(dto.getАpplicationIndex())
+                                               .status(dto.getShutdownStatus())
+                                               .startedAt(dto.getStartedAt())
+                                               .build();
+        }
+
+        @Override
+        public ApplicationShutdownDto toDto(ApplicationShutdown object) {
+            return new ApplicationShutdownDto(object.getId(), object.getApplicationId(), object.getApplicationInstanceIndex(),
+                                              object.getStatus(), object.getStartedAt());
+        }
     }
 
-    public ApplicationShutdown getApplicationsByApplicationIndex(int applicationInstanceIndex) {
-        return createQuery().applicationInstanceIndex(applicationInstanceIndex)
-                            .singleResult();
-    }
-
-    public int deleteApplicationsByIndex(int applicationInstanceIndex) {
-        return createQuery().applicationInstanceIndex(applicationInstanceIndex)
-                            .delete();
-    }
-
-    public ApplicationShutdown updateApplicationShutdownStatus(ApplicationShutdown oldApplicationShutdown, String status) {
-        ApplicationShutdown newApplicationShutdown = ImmutableApplicationShutdown.copyOf(oldApplicationShutdown)
-                                                                                 .withStatus(status);
-        return update(oldApplicationShutdown, newApplicationShutdown);
-    }
 }

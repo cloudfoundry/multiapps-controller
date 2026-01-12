@@ -4,23 +4,21 @@ import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.NonUniqueResultException;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdownDto;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdownDto.AttributeNames;
 import org.cloudfoundry.multiapps.controller.persistence.query.ApplicationShutdownQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.criteria.ImmutableQueryAttributeRestriction;
 import org.cloudfoundry.multiapps.controller.persistence.query.criteria.QueryCriteria;
-import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownMapper;
+import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownService;
 
 public class ApplicationShutdownQueryImpl extends AbstractQueryImpl<ApplicationShutdown, ApplicationShutdownQuery>
     implements ApplicationShutdownQuery {
     private final QueryCriteria queryCriteria = new QueryCriteria();
-    private final ApplicationShutdownMapper applicationShutdownMapper;
+    private final ApplicationShutdownService.ApplicationShutdownMapper applicationShutdownMapper;
 
     public ApplicationShutdownQueryImpl(EntityManager entityManager,
-                                        ApplicationShutdownMapper applicationShutdownMapper) {
+                                        ApplicationShutdownService.ApplicationShutdownMapper applicationShutdownMapper) {
         super(entityManager);
         this.applicationShutdownMapper = applicationShutdownMapper;
     }
@@ -56,7 +54,7 @@ public class ApplicationShutdownQueryImpl extends AbstractQueryImpl<ApplicationS
     }
 
     @Override
-    public ApplicationShutdownQuery shutdownStatus(String shutdownStatus) {
+    public ApplicationShutdownQuery shutdownStatus(ApplicationShutdown.Status shutdownStatus) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
                                                                        .attribute(AttributeNames.SHUTDOWN_STATUS)
                                                                        .condition(getCriteriaBuilder()::equal)
@@ -76,9 +74,10 @@ public class ApplicationShutdownQueryImpl extends AbstractQueryImpl<ApplicationS
     }
 
     @Override
-    public ApplicationShutdown singleResult() throws NoResultException, NonUniqueResultException {
+    public ApplicationShutdown singleResult() {
         ApplicationShutdownDto dto = executeInTransaction(manager -> createQuery(manager, queryCriteria,
-                                                                                 ApplicationShutdownDto.class).getResultStream()
+                                                                                 ApplicationShutdownDto.class).getResultList()
+                                                                                                              .stream()
                                                                                                               .findFirst()
                                                                                                               .orElse(null));
         return dto != null ? applicationShutdownMapper.fromDto(dto) : null;
@@ -87,8 +86,7 @@ public class ApplicationShutdownQueryImpl extends AbstractQueryImpl<ApplicationS
     @Override
     public List<ApplicationShutdown> list() {
         List<ApplicationShutdownDto> dtos = executeInTransaction(manager -> createQuery(manager, queryCriteria,
-                                                                                        ApplicationShutdownDto.class).getResultStream()
-                                                                                                                     .toList());
+                                                                                        ApplicationShutdownDto.class).getResultList());
 
         return dtos.stream()
                    .map(applicationShutdownMapper::fromDto)

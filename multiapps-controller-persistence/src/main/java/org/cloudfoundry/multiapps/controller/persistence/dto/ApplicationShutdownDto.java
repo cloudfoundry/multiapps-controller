@@ -5,14 +5,13 @@ import java.util.Date;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata;
 
 @Entity
-@Table(name = "application_shutdown")
-@SequenceGenerator(name = "application_shutdown_sequence", sequenceName = "application_shutdown_sequence", allocationSize = 1)
+@Table(name = PersistenceMetadata.TableNames.APPLICATION_SHUTDOWN_TABLE)
 public class ApplicationShutdownDto implements DtoWithPrimaryKey<String> {
 
     public static class AttributeNames {
@@ -27,19 +26,19 @@ public class ApplicationShutdownDto implements DtoWithPrimaryKey<String> {
     }
 
     @Id
-    @Column(name = "id", nullable = false, unique = true)
+    @Column(name = PersistenceMetadata.TableColumnNames.APPLICATION_SHUTDOWN_ID, nullable = false, unique = true)
     private String id;
 
-    @Column(name = "application_instance_index", nullable = false, unique = true)
+    @Column(name = PersistenceMetadata.TableColumnNames.APPLICATION_SHUTDOWN_APPLICATION_INSTANCE_INDEX, nullable = false, unique = true)
     private int applicationInstanceIndex;
 
-    @Column(name = "application_id", nullable = false)
+    @Column(name = PersistenceMetadata.TableColumnNames.APPLICATION_SHUTDOWN_APPLICATION_ID, nullable = false)
     private String applicationId;
 
-    @Column(name = "shutdown_status", nullable = false)
-    private String shutdownStatus;
+    @Column(name = PersistenceMetadata.TableColumnNames.APPLICATION_SHUTDOWN_SHUTDOWN_STATUS, nullable = false)
+    private ApplicationShutdown.Status shutdownStatus;
 
-    @Column(name = "started_at", nullable = false)
+    @Column(name = PersistenceMetadata.TableColumnNames.APPLICATION_SHUTDOWN_STARTED_AT, nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date startedAt;
 
@@ -47,7 +46,8 @@ public class ApplicationShutdownDto implements DtoWithPrimaryKey<String> {
         // Required by JPA
     }
 
-    public ApplicationShutdownDto(String id, String applicationId, int applicationInstanceIndex, String shutdownStatus, Date startedAt) {
+    public ApplicationShutdownDto(String id, String applicationId, int applicationInstanceIndex, ApplicationShutdown.Status shutdownStatus,
+                                  Date startedAt) {
         this.id = id;
         this.applicationId = applicationId;
         this.applicationInstanceIndex = applicationInstanceIndex;
@@ -73,7 +73,7 @@ public class ApplicationShutdownDto implements DtoWithPrimaryKey<String> {
         return applicationInstanceIndex;
     }
 
-    public String getShutdownStatus() {
+    public ApplicationShutdown.Status getShutdownStatus() {
         return shutdownStatus;
     }
 

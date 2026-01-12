@@ -45,16 +45,6 @@
         </dependency>
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>
-            <artifactId>multiapps-controller-core</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>jcl-over-slf4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.cloudfoundry.multiapps</groupId>
             <artifactId>multiapps-controller-database-migration</artifactId>
         </dependency>
         <dependency>

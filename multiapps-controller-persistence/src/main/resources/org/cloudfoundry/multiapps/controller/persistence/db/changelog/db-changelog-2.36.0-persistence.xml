@@ -10,7 +10,6 @@
                 <tableExists tableName="application_shutdown"/>
             </not>
         </preConditions>
-        <createSequence sequenceName="application_shutdown_sequence" startValue="1" incrementBy="1"/>
         <createTable tableName="application_shutdown">
             <column name="id" type="VARCHAR(255)">
                 <constraints primaryKey="true" primaryKeyName="id_pk"/>

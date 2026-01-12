@@ -12,7 +12,7 @@ public interface ApplicationShutdownQuery extends Query<ApplicationShutdown, App
 
     ApplicationShutdownQuery applicationInstanceIndex(int applicationInstanceIndex);
 
-    ApplicationShutdownQuery shutdownStatus(String shutdownStatus);
+    ApplicationShutdownQuery shutdownStatus(ApplicationShutdown.Status shutdownStatus);
 
     ApplicationShutdownQuery startedAt(Date startedAt);
 }

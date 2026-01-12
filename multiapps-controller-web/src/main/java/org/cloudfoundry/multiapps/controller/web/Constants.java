@@ -57,7 +57,6 @@ public class Constants {
         }
 
         public static final String APPLICATION_HEALTH = "/public/application-health";
-        public static final String APPLICATION_SHUTDOWN = "/rest/admin/shutdown";
         public static final String CONFIGURATION_ENTRIES = "/rest/configuration-entries";
         public static final String CSRF_TOKEN = "/rest/csrf-token";
         public static final String HEALTH_CHECK = "/public/health";

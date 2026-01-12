@@ -103,12 +103,12 @@ public class BootstrapServlet extends HttpServlet {
         // Do nothing
     }
 
-    private void deleteOldScheduledApplication() {
+    protected void deleteOldScheduledApplication() {
         int applicationIndex = configuration.getApplicationInstanceIndex();
-        ApplicationShutdown applicationShutdown = applicationShutdownService.getApplicationsByApplicationIndex(applicationIndex);
+        ApplicationShutdown applicationShutdown = getApplicationShutdownByApplicationIndex(applicationIndex);
         if (applicationShutdown != null) {
-            LOGGER.info(org.cloudfoundry.multiapps.controller.core.Messages.CLEARING_OLD_ENTRY + applicationIndex);
-            applicationShutdownService.deleteApplicationsByIndex(applicationIndex);
+            LOGGER.info(MessageFormat.format(Messages.CLEARING_OLD_ENTRY, applicationIndex));
+            deleteApplicationShutdownsByIndex(applicationIndex);
         }
     }
 
@@ -130,6 +130,18 @@ public class BootstrapServlet extends HttpServlet {
 
     protected void destroyExtras() {
         // Do nothing
+    }
+
+    private void deleteApplicationShutdownsByIndex(int applicationInstanceIndex) {
+        applicationShutdownService.createQuery()
+                                  .applicationInstanceIndex(applicationInstanceIndex)
+                                  .delete();
+    }
+
+    private ApplicationShutdown getApplicationShutdownByApplicationIndex(int applicationInstanceIndex) {
+        return applicationShutdownService.createQuery()
+                                         .applicationInstanceIndex(applicationInstanceIndex)
+                                         .singleResult();
     }
 
 }

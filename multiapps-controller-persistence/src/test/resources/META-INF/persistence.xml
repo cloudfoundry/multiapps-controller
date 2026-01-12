@@ -12,16 +12,17 @@
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.AccessTokenDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.TextAttributeConverter</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptorDto</class>
+        <class>org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdownDto</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
-            <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver" />
+            <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>
             <property name="jakarta.persistence.jdbc.url"
-                value="jdbc:h2:mem:configuration-subscriptions:DB_CLOSE_DELAY=-1" />
-            <property name="jakarta.persistence.jdbc.user" value="root" />
-            <property name="jakarta.persistence.jdbc.password" value="root" />
+                      value="jdbc:h2:mem:configuration-subscriptions:DB_CLOSE_DELAY=-1"/>
+            <property name="jakarta.persistence.jdbc.user" value="root"/>
+            <property name="jakarta.persistence.jdbc.password" value="root"/>
 
-            <property name="eclipselink.ddl-generation" value="create-tables" />
-            <property name="eclipselink.ddl-generation.output-mode" value="database" />
+            <property name="eclipselink.ddl-generation" value="create-tables"/>
+            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
         </properties>
     </persistence-unit>
 </persistence>

@@ -38,7 +38,6 @@ open module org.cloudfoundry.multiapps.controller.core {
     exports org.cloudfoundry.multiapps.controller.core.validators.parameters;
     exports org.cloudfoundry.multiapps.controller.core.validators.parameters.v2;
     exports org.cloudfoundry.multiapps.controller.core.validators.parameters.v3;
-    exports org.cloudfoundry.multiapps.controller.core.application.shutdown;
 
     requires transitive jakarta.persistence;
     requires transitive org.cloudfoundry.multiapps.controller.client;

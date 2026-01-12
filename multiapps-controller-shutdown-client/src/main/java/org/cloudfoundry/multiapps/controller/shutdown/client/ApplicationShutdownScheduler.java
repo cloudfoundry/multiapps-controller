@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.core.application.shutdown;
+package org.cloudfoundry.multiapps.controller.shutdown.client;
 
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ImmutableApplicationShutdown;
 import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownService;
@@ -29,7 +28,7 @@ public class ApplicationShutdownScheduler {
             ApplicationShutdown applicationShutdown = buildApplicationShutdown(applicationId, i);
             applicationShutdownService.add(applicationShutdown);
             applicationInstancesForShutdown.add(applicationShutdown);
-            LOGGER.info(MessageFormat.format(Messages.APP_INSTANCE_WITH_ID_AND_INDEX_SCHEDULED_FOR_DELETION, applicationId, i));
+            LOGGER.info(MessageFormat.format(Messages.APP_INSTANCE_WITH_ID_AND_INDEX_SCHEDULED_FOR_SHUTDOWN, applicationId, i));
         }
         return applicationInstancesForShutdown;
     }
@@ -38,9 +37,19 @@ public class ApplicationShutdownScheduler {
                                                                                  List<String> instancesIds) {
         List<ApplicationShutdown> instances = new ArrayList<>();
         for (String instanceId : instancesIds) {
-            instances.add(applicationShutdownService.getApplicationShutdownInstanceByInstanceId(instanceId, applicationId));
+            ApplicationShutdown applicationShutdown = getApplicationShutdownInstanceByInstanceId(instanceId, applicationId);
+            if (applicationShutdown != null) {
+                instances.add(applicationShutdown);
+            }
         }
         return instances;
+    }
+
+    private ApplicationShutdown getApplicationShutdownInstanceByInstanceId(String instanceId, String applicationId) {
+        return applicationShutdownService.createQuery()
+                                         .id(instanceId)
+                                         .applicationId(applicationId)
+                                         .singleResult();
     }
 
     private ApplicationShutdown buildApplicationShutdown(String applicationId,
@@ -48,7 +57,7 @@ public class ApplicationShutdownScheduler {
         return ImmutableApplicationShutdown.builder()
                                            .id(UUID.randomUUID()
                                                    .toString())
-                                           .staredAt(Date.from(Instant.now()))
+                                           .startedAt(Date.from(Instant.now()))
                                            .applicationId(applicationId)
                                            .applicationInstanceIndex(applicationInstanceIndex)
                                            .build();

@@ -16,27 +16,27 @@ public class ShutdownUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShutdownUtil.class);
 
-    private static final int TIMEOUT_IN_SECONDS = 600; //10 minutes
+    public static final int TIMEOUT_IN_SECONDS = 600; //10 minutes
 
-    public static boolean areThereUnstoppedInstances(List<ApplicationShutdown> shutdown) {
-        return shutdown.stream()
-                       .anyMatch(applicationShutdown -> !applicationShutdown.getStatus()
-                                                                            .equals(ApplicationShutdown.Status.FINISHED.name()));
+    public static boolean areThereUnstoppedInstances(List<ApplicationShutdown> shutdownInstances) {
+        return shutdownInstances.stream()
+                                .anyMatch(shutdownInstance -> !shutdownInstance.getStatus()
+                                                                               .equals(ApplicationShutdown.Status.FINISHED));
     }
 
     public static boolean isTimeoutExceeded(ApplicationShutdown applicationShutdown) {
-        Instant thirtyMinutesAfterStartedDate = Instant.from(applicationShutdown.getStaredAt()
-                                                                                .toInstant())
-                                                       .plusSeconds(TIMEOUT_IN_SECONDS);
+        Instant tenMinutesAfterStartedDate = Instant.from(applicationShutdown.getStartedAt()
+                                                                             .toInstant())
+                                                    .plusSeconds(TIMEOUT_IN_SECONDS);
         Instant timeNow = Instant.now();
-        return timeNow.isAfter(thirtyMinutesAfterStartedDate);
+        return timeNow.isAfter(tenMinutesAfterStartedDate);
     }
 
-    public static void print(List<ApplicationShutdown> shutdown) {
-        for (ApplicationShutdown applicationShutdown : shutdown) {
+    public static void logShutdownStatus(List<ApplicationShutdown> shutdownInstances) {
+        for (ApplicationShutdown shutdownInstance : shutdownInstances) {
             LOGGER.info(
-                MessageFormat.format(Messages.SHUTDOWN_STATUS_OF_APPLICATION_WITH_GUID_INSTANCE, applicationShutdown.getApplicationId(),
-                                     String.valueOf(applicationShutdown.getApplicationInstanceIndex()), applicationShutdown.getStatus()));
+                MessageFormat.format(Messages.SHUTDOWN_STATUS_OF_APPLICATION_WITH_GUID_INSTANCE, shutdownInstance.getApplicationId(),
+                                     String.valueOf(shutdownInstance.getApplicationInstanceIndex()), shutdownInstance.getStatus()));
         }
     }
 }
