@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
 
-import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
 import org.flowable.common.engine.impl.async.DefaultAsyncTaskExecutor;
@@ -42,7 +41,6 @@ public class FlowableConfiguration {
     protected Supplier<String> randomIdGenerator = () -> UUID.randomUUID()
                                                              .toString();
 
-    @Inject
     @Bean
     @DependsOn("liquibaseChangelog")
     public ProcessEngine processEngine(ApplicationContext applicationContext, SpringProcessEngineConfiguration processEngineConfiguration)
@@ -53,7 +51,6 @@ public class FlowableConfiguration {
         return processEngineFactoryBean.getObject();
     }
 
-    @Inject
     @Bean
     @DependsOn("liquibaseChangelog")
     public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager,
@@ -79,7 +76,6 @@ public class FlowableConfiguration {
         return processEngineConfiguration;
     }
 
-    @Inject
     @Bean
     public AsyncExecutor jobExecutor(DefaultAsyncTaskExecutor asyncTaskExecutor, String jobExecutorId) {
         DefaultAsyncJobExecutor jobExecutor = new DefaultAsyncJobExecutor() {
@@ -103,7 +99,6 @@ public class FlowableConfiguration {
         return jobExecutor;
     }
 
-    @Inject
     @Bean
     public DefaultAsyncTaskExecutor taskExecutor(ApplicationConfiguration configuration) {
         DefaultAsyncTaskExecutor taskExecutor = new DefaultAsyncTaskExecutor();
@@ -114,7 +109,6 @@ public class FlowableConfiguration {
         return taskExecutor;
     }
 
-    @Inject
     @Bean
     public String jobExecutorId(ApplicationConfiguration applicationConfiguration) {
         String applicationGuid = applicationConfiguration.getApplicationGuid();
@@ -129,13 +123,11 @@ public class FlowableConfiguration {
         return String.format(JOB_EXECUTOR_ID_TEMPLATE, applicationId, applicationInstanceIndex, randomIdGenerator.get());
     }
 
-    @Inject
     @Bean
     public RuntimeService runtimeService(ProcessEngine processEngine) {
         return processEngine.getRuntimeService();
     }
 
-    @Inject
     @Bean
     public HistoryService historyService(ProcessEngine processEngine) {
         return processEngine.getHistoryService();
