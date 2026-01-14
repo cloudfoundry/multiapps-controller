@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
@@ -31,9 +30,12 @@ public class CustomServiceKeysClient extends CustomControllerClient {
         super(configuration, webClientFactory, credentials, correlationId);
     }
 
-    public List<DeployedMtaServiceKey> getServiceKeysByMetadataAndGuids(String spaceGuid, String mtaId, String mtaNamespace,
-                                                                        List<DeployedMtaService> services,
-                                                                        List<String> existingServiceGuids) {
+    public List<DeployedMtaServiceKey> getServiceKeysByMetadataAndExistingGuids(
+        String spaceGuid,
+        String mtaId,
+        String mtaNamespace,
+        List<String> existingServiceGuids) {
+
         String labelSelector = MtaMetadataCriteriaBuilder.builder()
                                                          .label(MtaMetadataLabels.SPACE_GUID)
                                                          .hasValue(spaceGuid)
@@ -46,17 +48,50 @@ public class CustomServiceKeysClient extends CustomControllerClient {
                                                          .build()
                                                          .get();
 
-        List<String> managedGuids = extractManagedServiceGuids(services);
-
-        List<String> allServiceGuids = Stream.concat(managedGuids.stream(), existingServiceGuids.stream())
-                                             .filter(Objects::nonNull)
-                                             .toList();
+        List<String> allServiceGuids = existingServiceGuids.stream()
+                                                           .filter(Objects::nonNull)
+                                                           .toList();
 
         if (allServiceGuids.isEmpty()) {
             return List.of();
         }
-        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(
-            () -> getServiceKeysByMetadataInternal(labelSelector, allServiceGuids));
+
+        return new CustomControllerClientErrorHandler()
+            .handleErrorsOrReturnResult(
+                () -> getServiceKeysByMetadataInternal(labelSelector, allServiceGuids)
+            );
+    }
+
+    public List<DeployedMtaServiceKey> getServiceKeysByMetadataAndManagedServices(
+        String spaceGuid,
+        String mtaId,
+        String mtaNamespace,
+        List<DeployedMtaService> services) {
+
+        String labelSelector = MtaMetadataCriteriaBuilder.builder()
+                                                         .label(MtaMetadataLabels.SPACE_GUID)
+                                                         .hasValue(spaceGuid)
+                                                         .and()
+                                                         .label(MtaMetadataLabels.MTA_NAMESPACE)
+                                                         .hasValueOrIsntPresent(MtaMetadataUtil.getHashedLabel(mtaNamespace))
+                                                         .and()
+                                                         .label(MtaMetadataLabels.MTA_ID)
+                                                         .hasValue(MtaMetadataUtil.getHashedLabel(mtaId))
+                                                         .build()
+                                                         .get();
+
+        List<String> managedGuids = extractManagedServiceGuids(services).stream()
+                                                                        .filter(Objects::nonNull)
+                                                                        .toList();
+
+        if (managedGuids.isEmpty()) {
+            return List.of();
+        }
+
+        return new CustomControllerClientErrorHandler()
+            .handleErrorsOrReturnResult(
+                () -> getServiceKeysByMetadataInternal(labelSelector, managedGuids)
+            );
     }
 
     private List<String> extractManagedServiceGuids(List<DeployedMtaService> services) {
