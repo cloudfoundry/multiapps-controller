@@ -131,12 +131,14 @@ public class FlowableConfiguration {
 
     @Inject
     @Bean
+    @Lazy
     public RuntimeService runtimeService(ProcessEngine processEngine) {
         return processEngine.getRuntimeService();
     }
 
     @Inject
     @Bean
+    @Lazy
     public HistoryService historyService(ProcessEngine processEngine) {
         return processEngine.getHistoryService();
     }

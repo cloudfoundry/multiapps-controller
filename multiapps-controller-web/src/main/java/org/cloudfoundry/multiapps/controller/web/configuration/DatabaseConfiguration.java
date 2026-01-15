@@ -53,6 +53,7 @@ public class DatabaseConfiguration {
         return dataSourceTransactionManager;
     }
 
+    @Inject
     @Bean
     @Primary
     public LocalContainerEntityManagerFactoryBean defaultEntityManagerFactory(DataSource dataSource,
@@ -62,8 +63,8 @@ public class DatabaseConfiguration {
     }
 
     protected LocalContainerEntityManagerFactoryBean
-              getLocalContainerEntityManagerFactoryBean(DataSource dataSource, EclipseLinkJpaVendorAdapter eclipseLinkJpaVendorAdapter,
-                                                        String persistenceUnitName) {
+    getLocalContainerEntityManagerFactoryBean(DataSource dataSource, EclipseLinkJpaVendorAdapter eclipseLinkJpaVendorAdapter,
+                                              String persistenceUnitName) {
         LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setPersistenceUnitName(persistenceUnitName);
         localContainerEntityManagerFactoryBean.setDataSource(dataSource);

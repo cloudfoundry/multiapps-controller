@@ -28,8 +28,8 @@
         <httpcore.version>5.4</httpcore.version>
         <eclipselink.version>4.0.9</eclipselink.version>
         <flowable.version>7.2.0</flowable.version>
-        <spring.version>6.2.11</spring.version>
-        <spring-security.version>6.5.4</spring-security.version>
+        <spring.version>6.2.15</spring.version>
+        <spring-security.version>6.5.7</spring-security.version>
         <hikari.version>7.0.2</hikari.version>
         <jackson-annotations.version>2.20</jackson-annotations.version>
         <jackson.version>3.0.3</jackson.version>
