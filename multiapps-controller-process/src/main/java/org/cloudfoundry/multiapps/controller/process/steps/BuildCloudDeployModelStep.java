@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -19,6 +20,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
@@ -91,9 +93,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         String mtaId = context.getVariable(Variables.MTA_ID);
         String mtaNamespace = context.getVariable(Variables.MTA_NAMESPACE);
 
-        var deployedServiceKeys = detectDeployedServiceKeys(mtaId, mtaNamespace, context);
-        context.setVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS, deployedServiceKeys);
-        getStepLogger().debug(Messages.DEPLOYED_MTA_SERVICE_KEYS, SecureSerialization.toJson(deployedServiceKeys));
+        addDetectedExistingServiceKeysToDetectedManagedKeys(mtaId, mtaNamespace, context);
 
         // Get module sets:
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
@@ -357,14 +357,29 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         return new ArrayList<>(domains);
     }
 
+    private void addDetectedExistingServiceKeysToDetectedManagedKeys(String mtaId, String mtaNamespace, ProcessContext context) {
+        List<DeployedMtaServiceKey> deployedServiceKeys = detectDeployedServiceKeys(mtaId, mtaNamespace, context);
+        if (!deployedServiceKeys.isEmpty()) {
+
+            List<DeployedMtaServiceKey> detectedServiceKeysForManagedServices = context.getVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS);
+            List<DeployedMtaServiceKey> allServiceKeys = Stream.concat(
+                                                                   deployedServiceKeys.stream(),
+                                                                   detectedServiceKeysForManagedServices.stream())
+                                                               .toList();
+
+            context.setVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS, allServiceKeys);
+            getStepLogger().debug(Messages.DEPLOYED_MTA_SERVICE_KEYS, SecureSerialization.toJson(allServiceKeys));
+        }
+    }
+
     private List<DeployedMtaServiceKey> detectDeployedServiceKeys(String mtaId, String mtaNamespace,
                                                                   ProcessContext context) {
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
         String userGuid = context.getVariable(Variables.USER_GUID);
-        var token = tokenService.getToken(userGuid);
-        var creds = new CloudCredentials(token, true);
+        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken(userGuid);
+        CloudCredentials credentials = new CloudCredentials(token, true);
 
-        CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(creds, context.getVariable(Variables.CORRELATION_ID));
+        CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(credentials, context.getVariable(Variables.CORRELATION_ID));
 
         List<String> existingInstanceGuids = getExistingServiceGuids(context);
 

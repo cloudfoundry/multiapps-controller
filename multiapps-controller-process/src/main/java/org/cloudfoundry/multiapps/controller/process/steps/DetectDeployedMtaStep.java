@@ -9,6 +9,7 @@ import jakarta.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.DeployedMtaDetector;
@@ -50,7 +51,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
 
         detectBackupMta(mtaId, mtaNamespace, client, context);
 
-        var deployedServiceKeys = detectDeployedServiceKeys(mtaId, mtaNamespace, deployedMta, context);
+        List<DeployedMtaServiceKey> deployedServiceKeys = detectDeployedServiceKeys(mtaId, mtaNamespace, deployedMta, context);
         context.setVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS, deployedServiceKeys);
         getStepLogger().debug(Messages.DEPLOYED_MTA_SERVICE_KEYS, SecureSerialization.toJson(deployedServiceKeys));
 
@@ -99,10 +100,10 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
                                                                       .orElse(List.of());
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
         String userGuid = context.getVariable(Variables.USER_GUID);
-        var token = tokenService.getToken(userGuid);
-        var creds = new CloudCredentials(token, true);
+        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken(userGuid);
+        CloudCredentials credentials = new CloudCredentials(token, true);
 
-        CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(creds, context.getVariable(Variables.CORRELATION_ID));
+        CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(credentials, context.getVariable(Variables.CORRELATION_ID));
 
         return serviceKeysClient.getServiceKeysByMetadataAndManagedServices(
             spaceGuid, mtaId, mtaNamespace, deployedManagedMtaServices

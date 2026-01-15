@@ -161,7 +161,7 @@ public class NameUtil {
 
     public static String getServiceInstanceNameOrDefault(Resource resource) {
         String serviceInstanceName = getServiceName(resource);
-        if (serviceInstanceName == null || serviceInstanceName.isBlank()) {
+        if (StringUtils.isBlank(serviceInstanceName)) {
             return resource.getName();
         }
         return serviceInstanceName;

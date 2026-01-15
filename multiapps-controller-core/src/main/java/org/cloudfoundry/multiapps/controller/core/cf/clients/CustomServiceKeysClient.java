@@ -36,17 +36,7 @@ public class CustomServiceKeysClient extends CustomControllerClient {
         String mtaNamespace,
         List<String> existingServiceGuids) {
 
-        String labelSelector = MtaMetadataCriteriaBuilder.builder()
-                                                         .label(MtaMetadataLabels.SPACE_GUID)
-                                                         .hasValue(spaceGuid)
-                                                         .and()
-                                                         .label(MtaMetadataLabels.MTA_NAMESPACE)
-                                                         .hasValueOrIsntPresent(MtaMetadataUtil.getHashedLabel(mtaNamespace))
-                                                         .and()
-                                                         .label(MtaMetadataLabels.MTA_ID)
-                                                         .hasValue(MtaMetadataUtil.getHashedLabel(mtaId))
-                                                         .build()
-                                                         .get();
+        String labelSelector = buildMtaMetadataLabelSelector(spaceGuid, mtaId, mtaNamespace);
 
         List<String> allServiceGuids = existingServiceGuids.stream()
                                                            .filter(Objects::nonNull)
@@ -68,21 +58,9 @@ public class CustomServiceKeysClient extends CustomControllerClient {
         String mtaNamespace,
         List<DeployedMtaService> services) {
 
-        String labelSelector = MtaMetadataCriteriaBuilder.builder()
-                                                         .label(MtaMetadataLabels.SPACE_GUID)
-                                                         .hasValue(spaceGuid)
-                                                         .and()
-                                                         .label(MtaMetadataLabels.MTA_NAMESPACE)
-                                                         .hasValueOrIsntPresent(MtaMetadataUtil.getHashedLabel(mtaNamespace))
-                                                         .and()
-                                                         .label(MtaMetadataLabels.MTA_ID)
-                                                         .hasValue(MtaMetadataUtil.getHashedLabel(mtaId))
-                                                         .build()
-                                                         .get();
+        String labelSelector = buildMtaMetadataLabelSelector(spaceGuid, mtaId, mtaNamespace);
 
-        List<String> managedGuids = extractManagedServiceGuids(services).stream()
-                                                                        .filter(Objects::nonNull)
-                                                                        .toList();
+        List<String> managedGuids = extractManagedServiceGuids(services);
 
         if (managedGuids.isEmpty()) {
             return List.of();
@@ -94,10 +72,28 @@ public class CustomServiceKeysClient extends CustomControllerClient {
             );
     }
 
+    private String buildMtaMetadataLabelSelector(String spaceGuid,
+                                                 String mtaId,
+                                                 String mtaNamespace) {
+
+        return MtaMetadataCriteriaBuilder.builder()
+                                         .label(MtaMetadataLabels.SPACE_GUID)
+                                         .hasValue(spaceGuid)
+                                         .and()
+                                         .label(MtaMetadataLabels.MTA_NAMESPACE)
+                                         .hasValueOrIsntPresent(MtaMetadataUtil.getHashedLabel(mtaNamespace))
+                                         .and()
+                                         .label(MtaMetadataLabels.MTA_ID)
+                                         .hasValue(MtaMetadataUtil.getHashedLabel(mtaId))
+                                         .build()
+                                         .get();
+    }
+
     private List<String> extractManagedServiceGuids(List<DeployedMtaService> services) {
         return getManagedServices(services).stream()
                                            .map(DeployedMtaService::getGuid)
                                            .map(UUID::toString)
+                                           .filter(Objects::nonNull)
                                            .toList();
     }
 
