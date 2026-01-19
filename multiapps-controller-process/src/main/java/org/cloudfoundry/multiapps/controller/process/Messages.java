@@ -274,6 +274,7 @@ public class Messages {
     public static final String SERVICE_INSTANCE_0_TAGS_UPDATE_FAILED_IGNORING_FAILURE = "Service instance: \"{0}\" tags update failed, ignoring failure...";
     public static final String ONLY_FIRST_SERVICE_WILL_BE_CREATED = "Only the first service will be created because the provided 'service-name' fields are duplicated! All other services with the same 'service-name' will be ignored! Duplicated names: {0}";
     public static final String SKIPPING_DEPENDENCY_ORDER_STOP = "Skipping stopping modules in dependency-aware order. This feature is reserved only for blue green deployment strategy.";
+    public static final String UNSUPPORTED_DEPLOYED_AFTER_SCHEMA_VERSION_WARNING = "Skipping module \"{0}\": major schema version \"{1}\" does not support 'deployed-after' (minimum supported version is \"{2}\").";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";

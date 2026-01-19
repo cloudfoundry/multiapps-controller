@@ -25,6 +25,8 @@ import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 @Named
 public class DependentModuleStopResolver {
 
+    private static final int DEPLOYED_AFTER_MIN_SCHEMA_VERSION = 3;
+
     public List<Module> resolveDependentModulesToStop(ProcessContext context, Module root) {
         DeploymentDescriptor descriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         if (!isDependencyAwareStopOrderEnabled(context, descriptor)) {
@@ -36,7 +38,7 @@ public class DependentModuleStopResolver {
             return Collections.emptyList();
         }
         Map<String, Module> modulesByName = getModulesByName(descriptor);
-        Map<String, List<Module>> modulesDependentOn = buildModulesDependentOn(modulesByName.values());
+        Map<String, List<Module>> modulesDependentOn = buildModulesDependentOn(modulesByName.values(), context.getStepLogger());
 
         List<Module> result = new ArrayList<>();
         Set<String> visited = new HashSet<>();
@@ -65,15 +67,22 @@ public class DependentModuleStopResolver {
                          ));
     }
 
-    private Map<String, List<Module>> buildModulesDependentOn(Collection<Module> modules) {
+    private Map<String, List<Module>> buildModulesDependentOn(Collection<Module> modules, StepLogger logger) {
         return modules.stream()
-                      .filter(this::supportsDeployedAfter)
+                      .filter(module -> supportsDeployedAfter(module, logger))
                       .flatMap(this::toDependentEntries)
                       .collect(groupByDependency());
     }
 
-    private boolean supportsDeployedAfter(Module module) {
-        return module.getMajorSchemaVersion() >= 3;
+    private boolean supportsDeployedAfter(Module module, StepLogger logger) {
+        if (module.getMajorSchemaVersion() >= 3) {
+            return true;
+        }
+        logger.warn(
+            Messages.UNSUPPORTED_DEPLOYED_AFTER_SCHEMA_VERSION_WARNING,
+            module.getName(),
+            module.getMajorSchemaVersion(), DEPLOYED_AFTER_MIN_SCHEMA_VERSION);
+        return false;
     }
 
     private Stream<Map.Entry<String, Module>> toDependentEntries(Module module) {

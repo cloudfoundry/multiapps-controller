@@ -62,6 +62,18 @@ class PrepareToStopDependentModuleStepTest extends SyncFlowableStepTest<PrepareT
         assertStepFinishedSuccessfully();
     }
 
+    @Test
+    void testPrepareToStopDependentModuleStepIdleURIs() {
+        Module module = Module.createV3()
+                              .setName("test-module");
+        setUpMocks(module);
+        context.setVariable(Variables.USE_IDLE_URIS, true);
+        step.execute(execution);
+        assertEquals(context.getVariable(Variables.APP_TO_PROCESS)
+                            .getName(), module.getName());
+        assertStepFinishedSuccessfully();
+    }
+    
     private void setUpMocks(Module module) {
         DeploymentDescriptor completeDeploymentDescriptor = DeploymentDescriptor.createV3();
         completeDeploymentDescriptor.setModules(List.of(module));

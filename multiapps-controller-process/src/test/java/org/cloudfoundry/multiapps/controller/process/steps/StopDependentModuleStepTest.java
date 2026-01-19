@@ -46,6 +46,17 @@ class StopDependentModuleStepTest extends SyncFlowableStepTest<StopDependentModu
     }
 
     @Test
+    void testStopDependentModuleStepApplicationDoesNotExist() {
+        org.cloudfoundry.multiapps.mta.model.Module module = org.cloudfoundry.multiapps.mta.model.Module.createV3()
+                                                                                                        .setName(appName);
+        setUpMocks(module, CloudApplication.State.STARTED);
+        when(client.getApplication(idleAppName)).thenReturn(null);
+        step.execute(execution);
+        assertStepFinishedSuccessfully();
+        verify(client, times(0)).stopApplication(idleAppName);
+    }
+
+    @Test
     void testStopDependentModuleStepStopped() {
         org.cloudfoundry.multiapps.mta.model.Module module = org.cloudfoundry.multiapps.mta.model.Module.createV3()
                                                                                                         .setName(appName);

@@ -19,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -79,6 +80,7 @@ class DependentModuleStopResolverTest {
         setupContext(List.of(module));
         DependentModuleStopResolver dependentModuleStopResolver = new DependentModuleStopResolver();
         List<Module> result = dependentModuleStopResolver.resolveDependentModulesToStop(context, module);
+        verify(logger, times(1)).warn(anyString(), anyString(), anyInt(), anyInt());
         assertTrue(result.isEmpty(), "Expected the list to be empty");
     }
 

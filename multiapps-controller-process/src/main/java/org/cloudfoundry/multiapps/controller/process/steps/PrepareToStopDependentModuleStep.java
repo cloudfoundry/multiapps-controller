@@ -42,14 +42,19 @@ public class PrepareToStopDependentModuleStep extends SyncFlowableStep {
         context.setVariable(Variables.MODULE_TO_DEPLOY, applicationModule);
         CloudApplicationExtended modifiedApp = getApplicationCloudModelBuilder(context).build(applicationModule, moduleToDeployHelper);
         Map<String, String> calculatedAppEnv = applicationEnvironmentCalculator.calculateNewApplicationEnv(context, modifiedApp);
-        modifiedApp = ImmutableCloudApplicationExtended.builder()
-                                                       .from(modifiedApp)
-                                                       .staging(modifiedApp.getStaging())
-                                                       .routes(getApplicationRoutes(context, modifiedApp))
-                                                       .env(calculatedAppEnv)
-                                                       .build();
+        modifiedApp = getCloudApplicationExtended(context, modifiedApp, calculatedAppEnv);
         context.setVariable(Variables.APP_TO_PROCESS, modifiedApp);
         return StepPhase.DONE;
+    }
+
+    private CloudApplicationExtended getCloudApplicationExtended(ProcessContext context, CloudApplicationExtended modifiedApp,
+                                                                 Map<String, String> calculatedAppEnv) {
+        return ImmutableCloudApplicationExtended.builder()
+                                                .from(modifiedApp)
+                                                .staging(modifiedApp.getStaging())
+                                                .routes(getApplicationRoutes(context, modifiedApp))
+                                                .env(calculatedAppEnv)
+                                                .build();
     }
 
     protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ProcessContext context) {
