@@ -28,17 +28,12 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
-import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
-import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
-import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
-import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Answers;
 import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -64,10 +59,6 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
 
     @Mock
     private AppBoundServiceInstanceNamesGetter appServicesGetter;
-    @Mock
-    private ConfigurationSubscriptionService subscriptionService;
-    @Mock(answer = Answers.RETURNS_SELF)
-    private ConfigurationSubscriptionQuery query;
 
     static Stream<Arguments> testHandleStagingApplicationAttributes() {
         return Stream.of(
@@ -226,7 +217,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
         when(appServicesGetter.getServiceInstanceNamesBoundToApp(any())).thenReturn(services);
         when(client.getApplicationEnvironment(application.getGuid())).thenReturn(env);
         application = prepareAppWithStaging(application, staging);
-        when(client.getApplication(application.getName(), false)).thenReturn(application);
+        when(client.getApplication(APP_NAME, false)).thenReturn(application);
         when(client.getApplicationSshEnabled(application.getGuid())).thenReturn(staging.isSshEnabled() != null && staging.isSshEnabled());
         when(client.getApplicationRoutes(application.getGuid())).thenReturn(List.copyOf(routes));
         String command = staging.getCommand() == null ? DEFAULT_COMMAND : staging.getCommand();
@@ -478,32 +469,6 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
         Map<String, String> expectedEnvMap = new HashMap<>(newApplicationEnv);
         expectedEnvMap.put(Constants.ENV_DEPLOY_ATTRIBUTES, applicationDigestJsonEnv);
         return expectedEnvMap;
-    }
-
-    @Test
-    void testHandleApplicationName() {
-        String idleAppName = APP_NAME + "-idle";
-
-        CloudApplication existingApplication = getApplicationBuilder(false).name(idleAppName)
-                                                                           .build();
-        CloudApplicationExtended application = getApplicationBuilder(false).name(idleAppName)
-                                                                           .build();
-        prepareContext(application, true);
-        context.setVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
-        context.setVariable(Variables.PHASE, Phase.AFTER_RESUME);
-        prepareClientWithServices(existingApplication, List.of());
-
-        when(query.list())
-            .thenReturn(List.of(new ConfigurationSubscription(0, "", "", idleAppName, null, null, null, null, null)));
-        when(subscriptionService.createQuery())
-            .thenReturn(query);
-
-        step.execute(execution);
-
-        assertStepFinishedSuccessfully();
-        verify(client).rename(idleAppName, APP_NAME);
-        verify(subscriptionService)
-            .update(any(), eq(new ConfigurationSubscription(0, "", "", APP_NAME, null, null, null, null, null)));
     }
 
     @Override

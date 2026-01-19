@@ -10,7 +10,7 @@ public class AppSuffixDeterminer {
         this.isAfterResumePhase = isAfterResumePhase;
     }
 
-    public boolean shouldAppendIdleSuffix() {
+    public boolean shouldAppendApplicationSuffix() {
         return keepOriginalNamesAfterDeploy && isAfterResumePhase;
     }
 }

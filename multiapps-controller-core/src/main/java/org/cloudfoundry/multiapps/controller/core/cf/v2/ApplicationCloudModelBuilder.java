@@ -152,7 +152,7 @@ public class ApplicationCloudModelBuilder {
 
     private String getApplicationName(Module module) {
         String applicationName = NameUtil.getApplicationName(module);
-        if (appSuffixDeterminer.shouldAppendIdleSuffix()) {
+        if (appSuffixDeterminer.shouldAppendApplicationSuffix()) {
             applicationName += BlueGreenApplicationNameSuffix.IDLE.asSuffix();
         }
         return applicationName;
