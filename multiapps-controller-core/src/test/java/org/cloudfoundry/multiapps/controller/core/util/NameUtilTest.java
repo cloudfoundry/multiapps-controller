@@ -68,6 +68,13 @@ class NameUtilTest {
                                       "long-long-name-long-long-name-long-long-nam18cc4f54-limit-idle"));
     }
 
+    static Stream<Arguments> serviceInstanceNameCases() {
+        return Stream.of(Arguments.of("resource-name", "service-name-from-param", "service-name-from-param"),
+                         Arguments.of("resource-name-1", null, "resource-name-1"),
+                         Arguments.of("resource-name-2", "   ", "resource-name-2"),
+                         Arguments.of("resource-name-3", "", "resource-name-3"));
+    }
+
     @ParameterizedTest
     @MethodSource
     void testGetNameWithProperLength(String name, int maxLength, String expectedName) {
@@ -98,31 +105,13 @@ class NameUtilTest {
                      NameUtil.computeNamespacedNameWithLength(name, namespace, applyNamespace, applyNamespaceAsSuffix, maxLength));
     }
 
-    @Test
-    void testGetServiceInstanceNameOrDefault_UsesServiceNameParameter() {
-        Resource resource = createResource("resource-name", "service-name-from-param");
-
+    @ParameterizedTest
+    @MethodSource
+    void serviceInstanceNameCases(String resourceName, String serviceNameParam, String expected) {
+        Resource resource = createResource(resourceName, serviceNameParam);
         String serviceInstanceName = NameUtil.getServiceInstanceNameOrDefault(resource);
 
-        assertEquals("service-name-from-param", serviceInstanceName);
-    }
-
-    @Test
-    void testGetServiceInstanceNameOrDefault_FallsBackToResourceNameWhenServiceNameMissing() {
-        Resource resource = createResource("resource-name-1", null);
-
-        String serviceInstanceName = NameUtil.getServiceInstanceNameOrDefault(resource);
-
-        assertEquals("resource-name-1", serviceInstanceName);
-    }
-
-    @Test
-    void testGetServiceInstanceNameOrDefault_FallsBackToResourceNameWhenServiceNameBlank() {
-        Resource resource = createResource("resource-name-2", "   ");
-
-        String serviceInstanceName = NameUtil.getServiceInstanceNameOrDefault(resource);
-
-        assertEquals("resource-name-2", serviceInstanceName);
+        assertEquals(expected, serviceInstanceName);
     }
 
     private Resource createResource(String resourceName, String serviceInstanceName) {

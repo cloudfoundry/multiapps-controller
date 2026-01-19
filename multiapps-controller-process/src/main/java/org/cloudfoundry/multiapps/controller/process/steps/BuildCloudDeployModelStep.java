@@ -90,10 +90,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.BUILDING_CLOUD_MODEL);
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
 
-        String mtaId = context.getVariable(Variables.MTA_ID);
-        String mtaNamespace = context.getVariable(Variables.MTA_NAMESPACE);
-
-        addDetectedExistingServiceKeysToDetectedManagedKeys(mtaId, mtaNamespace, context);
+        addDetectedExistingServiceKeysToDetectedManagedKeys(context);
 
         // Get module sets:
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
@@ -357,7 +354,10 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         return new ArrayList<>(domains);
     }
 
-    private void addDetectedExistingServiceKeysToDetectedManagedKeys(String mtaId, String mtaNamespace, ProcessContext context) {
+    private void addDetectedExistingServiceKeysToDetectedManagedKeys(ProcessContext context) {
+        String mtaId = context.getVariable(Variables.MTA_ID);
+        String mtaNamespace = context.getVariable(Variables.MTA_NAMESPACE);
+
         List<DeployedMtaServiceKey> deployedServiceKeys = detectDeployedServiceKeys(mtaId, mtaNamespace, context);
         if (!deployedServiceKeys.isEmpty()) {
 
@@ -377,7 +377,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
         String userGuid = context.getVariable(Variables.USER_GUID);
         OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken(userGuid);
-        CloudCredentials credentials = new CloudCredentials(token, true);
+        CloudCredentials credentials = new CloudCredentials(token);
 
         CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(credentials, context.getVariable(Variables.CORRELATION_ID));
 
@@ -392,7 +392,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         CloudControllerClient client = context.getControllerClient();
         List<Resource> resources = getExistingServiceResourcesFromDescriptor(context);
 
-        return resources.stream()
+        return resources.parallelStream()
                         .map(resource -> resolveServiceGuid(client, resource))
                         .flatMap(Optional::stream)
                         .toList();
