@@ -178,7 +178,7 @@ public final class Messages {
     public static final String THREAD_MONITOR_CACHE_TIMEOUT = "Flowable thread monitor cache timeout: {0} seconds";
     public static final String SPACE_DEVELOPERS_CACHE_TIME_IN_SECONDS = "Cache for list of space developers per SpaceGUID: {0} seconds";
     public static final String APP_SHUTDOWN_REQUEST = "Application with id:\"{0}\", instance id:\"{1}\", instance index:\"{2}\", is requested to shutdown. Timeout to wait before shutdown of Flowable job executor:\"{3}\" seconds.";
-    public static final String APP_SUCCESSFULLY_SHUTDOWN = "Application with id:\"{0}\", instance id:\"{1}\", instance index:\"{2}\", is shutdown. Timeout to wait before shutdown of Flowable job executor:\"{3}\" seconds.";
+    public static final String APP_SHUTDOWNED = "Application with id:\"{0}\", instance id:\"{1}\", instance index:\"{2}\", is shutdowned. Timeout to wait before shutdown of Flowable job executor:\"{3}\" seconds.";
     public static final String APP_SHUTDOWN_STATUS_MONITOR = "Monitor shutdown status of application with id:\"{0}\", instance id:\"{1}\", instance index:\"{2}\". Status:\"{3}\".";
     public static final String CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS = "Controller client SSL handshake timeout in seconds: {0}";
     public static final String CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = "Controller client connect timeout in seconds: {0}";
