@@ -161,6 +161,7 @@ public class Messages {
     public static final String ERROR_MONITORING_OPERATIONS_OVER_SERVICES = "Error monitoring operations over services";
     public static final String ERROR_DELETING_REMAINING_FILE_PARTS = "Error deleting remaining file parts";
     public static final String ERROR_DETECTING_APPLICATIONS_TO_RENAME = "Error detecting applications to rename";
+    public static final String ERROR_RENAMING_NEW_APPLICATIONS = "Error renaming new applications";
     public static final String ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES = "Error monitoring creation or update of services";
     public static final String ERROR_MONITORING_DELETION_OF_SERVICES = "Error monitoring deletion of services";
     public static final String SERVICE_IS_ALREADY_DELETED = "Service \"{0}\" is already deleted";
