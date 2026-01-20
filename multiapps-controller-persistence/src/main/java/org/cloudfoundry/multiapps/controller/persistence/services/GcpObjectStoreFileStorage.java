@@ -52,7 +52,7 @@ public class GcpObjectStoreFileStorage implements FileStorage {
     protected Storage createObjectStoreStorage(Map<String, Object> credentials) {
         return StorageOptions.http()
                              .setCredentials(getGcpCredentialsSupplier(credentials))
-                             .setStorageRetryStrategy(StorageRetryStrategy.getDefaultStorageRetryStrategy())
+                             .setStorageRetryStrategy(StorageRetryStrategy.getUniformStorageRetryStrategy())
                              .setRetrySettings(
                                  RetrySettings.newBuilder()
                                               .setMaxAttempts(OBJECT_STORE_MAX_ATTEMPTS_CONFIG)
@@ -110,7 +110,16 @@ public class GcpObjectStoreFileStorage implements FileStorage {
 
     @Override
     public void deleteFile(String id, String space) {
-        storage.delete(bucketName, id);
+        deleteFileWithGeneration(id);
+    }
+
+    private boolean deleteFileWithGeneration(String id) {
+        Blob blob = storage.get(bucketName, id);
+        if (blob.getGeneration() == null) {
+            return storage.delete(bucketName, id);
+        }
+        //Without generationMatch the delete requests are not retried because a retry can "accidentally delete a newer object version"
+        return storage.delete(bucketName, id, Storage.BlobSourceOption.generationMatch(blob.getGeneration()));
     }
 
     @Override
@@ -212,8 +221,10 @@ public class GcpObjectStoreFileStorage implements FileStorage {
         return deletedBlobsResults.size();
     }
 
-    protected List<Boolean> deleteBlobs(List<BlobId> blobIds) {
-        return storage.delete(blobIds);
+    private List<Boolean> deleteBlobs(List<BlobId> blobIds) {
+        return blobIds.stream()
+                      .map(blobId -> deleteFileWithGeneration(blobId.getName()))
+                      .toList();
     }
 
     protected Set<String> getEntryNames(Predicate<? super Blob> filter) {
