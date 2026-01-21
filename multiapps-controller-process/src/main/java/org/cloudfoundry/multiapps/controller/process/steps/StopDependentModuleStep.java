@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Scope;
 @Named("stopDependentModuleStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StopDependentModuleStep extends SyncFlowableStepWithHooks implements BeforeStepHookPhaseProvider, AfterStepHookPhaseProvider {
-    
+
     private ApplicationWaitAfterStopHandler waitAfterStopHandler;
 
     @Inject
@@ -43,7 +43,7 @@ public class StopDependentModuleStep extends SyncFlowableStepWithHooks implement
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
-        return MessageFormat.format(Messages.ERROR_WHILE_STOPPING_DEPENDENT_MODULES, getCurrentModuleToStop(context).getName());
+        return MessageFormat.format(Messages.ERROR_WHILE_STOPPING_DEPENDENT_MODULE, getCurrentModuleToStop(context).getName());
     }
 
     static Module getCurrentModuleToStop(ProcessContext context) {

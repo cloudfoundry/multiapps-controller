@@ -27,7 +27,7 @@ public class PrepareToStopDependentModulesStep extends SyncFlowableStep {
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
-        return MessageFormat.format(Messages.ERROR_WHEN_CONFIGURING_STOPPING_OF_DEPENDENT_MODULES,
+        return MessageFormat.format(Messages.ERROR_WHILE_CONFIGURING_STOPPING_OF_DEPENDENT_MODULES,
                                     context.getVariable(Variables.APP_TO_PROCESS)
                                            .getName());
     }

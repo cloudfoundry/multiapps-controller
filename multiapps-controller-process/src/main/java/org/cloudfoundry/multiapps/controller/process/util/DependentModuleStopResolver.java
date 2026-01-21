@@ -34,7 +34,7 @@ public class DependentModuleStopResolver {
         }
         if (!Boolean.TRUE.equals(context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY))) {
             context.getStepLogger()
-                   .warn(Messages.SKIPPING_DEPENDENCY_ORDER_STOP);
+                   .warn(Messages.BLUE_GREEN_SKIPPING_DEPENDENCY_ORDER_STOP);
             return Collections.emptyList();
         }
         Map<String, Module> modulesByName = getModulesByName(descriptor);
@@ -75,7 +75,7 @@ public class DependentModuleStopResolver {
     }
 
     private boolean supportsDeployedAfter(Module module, StepLogger logger) {
-        if (module.getMajorSchemaVersion() >= 3) {
+        if (module.getMajorSchemaVersion() >= DEPLOYED_AFTER_MIN_SCHEMA_VERSION) {
             return true;
         }
         logger.warn(

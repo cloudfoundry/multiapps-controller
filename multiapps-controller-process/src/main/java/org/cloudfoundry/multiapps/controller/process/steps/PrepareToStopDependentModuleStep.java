@@ -63,8 +63,8 @@ public class PrepareToStopDependentModuleStep extends SyncFlowableStep {
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
-        return MessageFormat.format(Messages.ERROR_WHILE_STOPPING_DEPENDENT_MODULES, context.getVariable(Variables.APP_TO_PROCESS)
-                                                                                            .getName());
+        return MessageFormat.format(Messages.ERROR_WHILE_STOPPING_DEPENDENT_MODULE, context.getVariable(Variables.APP_TO_PROCESS)
+                                                                                           .getName());
     }
 
     private Module getCurrentModuleToStop(ProcessContext context) {
