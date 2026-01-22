@@ -26,7 +26,6 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
-import org.cloudfoundry.multiapps.controller.process.security.SecretTransformationStrategy;
 import org.cloudfoundry.multiapps.controller.process.security.resolver.SecretTokenKeyResolver;
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStoreFactory;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
@@ -97,8 +96,6 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected CloudControllerClientProvider clientProvider;
     @Mock
     protected SecretTokenStoreFactory secretTokenStoreFactory;
-    @Mock
-    protected SecretTransformationStrategy secretTransformationStrategy;
     @Mock
     protected SecretTokenKeyResolver secretTokenKeyResolver;
     @Mock

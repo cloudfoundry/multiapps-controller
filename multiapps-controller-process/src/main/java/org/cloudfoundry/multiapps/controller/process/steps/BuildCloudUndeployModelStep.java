@@ -28,12 +28,12 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ExistingAppsToBackupCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ModulesToUndeployCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
@@ -64,8 +64,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
-        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
 
         List<DeployedMtaServiceKey> serviceKeysToDelete = computeServiceKeysToDelete(context);

@@ -62,6 +62,7 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires org.apache.httpcomponents.client5.httpclient5;
     requires org.apache.httpcomponents.core5.httpcore5;
     requires org.apache.tika.core;
+    requires org.bouncycastle.fips.core;
     requires org.cloudfoundry.multiapps.common;
     requires org.cloudfoundry.multiapps.controller.api;
     requires org.slf4j;
@@ -80,9 +81,5 @@ open module org.cloudfoundry.multiapps.controller.core {
 
     requires static java.compiler;
     requires static org.immutables.value;
-    requires spring.security.oauth2.client;
-    requires java.desktop;
-    requires io.netty.common;
-    requires org.bouncycastle.fips.core;
 
 }

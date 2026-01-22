@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -15,10 +14,10 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication.ProductizationState;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Version;
@@ -143,8 +142,7 @@ public class ExistingAppsToBackupCalculator {
                 appsToBackup.add(appToUndeploy);
             }
         }
-        Collection<String> parametersToHide = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(parametersToHide);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         LOGGER.info(MessageFormat.format(Messages.EXISTING_APPS_TO_BACKUP, dynamicSecureSerialization.toJson(appsToBackup)));
         return appsToBackup;
     }

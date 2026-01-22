@@ -14,8 +14,8 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationExcepti
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
@@ -55,9 +55,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
                    .debug(Messages.LAST_OPERATION_FOR_SERVICE, service.getName(), JsonUtil.toJson(lastServiceOperation, true));
         }
 
-        Collection<String> parametersToHide = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(parametersToHide);
-
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         reportDetailedServicesStates(context, servicesWithLastOperation);
         reportOverallProgress(context, servicesWithLastOperation.values(), triggeredServiceOperations);
         List<CloudServiceInstanceExtended> remainingServicesToPoll = getRemainingServicesToPoll(servicesWithLastOperation);

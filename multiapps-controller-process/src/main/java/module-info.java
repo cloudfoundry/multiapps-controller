@@ -26,6 +26,7 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires org.cloudfoundry.client;
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
+    requires com.google.common;
     requires flowable.bpmn.model;
     requires flowable.engine.common;
     requires flowable.engine.common.api;
@@ -33,6 +34,7 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires flowable.job.service.api;
     requires flowable.variable.service;
     requires flowable.variable.service.api;
+    requires jakarta.annotation;
     requires jakarta.persistence;
     requires java.sql;
     requires jakarta.xml.bind;
@@ -43,6 +45,7 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires org.apache.commons.collections4;
     requires org.apache.commons.io;
     requires org.apache.commons.lang3;
+    requires org.bouncycastle.fips.core;
     requires org.cloudfoundry.multiapps.common;
     requires org.cloudfoundry.multiapps.controller.client;
     requires org.cloudfoundry.multiapps.controller.persistence;
@@ -61,9 +64,9 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires static java.compiler;
     requires static org.immutables.value;
     requires org.cloudfoundry.multiapps.controller.shutdown.client;
-    requires jakarta.annotation;
-    requires org.bouncycastle.fips.core;
-    requires com.google.common;
     requires org.checkerframework.checker.qual;
+    requires org.mybatis;
+    requires java.annotation;
+    requires tools.jackson.databind;
 
 }

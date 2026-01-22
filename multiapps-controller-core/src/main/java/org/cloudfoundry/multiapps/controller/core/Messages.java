@@ -93,8 +93,8 @@ public final class Messages {
     public static final String BUILDPACKS_NOT_ALLOWED_WITH_DOCKER = "Buildpacks must not be provided when lifecycle is set to 'docker'.";
     public static final String EXTENSION_DESCRIPTORS_COULD_NOT_BE_PARSED_TO_VALID_YAML = "Extension descriptor(s) could not be parsed as a valid YAML file. These descriptors may fail future deployments once stricter validation is enforced. Please review and correct them now to avoid future issues. Use at your own risk";
     public static final String UNSUPPORTED_FILE_FORMAT = "Unsupported file format! \"{0}\" detected";
-    public static final String ENCRYPTION_BOUNCY_CASTLE_AES256_HAS_FAILED = "Encryption with AES256 by Bouncy Castle has failed!";
-    public static final String DECRYPTION_BOUNCY_CASTLE_AES256_HAS_FAILED = "Decryption with AES256 by Bouncy Castle has failed!";
+    public static final String ENCRYPTION_HAS_FAILED = "Encryption has failed! Errored with \"{0}\"";
+    public static final String DECRYPTION_HAS_FAILED = "Decryption has failed! Errored with \"{0}\"";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";

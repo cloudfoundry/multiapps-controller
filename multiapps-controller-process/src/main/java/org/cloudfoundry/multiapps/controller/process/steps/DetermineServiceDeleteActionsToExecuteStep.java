@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -13,9 +12,9 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBi
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceDeletionActions;
@@ -44,8 +43,7 @@ public class DetermineServiceDeleteActionsToExecuteStep extends SyncFlowableStep
         }
         context.getStepLogger()
                .debug(Messages.DETERMINING_DELETE_ACTIONS_FOR_SERVICE_INSTANCE_0, serviceInstanceToDelete);
-        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         return calculateDeleteActions(context, serviceInstanceToDelete, dynamicSecureSerialization);
     }
 

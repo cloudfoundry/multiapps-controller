@@ -43,12 +43,16 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires google.cloud.core;
     requires google.cloud.nio;
     requires google.cloud.storage;
+    requires jakarta.xml.bind;
     requires jakarta.inject;
+    requires liquibase.core;
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.core;
     requires org.apache.commons.io;
     requires org.apache.commons.collections4;
     requires org.apache.commons.lang3;
+    requires org.bouncycastle.fips.core;
+    requires org.bouncycastle.fips.pkix;
     requires org.cloudfoundry.multiapps.common;
     requires org.eclipse.persistence.core;
     requires org.slf4j;
@@ -57,8 +61,4 @@ open module org.cloudfoundry.multiapps.controller.persistence {
 
     requires static java.compiler;
     requires static org.immutables.value;
-    requires jakarta.xml.bind;
-    requires org.bouncycastle.fips.pkix;
-    requires org.bouncycastle.fips.core;
-    requires liquibase.core;
 }

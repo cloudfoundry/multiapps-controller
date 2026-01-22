@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
@@ -22,9 +21,9 @@ import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveContext;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationDigestCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
@@ -89,8 +88,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             }
         }
 
-        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
 
         Optional<CloudPackage> mostRecentPackage = cloudPackagesGetter.getMostRecentAppPackage(client, cloudApp.getGuid(),
                                                                                                dynamicSecureSerialization);

@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Named;
@@ -20,8 +19,8 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper.CloudComponents;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -37,8 +36,7 @@ public class CreateOrUpdateServiceBrokerStep extends TimeoutAsyncFlowableStep {
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
         getStepLogger().debug(Messages.CREATING_SERVICE_BROKERS);
-        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         CloudServiceBroker serviceBroker = getServiceBrokerToCreate(context);
         if (serviceBroker == null) {
             return StepPhase.DONE;

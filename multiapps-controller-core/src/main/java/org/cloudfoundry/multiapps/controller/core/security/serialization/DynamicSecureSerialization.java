@@ -16,18 +16,17 @@ public final class DynamicSecureSerialization {
 
     private final SecureSerializerConfiguration secureSerializerConfiguration;
 
-    DynamicSecureSerialization(SecureSerializerConfiguration secureSerializerConfiguration) {
+    public DynamicSecureSerialization(SecureSerializerConfiguration secureSerializerConfiguration) {
         this.secureSerializerConfiguration = secureSerializerConfiguration;
     }
 
     public String toJson(Object object) {
-        SecureJsonSerializer secureJsonSerializer = createDynamicJsonSerializer(object, secureSerializerConfiguration);
+        SecureJsonSerializer secureJsonSerializer = createDynamicJsonSerializer(object);
         return secureJsonSerializer.serialize(object);
     }
 
-    private static SecureJsonSerializer createDynamicJsonSerializer(Object object,
-                                                                    SecureSerializerConfiguration secureSerializerConfiguration) {
-        SecureJsonSerializer secureJsonSerializer = createDynamicJsonSerializerForVersionedEntity(object, secureSerializerConfiguration);
+    private SecureJsonSerializer createDynamicJsonSerializer(Object object) {
+        SecureJsonSerializer secureJsonSerializer = createDynamicJsonSerializerForVersionedEntity(object);
         if (secureJsonSerializer == null) {
             return new SecureJsonSerializer(secureSerializerConfiguration);
         }
@@ -35,17 +34,15 @@ public final class DynamicSecureSerialization {
         return secureJsonSerializer;
     }
 
-    private static SecureJsonSerializer createDynamicJsonSerializerForVersionedEntity(Object object,
-                                                                                      SecureSerializerConfiguration secureSerializerConfiguration) {
+    private SecureJsonSerializer createDynamicJsonSerializerForVersionedEntity(Object object) {
         if (object instanceof VersionedEntity) {
-            return createDynamicJsonSerializerForVersionedEntity((VersionedEntity) object, secureSerializerConfiguration);
+            return createDynamicJsonSerializerForVersionedEntity((VersionedEntity) object);
         }
 
         return null;
     }
 
-    private static SecureJsonSerializer createDynamicJsonSerializerForVersionedEntity(VersionedEntity versionedEntity,
-                                                                                      SecureSerializerConfiguration secureSerializerConfiguration) {
+    private SecureJsonSerializer createDynamicJsonSerializerForVersionedEntity(VersionedEntity versionedEntity) {
         if (versionedEntity.getMajorSchemaVersion() < 3) {
             return null;
         }

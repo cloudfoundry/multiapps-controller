@@ -2,9 +2,9 @@ package org.cloudfoundry.multiapps.controller.process.variables;
 
 public class WrappedVariable<T> implements Variable<T> {
 
-    private Variable<T> variableToDelegate;
+    private final Variable<T> variableToDelegate;
 
-    private Serializer<T> wrappedSerializer;
+    private final Serializer<T> wrappedSerializer;
 
     public WrappedVariable(Variable<T> delegate, Serializer<T> serializer) {
         this.variableToDelegate = delegate;

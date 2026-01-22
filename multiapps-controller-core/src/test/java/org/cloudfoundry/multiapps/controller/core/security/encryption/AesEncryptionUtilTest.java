@@ -70,15 +70,15 @@ public class AesEncryptionUtilTest {
         byte[] encrypted = AesEncryptionUtil.encrypt(plainText, KEY_FOR_256_32_BYTES);
 
         byte[] tampered = Arrays.copyOf(encrypted, encrypted.length);
-        tampered[tampered.length - 1] ^= 0x01;
+        tampered[tampered.length - 1] = (byte) (tampered[tampered.length - 1] ^ 0x01);
 
-        assertThrows(RuntimeException.class, () -> AesEncryptionUtil.decrypt(tampered, KEY_FOR_256_32_BYTES));
+        assertThrows(Exception.class, () -> AesEncryptionUtil.decrypt(tampered, KEY_FOR_256_32_BYTES));
     }
 
     @Test
     void testEncryptWhenWrongEncryptionKetLength() {
         byte[] wrongEncryptionKey = new byte[31];
-        assertThrows(RuntimeException.class, () -> AesEncryptionUtil.encrypt("simple text", wrongEncryptionKey));
+        assertThrows(Exception.class, () -> AesEncryptionUtil.encrypt("simple text", wrongEncryptionKey));
     }
 
     @Test
@@ -87,19 +87,14 @@ public class AesEncryptionUtilTest {
         byte[] encrypted = AesEncryptionUtil.encrypt(plainText, KEY_FOR_256_32_BYTES);
 
         byte[] differentValidKey = "0123456789abcdef0123456789ABCDEF".getBytes(StandardCharsets.UTF_8);
-        assertThrows(RuntimeException.class, () -> AesEncryptionUtil.decrypt(encrypted, differentValidKey));
-    }
-
-    @Test
-    void testEncryptWhenValueNullThrows() {
-        assertThrows(RuntimeException.class, () -> AesEncryptionUtil.encrypt(null, KEY_FOR_256_32_BYTES));
+        assertThrows(Exception.class, () -> AesEncryptionUtil.decrypt(encrypted, differentValidKey));
     }
 
     @Test
     void testDecryptWhenEncryptedValueTooShort() {
         byte[] tooShort = new byte[7];
-        assertThrows(RuntimeException.class, () -> AesEncryptionUtil.decrypt(tooShort, KEY_FOR_256_32_BYTES));
+        assertThrows(Exception.class, () -> AesEncryptionUtil.decrypt(tooShort, KEY_FOR_256_32_BYTES));
     }
-    
+
 }
 

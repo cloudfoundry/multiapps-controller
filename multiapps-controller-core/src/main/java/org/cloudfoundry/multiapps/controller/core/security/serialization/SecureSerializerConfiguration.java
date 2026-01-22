@@ -2,10 +2,12 @@ package org.cloudfoundry.multiapps.controller.core.security.serialization;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 public class SecureSerializerConfiguration {
 
@@ -21,18 +23,18 @@ public class SecureSerializerConfiguration {
     private Collection<String> additionalSensitiveElementNames = Collections.emptyList();
 
     public Collection<String> getSensitiveElementNames() {
-        if (additionalSensitiveElementNames == null || additionalSensitiveElementNames.isEmpty()) {
+        if (CollectionUtils.isEmpty(additionalSensitiveElementNames)) {
             return sensitiveElementNames;
         }
 
-        List<String> mergedSensitiveElementNames = new LinkedList<>(sensitiveElementNames);
+        Set<String> mergedSensitiveElementNames = new HashSet<>(sensitiveElementNames);
 
-        for (String currentAdditionalSensitiveElement : additionalSensitiveElementNames) {
-            boolean isExistentAlready = mergedSensitiveElementNames.stream()
-                                                                   .anyMatch(sensitiveElement -> sensitiveElement.equalsIgnoreCase(
-                                                                       currentAdditionalSensitiveElement));
-            if (!isExistentAlready) {
-                mergedSensitiveElementNames.add(currentAdditionalSensitiveElement);
+        for (String additionalSensitiveElement : additionalSensitiveElementNames) {
+            boolean isNotExistent = mergedSensitiveElementNames.stream()
+                                                               .noneMatch(sensitiveElement -> sensitiveElement.equalsIgnoreCase(
+                                                                   additionalSensitiveElement));
+            if (isNotExistent) {
+                mergedSensitiveElementNames.add(additionalSensitiveElement);
             }
         }
 

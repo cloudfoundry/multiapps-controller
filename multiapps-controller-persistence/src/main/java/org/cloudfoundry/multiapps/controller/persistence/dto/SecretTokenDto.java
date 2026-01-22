@@ -22,11 +22,11 @@ public class SecretTokenDto implements DtoWithPrimaryKey<Long> {
         }
 
         public static final String ID = "id";
-        public static final String PROCESS_INSTANCE_ID = "process_instance_id";
-        public static final String VARIABLE_NAME = "variable_name";
+        public static final String PROCESS_INSTANCE_ID = "processInstanceId";
+        public static final String VARIABLE_NAME = "variableName";
         public static final String CONTENT = "content";
         public static final String TIMESTAMP = "timestamp";
-        public static final String KEY_ID = "key_id";
+        public static final String KEY_ID = "keyId";
     }
 
     @Id

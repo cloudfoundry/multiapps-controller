@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -34,7 +33,6 @@ import org.cloudfoundry.multiapps.controller.core.helpers.ReferencingPropertiesV
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferencesResolver;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
@@ -45,6 +43,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationE
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.helpers.VisitableObject;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -99,8 +98,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.UPDATING_SUBSCRIBERS);
-        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacade);
         List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(context, flowableFacade);
         List<ConfigurationEntry> updatedEntries = ListUtils.union(publishedEntries, deletedEntries);

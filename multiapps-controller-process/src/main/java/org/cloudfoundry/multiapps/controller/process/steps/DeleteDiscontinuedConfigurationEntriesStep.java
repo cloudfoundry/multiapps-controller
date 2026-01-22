@@ -2,18 +2,17 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ConfigurationEntriesUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -33,8 +32,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
         getStepLogger().debug(Messages.DELETING_PUBLISHED_DEPENDENCIES);
 
         List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(context);
-        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         deleteConfigurationEntries(entriesToDelete, context, dynamicSecureSerialization);
 
         getStepLogger().debug(Messages.PUBLISHED_DEPENDENCIES_DELETED);

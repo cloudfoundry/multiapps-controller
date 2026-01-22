@@ -26,12 +26,12 @@ public class SecretTokenCleaner implements Cleaner {
     }
 
     public void execute(LocalDateTime expirationTime) {
-        LOGGER.debug(CleanUpJob.LOG_MARKER, Messages.REMOVING_EXPIRED_SECRET_TOKENS);
+        LOGGER.info(CleanUpJob.LOG_MARKER, Messages.REMOVING_EXPIRED_SECRET_TOKENS);
 
         SecretTokenStoreDeletion secretTokenStore = secretTokenStoreFactory.createSecretTokenStoreDeletionRelated();
-        int deletedTokenCount = secretTokenStore.deleteOlderThan(expirationTime);
+        int tokens = secretTokenStore.deleteOlderThan(expirationTime);
 
-        LOGGER.debug(CleanUpJob.LOG_MARKER, MessageFormat.format(Messages.REMOVED_SECRET_TOKENS_0, deletedTokenCount));
+        LOGGER.info(CleanUpJob.LOG_MARKER, MessageFormat.format(Messages.REMOVED_SECRET_TOKENS_0, tokens));
     }
 
 }

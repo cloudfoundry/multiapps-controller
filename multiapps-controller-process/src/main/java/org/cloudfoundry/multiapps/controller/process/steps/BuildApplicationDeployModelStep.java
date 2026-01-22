@@ -19,10 +19,10 @@ import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.AdditionalModuleParametersReporter;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationEnvironmentCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.DependentModuleStopResolver;
@@ -46,8 +46,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
-        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         Module module = context.getVariable(Variables.MODULE_TO_DEPLOY);
         getStepLogger().debug(Messages.BUILDING_CLOUD_APP_MODEL, module.getName());
         Module applicationModule = findModuleInDeploymentDescriptor(context, module.getName());

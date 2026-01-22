@@ -30,12 +30,12 @@ public class MtaDescriptorMerger {
     }
 
     public DeploymentDescriptor merge(DeploymentDescriptor deploymentDescriptor, List<ExtensionDescriptor> extensionDescriptors,
-                                      List<String> parameterNamesToBeCensored) {
+                                      List<String> parameterNamesToBeMasked) {
         DescriptorValidator validator = handlerFactory.getDescriptorValidator();
         validator.validateDeploymentDescriptor(deploymentDescriptor, platform);
         validator.validateExtensionDescriptors(extensionDescriptors, deploymentDescriptor);
 
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(parameterNamesToBeCensored);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(parameterNamesToBeMasked);
         DescriptorMerger merger = handlerFactory.getDescriptorMerger();
 
         // Merge the passed set of descriptors into one deployment descriptor. The deployment descriptor at the root of

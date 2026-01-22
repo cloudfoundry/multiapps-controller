@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
@@ -102,8 +103,7 @@ public class SecretTokenKeyResolverImplTest {
     void testResolveWhenServiceInstanceMissing() {
         when(cloudControllerClient.getServiceInstance("__mta-secure-my-mtans")).thenReturn(null);
 
-        MissingUserProvidedServiceEncryptionRelatedException exception = assertThrows(
-            MissingUserProvidedServiceEncryptionRelatedException.class, () -> secretTokenKeyResolver.resolve(execution));
+        Exception exception = assertThrows(SLException.class, () -> secretTokenKeyResolver.resolve(execution));
         assertTrue(exception.getMessage()
                             .contains("Could not retrieve service instance"));
         verify(cloudControllerClient, times(1)).getServiceInstance("__mta-secure-my-mtans");
@@ -121,8 +121,7 @@ public class SecretTokenKeyResolverImplTest {
         when(cloudControllerClient.getUserProvidedServiceInstanceParameters(upsGuid))
             .thenReturn(new HashMap<>());
 
-        MissingCredentialsFromUserProvidedServiceEncryptionRelated exception = assertThrows(
-            MissingCredentialsFromUserProvidedServiceEncryptionRelated.class, () -> secretTokenKeyResolver.resolve(execution));
+        Exception exception = assertThrows(SLException.class, () -> secretTokenKeyResolver.resolve(execution));
         assertTrue(exception.getMessage()
                             .contains("Could not retrieve credentials"));
     }

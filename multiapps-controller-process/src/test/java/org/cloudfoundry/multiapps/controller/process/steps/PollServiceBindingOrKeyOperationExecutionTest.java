@@ -15,6 +15,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.process.security.resolver.SecretTokenKeyContainer;
+import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStore;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 
 class PollServiceBindingOrKeyOperationExecutionTest extends AsyncStepOperationTest<CheckForServiceBindingOrKeyOperationStep> {
 
@@ -39,6 +41,16 @@ class PollServiceBindingOrKeyOperationExecutionTest extends AsyncStepOperationTe
         context.setVariable(Variables.SERVICE_WITH_BIND_IN_PROGRESS, SERVICE_NAME);
 
         controllerClient = Mockito.mock(CloudControllerClient.class);
+        SecretTokenKeyContainer secretTokenKeyContainer = Mockito.mock(SecretTokenKeyContainer.class);
+        SecretTokenStore secretTokenStore = Mockito.mock(SecretTokenStore.class);
+        Mockito.when(secretTokenKeyContainer.key())
+               .thenReturn("test-key");
+        Mockito.when(secretTokenKeyContainer.keyId())
+               .thenReturn("v1");
+        Mockito.when(secretTokenKeyResolver.resolve(execution))
+               .thenReturn(secretTokenKeyContainer);
+        Mockito.when(secretTokenStoreFactory.createSecretTokenStore(eq("test-key"), eq("v1")))
+               .thenReturn(secretTokenStore);
         Mockito.when(clientProvider.getControllerClient(anyString(), anyString(), anyString()))
                .thenReturn(controllerClient);
         Mockito.when(controllerClient.getServiceInstance(SERVICE_NAME))
@@ -52,8 +64,6 @@ class PollServiceBindingOrKeyOperationExecutionTest extends AsyncStepOperationTe
         expectedExecutionStatus = AsyncExecutionState.FINISHED;
         setUpServiceBindings(ServiceCredentialBindingOperation.State.SUCCEEDED);
         setUpServiceKeys(ServiceCredentialBindingOperation.State.SUCCEEDED);
-        Mockito.when(secretTokenKeyResolver.resolve(execution))
-               .thenReturn(new SecretTokenKeyContainer(anyString(), anyString()));
 
         context.setVariable(Variables.IS_SERVICE_BINDING_KEY_OPERATION_IN_PROGRESS, false);
         testExecuteOperations();
@@ -64,8 +74,6 @@ class PollServiceBindingOrKeyOperationExecutionTest extends AsyncStepOperationTe
         expectedExecutionStatus = AsyncExecutionState.RUNNING;
         setUpServiceBindings(ServiceCredentialBindingOperation.State.SUCCEEDED);
         setUpServiceKeys(ServiceCredentialBindingOperation.State.IN_PROGRESS);
-        Mockito.when(secretTokenKeyResolver.resolve(execution))
-               .thenReturn(new SecretTokenKeyContainer(anyString(), anyString()));
 
         context.setVariable(Variables.IS_SERVICE_BINDING_KEY_OPERATION_IN_PROGRESS, false);
         testExecuteOperations();
@@ -76,8 +84,6 @@ class PollServiceBindingOrKeyOperationExecutionTest extends AsyncStepOperationTe
         expectedExecutionStatus = AsyncExecutionState.RUNNING;
         setUpServiceBindings(ServiceCredentialBindingOperation.State.IN_PROGRESS);
         setUpServiceKeys(ServiceCredentialBindingOperation.State.SUCCEEDED);
-        Mockito.when(secretTokenKeyResolver.resolve(execution))
-               .thenReturn(new SecretTokenKeyContainer(anyString(), anyString()));
 
         context.setVariable(Variables.IS_SERVICE_BINDING_KEY_OPERATION_IN_PROGRESS, false);
         testExecuteOperations();
@@ -88,8 +94,6 @@ class PollServiceBindingOrKeyOperationExecutionTest extends AsyncStepOperationTe
         expectedExecutionStatus = AsyncExecutionState.RUNNING;
         setUpServiceBindings(ServiceCredentialBindingOperation.State.IN_PROGRESS);
         setUpServiceKeys(ServiceCredentialBindingOperation.State.IN_PROGRESS);
-        Mockito.when(secretTokenKeyResolver.resolve(execution))
-               .thenReturn(new SecretTokenKeyContainer(anyString(), anyString()));
 
         context.setVariable(Variables.IS_SERVICE_BINDING_KEY_OPERATION_IN_PROGRESS, false);
         testExecuteOperations();
