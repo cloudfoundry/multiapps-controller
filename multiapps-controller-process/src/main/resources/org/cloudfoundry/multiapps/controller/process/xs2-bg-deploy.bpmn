@@ -179,6 +179,8 @@
             <flowable:in source="userGuid" target="userGuid"/>
             <flowable:in source="correlationId" target="correlationId"/>
             <flowable:in source="__SPACE_ID" target="__SPACE_ID"/>
+            <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+            <flowable:in source="mtaId" target="mtaId"></flowable:in>
         </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="serviceKeysToDelete" flowable:elementVariable="serviceKeyToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>

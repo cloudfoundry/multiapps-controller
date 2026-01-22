@@ -1,10 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.security;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStore;
 import org.cloudfoundry.multiapps.controller.process.security.util.SecretTokenUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Serializer;
@@ -25,17 +26,12 @@ public class SecretTokenSerializerTest {
 
     private SecretTokenStore secretTokenStore;
 
-    private SecretTransformationStrategy secretTransformationStrategy;
-
     private static final String VARIABLE_NAME = "fake_variable";
     private static final String PROCESS_INSTANCE_ID = "pid_test";
 
     @BeforeEach
     void setUp() {
         secretTokenStore = Mockito.mock(SecretTokenStore.class);
-        secretTransformationStrategy = Mockito.mock(SecretTransformationStrategy.class);
-
-        when(secretTransformationStrategy.getJsonSecretFieldNames()).thenReturn(Collections.emptySet());
     }
 
     public static final class StringSerializerHelper implements Serializer<String> {
@@ -75,15 +71,14 @@ public class SecretTokenSerializerTest {
 
     @Test
     void testSerializeAndDeserializeSuccessWhenEntireVariableIsSecretString() {
-        Set<String> names = new HashSet<>();
+        List<String> names = new ArrayList<>();
         names.add("value");
-        when(secretTransformationStrategy.getJsonSecretFieldNames()).thenReturn(names);
 
         when(secretTokenStore.put(PROCESS_INSTANCE_ID, VARIABLE_NAME, "secret_text")).thenReturn(7L);
         when(secretTokenStore.get(PROCESS_INSTANCE_ID, 7L)).thenReturn("secret_text");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
-            new StringSerializerHelper(), secretTokenStore, secretTransformationStrategy,
+            new StringSerializerHelper(), secretTokenStore, names,
             PROCESS_INSTANCE_ID, VARIABLE_NAME);
 
         String inputJson = "{\"value\":\"secret_text\"}";
@@ -97,15 +92,14 @@ public class SecretTokenSerializerTest {
 
     @Test
     void testSerializeAndDeserializeSuccessWhenJsonWithStringField() {
-        Set<String> secretNames = new HashSet<>();
+        List<String> secretNames = new ArrayList<>();
         secretNames.add("password");
-        when(secretTransformationStrategy.getJsonSecretFieldNames()).thenReturn(secretNames);
 
         when(secretTokenStore.put(eq(PROCESS_INSTANCE_ID), eq(VARIABLE_NAME), eq("internal_one"))).thenReturn(13L);
         when(secretTokenStore.get(PROCESS_INSTANCE_ID, 13L)).thenReturn("internal_one");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
-            new StringSerializerHelper(), secretTokenStore, secretTransformationStrategy,
+            new StringSerializerHelper(), secretTokenStore, secretNames,
             PROCESS_INSTANCE_ID, VARIABLE_NAME);
 
         String testInput = "{\"user\":\"u\",\"password\":\"internal_one\",\"other\":123}";
@@ -121,15 +115,14 @@ public class SecretTokenSerializerTest {
 
     @Test
     void testSerializeAndDeserializeSuccessWhenJsonWithStringFieldLargerOne() {
-        Set<String> secretNames = new HashSet<>();
+        List<String> secretNames = new ArrayList<>();
         secretNames.add("config");
-        when(secretTransformationStrategy.getJsonSecretFieldNames()).thenReturn(secretNames);
 
         when(secretTokenStore.put(eq(PROCESS_INSTANCE_ID), eq(VARIABLE_NAME), eq("must_not_be_shown"))).thenReturn(15L);
         when(secretTokenStore.get(PROCESS_INSTANCE_ID, 15L)).thenReturn("must_not_be_shown");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
-            new StringSerializerHelper(), secretTokenStore, secretTransformationStrategy,
+            new StringSerializerHelper(), secretTokenStore, secretNames,
             PROCESS_INSTANCE_ID, VARIABLE_NAME);
 
         String testInput =
@@ -145,13 +138,36 @@ public class SecretTokenSerializerTest {
     }
 
     @Test
-    void testSerializeSuccessWhenSecretParameterIsAReference() {
-        Set<String> secretNames = new HashSet<>();
-        secretNames.add("password");
-        when(secretTransformationStrategy.getJsonSecretFieldNames()).thenReturn(secretNames);
+    void testSerializeAndDeserializeSuccessWhenJsonWithStringHasTrailingTextDoesNotMakeChanges() {
+        List<String> secretNames = new ArrayList<>();
+        secretNames.add("config");
+
+        when(secretTokenStore.put(eq(PROCESS_INSTANCE_ID), eq(VARIABLE_NAME), eq("must_not_be_shown"))).thenReturn(15L);
+        when(secretTokenStore.get(PROCESS_INSTANCE_ID, 15L)).thenReturn("must_not_be_shown");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
-            new StringSerializerHelper(), secretTokenStore, secretTransformationStrategy,
+            new StringSerializerHelper(), secretTokenStore, secretNames,
+            PROCESS_INSTANCE_ID, VARIABLE_NAME);
+
+        String testInput =
+            "{\"id\":\"0001\",\"type\":\"donut\",\"name\":\"Cake\",\"image\":{\"url\":\"images/0001.jpg\",\"width\":200,\"height\":200},\"thumbnail\":{\"url\":\"images/thumbnails/0001.jpg\",\"config\":\"must_not_be_shown\",\"height\":32}}trailingTextThatCorruptsTheJson";
+        Object serialized = serializer.serialize(testInput);
+        assertInstanceOf(String.class, serialized);
+        String tokenizedJson = (String) serialized;
+        assertTrue(tokenizedJson.contains("config"));
+        assertTrue(tokenizedJson.contains("must_not_be_shown"));
+
+        String valueAtFirst = serializer.deserialize(tokenizedJson);
+        assertEquals(testInput, valueAtFirst);
+    }
+
+    @Test
+    void testSerializeSuccessWhenSecretParameterIsAReference() {
+        List<String> secretNames = new ArrayList<>();
+        secretNames.add("password");
+
+        SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
+            new StringSerializerHelper(), secretTokenStore, secretNames,
             PROCESS_INSTANCE_ID, VARIABLE_NAME);
 
         String testInput = "{\"password\":\"${referenceToSomething}\"}";
@@ -168,7 +184,7 @@ public class SecretTokenSerializerTest {
         when(secretTokenStore.get(PROCESS_INSTANCE_ID, 42L)).thenReturn("plain_value");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
-            new StringSerializerHelper(), secretTokenStore, secretTransformationStrategy,
+            new StringSerializerHelper(), secretTokenStore, Collections.emptyList(),
             PROCESS_INSTANCE_ID, VARIABLE_NAME);
 
         String result = serializer.deserialize(token);
@@ -177,10 +193,8 @@ public class SecretTokenSerializerTest {
 
     @Test
     void testSerializeLeavesPlainNonJsonUntouchedWhenCsvDisabled() {
-        when(secretTransformationStrategy.getJsonSecretFieldNames()).thenReturn(Collections.emptySet());
-
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
-            new StringSerializerHelper(), secretTokenStore, secretTransformationStrategy,
+            new StringSerializerHelper(), secretTokenStore, Collections.emptyList(),
             PROCESS_INSTANCE_ID, VARIABLE_NAME);
 
         String testInput = "just_a_plain_string";
@@ -191,15 +205,14 @@ public class SecretTokenSerializerTest {
 
     @Test
     void testSerializeAndDeserializeWhenListOfJsonElements() {
-        Set<String> secretNames = new HashSet<>();
+        List<String> secretNames = new ArrayList<>();
         secretNames.add("password");
-        when(secretTransformationStrategy.getJsonSecretFieldNames()).thenReturn(secretNames);
 
         when(secretTokenStore.put(PROCESS_INSTANCE_ID, VARIABLE_NAME, "p1")).thenReturn(100L);
         when(secretTokenStore.get(PROCESS_INSTANCE_ID, 100L)).thenReturn("p1");
 
         SecretTokenSerializer<List<String>> serializer = new SecretTokenSerializer<>(
-            new ListSerializerHelper(), secretTokenStore, secretTransformationStrategy,
+            new ListSerializerHelper(), secretTokenStore, secretNames,
             PROCESS_INSTANCE_ID, VARIABLE_NAME);
 
         List<String> testInput = List.of("{\"password\":\"p1\"}", "{\"other\":1}");
@@ -213,6 +226,61 @@ public class SecretTokenSerializerTest {
 
         List<String> valueAtFirst = serializer.deserialize(tokenized);
         assertEquals(testInput, valueAtFirst);
+    }
+
+    @Test
+    void testSerializeAndDeserialize_JsonNumberFieldCoercedToInt() throws Exception {
+        List<String> secretNames = Collections.singletonList("instancesNumber");
+
+        when(secretTokenStore.put(PROCESS_INSTANCE_ID, VARIABLE_NAME, "7")).thenReturn(77L);
+        when(secretTokenStore.get(PROCESS_INSTANCE_ID, 77L)).thenReturn("7");
+
+        SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
+            new StringSerializerHelper(), secretTokenStore, secretNames,
+            PROCESS_INSTANCE_ID, VARIABLE_NAME);
+
+        String inputJson = "{\"name\":\"app\",\"instancesNumber\":7}";
+
+        Object result = serializer.serialize(inputJson);
+        assertInstanceOf(String.class, result);
+        String tokenizedJsonResult = (String) result;
+
+        assertFalse(tokenizedJsonResult.contains("\"instancesNumber\":7"));
+
+        String valueAtFirst = serializer.deserialize(tokenizedJsonResult);
+        JsonNode root = new ObjectMapper().readTree(valueAtFirst);
+        assertTrue(root.get("instancesNumber")
+                       .isInt());
+        assertEquals(7, root.get("instancesNumber")
+                            .asInt());
+    }
+
+    @Test
+    void testSerializeAndDeserialize_ArrayOfObjects_NumberFieldsCoercedToInt() throws Exception {
+        List<String> secretNames = Collections.singletonList("instancesNumber");
+
+        when(secretTokenStore.put(PROCESS_INSTANCE_ID, VARIABLE_NAME, "3"))
+            .thenReturn(100L);
+        when(secretTokenStore.get(PROCESS_INSTANCE_ID, 100L)).thenReturn("3");
+
+        SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
+            new StringSerializerHelper(), secretTokenStore, secretNames,
+            PROCESS_INSTANCE_ID, VARIABLE_NAME);
+
+        String inputJson = "{\"array\":[{\"instancesNumber\":3},{\"someParameter\":358},{\"other\":\"x\"}]}";
+
+        Object result = serializer.serialize(inputJson);
+        assertInstanceOf(String.class, result);
+        String tokenizedJsonResult = (String) result;
+
+        assertFalse(tokenizedJsonResult.contains("\"instancesNumber\":\"3\""));
+
+        String valueAtFirst = serializer.deserialize(tokenizedJsonResult);
+        JsonNode root = new ObjectMapper().readTree(valueAtFirst);
+        JsonNode arrayFromJson = root.get("array");
+        assertEquals(3, arrayFromJson.get(0)
+                                     .get("instancesNumber")
+                                     .asInt());
     }
 
 }

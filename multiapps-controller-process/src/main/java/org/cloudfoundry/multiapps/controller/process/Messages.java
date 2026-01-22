@@ -86,6 +86,7 @@ public class Messages {
     public static final String COULD_NOT_RETRIEVE_CREDENTIALS_FROM_USER_PROVIDED_SERVICE_INSTANCE_ENCRYPTION_RELATED = "Could not retrieve credentials from service instance (user provided service instance for encryption/decryption related)!";
     public static final String JSON_TRANSFORMATION_FAILED_FOR_VARIABLE_0 = "Secret token JSON transformation failed for variable \"{0}\":";
     public static final String SECRET_VALUE_NOT_FOUND_FOR_TOKEN_0_PID_1_VARIABLE_2 = "Secret value not found for token \"{0}\" (process instance id=\"{1}\", variable=\"{2}\")";
+    public static final String INVALID_ENCRYPTION_KEY_LENGTH = "Length of the encryption key is invalid - it must be 32 characters long!";
 
     // Audit log messages
 
@@ -797,6 +798,7 @@ public class Messages {
     public static final String CALCULATED_TIMEOUT_FOR_INCREMENTAL_APP_INSTANCES_UPDATE_0_SECONDS = "Calculated timeout for incremental app instances update: {0} seconds";
     public static final String GETTING_FEATURES_FOR_APPLICATION_0 = "Getting features for application \"{0}\"";
 
+    public static final String SECURE_EXTENSION_DESCRIPTOR_CONSTRUCTED_AND_APPLIED_FROM_ENVIRONMENT_VARIABLES = "\n\"SECURE EXTENSION DESCRIPTOR CONSTRUCTED AND APPLIED FROM ENVIRONMENT VARIABLES\"";
     public static final String TOTAL_SIZE_OF_ALL_RESOLVED_CONTENT_0 = "Total size for all resolved content {0}";
     public static final String STARTED_SHUTTING_DOWN_APPLICATION_WITH_ID_AND_INDEX = "Started shutting down application with ID: \"{0}\" and index: \"{1}\"";
     public static final String SHUT_DOWN_APPLICATION_WITH_ID_AND_INDEX_FINISHED_SUCCESSFULLY = "Shut down application with ID: \"{0}\" and index: \"{1}\" finished successfully";

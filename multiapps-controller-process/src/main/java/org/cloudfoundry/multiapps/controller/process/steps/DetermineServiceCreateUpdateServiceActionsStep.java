@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -30,9 +29,9 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudSer
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractor;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractorUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
@@ -58,8 +57,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
         CloudControllerClient client = context.getControllerClient();
-        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
         getStepLogger().info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
 

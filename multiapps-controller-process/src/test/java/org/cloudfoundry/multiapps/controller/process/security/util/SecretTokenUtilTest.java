@@ -11,51 +11,51 @@ public class SecretTokenUtilTest {
 
     @Test
     void testIsTokenWhenNull() {
-        assertFalse(SecretTokenUtil.isToken(null));
+        assertFalse(SecretTokenUtil.isSecretToken(null));
     }
 
     @Test
     void testIsTokenWhenEmptyString() {
-        assertFalse(SecretTokenUtil.isToken(""));
+        assertFalse(SecretTokenUtil.isSecretToken(""));
     }
 
     @Test
     void testIsTokenWhenWrongPrefixedString() {
-        assertFalse(SecretTokenUtil.isToken("fake:v1:123"));
-        assertFalse(SecretTokenUtil.isToken("dsc:V1:123"));
-        assertFalse(SecretTokenUtil.isToken("dsc:v2:123"));
-        assertFalse(SecretTokenUtil.isToken("dsc:v1-123"));
+        assertFalse(SecretTokenUtil.isSecretToken("fake:v1:123"));
+        assertFalse(SecretTokenUtil.isSecretToken("dsc:V1:123"));
+        assertFalse(SecretTokenUtil.isSecretToken("dsc:v2:123"));
+        assertFalse(SecretTokenUtil.isSecretToken("dsc:v1-123"));
     }
 
     @Test
     void testIsTokenWhenWrongPostfixedString() {
-        assertFalse(SecretTokenUtil.isToken("dsc:v1:12a3"));
-        assertFalse(SecretTokenUtil.isToken("dsc:v1:12 3"));
-        assertFalse(SecretTokenUtil.isToken("dsc:v1:"));
+        assertFalse(SecretTokenUtil.isSecretToken("dsc:v1:12a3"));
+        assertFalse(SecretTokenUtil.isSecretToken("dsc:v1:12 3"));
+        assertFalse(SecretTokenUtil.isSecretToken("dsc:v1:"));
     }
 
     @Test
     void testIsTokenSuccess() {
-        assertTrue(SecretTokenUtil.isToken("dsc:v1:0"));
-        assertTrue(SecretTokenUtil.isToken("dsc:v1:42"));
-        assertTrue(SecretTokenUtil.isToken("dsc:v1:000123"));
+        assertTrue(SecretTokenUtil.isSecretToken("dsc:v1:0"));
+        assertTrue(SecretTokenUtil.isSecretToken("dsc:v1:42"));
+        assertTrue(SecretTokenUtil.isSecretToken("dsc:v1:000123"));
     }
 
     @Test
     void testIdWhenParsingDigits() {
-        assertEquals(0L, SecretTokenUtil.id("dsc:v1:0"));
-        assertEquals(42L, SecretTokenUtil.id("dsc:v1:42"));
-        assertEquals(123L, SecretTokenUtil.id("dsc:v1:000123"));
+        assertEquals(0L, SecretTokenUtil.extractId("dsc:v1:0"));
+        assertEquals(42L, SecretTokenUtil.extractId("dsc:v1:42"));
+        assertEquals(123L, SecretTokenUtil.extractId("dsc:v1:000123"));
     }
 
     @Test
     void testIdWhenNoDigitsThrows() {
-        assertThrows(NumberFormatException.class, () -> SecretTokenUtil.id("dsc:v1:"));
+        assertThrows(NumberFormatException.class, () -> SecretTokenUtil.extractId("dsc:v1:"));
     }
 
     @Test
     void testIdWhenNonDigitsThrows() {
-        assertThrows(NumberFormatException.class, () -> SecretTokenUtil.id("dsc:v1:abc"));
+        assertThrows(NumberFormatException.class, () -> SecretTokenUtil.extractId("dsc:v1:abc"));
     }
 
     @Test
@@ -68,8 +68,8 @@ public class SecretTokenUtilTest {
     void testFlowOfSecretTokenBuild() {
         long id = 981L;
         String token = SecretTokenUtil.of(id);
-        assertTrue(SecretTokenUtil.isToken(token));
-        assertEquals(id, SecretTokenUtil.id(token));
+        assertTrue(SecretTokenUtil.isSecretToken(token));
+        assertEquals(id, SecretTokenUtil.extractId(token));
     }
 
 }

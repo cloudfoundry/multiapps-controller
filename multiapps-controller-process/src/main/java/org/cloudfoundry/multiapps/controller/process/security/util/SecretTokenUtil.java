@@ -8,7 +8,7 @@ public class SecretTokenUtil {
 
     }
 
-    public static boolean isToken(String token) {
+    public static boolean isSecretToken(String token) {
         if (token == null) {
             return false;
         }
@@ -24,19 +24,23 @@ public class SecretTokenUtil {
         }
 
         for (int i = 0; i < tail.length(); i++) {
-            if (!Character.isDigit(tail.charAt(i))) {
+            if (!isOnlyAsciiDigit(tail.charAt(i))) {
                 return false;
             }
         }
         return true;
     }
 
-    public static long id(String token) {
+    public static long extractId(String token) {
         return Long.parseLong(token.substring(ENCRYPTED_VALUES_PREFIX.length()));
     }
 
     public static String of(long id) {
         return ENCRYPTED_VALUES_PREFIX + id;
+    }
+
+    private static boolean isOnlyAsciiDigit(char digit) {
+        return digit >= '0' && digit <= '9';
     }
 
 }

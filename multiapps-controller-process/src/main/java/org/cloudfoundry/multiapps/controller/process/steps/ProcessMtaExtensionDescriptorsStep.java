@@ -14,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacade
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
+import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.builders.ExtensionDescriptorChainBuilder;
@@ -80,16 +81,16 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
             boolean isSecureExtensionDescriptorPresent = extensionDescriptors.stream()
                                                                              .anyMatch(extensionDescriptor -> extensionDescriptor.getId()
                                                                                                                                  .equals(
-                                                                                                                                     "__mta.secure"));
-            List<ExtensionDescriptor> extensionDescriptorsWithoutSecure = null;
+                                                                                                                                     Constants.SECURE_EXTENSION_DESCRIPTOR_ID));
             if (isSecureExtensionDescriptorPresent) {
-                extensionDescriptorsWithoutSecure = extensionDescriptors.stream()
-                                                                        .filter(extensionDescriptor -> !extensionDescriptor.getId()
-                                                                                                                           .equals(
-                                                                                                                               "__mta.secure"))
-                                                                        .toList();
+                List<ExtensionDescriptor> extensionDescriptorsWithoutSecure = extensionDescriptors.stream()
+                                                                                                  .filter(
+                                                                                                      extensionDescriptor -> !extensionDescriptor.getId()
+                                                                                                                                                 .equals(
+                                                                                                                                                     Constants.SECURE_EXTENSION_DESCRIPTOR_ID))
+                                                                                                  .toList();
                 getStepLogger().debug(Messages.PROVIDED_EXTENSION_DESCRIPTORS, SecureSerialization.toJson(extensionDescriptorsWithoutSecure)
-                    + "\n\"SECURE EXTENSION DESCRIPTOR CONSTRUCTED AND APPLIED FROM ENVIRONMENT VARIABLES\"");
+                    + Messages.SECURE_EXTENSION_DESCRIPTOR_CONSTRUCTED_AND_APPLIED_FROM_ENVIRONMENT_VARIABLES);
             } else {
                 getStepLogger().debug(Messages.PROVIDED_EXTENSION_DESCRIPTORS, SecureSerialization.toJson(extensionDescriptors));
             }
