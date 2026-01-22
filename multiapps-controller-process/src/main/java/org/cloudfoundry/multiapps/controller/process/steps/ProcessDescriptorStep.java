@@ -17,12 +17,11 @@ import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParamet
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableMtaDescriptorPropertiesResolverContext;
 import org.cloudfoundry.multiapps.controller.core.model.MtaDescriptorPropertiesResolverContext;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -52,12 +51,12 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
         descriptor = resolver.resolve(descriptor);
 
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
-        getStepLogger().debug(Messages.SUBSCRIPTIONS, SecureSerialization.toJson(subscriptions));
+        getStepLogger().debug(Messages.SUBSCRIPTIONS, dynamicSecureSerialization.toJson(subscriptions));
         context.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptions);
 
         setDynamicResolvableParametersIfAbsent(context, resolver);
-        Set<String> parametersToHide = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, descriptor);
         // Set MTA modules in the context
         List<String> modulesForDeployment = context.getVariable(Variables.MODULES_FOR_DEPLOYMENT);
@@ -70,7 +69,6 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         Set<String> mtaModules = getModuleNamesForDeployment(descriptor, modulesForDeployment);
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
         context.setVariable(Variables.MTA_MODULES, mtaModules);
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(parametersToHide);
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
                               dynamicSecureSerialization.toJson(descriptor));
         getStepLogger().debug(Messages.DESCRIPTOR_PROPERTIES_RESOLVED);

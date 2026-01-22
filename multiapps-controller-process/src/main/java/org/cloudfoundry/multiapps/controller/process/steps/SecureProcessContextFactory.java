@@ -1,22 +1,28 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
-import org.cloudfoundry.multiapps.controller.process.security.SecretTransformationStrategy;
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStore;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.immutables.value.Value;
 
-public final class SecureProcessContextFactory {
+@Value.Immutable
+public abstract class SecureProcessContextFactory {
 
-    private SecureProcessContextFactory() {
+    abstract DelegateExecution getDelegateExecution();
+
+    abstract StepLogger getStepLogger();
+
+    abstract CloudControllerClientProvider getClientProvider();
+
+    abstract SecretTokenStore getSecretTokenStore();
+
+    public SecureProcessContextFactory() {
 
     }
 
-    public static SecureProcessContext ofSecureProcessContext(DelegateExecution execution, StepLogger stepLogger,
-                                                              CloudControllerClientProvider clientProvider,
-                                                              SecretTokenStore secretTokenStore,
-                                                              SecretTransformationStrategy secretTransformationStrategy) {
-        return new SecureProcessContext(execution, stepLogger, clientProvider, secretTokenStore, secretTransformationStrategy);
+    public SecureProcessContext ofSecureProcessContext() {
+        return new SecureProcessContext(getDelegateExecution(), getStepLogger(), getClientProvider(), getSecretTokenStore());
     }
 
 }

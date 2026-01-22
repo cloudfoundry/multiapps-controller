@@ -14,10 +14,10 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.core.auditlogging.ConfigurationEntryServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ConfigurationEntryDynamicParameterResolver;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -55,8 +55,7 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
             dynamicResolvableParameters);
 
         List<ConfigurationEntry> publishedEntries = publish(context, resolvedEntriesToPublish);
-        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
 
         getStepLogger().debug(Messages.PUBLISHED_ENTRIES, dynamicSecureSerialization.toJson(publishedEntries));
         context.setVariable(Variables.PUBLISHED_ENTRIES, publishedEntries);

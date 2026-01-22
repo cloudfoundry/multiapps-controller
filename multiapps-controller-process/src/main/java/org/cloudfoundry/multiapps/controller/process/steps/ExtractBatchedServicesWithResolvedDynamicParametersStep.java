@@ -19,8 +19,8 @@ import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParamet
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.resolvers.v3.DynamicParametersResolver;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.helpers.VisitableObject;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -33,8 +33,7 @@ public class ExtractBatchedServicesWithResolvedDynamicParametersStep extends Syn
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.EXTRACT_SERVICES_AND_RESOLVE_DYNAMIC_PARAMETERS_FROM_BATCH);
-        Set<String> secretParameters = context.getVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
-        DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
 
         Set<DynamicResolvableParameter> dynamicResolvableParameters = context.getVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS);
         List<CloudServiceInstanceExtended> servicesCalculatedForDeployment = context.getVariableBackwardsCompatible(

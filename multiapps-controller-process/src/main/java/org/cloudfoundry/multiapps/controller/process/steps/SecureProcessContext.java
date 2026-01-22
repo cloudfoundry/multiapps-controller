@@ -1,11 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.process.security.SecretTokenSerializer;
-import org.cloudfoundry.multiapps.controller.process.security.SecretTransformationStrategy;
-import org.cloudfoundry.multiapps.controller.process.security.SecretTransformationStrategyContextImpl;
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStore;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Serializer;
@@ -18,16 +18,16 @@ import org.flowable.engine.delegate.DelegateExecution;
 public class SecureProcessContext extends ProcessContext {
 
     private SecretTokenStore secretTokenStore;
-    private SecretTransformationStrategy secretTransformationStrategy;
+    //    private SecretTransformationStrategy secretTransformationStrategy;
 
     public SecureProcessContext(DelegateExecution execution, StepLogger stepLogger, CloudControllerClientProvider clientProvider,
-                                SecretTokenStore secretTokenStore, SecretTransformationStrategy secretTransformationStrategy) {
+                                SecretTokenStore secretTokenStore) {
         super(execution, stepLogger, clientProvider);
         this.secretTokenStore = secretTokenStore;
-        this.secretTransformationStrategy = secretTransformationStrategy;
+        //        this.secretTransformationStrategy = secretTransformationStrategy;
     }
 
-    private String pid() {
+    private String getPidOfCurrentExecution() {
         return getExecution().getRootProcessInstanceId();
     }
 
@@ -38,27 +38,33 @@ public class SecureProcessContext extends ProcessContext {
         }
 
         DelegateExecution currentExecution = getExecution();
-        String processInstanceId = pid();
-        Set<String> secureParameterNames;
+        String processInstanceId = getPidOfCurrentExecution();
 
         byte[] secureParameterNamesRaw = (byte[]) currentExecution.getVariable(
             Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES.getName());
 
-        if (secureParameterNamesRaw == null) {
-            secureParameterNames = Set.of();
-        } else {
-            secureParameterNames = Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES.getSerializer()
-                                                                                        .deserialize(secureParameterNamesRaw);
-        }
+        Set<String> secureParameterNames = extractSecureParameterNames(secureParameterNamesRaw);
 
-        SecretTransformationStrategy secretTransformationStrategyContext = new SecretTransformationStrategyContextImpl(
-            secretTransformationStrategy, secureParameterNames);
+        //        SecretTransformationStrategy secretTransformationStrategyContext = new SecretTransformationStrategyContextImpl(
+        //            secureParameterNames);
+        //        SecureSerializerConfiguration secureSerializerConfiguration = new SecureSerializerConfiguration();
+        //        secureSerializerConfiguration.setAdditionalSensitiveElementNames(secureParameterNames);
+        List<String> secureParametersNamesList = new ArrayList<>(secureParameterNames);
 
         Serializer<T> wrappedSerializer = new SecretTokenSerializer<>(variable.getSerializer(), secretTokenStore,
-                                                                      secretTransformationStrategyContext,
+                                                                      secureParametersNamesList,
                                                                       processInstanceId, variable.getName());
 
         return new WrappedVariable<>(variable, wrappedSerializer);
+    }
+
+    private Set<String> extractSecureParameterNames(byte[] secureParameterNamesRaw) {
+        if (secureParameterNamesRaw == null) {
+            return Set.of();
+        } else {
+            return Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES.getSerializer()
+                                                                        .deserialize(secureParameterNamesRaw);
+        }
     }
 
     @Override
