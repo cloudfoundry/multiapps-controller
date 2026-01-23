@@ -115,6 +115,9 @@ public class GcpObjectStoreFileStorage implements FileStorage {
 
     private boolean deleteFileWithGeneration(String id) {
         Blob blob = storage.get(bucketName, id);
+        if (blob == null) {
+            return false;
+        }
         if (blob.getGeneration() == null) {
             return storage.delete(bucketName, id);
         }
