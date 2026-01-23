@@ -3,10 +3,9 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -16,6 +15,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.http.MediaType;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -33,15 +33,6 @@ class GcpObjectStoreFileStorageTest extends JCloudsObjectStoreFileStorageTest {
             @Override
             protected Storage createObjectStoreStorage(Map<String, Object> credentials) {
                 return storage;
-            }
-
-            @Override
-            protected List<Boolean> deleteBlobs(List<BlobId> blobIds) {
-                List<Boolean> deletedBlobsResults = new ArrayList<>();
-                for (BlobId blobId : blobIds) {
-                    deletedBlobsResults.add(storage.delete(blobId));
-                }
-                return List.copyOf(deletedBlobsResults);
             }
         };
         spaceId = UUID.randomUUID()
