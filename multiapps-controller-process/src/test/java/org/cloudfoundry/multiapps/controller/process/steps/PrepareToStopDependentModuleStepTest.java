@@ -7,13 +7,9 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.util.ModulesCloudModelBuilderContentCalculator;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
-import org.cloudfoundry.multiapps.controller.core.cf.v2.ServiceKeysCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationEnvironmentCalculator;
-import org.cloudfoundry.multiapps.controller.process.util.DeprecatedBuildpackChecker;
-import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -30,17 +26,7 @@ class PrepareToStopDependentModuleStepTest extends SyncFlowableStepTest<PrepareT
     private ModuleToDeployHelper moduleToDeployHelper;
 
     @Mock
-    protected ApplicationCloudModelBuilder applicationCloudModelBuilder;
-    @Mock
-    protected ModulesCloudModelBuilderContentCalculator modulesCloudModelBuilderContentCalculator;
-    @Mock
-    protected ServiceKeysCloudModelBuilder serviceKeysCloudModelBuilder;
-
-    @Mock
-    private ProcessTypeParser processTypeParser;
-
-    @Mock
-    private DeprecatedBuildpackChecker deprecatedBuildpackChecker;
+    private ApplicationCloudModelBuilder applicationCloudModelBuilder;
 
     @Mock
     private ApplicationEnvironmentCalculator applicationEnvironmentCalculator;
@@ -73,7 +59,7 @@ class PrepareToStopDependentModuleStepTest extends SyncFlowableStepTest<PrepareT
                             .getName(), module.getName());
         assertStepFinishedSuccessfully();
     }
-    
+
     private void setUpMocks(Module module) {
         DeploymentDescriptor completeDeploymentDescriptor = DeploymentDescriptor.createV3();
         completeDeploymentDescriptor.setModules(List.of(module));

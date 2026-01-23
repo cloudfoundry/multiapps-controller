@@ -35,6 +35,8 @@ class DependentModuleStopResolverTest {
     @Mock
     private StepLogger logger;
 
+    private final DependentModuleStopResolver dependentModuleStopResolver = new DependentModuleStopResolver();
+
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
@@ -42,8 +44,12 @@ class DependentModuleStopResolverTest {
     }
 
     void setupContext(List<Module> modules) {
+        setupContext(modules, true);
+    }
+
+    void setupContext(List<Module> modules, boolean dependencyAwareStopOrder) {
         DeploymentDescriptor descriptor = DeploymentDescriptor.createV3();
-        descriptor.setParameters(Map.of(SupportedParameters.BG_DEPENDENCY_AWARE_STOP_ORDER, true));
+        descriptor.setParameters(Map.of(SupportedParameters.BG_DEPENDENCY_AWARE_STOP_ORDER, dependencyAwareStopOrder));
         Mockito.when(context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR))
                .thenReturn(descriptor);
         Mockito.when(context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY))
@@ -65,10 +71,8 @@ class DependentModuleStopResolverTest {
 
     @Test
     void testDependentModuleStopResolver() {
-        Module module = Module.createV3()
-                              .setName("test-module");
+        Module module = v3("test-module", null);
         setupContext(List.of(module));
-        DependentModuleStopResolver dependentModuleStopResolver = new DependentModuleStopResolver();
         List<Module> result = dependentModuleStopResolver.resolveDependentModulesToStop(context, module);
         assertTrue(result.isEmpty(), "Expected the list to be empty");
     }
@@ -78,7 +82,6 @@ class DependentModuleStopResolverTest {
         Module module = Module.createV2()
                               .setName("test-module");
         setupContext(List.of(module));
-        DependentModuleStopResolver dependentModuleStopResolver = new DependentModuleStopResolver();
         List<Module> result = dependentModuleStopResolver.resolveDependentModulesToStop(context, module);
         verify(logger, times(1)).warn(anyString(), anyString(), anyInt(), anyInt());
         assertTrue(result.isEmpty(), "Expected the list to be empty");
@@ -90,26 +93,17 @@ class DependentModuleStopResolverTest {
                               .setName("test-module")
                               .setDeployedAfter(Collections.emptyList());
         setupContext(List.of(module));
-        DependentModuleStopResolver dependentModuleStopResolver = new DependentModuleStopResolver();
         List<Module> result = dependentModuleStopResolver.resolveDependentModulesToStop(context, module);
         assertTrue(result.isEmpty(), "Expected the list to be empty");
     }
 
     @Test
     void resolveDependentModulesLinearChain() {
-        Module a = Module.createV3()
-                         .setName("A");
-        Module b = Module.createV3()
-                         .setName("B")
-                         .setDeployedAfter(List.of("A"));
-        Module c = Module.createV3()
-                         .setName("C")
-                         .setDeployedAfter(List.of("B"));
-
+        Module a = v3("A", "");
+        Module b = v3("B", "A");
+        Module c = v3("C", "B");
         setupContext(List.of(a, b, c));
-        DependentModuleStopResolver resolver = new DependentModuleStopResolver();
-
-        List<Module> result = resolver.resolveDependentModulesToStop(context, a);
+        List<Module> result = dependentModuleStopResolver.resolveDependentModulesToStop(context, a);
 
         assertEquals(List.of("C", "B"), result.stream()
                                               .map(Module::getName)
@@ -118,22 +112,14 @@ class DependentModuleStopResolverTest {
 
     @Test
     void resolveDependentModuleDiamond() {
-        Module a = Module.createV3()
-                         .setName("A");
-        Module b = Module.createV3()
-                         .setName("B")
-                         .setDeployedAfter(List.of("A"));
-        Module c = Module.createV3()
-                         .setName("C")
-                         .setDeployedAfter(List.of("A"));
-        Module d = Module.createV3()
-                         .setName("D")
-                         .setDeployedAfter(List.of("B", "C"));
+        Module a = v3("A", "");
+        Module b = v3("B", "A");
+        Module c = v3("C", "A");
+        Module d = v3("D", "B", "C");
 
         setupContext(List.of(a, b, c, d));
-        DependentModuleStopResolver resolver = new DependentModuleStopResolver();
 
-        List<Module> result = resolver.resolveDependentModulesToStop(context, a);
+        List<Module> result = dependentModuleStopResolver.resolveDependentModulesToStop(context, a);
 
         assertEquals(List.of("D", "B", "C"), result.stream()
                                                    .map(Module::getName)
@@ -142,56 +128,32 @@ class DependentModuleStopResolverTest {
 
     @Test
     void returnsEmptyWhenFeatureFlagDisabled() {
-        Module a = Module.createV3()
-                         .setName("A");
-        Module b = Module.createV3()
-                         .setName("B")
-                         .setDeployedAfter(List.of("A"));
-        DeploymentDescriptor descriptor = DeploymentDescriptor.createV3();
-        descriptor.setParameters(Map.of(SupportedParameters.BG_DEPENDENCY_AWARE_STOP_ORDER, false));
-        Mockito.when(context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR))
-               .thenReturn(descriptor);
-        descriptor.setModules(List.of(a, b));
-        Mockito.when(context.getExecution())
-               .thenReturn(execution);
-        Mockito.when(execution.getVariable(Variables.STOP_ORDER_IS_DEPENDENCY_AWARE.getName()))
-               .thenReturn(false);
-        DependentModuleStopResolver resolver = new DependentModuleStopResolver();
-        assertTrue(resolver.resolveDependentModulesToStop(context, a)
-                           .isEmpty());
+        Module a = v3("A", "");
+        Module b = v3("B", "A");
+        setupContext(List.of(a, b), false);
+        assertTrue(dependentModuleStopResolver.resolveDependentModulesToStop(context, a)
+                                              .isEmpty());
     }
 
     @Test
     void noDependentModulesReturnsEmpty() {
-        Module a = Module.createV3()
-                         .setName("A");
-        Module b = Module.createV3()
-                         .setName("B");
+        Module a = v3("A", "");
+        Module b = v3("B", "");
 
         setupContext(List.of(a, b));
-        DependentModuleStopResolver resolver = new DependentModuleStopResolver();
-
-        assertTrue(resolver.resolveDependentModulesToStop(context, a)
-                           .isEmpty());
+        assertTrue(dependentModuleStopResolver.resolveDependentModulesToStop(context, a)
+                                              .isEmpty());
     }
 
     @Test
     void diamondDependencyPostOrderAndNoDuplicates() {
-        Module a = Module.createV3()
-                         .setName("A");
-        Module b = Module.createV3()
-                         .setName("B")
-                         .setDeployedAfter(List.of("A"));
-        Module c = Module.createV3()
-                         .setName("C")
-                         .setDeployedAfter(List.of("A"));
-        Module d = Module.createV3()
-                         .setName("D")
-                         .setDeployedAfter(List.of("B", "C"));
-        setupContext(List.of(a, b, c, d));
-        DependentModuleStopResolver resolver = new DependentModuleStopResolver();
+        Module a = v3("A", "");
+        Module b = v3("B", "A");
+        Module c = v3("C", "A");
+        Module d = v3("D", "B", "C");
 
-        List<String> result = names(resolver.resolveDependentModulesToStop(context, a));
+        setupContext(List.of(a, b, c, d));
+        List<String> result = names(dependentModuleStopResolver.resolveDependentModulesToStop(context, a));
 
         assertEquals(List.of("D", "B", "C"), result);
         assertEquals(result.size(), result.stream()
@@ -201,21 +163,14 @@ class DependentModuleStopResolverTest {
 
     @Test
     void multipleBranchesAllIncluded() {
-        Module a = Module.createV3()
-                         .setName("A");
-        Module b = Module.createV3()
-                         .setName("B")
-                         .setDeployedAfter(List.of("A"));
-        Module c = Module.createV3()
-                         .setName("C")
-                         .setDeployedAfter(List.of("A"));
-        Module d = Module.createV3()
-                         .setName("D")
-                         .setDeployedAfter(List.of("A"));
+        Module a = v3("A", "");
+        Module b = v3("B", "A");
+        Module c = v3("C", "A");
+        Module d = v3("D", "A");
 
         setupContext(List.of(a, b, c, d));
         List<String> result = names(
-            new DependentModuleStopResolver().resolveDependentModulesToStop(context, a)
+            dependentModuleStopResolver.resolveDependentModulesToStop(context, a)
         );
 
         assertTrue(result.containsAll(List.of("B", "C", "D")));
@@ -223,19 +178,13 @@ class DependentModuleStopResolverTest {
 
     @Test
     void cyclicDependencyDoesNotInfiniteLoop() {
-        Module a = Module.createV3()
-                         .setName("A")
-                         .setDeployedAfter(List.of("C"));
-        Module b = Module.createV3()
-                         .setName("B")
-                         .setDeployedAfter(List.of("A"));
-        Module c = Module.createV3()
-                         .setName("C")
-                         .setDeployedAfter(List.of("B"));
+        Module a = v3("A", "C");
+        Module b = v3("B", "A");
+        Module c = v3("C", "B");
 
         setupContext(List.of(a, b, c));
         List<String> result = names(
-            new DependentModuleStopResolver().resolveDependentModulesToStop(context, a)
+            dependentModuleStopResolver.resolveDependentModulesToStop(context, a)
         );
 
         assertEquals(2, result.size());
@@ -244,28 +193,22 @@ class DependentModuleStopResolverTest {
 
     @Test
     void missingDependencyIsIgnoredSafely() {
-        Module a = Module.createV3()
-                         .setName("A");
-        Module b = Module.createV3()
-                         .setName("B")
-                         .setDeployedAfter(List.of("A", "X"));
+        Module a = v3("A", "");
+        Module b = v3("B", "A", "X");
 
         setupContext(List.of(a, b));
         assertEquals(List.of("B"),
-                     names(new DependentModuleStopResolver()
+                     names(dependentModuleStopResolver
                                .resolveDependentModulesToStop(context, a)));
     }
 
     @Test
     void rootIsNotIncludedInResult() {
-        Module a = Module.createV3()
-                         .setName("A");
-        Module b = Module.createV3()
-                         .setName("B")
-                         .setDeployedAfter(List.of("A"));
+        Module a = v3("A", "");
+        Module b = v3("B", "A");
         setupContext(List.of(a, b));
         List<String> result = names(
-            new DependentModuleStopResolver().resolveDependentModulesToStop(context, a)
+            dependentModuleStopResolver.resolveDependentModulesToStop(context, a)
         );
 
         assertEquals(List.of("B"), result);
@@ -274,17 +217,13 @@ class DependentModuleStopResolverTest {
 
     @Test
     void orderingIsDeterministic() {
-        Module a = Module.createV3()
-                         .setName("A");
-        Module c = Module.createV3()
-                         .setName("C")
-                         .setDeployedAfter(List.of("A"));
-        Module b = Module.createV3()
-                         .setName("B")
-                         .setDeployedAfter(List.of("A"));
+        Module a = v3("A", "C");
+        Module c = v3("C", "A");
+        Module b = v3("B", "A");
+
         setupContext(List.of(a, c, b));
         List<String> result = names(
-            new DependentModuleStopResolver().resolveDependentModulesToStop(context, a)
+            dependentModuleStopResolver.resolveDependentModulesToStop(context, a)
         );
 
         assertEquals(List.of("B", "C"), result);
@@ -292,26 +231,13 @@ class DependentModuleStopResolverTest {
 
     @Test
     void testDependentModuleStopResolverContextFlag() {
-        Module a = Module.createV3()
-                         .setName("A");
-        Module b = Module.createV3()
-                         .setName("B")
-                         .setDeployedAfter(List.of("A"));
-
-        DeploymentDescriptor descriptor = DeploymentDescriptor.createV3();
-        descriptor.setParameters(Map.of(SupportedParameters.BG_DEPENDENCY_AWARE_STOP_ORDER, true));
-        Mockito.when(context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR))
-               .thenReturn(descriptor);
-        descriptor.setModules(List.of(a, b));
-        Mockito.when(context.getExecution())
-               .thenReturn(execution);
-        Mockito.when(context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY))
-               .thenReturn(true);
+        Module a = v3("A", "");
+        Module b = v3("B", "A");
+        setupContext(List.of(a, b));
         Mockito.when(execution.getVariable(Variables.STOP_ORDER_IS_DEPENDENCY_AWARE.getName()))
                .thenReturn(true);
-
         List<String> result = names(
-            new DependentModuleStopResolver().resolveDependentModulesToStop(context, a)
+            dependentModuleStopResolver.resolveDependentModulesToStop(context, a)
         );
 
         assertEquals(List.of("B"), result);
@@ -320,21 +246,28 @@ class DependentModuleStopResolverTest {
 
     @Test
     void testDependentModuleStopResolverSkip() {
-        Module a = Module.createV3()
-                         .setName("A");
-        Module b = Module.createV3()
-                         .setName("B")
-                         .setDeployedAfter(List.of("A"));
+        Module a = v3("A", "");
+        Module b = v3("B", "A");
         setupContext(List.of(a, b));
         Mockito.when(context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY))
                .thenReturn(false);
 
         List<String> result = names(
-            new DependentModuleStopResolver().resolveDependentModulesToStop(context, a)
+            dependentModuleStopResolver.resolveDependentModulesToStop(context, a)
         );
         verify(logger, times(1)).warn(anyString());
         assertTrue(result.isEmpty(), "Expected the list to be empty");
 
     }
+
+    private static Module v3(String name, String... deployedAfter) {
+        Module m = Module.createV3()
+                         .setName(name);
+        if (deployedAfter != null && deployedAfter.length > 0) {
+            m.setDeployedAfter(List.of(deployedAfter));
+        }
+        return m;
+    }
+
 }
 

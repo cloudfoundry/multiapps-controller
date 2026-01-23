@@ -42,15 +42,16 @@ public class DependentModuleStopResolver {
 
         List<Module> result = new ArrayList<>();
         Set<String> visited = new HashSet<>();
+        visited.add(root.getName());
 
         collectModulesDependentOnPostOrder(root.getName(), modulesDependentOn, visited, result);
-
-        result.remove(root);
+        
         return result;
     }
 
     private boolean isDependencyAwareStopOrderEnabled(ProcessContext context, DeploymentDescriptor descriptor) {
-        boolean isExplicitlySetFromContext = VariableHandling.get(context.getExecution(), Variables.STOP_ORDER_IS_DEPENDENCY_AWARE);
+        boolean isExplicitlySetFromContext = Boolean.TRUE.equals(
+            VariableHandling.get(context.getExecution(), Variables.STOP_ORDER_IS_DEPENDENCY_AWARE));
         if (isExplicitlySetFromContext) {
             return true;
         }

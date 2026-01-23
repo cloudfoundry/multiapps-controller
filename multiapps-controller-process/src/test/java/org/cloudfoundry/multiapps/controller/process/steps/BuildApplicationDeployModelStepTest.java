@@ -40,7 +40,7 @@ class BuildApplicationDeployModelStepTest extends SyncFlowableStepTest<BuildAppl
     }
 
     @Test
-    void testModuleResolutionAsyncServiceBindings1() {
+    void testModuleResolutionAsyncServiceBindingsAfterResume() {
         Module module = Module.createV3()
                               .setName("test-module");
         setUpMocks(module);
