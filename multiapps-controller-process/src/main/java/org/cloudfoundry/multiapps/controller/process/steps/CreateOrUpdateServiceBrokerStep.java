@@ -18,8 +18,9 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper.CloudComponents;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -35,12 +36,12 @@ public class CreateOrUpdateServiceBrokerStep extends TimeoutAsyncFlowableStep {
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
         getStepLogger().debug(Messages.CREATING_SERVICE_BROKERS);
-
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         CloudServiceBroker serviceBroker = getServiceBrokerToCreate(context);
         if (serviceBroker == null) {
             return StepPhase.DONE;
         }
-        getStepLogger().debug(MessageFormat.format(Messages.SERVICE_BROKER, SecureSerialization.toJson(serviceBroker)));
+        getStepLogger().debug(MessageFormat.format(Messages.SERVICE_BROKER, dynamicSecureSerialization.toJson(serviceBroker)));
 
         CloudControllerClient client = context.getControllerClient();
         List<CloudServiceBroker> existingServiceBrokers = client.getServiceBrokers();

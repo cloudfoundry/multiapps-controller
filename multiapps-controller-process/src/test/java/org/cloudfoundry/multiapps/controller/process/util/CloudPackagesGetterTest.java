@@ -15,6 +15,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudPackage;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDropletInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -31,12 +32,14 @@ class CloudPackagesGetterTest {
     private static final UUID DROPLET_GUID = UUID.randomUUID();
     private final CloudPackagesGetter cloudPackagesGetter = new CloudPackagesGetter();
     private final CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
+    private final DynamicSecureSerialization dynamicSecureSerialization = Mockito.mock(DynamicSecureSerialization.class);
 
     @Test
     void getAppPackageWithNoPackagesNoDroplet() {
         Mockito.when(client.getCurrentDropletForApplication(APPLICATION_GUID))
                .thenThrow(getNotFoundCloudOperationException());
-        Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getAppPackage(client, APPLICATION_GUID);
+        Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getAppPackage(client, APPLICATION_GUID,
+                                                                                       dynamicSecureSerialization);
         assertFalse(latestUnusedPackage.isPresent());
     }
 
@@ -45,7 +48,7 @@ class CloudPackagesGetterTest {
         Mockito.when(client.getCurrentDropletForApplication(APPLICATION_GUID))
                .thenThrow(getInternalServerErrorCloudOperationException());
         Exception exception = assertThrows(CloudOperationException.class,
-                                           () -> cloudPackagesGetter.getAppPackage(client, APPLICATION_GUID));
+                                           () -> cloudPackagesGetter.getAppPackage(client, APPLICATION_GUID, dynamicSecureSerialization));
         assertEquals("500 Internal Server Error", exception.getMessage());
     }
 
@@ -58,8 +61,9 @@ class CloudPackagesGetterTest {
                .thenReturn(cloudPackage);
         Mockito.when(client.getPackagesForApplication(APPLICATION_GUID))
                .thenReturn(List.of(cloudPackage));
-        Optional<CloudPackage> currentPackage = cloudPackagesGetter.getAppPackage(client, APPLICATION_GUID);
-        Optional<CloudPackage> latestPackage = cloudPackagesGetter.getMostRecentAppPackage(client, APPLICATION_GUID);
+        Optional<CloudPackage> currentPackage = cloudPackagesGetter.getAppPackage(client, APPLICATION_GUID, dynamicSecureSerialization);
+        Optional<CloudPackage> latestPackage = cloudPackagesGetter.getMostRecentAppPackage(client, APPLICATION_GUID,
+                                                                                           dynamicSecureSerialization);
         assertTrue(currentPackage.isPresent());
         assertTrue(latestPackage.isPresent());
         assertEquals(currentPackage.get()

@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
@@ -19,13 +18,13 @@ import org.cloudfoundry.multiapps.controller.core.helpers.DynamicResolvableParam
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.resolvers.v3.DynamicParametersResolver;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.helpers.VisitableObject;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
 
 @Named("extractBatchedServicesWithResolvedDynamicParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -34,6 +33,7 @@ public class ExtractBatchedServicesWithResolvedDynamicParametersStep extends Syn
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.EXTRACT_SERVICES_AND_RESOLVE_DYNAMIC_PARAMETERS_FROM_BATCH);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
 
         Set<DynamicResolvableParameter> dynamicResolvableParameters = context.getVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS);
         List<CloudServiceInstanceExtended> servicesCalculatedForDeployment = context.getVariableBackwardsCompatible(
@@ -51,7 +51,7 @@ public class ExtractBatchedServicesWithResolvedDynamicParametersStep extends Syn
                                                                                                      .collect(Collectors.toList());
 
         checkForDuplicatedServiceNameFields(resolvedServiceInstances);
-        setServicesToCreate(context, resolvedServiceInstances);
+        setServicesToCreate(context, resolvedServiceInstances, dynamicSecureSerialization);
         context.setVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS, dynamicParametersWithResolvedExistingInstances);
         return StepPhase.DONE;
     }
@@ -116,13 +116,14 @@ public class ExtractBatchedServicesWithResolvedDynamicParametersStep extends Syn
 
     }
 
-    private void setServicesToCreate(ProcessContext context, List<CloudServiceInstanceExtended> servicesCalculatedForDeployment) {
+    private void setServicesToCreate(ProcessContext context, List<CloudServiceInstanceExtended> servicesCalculatedForDeployment,
+                                     DynamicSecureSerialization dynamicSecureSerialization) {
 
         List<CloudServiceInstanceExtended> servicesToCreate = servicesCalculatedForDeployment.stream()
                                                                                              .filter(
                                                                                                  CloudServiceInstanceExtended::isManaged)
                                                                                              .collect(Collectors.toList());
-        getStepLogger().debug(Messages.SERVICES_TO_CREATE, SecureSerialization.toJson(servicesToCreate));
+        getStepLogger().debug(Messages.SERVICES_TO_CREATE, dynamicSecureSerialization.toJson(servicesToCreate));
         context.setVariable(Variables.SERVICES_TO_CREATE, servicesToCreate);
         context.setVariable(Variables.SERVICES_TO_CREATE_COUNT, servicesToCreate.size());
     }

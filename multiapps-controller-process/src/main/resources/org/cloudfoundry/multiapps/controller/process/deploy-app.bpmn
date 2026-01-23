@@ -92,6 +92,8 @@
         <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
         <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
         <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+        <flowable:in source="mtaId" target="mtaId"></flowable:in>
       </extensionElements>
     </callActivity>
     <sequenceFlow id="sid-26C87D1E-88D5-47E3-907B-0F8EBBCD2C36" sourceRef="executeTasksCallActivity" targetRef="publishProvidedDependenciesTask"></sequenceFlow>
@@ -110,6 +112,8 @@
         <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
         <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
         <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+        <flowable:in source="mtaId" target="mtaId"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution">
         <extensionElements></extensionElements>
@@ -137,6 +141,8 @@
         <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
         <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
         <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+        <flowable:in source="mtaId" target="mtaId"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution">
         <extensionElements></extensionElements>
@@ -166,6 +172,9 @@
         <flowable:in source="serviceBindingParameters" target="serviceBindingParameters"></flowable:in>
         <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
         <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
+        <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+        <flowable:in source="mtaId" target="mtaId"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToUnbindBind" flowable:elementVariable="serviceToUnbindBind">
         <extensionElements></extensionElements>
@@ -198,6 +207,9 @@
         <flowable:in source="serviceBindingParameters" target="serviceBindingParameters"></flowable:in>
         <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
         <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
+        <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+        <flowable:in source="mtaId" target="mtaId"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="true" flowable:collection="servicesToUnbindBind" flowable:elementVariable="serviceToUnbindBind">
         <extensionElements></extensionElements>

@@ -5,12 +5,12 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription.ResourceDto;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -27,7 +27,8 @@ public class DeleteSubscriptionsStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.DELETING_SUBSCRIPTIONS);
 
         List<ConfigurationSubscription> subscriptionsToDelete = context.getVariable(Variables.SUBSCRIPTIONS_TO_DELETE);
-        getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, SecureSerialization.toJson(subscriptionsToDelete));
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
+        getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, dynamicSecureSerialization.toJson(subscriptionsToDelete));
         for (ConfigurationSubscription subscription : subscriptionsToDelete) {
             infoSubscriptionDeletion(subscription);
             int removedSubscriptions = configurationSubscriptionService.createQuery()

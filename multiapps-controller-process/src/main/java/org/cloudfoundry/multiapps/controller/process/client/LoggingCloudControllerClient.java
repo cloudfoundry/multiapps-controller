@@ -37,7 +37,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Upload;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.UserRole;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -46,10 +46,13 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     private final CloudControllerClient delegate;
     private final UserMessageLogger logger;
+    private final DynamicSecureSerialization dynamicSecureSerialization;
 
-    public LoggingCloudControllerClient(CloudControllerClient delegate, UserMessageLogger logger) {
+    public LoggingCloudControllerClient(CloudControllerClient delegate, UserMessageLogger logger,
+                                        DynamicSecureSerialization dynamicSecureSerialization) {
         this.delegate = delegate;
         this.logger = logger;
+        this.dynamicSecureSerialization = dynamicSecureSerialization;
     }
 
     @Override
@@ -80,7 +83,8 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public Optional<String> bindServiceInstance(String bindingName, String applicationName, String serviceInstanceName,
                                                 Map<String, Object> parameters, ApplicationServicesUpdateCallback updateServicesCallback) {
         logger.debug(Messages.BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_WITH_PARAMETERS_2, serviceInstanceName, applicationName,
-                     SecureSerialization.toJson(parameters));
+                     dynamicSecureSerialization.toJson(
+                         parameters));
         return delegate.bindServiceInstance(bindingName, applicationName, serviceInstanceName, parameters, updateServicesCallback);
     }
 
@@ -89,46 +93,47 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
         logger.debug(Messages.CREATING_APPLICATION_0_WITH_DISK_1_MEMORY_2_URIS_3_AND_STAGING_4, applicationToCreateDto.getName(),
                      applicationToCreateDto.getDiskQuotaInMb(), applicationToCreateDto.getMemoryInMb(),
                      UriUtil.prettyPrintRoutes(applicationToCreateDto.getRoutes()),
-                     SecureSerialization.toJson(applicationToCreateDto.getStaging()));
+                     dynamicSecureSerialization.toJson(applicationToCreateDto.getStaging()));
         delegate.createApplication(applicationToCreateDto);
     }
 
     @Override
     public void createServiceInstance(CloudServiceInstance serviceInstance) {
-        logger.debug(Messages.CREATING_SERVICE_INSTANCE_0, SecureSerialization.toJson(serviceInstance));
+        logger.debug(Messages.CREATING_SERVICE_INSTANCE_0, dynamicSecureSerialization.toJson(serviceInstance));
         delegate.createServiceInstance(serviceInstance);
     }
 
     @Override
     public String createServiceBroker(CloudServiceBroker serviceBroker) {
-        logger.debug(Messages.CREATING_SERVICE_BROKER_0, SecureSerialization.toJson(serviceBroker));
+        logger.debug(Messages.CREATING_SERVICE_BROKER_0, dynamicSecureSerialization.toJson(serviceBroker));
         return delegate.createServiceBroker(serviceBroker);
     }
 
     @Override
     public CloudServiceKey createAndFetchServiceKey(CloudServiceKey keyModel, String serviceInstanceName) {
         logger.debug(Messages.CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2, keyModel.getName(), serviceInstanceName,
-                     SecureSerialization.toJson(keyModel.getCredentials()));
+                     dynamicSecureSerialization.toJson(keyModel.getCredentials()));
         return delegate.createAndFetchServiceKey(keyModel, serviceInstanceName);
     }
 
     @Override
     public Optional<String> createServiceKey(CloudServiceKey keyModel, String serviceInstanceName) {
         logger.debug(Messages.CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2, keyModel.getName(), serviceInstanceName,
-                     SecureSerialization.toJson(keyModel.getCredentials()));
+                     dynamicSecureSerialization.toJson(keyModel.getCredentials()));
         return delegate.createServiceKey(keyModel, serviceInstanceName);
     }
 
     @Override
     public Optional<String> createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
         logger.debug(Messages.CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2, serviceKeyName, serviceInstanceName,
-                     SecureSerialization.toJson(parameters));
+                     dynamicSecureSerialization.toJson(parameters));
         return delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters);
     }
 
     @Override
     public void createUserProvidedServiceInstance(CloudServiceInstance serviceInstance) {
-        logger.debug(Messages.CREATING_USER_PROVIDED_SERVICE_INSTANCE_0, SecureSerialization.toJson(serviceInstance));
+        logger.debug(Messages.CREATING_USER_PROVIDED_SERVICE_INSTANCE_0,
+                     dynamicSecureSerialization.toJson(serviceInstance));
         delegate.createUserProvidedServiceInstance(serviceInstance);
     }
 
@@ -543,7 +548,8 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void updateApplicationStaging(String applicationName, Staging staging) {
-        logger.debug(Messages.UPDATING_STAGING_OF_APPLICATION_0_TO_1, applicationName, SecureSerialization.toJson(staging));
+        logger.debug(Messages.UPDATING_STAGING_OF_APPLICATION_0_TO_1, applicationName,
+                     dynamicSecureSerialization.toJson(staging));
         delegate.updateApplicationStaging(applicationName, staging);
     }
 
@@ -555,7 +561,7 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     @Override
     public String updateServiceBroker(CloudServiceBroker serviceBroker) {
-        logger.debug(Messages.UPDATING_SERVICE_BROKER_TO_0, SecureSerialization.toJson(serviceBroker));
+        logger.debug(Messages.UPDATING_SERVICE_BROKER_TO_0, dynamicSecureSerialization.toJson(serviceBroker));
         return delegate.updateServiceBroker(serviceBroker);
     }
 
@@ -616,7 +622,8 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     @Override
     public CloudTask runTask(String applicationName, CloudTask task) {
-        logger.debug(Messages.RUNNING_TASK_1_ON_APPLICATION_0, applicationName, SecureSerialization.toJson(task));
+        logger.debug(Messages.RUNNING_TASK_1_ON_APPLICATION_0, applicationName,
+                     dynamicSecureSerialization.toJson(task));
         return delegate.runTask(applicationName, task);
     }
 
@@ -682,19 +689,22 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void updateApplicationMetadata(UUID guid, Metadata metadata) {
-        logger.debug(Messages.UPDATING_METADATA_OF_APPLICATION_0_TO_1, guid, SecureSerialization.toJson(metadata));
+        logger.debug(Messages.UPDATING_METADATA_OF_APPLICATION_0_TO_1, guid,
+                     dynamicSecureSerialization.toJson(metadata));
         delegate.updateApplicationMetadata(guid, metadata);
     }
 
     @Override
     public void updateServiceInstanceMetadata(UUID guid, Metadata metadata) {
-        logger.debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_TO_1, guid, SecureSerialization.toJson(metadata));
+        logger.debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_TO_1, guid,
+                     dynamicSecureSerialization.toJson(metadata));
         delegate.updateServiceInstanceMetadata(guid, metadata);
     }
 
     @Override
     public void updateServiceBindingMetadata(UUID guid, Metadata metadata) {
-        logger.debug(Messages.UPDATING_METADATA_OF_SERVICE_BINDING_0_TO_1, guid, SecureSerialization.toJson(metadata));
+        logger.debug(Messages.UPDATING_METADATA_OF_SERVICE_BINDING_0_TO_1, guid,
+                     dynamicSecureSerialization.toJson(metadata));
         delegate.updateServiceBindingMetadata(guid, metadata);
     }
 

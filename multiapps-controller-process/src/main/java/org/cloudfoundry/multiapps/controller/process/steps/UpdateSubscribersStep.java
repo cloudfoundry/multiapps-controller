@@ -32,7 +32,7 @@ import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.helpers.ReferencingPropertiesVisitor;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferencesResolver;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
@@ -43,6 +43,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationE
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.helpers.VisitableObject;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -97,6 +98,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.UPDATING_SUBSCRIBERS);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacade);
         List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(context, flowableFacade);
         List<ConfigurationEntry> updatedEntries = ListUtils.union(publishedEntries, deletedEntries);
@@ -116,7 +118,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
             CloudControllerClient client = getClient(context, target);
             CloudApplication subscriberApp = client.getApplication(subscription.getAppName());
             Map<String, String> appEnv = client.getApplicationEnvironment(subscriberApp.getGuid());
-            CloudApplication updatedApplication = updateSubscriber(context, subscription, client, subscriberApp, appEnv);
+            CloudApplication updatedApplication = updateSubscriber(context, subscription, client, subscriberApp, appEnv,
+                                                                   dynamicSecureSerialization);
             if (updatedApplication != null) {
                 addApplicationToProperList(updatedSubscribers, updatedServiceBrokerSubscribers, updatedApplication, appEnv);
             }
@@ -159,9 +162,10 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     private CloudApplication updateSubscriber(ProcessContext context, ConfigurationSubscription subscription, CloudControllerClient client,
-                                              CloudApplication subscriberApp, Map<String, String> appEnv) {
+                                              CloudApplication subscriberApp, Map<String, String> appEnv,
+                                              DynamicSecureSerialization dynamicSecureSerialization) {
         try {
-            return attemptToUpdateSubscriber(context, client, subscription, subscriberApp, appEnv);
+            return attemptToUpdateSubscriber(context, client, subscription, subscriberApp, appEnv, dynamicSecureSerialization);
         } catch (CloudOperationException | SLException e) {
             String appName = subscription.getAppName();
             String mtaId = subscription.getMtaId();
@@ -173,12 +177,12 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
     private CloudApplication attemptToUpdateSubscriber(ProcessContext context, CloudControllerClient client,
                                                        ConfigurationSubscription subscription, CloudApplication subscriberApp,
-                                                       Map<String, String> appEnv) {
+                                                       Map<String, String> appEnv, DynamicSecureSerialization dynamicSecureSerialization) {
         CloudHandlerFactory handlerFactory = CloudHandlerFactory.forSchemaVersion(MAJOR_SCHEMA_VERSION);
 
         DeploymentDescriptor dummyDescriptor = buildDummyDescriptor(subscription, handlerFactory);
         getStepLogger().debug(org.cloudfoundry.multiapps.controller.core.Messages.DEPLOYMENT_DESCRIPTOR,
-                              SecureSerialization.toJson(dummyDescriptor));
+                              dynamicSecureSerialization.toJson(dummyDescriptor));
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(configurationEntryService,
                                                                                                      new DummyConfigurationFilterParser(
@@ -189,12 +193,12 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
                                                                                                                          Variables.SPACE_NAME)),
                                                                                                      configuration);
         resolver.resolve(dummyDescriptor);
-        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(dummyDescriptor));
+        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, dynamicSecureSerialization.toJson(dummyDescriptor));
         dummyDescriptor = handlerFactory.getDescriptorReferenceResolver(dummyDescriptor, new ResolverBuilder(), new ResolverBuilder(),
                                                                         new ResolverBuilder(),
                                                                         SupportedParameters.DYNAMIC_RESOLVABLE_PARAMETERS)
                                         .resolve();
-        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(dummyDescriptor));
+        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, dynamicSecureSerialization.toJson(dummyDescriptor));
 
         ApplicationCloudModelBuilder applicationCloudModelBuilder = handlerFactory.getApplicationCloudModelBuilder(dummyDescriptor,
                                                                                                                    shouldUsePrettyPrinting(),

@@ -920,4 +920,17 @@ public interface Variables {
                                                                               .name("processUserProvidedServices")
                                                                               .defaultValue(false)
                                                                               .build();
+
+    Variable<Set<String>> SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES = ImmutableJsonBinaryVariable.<Set<String>> builder()
+                                                                                                   .name(
+                                                                                                       "secureExtensionDescriptorParameterNames")
+                                                                                                   .type(new TypeReference<>() {
+                                                                                                   })
+                                                                                                   .build();
+
+    Variable<Boolean> IS_SECURITY_ENABLED = ImmutableSimpleVariable.<Boolean> builder()
+                                                                   .name("isSecurityEnabled")
+                                                                   .defaultValue(false)
+                                                                   .build();
+
 }

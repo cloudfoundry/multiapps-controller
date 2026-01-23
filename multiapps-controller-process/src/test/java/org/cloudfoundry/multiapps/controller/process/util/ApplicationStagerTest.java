@@ -21,6 +21,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.PackageState;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.steps.StepPhase;
@@ -156,7 +157,7 @@ class ApplicationStagerTest {
         CloudApplication app = createApplication();
         Mockito.when(client.getBuildsForApplication(any(UUID.class)))
                .thenReturn(Collections.emptyList());
-        Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
+        Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app, Mockito.mock(DynamicSecureSerialization.class)));
     }
 
     @Test
@@ -167,7 +168,7 @@ class ApplicationStagerTest {
                .thenReturn(List.of(build));
         Mockito.when(client.getCurrentDropletForApplication(APP_GUID))
                .thenReturn(Mockito.mock(DropletInfo.class));
-        Assertions.assertTrue(applicationStager.isApplicationStagedCorrectly(app));
+        Assertions.assertTrue(applicationStager.isApplicationStagedCorrectly(app, Mockito.mock(DynamicSecureSerialization.class)));
     }
 
     @Test
@@ -178,7 +179,7 @@ class ApplicationStagerTest {
                .thenReturn(List.of(build));
         Mockito.when(client.getCurrentDropletForApplication(APP_GUID))
                .thenReturn(ImmutableDropletInfo.of(DROPLET_GUID, null));
-        Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
+        Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app, Mockito.mock(DynamicSecureSerialization.class)));
     }
 
     @Test
@@ -189,7 +190,7 @@ class ApplicationStagerTest {
                .thenReturn(List.of(build));
         Mockito.when(client.getCurrentDropletForApplication(APP_GUID))
                .thenReturn(ImmutableDropletInfo.of(DROPLET_GUID, null));
-        Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
+        Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app, Mockito.mock(DynamicSecureSerialization.class)));
     }
 
     @Test
@@ -203,7 +204,7 @@ class ApplicationStagerTest {
                .thenReturn(HttpStatus.NOT_FOUND);
         Mockito.when(client.getCurrentDropletForApplication(APP_GUID))
                .thenThrow(cloudOperationExceptionNotFound);
-        Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
+        Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app, Mockito.mock(DynamicSecureSerialization.class)));
     }
 
     @Test
@@ -216,7 +217,7 @@ class ApplicationStagerTest {
                .thenReturn(List.of(build1, build2));
         Mockito.when(client.getCurrentDropletForApplication(APP_GUID))
                .thenReturn(dropletInfo);
-        Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
+        Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app, Mockito.mock(DynamicSecureSerialization.class)));
     }
 
     @Test
