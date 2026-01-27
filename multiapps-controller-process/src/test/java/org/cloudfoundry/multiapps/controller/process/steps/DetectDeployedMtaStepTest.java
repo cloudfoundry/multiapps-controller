@@ -67,8 +67,8 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
                                                                      Mockito.any(
                                                                          CloudControllerClient.class))).thenReturn(
             Optional.of(deployedMta));
-        when(customClientMock.getServiceKeysByMetadataAndGuids(Mockito.eq(SPACE_GUID), Mockito.eq(MTA_ID), Mockito.isNull(),
-                                                               Mockito.eq(deployedMta.getServices()))).thenReturn(deployedKeys);
+        when(customClientMock.getServiceKeysByMetadataAndManagedServices(Mockito.eq(SPACE_GUID), Mockito.eq(MTA_ID), Mockito.isNull(),
+                                                                         Mockito.eq(deployedMta.getServices()))).thenReturn(deployedKeys);
 
         step.execute(execution);
 
@@ -82,8 +82,8 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
     void testExecuteWithoutDeployedMta() {
         when(deployedMtaDetector.detectDeployedMtas(client)).thenReturn(Collections.emptyList());
         when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(MTA_ID, null, client)).thenReturn(Optional.empty());
-        when(customClientMock.getServiceKeysByMetadataAndGuids(SPACE_GUID, MTA_ID, null,
-                                                               Collections.emptyList())).thenReturn(Collections.emptyList());
+        when(customClientMock.getServiceKeysByMetadataAndManagedServices(SPACE_GUID, MTA_ID, null,
+                                                                         Collections.emptyList())).thenReturn(Collections.emptyList());
 
         step.execute(execution);
 

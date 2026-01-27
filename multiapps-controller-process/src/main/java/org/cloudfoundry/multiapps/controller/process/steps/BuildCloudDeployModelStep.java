@@ -1,21 +1,30 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.util.CloudModelBuilderContentCalculator;
 import org.cloudfoundry.multiapps.controller.core.cf.util.DeployedAfterModulesContentValidator;
 import org.cloudfoundry.multiapps.controller.core.cf.util.ModulesCloudModelBuilderContentCalculator;
@@ -23,13 +32,16 @@ import org.cloudfoundry.multiapps.controller.core.cf.util.ModulesContentValidato
 import org.cloudfoundry.multiapps.controller.core.cf.util.ResourcesCloudModelBuilderContentCalculator;
 import org.cloudfoundry.multiapps.controller.core.cf.util.UnresolvedModulesContentValidator;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
+import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ServiceKeysCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ServicesCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
+import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -47,6 +59,8 @@ import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -64,10 +78,19 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     @Inject
     private DeprecatedBuildpackChecker buildpackChecker;
 
+    @Inject
+    private TokenService tokenService;
+    @Inject
+    private WebClientFactory webClientFactory;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BuildCloudDeployModelStep.class);
+
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.BUILDING_CLOUD_MODEL);
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+
+        addDetectedExistingServiceKeysToDetectedManagedKeys(context);
 
         // Get module sets:
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
@@ -329,6 +352,92 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         }
 
         return new ArrayList<>(domains);
+    }
+
+    private void addDetectedExistingServiceKeysToDetectedManagedKeys(ProcessContext context) {
+        String mtaId = context.getVariable(Variables.MTA_ID);
+        String mtaNamespace = context.getVariable(Variables.MTA_NAMESPACE);
+
+        List<DeployedMtaServiceKey> deployedServiceKeys = detectDeployedServiceKeys(mtaId, mtaNamespace, context);
+        if (!deployedServiceKeys.isEmpty()) {
+
+            List<DeployedMtaServiceKey> detectedServiceKeysForManagedServices = context.getVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS);
+            List<DeployedMtaServiceKey> allServiceKeys = Stream.concat(
+                                                                   deployedServiceKeys.stream(),
+                                                                   detectedServiceKeysForManagedServices.stream())
+                                                               .toList();
+
+            context.setVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS, allServiceKeys);
+            getStepLogger().debug(Messages.DEPLOYED_MTA_SERVICE_KEYS, SecureSerialization.toJson(allServiceKeys));
+        }
+    }
+
+    private List<DeployedMtaServiceKey> detectDeployedServiceKeys(String mtaId, String mtaNamespace,
+                                                                  ProcessContext context) {
+        String spaceGuid = context.getVariable(Variables.SPACE_GUID);
+        String userGuid = context.getVariable(Variables.USER_GUID);
+        OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken(userGuid);
+        CloudCredentials credentials = new CloudCredentials(token);
+
+        CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(credentials, context.getVariable(Variables.CORRELATION_ID));
+
+        List<String> existingInstanceGuids = getExistingServiceGuids(context);
+
+        return serviceKeysClient.getServiceKeysByMetadataAndExistingGuids(
+            spaceGuid, mtaId, mtaNamespace, existingInstanceGuids
+        );
+    }
+
+    private List<String> getExistingServiceGuids(ProcessContext context) {
+        CloudControllerClient client = context.getControllerClient();
+        List<Resource> resources = getExistingServiceResourcesFromDescriptor(context);
+
+        return resources.parallelStream()
+                        .map(resource -> resolveServiceGuid(client, resource))
+                        .flatMap(Optional::stream)
+                        .toList();
+    }
+
+    private Optional<String> resolveServiceGuid(CloudControllerClient client, Resource resource) {
+        String serviceInstanceName = NameUtil.getServiceInstanceNameOrDefault(resource);
+
+        try {
+            CloudServiceInstance instance = client.getServiceInstance(serviceInstanceName);
+            return Optional.of(instance.getGuid()
+                                       .toString());
+        } catch (CloudOperationException e) {
+            if (resource.isOptional()) {
+                logIgnoredService(Messages.IGNORING_NOT_FOUND_OPTIONAL_SERVICE, resource.getName(), e);
+                return Optional.empty();
+            }
+            if (!resource.isActive()) {
+                logIgnoredService(Messages.IGNORING_NOT_FOUND_INACTIVE_SERVICE, resource.getName(), e);
+                return Optional.empty();
+            }
+            throw e;
+        }
+    }
+
+    private void logIgnoredService(String message, String serviceName, Exception e) {
+        String formattedMessage = MessageFormat.format(message, serviceName);
+        getStepLogger().debug(formattedMessage);
+        LOGGER.error(formattedMessage, e);
+    }
+
+    private List<Resource> getExistingServiceResourcesFromDescriptor(ProcessContext context) {
+        DeploymentDescriptor descriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+
+        if (descriptor == null) {
+            return List.of();
+        }
+        return descriptor.getResources()
+                         .stream()
+                         .filter(resource -> CloudModelBuilderUtil.getResourceType(resource) == ResourceType.EXISTING_SERVICE)
+                         .toList();
+    }
+
+    protected CustomServiceKeysClient getCustomServiceKeysClient(CloudCredentials credentials, String correlationId) {
+        return new CustomServiceKeysClient(configuration, webClientFactory, credentials, correlationId);
     }
 
 }

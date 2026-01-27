@@ -1,15 +1,19 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil.NameRequirements;
+import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NameUtilTest {
 
@@ -64,6 +68,13 @@ class NameUtilTest {
                                       "long-long-name-long-long-name-long-long-nam18cc4f54-limit-idle"));
     }
 
+    static Stream<Arguments> serviceInstanceNameCases() {
+        return Stream.of(Arguments.of("resource-name", "service-name-from-param", "service-name-from-param"),
+                         Arguments.of("resource-name-1", null, "resource-name-1"),
+                         Arguments.of("resource-name-2", "   ", "resource-name-2"),
+                         Arguments.of("resource-name-3", "", "resource-name-3"));
+    }
+
     @ParameterizedTest
     @MethodSource
     void testGetNameWithProperLength(String name, int maxLength, String expectedName) {
@@ -94,4 +105,25 @@ class NameUtilTest {
                      NameUtil.computeNamespacedNameWithLength(name, namespace, applyNamespace, applyNamespaceAsSuffix, maxLength));
     }
 
+    @ParameterizedTest
+    @MethodSource
+    void serviceInstanceNameCases(String resourceName, String serviceNameParam, String expected) {
+        Resource resource = createResource(resourceName, serviceNameParam);
+        String serviceInstanceName = NameUtil.getServiceInstanceNameOrDefault(resource);
+
+        assertEquals(expected, serviceInstanceName);
+    }
+
+    private Resource createResource(String resourceName, String serviceInstanceName) {
+        Resource resource = Resource.createV3();
+        resource.setName(resourceName);
+
+        Map<String, Object> params = new HashMap<>();
+        if (serviceInstanceName != null) {
+            params.put(SupportedParameters.SERVICE_NAME, serviceInstanceName);
+        }
+        resource.setParameters(params);
+
+        return resource;
+    }
 }

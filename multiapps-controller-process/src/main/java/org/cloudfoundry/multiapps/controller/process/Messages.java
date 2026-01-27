@@ -790,6 +790,9 @@ public class Messages {
 
     public static final String TOTAL_SIZE_OF_ALL_RESOLVED_CONTENT_0 = "Total size for all resolved content {0}";
 
+    public static final String IGNORING_NOT_FOUND_OPTIONAL_SERVICE = "Service {0} not found but is optional";
+    public static final String IGNORING_NOT_FOUND_INACTIVE_SERVICE = "Service {0} not found but is inactive";
+
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";
     public static final String PARSE_NULL_STRING_ERROR = "Cannot parse null string";

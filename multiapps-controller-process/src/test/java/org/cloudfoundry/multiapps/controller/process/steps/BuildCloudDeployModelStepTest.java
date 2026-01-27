@@ -4,24 +4,37 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.util.ModulesCloudModelBuilderContentCalculator;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
+import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ServiceKeysCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
+import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaServiceKey;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.process.util.DeprecatedBuildpackChecker;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.Resource;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -29,12 +42,26 @@ import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeployModelStep> {
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
+
+    private static final String TEST_MTA_ID = "mta-id";
+    private static final String TEST_MTA_NAMESPACE = "mta-namespace";
+    private static final String TEST_SPACE_GUID = "space-guid";
+
+    private static final String TEST_RESOURCE_NAME = "test-resource-name";
+    private static final String TEST_RESOURCE_NAME_2 = "test-resource-name-2";
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = DescriptorTestUtil.loadDeploymentDescriptor("build-cloud-model.yaml",
                                                                                                                   BuildCloudDeployModelStepTest.class);
@@ -53,6 +80,10 @@ class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeplo
     protected ModuleToDeployHelper moduleToDeployHelper;
     @Mock
     private ProcessTypeParser processTypeParser;
+    @Mock
+    private TokenService tokenService;
+    @Mock
+    private WebClientFactory webClientFactory;
 
     @Mock
     private DeprecatedBuildpackChecker deprecatedBuildpackChecker;
@@ -157,4 +188,80 @@ class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeplo
         }
     }
 
+    @Test
+    void testServiceKeysOfExistingServicesAreAdded() {
+        DeploymentDescriptor deploymentDescriptor = createDescriptorWithExistingServicesForKeysTest();
+        context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
+
+        context.setVariable(Variables.MTA_ID, TEST_MTA_ID);
+        context.setVariable(Variables.MTA_NAMESPACE, TEST_MTA_NAMESPACE);
+        context.setVariable(Variables.SPACE_GUID, TEST_SPACE_GUID);
+        context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
+
+        when(context.getControllerClient()).thenReturn(client);
+
+        ImmutableCloudServiceInstance instance1 = createCfInstance(TEST_RESOURCE_NAME);
+        ImmutableCloudServiceInstance instance2 = createCfInstance(TEST_RESOURCE_NAME_2);
+
+        when(client.getServiceInstance(TEST_RESOURCE_NAME)).thenReturn(instance1);
+        when(client.getServiceInstance(TEST_RESOURCE_NAME_2)).thenReturn(instance2);
+
+        CustomServiceKeysClient mockedServiceKeysClient = mock(CustomServiceKeysClient.class);
+
+        ImmutableDeployedMtaServiceKey deployedKey1 = createDeployedKey(TEST_RESOURCE_NAME);
+        ImmutableDeployedMtaServiceKey deployedKey2 = createDeployedKey(TEST_RESOURCE_NAME_2);
+
+        when(mockedServiceKeysClient.getServiceKeysByMetadataAndExistingGuids(
+            eq(TEST_SPACE_GUID), eq(TEST_MTA_ID), eq(TEST_MTA_NAMESPACE), anyList()
+        )).thenReturn(List.of(deployedKey1, deployedKey2));
+
+        BuildCloudDeployModelStep spyStep = spy(step);
+        doReturn(mockedServiceKeysClient)
+            .when(spyStep)
+            .getCustomServiceKeysClient(any(CloudCredentials.class), anyString());
+
+        spyStep.execute(execution);
+
+        List<DeployedMtaServiceKey> all = context.getVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS);
+
+        assertEquals(2, all.size());
+        assertTrue(all.contains(deployedKey1));
+        assertTrue(all.contains(deployedKey2));
+
+    }
+
+    private DeploymentDescriptor createDescriptorWithExistingServicesForKeysTest() {
+        Resource resource1 = createExistingServiceResource(TEST_RESOURCE_NAME);
+        Resource resource2 = createExistingServiceResource(TEST_RESOURCE_NAME_2);
+
+        DeploymentDescriptor descriptor = DeploymentDescriptor.createV3();
+        descriptor.setResources(List.of(resource1, resource2));
+
+        return descriptor;
+    }
+
+    private Resource createExistingServiceResource(String name) {
+        Resource resource = Resource.createV3();
+        resource.setName(name);
+
+        resource.setParameters(Map.of(
+            SupportedParameters.TYPE, ResourceType.EXISTING_SERVICE.toString(),
+            SupportedParameters.SERVICE_NAME, name
+        ));
+        return resource;
+    }
+
+    private ImmutableDeployedMtaServiceKey createDeployedKey(String resourceName) {
+        return ImmutableDeployedMtaServiceKey.builder()
+                                             .resourceName(resourceName)
+                                             .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
+                                             .build();
+    }
+
+    private ImmutableCloudServiceInstance createCfInstance(String name) {
+        return ImmutableCloudServiceInstance.builder()
+                                            .name(name)
+                                            .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
+                                            .build();
+    }
 }
