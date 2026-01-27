@@ -28,12 +28,14 @@ import org.cloudfoundry.multiapps.controller.core.cf.v2.ServicesCloudModelBuilde
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
+import org.cloudfoundry.multiapps.controller.core.model.ExternalLoggingServiceConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.DeprecatedBuildpackChecker;
+import org.cloudfoundry.multiapps.controller.process.util.ExternalLoggingServiceConfigurationsCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
@@ -130,6 +132,13 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         List<List<CloudServiceInstanceExtended>> batchesToProcess = getResourceBatches(context, resourcesForDeployment);
         context.setVariable(Variables.BATCHES_TO_PROCESS, batchesToProcess);
         getStepLogger().debug(Messages.CALCULATING_RESOURCE_BATCHES_COMPLETE);
+
+        List<ExternalLoggingServiceConfiguration> externalLoggingServiceConfigurations = calculateExternalLoggingServiceConfigurations(
+            context, deploymentDescriptor);
+        context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATIONS, externalLoggingServiceConfigurations);
+        getStepLogger().debug("External logging service configurations: {0}",
+                              SecureSerialization.toJson(externalLoggingServiceConfigurations));
+
         getStepLogger().debug(Messages.CLOUD_MODEL_BUILT);
         return StepPhase.DONE;
     }
@@ -329,6 +338,13 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         }
 
         return new ArrayList<>(domains);
+    }
+
+    private List<ExternalLoggingServiceConfiguration> calculateExternalLoggingServiceConfigurations(ProcessContext context,
+                                                                                                    DeploymentDescriptor deploymentDescriptor) {
+        ExternalLoggingServiceConfigurationsCalculator calculator = new ExternalLoggingServiceConfigurationsCalculator(
+            context.getControllerClient());
+        return calculator.calculateExternalLoggingServiceConfigurations(deploymentDescriptor.getResources());
     }
 
 }

@@ -1,16 +1,20 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperationLogEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
-import org.springframework.scheduling.annotation.Async;
-
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.controller.persistence.model.ExternalOperationLogEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableExternalOperationLogEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperationLogEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
+import org.springframework.scheduling.annotation.Async;
 
 @Named("processLoggerPersister")
 public class ProcessLoggerPersister {
@@ -29,6 +33,7 @@ public class ProcessLoggerPersister {
     public void persistLogs(String correlationId, String taskId) {
         List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(correlationId, taskId);
         Map<String, StringBuilder> processLogsMessages = new HashMap<>();
+        List<ExternalOperationLogEntry> externalOperationLogEntries = new ArrayList<>();
 
         if (processLoggers.isEmpty()) {
             return;
@@ -61,6 +66,14 @@ public class ProcessLoggerPersister {
                                                                             .withOperationLog(processLogsMessage.getValue()
                                                                                                                 .toString())
                                                                             .withModified(LocalDateTime.now());
+            externalOperationLogEntries.add(ImmutableExternalOperationLogEntry.builder()
+                                                                              .timestamp(String.valueOf(LocalDateTime.now()
+                                                                                                                     .toEpochSecond(
+                                                                                                                         ZoneOffset.UTC)))
+                                                                              .correlationId(correlationId)
+                                                                              .message(processLogsMessage.getValue()
+                                                                                                         .toString())
+                                                                              .build());
             processLogsPersistenceService.persistLog(operationLogEntry);
         }
     }

@@ -209,7 +209,8 @@ public class SupportedParameters {
                                                                  SERVICE_KEY_NAME, SERVICE_NAME, SERVICE_PLAN, SERVICE_TAGS, SERVICE_BROKER,
                                                                  SKIP_SERVICE_UPDATES, TYPE, PROVIDER_ID, PROVIDER_NID, TARGET,
                                                                  SERVICE_CONFIG_PATH, FILTER, MANAGED, VERSION, PATH, MEMORY,
-                                                                 FAIL_ON_SERVICE_UPDATE, SERVICE_PROVIDER, SERVICE_VERSION);
+                                                                 FAIL_ON_SERVICE_UPDATE, SERVICE_PROVIDER, SERVICE_VERSION,
+                                                                 ORGANIZATION_NAME, SPACE_NAME);
     public static final Set<String> GLOBAL_PARAMETERS = Set.of(KEEP_EXISTING_ROUTES, APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
                                                                APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT, APPLY_NAMESPACE,
                                                                ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE);
