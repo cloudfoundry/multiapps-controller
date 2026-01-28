@@ -52,6 +52,24 @@ class ShutdownUtilTest {
         assertFalse(ShutdownUtil.isTimeoutExceeded(applicationShutdownInstance));
     }
 
+    @Test
+    void testIsApplicationShutdownScheduledForMoreThanADay() {
+        Instant timeBeforeTenMinutes = Instant.now()
+                                              .minusSeconds(ShutdownUtil.DAY_IN_SECONDS);
+        ApplicationShutdown applicationShutdownInstance = createApplicationShutdownInstance(true, Date.from(timeBeforeTenMinutes));
+
+        assertTrue(ShutdownUtil.isApplicationShutdownScheduledForMoreThanADay(applicationShutdownInstance));
+    }
+
+    @Test
+    void testIsApplicationShutdownScheduledForMoreThanADayWithTimeOutNotExceeded() {
+        Instant timeBeforeTenMinutes = Instant.now()
+                                              .minusSeconds(TIMEOUT_IN_SECONDS);
+        ApplicationShutdown applicationShutdownInstance = createApplicationShutdownInstance(true, Date.from(timeBeforeTenMinutes));
+
+        assertFalse(ShutdownUtil.isApplicationShutdownScheduledForMoreThanADay(applicationShutdownInstance));
+    }
+
     private ApplicationShutdown createApplicationShutdownInstance(boolean isInstanceStopped, Date startedAt) {
         return ImmutableApplicationShutdown.builder()
                                            .id(UUID.randomUUID()

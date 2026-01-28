@@ -2,6 +2,7 @@ open module org.cloudfoundry.multiapps.controller.shutdown.client {
 
     exports org.cloudfoundry.multiapps.controller.shutdown.client;
     exports org.cloudfoundry.multiapps.controller.shutdown.client.configuration;
+    exports org.cloudfoundry.multiapps.controller.shutdown.client.util;
 
     requires com.fasterxml.jackson.annotation;
     requires org.cloudfoundry.multiapps.common;

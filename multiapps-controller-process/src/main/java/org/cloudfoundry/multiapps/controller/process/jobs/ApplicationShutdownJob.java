@@ -32,7 +32,7 @@ public class ApplicationShutdownJob {
         this.applicationConfiguration = applicationConfiguration;
     }
 
-    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS, initialDelay = 30)
     public void run() {
         ApplicationShutdown applicationShutdown = getApplicationToShutdown();
 

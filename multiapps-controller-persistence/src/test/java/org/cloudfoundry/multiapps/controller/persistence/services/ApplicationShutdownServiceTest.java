@@ -15,6 +15,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ApplicationShutdownServiceTest {
@@ -25,8 +26,10 @@ class ApplicationShutdownServiceTest {
                                            .toString();
     private final String INSTANCE_ID_2 = UUID.randomUUID()
                                              .toString();
-    private final ApplicationShutdown APPLICATION_SHUTDOWN = createApplicationShutdownInstance(INSTANCE_ID, 0);
-    private final ApplicationShutdown APPLICATION_SHUTDOWN_2 = createApplicationShutdownInstance(INSTANCE_ID_2, 1);
+    private final ApplicationShutdown APPLICATION_SHUTDOWN = createApplicationShutdownInstance(INSTANCE_ID, 0,
+                                                                                               ApplicationShutdown.Status.FINISHED);
+    private final ApplicationShutdown APPLICATION_SHUTDOWN_2 = createApplicationShutdownInstance(INSTANCE_ID_2, 1,
+                                                                                                 ApplicationShutdown.Status.RUNNING);
 
     private final ApplicationShutdownService applicationShutdownService = createApplicationShutdownService();
 
@@ -42,7 +45,7 @@ class ApplicationShutdownServiceTest {
         assertEquals(1, applicationShutdownService.createQuery()
                                                   .list()
                                                   .size());
-        
+
         assertEquals(APPLICATION_SHUTDOWN.getId(), applicationShutdownService.createQuery()
                                                                              .id(APPLICATION_SHUTDOWN.getId())
                                                                              .singleResult()
@@ -71,61 +74,65 @@ class ApplicationShutdownServiceTest {
 
     @Test
     void testQueryById() {
-        testQueryByCriteria((query, applicationShutdown) -> query.id(applicationShutdown.getId()), 1);
+        testQueryByCriteria((query, applicationShutdown) -> query.id(applicationShutdown.getId()), 1, true);
     }
 
     @Test
     void testQueryByApplicationId() {
-        testQueryByCriteria((query, applicationShutdown) -> query.applicationId(applicationShutdown.getApplicationId()), 2);
+        testQueryByCriteria((query, applicationShutdown) -> query.applicationId(applicationShutdown.getApplicationId()), 2, false);
     }
 
     @Test
     void testQueryByShutdownStatus() {
-        testQueryByCriteria((query, applicationShutdown) -> query.shutdownStatus(applicationShutdown.getStatus()), 2);
+        testQueryByCriteria((query, applicationShutdown) -> query.shutdownStatus(applicationShutdown.getStatus()), 1, true);
     }
 
     @Test
     void testQueryByApplicationInstanceIndex() {
         testQueryByCriteria(
-            (query, applicationShutdown) -> query.applicationInstanceIndex(applicationShutdown.getApplicationInstanceIndex()), 1);
+            (query, applicationShutdown) -> query.applicationInstanceIndex(applicationShutdown.getApplicationInstanceIndex()), 1, true);
     }
 
     @Test
     void testQueryByStartedAt() {
-        testQueryByCriteria((query, applicationShutdown) -> query.startedAt(applicationShutdown.getStartedAt()), 2);
+        testQueryByCriteria((query, applicationShutdown) -> query.startedAt(applicationShutdown.getStartedAt()), 2, false);
     }
 
     private interface ApplicationShutdownQueryBuilder {
         ApplicationShutdownQuery build(ApplicationShutdownQuery applicationShutdownQuery, ApplicationShutdown applicationShutdown);
     }
 
-    private void testQueryByCriteria(ApplicationShutdownQueryBuilder applicationShutdownQueryBuilder, int resultCount) {
+    private void testQueryByCriteria(ApplicationShutdownQueryBuilder applicationShutdownQueryBuilder, int resultCount,
+                                     boolean shouldAssertThatAppExists) {
         addApplicationShutdown(List.of(APPLICATION_SHUTDOWN, APPLICATION_SHUTDOWN_2));
         assertEquals(resultCount, applicationShutdownQueryBuilder.build(applicationShutdownService.createQuery(), APPLICATION_SHUTDOWN)
                                                                  .list()
                                                                  .size());
         assertEquals(resultCount, applicationShutdownQueryBuilder.build(applicationShutdownService.createQuery(), APPLICATION_SHUTDOWN)
                                                                  .delete());
-        assertApplicationShutdownExists(APPLICATION_SHUTDOWN_2.getId());
+        if (shouldAssertThatAppExists) {
+            assertApplicationShutdownExists(APPLICATION_SHUTDOWN_2.getId());
+        }
     }
 
     private void assertApplicationShutdownExists(String id) {
-        // If does not exist, will throw NoResultException
-        applicationShutdownService.createQuery()
-                                  .id(id);
+        ApplicationShutdown applicationShutdown = applicationShutdownService.createQuery()
+                                                                            .id(id)
+                                                                            .singleResult();
+        assertNotNull(applicationShutdown);
     }
 
     private void addApplicationShutdown(List<ApplicationShutdown> applicationShutdowns) {
         applicationShutdowns.forEach(applicationShutdownService::add);
     }
 
-    private ApplicationShutdown createApplicationShutdownInstance(String instanceId, int index) {
+    private ApplicationShutdown createApplicationShutdownInstance(String instanceId, int index, ApplicationShutdown.Status status) {
         return ImmutableApplicationShutdown.builder()
                                            .id(instanceId)
                                            .applicationId(APPLICATION_ID)
                                            .applicationInstanceIndex(index)
                                            .startedAt(Date.from(Instant.now()))
-                                           .status(ApplicationShutdown.Status.FINISHED)
+                                           .status(status)
                                            .build();
     }
 
