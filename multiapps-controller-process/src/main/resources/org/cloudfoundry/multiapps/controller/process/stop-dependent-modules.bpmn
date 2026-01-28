@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath"
+             targetNamespace="http://www.flowable.org/processdef">
+  <message id="APPLICATION_AFTER_STOP_LIVE" name="APPLICATION_AFTER_STOP_LIVE"></message>
+  <message id="APPLICATION_BEFORE_STOP_IDLE" name="APPLICATION_BEFORE_STOP_IDLE"></message>
+  <message id="APPLICATION_BEFORE_STOP_LIVE" name="APPLICATION_BEFORE_STOP_LIVE"></message>
+  <message id="APPLICATION_AFTER_STOP_IDLE" name="APPLICATION_AFTER_STOP_IDLE"></message>
+  <process id="stopDependentModulesSubProcess" name="StopDependentModules" isExecutable="true">
+    <extensionElements>
+      <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="ENTITY_DELETED" delegateExpression="${expiredJobListener}"></flowable:eventListener>
+    </extensionElements>
+    <serviceTask id="stopDependentModuleTask" name="Stop Dependent Module Task" flowable:async="true" flowable:delegateExpression="${stopDependentModuleStep}"></serviceTask>
+    <serviceTask id="incrementModuleIndexTask" name="Increment Module Index" flowable:async="true" flowable:delegateExpression="${incrementIndexStep}"></serviceTask>
+    <exclusiveGateway id="sid-D1BA59BB-19D2-40A7-8C50-8DBD35AC6963" default="sid-8FEA809B-B524-493B-8FF9-477AA3C2F4AD"></exclusiveGateway>
+    <exclusiveGateway id="sid-A72A16B0-7CD4-4C94-8A2D-75856CB783EE" default="moduleNotStoppedFlow"></exclusiveGateway>
+    <endEvent id="sid-61497F7F-2B0E-46CC-ADB2-DC50E9CD82CB"></endEvent>
+    <serviceTask id="prepareToStopDependentModulesTask" name="Prepare To Stop Dependent Modules Task" flowable:async="true" flowable:delegateExpression="${prepareToStopDependentModulesStep}"></serviceTask>
+    <startEvent id="sid-65625053-4E6C-4E2C-ADFE-DDCA2792BBB1" flowable:formFieldValidation="true"></startEvent>
+    <exclusiveGateway id="shouldWaitAfterAppStop" name="Wait after stop" default="sid-280D0A60-D996-45AB-B0DB-52F13C37295A"></exclusiveGateway>
+    <intermediateCatchEvent id="sid-057735F2-4BD4-4F5C-ACDE-80399C0B3BD7">
+      <timerEventDefinition>
+        <timeDuration>${(delayAfterAppStop)}</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="sid-C3638757-86B0-48A9-AFB7-14D620B966B2" sourceRef="sid-057735F2-4BD4-4F5C-ACDE-80399C0B3BD7" targetRef="incrementModuleIndexTask"></sequenceFlow>
+    <sequenceFlow id="stoppingModulesCompleted" name="Modules Stopped" sourceRef="sid-D1BA59BB-19D2-40A7-8C50-8DBD35AC6963" targetRef="sid-61497F7F-2B0E-46CC-ADB2-DC50E9CD82CB">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(appsToStopCount == appsToStopIndex)}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-DA943867-3AC0-41A3-B61E-41052731BCCA" sourceRef="shouldWaitAfterAppStop" targetRef="sid-057735F2-4BD4-4F5C-ACDE-80399C0B3BD7">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${execution.getVariable('delayAfterAppStop') != null}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-BED734DE-562B-417C-BCE5-9FE0783299D0" sourceRef="stopDependentModuleTask" targetRef="hooksCallActivity"></sequenceFlow>
+    <sequenceFlow id="sid-280D0A60-D996-45AB-B0DB-52F13C37295A" sourceRef="shouldWaitAfterAppStop" targetRef="incrementModuleIndexTask"></sequenceFlow>
+    <callActivity id="hooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
+        <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
+        <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+        <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
+        <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="userGuid" target="userGuid"></flowable:in>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="tasksIndex" target="tasksIndex"></flowable:in>
+        <flowable:in source="tasksToExecute" target="tasksToExecute"></flowable:in>
+        <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
+        <flowable:in source="phase" target="phase"></flowable:in>
+      </extensionElements>
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
+    </callActivity>
+    <sequenceFlow id="sid-C10A5C67-397C-4B8A-9D53-D40047DB7ED7" sourceRef="hooksCallActivity" targetRef="sid-A72A16B0-7CD4-4C94-8A2D-75856CB783EE"></sequenceFlow>
+    <sequenceFlow id="isModuleStoppedFlow" name="Is Module Stopped" sourceRef="sid-A72A16B0-7CD4-4C94-8A2D-75856CB783EE" targetRef="shouldWaitAfterAppStop">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="prepareToStopDependentModuleTask" name="Prepare To Stop Dependent Module Task" flowable:async="true" flowable:delegateExpression="${prepareToStopDependentModuleStep}"></serviceTask>
+    <sequenceFlow id="moduleNotStoppedFlow" sourceRef="sid-A72A16B0-7CD4-4C94-8A2D-75856CB783EE" targetRef="prepareToStopDependentModuleTask"></sequenceFlow>
+    <sequenceFlow id="sid-E04E57EF-43C7-4DEF-B6FF-85D4EA726819" sourceRef="prepareToStopDependentModuleTask" targetRef="stopDependentModuleTask"></sequenceFlow>
+    <sequenceFlow id="sid-3A4CDC36-F68B-4AE6-86F7-80B3A561A0BC" sourceRef="incrementModuleIndexTask" targetRef="sid-D1BA59BB-19D2-40A7-8C50-8DBD35AC6963"></sequenceFlow>
+    <sequenceFlow id="sid-5E689B86-D686-45D5-BD49-B624194EE9B9" sourceRef="sid-65625053-4E6C-4E2C-ADFE-DDCA2792BBB1" targetRef="prepareToStopDependentModulesTask"></sequenceFlow>
+    <sequenceFlow id="sid-5C1CBF2D-9B43-43BB-9B92-DBF09DC2AA4E" sourceRef="prepareToStopDependentModulesTask" targetRef="sid-D1BA59BB-19D2-40A7-8C50-8DBD35AC6963"></sequenceFlow>
+    <sequenceFlow id="sid-8FEA809B-B524-493B-8FF9-477AA3C2F4AD" sourceRef="sid-D1BA59BB-19D2-40A7-8C50-8DBD35AC6963" targetRef="prepareToStopDependentModuleTask"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_stopDependentModulesSubProcess">
+    <bpmndi:BPMNPlane bpmnElement="stopDependentModulesSubProcess" id="BPMNPlane_stopDependentModulesSubProcess">
+      <bpmndi:BPMNShape bpmnElement="stopDependentModuleTask" id="BPMNShape_stopDependentModuleTask">
+        <omgdc:Bounds height="49.96678029247926" width="137.7297643222695" x="635.0" y="98.01660985376037"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="incrementModuleIndexTask" id="BPMNShape_incrementModuleIndexTask">
+        <omgdc:Bounds height="61.19119775956676" width="157.5674702358574" x="1284.8806928967783" y="92.40440112021665"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-D1BA59BB-19D2-40A7-8C50-8DBD35AC6963" id="BPMNShape_sid-D1BA59BB-19D2-40A7-8C50-8DBD35AC6963">
+        <omgdc:Bounds height="40.000000000000014" width="40.0" x="390.0" y="103.51661"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-A72A16B0-7CD4-4C94-8A2D-75856CB783EE" id="BPMNShape_sid-A72A16B0-7CD4-4C94-8A2D-75856CB783EE">
+        <omgdc:Bounds height="39.999999999999986" width="40.0" x="951.8649164816419" y="103.00000000000001"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-61497F7F-2B0E-46CC-ADB2-DC50E9CD82CB" id="BPMNShape_sid-61497F7F-2B0E-46CC-ADB2-DC50E9CD82CB">
+        <omgdc:Bounds height="28.0" width="28.0" x="1460.0" y="75.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="prepareToStopDependentModuleTask" id="BPMNShape_prepareToStopDependentModuleTask">
+        <omgdc:Bounds height="49.96678029247926" width="138.7297643222695" x="475.0" y="98.53321970752074"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-65625053-4E6C-4E2C-ADFE-DDCA2792BBB1" id="BPMNShape_sid-65625053-4E6C-4E2C-ADFE-DDCA2792BBB1">
+        <omgdc:Bounds height="29.999999999999986" width="30.0" x="74.99999888241292" y="108.5166082367369"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="shouldWaitAfterAppStop" id="BPMNShape_shouldWaitAfterAppStop">
+        <omgdc:Bounds height="40.0" width="40.0" x="1132.312496437236" y="102.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-057735F2-4BD4-4F5C-ACDE-80399C0B3BD7" id="BPMNShape_sid-057735F2-4BD4-4F5C-ACDE-80399C0B3BD7">
+        <omgdc:Bounds height="31.0" width="31.0" x="1136.812496437236" y="195.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="hooksCallActivity" id="BPMNShape_hooksCallActivity">
+        <omgdc:Bounds height="80.0" width="100.0" x="815.0" y="83.51660985376037"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="prepareToStopDependentModulesTask" id="BPMNShape_prepareToStopDependentModulesTask">
+        <omgdc:Bounds height="79.99999999999999" width="151.9999992251396" x="164.99999754130843" y="81.9999987781048"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="isModuleStoppedFlow" id="BPMNEdge_isModuleStoppedFlow">
+        <omgdi:waypoint x="991.7049673712437" y="122.88977532792174"></omgdi:waypoint>
+        <omgdi:waypoint x="1132.4227211093141" y="122.10994911039805"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="moduleNotStoppedFlow" id="BPMNEdge_moduleNotStoppedFlow">
+        <omgdi:waypoint x="971.7129967317545" y="142.79846004948735"></omgdi:waypoint>
+        <omgdi:waypoint x="971.0" y="236.0"></omgdi:waypoint>
+        <omgdi:waypoint x="544.0" y="236.0"></omgdi:waypoint>
+        <omgdi:waypoint x="544.2838391433419" y="148.45"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-E04E57EF-43C7-4DEF-B6FF-85D4EA726819" id="BPMNEdge_sid-E04E57EF-43C7-4DEF-B6FF-85D4EA726819">
+        <omgdi:waypoint x="613.6797643222695" y="123.29194163037874"></omgdi:waypoint>
+        <omgdi:waypoint x="634.9999999999991" y="123.22288681009279"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-C10A5C67-397C-4B8A-9D53-D40047DB7ED7" id="BPMNEdge_sid-C10A5C67-397C-4B8A-9D53-D40047DB7ED7">
+        <omgdi:waypoint x="914.949999999998" y="123.27489822810766"></omgdi:waypoint>
+        <omgdi:waypoint x="951.96113598445" y="123.09597895405517"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-8FEA809B-B524-493B-8FF9-477AA3C2F4AD" id="BPMNEdge_sid-8FEA809B-B524-493B-8FF9-477AA3C2F4AD">
+        <omgdi:waypoint x="429.9425817279012" y="123.51660997823247"></omgdi:waypoint>
+        <omgdi:waypoint x="474.99996958512526" y="123.51660992920111"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="stoppingModulesCompleted" id="BPMNEdge_stoppingModulesCompleted">
+        <omgdi:waypoint x="410.0" y="143.460830185384"></omgdi:waypoint>
+        <omgdi:waypoint x="410.0" y="296.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1475.0" y="296.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1474.0673903871668" y="102.94954545745114"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-BED734DE-562B-417C-BCE5-9FE0783299D0" id="BPMNEdge_sid-BED734DE-562B-417C-BCE5-9FE0783299D0">
+        <omgdi:waypoint x="772.6797643222678" y="123.22062506725166"></omgdi:waypoint>
+        <omgdi:waypoint x="815.0" y="123.35630654412525"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-DA943867-3AC0-41A3-B61E-41052731BCCA" id="BPMNEdge_sid-DA943867-3AC0-41A3-B61E-41052731BCCA">
+        <omgdi:waypoint x="1152.312496437236" y="141.9387415349887"></omgdi:waypoint>
+        <omgdi:waypoint x="1152.312496437236" y="195.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-5C1CBF2D-9B43-43BB-9B92-DBF09DC2AA4E" id="BPMNEdge_sid-5C1CBF2D-9B43-43BB-9B92-DBF09DC2AA4E">
+        <omgdi:waypoint x="316.9499967664475" y="122.0202715886365"></omgdi:waypoint>
+        <omgdi:waypoint x="390.063897651669" y="123.58050765166897"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-3A4CDC36-F68B-4AE6-86F7-80B3A561A0BC" id="BPMNEdge_sid-3A4CDC36-F68B-4AE6-86F7-80B3A561A0BC">
+        <omgdi:waypoint x="1363.4038052836497" y="92.40440112021665"></omgdi:waypoint>
+        <omgdi:waypoint x="1363.0" y="45.0"></omgdi:waypoint>
+        <omgdi:waypoint x="409.0" y="45.0"></omgdi:waypoint>
+        <omgdi:waypoint x="409.7484802231886" y="103.7316928765505"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-280D0A60-D996-45AB-B0DB-52F13C37295A" id="BPMNEdge_sid-280D0A60-D996-45AB-B0DB-52F13C37295A">
+        <omgdi:waypoint x="1172.1638976631755" y="122.0939478150813"></omgdi:waypoint>
+        <omgdi:waypoint x="1284.8806928967747" y="122.62723910526907"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-C3638757-86B0-48A9-AFB7-14D620B966B2" id="BPMNEdge_sid-C3638757-86B0-48A9-AFB7-14D620B966B2">
+        <omgdi:waypoint x="1167.7624449369416" y="210.5366657767081"></omgdi:waypoint>
+        <omgdi:waypoint x="1363.0" y="211.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1363.433421503088" y="153.5455988797834"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-5E689B86-D686-45D5-BD49-B624194EE9B9" id="BPMNEdge_sid-5E689B86-D686-45D5-BD49-B624194EE9B9">
+        <omgdi:waypoint x="104.94999752914545" y="123.51660823673689"></omgdi:waypoint>
+        <omgdi:waypoint x="164.99999754130843" y="123.51660823673689"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

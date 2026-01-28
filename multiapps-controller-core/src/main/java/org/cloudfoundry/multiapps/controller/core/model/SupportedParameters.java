@@ -37,7 +37,7 @@ public class SupportedParameters {
     public static final String APPLY_NAMESPACE_APPS = "app-names";
     public static final String APPLY_NAMESPACE_SERVICES = "service-names";
     public static final String APPLY_NAMESPACE_ROUTES = "app-routes";
-
+    public static final String BG_DEPENDENCY_AWARE_STOP_ORDER = "bg-dependency-aware-stop-order";
     public static final String DEPLOY_MODE = "deploy_mode";
 
     public static final String PATH = "path";
@@ -212,7 +212,7 @@ public class SupportedParameters {
                                                                  FAIL_ON_SERVICE_UPDATE, SERVICE_PROVIDER, SERVICE_VERSION);
     public static final Set<String> GLOBAL_PARAMETERS = Set.of(KEEP_EXISTING_ROUTES, APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
                                                                APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT, APPLY_NAMESPACE,
-                                                               ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE);
+                                                               ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE, BG_DEPENDENCY_AWARE_STOP_ORDER);
 
     public static final Set<String> DEPENDENCY_PARAMETERS = Set.of(BINDING_NAME, ENV_VAR_NAME, VISIBILITY, USE_LIVE_ROUTES,
                                                                    SERVICE_BINDING_CONFIG, DELETE_SERVICE_KEY_AFTER_DEPLOYMENT);

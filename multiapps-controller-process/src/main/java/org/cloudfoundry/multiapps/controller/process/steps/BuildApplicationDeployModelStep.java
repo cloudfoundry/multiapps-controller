@@ -16,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
+import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
@@ -23,6 +24,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntr
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.AdditionalModuleParametersReporter;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationEnvironmentCalculator;
+import org.cloudfoundry.multiapps.controller.process.util.DependentModuleStopResolver;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.HandlerFactory;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -38,6 +40,8 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
     private ModuleToDeployHelper moduleToDeployHelper;
     @Inject
     private ApplicationEnvironmentCalculator applicationEnvironmentCalculator;
+    @Inject
+    private DependentModuleStopResolver moduleStopResolver;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -61,6 +65,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         buildConfigurationEntries(context, modifiedApp);
         context.setVariable(Variables.TASKS_TO_EXECUTE, modifiedApp.getTasks());
         getStepLogger().debug(Messages.CLOUD_APP_MODEL_BUILT);
+        determineDependentModulesToStop(context, module);
         return StepPhase.DONE;
     }
 
@@ -133,6 +138,14 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         getStepLogger().infoWithoutProgressMessage("Building configuration entries for org {0}, space {1}, spaceId {2} and namespace {3}!",
                                                    organizationName, spaceName, spaceGuid, namespace);
         return new ConfigurationEntriesCloudModelBuilder(organizationName, spaceName, spaceGuid, namespace);
+    }
+
+    private void determineDependentModulesToStop(ProcessContext context, Module module) {
+        if (context.getVariable(Variables.PHASE) != Phase.AFTER_RESUME) {
+            return;
+        }
+        List<Module> modulesToStop = moduleStopResolver.resolveDependentModulesToStop(context, module);
+        context.setVariable(Variables.DEPENDENT_MODULES_TO_STOP, modulesToStop);
     }
 
     @Override

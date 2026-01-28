@@ -54,6 +54,7 @@ public class BlueGreenDeployMetadataTest extends MetadataBaseTest {
                 Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE.getName(),
                 Variables.SKIP_APP_DIGEST_CALCULATION.getName(),
                 Variables.SHOULD_BACKUP_PREVIOUS_VERSION.getName(),
+                Variables.STOP_ORDER_IS_DEPENDENCY_AWARE.getName(),
             // @formatter:on
         };
     }

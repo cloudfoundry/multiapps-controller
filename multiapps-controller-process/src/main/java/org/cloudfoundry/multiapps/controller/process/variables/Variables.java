@@ -199,6 +199,12 @@ public interface Variables {
     Variable<Integer> TASKS_INDEX = ImmutableSimpleVariable.<Integer> builder()
                                                            .name("tasksIndex")
                                                            .build();
+    Variable<Integer> APPS_TO_STOP_COUNT = ImmutableSimpleVariable.<Integer> builder()
+                                                                  .name("appsToStopCount")
+                                                                  .build();
+    Variable<Integer> APPS_TO_STOP_INDEX = ImmutableSimpleVariable.<Integer> builder()
+                                                                  .name("appsToStopIndex")
+                                                                  .build();
     Variable<Integer> SERVICES_TO_CREATE_COUNT = ImmutableSimpleVariable.<Integer> builder()
                                                                         .name("servicesToCreateCount")
                                                                         .build();
@@ -339,9 +345,9 @@ public interface Variables {
                                                                                    .defaultValue(new MtaArchiveElements())
                                                                                    .build();
     Variable<String> MTA_ARCHIVE_CREATED_BY = ImmutableSimpleVariable.<String> builder()
-                                                           .name("mtaArchiveCreatedBy")
-                                                           .defaultValue(null)
-                                                           .build();
+                                                                     .name("mtaArchiveCreatedBy")
+                                                                     .defaultValue(null)
+                                                                     .build();
     Variable<CloudServiceInstanceExtended> SERVICE_TO_PROCESS = ImmutableJsonStringVariable.<CloudServiceInstanceExtended> builder()
                                                                                            .name("serviceToProcess")
                                                                                            .type(Variable.typeReference(
@@ -468,6 +474,12 @@ public interface Variables {
                                                                             .type(new TypeReference<>() {
                                                                             })
                                                                             .build();
+    Variable<List<Module>> DEPENDENT_MODULES_TO_STOP = ImmutableJsonBinaryVariable.<List<Module>> builder()
+                                                                                  .name("dependentModulesToStop")
+                                                                                  .type(new TypeReference<>() {
+                                                                                  })
+                                                                                  .defaultValue(Collections.emptyList())
+                                                                                  .build();
     Variable<Map<String, ServiceOperation.Type>> TRIGGERED_SERVICE_OPERATIONS = ImmutableJsonBinaryVariable.<Map<String, ServiceOperation.Type>> builder()
                                                                                                            .name(
                                                                                                                "triggeredServiceOperations")
@@ -918,6 +930,11 @@ public interface Variables {
 
     Variable<Boolean> PROCESS_USER_PROVIDED_SERVICES = ImmutableSimpleVariable.<Boolean> builder()
                                                                               .name("processUserProvidedServices")
+                                                                              .defaultValue(false)
+                                                                              .build();
+
+    Variable<Boolean> STOP_ORDER_IS_DEPENDENCY_AWARE = ImmutableSimpleVariable.<Boolean> builder()
+                                                                              .name("stopOrderIsDependencyAware")
                                                                               .defaultValue(false)
                                                                               .build();
 }
