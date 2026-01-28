@@ -106,5 +106,9 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-controller-shutdown-client</artifactId>
+        </dependency>
     </dependencies>
 </project>

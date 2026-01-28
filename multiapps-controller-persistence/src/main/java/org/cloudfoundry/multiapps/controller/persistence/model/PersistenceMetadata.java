@@ -20,6 +20,7 @@ public class PersistenceMetadata {
         public static final String LOCK_OWNERS_TABLE = "lock_owners";
         public static final String ASYNC_UPLOAD_JOB_TABLE = "async_upload_job";
         public static final String BACKUP_DESCRIPTOR_TABLE = "backup_descriptor";
+        public static final String APPLICATION_SHUTDOWN_TABLE = "application_shutdown";
 
     }
 
@@ -113,6 +114,12 @@ public class PersistenceMetadata {
         public static final String BACKUP_DESCRIPTOR_SPACE_ID = "space_id";
         public static final String BACKUP_DESCRIPTOR_NAMESPACE = "namespace";
         public static final String BACKUP_DESCRIPTOR_TIMESTAMP = "timestamp";
+
+        public static final String APPLICATION_SHUTDOWN_ID = "id";
+        public static final String APPLICATION_SHUTDOWN_APPLICATION_INSTANCE_INDEX = "application_instance_index";
+        public static final String APPLICATION_SHUTDOWN_APPLICATION_ID = "application_id";
+        public static final String APPLICATION_SHUTDOWN_SHUTDOWN_STATUS = "shutdown_status";
+        public static final String APPLICATION_SHUTDOWN_STARTED_AT = "started_at";
     }
 
 }
