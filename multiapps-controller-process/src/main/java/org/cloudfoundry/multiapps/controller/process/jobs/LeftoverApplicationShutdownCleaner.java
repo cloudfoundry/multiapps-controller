@@ -1,9 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import java.text.MessageFormat;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownService;
@@ -25,11 +23,11 @@ public class LeftoverApplicationShutdownCleaner implements Cleaner {
 
     @Override
     public void execute(LocalDateTime expirationTime) {
-        Instant timeNow = Instant.now();
-        Instant secondsAfterStartedDate = timeNow.minusSeconds(ONE_DAY_IN_SECONDS);
+        LocalDateTime timeNow = LocalDateTime.now();
+        LocalDateTime secondsAfterStartedDate = timeNow.minusSeconds(ONE_DAY_IN_SECONDS);
 
         int countOfDeletedApplicationShutdowns = applicationShutdownService.createQuery()
-                                                                           .startedAtBefore(Date.from(secondsAfterStartedDate))
+                                                                           .startedAtBefore(secondsAfterStartedDate)
                                                                            .delete();
 
         LOGGER.info(MessageFormat.format(Messages.DELETED_LEFTOVER_APPLICATION_SHUTDOWNS, countOfDeletedApplicationShutdowns));

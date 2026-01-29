@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
-import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -100,7 +99,7 @@ class ApplicationShutdownJobTest {
                                            .id(INSTANCE_ID)
                                            .applicationId(APPLICATION_ID)
                                            .applicationInstanceIndex(APPLICATION_INSTANCE_INDEX)
-                                           .startedAt(Date.from(Instant.now()))
+                                           .startedAt(LocalDateTime.now())
                                            .status(status)
                                            .build();
     }

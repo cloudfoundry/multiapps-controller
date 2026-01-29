@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.shutdown.client.util;
 
 import java.text.MessageFormat;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
@@ -25,10 +25,9 @@ public class ShutdownUtil {
     }
 
     public static boolean isTimeoutExceeded(ApplicationShutdown applicationShutdown) {
-        Instant secondsAfterStartedDate = Instant.from(applicationShutdown.getStartedAt()
-                                                                          .toInstant())
-                                                 .plusSeconds(TIMEOUT_IN_SECONDS);
-        Instant timeNow = Instant.now();
+        LocalDateTime secondsAfterStartedDate = applicationShutdown.getStartedAt()
+                                                                   .plusSeconds(TIMEOUT_IN_SECONDS);
+        LocalDateTime timeNow = LocalDateTime.now();
         return timeNow.isAfter(secondsAfterStartedDate);
     }
 

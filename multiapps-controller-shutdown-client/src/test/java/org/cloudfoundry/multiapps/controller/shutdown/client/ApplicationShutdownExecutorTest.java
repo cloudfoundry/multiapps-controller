@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.shutdown.client;
 
-import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -80,7 +79,7 @@ class ApplicationShutdownExecutorTest {
                                            .id(instanceId)
                                            .applicationId(APPLICATION_ID)
                                            .applicationInstanceIndex(0)
-                                           .startedAt(Date.from(Instant.now()))
+                                           .startedAt(LocalDateTime.now())
                                            .status(ApplicationShutdown.Status.FINISHED)
                                            .build();
     }

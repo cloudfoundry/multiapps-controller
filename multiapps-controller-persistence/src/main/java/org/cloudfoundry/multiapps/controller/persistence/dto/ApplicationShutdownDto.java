@@ -1,13 +1,11 @@
 package org.cloudfoundry.multiapps.controller.persistence.dto;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata;
 
 @Entity
@@ -39,15 +37,14 @@ public class ApplicationShutdownDto implements DtoWithPrimaryKey<String> {
     private ApplicationShutdown.Status shutdownStatus;
 
     @Column(name = PersistenceMetadata.TableColumnNames.APPLICATION_SHUTDOWN_STARTED_AT, nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date startedAt;
+    private LocalDateTime startedAt;
 
     public ApplicationShutdownDto() {
         // Required by JPA
     }
 
     public ApplicationShutdownDto(String id, String applicationId, int applicationInstanceIndex, ApplicationShutdown.Status shutdownStatus,
-                                  Date startedAt) {
+                                  LocalDateTime startedAt) {
         this.id = id;
         this.applicationId = applicationId;
         this.applicationInstanceIndex = applicationInstanceIndex;
@@ -77,7 +74,7 @@ public class ApplicationShutdownDto implements DtoWithPrimaryKey<String> {
         return shutdownStatus;
     }
 
-    public Date getStartedAt() {
+    public LocalDateTime getStartedAt() {
         return startedAt;
     }
 

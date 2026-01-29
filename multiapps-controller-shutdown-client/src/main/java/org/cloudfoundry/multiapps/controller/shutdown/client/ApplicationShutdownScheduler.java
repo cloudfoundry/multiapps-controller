@@ -1,9 +1,8 @@
 package org.cloudfoundry.multiapps.controller.shutdown.client;
 
 import java.text.MessageFormat;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,7 +56,7 @@ public class ApplicationShutdownScheduler {
         return ImmutableApplicationShutdown.builder()
                                            .id(UUID.randomUUID()
                                                    .toString())
-                                           .startedAt(Date.from(Instant.now()))
+                                           .startedAt(LocalDateTime.now())
                                            .applicationId(applicationId)
                                            .applicationInstanceIndex(applicationInstanceIndex)
                                            .build();

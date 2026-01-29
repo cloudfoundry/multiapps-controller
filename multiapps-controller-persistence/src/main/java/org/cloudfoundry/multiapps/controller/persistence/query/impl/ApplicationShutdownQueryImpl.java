@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.query.impl;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.EntityManager;
@@ -64,8 +64,8 @@ public class ApplicationShutdownQueryImpl extends AbstractQueryImpl<ApplicationS
     }
 
     @Override
-    public ApplicationShutdownQuery startedAtBefore(Date startedAt) {
-        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<Date> builder()
+    public ApplicationShutdownQuery startedAtBefore(LocalDateTime startedAt) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<LocalDateTime> builder()
                                                                        .attribute(AttributeNames.STARTED_AT)
                                                                        .condition(getCriteriaBuilder()::lessThan)
                                                                        .value(startedAt)
@@ -74,7 +74,7 @@ public class ApplicationShutdownQueryImpl extends AbstractQueryImpl<ApplicationS
     }
 
     @Override
-    public ApplicationShutdownQuery startedAt(Date startedAt) {
+    public ApplicationShutdownQuery startedAt(LocalDateTime startedAt) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
                                                                        .attribute(AttributeNames.STARTED_AT)
                                                                        .condition(getCriteriaBuilder()::equal)

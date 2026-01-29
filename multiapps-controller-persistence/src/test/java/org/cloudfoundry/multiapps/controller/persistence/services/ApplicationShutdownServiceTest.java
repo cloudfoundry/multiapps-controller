@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,10 +25,14 @@ class ApplicationShutdownServiceTest {
                                            .toString();
     private final String INSTANCE_ID_2 = UUID.randomUUID()
                                              .toString();
+    private final LocalDateTime TIME_1 = LocalDateTime.of(2002, 6, 12, 5, 36, 59);
+    private final LocalDateTime TIME_2 = LocalDateTime.of(2004, 6, 12, 5, 36, 59);
+    
     private final ApplicationShutdown APPLICATION_SHUTDOWN = createApplicationShutdownInstance(INSTANCE_ID, 0,
-                                                                                               ApplicationShutdown.Status.FINISHED);
+                                                                                               ApplicationShutdown.Status.FINISHED, TIME_1);
     private final ApplicationShutdown APPLICATION_SHUTDOWN_2 = createApplicationShutdownInstance(INSTANCE_ID_2, 1,
-                                                                                                 ApplicationShutdown.Status.RUNNING);
+                                                                                                 ApplicationShutdown.Status.RUNNING,
+                                                                                                 TIME_2);
 
     private final ApplicationShutdownService applicationShutdownService = createApplicationShutdownService();
 
@@ -95,7 +98,7 @@ class ApplicationShutdownServiceTest {
 
     @Test
     void testQueryByStartedAt() {
-        testQueryByCriteria((query, applicationShutdown) -> query.startedAt(applicationShutdown.getStartedAt()), 2, false);
+        testQueryByCriteria((query, applicationShutdown) -> query.startedAt(applicationShutdown.getStartedAt()), 1, true);
     }
 
     @Test
@@ -131,12 +134,13 @@ class ApplicationShutdownServiceTest {
         applicationShutdowns.forEach(applicationShutdownService::add);
     }
 
-    private ApplicationShutdown createApplicationShutdownInstance(String instanceId, int index, ApplicationShutdown.Status status) {
+    private ApplicationShutdown createApplicationShutdownInstance(String instanceId, int index, ApplicationShutdown.Status status,
+                                                                  LocalDateTime time) {
         return ImmutableApplicationShutdown.builder()
                                            .id(instanceId)
                                            .applicationId(APPLICATION_ID)
                                            .applicationInstanceIndex(index)
-                                           .startedAt(Date.from(Instant.now()))
+                                           .startedAt(time)
                                            .status(status)
                                            .build();
     }

@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.dto;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -21,7 +21,7 @@ public interface ApplicationShutdown {
 
     int getApplicationInstanceIndex();
 
-    Date getStartedAt();
+    LocalDateTime getStartedAt();
 
     @Value.Default
     default Status getStatus() {

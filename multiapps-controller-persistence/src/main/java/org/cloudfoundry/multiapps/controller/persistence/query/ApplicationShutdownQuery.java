@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.query;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
 
@@ -14,7 +14,7 @@ public interface ApplicationShutdownQuery extends Query<ApplicationShutdown, App
 
     ApplicationShutdownQuery shutdownStatus(ApplicationShutdown.Status shutdownStatus);
 
-    ApplicationShutdownQuery startedAt(Date startedAt);
+    ApplicationShutdownQuery startedAt(LocalDateTime startedAt);
 
-    ApplicationShutdownQuery startedAtBefore(Date startedAt);
+    ApplicationShutdownQuery startedAtBefore(LocalDateTime startedAt);
 }
