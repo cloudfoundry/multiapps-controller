@@ -194,6 +194,8 @@ public class Messages {
     public static final String ERROR_WHILE_DETERMINING_SERVICE_KEYS_TO_RECREATE = "Error while determining service keys to recreate";
     public static final String ERROR_WHILE_UPDATING_SERVICE_KEYS_METADATA = "Error while updating service keys metadata";
     public static final String ERROR_WHILE_POLLING_SERVICE_KEY_OPERATION_0 = "Error while polling service key operation \"{0}\"";
+    public static final String ERROR_WHILE_STOPPING_DEPENDENT_MODULE = "Failed to stop dependent module with name \"{0}\"";
+    public static final String ERROR_WHILE_CONFIGURING_STOPPING_OF_DEPENDENT_MODULES = "Failed while configuring the stopping of dependent modules \"{0}\"";
 
     public static final String ERROR_WHILE_BACKUP_APPLICATION = "Error while backup applcation \"{0}\"";
     public static final String ERROR_DURING_PREPARATION_BACKUP_MTA = "Error during preparation backup mta for rollback deployment";
@@ -270,6 +272,8 @@ public class Messages {
     public static final String SERVICE_INSTANCE_0_PARAMETERS_UPDATE_FAILED_IGNORING_FAILURE = "Service instance: \"{0}\" parameters update failed, ignoring failure...";
     public static final String SERVICE_INSTANCE_0_TAGS_UPDATE_FAILED_IGNORING_FAILURE = "Service instance: \"{0}\" tags update failed, ignoring failure...";
     public static final String ONLY_FIRST_SERVICE_WILL_BE_CREATED = "Only the first service will be created because the provided 'service-name' fields are duplicated! All other services with the same 'service-name' will be ignored! Duplicated names: {0}";
+    public static final String BLUE_GREEN_SKIPPING_DEPENDENCY_ORDER_STOP = "Skipping stopping modules in dependency-aware order. This feature is available for blue green deployment strategy.";
+    public static final String UNSUPPORTED_DEPLOYED_AFTER_SCHEMA_VERSION_WARNING = "Skipping module \"{0}\": major schema version \"{1}\" does not support 'deployed-after' (minimum supported version is \"{2}\").";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
