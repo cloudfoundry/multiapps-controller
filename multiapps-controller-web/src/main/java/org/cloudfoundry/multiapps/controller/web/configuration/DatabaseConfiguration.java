@@ -1,8 +1,9 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
-import jakarta.inject.Inject;
 import javax.sql.DataSource;
 
+import jakarta.inject.Inject;
+import liquibase.integration.spring.SpringLiquibase;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.dialects.DataSourceDialect;
@@ -18,12 +19,10 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
 
-import liquibase.integration.spring.SpringLiquibase;
-
 @Configuration
 public class DatabaseConfiguration {
 
-    private static final String DATA_SOURCE_SERVICE_NAME = "deploy-service-database";
+    public static final String DATA_SOURCE_SERVICE_NAME = "deploy-service-database";
     private static final String LIQUIBASE_CHANGELOG = "classpath:/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog.xml";
     private static final String ENTITY_MANAGER_DEFAULT_PERSISTENCE_UNIT_NAME = "Default";
 
@@ -62,8 +61,8 @@ public class DatabaseConfiguration {
     }
 
     protected LocalContainerEntityManagerFactoryBean
-              getLocalContainerEntityManagerFactoryBean(DataSource dataSource, EclipseLinkJpaVendorAdapter eclipseLinkJpaVendorAdapter,
-                                                        String persistenceUnitName) {
+    getLocalContainerEntityManagerFactoryBean(DataSource dataSource, EclipseLinkJpaVendorAdapter eclipseLinkJpaVendorAdapter,
+                                              String persistenceUnitName) {
         LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setPersistenceUnitName(persistenceUnitName);
         localContainerEntityManagerFactoryBean.setDataSource(dataSource);

@@ -15,3 +15,4 @@ mta-assembly
 .DS_Store
 !com.sap.cloud.lm.sl.cf.process/src/test/resources/com/sap/cloud/lm/sl/cf/process/steps/web.zip
 !multiapps-controller-client/src/test/resources/org/cloudfoundry/multiapps/controller/client/facade/staticfile.zip
+**/.idea/

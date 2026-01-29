@@ -792,6 +792,10 @@ public class Messages {
     public static final String GETTING_FEATURES_FOR_APPLICATION_0 = "Getting features for application \"{0}\"";
 
     public static final String TOTAL_SIZE_OF_ALL_RESOLVED_CONTENT_0 = "Total size for all resolved content {0}";
+    public static final String STARTED_SHUTTING_DOWN_APPLICATION_WITH_ID_AND_INDEX = "Started shutting down application with ID: \"{0}\" and index: \"{1}\"";
+    public static final String SHUT_DOWN_APPLICATION_WITH_ID_AND_INDEX_FINISHED_SUCCESSFULLY = "Shut down application with ID: \"{0}\" and index: \"{1}\" finished successfully";
+    public static final String NO_LEFTOVER_APPLICATION_SHUTDOWNS = "No leftover application shutdowns";
+    public static final String DELETED_LEFTOVER_APPLICATION_SHUTDOWNS = "Deleted {0} leftover application shutdowns";
 
     public static final String IGNORING_NOT_FOUND_OPTIONAL_SERVICE = "Service {0} not found but is optional";
     public static final String IGNORING_NOT_FOUND_INACTIVE_SERVICE = "Service {0} not found but is inactive";

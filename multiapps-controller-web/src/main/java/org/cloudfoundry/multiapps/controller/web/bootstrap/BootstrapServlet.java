@@ -1,18 +1,17 @@
 package org.cloudfoundry.multiapps.controller.web.bootstrap;
 
-import static java.text.MessageFormat.format;
-
 import java.text.MessageFormat;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import javax.naming.NamingException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
-import javax.sql.DataSource;
-
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
+import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.LockOwnerService;
 import org.cloudfoundry.multiapps.controller.process.util.LockOwnerReleaser;
@@ -22,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
+import static java.text.MessageFormat.format;
 
 public class BootstrapServlet extends HttpServlet {
 
@@ -49,6 +50,9 @@ public class BootstrapServlet extends HttpServlet {
     @Inject
     protected LockOwnerReleaser lockOwnerReleaser;
 
+    @Inject
+    protected ApplicationShutdownService applicationShutdownService;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -57,6 +61,7 @@ public class BootstrapServlet extends HttpServlet {
             initializeApplicationConfiguration();
             initializeFileService();
             initExtras();
+            deleteOldScheduledApplication();
             processEngine.getProcessEngineConfiguration()
                          .getAsyncExecutor()
                          .start();
@@ -98,6 +103,15 @@ public class BootstrapServlet extends HttpServlet {
         // Do nothing
     }
 
+    protected void deleteOldScheduledApplication() {
+        int applicationIndex = configuration.getApplicationInstanceIndex();
+        ApplicationShutdown applicationShutdown = getApplicationShutdownByApplicationIndex(applicationIndex);
+        if (applicationShutdown != null) {
+            LOGGER.info(MessageFormat.format(Messages.CLEARING_OLD_ENTRY, applicationIndex));
+            deleteApplicationShutdownsByIndex(applicationIndex);
+        }
+    }
+
     private void clearLockOwner() {
         var lockOwner = processEngine.getProcessEngineConfiguration()
                                      .getAsyncExecutor()
@@ -116,6 +130,18 @@ public class BootstrapServlet extends HttpServlet {
 
     protected void destroyExtras() {
         // Do nothing
+    }
+
+    private void deleteApplicationShutdownsByIndex(int applicationInstanceIndex) {
+        applicationShutdownService.createQuery()
+                                  .applicationInstanceIndex(applicationInstanceIndex)
+                                  .delete();
+    }
+
+    private ApplicationShutdown getApplicationShutdownByApplicationIndex(int applicationInstanceIndex) {
+        return applicationShutdownService.createQuery()
+                                         .applicationInstanceIndex(applicationInstanceIndex)
+                                         .singleResult();
     }
 
 }
