@@ -1,14 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Date;
 
 import jakarta.inject.Named;
-import org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdown;
 import org.cloudfoundry.multiapps.controller.persistence.services.ApplicationShutdownService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.shutdown.client.util.ShutdownUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +15,7 @@ import org.slf4j.LoggerFactory;
 public class LeftoverApplicationShutdownCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LeftoverApplicationShutdownCleaner.class);
+    private static final int ONE_DAY_IN_SECONDS = 86400;
 
     private final ApplicationShutdownService applicationShutdownService;
 
@@ -25,28 +25,13 @@ public class LeftoverApplicationShutdownCleaner implements Cleaner {
 
     @Override
     public void execute(LocalDateTime expirationTime) {
-        List<ApplicationShutdown> leftoverApplicationShutdowns = getApplicationShutdownsScheduledForMoreThanADay();
+        Instant timeNow = Instant.now();
+        Instant secondsAfterStartedDate = timeNow.minusSeconds(ONE_DAY_IN_SECONDS);
 
-        if (leftoverApplicationShutdowns.isEmpty()) {
-            LOGGER.info(Messages.NO_LEFTOVER_APPLICATION_SHUTDOWNS);
-            return;
-        }
-        
-        deleteLeftoverApplicationShutdowns(leftoverApplicationShutdowns);
-        LOGGER.info(MessageFormat.format(Messages.DELETED_LEFTOVER_APPLICATION_SHUTDOWNS, leftoverApplicationShutdowns.size()));
-    }
+        int countOfDeletedApplicationShutdowns = applicationShutdownService.createQuery()
+                                                                           .startedAtBefore(Date.from(secondsAfterStartedDate))
+                                                                           .delete();
 
-    private List<ApplicationShutdown> getApplicationShutdownsScheduledForMoreThanADay() {
-        List<ApplicationShutdown> applicationShutdowns = applicationShutdownService.createQuery()
-                                                                                   .list();
-        return applicationShutdowns.stream()
-                                   .filter(ShutdownUtil::isApplicationShutdownScheduledForMoreThanADay)
-                                   .toList();
-    }
-
-    private void deleteLeftoverApplicationShutdowns(List<ApplicationShutdown> leftoverApplicationShutdowns) {
-        leftoverApplicationShutdowns.forEach(applicationShutdown -> applicationShutdownService.createQuery()
-                                                                                              .id(applicationShutdown.getId())
-                                                                                              .delete());
+        LOGGER.info(MessageFormat.format(Messages.DELETED_LEFTOVER_APPLICATION_SHUTDOWNS, countOfDeletedApplicationShutdowns));
     }
 }

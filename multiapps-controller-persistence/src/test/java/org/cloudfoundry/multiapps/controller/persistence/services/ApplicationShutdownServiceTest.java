@@ -98,6 +98,11 @@ class ApplicationShutdownServiceTest {
         testQueryByCriteria((query, applicationShutdown) -> query.startedAt(applicationShutdown.getStartedAt()), 2, false);
     }
 
+    @Test
+    void testQueryByStartedAtBefore() {
+        testQueryByCriteria((query, applicationShutdown) -> query.startedAtBefore(applicationShutdown.getStartedAt()), 0, false);
+    }
+
     private interface ApplicationShutdownQueryBuilder {
         ApplicationShutdownQuery build(ApplicationShutdownQuery applicationShutdownQuery, ApplicationShutdown applicationShutdown);
     }

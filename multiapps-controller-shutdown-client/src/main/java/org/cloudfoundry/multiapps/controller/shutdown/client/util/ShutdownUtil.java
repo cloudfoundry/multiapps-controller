@@ -17,7 +17,6 @@ public class ShutdownUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShutdownUtil.class);
 
     public static final int TIMEOUT_IN_SECONDS = 600; //10 minutes
-    public static final int DAY_IN_SECONDS = 86400; //1 day
 
     public static boolean areThereUnstoppedInstances(List<ApplicationShutdown> shutdownInstances) {
         return shutdownInstances.stream()
@@ -26,17 +25,9 @@ public class ShutdownUtil {
     }
 
     public static boolean isTimeoutExceeded(ApplicationShutdown applicationShutdown) {
-        return isTimeExceeded(applicationShutdown, TIMEOUT_IN_SECONDS);
-    }
-
-    public static boolean isApplicationShutdownScheduledForMoreThanADay(ApplicationShutdown applicationShutdown) {
-        return isTimeExceeded(applicationShutdown, DAY_IN_SECONDS);
-    }
-
-    private static boolean isTimeExceeded(ApplicationShutdown applicationShutdown, int seconds) {
         Instant secondsAfterStartedDate = Instant.from(applicationShutdown.getStartedAt()
                                                                           .toInstant())
-                                                 .plusSeconds(seconds);
+                                                 .plusSeconds(TIMEOUT_IN_SECONDS);
         Instant timeNow = Instant.now();
         return timeNow.isAfter(secondsAfterStartedDate);
     }

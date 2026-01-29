@@ -64,6 +64,16 @@ public class ApplicationShutdownQueryImpl extends AbstractQueryImpl<ApplicationS
     }
 
     @Override
+    public ApplicationShutdownQuery startedAtBefore(Date startedAt) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<Date> builder()
+                                                                       .attribute(AttributeNames.STARTED_AT)
+                                                                       .condition(getCriteriaBuilder()::lessThan)
+                                                                       .value(startedAt)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
     public ApplicationShutdownQuery startedAt(Date startedAt) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
                                                                        .attribute(AttributeNames.STARTED_AT)

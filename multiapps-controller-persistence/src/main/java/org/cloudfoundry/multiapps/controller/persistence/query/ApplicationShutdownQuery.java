@@ -15,4 +15,6 @@ public interface ApplicationShutdownQuery extends Query<ApplicationShutdown, App
     ApplicationShutdownQuery shutdownStatus(ApplicationShutdown.Status shutdownStatus);
 
     ApplicationShutdownQuery startedAt(Date startedAt);
+
+    ApplicationShutdownQuery startedAtBefore(Date startedAt);
 }
