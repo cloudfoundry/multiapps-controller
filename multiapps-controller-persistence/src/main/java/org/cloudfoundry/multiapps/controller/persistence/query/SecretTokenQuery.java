@@ -14,6 +14,4 @@ public interface SecretTokenQuery extends Query<SecretToken, SecretTokenQuery> {
 
     SecretTokenQuery olderThan(LocalDateTime time);
 
-    SecretTokenQuery keyId(String keyId);
-
 }

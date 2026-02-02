@@ -4,6 +4,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 public interface SecretTokenKeyResolver {
 
-    SecretTokenKeyContainer resolve(DelegateExecution execution);
+    String resolve(DelegateExecution execution);
 
 }

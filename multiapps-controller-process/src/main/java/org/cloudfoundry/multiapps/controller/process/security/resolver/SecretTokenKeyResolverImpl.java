@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.security.resolver;
 
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
@@ -17,43 +18,39 @@ import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Named
 public class SecretTokenKeyResolverImpl implements SecretTokenKeyResolver {
 
-    CloudControllerClientProvider cloudControllerClientProvider;
+    private CloudControllerClientProvider cloudControllerClientProvider;
 
-    private UUID serviceInstanceID;
+    private final Duration containerExpirationTime = Duration.ofMinutes(Constants.TTL_CACHE_ENTRY);
+
+    private final CachedMap<String, String> cachedMap = new CachedMap<>(containerExpirationTime);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecretTokenKeyResolverImpl.class);
 
     @Inject
     public SecretTokenKeyResolverImpl(CloudControllerClientProvider cloudControllerClientProvider) {
         this.cloudControllerClientProvider = cloudControllerClientProvider;
     }
 
-    public SecretTokenKeyResolverImpl() {
-    }
-
-    private final Duration containerExpirationTime = Duration.ofMinutes(10);
-    private CachedMap<String, SecretTokenKeyContainer> cachedMap = new CachedMap<>(containerExpirationTime);
-
     @Override
-    public SecretTokenKeyContainer resolve(DelegateExecution execution) {
-        SecretTokenKeyContainer secretTokenKeyContainer = null;
-        if (serviceInstanceID != null) {
-            secretTokenKeyContainer = cachedMap.get(serviceInstanceID.toString());
-        }
-        if (secretTokenKeyContainer != null) {
-            return secretTokenKeyContainer;
+    public String resolve(DelegateExecution execution) {
+        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
+        String encryptionKey = cachedMap.get(correlationId);
+        if (encryptionKey != null) {
+            return encryptionKey;
         }
 
-        CloudControllerClient cloudControllerClient = createCloudControllerClient(execution);
+        CloudControllerClient cloudControllerClient = createCloudControllerClient(execution, correlationId);
         String userProvidedServiceName = getUserProvidedServiceName(execution);
-
         CloudServiceInstance cloudServiceInstance = cloudControllerClient.getServiceInstance(userProvidedServiceName);
         if (cloudServiceInstance == null) {
             throw new SLException(Messages.COULD_NOT_RETRIEVE_USER_PROVIDED_SERVICE_INSTANCE_ENCRYPTION_RELATED);
         }
-        this.serviceInstanceID = cloudServiceInstance.getGuid();
 
         Map<String, Object> serviceInstanceCredentials = getUserProvidedServiceInstanceParameters(cloudServiceInstance,
                                                                                                   cloudControllerClient);
@@ -61,15 +58,14 @@ public class SecretTokenKeyResolverImpl implements SecretTokenKeyResolver {
             throw new SLException(Messages.COULD_NOT_RETRIEVE_CREDENTIALS_FROM_USER_PROVIDED_SERVICE_INSTANCE_ENCRYPTION_RELATED);
         }
 
-        SecretTokenKeyContainer resultContainer = createSecretTokenKeyContainer(serviceInstanceCredentials);
-        cachedMap.put(serviceInstanceID.toString(), resultContainer);
-        return resultContainer;
+        String resultEncryptionKey = getEncryptionKeyFromCredentials(serviceInstanceCredentials);
+        cachedMap.put(correlationId, resultEncryptionKey);
+        return resultEncryptionKey;
     }
 
-    private CloudControllerClient createCloudControllerClient(DelegateExecution execution) {
+    private CloudControllerClient createCloudControllerClient(DelegateExecution execution, String correlationId) {
         String userGuid = StepsUtil.determineCurrentUserGuid(execution);
         String spaceGuid = VariableHandling.get(execution, Variables.SPACE_GUID);
-        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
 
         return cloudControllerClientProvider.getControllerClient(userGuid, spaceGuid, correlationId);
     }
@@ -77,31 +73,46 @@ public class SecretTokenKeyResolverImpl implements SecretTokenKeyResolver {
     private String getUserProvidedServiceName(DelegateExecution execution) {
         String mtaId = VariableHandling.get(execution, Variables.MTA_ID);
         String namespace = VariableHandling.get(execution, Variables.MTA_NAMESPACE);
+        boolean isDisposableUserProvidedServiceEnabled = VariableHandling.get(execution,
+                                                                              Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED);
+
+        if (isDisposableUserProvidedServiceEnabled) {
+            String disposableUserProvidedServiceName = VariableHandling.get(execution, Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME);
+            LOGGER.debug(MessageFormat.format(Messages.USING_DISPOSABLE_USER_PROVIDED_SERVICE_0_, disposableUserProvidedServiceName));
+            return disposableUserProvidedServiceName;
+        }
 
         if (mtaId == null) {
-            throw new SLException("Missing mtaId in encryption key resolver! Cannot continue from here!");
+            throw new SLException(Messages.MISSING_MTA_ID_IN_ENCRYPTION_KEY_RESOLVER);
         }
 
         if (namespace != null) {
-            return String.format(Constants.TRIPLE_APPENDED_STRING, Constants.USER_PROVIDED_SERVICE_PREFIX_NAME_ENCRYPTION_DECRYPTION, mtaId,
-                                 namespace);
+            String userProvidedServiceName = String.format(Constants.TRIPLE_APPENDED_STRING,
+                                                           Constants.USER_PROVIDED_SERVICE_PREFIX_NAME_ENCRYPTION_DECRYPTION, mtaId,
+                                                           namespace);
+            LOGGER.debug(MessageFormat.format(Messages.USING_DEFAULT_USER_PROVIDED_SERVICE_0_, userProvidedServiceName));
+            return userProvidedServiceName;
         } else {
-            return String.format(Constants.DOUBLE_APPENDED_STRING, Constants.USER_PROVIDED_SERVICE_PREFIX_NAME_ENCRYPTION_DECRYPTION,
-                                 mtaId);
+            String userProvidedServiceName = String.format(Constants.DOUBLE_APPENDED_STRING,
+                                                           Constants.USER_PROVIDED_SERVICE_PREFIX_NAME_ENCRYPTION_DECRYPTION,
+                                                           mtaId);
+            LOGGER.debug(MessageFormat.format(Messages.USING_DEFAULT_USER_PROVIDED_SERVICE_0_, userProvidedServiceName));
+            return userProvidedServiceName;
         }
     }
 
-    private SecretTokenKeyContainer createSecretTokenKeyContainer(Map<String, Object> serviceInstanceCredentials) {
-        String encryptionKey = serviceInstanceCredentials.get(Constants.ENCRYPTION_KEY)
-                                                         .toString();
-        if (encryptionKey.length() != 32) {
+    private String getEncryptionKeyFromCredentials(Map<String, Object> serviceInstanceCredentials) {
+        String encryptionKey = "";
+        if (serviceInstanceCredentials.get(Constants.ENCRYPTION_KEY) != null) {
+            encryptionKey = serviceInstanceCredentials.get(Constants.ENCRYPTION_KEY)
+                                                      .toString();
+        }
+
+        if (encryptionKey.length() != Constants.ENCRYPTION_KEY_LENGTH) {
             throw new SLException(Messages.INVALID_ENCRYPTION_KEY_LENGTH);
         }
 
-        String encryptionKeyId = serviceInstanceCredentials.get(Constants.KEY_ID)
-                                                           .toString();
-
-        return new SecretTokenKeyContainer(encryptionKey, encryptionKeyId);
+        return encryptionKey;
     }
 
     private Map<String, Object> getUserProvidedServiceInstanceParameters(CloudServiceInstance cloudServiceInstance,

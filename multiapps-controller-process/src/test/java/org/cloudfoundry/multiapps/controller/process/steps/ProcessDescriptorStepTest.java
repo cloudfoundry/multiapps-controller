@@ -24,6 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -58,6 +59,8 @@ class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorSt
     private MtaDescriptorPropertiesResolver resolver;
     @Mock
     private ModuleToDeployHelper moduleToDeployHelper;
+    //    @Mock
+    private ProcessContext processContextFake = Mockito.mock(ProcessContext.class);
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -96,7 +99,7 @@ class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorSt
     @Test
     void testWithInvalidModulesSpecifiedForDeployment() {
         when(resolver.resolve(any())).thenReturn(DEPLOYMENT_DESCRIPTOR);
-        when(context.getVariable(Variables.MODULES_FOR_DEPLOYMENT)).thenReturn(List.of("foo", "bar"));
+        context.setVariable(Variables.MODULES_FOR_DEPLOYMENT, List.of("foo", "bar"));
         assertThrows(SLException.class, () -> step.execute(execution));
     }
 

@@ -24,7 +24,7 @@ public class SecretTokenUtil {
         }
 
         for (int i = 0; i < tail.length(); i++) {
-            if (!isOnlyAsciiDigit(tail.charAt(i))) {
+            if (!isAsciiDigit(tail.charAt(i))) {
                 return false;
             }
         }
@@ -39,7 +39,7 @@ public class SecretTokenUtil {
         return ENCRYPTED_VALUES_PREFIX + id;
     }
 
-    private static boolean isOnlyAsciiDigit(char digit) {
+    private static boolean isAsciiDigit(char digit) {
         return digit >= '0' && digit <= '9';
     }
 

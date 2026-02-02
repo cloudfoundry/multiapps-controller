@@ -2,10 +2,10 @@ package org.cloudfoundry.multiapps.controller.process.security;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JacksonException;
@@ -26,19 +26,19 @@ import org.flowable.common.engine.api.variable.VariableContainer;
 
 public class SecretTokenSerializer<T> implements Serializer<T> {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper().enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
 
     private final Serializer<T> serializer;
 
     private final SecretTokenStore secretTokenStore;
 
-    private final List<String> secretValues;
+    private final Set<String> secretValues;
 
     private final String processInstanceId;
 
     private final String variableName;
 
-    public SecretTokenSerializer(Serializer<T> serializer, SecretTokenStore secretTokenStore, List<String> secretValues,
+    public SecretTokenSerializer(Serializer<T> serializer, SecretTokenStore secretTokenStore, Set<String> secretValues,
                                  String processInstanceId,
                                  String variableName) {
         this.serializer = serializer;
@@ -53,7 +53,7 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
         Object encodedObject = serializer.serialize(value);
 
         if (encodedObject instanceof String) {
-            return handleString((String) encodedObject, true);
+            return encodeString((String) encodedObject);
         }
 
         if (encodedObject instanceof byte[]) {
@@ -91,7 +91,7 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
         Object valueToDecode = serializedValue;
 
         if (serializedValue instanceof String) {
-            valueToDecode = handleString((String) serializedValue, false);
+            valueToDecode = decodeString((String) serializedValue);
         } else if (serializedValue instanceof byte[]) {
             valueToDecode = handleBytes((byte[]) serializedValue, false);
         } else if (serializedValue instanceof List) {
@@ -101,14 +101,23 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
         return valueToDecode;
     }
 
-    private Object handleString(String stringObject, boolean censor) {
-        String transformedJson = transformJson(stringObject, censor);
+    private Object decodeString(String stringObject) {
+        String transformedJson = transformJson(stringObject, false);
         if (transformedJson != null) {
             return transformedJson;
         }
 
-        if (!censor && SecretTokenUtil.isSecretToken(stringObject)) {
+        if (SecretTokenUtil.isSecretToken(stringObject)) {
             return detokenize(stringObject);
+        }
+
+        return stringObject;
+    }
+
+    private Object encodeString(String stringObject) {
+        String transformedJson = transformJson(stringObject, true);
+        if (transformedJson != null) {
+            return transformedJson;
         }
 
         return stringObject;
@@ -158,14 +167,12 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
         }
 
         try {
-            JsonNode rootNode = objectMapper.readTree(candidate);
-            Set<String> keys = new HashSet<>(secretValues);
-            boolean[] changed = new boolean[1];
+            JsonNode rootNode = OBJECT_MAPPER.readTree(candidate);
+            AtomicBoolean changed = new AtomicBoolean();
+            JsonNode output = processJsonValue(rootNode, secretValues, censor, changed);
 
-            JsonNode output = processJsonValue(rootNode, keys, censor, changed);
-
-            if (changed[0]) {
-                return objectMapper.writeValueAsString(output);
+            if (changed.get()) {
+                return OBJECT_MAPPER.writeValueAsString(output);
             }
             return null;
         } catch (Exception e) {
@@ -175,14 +182,14 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
 
     public boolean isValid(String json) {
         try {
-            objectMapper.readTree(json);
+            OBJECT_MAPPER.readTree(json);
         } catch (JacksonException e) {
             return false;
         }
         return true;
     }
 
-    private JsonNode processJsonValue(JsonNode currentNode, Set<String> keys, boolean censor, boolean[] changed) {
+    private JsonNode processJsonValue(JsonNode currentNode, Set<String> keys, boolean censor, AtomicBoolean changed) {
         if (currentNode.isObject()) {
             return processObjectNode(currentNode, keys, censor, changed);
         }
@@ -198,7 +205,7 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
         return currentNode;
     }
 
-    private JsonNode processObjectNode(JsonNode currentNode, Set<String> keys, boolean censor, boolean[] changed) {
+    private JsonNode processObjectNode(JsonNode currentNode, Set<String> keys, boolean censor, AtomicBoolean changed) {
         ObjectNode objectNode = currentNode.deepCopy();
 
         List<String> fields = new ArrayList<>();
@@ -212,19 +219,28 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
             JsonNode childNode = objectNode.get(currentField);
             JsonNode processedNode = processJsonValue(childNode, keys, censor, changed);
 
-            boolean doesNameMatch = keys.contains(currentField);
-
-            if (doesNameMatch && childNode.isValueNode()) {
-                String currentValue = convertChildNodeToText(childNode);
-                censorValue(objectNode, currentValue, currentField, censor, changed, processedNode);
-            } else {
-                objectNode.set(currentField, processedNode);
-            }
+            boolean isCurrentKeySecretValue = keys.contains(currentField);
+            determineWhetherToCensorOrUncensor(childNode, processedNode, objectNode, currentField, censor, isCurrentKeySecretValue,
+                                               changed);
         }
         return objectNode;
     }
 
-    private JsonNode processArrayNode(JsonNode currentNode, Set<String> keys, boolean censor, boolean[] changed) {
+    private void determineWhetherToCensorOrUncensor(JsonNode childNode, JsonNode processedNode, ObjectNode objectNode, String currentField,
+                                                    boolean censor, boolean isCurrentKeySecretValue, AtomicBoolean changed) {
+        if (isCurrentKeySecretValue && childNode.isValueNode()) {
+            String currentValue = convertChildNodeToText(childNode);
+            if (censor) {
+                censorValue(objectNode, currentValue, currentField, changed);
+            } else {
+                uncensorValue(objectNode, currentValue, currentField, changed, processedNode);
+            }
+        } else {
+            objectNode.set(currentField, processedNode);
+        }
+    }
+
+    private JsonNode processArrayNode(JsonNode currentNode, Set<String> keys, boolean censor, AtomicBoolean changed) {
         ArrayNode arrayNode = currentNode.deepCopy();
         for (int i = 0; i < arrayNode.size(); i++) {
             arrayNode.set(i, processJsonValue(arrayNode.get(i), keys, censor, changed));
@@ -232,34 +248,34 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
         return arrayNode;
     }
 
-    private JsonNode processTextualNode(JsonNode currentNode, boolean censor, boolean[] changed) {
+    private JsonNode processTextualNode(JsonNode currentNode, boolean censor, AtomicBoolean changed) {
         String value = currentNode.asText();
         if (!censor && SecretTokenUtil.isSecretToken(value)) {
-            changed[0] = true;
+            changed.set(true);
             String detokenizedValue = detokenize(value);
             return forceToInteger(detokenizedValue);
         }
         return currentNode;
     }
 
-    private void censorValue(ObjectNode objectNode, String currentValue, String currentField, boolean censor, boolean[] changed,
-                             JsonNode processedNode) {
-        if (censor) {
-            if (SecretTokenUtil.isSecretToken(currentValue) || isPlaceholder(currentValue)) {
-                objectNode.put(currentField, currentValue);
-            } else {
-                objectNode.put(currentField, tokenize(currentValue));
-                changed[0] = true;
-            }
+    private void censorValue(ObjectNode objectNode, String currentValue, String currentField, AtomicBoolean changed) {
+        if (SecretTokenUtil.isSecretToken(currentValue) || isPlaceholder(currentValue)) {
+            objectNode.put(currentField, currentValue);
         } else {
-            if (SecretTokenUtil.isSecretToken(currentValue)) {
-                String detokenizedValue = detokenize(currentValue);
-                JsonNode jsonConverted = forceToInteger(detokenizedValue);
-                objectNode.set(currentField, jsonConverted);
-                changed[0] = true;
-            } else {
-                objectNode.set(currentField, processedNode);
-            }
+            objectNode.put(currentField, tokenize(currentValue));
+            changed.set(true);
+        }
+    }
+
+    private void uncensorValue(ObjectNode objectNode, String currentValue, String currentField, AtomicBoolean changed,
+                               JsonNode processedNode) {
+        if (SecretTokenUtil.isSecretToken(currentValue)) {
+            String detokenizedValue = detokenize(currentValue);
+            JsonNode jsonConverted = forceToInteger(detokenizedValue);
+            objectNode.set(currentField, jsonConverted);
+            changed.set(true);
+        } else {
+            objectNode.set(currentField, processedNode);
         }
     }
 

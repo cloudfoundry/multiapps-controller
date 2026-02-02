@@ -18,8 +18,6 @@ public interface SecretToken {
 
     String getProcessInstanceId();
 
-    String getKeyId();
-
     String getVariableName();
 
     byte[] getContent();

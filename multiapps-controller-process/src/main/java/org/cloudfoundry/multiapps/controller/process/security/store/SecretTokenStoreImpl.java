@@ -19,16 +19,9 @@ public class SecretTokenStoreImpl implements SecretTokenStore {
 
     private final String encryptionKey;
 
-    private final String keyId;
-
-    public SecretTokenStoreImpl(SecretTokenService secretTokenService, String encryptionKey, String keyId) {
+    public SecretTokenStoreImpl(SecretTokenService secretTokenService, String encryptionKey) {
         this.secretTokenService = secretTokenService;
         this.encryptionKey = encryptionKey;
-        this.keyId = keyId;
-    }
-
-    private byte[] keyBytes() {
-        return encryptionKey.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
@@ -41,14 +34,17 @@ public class SecretTokenStoreImpl implements SecretTokenStore {
                                                                  .processInstanceId(processInstanceId)
                                                                  .variableName(variableName)
                                                                  .content(encryptedValue)
-                                                                 .keyId(keyId)
                                                                  .timestamp(LocalDateTime.now())
                                                                  .build())
                                         .getId();
         LOGGER.debug(MessageFormat.format(
-            Messages.STORED_SECRET_TOKEN_WITH_VARIABLE_NAME_0_FOR_PROCESS_WITH_ID_1_AND_ENCRYPTION_KEY_ID_2,
-            variableName, processInstanceId, keyId));
+            Messages.STORED_SECRET_TOKEN_WITH_VARIABLE_NAME_0_FOR_PROCESS_WITH_ID_1,
+            variableName, processInstanceId));
         return result;
+    }
+
+    private byte[] keyBytes() {
+        return encryptionKey.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
@@ -67,7 +63,7 @@ public class SecretTokenStoreImpl implements SecretTokenStore {
     }
 
     @Override
-    public void delete(String processInstanceId) {
+    public void deleteByProcessInstanceId(String processInstanceId) {
         secretTokenService.createQuery()
                           .processInstanceId(processInstanceId)
                           .delete();

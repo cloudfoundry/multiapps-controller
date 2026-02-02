@@ -26,7 +26,6 @@ public class SecretTokenDto implements DtoWithPrimaryKey<Long> {
         public static final String VARIABLE_NAME = "variableName";
         public static final String CONTENT = "content";
         public static final String TIMESTAMP = "timestamp";
-        public static final String KEY_ID = "keyId";
     }
 
     @Id
@@ -47,20 +46,16 @@ public class SecretTokenDto implements DtoWithPrimaryKey<Long> {
     @Column(name = PersistenceMetadata.TableColumnNames.SECRET_TOKEN_TIMESTAMP, nullable = false)
     private LocalDateTime timestamp;
 
-    @Column(name = PersistenceMetadata.TableColumnNames.SECRET_TOKEN_KEY_ID, nullable = false)
-    private String keyId;
-
     protected SecretTokenDto() {
         //Required by JPA
     }
 
-    public SecretTokenDto(long id, String processInstanceId, String variableName, byte[] content, LocalDateTime timestamp, String keyId) {
+    public SecretTokenDto(long id, String processInstanceId, String variableName, byte[] content, LocalDateTime timestamp) {
         this.id = id;
         this.processInstanceId = processInstanceId;
         this.variableName = variableName;
         this.content = content;
         this.timestamp = timestamp;
-        this.keyId = keyId;
     }
 
     @Override
@@ -91,10 +86,6 @@ public class SecretTokenDto implements DtoWithPrimaryKey<Long> {
 
     public LocalDateTime getTimestamp() {
         return this.timestamp;
-    }
-
-    public String getKeyId() {
-        return this.keyId;
     }
 
 }

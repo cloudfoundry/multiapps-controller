@@ -75,6 +75,7 @@ public class OperationInFinalStateHandler {
     private void handleInternal(DelegateExecution execution, ProcessType processType, Operation.State state) {
         String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
         safeExecutor.execute(() -> deleteDeploymentFiles(correlationId, execution));
+        safeExecutor.execute(() -> deleteDisposableUserProvidedServiceForProcess(execution, correlationId));
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(execution));
         safeExecutor.execute(() -> setOperationState(correlationId, state));
         safeExecutor.execute(() -> deletePreviousBackupDescriptors(execution, processType, state));
@@ -186,12 +187,23 @@ public class OperationInFinalStateHandler {
     }
 
     private void deleteSecretTokensForProcess(Operation.State state, String correlationId, DelegateExecution execution) {
-        if (state != State.FINISHED) {
-            return;
-        }
-
         SecretTokenStoreDeletion secretTokenStore = secretTokenStoreFactory.createSecretTokenStoreDeletionRelated();
-        secretTokenStore.delete(correlationId);
+        secretTokenStore.deleteByProcessInstanceId(correlationId);
+    }
+
+    private void deleteDisposableUserProvidedServiceForProcess(DelegateExecution execution, String correlationId) {
+        boolean isDisposableUserProvidedServiceEnabled = VariableHandling.get(execution,
+                                                                              Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED);
+        if (isDisposableUserProvidedServiceEnabled) {
+            String userGuid = StepsUtil.determineCurrentUserGuid(execution);
+            String spaceGuid = VariableHandling.get(execution, Variables.SPACE_GUID);
+            String disposableUserProvidedServiceInstanceName = VariableHandling.get(execution,
+                                                                                    Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME);
+            clientProvider.getControllerClient(userGuid, spaceGuid, correlationId)
+                          .deleteServiceInstance(disposableUserProvidedServiceInstanceName);
+            LOGGER.debug(
+                MessageFormat.format(Messages.DISPOSABLE_USER_PROVIDED_SERVICE_0_DELETED, disposableUserProvidedServiceInstanceName));
+        }
     }
 
     private void addMtaVersionsOfDeployedMtas(List<String> mtaVersionsToSkipDeletion, DeployedMta deployedMta,

@@ -17,10 +17,6 @@ public abstract class SecureProcessContextFactory {
 
     abstract SecretTokenStore getSecretTokenStore();
 
-    public SecureProcessContextFactory() {
-
-    }
-
     public SecureProcessContext ofSecureProcessContext() {
         return new SecureProcessContext(getDelegateExecution(), getStepLogger(), getClientProvider(), getSecretTokenStore());
     }

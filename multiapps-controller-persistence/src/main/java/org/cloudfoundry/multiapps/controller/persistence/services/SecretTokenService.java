@@ -55,7 +55,6 @@ public class SecretTokenService extends PersistenceService<SecretToken, SecretTo
                                        .content(
                                            dto.getContent())
                                        .timestamp(dto.getTimestamp())
-                                       .keyId(dto.getKeyId())
                                        .build();
         }
 
@@ -66,8 +65,7 @@ public class SecretTokenService extends PersistenceService<SecretToken, SecretTo
             String variableName = secretToken.getVariableName();
             byte[] content = secretToken.getContent();
             LocalDateTime timestamp = secretToken.getTimestamp();
-            String keyId = secretToken.getKeyId();
-            return new SecretTokenDto(id, processInstanceId, variableName, content, timestamp, keyId);
+            return new SecretTokenDto(id, processInstanceId, variableName, content, timestamp);
         }
     }
 
