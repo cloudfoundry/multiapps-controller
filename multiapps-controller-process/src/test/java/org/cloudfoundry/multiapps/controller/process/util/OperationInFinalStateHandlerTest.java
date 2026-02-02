@@ -7,6 +7,8 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.OperationQueryImpl;
@@ -33,7 +35,8 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
 class OperationInFinalStateHandlerTest {
@@ -44,7 +47,9 @@ class OperationInFinalStateHandlerTest {
     private static final String MTA_ID = "my-mta";
     private static final String PROCESS_ID = "xxx-yyy-zzz";
     private static final String PROCESS_ID_2 = "zzz-xxx-yyy";
+    private static final String USER_GUID = "test-user";
     private static final long PROCESS_DURATION = 1000;
+    private static final String DISPOSABLE_USER_PROVIDED_SERVICE_NAME = "__mta-secure-my-mta-fake343";
 
     private static final Operation OPERATION = createOperation("1", ProcessType.DEPLOY, "spaceId", "mtaId", "user", true,
                                                                ZonedDateTime.parse("2010-10-08T10:00:00.000Z[UTC]"),
@@ -70,6 +75,10 @@ class OperationInFinalStateHandlerTest {
     private SecretTokenStoreFactory secretTokenStoreFactory;
     @Mock
     private SecretTokenStoreDeletion secretTokenStoreDeletion;
+    @Mock
+    private CloudControllerClientProvider cloudControllerClientProvider;
+    @Mock
+    private CloudControllerClient cloudControllerClient;
 
     @InjectMocks
     private final OperationInFinalStateHandler eventHandler = new OperationInFinalStateHandler();
@@ -117,7 +126,7 @@ class OperationInFinalStateHandlerTest {
         verifyOperationSetState();
         verifyDeleteDeploymentFiles(expectedFileIdsToSweep);
         verifyDynatracePublisher();
-        verify(secretTokenStoreDeletion).delete(PROCESS_ID);
+        verify(secretTokenStoreDeletion).deleteByProcessInstanceId(PROCESS_ID);
     }
 
     @Test
@@ -126,9 +135,26 @@ class OperationInFinalStateHandlerTest {
         prepareOperationTimeAggregator();
         prepareOperationService();
 
-        eventHandler.handle(execution, PROCESS_TYPE, State.ABORTED);
+        eventHandler.handle(execution, PROCESS_TYPE, State.ACTION_REQUIRED);
 
-        verify(secretTokenStoreFactory, never()).createSecretTokenStoreDeletionRelated();
+        verify(secretTokenStoreFactory, atLeastOnce()).createSecretTokenStoreDeletionRelated();
+    }
+
+    @Test
+    void testDeleteDisposableUserProvidedServiceWhenEnabled() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+
+        VariableHandling.set(execution, Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED, Boolean.TRUE);
+        VariableHandling.set(execution, Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME, DISPOSABLE_USER_PROVIDED_SERVICE_NAME);
+        VariableHandling.set(execution, Variables.USER_GUID, USER_GUID);
+
+        Mockito.when(cloudControllerClientProvider.getControllerClient(anyString(), anyString(), anyString()))
+               .thenReturn(cloudControllerClient);
+        eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
+
+        verify(cloudControllerClient).deleteServiceInstance(DISPOSABLE_USER_PROVIDED_SERVICE_NAME);
     }
 
     private void prepareContext(String archiveIds, String extensionDescriptorIds, boolean keepFiles) {

@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
@@ -18,13 +16,11 @@ import org.flowable.engine.delegate.DelegateExecution;
 public class SecureProcessContext extends ProcessContext {
 
     private SecretTokenStore secretTokenStore;
-    //    private SecretTransformationStrategy secretTransformationStrategy;
 
     public SecureProcessContext(DelegateExecution execution, StepLogger stepLogger, CloudControllerClientProvider clientProvider,
                                 SecretTokenStore secretTokenStore) {
         super(execution, stepLogger, clientProvider);
         this.secretTokenStore = secretTokenStore;
-        //        this.secretTransformationStrategy = secretTransformationStrategy;
     }
 
     private String getPidOfCurrentExecution() {
@@ -45,14 +41,8 @@ public class SecureProcessContext extends ProcessContext {
 
         Set<String> secureParameterNames = extractSecureParameterNames(secureParameterNamesRaw);
 
-        //        SecretTransformationStrategy secretTransformationStrategyContext = new SecretTransformationStrategyContextImpl(
-        //            secureParameterNames);
-        //        SecureSerializerConfiguration secureSerializerConfiguration = new SecureSerializerConfiguration();
-        //        secureSerializerConfiguration.setAdditionalSensitiveElementNames(secureParameterNames);
-        List<String> secureParametersNamesList = new ArrayList<>(secureParameterNames);
-
         Serializer<T> wrappedSerializer = new SecretTokenSerializer<>(variable.getSerializer(), secretTokenStore,
-                                                                      secureParametersNamesList,
+                                                                      secureParameterNames,
                                                                       processInstanceId, variable.getName());
 
         return new WrappedVariable<>(variable, wrappedSerializer);

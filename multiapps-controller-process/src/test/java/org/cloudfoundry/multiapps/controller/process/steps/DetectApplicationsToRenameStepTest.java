@@ -19,7 +19,6 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
-import org.cloudfoundry.multiapps.controller.process.security.resolver.SecretTokenKeyContainer;
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStore;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Assertions;
@@ -102,20 +101,15 @@ class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectAppl
     void testExecuteWithTwoVersionsOfAppDeletesOldAndRenamesNew() {
         DeployedMta deployedMta = createDeployedMta("a-live", "a");
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
-        SecretTokenKeyContainer secretTokenKeyContainer = Mockito.mock(SecretTokenKeyContainer.class);
         SecretTokenStore secretTokenStore = Mockito.mock(SecretTokenStore.class);
-        Mockito.when(secretTokenKeyContainer.key())
-               .thenReturn("test-key");
-        Mockito.when(secretTokenKeyContainer.keyId())
-               .thenReturn("v1");
         CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
         Mockito.when(client.getApplication("a-live", false))
                .thenReturn(createApplication("a-live"));
         Mockito.when(clientProvider.getControllerClient(anyString(), anyString(), anyString()))
                .thenReturn(client);
         Mockito.when(secretTokenKeyResolver.resolve(execution))
-               .thenReturn(secretTokenKeyContainer);
-        Mockito.when(secretTokenStoreFactory.createSecretTokenStore(eq("test-key"), eq("v1")))
+               .thenReturn("test-key");
+        Mockito.when(secretTokenStoreFactory.createSecretTokenStore(eq("test-key")))
                .thenReturn(secretTokenStore);
         context.setVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES, Collections.emptySet());
         context.setVariable(Variables.IS_SECURITY_ENABLED, Boolean.TRUE);

@@ -14,7 +14,7 @@ import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ImmutableBackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.security.SecretParametersCollectingVisitor;
+import org.cloudfoundry.multiapps.controller.process.security.SecretParametersCollector;
 import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
 import org.cloudfoundry.multiapps.controller.process.util.UnsupportedParameterFinder;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -36,7 +36,8 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
     @Inject
     private UnsupportedParameterFinder unsupportedParameterFinder;
 
-    private SecretParametersCollectingVisitor secretParametersCollectingVisitor = new SecretParametersCollectingVisitor();
+    @Inject
+    private SecretParametersCollector secretParametersCollectingVisitor;
 
     protected MtaDescriptorMerger getMtaDescriptorMerger(CloudHandlerFactory factory, Platform platform) {
         return new MtaDescriptorMerger(factory, platform, getStepLogger());

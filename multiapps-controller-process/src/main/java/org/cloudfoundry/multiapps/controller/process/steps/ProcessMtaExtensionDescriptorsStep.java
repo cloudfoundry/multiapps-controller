@@ -78,17 +78,13 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
                 fileService.consumeFileContent(spaceId, extensionDescriptorFileId, extensionDescriptorConsumer);
             }
 
-            boolean isSecureExtensionDescriptorPresent = extensionDescriptors.stream()
-                                                                             .anyMatch(extensionDescriptor -> extensionDescriptor.getId()
-                                                                                                                                 .equals(
-                                                                                                                                     Constants.SECURE_EXTENSION_DESCRIPTOR_ID));
-            if (isSecureExtensionDescriptorPresent) {
-                List<ExtensionDescriptor> extensionDescriptorsWithoutSecure = extensionDescriptors.stream()
-                                                                                                  .filter(
-                                                                                                      extensionDescriptor -> !extensionDescriptor.getId()
-                                                                                                                                                 .equals(
-                                                                                                                                                     Constants.SECURE_EXTENSION_DESCRIPTOR_ID))
-                                                                                                  .toList();
+            List<ExtensionDescriptor> extensionDescriptorsWithoutSecure = extensionDescriptors.stream()
+                                                                                              .filter(
+                                                                                                  extensionDescriptor -> !extensionDescriptor.getId()
+                                                                                                                                             .equals(
+                                                                                                                                                 Constants.SECURE_EXTENSION_DESCRIPTOR_ID))
+                                                                                              .toList();
+            if (extensionDescriptors.size() != extensionDescriptorsWithoutSecure.size()) {
                 getStepLogger().debug(Messages.PROVIDED_EXTENSION_DESCRIPTORS, SecureSerialization.toJson(extensionDescriptorsWithoutSecure)
                     + Messages.SECURE_EXTENSION_DESCRIPTOR_CONSTRUCTED_AND_APPLIED_FROM_ENVIRONMENT_VARIABLES);
             } else {

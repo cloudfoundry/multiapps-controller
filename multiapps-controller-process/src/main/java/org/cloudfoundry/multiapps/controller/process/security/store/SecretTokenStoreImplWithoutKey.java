@@ -19,7 +19,7 @@ public class SecretTokenStoreImplWithoutKey implements SecretTokenStoreDeletion 
     }
 
     @Override
-    public void delete(String processInstanceId) {
+    public void deleteByProcessInstanceId(String processInstanceId) {
         secretTokenService.createQuery()
                           .processInstanceId(processInstanceId)
                           .delete();

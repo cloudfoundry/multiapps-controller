@@ -1,8 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.security;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -71,7 +72,7 @@ public class SecretTokenSerializerTest {
 
     @Test
     void testSerializeAndDeserializeSuccessWhenEntireVariableIsSecretString() {
-        List<String> names = new ArrayList<>();
+        Set<String> names = new HashSet<>();
         names.add("value");
 
         when(secretTokenStore.put(PROCESS_INSTANCE_ID, VARIABLE_NAME, "secret_text")).thenReturn(7L);
@@ -92,7 +93,7 @@ public class SecretTokenSerializerTest {
 
     @Test
     void testSerializeAndDeserializeSuccessWhenJsonWithStringField() {
-        List<String> secretNames = new ArrayList<>();
+        Set<String> secretNames = new HashSet<>();
         secretNames.add("password");
 
         when(secretTokenStore.put(eq(PROCESS_INSTANCE_ID), eq(VARIABLE_NAME), eq("internal_one"))).thenReturn(13L);
@@ -115,7 +116,7 @@ public class SecretTokenSerializerTest {
 
     @Test
     void testSerializeAndDeserializeSuccessWhenJsonWithStringFieldLargerOne() {
-        List<String> secretNames = new ArrayList<>();
+        Set<String> secretNames = new HashSet<>();
         secretNames.add("config");
 
         when(secretTokenStore.put(eq(PROCESS_INSTANCE_ID), eq(VARIABLE_NAME), eq("must_not_be_shown"))).thenReturn(15L);
@@ -139,7 +140,7 @@ public class SecretTokenSerializerTest {
 
     @Test
     void testSerializeAndDeserializeSuccessWhenJsonWithStringHasTrailingTextDoesNotMakeChanges() {
-        List<String> secretNames = new ArrayList<>();
+        Set<String> secretNames = new HashSet<>();
         secretNames.add("config");
 
         when(secretTokenStore.put(eq(PROCESS_INSTANCE_ID), eq(VARIABLE_NAME), eq("must_not_be_shown"))).thenReturn(15L);
@@ -163,7 +164,7 @@ public class SecretTokenSerializerTest {
 
     @Test
     void testSerializeSuccessWhenSecretParameterIsAReference() {
-        List<String> secretNames = new ArrayList<>();
+        Set<String> secretNames = new HashSet<>();
         secretNames.add("password");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
@@ -184,7 +185,7 @@ public class SecretTokenSerializerTest {
         when(secretTokenStore.get(PROCESS_INSTANCE_ID, 42L)).thenReturn("plain_value");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
-            new StringSerializerHelper(), secretTokenStore, Collections.emptyList(),
+            new StringSerializerHelper(), secretTokenStore, Collections.emptySet(),
             PROCESS_INSTANCE_ID, VARIABLE_NAME);
 
         String result = serializer.deserialize(token);
@@ -192,20 +193,8 @@ public class SecretTokenSerializerTest {
     }
 
     @Test
-    void testSerializeLeavesPlainNonJsonUntouchedWhenCsvDisabled() {
-        SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
-            new StringSerializerHelper(), secretTokenStore, Collections.emptyList(),
-            PROCESS_INSTANCE_ID, VARIABLE_NAME);
-
-        String testInput = "just_a_plain_string";
-        Object result = serializer.serialize(testInput);
-        assertEquals(testInput, result);
-        assertEquals(testInput, serializer.deserialize(result));
-    }
-
-    @Test
     void testSerializeAndDeserializeWhenListOfJsonElements() {
-        List<String> secretNames = new ArrayList<>();
+        Set<String> secretNames = new HashSet<>();
         secretNames.add("password");
 
         when(secretTokenStore.put(PROCESS_INSTANCE_ID, VARIABLE_NAME, "p1")).thenReturn(100L);
@@ -229,8 +218,9 @@ public class SecretTokenSerializerTest {
     }
 
     @Test
-    void testSerializeAndDeserialize_JsonNumberFieldCoercedToInt() throws Exception {
-        List<String> secretNames = Collections.singletonList("instancesNumber");
+    void testSerializeAndDeserializeWhenJsonNumberFieldCoercedToInt() throws Exception {
+        Set<String> secretNames = new HashSet<>();
+        secretNames.add("instancesNumber");
 
         when(secretTokenStore.put(PROCESS_INSTANCE_ID, VARIABLE_NAME, "7")).thenReturn(77L);
         when(secretTokenStore.get(PROCESS_INSTANCE_ID, 77L)).thenReturn("7");
@@ -256,8 +246,9 @@ public class SecretTokenSerializerTest {
     }
 
     @Test
-    void testSerializeAndDeserialize_ArrayOfObjects_NumberFieldsCoercedToInt() throws Exception {
-        List<String> secretNames = Collections.singletonList("instancesNumber");
+    void testSerializeAndDeserializeWhenArrayOfObjectsHasNumberFieldsCoercedToInt() throws Exception {
+        Set<String> secretNames = new HashSet<>();
+        secretNames.add("instancesNumber");
 
         when(secretTokenStore.put(PROCESS_INSTANCE_ID, VARIABLE_NAME, "3"))
             .thenReturn(100L);

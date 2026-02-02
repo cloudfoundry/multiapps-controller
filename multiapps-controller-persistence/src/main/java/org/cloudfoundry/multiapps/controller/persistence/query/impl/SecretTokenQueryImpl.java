@@ -66,16 +66,6 @@ public class SecretTokenQueryImpl extends AbstractQueryImpl<SecretToken, SecretT
     }
 
     @Override
-    public SecretTokenQuery keyId(String keyId) {
-        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
-                                                                       .attribute(AttributeNames.KEY_ID)
-                                                                       .condition(getCriteriaBuilder()::equal)
-                                                                       .value(keyId)
-                                                                       .build());
-        return this;
-    }
-
-    @Override
     public SecretToken singleResult() throws NoResultException, NonUniqueResultException {
         SecretTokenDto secretTokenDto = executeInTransaction(
             entityManager -> createQuery(entityManager, queryCriteria, SecretTokenDto.class).getSingleResult());

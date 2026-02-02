@@ -27,7 +27,8 @@ class RollbackMtaMetadataTest extends MetadataBaseTest {
             Variables.DELETE_SERVICES.getName(), Variables.NO_FAIL_ON_MISSING_PERMISSIONS.getName(), Variables.ABORT_ON_ERROR.getName(),
             Variables.APPS_START_TIMEOUT_PROCESS_VARIABLE.getName(), Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE.getName(),
             Variables.APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE.getName(), Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE.getName(),
-            Variables.PROCESS_USER_PROVIDED_SERVICES.getName(), Variables.IS_SECURITY_ENABLED.getName() };
+            Variables.PROCESS_USER_PROVIDED_SERVICES.getName(), Variables.IS_SECURITY_ENABLED.getName(),
+            Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME.getName(), Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED.getName() };
     }
 
 }

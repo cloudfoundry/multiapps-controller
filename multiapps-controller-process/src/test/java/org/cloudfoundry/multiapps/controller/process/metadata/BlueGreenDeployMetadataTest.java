@@ -55,7 +55,9 @@ public class BlueGreenDeployMetadataTest extends MetadataBaseTest {
                 Variables.SKIP_APP_DIGEST_CALCULATION.getName(),
                 Variables.SHOULD_BACKUP_PREVIOUS_VERSION.getName(),
                 Variables.STOP_ORDER_IS_DEPENDENCY_AWARE.getName(),
-                Variables.IS_SECURITY_ENABLED.getName()
+                Variables.IS_SECURITY_ENABLED.getName(),
+                Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME.getName(),
+                Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED.getName()
             // @formatter:on
         };
     }

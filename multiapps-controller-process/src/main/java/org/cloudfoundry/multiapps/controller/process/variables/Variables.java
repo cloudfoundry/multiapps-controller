@@ -949,4 +949,13 @@ public interface Variables {
                                                                    .defaultValue(false)
                                                                    .build();
 
+    Variable<String> DISPOSABLE_USER_PROVIDED_SERVICE_NAME = ImmutableSimpleVariable.<String> builder()
+                                                                                    .name("disposableUserProvidedServiceName")
+                                                                                    .build();
+
+    Variable<Boolean> IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED = ImmutableSimpleVariable.<Boolean> builder()
+                                                                                           .name("isDisposableUserProvidedServiceEnabled")
+                                                                                           .defaultValue(false)
+                                                                                           .build();
+
 }

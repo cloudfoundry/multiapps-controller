@@ -135,6 +135,16 @@ public class BlueGreenDeployMetadata {
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .defaultValue(false)
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME.getName())
+                                                                                 .type(ParameterType.STRING)
+                                                                                 .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED.getName())
+                                                                                 .type(ParameterType.BOOLEAN)
+                                                                                 .defaultValue(false)
+                                                                                 .build())
+
                                          // Special blue green deploy parameters:
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.NO_CONFIRM.getName())

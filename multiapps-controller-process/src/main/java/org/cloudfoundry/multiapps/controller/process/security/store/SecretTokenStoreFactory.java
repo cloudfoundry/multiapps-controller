@@ -14,8 +14,8 @@ public class SecretTokenStoreFactory {
         this.secretTokenService = secretTokenService;
     }
 
-    public SecretTokenStore createSecretTokenStore(String encryptionKey, String encryptionKeyId) {
-        return new SecretTokenStoreImpl(secretTokenService, encryptionKey, encryptionKeyId);
+    public SecretTokenStore createSecretTokenStore(String encryptionKey) {
+        return new SecretTokenStoreImpl(secretTokenService, encryptionKey);
     }
 
     public SecretTokenStoreDeletion createSecretTokenStoreDeletionRelated() {

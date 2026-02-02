@@ -27,7 +27,7 @@ public class AesEncryptionUtil {
             byte[] gcmInitialisationVector = new byte[Constants.INITIALISATION_VECTOR_LENGTH];
             new SecureRandom().nextBytes(gcmInitialisationVector);
 
-            Cipher cipherObject = setUpCipherObject(encryptionKey, gcmInitialisationVector, true);
+            Cipher cipherObject = setUpCipherObject(encryptionKey, gcmInitialisationVector, Cipher.ENCRYPT_MODE);
 
             byte[] cipherValue = cipherObject.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
 
@@ -52,7 +52,7 @@ public class AesEncryptionUtil {
             byte[] cipherValue = new byte[encryptedValue.length - Constants.INITIALISATION_VECTOR_LENGTH];
             System.arraycopy(encryptedValue, Constants.INITIALIZATION_VECTOR_POSITION, cipherValue, 0, cipherValue.length);
 
-            Cipher cipherObject = setUpCipherObject(encryptionKey, gcmInitialisationVector, false);
+            Cipher cipherObject = setUpCipherObject(encryptionKey, gcmInitialisationVector, Cipher.DECRYPT_MODE);
 
             byte[] resultInBytes = cipherObject.doFinal(cipherValue);
             return new String(resultInBytes, StandardCharsets.UTF_8);
@@ -61,18 +61,14 @@ public class AesEncryptionUtil {
         }
     }
 
-    private static Cipher setUpCipherObject(byte[] encryptionKey, byte[] gcmInitialisationVector, boolean shouldEncrypt)
+    private static Cipher setUpCipherObject(byte[] encryptionKey, byte[] gcmInitialisationVector, int cipherMode)
         throws InvalidAlgorithmParameterException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException,
         NoSuchProviderException {
         Cipher cipherObject = Cipher.getInstance(Constants.CIPHER_TRANSFORMATION_NAME, BouncyCastleFipsProvider.PROVIDER_NAME);
         SecretKeySpec secretKeySpec = new SecretKeySpec(encryptionKey, Constants.ENCRYPTION_DECRYPTION_ALGORITHM_NAME);
         GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(Constants.GCM_AUTHENTICATION_TAG_LENGTH, gcmInitialisationVector);
-
-        if (shouldEncrypt) {
-            cipherObject.init(Cipher.ENCRYPT_MODE, secretKeySpec, gcmParameterSpec);
-        } else {
-            cipherObject.init(Cipher.DECRYPT_MODE, secretKeySpec, gcmParameterSpec);
-        }
+        
+        cipherObject.init(cipherMode, secretKeySpec, gcmParameterSpec);
 
         return cipherObject;
     }

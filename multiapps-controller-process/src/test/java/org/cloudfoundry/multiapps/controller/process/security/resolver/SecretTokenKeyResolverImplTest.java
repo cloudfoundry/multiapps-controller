@@ -67,13 +67,11 @@ public class SecretTokenKeyResolverImplTest {
 
         Map<String, Object> credentials = new HashMap<>();
         credentials.put("encryptionKey", "abcdefghijklmnopqrstuvwxyz123456");
-        credentials.put("keyId", "v1");
         when(cloudControllerClient.getUserProvidedServiceInstanceParameters(upsGuid)).thenReturn(credentials);
 
-        SecretTokenKeyContainer secretTokenKeyContainer = secretTokenKeyResolver.resolve(execution);
+        String encryptionKey = secretTokenKeyResolver.resolve(execution);
 
-        assertEquals("abcdefghijklmnopqrstuvwxyz123456", secretTokenKeyContainer.key());
-        assertEquals("v1", secretTokenKeyContainer.keyId());
+        assertEquals("abcdefghijklmnopqrstuvwxyz123456", encryptionKey);
         verify(cloudControllerClient, times(1)).getServiceInstance(expectedUps);
         verify(cloudControllerClient, times(1)).getUserProvidedServiceInstanceParameters(upsGuid);
     }
@@ -90,13 +88,11 @@ public class SecretTokenKeyResolverImplTest {
 
         Map<String, Object> creds = new HashMap<String, Object>();
         creds.put("encryptionKey", "abcdefghijklmnopqrstuvwxyz123456");
-        creds.put("keyId", "v1");
         when(cloudControllerClient.getUserProvidedServiceInstanceParameters(upsGuid)).thenReturn(creds);
 
-        SecretTokenKeyContainer secretTokenKeyContainer = secretTokenKeyResolver.resolve(execution);
+        String encryptionKey = secretTokenKeyResolver.resolve(execution);
 
-        assertEquals("abcdefghijklmnopqrstuvwxyz123456", secretTokenKeyContainer.key());
-        assertEquals("v1", secretTokenKeyContainer.keyId());
+        assertEquals("abcdefghijklmnopqrstuvwxyz123456", encryptionKey);
     }
 
     @Test

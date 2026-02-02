@@ -20,7 +20,6 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.security.resolver.SecretTokenKeyContainer;
 import org.cloudfoundry.multiapps.controller.process.security.resolver.SecretTokenKeyResolver;
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStore;
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStoreFactory;
@@ -100,9 +99,8 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         boolean isSecurityEnabled = VariableHandling.get(execution,
                                                          Variables.IS_SECURITY_ENABLED);
         if (isSecurityEnabled) {
-            SecretTokenKeyContainer secretTokenKeyContainer = secretTokenKeyResolver.resolve(execution);
-            SecretTokenStore secretTokenStore = secretTokenStoreFactory.createSecretTokenStore(secretTokenKeyContainer.key(),
-                                                                                               secretTokenKeyContainer.keyId());
+            String encryptionKey = secretTokenKeyResolver.resolve(execution);
+            SecretTokenStore secretTokenStore = secretTokenStoreFactory.createSecretTokenStore(encryptionKey);
             return ImmutableSecureProcessContextFactory.builder()
                                                        .delegateExecution(execution)
                                                        .stepLogger(stepLogger)
