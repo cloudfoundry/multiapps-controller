@@ -28,9 +28,7 @@ import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.model.ResourceType;
 import org.cloudfoundry.multiapps.mta.model.Visitor;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SecretParametersCollector extends Visitor {
 
     private final Set<String> secretParameters = new HashSet<>();
@@ -63,15 +61,16 @@ public class SecretParametersCollector extends Visitor {
                 continue;
             }
 
-            shouldBeAddedInNestedParameters(secretParameters, nestedParameters, value, currentParameterName);
+            determineWhetherToAddInNestedParameters(nestedParameters, value, currentParameterName);
         }
     }
 
-    private void shouldBeAddedInNestedParameters(Set<String> secretParameters, Set<String> nestedParameters, String value,
-                                                 String currentParameterName) {
+    private void determineWhetherToAddInNestedParameters(Set<String> nestedParameters, String value,
+                                                         String currentParameterName) {
         for (String secretParameter : secretParameters) {
             if (!secretParameter.isEmpty() && value.contains(secretParameter)) {
                 nestedParameters.add(currentParameterName);
+                break;
             }
         }
     }

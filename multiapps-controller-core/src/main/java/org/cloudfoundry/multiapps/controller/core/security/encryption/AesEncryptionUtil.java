@@ -21,9 +21,6 @@ public class AesEncryptionUtil {
 
     public static byte[] encrypt(String plainText, byte[] encryptionKey) {
         try {
-            if (plainText == null) {
-                plainText = "";
-            }
             byte[] gcmInitialisationVector = new byte[Constants.INITIALISATION_VECTOR_LENGTH];
             new SecureRandom().nextBytes(gcmInitialisationVector);
 
@@ -67,7 +64,7 @@ public class AesEncryptionUtil {
         Cipher cipherObject = Cipher.getInstance(Constants.CIPHER_TRANSFORMATION_NAME, BouncyCastleFipsProvider.PROVIDER_NAME);
         SecretKeySpec secretKeySpec = new SecretKeySpec(encryptionKey, Constants.ENCRYPTION_DECRYPTION_ALGORITHM_NAME);
         GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(Constants.GCM_AUTHENTICATION_TAG_LENGTH, gcmInitialisationVector);
-        
+
         cipherObject.init(cipherMode, secretKeySpec, gcmParameterSpec);
 
         return cipherObject;

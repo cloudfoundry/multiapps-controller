@@ -26,9 +26,8 @@ public class SecretTokenStoreImpl implements SecretTokenStore {
 
     @Override
     public long put(String processInstanceId, String variableName, String plainText) {
-        byte[] encryptedValue;
         byte[] keyBytes = keyBytes();
-        encryptedValue = AesEncryptionUtil.encrypt(plainText, keyBytes);
+        byte[] encryptedValue = AesEncryptionUtil.encrypt(plainText, keyBytes);
 
         long result = secretTokenService.add(ImmutableSecretToken.builder()
                                                                  .processInstanceId(processInstanceId)

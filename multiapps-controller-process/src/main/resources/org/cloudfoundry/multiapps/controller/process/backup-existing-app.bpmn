@@ -10,7 +10,7 @@
     <serviceTask id="stopApplicationUndeploymentTask" name="Stop Application Undeployment Step" flowable:async="true" flowable:delegateExpression="${stopApplicationUndeploymentStep}"></serviceTask>
     <endEvent id="endEvent"></endEvent>
     <exclusiveGateway id="hasStepWithHooksCompleted" default="reExecuteStepFlow"></exclusiveGateway>
-    <callActivity id="executeHooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="executeHooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
     <extensionElements>
       <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
       <flowable:in source="user" target="user"></flowable:in>
