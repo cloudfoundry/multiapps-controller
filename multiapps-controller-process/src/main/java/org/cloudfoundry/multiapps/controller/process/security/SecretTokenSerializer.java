@@ -164,6 +164,10 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
     }
 
     private String transformJson(String candidate, boolean censor) {
+        if (!isValid(candidate)) {
+            return null;
+        }
+
         try {
             JsonNode rootNode = OBJECT_MAPPER.readTree(candidate);
             AtomicBoolean changed = new AtomicBoolean();
@@ -177,6 +181,15 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
             throw new SLException(MessageFormat.format(Messages.JSON_TRANSFORMATION_FAILED_FOR_VARIABLE_0, variableName, e.getMessage()),
                                   e);
         }
+    }
+
+    public boolean isValid(String json) {
+        try {
+            OBJECT_MAPPER.readTree(json);
+        } catch (JacksonException e) {
+            return false;
+        }
+        return true;
     }
 
     private JsonNode processJsonValue(JsonNode currentNode, Set<String> secretValueNames, boolean censor, AtomicBoolean changed) {

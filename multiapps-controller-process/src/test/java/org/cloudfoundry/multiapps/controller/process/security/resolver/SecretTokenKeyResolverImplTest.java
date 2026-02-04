@@ -59,7 +59,7 @@ public class SecretTokenKeyResolverImplTest {
 
     @Test
     void testResolveSuccessWithNamespace() {
-        String expectedUps = "__mta-secure-my-mtans";
+        String expectedUps = "__mta-secure-my-mta-ns";
 
         UUID upsGuid = UUID.randomUUID();
         when(cloudServiceInstance.getGuid()).thenReturn(upsGuid);
@@ -73,7 +73,7 @@ public class SecretTokenKeyResolverImplTest {
 
         assertEquals("abcdefghijklmnopqrstuvwxyz123456", encryptionKey);
         verify(cloudControllerClient, times(1)).getServiceInstance(expectedUps);
-        verify(cloudControllerClient, times(1)).getUserProvidedServiceInstanceParameters(upsGuid);
+        verify(cloudControllerClient, times(2)).getUserProvidedServiceInstanceParameters(upsGuid);
     }
 
     @Test
@@ -97,18 +97,18 @@ public class SecretTokenKeyResolverImplTest {
 
     @Test
     void testResolveWhenServiceInstanceMissing() {
-        when(cloudControllerClient.getServiceInstance("__mta-secure-my-mtans")).thenReturn(null);
+        when(cloudControllerClient.getServiceInstance("__mta-secure-my-mta-ns")).thenReturn(null);
 
         Exception exception = assertThrows(SLException.class, () -> secretTokenKeyResolver.resolve(execution));
         assertTrue(exception.getMessage()
                             .contains("Could not retrieve service instance"));
-        verify(cloudControllerClient, times(1)).getServiceInstance("__mta-secure-my-mtans");
+        verify(cloudControllerClient, times(1)).getServiceInstance("__mta-secure-my-mta-ns");
         verify(cloudControllerClient, never()).getUserProvidedServiceInstanceParameters(any(UUID.class));
     }
 
     @Test
     void testResolveWhenCredentialsMissing() {
-        String expectedUps = "__mta-secure-my-mtans";
+        String expectedUps = "__mta-secure-my-mta-ns";
 
         UUID upsGuid = UUID.randomUUID();
         when(cloudServiceInstance.getGuid()).thenReturn(upsGuid);
