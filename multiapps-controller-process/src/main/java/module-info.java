@@ -36,7 +36,6 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires flowable.variable.service.api;
     requires jakarta.annotation;
     requires jakarta.persistence;
-    requires java.annotation;
     requires java.sql;
     requires jakarta.xml.bind;
     requires jakarta.inject;
@@ -52,14 +51,12 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires org.cloudfoundry.multiapps.controller.persistence;
     requires org.cloudfoundry.multiapps.mta;
     requires org.joda.time;
-    requires org.mybatis;
     requires org.slf4j;
     requires spring.beans;
     requires spring.context;
     requires spring.core;
     requires spring.security.oauth2.core;
     requires spring.web;
-    requires tools.jackson.databind;
     requires reactor.netty;
     requires io.netty.handler;
     requires io.netty.transport;
@@ -67,8 +64,5 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires static java.compiler;
     requires static org.immutables.value;
     requires org.cloudfoundry.multiapps.controller.shutdown.client;
-    requires org.checkerframework.checker.qual;
-    requires s3;
-    requires org.eclipse.persistence.jpa;
 
 }

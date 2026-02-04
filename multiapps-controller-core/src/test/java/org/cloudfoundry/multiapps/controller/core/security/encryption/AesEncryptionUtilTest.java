@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class AesEncryptionUtilTest {
 
     private static final byte[] KEY_FOR_256_32_BYTES = "abcdefghijklmnopqrstuvwxyz123456".getBytes(StandardCharsets.UTF_8);
+    private static final byte[] SECOND_KEY_FOR_256_32_BYTES = "0123456789abcdef0123456789ABCDEF".getBytes(StandardCharsets.UTF_8);
 
     @BeforeAll
     static void addBouncyCastleProvider() throws Exception {
@@ -87,8 +88,7 @@ public class AesEncryptionUtilTest {
         String plainText = "top secret";
         byte[] encrypted = AesEncryptionUtil.encrypt(plainText, KEY_FOR_256_32_BYTES);
 
-        byte[] differentValidKey = "0123456789abcdef0123456789ABCDEF".getBytes(StandardCharsets.UTF_8);
-        assertThrows(SLException.class, () -> AesEncryptionUtil.decrypt(encrypted, differentValidKey));
+        assertThrows(SLException.class, () -> AesEncryptionUtil.decrypt(encrypted, SECOND_KEY_FOR_256_32_BYTES));
     }
 
     @Test

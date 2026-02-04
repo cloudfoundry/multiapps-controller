@@ -36,9 +36,6 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
     @Inject
     private UnsupportedParameterFinder unsupportedParameterFinder;
 
-    @Inject
-    private SecretParametersCollector secretParametersCollectingVisitor;
-
     protected MtaDescriptorMerger getMtaDescriptorMerger(CloudHandlerFactory factory, Platform platform) {
         return new MtaDescriptorMerger(factory, platform, getStepLogger());
     }
@@ -50,8 +47,9 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
         List<ExtensionDescriptor> extensionDescriptors = context.getVariable(Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN);
         CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
         Platform platform = configuration.getPlatform();
-        Set<String> parameterNamesToBeCensored = secretParametersCollectingVisitor.collectSecrets(deploymentDescriptor,
-                                                                                                  extensionDescriptors);
+        SecretParametersCollector secretParametersCollector = new SecretParametersCollector();
+        Set<String> parameterNamesToBeCensored = secretParametersCollector.collectSecrets(deploymentDescriptor,
+                                                                                          extensionDescriptors);
         context.setVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES,
                             parameterNamesToBeCensored);
 
