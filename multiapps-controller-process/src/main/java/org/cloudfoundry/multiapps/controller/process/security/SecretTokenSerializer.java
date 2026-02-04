@@ -23,8 +23,12 @@ import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenS
 import org.cloudfoundry.multiapps.controller.process.security.util.SecretTokenUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Serializer;
 import org.flowable.common.engine.api.variable.VariableContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SecretTokenSerializer<T> implements Serializer<T> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecretTokenSerializer.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
 
@@ -176,6 +180,9 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
             }
             return null;
         } catch (Exception e) {
+            LOGGER.info("transformJson failed for var {} (more info = {}): {}: {}", variableName, candidate, e.getClass()
+                                                                                                              .getSimpleName(),
+                        e.getMessage());
             throw new SLException(MessageFormat.format(Messages.JSON_TRANSFORMATION_FAILED_FOR_VARIABLE_0, variableName), e);
         }
     }
