@@ -20,6 +20,9 @@
       <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
       <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
       <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+      <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
+      <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
+      <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
       <flowable:in source="mtaId" target="mtaId"></flowable:in>
     </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution">
