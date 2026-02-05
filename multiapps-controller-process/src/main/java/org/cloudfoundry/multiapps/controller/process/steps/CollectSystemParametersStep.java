@@ -15,10 +15,11 @@ import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.CredentialsGenerator;
 import org.cloudfoundry.multiapps.controller.core.helpers.SystemParameters;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.HostValidator;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
 import org.cloudfoundry.multiapps.controller.process.util.ReadOnlyParametersChecker;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -58,7 +59,9 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         checkForOverwrittenReadOnlyParameters(descriptor);
         SystemParameters systemParameters = createSystemParameters(context, defaultDomainName, reserveTemporaryRoutes, descriptor);
         systemParameters.injectInto(descriptor);
-        getStepLogger().debug(Messages.DESCRIPTOR_WITH_SYSTEM_PARAMETERS, SecureSerialization.toJson(descriptor));
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
+        getStepLogger().debug(Messages.DESCRIPTOR_WITH_SYSTEM_PARAMETERS,
+                              dynamicSecureSerialization.toJson(descriptor));
 
         determineIsVersionAccepted(context, descriptor);
 

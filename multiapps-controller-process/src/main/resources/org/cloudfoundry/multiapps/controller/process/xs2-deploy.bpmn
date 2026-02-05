@@ -153,7 +153,7 @@
     <sequenceFlow id="deleteDiscontinuedServiceBrokersFlow" sourceRef="shouldDeleteDiscontinuedServiceBrokersGateway" targetRef="deleteServiceBrokersTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServiceBrokers == true)}]]></conditionExpression>
     </sequenceFlow>
-    <callActivity id="deleteServiceKeysSubProcess" name="Delete Abandoned Service Keys" flowable:async="true" flowable:exclusive="false" calledElement="deleteServiceKeySubProcess" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="deleteServiceKeysSubProcess" name="Delete Abandoned Service Keys" flowable:async="true" flowable:exclusive="false" calledElement="deleteServiceKeySubProcess" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
         <extensionElements>
             <flowable:in source="processId" target="processId"/>
             <flowable:in source="serviceKeyToProcess" target="serviceKeyToProcess"/>
@@ -161,6 +161,11 @@
             <flowable:in source="userGuid" target="userGuid"/>
             <flowable:in source="correlationId" target="correlationId"/>
             <flowable:in source="__SPACE_ID" target="__SPACE_ID"/>
+            <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+            <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
+            <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
+            <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
+            <flowable:in source="mtaId" target="mtaId"></flowable:in>
         </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="serviceKeysToDelete" flowable:elementVariable="serviceKeyToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>

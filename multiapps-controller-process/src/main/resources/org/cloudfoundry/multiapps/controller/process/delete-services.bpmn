@@ -16,7 +16,7 @@
     </intermediateCatchEvent>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="waitFlow"></exclusiveGateway>
     <sequenceFlow id="pollingFlow" name="Poll" sourceRef="timerintermediatecatchevent1" targetRef="deleteServiceWithPolling"></sequenceFlow>
-    <callActivity id="deleteServiceBindings" name="Delete service bindings" flowable:async="true" calledElement="manageAppServiceBindingSubProcess" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="deleteServiceBindings" name="Delete service bindings" flowable:async="true" calledElement="manageAppServiceBindingSubProcess" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
         <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
         <flowable:in source="processId" target="processId"></flowable:in>
@@ -32,6 +32,11 @@
         <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
         <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
         <flowable:in source="serviceBindingToDelete" target="serviceBindingToDelete"></flowable:in>
+        <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
+        <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+        <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
+        <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
+        <flowable:in source="mtaId" target="mtaId"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceBindingsToDelete" flowable:elementVariable="serviceBindingToDelete">
         <extensionElements>
@@ -51,7 +56,7 @@
     </sequenceFlow>
     <sequenceFlow id="flow2" sourceRef="deleteServiceWithPolling" targetRef="exclusivegateway1"></sequenceFlow>
     <sequenceFlow id="sid-3CEE9DD5-B761-4B40-8D10-91E4AA881080" sourceRef="sid-A13977B8-547C-40B0-A7A1-745EED384DED" targetRef="sid-0AD6B073-E7E8-415A-95FB-F1E3A09E7E0E"></sequenceFlow>
-    <callActivity id="deleteServiceKeys" name="Delete Service Keys" flowable:async="true" calledElement="deleteServiceKeySubProcess" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="deleteServiceKeys" name="Delete Service Keys" flowable:async="true" calledElement="deleteServiceKeySubProcess" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
         <extensionElements>
             <flowable:in source="processId" target="processId"/>
             <flowable:in source="serviceKeyToProcess" target="serviceKeyToProcess"/>
@@ -59,6 +64,11 @@
             <flowable:in source="userGuid" target="userGuid"/>
             <flowable:in source="correlationId" target="correlationId"/>
             <flowable:in source="__SPACE_ID" target="__SPACE_ID"/>
+            <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+            <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
+            <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
+            <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
+            <flowable:in source="mtaId" target="mtaId"></flowable:in>
         </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceKeysToDelete" flowable:elementVariable="serviceKeyToProcess">
         <extensionElements></extensionElements>

@@ -28,9 +28,10 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInsta
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractor;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractorUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
@@ -56,6 +57,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
         CloudControllerClient client = context.getControllerClient();
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
         getStepLogger().info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
 
@@ -63,7 +65,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
         setServiceParameters(context, serviceToProcess);
 
-        List<ServiceAction> actions = determineActionsAndHandleExceptions(context, existingService);
+        List<ServiceAction> actions = determineActionsAndHandleExceptions(context, existingService, dynamicSecureSerialization);
 
         setServiceGuidIfPresent(context, actions, existingService, serviceToProcess);
         context.setVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE, actions);
@@ -79,10 +81,11 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                                            .getName());
     }
 
-    private List<ServiceAction> determineActionsAndHandleExceptions(ProcessContext context, CloudServiceInstance existingService) {
+    private List<ServiceAction> determineActionsAndHandleExceptions(ProcessContext context, CloudServiceInstance existingService,
+                                                                    DynamicSecureSerialization dynamicSecureSerialization) {
         CloudServiceInstanceExtended service = context.getVariable(Variables.SERVICE_TO_PROCESS);
         try {
-            return determineActions(context, service, existingService);
+            return determineActions(context, service, existingService, dynamicSecureSerialization);
         } catch (CloudOperationException e) {
             String determineServiceActionsFailedMessage = MessageFormat.format(Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE,
                                                                                service.getName(), e.getStatusText());
@@ -102,7 +105,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     }
 
     private List<ServiceAction> determineActions(ProcessContext context, CloudServiceInstanceExtended service,
-                                                 CloudServiceInstance existingService) {
+                                                 CloudServiceInstance existingService,
+                                                 DynamicSecureSerialization dynamicSecureSerialization) {
         List<ServiceAction> actions = new ArrayList<>();
         if (shouldUpdateKeys(service, existingService, context)) {
             getStepLogger().debug(Messages.SHOULD_UPDATE_SERVICE_KEY);
@@ -115,7 +119,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             context.setVariable(Variables.SERVICES_TO_CREATE, Collections.singletonList(service));
             return actions;
         }
-        getStepLogger().debug(Messages.EXISTING_SERVICE, SecureSerialization.toJson(existingService));
+        getStepLogger().debug(Messages.EXISTING_SERVICE, dynamicSecureSerialization.toJson(existingService));
 
         boolean shouldRecreate = false;
         if (haveDifferentTypesOrLabels(service, existingService)) {
@@ -157,7 +161,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                                                        service.getName());
         } else {
             getStepLogger().debug(Messages.WILL_UPDATE_SERVICE_PARAMETERS);
-            getStepLogger().debug(Messages.NEW_SERVICE_PARAMETERS, SecureSerialization.toJson(service.getCredentials()));
+            getStepLogger().debug(Messages.NEW_SERVICE_PARAMETERS, dynamicSecureSerialization.toJson(service.getCredentials()));
             actions.add(ServiceAction.UPDATE_CREDENTIALS);
         }
 
@@ -179,7 +183,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
         if (shouldUpdateMetadata(service, existingService)) {
             getStepLogger().debug(Messages.SHOULD_UPDATE_METADATA);
-            getStepLogger().debug(Messages.NEW_METADATA, SecureSerialization.toJson(service.getV3Metadata()));
+            getStepLogger().debug(Messages.NEW_METADATA, dynamicSecureSerialization.toJson(service.getV3Metadata()));
             actions.add(ServiceAction.UPDATE_METADATA);
         }
 

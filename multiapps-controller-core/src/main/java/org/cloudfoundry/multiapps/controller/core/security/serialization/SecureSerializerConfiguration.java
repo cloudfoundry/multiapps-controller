@@ -2,9 +2,12 @@ package org.cloudfoundry.multiapps.controller.core.security.serialization;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 public class SecureSerializerConfiguration {
 
@@ -17,8 +20,25 @@ public class SecureSerializerConfiguration {
     private Collection<String> sensitiveElementNames = DEFAULT_SENSITIVE_NAMES;
     private Collection<String> sensitiveElementPaths = Collections.emptyList();
 
+    private Collection<String> additionalSensitiveElementNames = Collections.emptyList();
+
     public Collection<String> getSensitiveElementNames() {
-        return sensitiveElementNames;
+        if (CollectionUtils.isEmpty(additionalSensitiveElementNames)) {
+            return sensitiveElementNames;
+        }
+
+        Set<String> mergedSensitiveElementNames = new HashSet<>(sensitiveElementNames);
+
+        for (String additionalSensitiveElement : additionalSensitiveElementNames) {
+            boolean isNotExistent = mergedSensitiveElementNames.stream()
+                                                               .noneMatch(sensitiveElement -> sensitiveElement.equalsIgnoreCase(
+                                                                   additionalSensitiveElement));
+            if (isNotExistent) {
+                mergedSensitiveElementNames.add(additionalSensitiveElement);
+            }
+        }
+
+        return mergedSensitiveElementNames;
     }
 
     public Collection<String> getSensitiveElementPaths() {
@@ -31,6 +51,10 @@ public class SecureSerializerConfiguration {
 
     public void setSensitiveElementNames(Collection<String> sensitiveElementNames) {
         this.sensitiveElementNames = sensitiveElementNames;
+    }
+
+    public void setAdditionalSensitiveElementNames(Collection<String> additionalSensitiveElementNames) {
+        this.additionalSensitiveElementNames = additionalSensitiveElementNames;
     }
 
     public void setSensitiveElementPaths(Collection<String> sensitiveElementPaths) {

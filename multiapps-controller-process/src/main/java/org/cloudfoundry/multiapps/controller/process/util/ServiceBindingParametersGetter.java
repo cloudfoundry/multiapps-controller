@@ -18,9 +18,10 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.util.NameUtil;
@@ -44,6 +45,8 @@ public class ServiceBindingParametersGetter {
     }
 
     public Map<String, Object> getServiceBindingParametersFromMta(CloudApplicationExtended app, String serviceName) {
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
+
         Optional<CloudServiceInstanceExtended> service = getService(context.getVariable(Variables.SERVICES_TO_BIND), serviceName);
         if (service.isEmpty()) {
             return Collections.emptyMap();
@@ -57,7 +60,7 @@ public class ServiceBindingParametersGetter {
         }
 
         context.getStepLogger()
-               .debug(Messages.BINDING_PARAMETERS_FOR_APPLICATION, app.getName(), SecureSerialization.toJson(bindingParameters));
+               .debug(Messages.BINDING_PARAMETERS_FOR_APPLICATION, app.getName(), dynamicSecureSerialization.toJson(bindingParameters));
         return bindingParameters;
     }
 

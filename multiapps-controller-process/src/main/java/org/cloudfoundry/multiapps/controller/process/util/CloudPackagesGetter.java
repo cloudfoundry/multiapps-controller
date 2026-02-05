@@ -12,7 +12,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.DropletInfo;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,18 +23,19 @@ public class CloudPackagesGetter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudPackagesGetter.class);
 
-    public Optional<CloudPackage> getAppPackage(CloudControllerClient client, UUID applicationGuid) {
+    public Optional<CloudPackage> getAppPackage(CloudControllerClient client, UUID applicationGuid,
+                                                DynamicSecureSerialization dynamicSecureSerialization) {
         Optional<DropletInfo> currentDropletForApplication = findOrReturnEmpty(
             () -> client.getCurrentDropletForApplication(applicationGuid));
         if (currentDropletForApplication.isEmpty()) {
-            return getMostRecentAppPackage(client, applicationGuid);
+            return getMostRecentAppPackage(client, applicationGuid, dynamicSecureSerialization);
         }
         Optional<CloudPackage> currentCloudPackage = findOrReturnEmpty(() -> client.getPackage(currentDropletForApplication.get()
                                                                                                                            .getPackageGuid()));
         if (currentCloudPackage.isEmpty()) {
             return Optional.empty();
         }
-        LOGGER.info(MessageFormat.format(Messages.CURRENTLY_USED_PACKAGE_0, SecureSerialization.toJson(currentCloudPackage.get())));
+        LOGGER.info(MessageFormat.format(Messages.CURRENTLY_USED_PACKAGE_0, dynamicSecureSerialization.toJson(currentCloudPackage.get())));
         return currentCloudPackage;
     }
 
@@ -50,10 +51,12 @@ public class CloudPackagesGetter {
         }
     }
 
-    public Optional<CloudPackage> getMostRecentAppPackage(CloudControllerClient client, UUID applicationGuid) {
+    public Optional<CloudPackage> getMostRecentAppPackage(CloudControllerClient client, UUID applicationGuid,
+                                                          DynamicSecureSerialization dynamicSecureSerialization) {
         List<CloudPackage> cloudPackages = client.getPackagesForApplication(applicationGuid);
         LOGGER.info(
-            MessageFormat.format(Messages.PACKAGES_FOR_APPLICATION_0_ARE_1, applicationGuid, SecureSerialization.toJson(cloudPackages)));
+            MessageFormat.format(Messages.PACKAGES_FOR_APPLICATION_0_ARE_1, applicationGuid,
+                                 dynamicSecureSerialization.toJson(cloudPackages)));
         return cloudPackages.stream()
                             .max(Comparator.comparing(cloudPackage -> cloudPackage.getMetadata()
                                                                                   .getCreatedAt()));

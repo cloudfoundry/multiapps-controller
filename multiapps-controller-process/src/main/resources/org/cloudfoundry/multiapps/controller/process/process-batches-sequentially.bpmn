@@ -36,6 +36,10 @@
         <flowable:in source="dynamicResolvableParameters" target="dynamicResolvableParameters"></flowable:in>
         <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
         <flowable:in source="archiveEntriesPositions" target="archiveEntriesPositions"></flowable:in>
+        <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+        <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
+        <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
+        <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess">
         <extensionElements></extensionElements>

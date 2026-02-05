@@ -8,6 +8,7 @@ import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorMerger;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
+import org.cloudfoundry.multiapps.controller.process.security.SecretParametersCollector;
 import org.cloudfoundry.multiapps.controller.process.util.UnsupportedParameterFinder;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -46,6 +47,9 @@ class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep
     @Mock
     private UnsupportedParameterFinder unsupportedParameterFinder;
 
+    @Mock
+    private SecretParametersCollector secretParametersCollector;
+
     @BeforeEach
     public void setUp() {
         prepareContext();
@@ -61,7 +65,7 @@ class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep
     @Test
     void testExecute1() {
         when(unsupportedParameterFinder.findUnsupportedParameters(Mockito.any(), Mockito.any())).thenReturn(Collections.emptyMap());
-        when(merger.merge(any(), eq(Collections.emptyList()))).thenReturn(DEPLOYMENT_DESCRIPTOR);
+        when(merger.merge(any(), eq(Collections.emptyList()), eq(Collections.emptyList()))).thenReturn(DEPLOYMENT_DESCRIPTOR);
 
         step.execute(execution);
         verify(unsupportedParameterFinder, times(1)).findUnsupportedParameters(Mockito.any(), Mockito.any());
@@ -73,7 +77,7 @@ class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep
 
     @Test
     void testExecute2() {
-        when(merger.merge(any(), eq(Collections.emptyList()))).thenThrow(new ContentException("Error!"));
+        when(merger.merge(any(), eq(Collections.emptyList()), eq(Collections.emptyList()))).thenThrow(new ContentException("Error!"));
         assertThrows(SLException.class, () -> step.execute(execution));
     }
 

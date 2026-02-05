@@ -14,6 +14,10 @@ open module org.cloudfoundry.multiapps.controller.process {
     exports org.cloudfoundry.multiapps.controller.process.util;
     exports org.cloudfoundry.multiapps.controller.process.variables;
     exports org.cloudfoundry.multiapps.controller.process.stream;
+    exports org.cloudfoundry.multiapps.controller.process.security;
+    exports org.cloudfoundry.multiapps.controller.process.security.util;
+    exports org.cloudfoundry.multiapps.controller.process.security.resolver;
+    exports org.cloudfoundry.multiapps.controller.process.security.store;
 
     requires transitive flowable.engine;
     requires transitive org.cloudfoundry.multiapps.controller.api;
@@ -22,6 +26,7 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires org.cloudfoundry.client;
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
+    requires com.google.common;
     requires flowable.bpmn.model;
     requires flowable.engine.common;
     requires flowable.engine.common.api;
@@ -29,6 +34,7 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires flowable.job.service.api;
     requires flowable.variable.service;
     requires flowable.variable.service.api;
+    requires jakarta.annotation;
     requires jakarta.persistence;
     requires java.sql;
     requires jakarta.xml.bind;
@@ -39,6 +45,7 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires org.apache.commons.collections4;
     requires org.apache.commons.io;
     requires org.apache.commons.lang3;
+    requires org.bouncycastle.fips.core;
     requires org.cloudfoundry.multiapps.common;
     requires org.cloudfoundry.multiapps.controller.client;
     requires org.cloudfoundry.multiapps.controller.persistence;

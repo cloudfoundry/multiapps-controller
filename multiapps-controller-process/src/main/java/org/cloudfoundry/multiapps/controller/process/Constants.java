@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process;
 
+import java.util.regex.Pattern;
+
 public class Constants {
 
     public static final String DEPLOY_SERVICE_ID = "xs2-deploy";
@@ -26,8 +28,22 @@ public class Constants {
     public static final String MTA_BACKUP_NAMESPACE = "mta-backup";
     public static final String MTA_FOR_DELETION_PREFIX = "to-be-deleted";
 
+    public static final String USER_PROVIDED_SERVICE_PREFIX_NAME_ENCRYPTION_DECRYPTION = "__mta-secure-";
+    public static final String ENCRYPTION_KEY = "encryptionKey";
+    public static final String PLACEHOLDER_PREFIX = "${";
+    public static final String PLACEHOLDER_SUFFIX = "}";
+    public static final String DOUBLE_APPENDED_STRING = "%s%s";
+    public static final String TRIPLE_APPENDED_STRING = "%s%s%s";
+    public static final String SECURE_EXTENSION_DESCRIPTOR_ID = "__mta.secure";
+    public static final String STRING_SEPARATOR = "-";
+
     public static final Long UNSET_LAST_LOG_TIMESTAMP_MS = 0L;
     public static final int LOG_STALLED_TASK_MINUTE_INTERVAL = 5;
+    public static final long TTL_CACHE_ENTRY = 60_000L;
+    public static final int MAX_CACHE_ENTRIES = 256;
+    public static final int ENCRYPTION_KEY_LENGTH = 32;
+
+    public static final Pattern STANDARD_INT_PATTERN = Pattern.compile("[+-]?[0-9]+");
 
     protected Constants() {
     }

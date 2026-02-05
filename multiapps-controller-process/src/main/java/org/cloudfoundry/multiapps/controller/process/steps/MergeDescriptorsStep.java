@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -13,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ImmutableBackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.SecretParametersCollector;
 import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
 import org.cloudfoundry.multiapps.controller.process.util.UnsupportedParameterFinder;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -45,8 +47,16 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
         List<ExtensionDescriptor> extensionDescriptors = context.getVariable(Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN);
         CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
         Platform platform = configuration.getPlatform();
+        SecretParametersCollector secretParametersCollector = new SecretParametersCollector();
+        Set<String> parameterNamesToBeCensored = secretParametersCollector.collectSecrets(deploymentDescriptor,
+                                                                                          extensionDescriptors);
+        context.setVariable(Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES,
+                            parameterNamesToBeCensored);
+
         DeploymentDescriptor descriptor = getMtaDescriptorMerger(handlerFactory, platform).merge(deploymentDescriptor,
-                                                                                                 extensionDescriptors);
+                                                                                                 extensionDescriptors,
+                                                                                                 parameterNamesToBeCensored.stream()
+                                                                                                                           .toList());
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
 
         warnForUnsupportedParameters(descriptor);
@@ -75,12 +85,12 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
 
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
         String mtaId = descriptor.getId();
-        String mtaNamesapce = context.getVariable(Variables.MTA_NAMESPACE);
+        String mtaNamespace = context.getVariable(Variables.MTA_NAMESPACE);
         String mtaVersion = descriptor.getVersion();
         List<BackupDescriptor> backupDescriptors = descriptorBackupService.createQuery()
                                                                           .mtaId(mtaId)
                                                                           .spaceId(spaceGuid)
-                                                                          .namespace(mtaNamesapce)
+                                                                          .namespace(mtaNamespace)
                                                                           .mtaVersion(mtaVersion)
                                                                           .list();
         if (backupDescriptors.isEmpty()) {
@@ -89,7 +99,7 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
                                                                  .mtaId(mtaId)
                                                                  .mtaVersion(mtaVersion)
                                                                  .spaceId(spaceGuid)
-                                                                 .namespace(mtaNamesapce)
+                                                                 .namespace(mtaNamespace)
                                                                  .build());
         }
     }
