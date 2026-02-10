@@ -2,8 +2,6 @@ package org.cloudfoundry.multiapps.controller.web.configuration;
 
 import java.util.Map;
 
-import jakarta.inject.Inject;
-
 import org.cloudfoundry.multiapps.controller.web.monitoring.Metrics;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +12,6 @@ public class JmxConfiguration {
 
     private static final String METRICS_BEAN = "org.cloudfoundry.multiapps.controller.web.monitoring:type=Metrics,name=MetricsMBean";
 
-    @Inject
     @Bean
     public MBeanExporter jmxExporter(Metrics metrics) {
         MBeanExporter mBeanExporter = new MBeanExporter();

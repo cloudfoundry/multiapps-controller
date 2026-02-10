@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.web.configuration;
 
 import javax.sql.DataSource;
 
-import jakarta.inject.Inject;
 import liquibase.integration.spring.SpringLiquibase;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
@@ -26,7 +25,6 @@ public class DatabaseConfiguration {
     private static final String LIQUIBASE_CHANGELOG = "classpath:/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog.xml";
     private static final String ENTITY_MANAGER_DEFAULT_PERSISTENCE_UNIT_NAME = "Default";
 
-    @Inject
     @Bean
     public CloudDataSourceFactoryBean dataSource(DataSourceFactory dataSourceFactory, EnvironmentServicesFinder vcapServiceFinder,
                                                  ApplicationConfiguration configuration) {
@@ -38,13 +36,11 @@ public class DatabaseConfiguration {
         return new DefaultDataSourceDialect();
     }
 
-    @Inject
     @Bean
     public DataSourceWithDialect dataSourceWithDialect(DataSource dataSource, DataSourceDialect dataSourceDialect) {
         return new DataSourceWithDialect(dataSource, dataSourceDialect);
     }
 
-    @Inject
     @Bean
     public DataSourceTransactionManager transactionManager(DataSource dataSource, ApplicationConfiguration applicationConfiguration) {
         DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager(dataSource);
@@ -79,7 +75,6 @@ public class DatabaseConfiguration {
         return eclipseLinkJpaVendorAdapter;
     }
 
-    @Inject
     @Bean
     public SpringLiquibase liquibaseChangelog(DataSource dataSource) {
         return getLiquibaseTemplate(dataSource, LIQUIBASE_CHANGELOG);
