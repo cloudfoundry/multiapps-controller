@@ -1,14 +1,5 @@
 package org.cloudfoundry.multiapps.controller.client.facade;
 
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.client.v3.processes.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
@@ -34,6 +25,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.APPLICATION_HOST;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.DEFAULT_DOMAIN;
@@ -158,12 +158,22 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         try {
             createAndVerifyDefaultApplication(applicationName);
             UUID applicationGuid = client.getApplicationGuid(applicationName);
-            delegate.applicationsV2()
-                    .update(org.cloudfoundry.client.v2.applications.UpdateApplicationRequest.builder()
-                                                                                            .applicationId(applicationGuid.toString())
-                                                                                            .healthCheckType(
-                                                                                                HealthCheckType.NONE.getValue())
-                                                                                            .build())
+            var processResponse = delegate.applicationsV3()
+                                          .getProcess(org.cloudfoundry.client.v3.applications.GetApplicationProcessRequest.builder()
+                                                                                                                          .applicationId(
+                                                                                                                              applicationGuid.toString())
+                                                                                                                          .type("web")
+                                                                                                                          .build())
+                                          .block();
+            delegate.processes()
+                    .update(org.cloudfoundry.client.v3.processes.UpdateProcessRequest.builder()
+                                                                                     .processId(processResponse.getId())
+                                                                                     .healthCheck(
+                                                                                         org.cloudfoundry.client.v3.processes.HealthCheck.builder()
+                                                                                                                                         .type(
+                                                                                                                                             HealthCheckType.NONE)
+                                                                                                                                         .build())
+                                                                                     .build())
                     .block();
             CloudProcess cloudProcess = client.getApplicationProcess(applicationGuid);
             assertEquals(org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType.NONE,
