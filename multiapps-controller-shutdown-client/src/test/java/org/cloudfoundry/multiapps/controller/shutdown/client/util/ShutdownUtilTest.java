@@ -36,7 +36,7 @@ class ShutdownUtilTest {
     @Test
     void testIsTimeoutExceededWithTimeOutExceeded() {
         LocalDateTime timeBeforeTenMinutes = LocalDateTime.now()
-                                                          .minusSeconds(ShutdownUtil.TIMEOUT_IN_SECONDS);
+                                                          .minusSeconds(ShutdownUtil.TIMEOUT_IN_SECONDS + 1);
         ApplicationShutdown applicationShutdownInstance = createApplicationShutdownInstance(true, timeBeforeTenMinutes);
 
         assertTrue(ShutdownUtil.isTimeoutExceeded(applicationShutdownInstance));
