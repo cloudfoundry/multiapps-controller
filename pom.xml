@@ -47,7 +47,7 @@
         <!-- auto-service hasn't had a new release since 12.06.2023 - should check for alternatives in the future -->
         <auto-service.version>1.1.1</auto-service.version>
         <commons-codec.version>1.21.0</commons-codec.version>
-        <multiapps.version>2.42.0</multiapps.version>
+        <multiapps.version>2.43.0</multiapps.version>
         <java-cfenv.version>3.5.1</java-cfenv.version>
         <jaxb-api.version>4.0.5</jaxb-api.version>
         <jaxb-core.version>4.0.6</jaxb-core.version>
