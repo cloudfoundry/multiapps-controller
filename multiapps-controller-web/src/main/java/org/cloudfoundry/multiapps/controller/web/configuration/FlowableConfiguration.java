@@ -43,12 +43,12 @@ public class FlowableConfiguration {
 
     @Bean
     @DependsOn("liquibaseChangelog")
-    public ProcessEngine processEngine(ApplicationContext applicationContext, SpringProcessEngineConfiguration processEngineConfiguration)
-        throws Exception {
-        ProcessEngineFactoryBean processEngineFactoryBean = new ProcessEngineFactoryBean();
-        processEngineFactoryBean.setApplicationContext(applicationContext);
-        processEngineFactoryBean.setProcessEngineConfiguration(processEngineConfiguration);
-        return processEngineFactoryBean.getObject();
+    public ProcessEngineFactoryBean processEngine(ApplicationContext applicationContext,
+                                                  SpringProcessEngineConfiguration processEngineConfiguration) {
+        ProcessEngineFactoryBean factory = new ProcessEngineFactoryBean();
+        factory.setApplicationContext(applicationContext);
+        factory.setProcessEngineConfiguration(processEngineConfiguration);
+        return factory;
     }
 
     @Bean
@@ -121,15 +121,5 @@ public class FlowableConfiguration {
 
     private String buildJobExecutorId(String applicationId, int applicationInstanceIndex) {
         return String.format(JOB_EXECUTOR_ID_TEMPLATE, applicationId, applicationInstanceIndex, randomIdGenerator.get());
-    }
-
-    @Bean
-    public RuntimeService runtimeService(ProcessEngine processEngine) {
-        return processEngine.getRuntimeService();
-    }
-
-    @Bean
-    public HistoryService historyService(ProcessEngine processEngine) {
-        return processEngine.getHistoryService();
     }
 }
