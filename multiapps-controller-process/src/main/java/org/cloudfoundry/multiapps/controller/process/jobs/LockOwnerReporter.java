@@ -15,9 +15,11 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.flowable.engine.ProcessEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.Scheduled;
 
 @Named
+@DependsOn("processEngine")
 public class LockOwnerReporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockOwnerReporter.class);

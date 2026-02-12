@@ -11,8 +11,10 @@ import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.impl.cmd.ClearProcessInstanceLockTimesCmd;
 import org.flowable.job.api.Job;
 import org.flowable.job.service.JobServiceConfiguration;
+import org.springframework.context.annotation.DependsOn;
 
 @Named("lockOwnerReleaser")
+@DependsOn("processEngine")
 public class LockOwnerReleaser {
 
     private final ProcessEngine processEngine;

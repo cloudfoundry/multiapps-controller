@@ -9,9 +9,6 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
 import org.flowable.common.engine.impl.async.DefaultAsyncTaskExecutor;
 import org.flowable.common.engine.impl.persistence.StrongUuidGenerator;
-import org.flowable.engine.HistoryService;
-import org.flowable.engine.ProcessEngine;
-import org.flowable.engine.RuntimeService;
 import org.flowable.job.service.impl.asyncexecutor.AsyncExecutor;
 import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
 import org.flowable.job.service.impl.asyncexecutor.FailedJobCommandFactory;
@@ -41,6 +38,18 @@ public class FlowableConfiguration {
     protected Supplier<String> randomIdGenerator = () -> UUID.randomUUID()
                                                              .toString();
 
+    /**
+     * Creates the ProcessEngine bean via ProcessEngineFactoryBean.
+     *
+     * Important: We return ProcessEngineFactoryBean (which implements FactoryBean<ProcessEngine>)
+     * instead of calling getObject() directly. This allows Spring to properly manage the factory bean's
+     * lifecycle and ensures the ProcessEngine is created at the correct time during context initialization.
+     *
+     * This approach resolves intermittent circular dependency issues that can occur with Spring 6.2.15+
+     * when beans depending on ProcessEngine are initialized concurrently.
+     *
+     * @see FlowableServicesConfiguration for RuntimeService and HistoryService beans
+     */
     @Bean
     @DependsOn("liquibaseChangelog")
     public ProcessEngineFactoryBean processEngine(ApplicationContext applicationContext,

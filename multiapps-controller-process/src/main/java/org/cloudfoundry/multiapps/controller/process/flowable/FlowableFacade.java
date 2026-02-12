@@ -30,8 +30,10 @@ import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.flowable.variable.api.persistence.entity.VariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 
 @Named
+@DependsOn("processEngine")
 public class FlowableFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowableFacade.class);
