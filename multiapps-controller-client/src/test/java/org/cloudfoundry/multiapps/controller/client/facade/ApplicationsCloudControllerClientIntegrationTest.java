@@ -171,12 +171,12 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
                                                                                      .healthCheck(
                                                                                          org.cloudfoundry.client.v3.processes.HealthCheck.builder()
                                                                                                                                          .type(
-                                                                                                                                             HealthCheckType.NONE)
+                                                                                                                                             HealthCheckType.PROCESS)
                                                                                                                                          .build())
                                                                                      .build())
                     .block();
             CloudProcess cloudProcess = client.getApplicationProcess(applicationGuid);
-            assertEquals(org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType.NONE,
+            assertEquals(org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType.PROCESS,
                          cloudProcess.getHealthCheckType());
         } catch (Exception e) {
             fail(e);
