@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.persistence.dto;
 
 import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -26,6 +27,7 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
         public static final String NAMESPACE = "namespace";
         public static final String SPACE_GUID = "spaceGuid";
         public static final String MTA_ID = "mtaId";
+        public static final String SCHEMA_VERSION = "schemaVersion";
         public static final String FILE_ID = "fileId";
         public static final String ERROR = "error";
         public static final String INSTANCE_INDEX = "instanceIndex";
@@ -64,6 +66,9 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
     @Column(name = PersistenceMetadata.TableColumnNames.ASYNC_UPLOAD_JOB_MTA_ID)
     private String mtaId;
 
+    @Column(name = PersistenceMetadata.TableColumnNames.ASYNC_UPLOAD_JOB_SCHEMA_VERSION)
+    private String schemaVersion;
+
     @Column(name = PersistenceMetadata.TableColumnNames.ASYNC_UPLOAD_JOB_FILE_ID)
     private String fileId;
 
@@ -84,7 +89,8 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
     }
 
     public AsyncUploadJobDto(String id, String mtaUser, String state, String url, LocalDateTime addedAt, LocalDateTime startedAt,
-                             LocalDateTime finishedAt, String namespace, String spaceGuid, String mtaId, String fileId, String error,
+                             LocalDateTime finishedAt, String namespace, String spaceGuid, String mtaId, String schemaVersion,
+                             String fileId, String error,
                              Integer instanceIndex, Long bytesRead, LocalDateTime updatedAt) {
         this.id = id;
         this.mtaUser = mtaUser;
@@ -96,6 +102,7 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
         this.namespace = namespace;
         this.spaceGuid = spaceGuid;
         this.mtaId = mtaId;
+        this.schemaVersion = schemaVersion;
         this.fileId = fileId;
         this.error = error;
         this.instanceIndex = instanceIndex;
@@ -185,6 +192,14 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
         this.mtaId = mtaId;
     }
 
+    public String getSchemaVersion() {
+        return schemaVersion;
+    }
+
+    public void setSchemaVersion(String schemaVersion) {
+        this.schemaVersion = schemaVersion;
+    }
+
     public String getFileId() {
         return fileId;
     }
@@ -238,6 +253,7 @@ public class AsyncUploadJobDto implements DtoWithPrimaryKey<String> {
             ", namespace='" + namespace + '\'' +
             ", spaceGuid='" + spaceGuid + '\'' +
             ", mtaId='" + mtaId + '\'' +
+            ", schemaVersion='" + schemaVersion + '\'' +
             ", fileId='" + fileId + '\'' +
             ", error='" + error + '\'' +
             ", instanceIndex=" + instanceIndex +

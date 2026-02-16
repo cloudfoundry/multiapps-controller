@@ -14,6 +14,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -166,6 +167,7 @@ public class AsyncUploadJobOrchestrator {
             asyncUploadJobService.update(uploadedEntry, ImmutableAsyncUploadJobEntry.copyOf(uploadedEntry)
                                                                                     .withFileId(fileEntry.getId())
                                                                                     .withMtaId(descriptor.getId())
+                                                                                    .withSchemaVersion(descriptor.getSchemaVersion())
                                                                                     .withUpdatedAt(LocalDateTime.now())
                                                                                     .withFinishedAt(LocalDateTime.now())
                                                                                     .withBytesRead(uploadFromUrlContext.getCounterRef()

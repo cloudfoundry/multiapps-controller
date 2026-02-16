@@ -76,7 +76,7 @@ public class SecretTokenSerializerTest {
         names.add("value");
 
         when(secretTokenStore.put(PROCESS_INSTANCE_ID, VARIABLE_NAME, "secret_text")).thenReturn(7L);
-        when(secretTokenStore.get(PROCESS_INSTANCE_ID, 7L)).thenReturn("secret_text");
+        when(secretTokenStore.get(7L)).thenReturn("secret_text");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
             new StringSerializerHelper(), secretTokenStore, names,
@@ -97,7 +97,7 @@ public class SecretTokenSerializerTest {
         secretNames.add("password");
 
         when(secretTokenStore.put(eq(PROCESS_INSTANCE_ID), eq(VARIABLE_NAME), eq("internal_one"))).thenReturn(13L);
-        when(secretTokenStore.get(PROCESS_INSTANCE_ID, 13L)).thenReturn("internal_one");
+        when(secretTokenStore.get(13L)).thenReturn("internal_one");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
             new StringSerializerHelper(), secretTokenStore, secretNames,
@@ -120,7 +120,7 @@ public class SecretTokenSerializerTest {
         secretNames.add("config");
 
         when(secretTokenStore.put(eq(PROCESS_INSTANCE_ID), eq(VARIABLE_NAME), eq("must_not_be_shown"))).thenReturn(15L);
-        when(secretTokenStore.get(PROCESS_INSTANCE_ID, 15L)).thenReturn("must_not_be_shown");
+        when(secretTokenStore.get(15L)).thenReturn("must_not_be_shown");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
             new StringSerializerHelper(), secretTokenStore, secretNames,
@@ -144,7 +144,7 @@ public class SecretTokenSerializerTest {
         secretNames.add("config");
 
         when(secretTokenStore.put(eq(PROCESS_INSTANCE_ID), eq(VARIABLE_NAME), eq("must_not_be_shown"))).thenReturn(15L);
-        when(secretTokenStore.get(PROCESS_INSTANCE_ID, 15L)).thenReturn("must_not_be_shown");
+        when(secretTokenStore.get(15L)).thenReturn("must_not_be_shown");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
             new StringSerializerHelper(), secretTokenStore, secretNames,
@@ -182,7 +182,7 @@ public class SecretTokenSerializerTest {
     @Test
     void testDeserializeWhenPlainTokenString() {
         String token = SecretTokenUtil.of(42L);
-        when(secretTokenStore.get(PROCESS_INSTANCE_ID, 42L)).thenReturn("plain_value");
+        when(secretTokenStore.get(42L)).thenReturn("plain_value");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
             new StringSerializerHelper(), secretTokenStore, Collections.emptySet(),
@@ -198,7 +198,7 @@ public class SecretTokenSerializerTest {
         secretNames.add("password");
 
         when(secretTokenStore.put(PROCESS_INSTANCE_ID, VARIABLE_NAME, "p1")).thenReturn(100L);
-        when(secretTokenStore.get(PROCESS_INSTANCE_ID, 100L)).thenReturn("p1");
+        when(secretTokenStore.get(100L)).thenReturn("p1");
 
         SecretTokenSerializer<List<String>> serializer = new SecretTokenSerializer<>(
             new ListSerializerHelper(), secretTokenStore, secretNames,
@@ -223,7 +223,7 @@ public class SecretTokenSerializerTest {
         secretNames.add("instancesNumber");
 
         when(secretTokenStore.put(PROCESS_INSTANCE_ID, VARIABLE_NAME, "7")).thenReturn(77L);
-        when(secretTokenStore.get(PROCESS_INSTANCE_ID, 77L)).thenReturn("7");
+        when(secretTokenStore.get(77L)).thenReturn("7");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
             new StringSerializerHelper(), secretTokenStore, secretNames,
@@ -252,7 +252,7 @@ public class SecretTokenSerializerTest {
 
         when(secretTokenStore.put(PROCESS_INSTANCE_ID, VARIABLE_NAME, "3"))
             .thenReturn(100L);
-        when(secretTokenStore.get(PROCESS_INSTANCE_ID, 100L)).thenReturn("3");
+        when(secretTokenStore.get(100L)).thenReturn("3");
 
         SecretTokenSerializer<String> serializer = new SecretTokenSerializer<>(
             new StringSerializerHelper(), secretTokenStore, secretNames,

@@ -55,6 +55,7 @@ public class AsyncUploadJobService extends PersistenceService<AsyncUploadJobEntr
                                                .url(dto.getUrl())
                                                .mtaId(dto.getMtaId())
                                                .fileId(dto.getFileId())
+                                               .schemaVersion(dto.getSchemaVersion())
                                                .error(dto.getError())
                                                .instanceIndex(dto.getInstanceIndex())
                                                .bytesRead(dto.getBytesRead())
@@ -75,6 +76,7 @@ public class AsyncUploadJobService extends PersistenceService<AsyncUploadJobEntr
                                          entry.getNamespace(),
                                          entry.getSpaceGuid(),
                                          entry.getMtaId(),
+                                         entry.getSchemaVersion(),
                                          entry.getFileId(),
                                          entry.getError(),
                                          entry.getInstanceIndex(),

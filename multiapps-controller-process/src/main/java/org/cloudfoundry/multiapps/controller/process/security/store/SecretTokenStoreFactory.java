@@ -19,7 +19,7 @@ public class SecretTokenStoreFactory {
     }
 
     public SecretTokenStoreDeletion createSecretTokenStoreDeletionRelated() {
-        return new SecretTokenStoreImplWithoutKey(secretTokenService);
+        return new SecretTokenStoreImplForDeletion(secretTokenService);
     }
 
 }

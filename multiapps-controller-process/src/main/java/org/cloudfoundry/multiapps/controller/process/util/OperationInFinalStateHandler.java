@@ -79,7 +79,7 @@ public class OperationInFinalStateHandler {
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(execution));
         safeExecutor.execute(() -> setOperationState(correlationId, state));
         safeExecutor.execute(() -> deletePreviousBackupDescriptors(execution, processType, state));
-        safeExecutor.execute(() -> deleteSecretTokensForProcess(state, correlationId, execution));
+        safeExecutor.execute(() -> deleteSecretTokensForProcess(correlationId));
         safeExecutor.execute(() -> trackOperationDuration(correlationId, execution, processType, state));
     }
 
@@ -186,7 +186,7 @@ public class OperationInFinalStateHandler {
 
     }
 
-    private void deleteSecretTokensForProcess(Operation.State state, String correlationId, DelegateExecution execution) {
+    private void deleteSecretTokensForProcess(String correlationId) {
         SecretTokenStoreDeletion secretTokenStore = secretTokenStoreFactory.createSecretTokenStoreDeletionRelated();
         secretTokenStore.deleteByProcessInstanceId(correlationId);
     }
@@ -201,7 +201,7 @@ public class OperationInFinalStateHandler {
                                                                                     Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME);
             clientProvider.getControllerClient(userGuid, spaceGuid, correlationId)
                           .deleteServiceInstance(disposableUserProvidedServiceInstanceName);
-            LOGGER.debug(
+            LOGGER.info(
                 MessageFormat.format(Messages.DISPOSABLE_USER_PROVIDED_SERVICE_0_DELETED, disposableUserProvidedServiceInstanceName));
         }
     }

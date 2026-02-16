@@ -82,8 +82,8 @@ public final class Messages {
     public static final String FAILED_TO_SAVE_OPERATION_LOG_IN_DATABASE = "Failed to save operation log in database.";
     public static final String STORED_SECRET_TOKEN_WITH_VARIABLE_NAME_0_FOR_PROCESS_WITH_ID_1 = "Stored secret token with a variable name \"{0}\" for process with id \"{1}\"";
     public static final String RETRIEVED_SECRET_TOKEN_WITH_ID_0_FOR_PROCESS_WITH_ID_1 = "Retrieved secret token with id \"{0}\" for process with id \"{1}\"";
-    public static final String DELETED_SECRET_TOKENS_FOR_PROCESS_WITH_ID_0 = "Deleted secret tokens for process with id \"{0}\"";
-    public static final String DELETED_SECRET_TOKENS_WITH_EXPIRATION_DATE_0 = "Deleted secret tokens with an expiration date \"{0}\"";
+    public static final String DELETED_0_SECRET_TOKENS_FOR_PROCESS_WITH_ID_1 = "Deleted \"{0}\" secret tokens for process with id \"{1}\"";
+    public static final String DELETED_0_SECRET_TOKENS_WITH_EXPIRATION_DATE_1 = "Deleted secret tokens \"{0}\" with an expiration date \"{1}\"";
 
     protected Messages() {
     }

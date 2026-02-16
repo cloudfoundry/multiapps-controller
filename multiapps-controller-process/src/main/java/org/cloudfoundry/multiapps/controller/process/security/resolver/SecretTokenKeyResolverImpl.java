@@ -26,7 +26,7 @@ public class SecretTokenKeyResolverImpl implements SecretTokenKeyResolver {
 
     private final CloudControllerClientProvider cloudControllerClientProvider;
 
-    private final Duration containerExpirationTime = Duration.ofMinutes(Constants.TTL_CACHE_ENTRY);
+    private final Duration containerExpirationTime = Duration.ofMillis(Constants.TTL_CACHE_ENTRY);
 
     private final CachedMap<String, String> cachedMap = new CachedMap<>(containerExpirationTime);
 

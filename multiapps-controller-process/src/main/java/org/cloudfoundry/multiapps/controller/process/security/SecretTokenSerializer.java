@@ -50,21 +50,21 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
 
     @Override
     public Object serialize(T value) {
-        Object encodedObject = serializer.serialize(value);
+        Object serializedObject = serializer.serialize(value);
 
-        if (encodedObject instanceof String) {
-            return encodeString((String) encodedObject);
+        if (serializedObject instanceof String) {
+            return encodeString(serializedObject);
         }
 
-        if (encodedObject instanceof byte[]) {
-            return handleBytes((byte[]) encodedObject, true);
+        if (serializedObject instanceof byte[]) {
+            return encodeBytes(serializedObject);
         }
 
-        if (encodedObject instanceof List) {
-            return handleList((List<Object>) encodedObject, true);
+        if (serializedObject instanceof List) {
+            return encodeList(serializedObject);
         }
 
-        return encodedObject;
+        return serializedObject;
     }
 
     @Override
@@ -91,14 +91,38 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
         Object valueToDecode = serializedValue;
 
         if (serializedValue instanceof String) {
-            valueToDecode = decodeString((String) serializedValue);
+            valueToDecode = decodeString(serializedValue);
         } else if (serializedValue instanceof byte[]) {
-            valueToDecode = handleBytes((byte[]) serializedValue, false);
+            valueToDecode = decodeBytes(serializedValue);
         } else if (serializedValue instanceof List) {
-            valueToDecode = handleList((List<Object>) serializedValue, false);
+            valueToDecode = decodeList(serializedValue);
         }
 
         return valueToDecode;
+    }
+
+    private Object decodeString(Object serializedObject) {
+        return decodeString((String) serializedObject);
+    }
+
+    private Object encodeString(Object serializedObject) {
+        return encodeString((String) serializedObject);
+    }
+
+    private Object decodeBytes(Object serializedObject) {
+        return handleBytes((byte[]) serializedObject, false);
+    }
+
+    private Object encodeBytes(Object serializedObject) {
+        return handleBytes((byte[]) serializedObject, true);
+    }
+
+    private Object decodeList(Object serializedObject) {
+        return handleList((List<Object>) serializedObject, false);
+    }
+
+    private Object encodeList(Object serializedObject) {
+        return handleList((List<Object>) serializedObject, true);
     }
 
     private Object decodeString(String stringObject) {
@@ -171,7 +195,7 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
         try {
             JsonNode rootNode = OBJECT_MAPPER.readTree(candidate);
             AtomicBoolean changed = new AtomicBoolean();
-            JsonNode output = processJsonValue(rootNode, secretValueNames, censor, changed);
+            JsonNode output = processJsonValue(rootNode, censor, changed);
 
             if (changed.get()) {
                 return OBJECT_MAPPER.writeValueAsString(output);
@@ -192,13 +216,13 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
         return true;
     }
 
-    private JsonNode processJsonValue(JsonNode currentNode, Set<String> secretValueNames, boolean censor, AtomicBoolean changed) {
+    private JsonNode processJsonValue(JsonNode currentNode, boolean censor, AtomicBoolean changed) {
         if (currentNode.isObject()) {
-            return processObjectNode(currentNode, secretValueNames, censor, changed);
+            return processObjectNode(currentNode, censor, changed);
         }
 
         if (currentNode.isArray()) {
-            return processArrayNode(currentNode, secretValueNames, censor, changed);
+            return processArrayNode(currentNode, censor, changed);
         }
 
         if (currentNode.isTextual()) {
@@ -208,7 +232,7 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
         return currentNode;
     }
 
-    private JsonNode processObjectNode(JsonNode currentNode, Set<String> secretValueNames, boolean censor, AtomicBoolean changed) {
+    private JsonNode processObjectNode(JsonNode currentNode, boolean censor, AtomicBoolean changed) {
         ObjectNode objectNode = currentNode.deepCopy();
 
         List<String> fields = new ArrayList<>();
@@ -225,7 +249,7 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
     private void processObjectNodeFields(List<String> fields, ObjectNode objectNode, AtomicBoolean changed, boolean censor) {
         for (String currentField : fields) {
             JsonNode childNode = objectNode.get(currentField);
-            JsonNode processedNode = processJsonValue(childNode, secretValueNames, censor, changed);
+            JsonNode processedNode = processJsonValue(childNode, censor, changed);
 
             boolean isCurrentKeySecretValue = secretValueNames.contains(currentField);
             determineWhetherToEncodeOrDecode(childNode, processedNode, objectNode, currentField, censor, isCurrentKeySecretValue,
@@ -247,10 +271,10 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
         }
     }
 
-    private JsonNode processArrayNode(JsonNode currentNode, Set<String> secretValueNames, boolean censor, AtomicBoolean changed) {
+    private JsonNode processArrayNode(JsonNode currentNode, boolean censor, AtomicBoolean changed) {
         ArrayNode arrayNode = currentNode.deepCopy();
         for (int i = 0; i < arrayNode.size(); i++) {
-            arrayNode.set(i, processJsonValue(arrayNode.get(i), secretValueNames, censor, changed));
+            arrayNode.set(i, processJsonValue(arrayNode.get(i), censor, changed));
         }
         return arrayNode;
     }
@@ -305,7 +329,7 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
 
     private String detokenize(String token) {
         long id = SecretTokenUtil.extractId(token);
-        String result = secretTokenStore.get(processInstanceId, id);
+        String result = secretTokenStore.get(id);
         if (result == null) {
             throw new SLException(
                 MessageFormat.format(Messages.SECRET_VALUE_NOT_FOUND_FOR_TOKEN_0_PID_1_VARIABLE_2, token, processInstanceId, variableName));

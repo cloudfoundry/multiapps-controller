@@ -7,11 +7,12 @@ import java.time.LocalDateTime;
 import org.cloudfoundry.multiapps.controller.core.security.encryption.AesEncryptionUtil;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableSecretToken;
+import org.cloudfoundry.multiapps.controller.persistence.model.SecretToken;
 import org.cloudfoundry.multiapps.controller.persistence.services.SecretTokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SecretTokenStoreImpl implements SecretTokenStore {
+public class SecretTokenStoreImpl extends SecretTokenStoreImplForDeletion implements SecretTokenStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecretTokenStoreImpl.class);
 
@@ -20,6 +21,7 @@ public class SecretTokenStoreImpl implements SecretTokenStore {
     private final String encryptionKey;
 
     public SecretTokenStoreImpl(SecretTokenService secretTokenService, String encryptionKey) {
+        super(secretTokenService);
         this.secretTokenService = secretTokenService;
         this.encryptionKey = encryptionKey;
     }
@@ -47,34 +49,19 @@ public class SecretTokenStoreImpl implements SecretTokenStore {
     }
 
     @Override
-    public String get(String processInstanceId, long id) {
-        byte[] encryptedValueFromDatabase = secretTokenService.createQuery()
-                                                              .id(id)
-                                                              .singleResult()
-                                                              .getContent();
+    public String get(long id) {
+        SecretToken secretTokenResult = secretTokenService.createQuery()
+                                                          .id(id)
+                                                          .singleResult();
+        byte[] encryptedValueFromDatabase = secretTokenResult.getContent();
         if (encryptedValueFromDatabase == null) {
             return null;
         }
+
         byte[] keyBytes = keyBytes();
         String result = AesEncryptionUtil.decrypt(encryptedValueFromDatabase, keyBytes);
-        LOGGER.debug(MessageFormat.format(Messages.RETRIEVED_SECRET_TOKEN_WITH_ID_0_FOR_PROCESS_WITH_ID_1, id, processInstanceId));
-        return result;
-    }
-
-    @Override
-    public void deleteByProcessInstanceId(String processInstanceId) {
-        secretTokenService.createQuery()
-                          .processInstanceId(processInstanceId)
-                          .delete();
-        LOGGER.debug(MessageFormat.format(Messages.DELETED_SECRET_TOKENS_FOR_PROCESS_WITH_ID_0, processInstanceId));
-    }
-
-    @Override
-    public int deleteOlderThan(LocalDateTime expirationTime) {
-        int result = secretTokenService.createQuery()
-                                       .olderThan(expirationTime)
-                                       .delete();
-        LOGGER.debug(MessageFormat.format(Messages.DELETED_SECRET_TOKENS_WITH_EXPIRATION_DATE_0, expirationTime));
+        LOGGER.debug(MessageFormat.format(Messages.RETRIEVED_SECRET_TOKEN_WITH_ID_0_FOR_PROCESS_WITH_ID_1, id,
+                                          secretTokenResult.getProcessInstanceId()));
         return result;
     }
 

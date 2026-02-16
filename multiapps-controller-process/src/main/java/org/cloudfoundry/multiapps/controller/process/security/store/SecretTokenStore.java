@@ -4,6 +4,6 @@ public interface SecretTokenStore extends SecretTokenStoreDeletion {
 
     long put(String processInstanceId, String variableName, String plainText);
 
-    String get(String processInstanceId, long id);
+    String get(long id);
 
 }

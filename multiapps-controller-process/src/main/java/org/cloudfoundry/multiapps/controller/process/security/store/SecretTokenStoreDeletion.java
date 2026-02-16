@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public interface SecretTokenStoreDeletion {
 
-    void deleteByProcessInstanceId(String processInstanceId);
+    int deleteByProcessInstanceId(String processInstanceId);
 
     int deleteOlderThan(LocalDateTime expirationTime);
 

@@ -7,17 +7,17 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public abstract class SecureProcessContextFactory {
+public interface SecureProcessContextFactory {
 
-    abstract DelegateExecution getDelegateExecution();
+    DelegateExecution getDelegateExecution();
 
-    abstract StepLogger getStepLogger();
+    StepLogger getStepLogger();
 
-    abstract CloudControllerClientProvider getClientProvider();
+    CloudControllerClientProvider getClientProvider();
 
-    abstract SecretTokenStore getSecretTokenStore();
+    SecretTokenStore getSecretTokenStore();
 
-    public SecureProcessContext ofSecureProcessContext() {
+    default SecureProcessContext ofSecureProcessContext() {
         return new SecureProcessContext(getDelegateExecution(), getStepLogger(), getClientProvider(), getSecretTokenStore());
     }
 
