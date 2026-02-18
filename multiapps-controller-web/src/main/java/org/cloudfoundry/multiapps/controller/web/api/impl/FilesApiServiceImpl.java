@@ -163,7 +163,6 @@ public class FilesApiServiceImpl implements FilesApiService {
             }
             return ResponseEntity.ok(ImmutableAsyncUploadResult.builder()
                                                                .status(AsyncUploadResult.JobStatus.RUNNING)
-                                                               .schemaVersion(job.getSchemaVersion())
                                                                .bytes(job.getBytesRead())
                                                                .build());
         }

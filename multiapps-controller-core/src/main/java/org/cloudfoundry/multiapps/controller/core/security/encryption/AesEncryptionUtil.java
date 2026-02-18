@@ -47,7 +47,7 @@ public class AesEncryptionUtil {
                              gcmInitialisationVector.length);
 
             byte[] cipherValue = new byte[encryptedValue.length - Constants.INITIALISATION_VECTOR_LENGTH];
-            System.arraycopy(encryptedValue, Constants.INITIALIZATION_VECTOR_POSITION, cipherValue, 0, cipherValue.length);
+            System.arraycopy(encryptedValue, Constants.INITIALISATION_VECTOR_POSITION, cipherValue, 0, cipherValue.length);
 
             Cipher cipherObject = setUpCipherObject(encryptionKey, gcmInitialisationVector, Cipher.DECRYPT_MODE);
 

@@ -338,6 +338,7 @@
         <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
+        <flowable:in source="mtaId" target="mtaId"></flowable:in>
       </extensionElements>
     </callActivity>
     <sequenceFlow id="sid-C45E0862-846F-421E-9778-59B18794AA70" sourceRef="sid-871C80AA-6357-4D2E-A9CF-55DEC7436686" targetRef="StopDependentModules">

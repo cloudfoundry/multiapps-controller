@@ -167,24 +167,18 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
     private Object transformListElement(Object element, boolean censor) {
         if (element instanceof String) {
             String transformedJson = transformJson((String) element, censor);
-            return getResultFromTransformedJson(transformedJson, element, false);
+
+            if (transformedJson != null) {
+                return transformedJson;
+            }
         } else if (element instanceof byte[]) {
             String transformedJson = transformJson(new String((byte[]) element), censor);
-            return getResultFromTransformedJson(transformedJson, element, true);
-        }
-        return element;
-    }
 
-    private Object getResultFromTransformedJson(String transformedJson, Object element, boolean isElementInstanceOfByte) {
-        if (transformedJson != null) {
-            if (!isElementInstanceOfByte) {
-                return transformedJson;
-            } else {
+            if (transformedJson != null) {
                 return transformedJson.getBytes();
             }
-        } else {
-            return element;
         }
+        return element;
     }
 
     private String transformJson(String candidate, boolean censor) {
@@ -235,30 +229,34 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
     private JsonNode processObjectNode(JsonNode currentNode, boolean censor, AtomicBoolean changed) {
         ObjectNode objectNode = currentNode.deepCopy();
 
+        List<String> fields = collectObjectNodeFields(objectNode);
+        processObjectNodeFields(fields, objectNode, changed, censor);
+
+        return objectNode;
+    }
+
+    private List<String> collectObjectNodeFields(ObjectNode objectNode) {
         List<String> fields = new ArrayList<>();
         Iterator<String> fieldsIterator = objectNode.fieldNames();
 
         while (fieldsIterator.hasNext()) {
             fields.add(fieldsIterator.next());
         }
-        processObjectNodeFields(fields, objectNode, changed, censor);
-
-        return objectNode;
+        return fields;
     }
 
     private void processObjectNodeFields(List<String> fields, ObjectNode objectNode, AtomicBoolean changed, boolean censor) {
         for (String currentField : fields) {
             JsonNode childNode = objectNode.get(currentField);
             JsonNode processedNode = processJsonValue(childNode, censor, changed);
-
-            boolean isCurrentKeySecretValue = secretValueNames.contains(currentField);
-            determineWhetherToEncodeOrDecode(childNode, processedNode, objectNode, currentField, censor, isCurrentKeySecretValue,
-                                             changed);
+            
+            determineWhetherToEncodeOrDecode(childNode, processedNode, objectNode, currentField, censor, changed);
         }
     }
 
     private void determineWhetherToEncodeOrDecode(JsonNode childNode, JsonNode processedNode, ObjectNode objectNode, String currentField,
-                                                  boolean censor, boolean isCurrentKeySecretValue, AtomicBoolean changed) {
+                                                  boolean censor, AtomicBoolean changed) {
+        boolean isCurrentKeySecretValue = secretValueNames.contains(currentField);
         if (isCurrentKeySecretValue && childNode.isValueNode()) {
             String currentValue = convertChildNodeToText(childNode);
             if (censor) {

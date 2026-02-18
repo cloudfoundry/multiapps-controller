@@ -107,8 +107,7 @@ public class SecretParametersCollector extends Visitor {
 
     @Override
     public void visit(ElementContext context, ExtensionDescriptor extensionDescriptor) {
-        if (extensionDescriptor.getId()
-                               .equals(Constants.SECURE_EXTENSION_DESCRIPTOR_ID) && extensionDescriptor.getParameters() != null) {
+        if (isSecureExtensionDescriptor(extensionDescriptor)) {
             secretParameters.addAll(extensionDescriptor.getParameters()
                                                        .keySet());
         }
@@ -180,6 +179,11 @@ public class SecretParametersCollector extends Visitor {
         } else {
             parametersNameValueMap.put(name, String.valueOf(value));
         }
+    }
+
+    private boolean isSecureExtensionDescriptor(ExtensionDescriptor extensionDescriptor) {
+        return extensionDescriptor.getId()
+                                  .equals(Constants.SECURE_EXTENSION_DESCRIPTOR_ID) && extensionDescriptor.getParameters() != null;
     }
 
 }

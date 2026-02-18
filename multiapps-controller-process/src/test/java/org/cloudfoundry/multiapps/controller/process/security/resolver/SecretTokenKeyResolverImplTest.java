@@ -73,7 +73,7 @@ public class SecretTokenKeyResolverImplTest {
 
         assertEquals("abcdefghijklmnopqrstuvwxyz123456", encryptionKey);
         verify(cloudControllerClient, times(1)).getServiceInstance(expectedUps);
-        verify(cloudControllerClient, times(2)).getUserProvidedServiceInstanceParameters(upsGuid);
+        verify(cloudControllerClient, times(1)).getUserProvidedServiceInstanceParameters(upsGuid);
     }
 
     @Test

@@ -38,7 +38,7 @@ public class Constants {
     //The Initialisation Vector (also called nonce) is 12-bytes (96 bits), because that is the standard and recommended length for AES-GCM primarily for performance and simplicity of the implementation -
     //this is the exact length that balances a sufficiently large uniqueness space with maximum computational efficiency according to the NIST specifications for the GCM variant of AES
     public static final int INITIALISATION_VECTOR_LENGTH = 12;
-    public static final int INITIALIZATION_VECTOR_POSITION = 12;
+    public static final int INITIALISATION_VECTOR_POSITION = 12;
     //The authentication tag in AES-GCM is always 128 bits because every version of the AES algorithm (including AES-256) processes data in fixed 128-bit blocks,
     //which dictates the size of the final authentication result required by the GCM mode's internals
     public static final int GCM_AUTHENTICATION_TAG_LENGTH = 128;
