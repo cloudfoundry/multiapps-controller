@@ -16,6 +16,7 @@ import io.pivotal.cfenv.core.CfService;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
+import org.cloudfoundry.multiapps.controller.persistence.services.AzureObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.GcpObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.JCloudsObjectStoreFileStorage;
@@ -85,26 +86,17 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
                 return createdObjectStore.get();
             }
         }
-        Optional<FileStorage> gcpObjectStoreOpt = tryToCreateGcpObjectStore(exceptions);
-        if (gcpObjectStoreOpt.isPresent()) {
-            return gcpObjectStoreOpt.get();
-        }
         throw buildNoValidObjectStoreException(exceptions);
     }
 
     private Optional<FileStorage> createObjectStoreBasedOnProvider(String objectStoreProviderName,
                                                                    List<ObjectStoreServiceInfo> providersServiceInfo,
                                                                    Map<String, Exception> exceptions) {
-        Optional<ObjectStoreServiceInfo> objectStoreServiceInfoOptional = getAppropriateProvider(objectStoreProviderName,
-                                                                                                 providersServiceInfo);
-        Optional<FileStorage> createdObjectStore;
-        if (objectStoreServiceInfoOptional.isPresent()) {
-            ObjectStoreServiceInfo objectStoreServiceInfo = objectStoreServiceInfoOptional.get();
-            createdObjectStore = tryToCreateObjectStore(objectStoreServiceInfo, exceptions);
-        } else {
-            createdObjectStore = tryToCreateGcpObjectStore(exceptions);
-        }
-        return createdObjectStore;
+        return switch (objectStoreProviderName) {
+            case Constants.AZURE -> tryToCreateSdkObjectStore(exceptions, Constants.AZUREBLOB);
+            case Constants.GCP -> tryToCreateSdkObjectStore(exceptions, Constants.GOOGLE_CLOUD_STORAGE);
+            default -> tryToCreateJCloudsObjectStore(objectStoreProviderName, providersServiceInfo, exceptions);
+        };
     }
 
     private Optional<ObjectStoreServiceInfo> getAppropriateProvider(String objectStoreProviderName,
@@ -115,9 +107,21 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
                                    .findFirst();
     }
 
-    private Optional<FileStorage> tryToCreateGcpObjectStore(Map<String, Exception> exceptions) {
+    private Optional<FileStorage> tryToCreateJCloudsObjectStore(String objectStoreProviderName,
+                                                                List<ObjectStoreServiceInfo> providersServiceInfo,
+                                                                Map<String, Exception> exceptions) {
+        Optional<ObjectStoreServiceInfo> objectStoreServiceInfoOptional = getAppropriateProvider(objectStoreProviderName,
+                                                                                                 providersServiceInfo);
+        if (objectStoreServiceInfoOptional.isPresent()) {
+            ObjectStoreServiceInfo objectStoreServiceInfo = objectStoreServiceInfoOptional.get();
+            return tryToCreateObjectStore(objectStoreServiceInfo, exceptions);
+        }
+        return Optional.empty();
+    }
+
+    private Optional<FileStorage> tryToCreateSdkObjectStore(Map<String, Exception> exceptions, String providerName) {
         return tryToCreateObjectStore(ImmutableObjectStoreServiceInfo.builder()
-                                                                     .provider(Constants.GOOGLE_CLOUD_STORAGE)
+                                                                     .provider(providerName)
                                                                      .build(), exceptions);
     }
 
@@ -135,12 +139,14 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
     }
 
     private FileStorage getFileStorageBasedOnProvider(ObjectStoreServiceInfo objectStoreServiceInfo) {
-        if (Constants.GOOGLE_CLOUD_STORAGE.equals(objectStoreServiceInfo.getProvider())) {
-            return createGcpFileStorage();
-        } else {
-            BlobStoreContext context = getBlobStoreContext(objectStoreServiceInfo);
-            return createFileStorage(objectStoreServiceInfo, context);
-        }
+        return switch (objectStoreServiceInfo.getProvider()) {
+            case Constants.GOOGLE_CLOUD_STORAGE -> createGcpFileStorage(objectStoreServiceInfo);
+            case Constants.AZUREBLOB -> createAzureFileStorage(objectStoreServiceInfo);
+            default -> {
+                BlobStoreContext context = getBlobStoreContext(objectStoreServiceInfo);
+                yield createFileStorage(objectStoreServiceInfo, context);
+            }
+        };
     }
 
     private boolean isObjectStoreEnvValid(String objectStoreProviderName) {
@@ -226,9 +232,12 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
         return new JCloudsObjectStoreFileStorage(context.getBlobStore(), objectStoreServiceInfo.getContainer());
     }
 
-    protected GcpObjectStoreFileStorage createGcpFileStorage() {
-        Map<String, Object> credentials = getServiceCredentials();
-        return new GcpObjectStoreFileStorage(credentials);
+    protected GcpObjectStoreFileStorage createGcpFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
+        return new GcpObjectStoreFileStorage(objectStoreServiceInfo.getCredentials());
+    }
+
+    protected AzureObjectStoreFileStorage createAzureFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
+        return new AzureObjectStoreFileStorage(objectStoreServiceInfo.getCredentials());
     }
 
     @Override
