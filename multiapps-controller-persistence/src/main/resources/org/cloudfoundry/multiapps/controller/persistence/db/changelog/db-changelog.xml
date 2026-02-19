@@ -43,5 +43,5 @@
     <include file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-2.36.0-persistence.xml"/>
 
     <include
-            file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-TEST-SECRET-TOKEN-TABLE-ADDITION-persistence.xml"/>
+            file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-2.44.0-persistence.xml"/>
 </databaseChangeLog>
