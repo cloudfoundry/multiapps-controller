@@ -13,8 +13,9 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerExcept
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
@@ -53,11 +54,13 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
             context.getStepLogger()
                    .debug(Messages.LAST_OPERATION_FOR_SERVICE, service.getName(), JsonUtil.toJson(lastServiceOperation, true));
         }
+
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         reportDetailedServicesStates(context, servicesWithLastOperation);
         reportOverallProgress(context, servicesWithLastOperation.values(), triggeredServiceOperations);
         List<CloudServiceInstanceExtended> remainingServicesToPoll = getRemainingServicesToPoll(servicesWithLastOperation);
         context.getStepLogger()
-               .debug(Messages.REMAINING_SERVICES_TO_POLL, SecureSerialization.toJson(remainingServicesToPoll));
+               .debug(Messages.REMAINING_SERVICES_TO_POLL, dynamicSecureSerialization.toJson(remainingServicesToPoll));
         context.setVariable(Variables.SERVICES_TO_POLL, remainingServicesToPoll);
 
         if (remainingServicesToPoll.isEmpty()) {

@@ -9,8 +9,9 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -26,7 +27,8 @@ public class CalculateServiceKeyForWaitingStep extends SyncFlowableStep {
         CloudControllerClient controllerClient = context.getControllerClient();
         List<CloudServiceKey> existingServiceKeys = ServiceUtil.getExistingServiceKeys(controllerClient, serviceToProcess, getStepLogger());
         List<CloudServiceKey> serviceKeysInProgress = getServiceKeysInProgress(existingServiceKeys);
-        getStepLogger().debug(Messages.SERVICE_KEYS_SCHEDULED_FOR_WAITING_0, SecureSerialization.toJson(serviceKeysInProgress));
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
+        getStepLogger().debug(Messages.SERVICE_KEYS_SCHEDULED_FOR_WAITING_0, dynamicSecureSerialization.toJson(serviceKeysInProgress));
         context.setVariable(Variables.CLOUD_SERVICE_KEYS_FOR_WAITING, serviceKeysInProgress);
         return StepPhase.DONE;
     }

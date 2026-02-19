@@ -35,7 +35,8 @@ public class BindServiceToApplicationStep extends AsyncFlowableStep {
         Map<String, Object> serviceBindingParameters = context.getVariable(Variables.SERVICE_BINDING_PARAMETERS);
         CloudControllerClient controllerClient = context.getControllerClient();
         Optional<String> jobId = controllerClient.bindServiceInstance(bingingName, app.getName(), service, serviceBindingParameters,
-                                                                      getApplicationServicesUpdateCallback(context, controllerClient));
+                                                                      getApplicationServicesUpdateCallback(context,
+                                                                                                           controllerClient));
         if (context.getVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_CREATION)) {
             return StepPhase.POLL;
         }

@@ -1,8 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
 import java.time.ZonedDateTime;
 import java.util.stream.Stream;
 
@@ -10,6 +7,8 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.OperationQueryImpl;
@@ -18,10 +17,13 @@ import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageExc
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
+import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStoreDeletion;
+import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStoreFactory;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -31,6 +33,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
+
 class OperationInFinalStateHandlerTest {
 
     private static final ProcessType PROCESS_TYPE = ProcessType.DEPLOY;
@@ -39,7 +47,9 @@ class OperationInFinalStateHandlerTest {
     private static final String MTA_ID = "my-mta";
     private static final String PROCESS_ID = "xxx-yyy-zzz";
     private static final String PROCESS_ID_2 = "zzz-xxx-yyy";
+    private static final String USER_GUID = "test-user";
     private static final long PROCESS_DURATION = 1000;
+    private static final String DISPOSABLE_USER_PROVIDED_SERVICE_NAME = "__mta-secure-my-mta-fake343";
 
     private static final Operation OPERATION = createOperation("1", ProcessType.DEPLOY, "spaceId", "mtaId", "user", true,
                                                                ZonedDateTime.parse("2010-10-08T10:00:00.000Z[UTC]"),
@@ -61,13 +71,21 @@ class OperationInFinalStateHandlerTest {
     private ProcessTime processTime;
     @Mock
     private OperationService operationService;
+    @Mock
+    private SecretTokenStoreFactory secretTokenStoreFactory;
+    @Mock
+    private SecretTokenStoreDeletion secretTokenStoreDeletion;
+    @Mock
+    private CloudControllerClientProvider cloudControllerClientProvider;
+    @Mock
+    private CloudControllerClient cloudControllerClient;
 
     @InjectMocks
     private final OperationInFinalStateHandler eventHandler = new OperationInFinalStateHandler();
 
     public static Stream<Arguments> testHandle() {
         return Stream.of(
-//@formatter:off
+            //@formatter:off
           Arguments.of("10", "20", PROCESS_ID, true, new String[] { }),
           Arguments.of("10", null, PROCESS_ID, true, new String[] { }),
           Arguments.of(null, "20", PROCESS_ID, true, new String[] { }),
@@ -89,6 +107,8 @@ class OperationInFinalStateHandlerTest {
                           .close();
         Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                .thenReturn(stepLogger);
+        Mockito.when(secretTokenStoreFactory.createSecretTokenStoreDeletionRelated())
+               .thenReturn(secretTokenStoreDeletion);
     }
 
     @ParameterizedTest
@@ -106,6 +126,35 @@ class OperationInFinalStateHandlerTest {
         verifyOperationSetState();
         verifyDeleteDeploymentFiles(expectedFileIdsToSweep);
         verifyDynatracePublisher();
+        verify(secretTokenStoreDeletion).deleteByProcessInstanceId(PROCESS_ID);
+    }
+
+    @Test
+    void testDeleteSecretTokensForProcessWhenOperationStateNotFinished() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+
+        eventHandler.handle(execution, PROCESS_TYPE, State.ACTION_REQUIRED);
+
+        verify(secretTokenStoreFactory, atLeastOnce()).createSecretTokenStoreDeletionRelated();
+    }
+
+    @Test
+    void testDeleteDisposableUserProvidedServiceWhenEnabled() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+
+        VariableHandling.set(execution, Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED, Boolean.TRUE);
+        VariableHandling.set(execution, Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME, DISPOSABLE_USER_PROVIDED_SERVICE_NAME);
+        VariableHandling.set(execution, Variables.USER_GUID, USER_GUID);
+
+        Mockito.when(cloudControllerClientProvider.getControllerClient(anyString(), anyString(), anyString()))
+               .thenReturn(cloudControllerClient);
+        eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
+
+        verify(cloudControllerClient).deleteServiceInstance(DISPOSABLE_USER_PROVIDED_SERVICE_NAME);
     }
 
     private void prepareContext(String archiveIds, String extensionDescriptorIds, boolean keepFiles) {
@@ -156,15 +205,15 @@ class OperationInFinalStateHandlerTest {
 
     private void verifyDeleteDeploymentFiles(String[] expectedFileIdsToSweep) throws FileStorageException {
         for (String fileId : expectedFileIdsToSweep) {
-            Mockito.verify(fileService)
-                   .deleteFile(SPACE_ID, fileId);
+            verify(fileService)
+                .deleteFile(SPACE_ID, fileId);
         }
     }
 
     private void verifyOperationSetState() {
         ArgumentCaptor<ImmutableOperation> arg = ArgumentCaptor.forClass(ImmutableOperation.class);
-        Mockito.verify(operationService)
-               .update(Mockito.any(), arg.capture());
+        verify(operationService)
+            .update(Mockito.any(), arg.capture());
         Operation updatedOperation = arg.getValue();
         assertEquals(OPERATION_STATE, updatedOperation.getState());
         assertFalse(updatedOperation.hasAcquiredLock());
@@ -172,8 +221,8 @@ class OperationInFinalStateHandlerTest {
 
     private void verifyDynatracePublisher() {
         ArgumentCaptor<DynatraceProcessDuration> argumentCaptor = ArgumentCaptor.forClass(DynatraceProcessDuration.class);
-        Mockito.verify(dynatracePublisher)
-               .publishProcessDuration(argumentCaptor.capture(), Mockito.any());
+        verify(dynatracePublisher)
+            .publishProcessDuration(argumentCaptor.capture(), Mockito.any());
         DynatraceProcessDuration actualDynatraceEvent = argumentCaptor.getValue();
         assertEquals(PROCESS_ID, actualDynatraceEvent.getProcessId());
         assertEquals(MTA_ID, actualDynatraceEvent.getMtaId());

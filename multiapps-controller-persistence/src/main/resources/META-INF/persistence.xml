@@ -15,6 +15,7 @@
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.AsyncUploadJobDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptorDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdownDto</class>
+        <class>org.cloudfoundry.multiapps.controller.persistence.dto.SecretTokenDto</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.weaving" value="static"/>

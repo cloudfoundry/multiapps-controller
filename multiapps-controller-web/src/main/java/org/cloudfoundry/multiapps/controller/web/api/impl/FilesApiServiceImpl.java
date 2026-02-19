@@ -10,6 +10,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -185,6 +186,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                                                              .status(AsyncUploadResult.JobStatus.FINISHED)
                                                              .file(file)
                                                              .mtaId(job.getMtaId())
+                                                             .schemaVersion(job.getSchemaVersion())
                                                              .build());
     }
 

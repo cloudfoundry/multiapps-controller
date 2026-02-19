@@ -13,6 +13,7 @@
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.TextAttributeConverter</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptorDto</class>
         <class>org.cloudfoundry.multiapps.controller.persistence.dto.ApplicationShutdownDto</class>
+        <class>org.cloudfoundry.multiapps.controller.persistence.dto.SecretTokenDto</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>

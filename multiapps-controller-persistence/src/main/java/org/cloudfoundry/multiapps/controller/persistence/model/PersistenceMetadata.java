@@ -21,6 +21,7 @@ public class PersistenceMetadata {
         public static final String ASYNC_UPLOAD_JOB_TABLE = "async_upload_job";
         public static final String BACKUP_DESCRIPTOR_TABLE = "backup_descriptor";
         public static final String APPLICATION_SHUTDOWN_TABLE = "application_shutdown";
+        public static final String SECRET_TOKEN = "secret_token";
 
     }
 
@@ -37,6 +38,7 @@ public class PersistenceMetadata {
         public static final String ACCESS_TOKEN_SEQUENCE = "access_token_sequence";
         public static final String LOCK_OWNERS_SEQUENCE = "lock_owners_sequence";
         public static final String BACKUP_DESCRIPTOR_SEQUENCE = "backup_descriptor_sequence";
+        public static final String SECRET_TOKEN_SEQUENCE = "secret_token_sequence";
 
     }
 
@@ -101,6 +103,7 @@ public class PersistenceMetadata {
         public static final String ASYNC_UPLOAD_JOB_NAMESPACE = "namespace";
         public static final String ASYNC_UPLOAD_JOB_SPACE_GUID = "space_guid";
         public static final String ASYNC_UPLOAD_JOB_MTA_ID = "mta_id";
+        public static final String ASYNC_UPLOAD_JOB_SCHEMA_VERSION = "schema_version";
         public static final String ASYNC_UPLOAD_JOB_FILE_ID = "file_id";
         public static final String ASYNC_UPLOAD_JOB_ERROR = "error";
         public static final String ASYNC_UPLOAD_JOB_INSTANCE_INDEX = "instance_index";
@@ -120,6 +123,11 @@ public class PersistenceMetadata {
         public static final String APPLICATION_SHUTDOWN_APPLICATION_ID = "application_id";
         public static final String APPLICATION_SHUTDOWN_SHUTDOWN_STATUS = "shutdown_status";
         public static final String APPLICATION_SHUTDOWN_STARTED_AT = "started_at";
+        public static final String SECRET_TOKEN_ID = "id";
+        public static final String SECRET_TOKEN_PROCESS_INSTANCE_ID = "process_instance_id";
+        public static final String SECRET_TOKEN_VARIABLE_NAME = "variable_name";
+        public static final String SECRET_TOKEN_CONTENT = "content";
+        public static final String SECRET_TOKEN_TIMESTAMP = "timestamp";
     }
 
 }

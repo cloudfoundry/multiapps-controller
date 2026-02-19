@@ -45,9 +45,11 @@ public final class Messages {
     public static final String ASYNC_UPLOAD_JOB_ALREADY_EXISTS = "Async upload job entry with ID \"{0}\" already exists";
     public static final String ERROR_GETTING_FILES_CREATED_AFTER_0_AND_BEFORE_1 = "Error getting files created after {0} and before {1]";
     public static final String BACKUP_DESCRIPTOR_FOR_MTA_ID_0_AND_ID_1_ALREADY_EXIST = "Backup descriptor for mta id \"{0}\" and id \"{1}\" already exist";
+    public static final String SECRET_TOKEN_FOR_VARIABLE_NAME_0_AND_ID_1_ALREADY_EXIST = "Secret token for variable name \"{0}\" and id \"{1}\" already exists";
     public static final String BACKUP_DESCRIPTOR_WITH_ID_NOT_EXIST = "Backup descriptor with ID \"{0}\" does not exist";
     public static final String APPLICATION_SHUTDOWN_WITH_APPLICATION_INSTANCE_ID_DOES_NOT_EXIST = "Application shutdown application instance ID \"{0}\" does not exist";
     public static final String APPLICATION_SHUTDOWN_WITH_APPLICATION_INSTANCE_ID_ALREADY_EXIST = "Application shutdown application instance ID \"{0}\" already exist";
+    public static final String SECRET_TOKEN_WITH_ID_NOT_EXIST = "Secret token with ID \"{0}\" does not exist";
     public static final String DATABASE_HEALTH_CHECK_FAILED = "Database health check failed";
 
     // ERROR log messages:
@@ -78,6 +80,10 @@ public final class Messages {
     public static final String DELETED_0_FILES_WITH_ID_1_AND_SPACE_2 = "Deleted {0} files with ID \"{1}\" and space \"{2}\".";
     public static final String DELETED_0_FILES_WITHOUT_CONTENT = "Deleted {0} files without content.";
     public static final String FAILED_TO_SAVE_OPERATION_LOG_IN_DATABASE = "Failed to save operation log in database.";
+    public static final String STORED_SECRET_TOKEN_WITH_VARIABLE_NAME_0_FOR_PROCESS_WITH_ID_1 = "Stored secret token with a variable name \"{0}\" for process with id \"{1}\"";
+    public static final String RETRIEVED_SECRET_TOKEN_WITH_ID_0_FOR_PROCESS_WITH_ID_1 = "Retrieved secret token with id \"{0}\" for process with id \"{1}\"";
+    public static final String DELETED_0_SECRET_TOKENS_FOR_PROCESS_WITH_ID_1 = "Deleted \"{0}\" secret tokens for process with id \"{1}\"";
+    public static final String DELETED_0_SECRET_TOKENS_WITH_EXPIRATION_DATE_1 = "Deleted secret tokens \"{0}\" with an expiration date \"{1}\"";
 
     protected Messages() {
     }

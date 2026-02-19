@@ -32,6 +32,8 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.ImmutableDynatraceProcessDuration;
+import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStoreDeletion;
+import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStoreFactory;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -60,6 +62,9 @@ public class OperationInFinalStateHandler {
     private OperationTimeAggregator operationTimeAggregator;
     @Inject
     private DynatracePublisher dynatracePublisher;
+    @Inject
+    private SecretTokenStoreFactory secretTokenStoreFactory;
+
     private final SafeExecutor safeExecutor = new SafeExecutor();
 
     public void handle(DelegateExecution execution, ProcessType processType, Operation.State state) {
@@ -70,9 +75,11 @@ public class OperationInFinalStateHandler {
     private void handleInternal(DelegateExecution execution, ProcessType processType, Operation.State state) {
         String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
         safeExecutor.execute(() -> deleteDeploymentFiles(correlationId, execution));
+        safeExecutor.execute(() -> deleteDisposableUserProvidedServiceForProcess(execution, correlationId));
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(execution));
         safeExecutor.execute(() -> setOperationState(correlationId, state));
         safeExecutor.execute(() -> deletePreviousBackupDescriptors(execution, processType, state));
+        safeExecutor.execute(() -> deleteSecretTokensForProcess(correlationId));
         safeExecutor.execute(() -> trackOperationDuration(correlationId, execution, processType, state));
     }
 
@@ -177,6 +184,26 @@ public class OperationInFinalStateHandler {
                                .mtaVersionsNotMatch(mtaVersionsToSkipDeletion)
                                .delete();
 
+    }
+
+    private void deleteSecretTokensForProcess(String correlationId) {
+        SecretTokenStoreDeletion secretTokenStore = secretTokenStoreFactory.createSecretTokenStoreDeletionRelated();
+        secretTokenStore.deleteByProcessInstanceId(correlationId);
+    }
+
+    private void deleteDisposableUserProvidedServiceForProcess(DelegateExecution execution, String correlationId) {
+        boolean isDisposableUserProvidedServiceEnabled = VariableHandling.get(execution,
+                                                                              Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED);
+        if (isDisposableUserProvidedServiceEnabled) {
+            String userGuid = StepsUtil.determineCurrentUserGuid(execution);
+            String spaceGuid = VariableHandling.get(execution, Variables.SPACE_GUID);
+            String disposableUserProvidedServiceInstanceName = VariableHandling.get(execution,
+                                                                                    Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME);
+            clientProvider.getControllerClient(userGuid, spaceGuid, correlationId)
+                          .deleteServiceInstance(disposableUserProvidedServiceInstanceName);
+            LOGGER.info(
+                MessageFormat.format(Messages.DISPOSABLE_USER_PROVIDED_SERVICE_0_DELETED, disposableUserProvidedServiceInstanceName));
+        }
     }
 
     private void addMtaVersionsOfDeployedMtas(List<String> mtaVersionsToSkipDeletion, DeployedMta deployedMta,

@@ -198,7 +198,9 @@ class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeplo
         context.setVariable(Variables.SPACE_GUID, TEST_SPACE_GUID);
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
 
-        when(context.getControllerClient()).thenReturn(client);
+        ProcessContext contextSpy = spy(context);
+        doReturn(client).when(contextSpy)
+                        .getControllerClient();
 
         ImmutableCloudServiceInstance instance1 = createCfInstance(TEST_RESOURCE_NAME);
         ImmutableCloudServiceInstance instance2 = createCfInstance(TEST_RESOURCE_NAME_2);

@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,13 +8,13 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
+import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.builders.ExtensionDescriptorChainBuilder;
@@ -25,6 +23,8 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+
+import static java.text.MessageFormat.format;
 
 @Named("processMtaExtensionDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -77,7 +77,19 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
             for (String extensionDescriptorFileId : fileIds) {
                 fileService.consumeFileContent(spaceId, extensionDescriptorFileId, extensionDescriptorConsumer);
             }
-            getStepLogger().debug(Messages.PROVIDED_EXTENSION_DESCRIPTORS, SecureSerialization.toJson(extensionDescriptors));
+
+            List<ExtensionDescriptor> extensionDescriptorsWithoutSecure = extensionDescriptors.stream()
+                                                                                              .filter(
+                                                                                                  extensionDescriptor -> !extensionDescriptor.getId()
+                                                                                                                                             .equals(
+                                                                                                                                                 Constants.SECURE_EXTENSION_DESCRIPTOR_ID))
+                                                                                              .toList();
+            if (extensionDescriptors.size() != extensionDescriptorsWithoutSecure.size()) {
+                getStepLogger().debug(Messages.PROVIDED_EXTENSION_DESCRIPTORS, SecureSerialization.toJson(extensionDescriptorsWithoutSecure)
+                    + Messages.SECURE_EXTENSION_DESCRIPTOR_CONSTRUCTED_AND_APPLIED_FROM_ENVIRONMENT_VARIABLES);
+            } else {
+                getStepLogger().debug(Messages.PROVIDED_EXTENSION_DESCRIPTORS, SecureSerialization.toJson(extensionDescriptors));
+            }
             return extensionDescriptors;
         } catch (FileStorageException e) {
             throw new SLException(e, e.getMessage());

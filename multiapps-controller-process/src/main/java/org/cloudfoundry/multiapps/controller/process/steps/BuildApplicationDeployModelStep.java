@@ -18,10 +18,11 @@ import org.cloudfoundry.multiapps.controller.core.cf.v2.ConfigurationEntriesClou
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.AdditionalModuleParametersReporter;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationEnvironmentCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.DependentModuleStopResolver;
@@ -45,6 +46,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
         Module module = context.getVariable(Variables.MODULE_TO_DEPLOY);
         getStepLogger().debug(Messages.BUILDING_CLOUD_APP_MODEL, module.getName());
         Module applicationModule = findModuleInDeploymentDescriptor(context, module.getName());
@@ -62,7 +64,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
                                                        .build();
         context.setVariable(Variables.APP_TO_PROCESS, modifiedApp);
         determineBindingUnbindingServicesStrategy(context, module);
-        buildConfigurationEntries(context, modifiedApp);
+        buildConfigurationEntries(context, modifiedApp, dynamicSecureSerialization);
         context.setVariable(Variables.TASKS_TO_EXECUTE, modifiedApp.getTasks());
         getStepLogger().debug(Messages.CLOUD_APP_MODEL_BUILT);
         determineDependentModulesToStop(context, module);
@@ -114,7 +116,8 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         return modifiedApp.getRoutes();
     }
 
-    private void buildConfigurationEntries(ProcessContext context, CloudApplicationExtended app) {
+    private void buildConfigurationEntries(ProcessContext context, CloudApplicationExtended app,
+                                           DynamicSecureSerialization dynamicSecureSerialization) {
         if (context.getVariable(Variables.SKIP_UPDATE_CONFIGURATION_ENTRIES)) {
             context.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, Collections.emptyList());
             return;
@@ -127,7 +130,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, updatedModuleNames);
         context.setVariable(Variables.SKIP_UPDATE_CONFIGURATION_ENTRIES, false);
 
-        getStepLogger().debug(Messages.CONFIGURATION_ENTRIES_TO_PUBLISH, SecureSerialization.toJson(updatedModuleNames));
+        getStepLogger().debug(Messages.CONFIGURATION_ENTRIES_TO_PUBLISH, dynamicSecureSerialization.toJson(updatedModuleNames));
     }
 
     private ConfigurationEntriesCloudModelBuilder getConfigurationEntriesCloudModelBuilder(ProcessContext context) {

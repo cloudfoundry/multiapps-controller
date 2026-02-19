@@ -11,9 +11,10 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceDeletionActions;
@@ -42,10 +43,12 @@ public class DetermineServiceDeleteActionsToExecuteStep extends SyncFlowableStep
         }
         context.getStepLogger()
                .debug(Messages.DETERMINING_DELETE_ACTIONS_FOR_SERVICE_INSTANCE_0, serviceInstanceToDelete);
-        return calculateDeleteActions(context, serviceInstanceToDelete);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
+        return calculateDeleteActions(context, serviceInstanceToDelete, dynamicSecureSerialization);
     }
 
-    private StepPhase calculateDeleteActions(ProcessContext context, String serviceInstanceToDelete) {
+    private StepPhase calculateDeleteActions(ProcessContext context, String serviceInstanceToDelete,
+                                             DynamicSecureSerialization dynamicSecureSerialization) {
         CloudControllerClient controllerClient = context.getControllerClient();
         CloudServiceInstance serviceInstance = controllerClient.getServiceInstance(serviceInstanceToDelete, false);
         if (serviceInstance == null) {
@@ -64,7 +67,7 @@ public class DetermineServiceDeleteActionsToExecuteStep extends SyncFlowableStep
         if (isDeletePossible(context, serviceBindings, serviceKeys)) {
             context.getStepLogger()
                    .debug(Messages.WILL_DELETE_SERVICE_BINDINGS_SERVICE_KEYS_AND_SERVICE_INSTANCE_0, serviceInstanceToDelete);
-            logServiceBindingsAndKeys(context, serviceBindings, serviceKeys);
+            logServiceBindingsAndKeys(context, serviceBindings, serviceKeys, dynamicSecureSerialization);
             context.setVariable(Variables.CLOUD_SERVICE_BINDINGS_TO_DELETE, serviceBindings);
             context.setVariable(Variables.CLOUD_SERVICE_KEYS_TO_DELETE, serviceKeys);
             context.setVariable(Variables.SERVICE_DELETION_ACTIONS,
@@ -98,11 +101,11 @@ public class DetermineServiceDeleteActionsToExecuteStep extends SyncFlowableStep
     }
 
     private void logServiceBindingsAndKeys(ProcessContext context, List<CloudServiceBinding> serviceBindings,
-                                           List<CloudServiceKey> serviceKeys) {
+                                           List<CloudServiceKey> serviceKeys, DynamicSecureSerialization dynamicSecureSerialization) {
         context.getStepLogger()
-               .debug(Messages.EXISTING_SERVICE_BINDINGS, SecureSerialization.toJson(serviceBindings));
+               .debug(Messages.EXISTING_SERVICE_BINDINGS, dynamicSecureSerialization.toJson(serviceBindings));
         context.getStepLogger()
-               .debug(Messages.EXISTING_SERVICE_KEYS, SecureSerialization.toJson(serviceKeys));
+               .debug(Messages.EXISTING_SERVICE_KEYS, dynamicSecureSerialization.toJson(serviceKeys));
     }
 
     @Override

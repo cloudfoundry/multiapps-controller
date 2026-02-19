@@ -932,9 +932,30 @@ public interface Variables {
                                                                               .name("processUserProvidedServices")
                                                                               .defaultValue(false)
                                                                               .build();
-
     Variable<Boolean> STOP_ORDER_IS_DEPENDENCY_AWARE = ImmutableSimpleVariable.<Boolean> builder()
                                                                               .name("stopOrderIsDependencyAware")
                                                                               .defaultValue(false)
                                                                               .build();
+
+    Variable<Set<String>> SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES = ImmutableJsonBinaryVariable.<Set<String>> builder()
+                                                                                                   .name(
+                                                                                                       "secureExtensionDescriptorParameterNames")
+                                                                                                   .type(new TypeReference<>() {
+                                                                                                   })
+                                                                                                   .build();
+
+    Variable<Boolean> IS_SECURITY_ENABLED = ImmutableSimpleVariable.<Boolean> builder()
+                                                                   .name("isSecurityEnabled")
+                                                                   .defaultValue(false)
+                                                                   .build();
+
+    Variable<String> DISPOSABLE_USER_PROVIDED_SERVICE_NAME = ImmutableSimpleVariable.<String> builder()
+                                                                                    .name("disposableUserProvidedServiceName")
+                                                                                    .build();
+
+    Variable<Boolean> IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED = ImmutableSimpleVariable.<Boolean> builder()
+                                                                                           .name("isDisposableUserProvidedServiceEnabled")
+                                                                                           .defaultValue(false)
+                                                                                           .build();
+
 }

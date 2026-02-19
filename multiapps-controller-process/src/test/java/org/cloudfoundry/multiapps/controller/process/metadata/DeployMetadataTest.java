@@ -49,6 +49,9 @@ public class DeployMetadataTest extends MetadataBaseTest {
                 Variables.APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE.getName(),
                 Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE.getName(),
                 Variables.SKIP_APP_DIGEST_CALCULATION.getName(),
+                Variables.IS_SECURITY_ENABLED.getName(),
+                Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME.getName(),
+                Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED.getName()
             // @formatter:on
         };
     }

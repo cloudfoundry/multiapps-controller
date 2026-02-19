@@ -20,9 +20,10 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveContext;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationDigestCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
@@ -87,26 +88,29 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             }
         }
 
-        Optional<CloudPackage> mostRecentPackage = cloudPackagesGetter.getMostRecentAppPackage(client, cloudApp.getGuid());
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
+
+        Optional<CloudPackage> mostRecentPackage = cloudPackagesGetter.getMostRecentAppPackage(client, cloudApp.getGuid(),
+                                                                                               dynamicSecureSerialization);
         if (mostRecentPackage.isEmpty()) {
             return StepPhase.POLL;
         }
 
         CloudPackage latestPackage = mostRecentPackage.get();
-        Optional<CloudPackage> currentPackage = cloudPackagesGetter.getAppPackage(client, cloudApp.getGuid());
+        Optional<CloudPackage> currentPackage = cloudPackagesGetter.getAppPackage(client, cloudApp.getGuid(), dynamicSecureSerialization);
         if (currentPackage.isEmpty() && isPackageInValidState(latestPackage)) {
             context.setVariable(Variables.SHOULD_SKIP_APPLICATION_UPLOAD, true);
-            return useLatestPackage(context, latestPackage);
+            return useLatestPackage(context, latestPackage, dynamicSecureSerialization);
         }
 
-        if (currentPackage.isEmpty() || !isAppStagedCorrectly(context, cloudApp)) {
+        if (currentPackage.isEmpty() || !isAppStagedCorrectly(context, cloudApp, dynamicSecureSerialization)) {
             return StepPhase.POLL;
         }
 
         if (isPackageInValidState(latestPackage) && (context.getVariable(Variables.APP_NEEDS_RESTAGE) || !packagesMatch(
             currentPackage.get(), latestPackage))) {
             context.setVariable(Variables.SHOULD_SKIP_APPLICATION_UPLOAD, true);
-            return useLatestPackage(context, latestPackage);
+            return useLatestPackage(context, latestPackage, dynamicSecureSerialization);
         }
 
         getStepLogger().info(Messages.CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED, applicationToProcess.getName());
@@ -142,8 +146,9 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         return !newApplicationDigest.equals(currentApplicationDigest);
     }
 
-    private StepPhase useLatestPackage(ProcessContext context, CloudPackage latestUnusedPackage) {
-        getStepLogger().debug(Messages.THE_NEWEST_PACKAGE_WILL_BE_USED_0, SecureSerialization.toJson(latestUnusedPackage));
+    private StepPhase useLatestPackage(ProcessContext context, CloudPackage latestUnusedPackage,
+                                       DynamicSecureSerialization dynamicSecureSerialization) {
+        getStepLogger().debug(Messages.THE_NEWEST_PACKAGE_WILL_BE_USED_0, dynamicSecureSerialization.toJson(latestUnusedPackage));
         context.setVariable(Variables.CLOUD_PACKAGE, latestUnusedPackage);
         return StepPhase.POLL;
     }
@@ -154,9 +159,10 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             && cloudPackage.getStatus() != Status.AWAITING_UPLOAD;
     }
 
-    private boolean isAppStagedCorrectly(ProcessContext context, CloudApplication cloudApp) {
+    private boolean isAppStagedCorrectly(ProcessContext context, CloudApplication cloudApp,
+                                         DynamicSecureSerialization dynamicSecureSerialization) {
         ApplicationStager appStager = new ApplicationStager(context);
-        return appStager.isApplicationStagedCorrectly(cloudApp);
+        return appStager.isApplicationStagedCorrectly(cloudApp, dynamicSecureSerialization);
     }
 
     @Override

@@ -17,11 +17,12 @@ import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
-import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -42,23 +43,25 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.DETECTING_DEPLOYED_MTA);
+        DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
 
         String mtaId = context.getVariable(Variables.MTA_ID);
         String mtaNamespace = context.getVariable(Variables.MTA_NAMESPACE);
         CloudControllerClient client = context.getControllerClient();
 
-        DeployedMta deployedMta = detectDeployedMta(mtaId, mtaNamespace, client, context);
+        DeployedMta deployedMta = detectDeployedMta(mtaId, mtaNamespace, client, context, dynamicSecureSerialization);
 
-        detectBackupMta(mtaId, mtaNamespace, client, context);
+        detectBackupMta(mtaId, mtaNamespace, client, context, dynamicSecureSerialization);
 
         List<DeployedMtaServiceKey> deployedServiceKeys = detectDeployedServiceKeys(mtaId, mtaNamespace, deployedMta, context);
         context.setVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS, deployedServiceKeys);
-        getStepLogger().debug(Messages.DEPLOYED_MTA_SERVICE_KEYS, SecureSerialization.toJson(deployedServiceKeys));
+        getStepLogger().debug(Messages.DEPLOYED_MTA_SERVICE_KEYS, dynamicSecureSerialization.toJson(deployedServiceKeys));
 
         return StepPhase.DONE;
     }
 
-    private DeployedMta detectDeployedMta(String mtaId, String mtaNamespace, CloudControllerClient client, ProcessContext context) {
+    private DeployedMta detectDeployedMta(String mtaId, String mtaNamespace, CloudControllerClient client, ProcessContext context,
+                                          DynamicSecureSerialization dynamicSecureSerialization) {
         getStepLogger().debug(Messages.DETECTING_MTA_BY_ID_AND_NAMESPACE, mtaId, mtaNamespace);
         Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(mtaId, mtaNamespace, client);
 
@@ -70,13 +73,14 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
 
         DeployedMta deployedMta = optionalDeployedMta.get();
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
-        getStepLogger().debug(Messages.DEPLOYED_MTA, SecureSerialization.toJson(deployedMta));
+        getStepLogger().debug(Messages.DEPLOYED_MTA, dynamicSecureSerialization.toJson(deployedMta));
         MtaMetadata metadata = deployedMta.getMetadata();
         logDetectedDeployedMta(mtaNamespace, metadata);
         return deployedMta;
     }
 
-    private void detectBackupMta(String mtaId, String mtaNamespace, CloudControllerClient client, ProcessContext context) {
+    private void detectBackupMta(String mtaId, String mtaNamespace, CloudControllerClient client, ProcessContext context,
+                                 DynamicSecureSerialization dynamicSecureSerialization) {
         getStepLogger().debug(Messages.DETECTING_BACKUP_MTA_BY_ID_AND_NAMESPACE, mtaId, mtaNamespace);
         Optional<DeployedMta> optionalBackupMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(mtaId,
                                                                                                           NameUtil.computeUserNamespaceWithSystemNamespace(
@@ -90,7 +94,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
 
         DeployedMta backupMta = optionalBackupMta.get();
         context.setVariable(Variables.BACKUP_MTA, backupMta);
-        getStepLogger().debug(Messages.DETECTED_BACKUP_MTA, SecureSerialization.toJson(backupMta));
+        getStepLogger().debug(Messages.DETECTED_BACKUP_MTA, dynamicSecureSerialization.toJson(backupMta));
     }
 
     private List<DeployedMtaServiceKey> detectDeployedServiceKeys(String mtaId, String mtaNamespace, DeployedMta deployedMta,

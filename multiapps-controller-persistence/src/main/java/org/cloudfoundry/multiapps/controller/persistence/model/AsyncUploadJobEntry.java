@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.persistence.model;
 
 import java.time.LocalDateTime;
+
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 
@@ -41,6 +42,9 @@ public interface AsyncUploadJobEntry {
 
     @Nullable
     String getMtaId();
+
+    @Nullable
+    String getSchemaVersion();
 
     Integer getInstanceIndex();
 

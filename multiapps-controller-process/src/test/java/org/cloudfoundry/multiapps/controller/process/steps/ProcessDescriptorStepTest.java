@@ -96,7 +96,7 @@ class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorSt
     @Test
     void testWithInvalidModulesSpecifiedForDeployment() {
         when(resolver.resolve(any())).thenReturn(DEPLOYMENT_DESCRIPTOR);
-        when(context.getVariable(Variables.MODULES_FOR_DEPLOYMENT)).thenReturn(List.of("foo", "bar"));
+        context.setVariable(Variables.MODULES_FOR_DEPLOYMENT, List.of("foo", "bar"));
         assertThrows(SLException.class, () -> step.execute(execution));
     }
 
