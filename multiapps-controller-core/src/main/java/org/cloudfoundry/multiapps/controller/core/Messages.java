@@ -215,6 +215,8 @@ public final class Messages {
     public static final String CHECKING_DATABASE_HEALTH = "Checking database health...";
     public static final String CHECKING_OBJECT_STORE_HEALTH = "Checking object store health...";
     public static final String CHECKING_FOR_INCREASED_LOCKS = "Checking for increased locks...";
+    public static final String SHUTTING_DOWN_APPLICATION_HEALTH_CALCULATOR = "Shutting down application health calculator...";
+    public static final String SKIPPING_HEALTH_STATUS_UPDATE_APPLICATION_IS_SHUTTING_DOWN = "Skipping health status update - application is shutting down";
 
     // Audit log
 
