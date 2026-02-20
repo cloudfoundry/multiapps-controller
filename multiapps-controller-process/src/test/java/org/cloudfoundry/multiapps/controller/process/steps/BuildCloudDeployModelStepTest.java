@@ -1,12 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
@@ -38,7 +31,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -50,6 +51,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeployModelStep> {
@@ -230,6 +232,72 @@ class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeplo
         assertTrue(all.contains(deployedKey1));
         assertTrue(all.contains(deployedKey2));
 
+    }
+
+    @Test
+    void testServiceKeysOnlyDetectedForResourcesSpecifiedForDeployment() {
+        prepareContextForSelectiveDeployment();
+
+        UUID guid1 = UUID.randomUUID();
+        UUID guid2 = UUID.randomUUID();
+        prepareServiceInstances(guid1, guid2);
+
+        CustomServiceKeysClient mockedServiceKeysClient = mock(CustomServiceKeysClient.class);
+        DeployedMtaServiceKey deployedKey1 = createDeployedKey(TEST_RESOURCE_NAME);
+        when(mockedServiceKeysClient.getServiceKeysByMetadataAndExistingGuids(
+            eq(TEST_SPACE_GUID), eq(TEST_MTA_ID), eq(TEST_MTA_NAMESPACE), anyList()
+        )).thenReturn(List.of(deployedKey1));
+
+        BuildCloudDeployModelStep spyStep = prepareStepWithMockedServiceKeysClient(mockedServiceKeysClient);
+        spyStep.execute(execution);
+
+        List<String> capturedServiceGuids = captureServiceGuidsPassedToClient(mockedServiceKeysClient);
+        assertEquals(1, capturedServiceGuids.size(), "Only the resource specified for deployment should be queried");
+        assertEquals(guid1.toString(), capturedServiceGuids.get(0), "The GUID should match the resource specified for deployment");
+
+        List<DeployedMtaServiceKey> detectedServiceKeysFromExistingServices = context.getVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS);
+        assertEquals(1, detectedServiceKeysFromExistingServices.size());
+        assertTrue(detectedServiceKeysFromExistingServices.contains(deployedKey1));
+    }
+
+    private void prepareContextForSelectiveDeployment() {
+        DeploymentDescriptor deploymentDescriptor = createDescriptorWithExistingServicesForKeysTest();
+        context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
+        context.setVariable(Variables.MTA_ID, TEST_MTA_ID);
+        context.setVariable(Variables.MTA_NAMESPACE, TEST_MTA_NAMESPACE);
+        context.setVariable(Variables.SPACE_GUID, TEST_SPACE_GUID);
+        context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
+        context.setVariable(Variables.RESOURCES_FOR_DEPLOYMENT, List.of(TEST_RESOURCE_NAME));
+    }
+
+    private void prepareServiceInstances(UUID guid1, UUID guid2) {
+        var instance1 = ImmutableCloudServiceInstance.builder()
+                                                     .name(TEST_RESOURCE_NAME)
+                                                     .metadata(ImmutableCloudMetadata.of(guid1))
+                                                     .build();
+        var instance2 = ImmutableCloudServiceInstance.builder()
+                                                     .name(TEST_RESOURCE_NAME_2)
+                                                     .metadata(ImmutableCloudMetadata.of(guid2))
+                                                     .build();
+        when(client.getServiceInstance(TEST_RESOURCE_NAME)).thenReturn(instance1);
+        when(client.getServiceInstance(TEST_RESOURCE_NAME_2)).thenReturn(instance2);
+    }
+
+    private BuildCloudDeployModelStep prepareStepWithMockedServiceKeysClient(CustomServiceKeysClient mockedServiceKeysClient) {
+        BuildCloudDeployModelStep spyStep = spy(step);
+        doReturn(mockedServiceKeysClient)
+            .when(spyStep)
+            .getCustomServiceKeysClient(any(CloudCredentials.class), anyString());
+        return spyStep;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<String> captureServiceGuidsPassedToClient(CustomServiceKeysClient mockedServiceKeysClient) {
+        ArgumentCaptor<List<String>> guidsCaptor = ArgumentCaptor.forClass(List.class);
+        verify(mockedServiceKeysClient).getServiceKeysByMetadataAndExistingGuids(
+            eq(TEST_SPACE_GUID), eq(TEST_MTA_ID), eq(TEST_MTA_NAMESPACE), guidsCaptor.capture()
+        );
+        return guidsCaptor.getValue();
     }
 
     private DeploymentDescriptor createDescriptorWithExistingServicesForKeysTest() {
