@@ -1,19 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.application.health;
 
-import java.text.MessageFormat;
-import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -29,12 +15,28 @@ import org.cloudfoundry.multiapps.controller.persistence.services.DatabaseHealth
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.text.MessageFormat;
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
+
 @Named
-public class ApplicationHealthCalculator {
+public class ApplicationHealthCalculator implements DisposableBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationHealthCalculator.class);
 
@@ -69,6 +71,8 @@ public class ApplicationHealthCalculator {
 
     private final ResilientOperationExecutor resilientOperationExecutor = getResilienceExecutor();
 
+    private volatile boolean isShuttingDown = false;
+
     @Inject
     public ApplicationHealthCalculator(@Autowired(required = false) FileStorage objectStoreFileStorage,
                                        ApplicationConfiguration applicationConfiguration, DatabaseHealthService databaseHealthService,
@@ -85,6 +89,10 @@ public class ApplicationHealthCalculator {
     }
 
     protected void updateHealthStatus() {
+        if (isShuttingDown) {
+            LOGGER.debug(Messages.SKIPPING_HEALTH_STATUS_UPDATE_APPLICATION_IS_SHUTTING_DOWN);
+            return;
+        }
         List<Callable<Boolean>> tasks = List.of(this::isObjectStoreFileStorageHealthy, this::isDatabaseHealthy,
                                                 this::checkForIncreasedLocksWithTimeout);
         try {
@@ -230,6 +238,15 @@ public class ApplicationHealthCalculator {
 
     protected ResilientOperationExecutor getResilienceExecutor() {
         return new ResilientOperationExecutor();
+    }
+
+    @Override
+    public void destroy() {
+        LOGGER.info(Messages.SHUTTING_DOWN_APPLICATION_HEALTH_CALCULATOR);
+        isShuttingDown = true;
+        scheduler.shutdownNow();
+        taskExecutor.shutdownNow();
+        timeoutExecutor.shutdownNow();
     }
 
 }
