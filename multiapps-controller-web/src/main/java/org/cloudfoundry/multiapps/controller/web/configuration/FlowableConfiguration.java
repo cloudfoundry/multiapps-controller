@@ -5,14 +5,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
 
-import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
 import org.flowable.common.engine.impl.async.DefaultAsyncTaskExecutor;
 import org.flowable.common.engine.impl.persistence.StrongUuidGenerator;
-import org.flowable.engine.HistoryService;
-import org.flowable.engine.ProcessEngine;
-import org.flowable.engine.RuntimeService;
 import org.flowable.job.service.impl.asyncexecutor.AsyncExecutor;
 import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
 import org.flowable.job.service.impl.asyncexecutor.FailedJobCommandFactory;
@@ -42,18 +38,28 @@ public class FlowableConfiguration {
     protected Supplier<String> randomIdGenerator = () -> UUID.randomUUID()
                                                              .toString();
 
-    @Inject
+    /**
+     * Creates the ProcessEngine bean via ProcessEngineFactoryBean.
+     *
+     * Important: We return ProcessEngineFactoryBean (which implements FactoryBean<ProcessEngine>)
+     * instead of calling getObject() directly. This allows Spring to properly manage the factory bean's
+     * lifecycle and ensures the ProcessEngine is created at the correct time during context initialization.
+     *
+     * This approach resolves intermittent circular dependency issues that can occur with Spring 6.2.15+
+     * when beans depending on ProcessEngine are initialized concurrently.
+     *
+     * @see FlowableServicesConfiguration for RuntimeService and HistoryService beans
+     */
     @Bean
     @DependsOn("liquibaseChangelog")
-    public ProcessEngine processEngine(ApplicationContext applicationContext, SpringProcessEngineConfiguration processEngineConfiguration)
-        throws Exception {
-        ProcessEngineFactoryBean processEngineFactoryBean = new ProcessEngineFactoryBean();
-        processEngineFactoryBean.setApplicationContext(applicationContext);
-        processEngineFactoryBean.setProcessEngineConfiguration(processEngineConfiguration);
-        return processEngineFactoryBean.getObject();
+    public ProcessEngineFactoryBean processEngine(ApplicationContext applicationContext,
+                                                  SpringProcessEngineConfiguration processEngineConfiguration) {
+        ProcessEngineFactoryBean factory = new ProcessEngineFactoryBean();
+        factory.setApplicationContext(applicationContext);
+        factory.setProcessEngineConfiguration(processEngineConfiguration);
+        return factory;
     }
 
-    @Inject
     @Bean
     @DependsOn("liquibaseChangelog")
     public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager,
@@ -79,7 +85,6 @@ public class FlowableConfiguration {
         return processEngineConfiguration;
     }
 
-    @Inject
     @Bean
     public AsyncExecutor jobExecutor(DefaultAsyncTaskExecutor asyncTaskExecutor, String jobExecutorId) {
         DefaultAsyncJobExecutor jobExecutor = new DefaultAsyncJobExecutor() {
@@ -103,7 +108,6 @@ public class FlowableConfiguration {
         return jobExecutor;
     }
 
-    @Inject
     @Bean
     public DefaultAsyncTaskExecutor taskExecutor(ApplicationConfiguration configuration) {
         DefaultAsyncTaskExecutor taskExecutor = new DefaultAsyncTaskExecutor();
@@ -114,7 +118,6 @@ public class FlowableConfiguration {
         return taskExecutor;
     }
 
-    @Inject
     @Bean
     public String jobExecutorId(ApplicationConfiguration applicationConfiguration) {
         String applicationGuid = applicationConfiguration.getApplicationGuid();
@@ -127,17 +130,5 @@ public class FlowableConfiguration {
 
     private String buildJobExecutorId(String applicationId, int applicationInstanceIndex) {
         return String.format(JOB_EXECUTOR_ID_TEMPLATE, applicationId, applicationInstanceIndex, randomIdGenerator.get());
-    }
-
-    @Inject
-    @Bean
-    public RuntimeService runtimeService(ProcessEngine processEngine) {
-        return processEngine.getRuntimeService();
-    }
-
-    @Inject
-    @Bean
-    public HistoryService historyService(ProcessEngine processEngine) {
-        return processEngine.getHistoryService();
     }
 }
