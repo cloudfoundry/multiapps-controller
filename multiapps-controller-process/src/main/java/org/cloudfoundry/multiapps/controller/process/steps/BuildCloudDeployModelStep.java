@@ -1,16 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -66,6 +55,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -91,8 +91,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.BUILDING_CLOUD_MODEL);
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
-
-        addDetectedExistingServiceKeysToDetectedManagedKeys(context);
 
         // Get module sets:
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
@@ -148,6 +146,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.SERVICES_TO_BIND, servicesForBindings);
 
         List<Resource> resourcesForDeployment = calculateResourcesForDeployment(context, deploymentDescriptor);
+        addDetectedExistingServiceKeysToDetectedManagedKeys(context, resourcesForDeployment);
 
         SelectiveDeployChecker selectiveDeployChecker = getSelectiveDeployChecker(context, deploymentDescriptor);
         selectiveDeployChecker.check(resourcesForDeployment);
@@ -357,11 +356,8 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         return new ArrayList<>(domains);
     }
 
-    private void addDetectedExistingServiceKeysToDetectedManagedKeys(ProcessContext context) {
-        String mtaId = context.getVariable(Variables.MTA_ID);
-        String mtaNamespace = context.getVariable(Variables.MTA_NAMESPACE);
-
-        List<DeployedMtaServiceKey> deployedServiceKeys = detectDeployedServiceKeys(mtaId, mtaNamespace, context);
+    private void addDetectedExistingServiceKeysToDetectedManagedKeys(ProcessContext context, List<Resource> resourcesForDeployment) {
+        List<DeployedMtaServiceKey> deployedServiceKeys = detectDeployedServiceKeys(context, resourcesForDeployment);
         if (!deployedServiceKeys.isEmpty()) {
 
             List<DeployedMtaServiceKey> detectedServiceKeysForManagedServices = context.getVariable(Variables.DEPLOYED_MTA_SERVICE_KEYS);
@@ -375,8 +371,9 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         }
     }
 
-    private List<DeployedMtaServiceKey> detectDeployedServiceKeys(String mtaId, String mtaNamespace,
-                                                                  ProcessContext context) {
+    private List<DeployedMtaServiceKey> detectDeployedServiceKeys(ProcessContext context, List<Resource> resourcesForDeployment) {
+        String mtaId = context.getVariable(Variables.MTA_ID);
+        String mtaNamespace = context.getVariable(Variables.MTA_NAMESPACE);
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
         String userGuid = context.getVariable(Variables.USER_GUID);
         OAuth2AccessTokenWithAdditionalInfo token = tokenService.getToken(userGuid);
@@ -384,16 +381,16 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
         CustomServiceKeysClient serviceKeysClient = getCustomServiceKeysClient(credentials, context.getVariable(Variables.CORRELATION_ID));
 
-        List<String> existingInstanceGuids = getExistingServiceGuids(context);
+        List<String> existingInstanceGuids = getExistingServiceGuids(context, resourcesForDeployment);
 
         return serviceKeysClient.getServiceKeysByMetadataAndExistingGuids(
             spaceGuid, mtaId, mtaNamespace, existingInstanceGuids
         );
     }
 
-    private List<String> getExistingServiceGuids(ProcessContext context) {
+    private List<String> getExistingServiceGuids(ProcessContext context, List<Resource> resourcesForDeployment) {
         CloudControllerClient client = context.getControllerClient();
-        List<Resource> resources = getExistingServiceResourcesFromDescriptor(context);
+        List<Resource> resources = getExistingResourcesOnly(resourcesForDeployment);
 
         return resources.parallelStream()
                         .map(resource -> resolveServiceGuid(client, resource))
@@ -427,16 +424,11 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         LOGGER.error(formattedMessage, e);
     }
 
-    private List<Resource> getExistingServiceResourcesFromDescriptor(ProcessContext context) {
-        DeploymentDescriptor descriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
-
-        if (descriptor == null) {
-            return List.of();
-        }
-        return descriptor.getResources()
-                         .stream()
-                         .filter(resource -> CloudModelBuilderUtil.getResourceType(resource) == ResourceType.EXISTING_SERVICE)
-                         .toList();
+    private List<Resource> getExistingResourcesOnly(List<Resource> resourcesForDeployment) {
+        return resourcesForDeployment
+            .stream()
+            .filter(resource -> CloudModelBuilderUtil.getResourceType(resource) == ResourceType.EXISTING_SERVICE)
+            .toList();
     }
 
     protected CustomServiceKeysClient getCustomServiceKeysClient(CloudCredentials credentials, String correlationId) {
