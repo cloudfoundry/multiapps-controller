@@ -54,6 +54,7 @@ public final class Messages {
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";
+    public static final String CANNOT_PARSE_CONTAINER_URI_OF_OBJECT_STORE = "Cannot parse container_uri of object store";
 
     // WARN log messages:
     public static final String COULD_NOT_CLOSE_RESULT_SET = "Could not close result set.";

@@ -28,6 +28,9 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires transitive org.cloudfoundry.multiapps.controller.api;
 
     requires aliyun.sdk.oss;
+    requires com.azure.core;
+    requires com.azure.core.http.okhttp;
+    requires com.azure.storage.blob;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
     requires com.google.auth;
