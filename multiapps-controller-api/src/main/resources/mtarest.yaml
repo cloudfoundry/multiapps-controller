@@ -426,6 +426,9 @@ definitions:
       mta_id:
         type: "string"
         readOnly: true
+      schema_version:
+        type: "string"
+        readOnly: true
       client_actions:
         type: "array"
         readOnly: true
@@ -463,6 +466,9 @@ definitions:
       file_url:
         type: "string"
         readOnly: true
+      credentials:
+        readOnly: true
+        $ref: "#/definitions/UserCredentials"
   Info:
     type: "object"
     properties:
@@ -641,5 +647,14 @@ definitions:
     type: "object"
     properties:
       name:
+        type: "string"
+        readOnly: true
+  UserCredentials:
+    type: "object"
+    properties:
+      username:
+        type: "string"
+        readOnly: true
+      password:
         type: "string"
         readOnly: true

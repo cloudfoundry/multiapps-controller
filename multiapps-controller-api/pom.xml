@@ -68,6 +68,12 @@
             <artifactId>jaxb-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- Required by swagger-maven-plugin during compile to process MultipartHttpServletRequest -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
