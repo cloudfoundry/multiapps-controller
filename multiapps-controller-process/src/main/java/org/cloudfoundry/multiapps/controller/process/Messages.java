@@ -353,6 +353,7 @@ public class Messages {
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
     public static final String MTA_SCHEMA_VERSION_DETECTED_AS = "Detected MTA schema version: \"{0}\"";
+    public static final String LEGACY_ROUTE_DEPLOY_SERVICE_DEPRECATED = "You are using legacy route https://deploy-service.cfapps.<domain> of SAP Cloud Deployment service. It will be deprecated and removed in the end of 2026. To avoid issues in the future, update all workflows to use the proper SAP Cloud Deployment route https://deploy-service.cf.<domain> (replace \"cfapps\" with \"cf\"). More information: https://me.sap.com/notes/3695458";
     public static final String DEPLOYING_IN_ORG_0_AND_SPACE_1 = "Deploying in org \"{0}\" and space \"{1}\"";
     public static final String NO_DEPLOYED_MTA_DETECTED = "No deployed MTA detected - this is initial deployment of MTA with ID \"{0}\"";
     public static final String NO_DEPLOYED_MTA_DETECTED_WITH_NAMESPACE = "No deployed MTA detected - this is initial deployment of MTA with ID \"{0}\" and namespace \"{1}\"";
