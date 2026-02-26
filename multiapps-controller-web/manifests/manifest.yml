@@ -16,7 +16,7 @@ applications:
       XS_TYPE: CF
       DB_TYPE: POSTGRESQL
       CATALINA_OPTS: "-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
-      JBP_CONFIG_SAP_MACHINE_JRE: '{ jre: { version: "17.+" } }'
+      JBP_CONFIG_SAP_MACHINE_JRE: '{ jre: { version: "25.+" } }'
       JBP_CONFIG_TOMCAT: '{ tomcat: { version: 10.+ } }'
       JBP_CONFIG_COMPONENTS: '{jres: ["JavaBuildpack::Jre::SapMachineJRE"]}'
       JAVA_OPTS: '-XX:+HeapDumpOnOutOfMemoryError -XX:MaxDirectMemorySize=192m -Xshare:off -XX:MaxMetaspaceSize=300m -XX:+ErrorFileToStdout -XX:TrimNativeHeapInterval=10000 -Dio.netty.noPreferDirect=true -Dio.netty.maxDirectMemory=0'
