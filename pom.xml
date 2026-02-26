@@ -60,6 +60,7 @@
         <commons-logging.version>1.3.5</commons-logging.version>
         <google-cloud.version>2.62.1</google-cloud.version>
         <google-cloud-nio.version>0.128.11</google-cloud-nio.version>
+        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>
@@ -401,6 +402,14 @@
                 <groupId>jakarta.servlet</groupId>
                 <artifactId>jakarta.servlet-api</artifactId>
                 <version>${servlet-api.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <!-- Required by swagger-maven-plugin during compile to process MultipartHttpServletRequest. Migrate once swagger plugin supports Jakarta namespace. -->
+            <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${javax.servlet-api.version}</version>
                 <scope>provided</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/jakarta.annotation/jakarta.annotation-api -->
