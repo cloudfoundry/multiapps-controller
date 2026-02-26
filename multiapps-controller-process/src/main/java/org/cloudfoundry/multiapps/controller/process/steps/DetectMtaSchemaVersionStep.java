@@ -42,9 +42,6 @@ public class DetectMtaSchemaVersionStep extends SyncFlowableStep {
         return StepPhase.DONE;
     }
 
-    protected void printLegacyDeployServiceRouteWarning(ProcessContext context) {
-    }
-
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_DETECTING_MTA_MAJOR_SCHEMA_VERSION;
