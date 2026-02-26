@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.SchemaVersionDetector;
@@ -39,27 +38,16 @@ public class DetectMtaSchemaVersionStep extends SyncFlowableStep {
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, schemaVersion.getMajor());
 
         getStepLogger().info(Messages.MTA_SCHEMA_VERSION_DETECTED_AS, schemaVersion.getMajor());
-        printLegacyDeployServiceRouteWarning(context);
 
         return StepPhase.DONE;
+    }
+
+    protected void printLegacyDeployServiceRouteWarning(ProcessContext context) {
     }
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_DETECTING_MTA_MAJOR_SCHEMA_VERSION;
-    }
-
-    private void printLegacyDeployServiceRouteWarning(ProcessContext context) {
-        boolean isUsedRouteDeprecated = false;
-
-        if (context.getVariable(Variables.API_REQUEST_PATH) != null) {
-            isUsedRouteDeprecated = context.getVariable(Variables.API_REQUEST_PATH)
-                                           .contains(Constants.DEPRECATED_ROUTE_MARKER);
-        }
-
-        if (isUsedRouteDeprecated) {
-            getStepLogger().warn(Messages.LEGACY_ROUTE_DEPLOY_SERVICE_DEPRECATED);
-        }
     }
 
 }

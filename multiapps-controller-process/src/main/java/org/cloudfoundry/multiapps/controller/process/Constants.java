@@ -36,7 +36,6 @@ public class Constants {
     public static final String TRIPLE_APPENDED_STRING = "%s%s%s";
     public static final String SECURE_EXTENSION_DESCRIPTOR_ID = "__mta.secure";
     public static final String STRING_SEPARATOR = "-";
-    public static final String DEPRECATED_ROUTE_MARKER = "cfapps";
 
     public static final Long UNSET_LAST_LOG_TIMESTAMP_MS = 0L;
     public static final int LOG_STALLED_TASK_MINUTE_INTERVAL = 5;
