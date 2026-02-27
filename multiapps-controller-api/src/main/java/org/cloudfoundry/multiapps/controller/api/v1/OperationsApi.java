@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
 import org.cloudfoundry.multiapps.controller.api.Constants.Endpoints;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.QueryVariables;
@@ -114,8 +115,8 @@ public class OperationsApi {
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted") })
     public ResponseEntity<Operation> startOperation(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                                                    @RequestBody Operation operation) {
-        return delegate.startOperation(spaceGuid, operation);
+                                                    @RequestBody Operation operation, HttpServletRequest httpServletRequest) {
+        return delegate.startOperation(spaceGuid, operation, httpServletRequest);
     }
 
 }

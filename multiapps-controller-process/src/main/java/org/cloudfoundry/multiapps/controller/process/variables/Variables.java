@@ -118,6 +118,9 @@ public interface Variables {
     Variable<String> DEPLOY_URI = ImmutableSimpleVariable.<String> builder()
                                                          .name("deployUri")
                                                          .build();
+    Variable<String> API_REQUEST_PATH = ImmutableSimpleVariable.<String> builder()
+                                                               .name("apiRequestPath")
+                                                               .build();
     Variable<String> CTS_USERNAME = ImmutableSimpleVariable.<String> builder()
                                                            .name("userId")
                                                            .build();

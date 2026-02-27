@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.persistence.NoResultException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
@@ -148,13 +149,13 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     @Override
-    public ResponseEntity<Operation> startOperation(String spaceGuid, Operation operation) {
+    public ResponseEntity<Operation> startOperation(String spaceGuid, Operation operation, HttpServletRequest httpServletRequest) {
         operationsApiServiceAuditLog.logStartOperation(SecurityContextUtil.getUsername(), spaceGuid, operation);
         UserInfo authenticatedUser = getAuthenticatedUser();
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
                                                                              .getParameters();
-        operation = addServiceParameters(operation, spaceGuid, authenticatedUser.getName(), authenticatedUser.getId());
+        operation = addServiceParameters(operation, spaceGuid, authenticatedUser.getName(), authenticatedUser.getId(), httpServletRequest);
         operation = addParameterValues(operation, predefinedParameters);
         ensureRequiredParametersSet(operation, predefinedParameters);
         ProcessInstance processInstance = flowableFacade.startProcess(processDefinitionKey, operation.getParameters());
@@ -246,7 +247,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         throw new IllegalStateException(MessageFormat.format("State \"{0}\" not recognized!", operation.getState()));
     }
 
-    private Operation addServiceParameters(Operation operation, String spaceGuid, String user, String userGuid) {
+    private Operation addServiceParameters(Operation operation, String spaceGuid, String user, String userGuid,
+                                           HttpServletRequest httpServletRequest) {
         Map<String, Object> parameters = new HashMap<>(operation.getParameters());
 
         CloudSpaceClient client = getSpaceClient();
@@ -265,6 +267,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                                                                           .toString());
         parameters.put(Variables.TIMESTAMP.getName(), DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                                                                        .format(ZonedDateTime.now()));
+        parameters.put(Variables.API_REQUEST_PATH.getName(), httpServletRequest.getRequestURL()
+                                                                               .toString());
         String namespace = operation.getNamespace();
         if (namespace != null) {
             parameters.put(Variables.MTA_NAMESPACE.getName(), namespace);

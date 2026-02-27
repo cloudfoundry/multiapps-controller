@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.support.CronExpression;
+
 import static java.text.MessageFormat.format;
 
 @Named
@@ -99,6 +101,7 @@ public class ApplicationConfiguration {
     static final String CFG_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = "THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER";
     static final String CFG_THREADS_FOR_FILE_STORAGE_UPLOAD = "THREADS_FOR_FILE_STORAGE_UPLOAD";
     static final String CFG_IS_HEALTH_CHECK_ENABLED = "IS_HEALTH_CHECK_ENABLED";
+    static final String USE_LEGACY_ROUTE_WARNING = "USE_LEGACY_ROUTE_WARNING";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = List.of("full_application_uris", "application_uris", "uris");
 
@@ -158,6 +161,7 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_THREADS_FOR_FILE_STORAGE_UPLOAD = 7;
     public static final boolean DEFAULT_IS_HEALTH_CHECK_ENABLED = false;
     public static final Boolean DEFAULT_IS_READINESS_HEALTH_CHECK_ENABLED = Boolean.FALSE;
+    public static final Boolean DEFAULT_USE_LEGACY_ROUTE_WARNING = false;
 
     protected final Environment environment;
 
@@ -218,6 +222,7 @@ public class ApplicationConfiguration {
     private Boolean isHealthCheckEnabled;
     private Set<String> objectStoreRegions;
     private Boolean isReadinessHealthCheckEnabled;
+    private Boolean useLegacyRouteWarning;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -498,6 +503,13 @@ public class ApplicationConfiguration {
             objectStoreClientType = getObjectStoreClientTypeFromEnvironment();
         }
         return objectStoreClientType;
+    }
+
+    public Boolean getLegacyRouteWarningEnablement() {
+        if (useLegacyRouteWarning == null) {
+            useLegacyRouteWarning = getLegacyRouteWarningEnablementFromEnvironment();
+        }
+        return useLegacyRouteWarning;
     }
 
     public HealthCheckConfiguration getHealthCheckConfiguration() {
@@ -913,6 +925,12 @@ public class ApplicationConfiguration {
     private String getObjectStoreClientTypeFromEnvironment() {
         String value = environment.getString(OBJECT_STORE_CLIENT_TYPE);
         logEnvironmentVariable(OBJECT_STORE_CLIENT_TYPE, Messages.OBJECT_STORE_CLIENT_TYPE, value);
+        return value;
+    }
+
+    private Boolean getLegacyRouteWarningEnablementFromEnvironment() {
+        Boolean value = environment.getBoolean(USE_LEGACY_ROUTE_WARNING, DEFAULT_USE_LEGACY_ROUTE_WARNING);
+        logEnvironmentVariable(USE_LEGACY_ROUTE_WARNING, Messages.USE_LEGACY_ROUTE_WARNING, value);
         return value;
     }
 
