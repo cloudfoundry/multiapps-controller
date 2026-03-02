@@ -196,7 +196,10 @@ class OperationsApiServiceImplTest {
         Operation operation = createOperation(null, null, parameters);
         Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
                .thenReturn("deploy");
-        operationsApiService.startOperation(SPACE_GUID, operation);
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(httpServletRequestMock.getRequestURL())
+               .thenReturn(new StringBuffer("test/api/path"));
+        operationsApiService.startOperation(SPACE_GUID, operation, httpServletRequestMock);
         Mockito.verify(flowableFacade)
                .startProcess(Mockito.any(), Mockito.anyMap());
     }
@@ -210,12 +213,15 @@ class OperationsApiServiceImplTest {
         Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
                .thenReturn("deploy");
 
-        operationsApiService.startOperation(SPACE_GUID, operation);
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(httpServletRequestMock.getRequestURL())
+               .thenReturn(new StringBuffer("test/api/path"));
+        operationsApiService.startOperation(SPACE_GUID, operation, httpServletRequestMock);
 
         Mockito.verify(flowableFacade)
                .startProcess(ArgumentMatchers.eq("deploy"), ArgumentMatchers.argThat(
                    map -> map.containsKey(Variables.MTA_ID.getName()) && map.containsKey(Variables.EXT_DESCRIPTOR_FILE_ID.getName())
-                       && !map.containsKey(Variables.CTS_PROCESS_ID.getName()) && !map.containsKey(Variables.DEPLOY_URI.getName())));
+                       && !map.containsKey(Variables.CTS_PROCESS_ID.getName()) && !map.containsKey(Variables.CTS_PASSWORD.getName())));
     }
 
     @Test
@@ -225,8 +231,10 @@ class OperationsApiServiceImplTest {
         Operation operation = createOperation(null, null, parameters);
         Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
                .thenReturn("deploy");
-
-        operationsApiService.startOperation(SPACE_GUID, operation);
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(httpServletRequestMock.getRequestURL())
+               .thenReturn(new StringBuffer("test/api/path"));
+        operationsApiService.startOperation(SPACE_GUID, operation, httpServletRequestMock);
 
         Mockito.verify(flowableFacade)
                .startProcess(ArgumentMatchers.eq("deploy"), ArgumentMatchers.argThat(

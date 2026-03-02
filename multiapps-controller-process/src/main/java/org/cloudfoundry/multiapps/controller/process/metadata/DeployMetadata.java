@@ -149,6 +149,10 @@ public class DeployMetadata {
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .defaultValue(false)
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.API_REQUEST_PATH.getName())
+                                                                                 .type(ParameterType.STRING)
+                                                                                 .build())
                                          .build();
     }
 

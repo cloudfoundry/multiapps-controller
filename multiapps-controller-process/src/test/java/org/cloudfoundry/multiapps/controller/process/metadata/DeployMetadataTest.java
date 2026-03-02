@@ -51,7 +51,8 @@ public class DeployMetadataTest extends MetadataBaseTest {
                 Variables.SKIP_APP_DIGEST_CALCULATION.getName(),
                 Variables.IS_SECURITY_ENABLED.getName(),
                 Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME.getName(),
-                Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED.getName()
+                Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED.getName(),
+                Variables.API_REQUEST_PATH.getName()
             // @formatter:on
         };
     }

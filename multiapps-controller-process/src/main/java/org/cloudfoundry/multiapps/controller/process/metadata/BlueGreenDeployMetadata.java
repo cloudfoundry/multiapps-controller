@@ -144,6 +144,10 @@ public class BlueGreenDeployMetadata {
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .defaultValue(false)
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.API_REQUEST_PATH.getName())
+                                                                                 .type(ParameterType.STRING)
+                                                                                 .build())
 
                                          // Special blue green deploy parameters:
                                          .addParameter(ImmutableParameterMetadata.builder()

@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.api;
 
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.cloudfoundry.multiapps.controller.api.model.Log;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,6 @@ public interface OperationsApiService {
 
     ResponseEntity<String> getOperationLogContent(String spaceGuid, String operationId, String logId);
 
-    ResponseEntity<Operation> startOperation(String spaceGuid, Operation operation);
+    ResponseEntity<Operation> startOperation(String spaceGuid, Operation operation, HttpServletRequest httpServletRequest);
 
 }

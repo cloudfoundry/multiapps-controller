@@ -155,6 +155,10 @@ public class CtsDeployMetadata {
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .defaultValue(false)
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.API_REQUEST_PATH.getName())
+                                                                                 .type(ParameterType.STRING)
+                                                                                 .build())
 
                                          // Special CTS+ parameters:
                                          .addParameter(ImmutableParameterMetadata.builder()
