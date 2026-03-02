@@ -82,7 +82,7 @@ public class CloudModelBuilderUtil {
         return ResourceType.get(type);
     }
 
-    private static String getServiceName(Resource resource) {
+    public static String getServiceName(Resource resource) {
         var serviceName = (String) resource.getParameters()
                                            .get(SupportedParameters.SERVICE_NAME);
         return serviceName == null ? resource.getName() : serviceName;
