@@ -27,20 +27,22 @@
       {
         "appsUsingRoute": 0,
         "domain": {
-          "name": "domain.to.test"
-        },
-        "host": "normal-host",
-        "path": "",
-        "url": "normal-host.domain.to.test"
-      },
-      {
-        "appsUsingRoute": 0,
-        "domain": {
           "name": "sub.sub.domain.to.test"
         },
         "host": "",
         "path": "/with/path",
+        "options": {},
         "url": "sub.sub.domain.to.test/with/path"
+      },
+      {
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "domain.to.test"
+        },
+        "host": "normal-host",
+        "path": "",
+        "options": {},
+        "url": "normal-host.domain.to.test"
       },
       {
         "appsUsingRoute": 0,
@@ -49,6 +51,7 @@
         },
         "host": "",
         "path": "",
+        "options": {},
         "url": "sub.domain.to.test"
       }
     ],
@@ -61,20 +64,22 @@
       {
         "appsUsingRoute": 0,
         "domain": {
-          "name": "domain.to.test"
-        },
-        "host": "normal-host",
-        "path": "",
-        "url": "normal-host.domain.to.test"
-      },
-      {
-        "appsUsingRoute": 0,
-        "domain": {
           "name": "sub.sub.domain.to.test"
         },
         "host": "",
         "path": "/with/path",
+        "options": {},
         "url": "sub.sub.domain.to.test/with/path"
+      },
+      {
+        "appsUsingRoute": 0,
+        "domain": {
+          "name": "domain.to.test"
+        },
+        "host": "normal-host",
+        "path": "",
+        "options": {},
+        "url": "normal-host.domain.to.test"
       },
       {
         "appsUsingRoute": 0,
@@ -83,6 +88,7 @@
         },
         "host": "",
         "path": "",
+        "options": {},
         "url": "sub.domain.to.test"
       }
     ],

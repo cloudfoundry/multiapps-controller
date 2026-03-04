@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.cf.v2;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,13 +87,54 @@ class ApplicationRoutesCloudModelBuilderTest {
     }
 
     private List<CloudRoute> getExistingRoutes() {
-        var existingHttp2RouteAlreadyDefined = buildCloudRoute("ccc", "cfapps.sap.hana.ondemand.com", "http2");
-        var existingHttp2RouteNotDefined = buildCloudRoute("xxx", "cfapps.sap.hana.ondemand.com", "http2");
-        var existingHttp2RouteOverridden = buildCloudRoute("bbc", "cfapps.sap.hana.ondemand.com", "http1");
+        var existingHttp2RouteAlreadyDefined = buildCloudRoute("ccc", "cfapps.sap.hana.ondemand.com", "http2", Collections.emptyMap());
+        var existingHttp2RouteNotDefined = buildCloudRoute("xxx", "cfapps.sap.hana.ondemand.com", "http2", Collections.emptyMap());
+        var existingHttp2RouteOverridden = buildCloudRoute("bbc", "cfapps.sap.hana.ondemand.com", "http1", Collections.emptyMap());
         return List.of(existingHttp2RouteAlreadyDefined, existingHttp2RouteNotDefined, existingHttp2RouteOverridden);
     }
 
-    private CloudRoute buildCloudRoute(String host, String domain, String protocol) {
+    @Test
+    void testGetApplicationRoutesWithOptions() {
+        Map<String, Object> routeOptions = Map.of("loadbalancing", "round-robin");
+        Map<String, Object> route = Map.of(SupportedParameters.ROUTE, "abc.cfapps.sap.hana.ondemand.com",
+                                           SupportedParameters.ROUTE_OPTIONS, routeOptions);
+        List<Map<String, Object>> moduleParameters = List.of(Map.of(SupportedParameters.ROUTES, List.of(route)));
+        Module module = Mockito.mock(Module.class);
+        DeployedMtaApplication deployedMtaApplication = Mockito.mock(DeployedMtaApplication.class);
+
+        List<CloudRoute> applicationRoutes = new ArrayList<>(
+            applicationRoutesCloudModelBuilder.getApplicationRoutes(module, moduleParameters, deployedMtaApplication));
+
+        assertEquals(1, applicationRoutes.size());
+        assertEquals("abc.cfapps.sap.hana.ondemand.com", applicationRoutes.get(0)
+                                                                          .getUrl());
+        assertEquals(routeOptions, applicationRoutes.get(0)
+                                                    .getOptions());
+    }
+
+    @Test
+    void testGetApplicationRoutesWhenKeepExistingIsTruePreservesOptions() {
+        Map<String, Object> routeOptions = Map.of("loadbalancing", "round-robin");
+        Map<String, Object> newRoute = Map.of(SupportedParameters.ROUTE, "abc.cfapps.sap.hana.ondemand.com",
+                                              SupportedParameters.ROUTE_OPTIONS, routeOptions);
+        List<Map<String, Object>> moduleParameters = List.of(Map.of(SupportedParameters.ROUTES, List.of(newRoute),
+                                                                    SupportedParameters.KEEP_EXISTING_ROUTES, true));
+        CloudRoute existingRoute = buildCloudRoute("abc", "cfapps.sap.hana.ondemand.com", null, routeOptions);
+        when(client.getApplicationRoutes(any())).thenReturn(List.of(existingRoute));
+        Module module = Mockito.mock(Module.class);
+        DeployedMtaApplication deployedMtaApplication = Mockito.mock(DeployedMtaApplication.class);
+
+        Set<CloudRoute> applicationRoutes = applicationRoutesCloudModelBuilder.getApplicationRoutes(module, moduleParameters,
+                                                                                                    deployedMtaApplication);
+
+        assertEquals(1, applicationRoutes.size());
+        CloudRoute resultRoute = applicationRoutes.iterator()
+                                                  .next();
+        assertEquals("abc.cfapps.sap.hana.ondemand.com", resultRoute.getUrl());
+        assertEquals(routeOptions, resultRoute.getOptions());
+    }
+
+    private CloudRoute buildCloudRoute(String host, String domain, String protocol, Map<String, Object> options) {
         return ImmutableCloudRoute.builder()
                                   .url(host + "." + domain)
                                   .host(host)
@@ -100,6 +142,7 @@ class ApplicationRoutesCloudModelBuilderTest {
                                   .domain(ImmutableCloudDomain.builder()
                                                               .name(domain)
                                                               .build())
+                                  .options(options)
                                   .build();
     }
 

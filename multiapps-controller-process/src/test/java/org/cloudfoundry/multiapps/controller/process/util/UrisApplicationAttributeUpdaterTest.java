@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -48,7 +49,16 @@ class UrisApplicationAttributeUpdaterTest {
     static Stream<Arguments> shouldUpdateRoutes() {
         return Stream.of(Arguments.of(getExistingCloudRoutes(), Collections.emptyList(), true),
                          Arguments.of(getExistingCloudRoutes(), getExistingCloudRoutes(), false),
-                         Arguments.of(getExistingCloudRoutes(), getNewCloudRoutesWithExistingRouteAndModifiedProtocol(), true));
+                         Arguments.of(getExistingCloudRoutes(), getNewCloudRoutesWithExistingRouteAndModifiedProtocol(), true),
+                         // route options differ -> should trigger update
+                         Arguments.of(getRoutesWithOptions(Map.of("loadbalancing", "round-robin")),
+                                      getRoutesWithOptions(Map.of("loadbalancing", "least-connection")), true),
+                         // route options are the same -> no update needed
+                         Arguments.of(getRoutesWithOptions(Map.of("loadbalancing", "round-robin")),
+                                      getRoutesWithOptions(Map.of("loadbalancing", "round-robin")), false),
+                         // existing route has options, new route has empty options -> routes are not equal -> should trigger update
+                         Arguments.of(getRoutesWithOptions(Map.of("loadbalancing", "round-robin")),
+                                      getRoutesWithOptions(Collections.emptyMap()), true));
     }
 
     @ParameterizedTest
@@ -66,6 +76,18 @@ class UrisApplicationAttributeUpdaterTest {
         CloudRoute existingHttp1Route = buildCloudRouteWithDestination("abc", "cfapps.sap.hana.ondemand.com", "http1");
         CloudRoute existingHtt2Route = buildCloudRouteWithDestination("abvd", "cfapps.sap.hana.ondemand.com", "http2");
         return List.of(existingHttp1Route, existingHtt2Route);
+    }
+
+    private static List<CloudRoute> getRoutesWithOptions(Map<String, Object> options) {
+        CloudRoute route = ImmutableCloudRoute.builder()
+                                              .url("abc.cfapps.sap.hana.ondemand.com")
+                                              .host("abc")
+                                              .domain(ImmutableCloudDomain.builder()
+                                                                          .name("cfapps.sap.hana.ondemand.com")
+                                                                          .build())
+                                              .options(options)
+                                              .build();
+        return List.of(route);
     }
 
     private static CloudRoute buildCloudRouteWithDestination(String host, String domain, String requestedProtocol) {

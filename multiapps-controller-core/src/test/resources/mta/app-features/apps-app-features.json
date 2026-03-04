@@ -33,6 +33,7 @@
         },
         "host": "feature-app",
         "path": "",
+        "options": {},
         "url": "feature-app.cfapps.neo.ondemand.com"
       }
     ],

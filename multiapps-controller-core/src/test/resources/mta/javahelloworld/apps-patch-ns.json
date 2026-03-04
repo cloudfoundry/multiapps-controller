@@ -31,6 +31,7 @@
         },
         "host": "i027947-java-hello-world",
         "path": "",
+        "options": {},
         "url": "i027947-java-hello-world.cfapps.neo.ondemand.com"
       }
     ],

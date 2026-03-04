@@ -83,8 +83,8 @@ public class CloudControllerClientImpl implements CloudControllerClient {
     }
 
     @Override
-    public void addRoute(String host, String domainName, String path) {
-        handleExceptions(() -> delegate.addRoute(host, domainName, path));
+    public void addRoute(String host, String domainName, String path, Map<String, Object> options) {
+        handleExceptions(() -> delegate.addRoute(host, domainName, path, options));
     }
 
     @Override
