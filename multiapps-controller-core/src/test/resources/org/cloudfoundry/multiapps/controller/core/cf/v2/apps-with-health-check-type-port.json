@@ -30,6 +30,7 @@
         },
         "host": "foo",
         "path": "",
+        "options": {},
         "url": "foo.sofd60245639a"
       }
     ],

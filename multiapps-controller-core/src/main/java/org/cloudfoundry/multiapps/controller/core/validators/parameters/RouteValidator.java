@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
@@ -34,7 +35,10 @@ public class RouteValidator implements ParameterValidator {
         String routeString = (String) route;
         Boolean noHostname = MapUtil.parseBooleanFlag(context, SupportedParameters.NO_HOSTNAME, false);
         String protocol = (String) context.get(SupportedParameters.ROUTE_PROTOCOL);
-        ApplicationURI uri = new ApplicationURI(routeString, noHostname, protocol);
+        @SuppressWarnings("unchecked") Map<String, Object> routeOptions = (Map<String, Object>) MapUtils.getMap(context,
+                                                                                                                SupportedParameters.ROUTE_OPTIONS,
+                                                                                                                Collections.emptyMap());
+        ApplicationURI uri = new ApplicationURI(routeString, noHostname, protocol, routeOptions);
         try {
             for (ParameterValidator validator : validators) {
                 correctUriPartIfPresent(uri, validator, context);
@@ -79,7 +83,10 @@ public class RouteValidator implements ParameterValidator {
 
         Boolean noHostname = MapUtil.parseBooleanFlag(context, SupportedParameters.NO_HOSTNAME, false);
         String protocol = (String) context.get(SupportedParameters.ROUTE_PROTOCOL);
-        ApplicationURI uri = new ApplicationURI(routeString, noHostname, protocol);
+        @SuppressWarnings("unchecked") Map<String, Object> routeOptions = (Map<String, Object>) MapUtils.getMap(context,
+                                                                                                                SupportedParameters.ROUTE_OPTIONS,
+                                                                                                                Collections.emptyMap());
+        ApplicationURI uri = new ApplicationURI(routeString, noHostname, protocol, routeOptions);
         Map<String, Object> uriParts = uri.getURIParts();
 
         for (ParameterValidator validator : validators) {

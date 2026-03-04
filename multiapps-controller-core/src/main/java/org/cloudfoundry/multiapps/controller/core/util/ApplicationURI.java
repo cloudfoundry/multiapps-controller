@@ -18,15 +18,17 @@ public class ApplicationURI {
     private String domain = "";
     private String path = "";
     private String protocol;
+    private Map<String, Object> options = Collections.emptyMap();
 
     public static String getDomainFromURI(String uri, boolean noHostname) {
-        ApplicationURI parsedURI = new ApplicationURI(uri, noHostname, null);
+        ApplicationURI parsedURI = new ApplicationURI(uri, noHostname, null, Collections.emptyMap());
         return parsedURI.getDomain();
     }
 
-    public ApplicationURI(String initial, boolean noHostname, String protocol) {
+    public ApplicationURI(String initial, boolean noHostname, String protocol, Map<String, Object> options) {
         uri = UriUtil.stripScheme(initial);
         this.protocol = protocol;
+        this.options = options;
 
         int domainIndex = getDomainIndex(noHostname);
         int pathIndex = getPathIndexAfter(domainIndex);
@@ -124,6 +126,7 @@ public class ApplicationURI {
                                   .path(getPath())
                                   .url(toString())
                                   .requestedProtocol(getProtocol())
+                                  .options(getOptions())
                                   .build();
     }
 
@@ -172,6 +175,10 @@ public class ApplicationURI {
 
     public void setProtocol(String protocol) {
         this.protocol = protocol;
+    }
+
+    public Map<String, Object> getOptions() {
+        return options;
     }
 
     private void setParts(String host, String domain, String path) {

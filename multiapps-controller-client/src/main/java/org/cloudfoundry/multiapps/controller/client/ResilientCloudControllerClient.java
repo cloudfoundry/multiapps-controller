@@ -11,7 +11,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.cloudfoundry.client.v3.Metadata;
-import org.cloudfoundry.multiapps.controller.client.util.ResilientCloudOperationExecutor;
 import org.cloudfoundry.multiapps.controller.client.facade.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClientImpl;
@@ -69,8 +68,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void addRoute(String host, String domainName, String path) {
-        executeWithRetry(() -> delegate.addRoute(host, domainName, path));
+    public void addRoute(String host, String domainName, String path, Map<String, Object> options) {
+        executeWithRetry(() -> delegate.addRoute(host, domainName, path, options));
     }
 
     @Override

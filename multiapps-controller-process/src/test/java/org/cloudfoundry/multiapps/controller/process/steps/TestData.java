@@ -1,6 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,11 +19,11 @@ public class TestData {
     public static final String NOHOSTNAME_URI_FLAG = "NOHOSTNAME-";
 
     public static CloudRoute route(String uri) {
-        return route(removePrefix(uri), uriIsHostless(uri), "http1");
+        return route(removePrefix(uri), uriIsHostless(uri), "http1", Collections.emptyMap());
     }
 
-    public static CloudRoute route(String uri, boolean noHostname, String protocol) {
-        return new ApplicationURI(uri, noHostname, protocol).toCloudRoute();
+    public static CloudRoute route(String uri, boolean noHostname, String protocol, Map<String, Object> options) {
+        return new ApplicationURI(uri, noHostname, protocol, options).toCloudRoute();
     }
 
     public static CloudRoute route(String host, String domain, String path) {

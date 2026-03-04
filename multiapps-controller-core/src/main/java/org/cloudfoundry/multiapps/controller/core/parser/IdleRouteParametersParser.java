@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
@@ -58,7 +59,10 @@ public class IdleRouteParametersParser extends RouteParametersParser {
         }
         Boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
         String protocol = (String) routeMap.get(SupportedParameters.ROUTE_PROTOCOL);
-        return new ApplicationURI(routeString, noHostname, protocol).toCloudRoute();
+        @SuppressWarnings("unchecked") Map<String, Object> routeOptions = (Map<String, Object>) MapUtils.getMap(routeMap,
+                                                                                                                SupportedParameters.ROUTE_OPTIONS,
+                                                                                                                Collections.emptyMap());
+        return new ApplicationURI(routeString, noHostname, protocol, routeOptions).toCloudRoute();
     }
 
     private Set<CloudRoute> modifyLiveRoutes(Set<CloudRoute> liveRoutes) {

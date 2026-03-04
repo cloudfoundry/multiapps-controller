@@ -99,8 +99,11 @@ import org.cloudfoundry.client.v3.routes.Destination;
 import org.cloudfoundry.client.v3.routes.InsertRouteDestinationsRequest;
 import org.cloudfoundry.client.v3.routes.ListRoutesRequest;
 import org.cloudfoundry.client.v3.routes.RemoveRouteDestinationsRequest;
+import org.cloudfoundry.client.v3.routes.RouteOptions;
 import org.cloudfoundry.client.v3.routes.RouteRelationships;
 import org.cloudfoundry.client.v3.routes.RouteResource;
+import org.cloudfoundry.client.v3.routes.UpdateRouteRequest;
+import org.cloudfoundry.client.v3.routes.UpdateRouteResponse;
 import org.cloudfoundry.client.v3.servicebindings.CreateServiceBindingRequest;
 import org.cloudfoundry.client.v3.servicebindings.CreateServiceBindingResponse;
 import org.cloudfoundry.client.v3.servicebindings.DeleteServiceBindingRequest;
@@ -264,10 +267,10 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
     }
 
     @Override
-    public void addRoute(String host, String domainName, String path) {
+    public void addRoute(String host, String domainName, String path, Map<String, Object> options) {
         assertSpaceProvided("add route for domain");
         UUID domainGuid = getRequiredDomainGuid(domainName);
-        doAddRoute(domainGuid, host, path);
+        doAddRoute(domainGuid, host, path, options);
     }
 
     @Override
@@ -456,7 +459,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
             validateDomainForRoute(route, domains);
             UUID domainGuid = domains.get(route.getDomain()
                                                .getName());
-            UUID routeGuid = getOrAddRoute(domainGuid, route.getHost(), route.getPath());
+            UUID routeGuid = getOrAddRoute(domainGuid, route.getHost(), route.getPath(), route.getOptions());
             bindRoute(routeGuid, applicationGuid, route.getRequestedProtocol());
         }
     }
@@ -641,12 +644,12 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
     @Override
     public void deleteRoute(String host, String domainName, String path) {
         assertSpaceProvided("delete route for domain");
-        UUID routeGuid = getRouteGuid(getRequiredDomainGuid(domainName), host, path);
-        if (routeGuid == null) {
+        RouteResource routeResource = getRouteResource(getRequiredDomainGuid(domainName), host, path);
+        if (routeResource == null) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found",
                                               "Host " + host + " not found for domain " + domainName + ".");
         }
-        doDeleteRoute(routeGuid);
+        doDeleteRoute(UUID.fromString(routeResource.getId()));
     }
 
     @Override
@@ -1365,7 +1368,15 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         if (updatedRoute.isEmpty()) {
             return true;
         }
-        return isProtocolChanged(applicationGuid, currentRoute, updatedRoute.get());
+        return isProtocolChanged(applicationGuid, currentRoute, updatedRoute.get())
+            || isOptionsChanged(currentRoute, updatedRoute.get());
+    }
+
+    private boolean isOptionsChanged(CloudRoute currentRoute, CloudRoute updatedRoute) {
+        if (updatedRoute.getOptions() == null) {
+            return false;
+        }
+        return !Objects.equals(currentRoute.getOptions(), updatedRoute.getOptions());
     }
 
     private Optional<CloudRoute> findRoute(String url, Collection<CloudRoute> routes) {
@@ -1396,7 +1407,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         if (currentRoute.isEmpty()) {
             return true;
         }
-        return isProtocolChanged(applicationGuid, currentRoute.get(), updatedRoute);
+        return isProtocolChanged(applicationGuid, currentRoute.get(), updatedRoute) || isOptionsChanged(currentRoute.get(), updatedRoute);
     }
 
     @Override
@@ -1973,15 +1984,28 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                           .build();
     }
 
-    private UUID getOrAddRoute(UUID domainGuid, String host, String path) {
-        UUID routeGuid = getRouteGuid(domainGuid, host, path);
-        if (routeGuid == null) {
-            routeGuid = doAddRoute(domainGuid, host, path);
+    private UUID getOrAddRoute(UUID domainGuid, String host, String path, Map<String, Object> options) {
+        RouteResource routeResource = getRouteResource(domainGuid, host, path);
+        if (routeResource == null) {
+            return doAddRoute(domainGuid, host, path, options);
         }
-        return routeGuid;
+        if (!Objects.equals(routeResource.getOptions()
+                                         .getValues(), options)) {
+            UpdateRouteRequest request = UpdateRouteRequest.builder()
+                                                           .routeId(routeResource.getId())
+                                                           .options(RouteOptions.builder()
+                                                                                .values(options)
+                                                                                .build())
+                                                           .build();
+            UpdateRouteResponse response = delegate.routesV3()
+                                                   .update(request)
+                                                   .block();
+            return UUID.fromString(response.getId());
+        }
+        return UUID.fromString(routeResource.getId());
     }
 
-    private UUID doAddRoute(UUID domainGuid, String host, String path) {
+    private UUID doAddRoute(UUID domainGuid, String host, String path, Map<String, Object> options) {
         assertSpaceProvided("add route");
         CreateRouteResponse response = delegate.routesV3()
                                                .create(CreateRouteRequest.builder()
@@ -1993,6 +2017,9 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                                                                                                           .space(buildToOneRelationship(
                                                                                                               getTargetSpaceGuid()))
                                                                                                           .build())
+                                                                         .options(RouteOptions.builder()
+                                                                                              .values(options)
+                                                                                              .build())
                                                                          .build())
                                                .block();
         return getGuid(response);
@@ -2454,14 +2481,14 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                                                               .block();
     }
 
-    private UUID getRouteGuid(UUID domainGuid, String host, String path) {
+    private RouteResource getRouteResource(UUID domainGuid, String host, String path) {
         List<RouteResource> routeEntitiesResource = getRouteResourcesByDomainGuidHostAndPath(domainGuid, host, path).collect(
                                                                                                                         Collectors.toList())
                                                                                                                     .block();
         if (CollectionUtils.isEmpty(routeEntitiesResource)) {
             return null;
         }
-        return getGuid(routeEntitiesResource.get(0));
+        return routeEntitiesResource.get(0);
     }
 
     private UUID getServiceBindingGuid(UUID applicationGuid, UUID serviceInstanceGuid) {

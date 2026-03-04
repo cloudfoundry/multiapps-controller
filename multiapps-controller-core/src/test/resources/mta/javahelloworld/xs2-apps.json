@@ -29,6 +29,7 @@
         },
         "host": "java-hello-world",
         "path": "",
+        "options": {},
         "url": "java-hello-world.sofd60245639a"
       }
     ],
@@ -84,6 +85,7 @@
         },
         "host": "java-hello-world-backend",
         "path": "",
+        "options": {},
         "url": "java-hello-world-backend.sofd60245639a"
       }
     ],

@@ -137,7 +137,10 @@ public class RouteParametersParser implements ParametersParser<Set<CloudRoute>> 
         }
         Boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
         String protocol = (String) routeMap.get(SupportedParameters.ROUTE_PROTOCOL);
-        return new ApplicationURI(routeString, noHostname, protocol).toCloudRoute();
+        @SuppressWarnings("unchecked") Map<String, Object> routeOptions = (Map<String, Object>) routeMap.getOrDefault(
+            SupportedParameters.ROUTE_OPTIONS,
+            Collections.emptyMap());
+        return new ApplicationURI(routeString, noHostname, protocol, routeOptions).toCloudRoute();
     }
 
     private List<String> getDomainsFromRoutes(Set<CloudRoute> routes) {
