@@ -29,6 +29,7 @@
         },
         "host": "module-1",
         "path": "",
+        "options": {},
         "url": "module-1.sofd60245639a"
       }
     ],
@@ -45,6 +46,7 @@
         },
         "host": "foo",
         "path": "",
+        "options": {},
         "url": "foo.localhost"
       },
       {
@@ -54,6 +56,7 @@
         },
         "host": "bar",
         "path": "",
+        "options": {},
         "url": "bar.localhost"
       }
     ],
@@ -101,6 +104,7 @@
         },
         "host": "module-2",
         "path": "",
+        "options": {},
         "url": "module-2.sofd60245639a"
       }
     ],
@@ -117,6 +121,7 @@
         },
         "host": "baz",
         "path": "",
+        "options": {},
         "url": "baz.localhost"
       },
       {
@@ -126,6 +131,7 @@
         },
         "host": "qux",
         "path": "",
+        "options": {},
         "url": "qux.localhost"
       }
     ],

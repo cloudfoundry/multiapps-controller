@@ -29,6 +29,7 @@
         },
         "host": "test-host",
         "path": "/test",
+        "options": {},
         "url": "test-host.sofd60245639a/test"
       }
     ],
@@ -82,6 +83,7 @@
         },
         "host": "module-2",
         "path": "",
+        "options": {},
         "url": "module-2.sofd60245639a"
       }
     ],

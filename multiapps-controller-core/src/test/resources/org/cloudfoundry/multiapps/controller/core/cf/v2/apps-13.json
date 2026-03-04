@@ -29,18 +29,20 @@
         "domain": {
           "name": "test-domain"
         },
-        "host": "host-in-route2",
-        "path": "/path-in-route",
-        "url": "host-in-route2.test-domain/path-in-route"
+        "host": "host-in-route1",
+        "path": "",
+        "options": {},
+        "url": "host-in-route1.test-domain"
       },
       {
         "appsUsingRoute": 0,
         "domain": {
           "name": "test-domain"
         },
-        "host": "host-in-route1",
-        "path": "",
-        "url": "host-in-route1.test-domain"
+        "host": "host-in-route2",
+        "path": "/path-in-route",
+        "options": {},
+        "url": "host-in-route2.test-domain/path-in-route"
       }
     ],
     "services": [],
@@ -54,18 +56,20 @@
         "domain": {
           "name": "test-domain"
         },
-        "host": "host-in-route2",
-        "path": "/path-in-route",
-        "url": "host-in-route2.test-domain/path-in-route"
+        "host": "host-in-route1",
+        "path": "",
+        "options": {},
+        "url": "host-in-route1.test-domain"
       },
       {
         "appsUsingRoute": 0,
         "domain": {
           "name": "test-domain"
         },
-        "host": "host-in-route1",
-        "path": "",
-        "url": "host-in-route1.test-domain"
+        "host": "host-in-route2",
+        "path": "/path-in-route",
+        "options": {},
+        "url": "host-in-route2.test-domain/path-in-route"
       }
     ],
     "bindingParameters": {},

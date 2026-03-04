@@ -29,6 +29,7 @@
         },
         "host": "skip-deploy-app",
         "path": "",
+        "options": {},
         "url": "skip-deploy-app.cfapps.neo.ondemand.com"
       }
     ],
@@ -81,6 +82,7 @@
         },
         "host": "foo",
         "path": "",
+        "options": {},
         "url": "foo.cfapps.neo.ondemand.com"
       }
     ],

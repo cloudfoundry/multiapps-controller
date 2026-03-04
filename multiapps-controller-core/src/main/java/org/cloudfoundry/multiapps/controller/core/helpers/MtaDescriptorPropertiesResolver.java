@@ -1,10 +1,12 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferencesResolver;
@@ -142,8 +144,12 @@ public class MtaDescriptorPropertiesResolver {
                 Object routeValue = routeMap.get(SupportedParameters.ROUTE);
                 Boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
                 String protocol = (String) routeMap.get(SupportedParameters.ROUTE_PROTOCOL);
+                @SuppressWarnings("unchecked") Map<String, Object> routeOptions = (Map<String, Object>) MapUtils.getMap(routeMap,
+                                                                                                                        SupportedParameters.ROUTE_OPTIONS,
+                                                                                                                        Collections.emptyMap());
                 if (routeValue instanceof String) {
-                    routeMap.put(SupportedParameters.ROUTE, replacePartsWithIdlePlaceholders((String) routeValue, noHostname, protocol));
+                    routeMap.put(SupportedParameters.ROUTE,
+                                 replacePartsWithIdlePlaceholders((String) routeValue, noHostname, protocol, routeOptions));
                 }
 
                 if (routeMap.containsKey(SupportedParameters.NO_HOSTNAME)) {
@@ -154,8 +160,9 @@ public class MtaDescriptorPropertiesResolver {
         }
     }
 
-    private String replacePartsWithIdlePlaceholders(String uriString, boolean noHostname, String protocol) {
-        ApplicationURI uri = new ApplicationURI(uriString, noHostname, protocol);
+    private String replacePartsWithIdlePlaceholders(String uriString, boolean noHostname, String protocol,
+                                                    Map<String, Object> routeOptions) {
+        ApplicationURI uri = new ApplicationURI(uriString, noHostname, protocol, routeOptions);
         uri.setDomain(IDLE_DOMAIN_PLACEHOLDER);
         uri.setHost(IDLE_HOST_PLACEHOLDER);
         return uri.toString();

@@ -53,8 +53,9 @@ public interface CloudControllerClient {
      *
      * @param host the host of the route to register
      * @param domainName the domain of the route to register
+     * @param options the options for the route as load balancing algorithm
      */
-    void addRoute(String host, String domainName, String path);
+    void addRoute(String host, String domainName, String path, Map<String, Object> options);
 
     /**
      * Associate (provision) a service with an application.

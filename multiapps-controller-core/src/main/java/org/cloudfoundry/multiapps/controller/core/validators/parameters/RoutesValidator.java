@@ -111,10 +111,14 @@ public class RoutesValidator implements ParameterValidator {
         Map<String, Object> updatedAllRouteElements = new HashMap<>(routeElement);
         Set<String> relatedParameters = getRelatedParameterNames();
         Map<String, Object> globalParametersValues = relatedParameters.stream()
-                                                                      .filter(relatedParameter -> isGlobalParameterValueNotOverridenInRouteElement(relatedParameter,
-                                                                                                                                                   routeElement,
-                                                                                                                                                   context))
-                                                                      .filter(relatedParameter -> !getSpecificRouteParameterNames().contains(relatedParameter))
+                                                                      .filter(
+                                                                          relatedParameter -> isGlobalParameterValueNotOverridenInRouteElement(
+                                                                              relatedParameter,
+                                                                              routeElement,
+                                                                              context))
+                                                                      .filter(
+                                                                          relatedParameter -> !getSpecificRouteParameterNames().contains(
+                                                                              relatedParameter))
                                                                       .collect(Collectors.toMap(Function.identity(), context::get));
         updatedAllRouteElements.putAll(globalParametersValues);
         return updatedAllRouteElements;
@@ -171,7 +175,8 @@ public class RoutesValidator implements ParameterValidator {
 
     @Override
     public Set<String> getRelatedParameterNames() {
-        return Set.of(SupportedParameters.NO_HOSTNAME, SupportedParameters.ROUTE_PROTOCOL, SupportedParameters.APPLY_NAMESPACE);
+        return Set.of(SupportedParameters.NO_HOSTNAME, SupportedParameters.ROUTE_PROTOCOL, SupportedParameters.APPLY_NAMESPACE,
+                      SupportedParameters.ROUTE_OPTIONS);
     }
 
     private Set<String> getSpecificRouteParameterNames() {

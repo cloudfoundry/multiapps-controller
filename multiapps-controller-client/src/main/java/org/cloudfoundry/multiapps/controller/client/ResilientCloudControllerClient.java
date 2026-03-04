@@ -68,8 +68,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void addRoute(String host, String domainName, String path) {
-        executeWithRetry(() -> delegate.addRoute(host, domainName, path));
+    public void addRoute(String host, String domainName, String path, Map<String, Object> options) {
+        executeWithRetry(() -> delegate.addRoute(host, domainName, path, options));
     }
 
     @Override

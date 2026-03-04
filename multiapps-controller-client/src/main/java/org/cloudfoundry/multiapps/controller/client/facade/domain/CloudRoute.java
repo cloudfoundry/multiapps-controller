@@ -1,13 +1,14 @@
 package org.cloudfoundry.multiapps.controller.client.facade.domain;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-
-import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.cloudfoundry.multiapps.common.AllowNulls;
 import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
+import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableCloudRoute.class)
@@ -33,6 +34,9 @@ public abstract class CloudRoute extends CloudEntity implements Derivable<CloudR
     @Nullable
     public abstract String getRequestedProtocol();
 
+    @AllowNulls
+    public abstract Map<String, Object> getOptions();
+
     @Nullable
     public abstract List<RouteDestination> getDestinations();
 
@@ -50,7 +54,7 @@ public abstract class CloudRoute extends CloudEntity implements Derivable<CloudR
 
     @Override
     public int hashCode() {
-        return Objects.hash(getDomain().getName(), getHost(), getPath(), getPort());
+        return Objects.hash(getDomain().getName(), getHost(), getPath(), getPort(), getOptions());
     }
 
     @Override
@@ -69,7 +73,8 @@ public abstract class CloudRoute extends CloudEntity implements Derivable<CloudR
         return thisDomain.equals(otherDomain)
                 && areEmptyOrEqual(getHost(), otherRoute.getHost())
                 && areEmptyOrEqual(getPath(), otherRoute.getPath())
-                && Objects.equals(getPort(), otherRoute.getPort());
+                && Objects.equals(getPort(), otherRoute.getPort())
+                && Objects.equals(getOptions(), otherRoute.getOptions());
         // @formatter:on
     }
 
