@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import jakarta.inject.Inject;
-
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
@@ -11,6 +10,8 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
+import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
+import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -34,12 +35,15 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     private final ProcessLoggerPersister processLoggerPersister;
 
     private StepLogger stepLogger;
+    private final OperationLogsExporter operationLogsExporter;
+    private final CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider;
 
     @Inject
     protected AbstractProcessExecutionListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
                                                ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                                                HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
-                                               ApplicationConfiguration configuration) {
+                                               ApplicationConfiguration configuration, OperationLogsExporter operationLogsExporter,
+                                               CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
         this.progressMessageService = progressMessageService;
         this.stepLoggerFactory = stepLoggerFactory;
         this.processLoggerProvider = processLoggerProvider;
@@ -47,6 +51,8 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         this.historicOperationEventService = historicOperationEventService;
         this.flowableFacade = flowableFacade;
         this.configuration = configuration;
+        this.operationLogsExporter = operationLogsExporter;
+        this.cloudLoggingServiceLogsProvider = cloudLoggingServiceLogsProvider;
     }
 
     @Override
@@ -67,6 +73,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
         String taskId = VariableHandling.get(execution, Variables.TASK_ID);
         processLoggerPersister.persistLogs(correlationId, taskId);
+        operationLogsExporter.sendLogsToCloudLoggingService(execution);
     }
 
     private void initializeMustHaveVariables(DelegateExecution execution) {
@@ -114,7 +121,8 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     }
 
     private StepLogger createStepLogger(DelegateExecution execution) {
-        return stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, getLogger());
+        return stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, getLogger(),
+                                        cloudLoggingServiceLogsProvider);
     }
 
     protected boolean isRootProcess(DelegateExecution execution) {

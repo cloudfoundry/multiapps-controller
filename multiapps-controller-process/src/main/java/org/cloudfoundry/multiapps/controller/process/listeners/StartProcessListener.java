@@ -9,7 +9,6 @@ import java.util.function.Supplier;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
@@ -34,6 +33,8 @@ import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublishe
 import org.cloudfoundry.multiapps.controller.process.dynatrace.ImmutableDynatraceProcessEvent;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
+import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
+import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.util.OperationFileIdsUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
@@ -63,14 +64,18 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
                                 HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                                 ApplicationConfiguration configuration, ProcessTypeParser processTypeParser,
                                 OperationService operationService, ProcessTypeToOperationMetadataMapper operationMetadataMapper,
-                                DynatracePublisher dynatracePublisher, FileService fileService) {
+                                DynatracePublisher dynatracePublisher, FileService fileService,
+                                OperationLogsExporter operationLogsExporter,
+                                CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration);
+              configuration,
+              operationLogsExporter,
+              cloudLoggingServiceLogsProvider);
         this.processTypeParser = processTypeParser;
         this.operationService = operationService;
         this.operationMetadataMapper = operationMetadataMapper;

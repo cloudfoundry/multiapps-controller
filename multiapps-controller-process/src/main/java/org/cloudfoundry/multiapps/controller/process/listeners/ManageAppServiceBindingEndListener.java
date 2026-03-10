@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -12,6 +11,8 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
+import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
+import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
@@ -29,14 +30,18 @@ public class ManageAppServiceBindingEndListener extends AbstractProcessExecution
     protected ManageAppServiceBindingEndListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
                                                  ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                                                  HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
-                                                 ApplicationConfiguration configuration, ProcessTypeParser processTypeParser) {
+                                                 ApplicationConfiguration configuration, ProcessTypeParser processTypeParser,
+                                                 OperationLogsExporter operationLogsExporter,
+                                                 CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration);
+              configuration,
+              operationLogsExporter,
+              cloudLoggingServiceLogsProvider);
         this.processTypeParser = processTypeParser;
     }
 

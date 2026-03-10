@@ -46,6 +46,7 @@ import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.VersionRule;
+import org.springframework.web.reactive.function.client.WebClient;
 
 public interface Variables {
 
@@ -962,7 +963,6 @@ public interface Variables {
                                                                                            .defaultValue(false)
                                                                                            .build();
 
-
     Variable<List<ExternalLoggingServiceConfiguration>> EXTERNAL_LOGGING_SERVICE_CONFIGURATIONS = ImmutableJsonStringListVariable.<ExternalLoggingServiceConfiguration> builder()
                                                                                                                                  .name(
                                                                                                                                      "externalLoggingServiceConfigurations")
@@ -972,4 +972,8 @@ public interface Variables {
                                                                                                                                  .defaultValue(
                                                                                                                                      Collections.emptyList())
                                                                                                                                  .build();
+    Variable<WebClient> EXTERNAL_LOGGING_SERVICE_WEB_CLIENT = ImmutableSimpleVariable.<WebClient> builder()
+                                                                                     .name("externalLoggingServiceWebClient")
+                                                                                     .defaultValue(null)
+                                                                                     .build();
 }

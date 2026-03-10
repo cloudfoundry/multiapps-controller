@@ -14,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -133,6 +134,8 @@ public abstract class ProcessStepHelper {
     public abstract StepLogger getStepLogger();
 
     public abstract ProcessLoggerPersister getProcessLoggerPersister();
+
+    public abstract OperationLogsExporter getOperationLogsExporter();
 
     public abstract ProcessEngineConfiguration getProcessEngineConfiguration();
 

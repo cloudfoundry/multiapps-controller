@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.DynamicResolvableParametersHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
@@ -19,6 +18,8 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
+import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
+import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
@@ -34,14 +35,17 @@ public class CreateUpdateServicesListener extends AbstractProcessExecutionListen
     protected CreateUpdateServicesListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
                                            ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                                            HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
-                                           ApplicationConfiguration configuration) {
+                                           ApplicationConfiguration configuration, OperationLogsExporter operationLogsExporter,
+                                           CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration);
+              configuration,
+              operationLogsExporter,
+              cloudLoggingServiceLogsProvider);
     }
 
     @Override
@@ -59,8 +63,9 @@ public class CreateUpdateServicesListener extends AbstractProcessExecutionListen
     }
 
     private void setDynamicResolvableParametersInParentProcess(DelegateExecution execution, List<CloudServiceInstanceExtended> services) {
-        Set<DynamicResolvableParameter> dynamicResolvableParametersFromSubProcesses = getDynamicResolvableParametersFromSubProcesses(execution,
-                                                                                                                                     services);
+        Set<DynamicResolvableParameter> dynamicResolvableParametersFromSubProcesses = getDynamicResolvableParametersFromSubProcesses(
+            execution,
+            services);
 
         Set<DynamicResolvableParameter> resolvedParameters = new HashSet<>(VariableHandling.get(execution,
                                                                                                 Variables.DYNAMIC_RESOLVABLE_PARAMETERS));
@@ -71,7 +76,8 @@ public class CreateUpdateServicesListener extends AbstractProcessExecutionListen
                                    Variables.DYNAMIC_RESOLVABLE_PARAMETERS.getSerializer()
                                                                           .serialize(resolvedParameters));
         execution.setVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS.getName(), Variables.DYNAMIC_RESOLVABLE_PARAMETERS.getSerializer()
-                                                                                                                        .serialize(resolvedParameters));
+                                                                                                                        .serialize(
+                                                                                                                            resolvedParameters));
     }
 
     private Set<DynamicResolvableParameter> getDynamicResolvableParametersFromSubProcesses(DelegateExecution execution,
@@ -82,7 +88,8 @@ public class CreateUpdateServicesListener extends AbstractProcessExecutionListen
                        .map(serviceGuidConstant -> StepsUtil.getObject(execution, serviceGuidConstant))
                        .filter(Objects::nonNull)
                        .map(dynamicResolvableParameterObject -> Variables.DYNAMIC_RESOLVABLE_PARAMETER.getSerializer()
-                                                                                                      .deserialize(dynamicResolvableParameterObject))
+                                                                                                      .deserialize(
+                                                                                                          dynamicResolvableParameterObject))
                        .collect(Collectors.toSet());
     }
 

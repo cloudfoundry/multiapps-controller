@@ -21,4 +21,5 @@ public interface ExternalOperationLogEntry {
     @Nullable
     String getCorrelationId();
 
+    String getId();
 }

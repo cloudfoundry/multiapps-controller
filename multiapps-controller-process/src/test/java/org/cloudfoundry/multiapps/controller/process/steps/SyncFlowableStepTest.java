@@ -28,6 +28,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessag
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.security.resolver.SecretTokenKeyResolver;
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStoreFactory;
+import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
@@ -110,6 +111,9 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     @Mock
     protected ProcessHelper processHelper;
 
+    @Mock
+    protected CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider;
+
     protected ProcessContext context;
     @InjectMocks
     protected T step = createStep();
@@ -120,9 +124,10 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     public void initMocks() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        this.stepLogger = Mockito.spy(new StepLogger(execution, progressMessageService, processLoggerProvider, LOGGER));
+        this.stepLogger = Mockito.spy(
+            new StepLogger(execution, progressMessageService, processLoggerProvider, LOGGER, cloudLoggingServiceLogsProvider));
         this.context = step.createProcessContext(execution);
-        when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);
+        when(stepLoggerFactory.create(any(), any(), any(), any(), any())).thenReturn(stepLogger);
         context.setVariable(Variables.SPACE_NAME, SPACE_NAME);
         context.setVariable(Variables.SPACE_GUID, SPACE_GUID);
         context.setVariable(Variables.USER, USER_NAME);
