@@ -28,6 +28,7 @@ import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
+import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveIterator;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationZipBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryExtractor;
@@ -37,6 +38,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -92,6 +94,9 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
     private Path appFile;
 
     private AsyncExecutionState expectedStatus;
+
+    @Mock
+    private OperationLogsExporter operationLogsExporter;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -220,7 +225,8 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
             return List.of(new UploadAppAsyncExecution(applicationZipBuilder,
                                                        getProcessLogsPersister(),
                                                        configuration,
-                                                       appUploaderThreadPool) {
+                                                       appUploaderThreadPool,
+                                                       operationLogsExporter) {
 
             });
         }
