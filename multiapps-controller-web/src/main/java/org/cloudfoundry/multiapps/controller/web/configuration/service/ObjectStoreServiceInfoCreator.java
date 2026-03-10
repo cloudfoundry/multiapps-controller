@@ -59,15 +59,16 @@ public class ObjectStoreServiceInfoCreator {
     }
 
     private ObjectStoreServiceInfo createServiceInfoForAzure(Map<String, Object> credentials) {
-        return ImmutableObjectStoreServiceInfo.builder()
-                                              .provider(Constants.AZUREBLOB)
-                                              .credentials(credentials)
-                                              .build();
+        return createObjectStoreServiceInfo(Constants.AZUREBLOB, credentials);
     }
 
     private ObjectStoreServiceInfo createServiceInfoForGcp(Map<String, Object> credentials) {
+        return createObjectStoreServiceInfo(Constants.GOOGLE_CLOUD_STORAGE, credentials);
+    }
+
+    private ObjectStoreServiceInfo createObjectStoreServiceInfo(String provider, Map<String, Object> credentials) {
         return ImmutableObjectStoreServiceInfo.builder()
-                                              .provider(Constants.GOOGLE_CLOUD_STORAGE)
+                                              .provider(provider)
                                               .credentials(credentials)
                                               .build();
     }

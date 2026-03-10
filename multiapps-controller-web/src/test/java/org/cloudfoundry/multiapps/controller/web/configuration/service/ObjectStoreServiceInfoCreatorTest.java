@@ -37,7 +37,7 @@ class ObjectStoreServiceInfoCreatorTest {
         return Stream.of(Arguments.of(buildCfService(buildAliCloudCredentials()), buildAliCloudObjectStoreServiceInfo()),
                          Arguments.of(buildCfService(buildAwsCredentials()), buildAwsObjectStoreServiceInfo()),
                          Arguments.of(buildCfService(buildSdkCredentials()), buildAzureObjectStoreServiceInfo()),
-                         Arguments.of(buildCfService(buildSdkCredentials()), buildGcoObjectStoreServiceInfo()));
+                         Arguments.of(buildCfService(buildSdkCredentials()), buildGcpObjectStoreServiceInfo()));
     }
 
     @ParameterizedTest
@@ -106,7 +106,7 @@ class ObjectStoreServiceInfoCreatorTest {
                                               .build();
     }
 
-    private static ObjectStoreServiceInfo buildGcoObjectStoreServiceInfo() {
+    private static ObjectStoreServiceInfo buildGcpObjectStoreServiceInfo() {
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.GOOGLE_CLOUD_STORAGE)
                                               .credentials(CREDENTIALS)
