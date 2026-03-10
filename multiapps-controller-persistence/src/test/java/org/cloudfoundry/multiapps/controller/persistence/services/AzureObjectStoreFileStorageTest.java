@@ -26,7 +26,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -110,7 +109,7 @@ class AzureObjectStoreFileStorageTest {
         List<FileEntry> fileEntries = fileStorage.getFileEntriesWithoutContent(List.of(fileEntry));
 
         assertEquals(0, fileEntries.size());
-        verify(blobContainerClient).listBlobs();
+        verify(blobContainerClient).listBlobs(any(), any());
     }
 
     @Test
@@ -125,7 +124,7 @@ class AzureObjectStoreFileStorageTest {
         assertEquals(TEST_SPACE_ID, fileEntries.get(0)
                                                .getSpace());
         assertEquals(1, fileEntries.size());
-        verify(blobContainerClient).listBlobs();
+        verify(blobContainerClient).listBlobs(any(), any());
     }
 
     @Test
@@ -144,7 +143,7 @@ class AzureObjectStoreFileStorageTest {
 
     @Test
     void testGetContainerUriEndpointWithEmptyCredentials() {
-        assertNull(fileStorage.getContainerUriEndpoint(Map.of()));
+        assertThrows(IllegalStateException.class, () -> fileStorage.getContainerUriEndpoint(Map.of()));
     }
 
     @Test
@@ -227,7 +226,7 @@ class AzureObjectStoreFileStorageTest {
         setupDeleteMethods(createFirstTestBlobItem(), createSecondTestBlobItem());
 
         int deletedFiles = fileStorage.deleteFilesModifiedBefore(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentMillis - oldFilesTtl),
-                                                                                         ZoneId.systemDefault()));
+                                                                                         getZoneId()));
 
         assertEquals(2, deletedFiles);
     }
@@ -264,7 +263,6 @@ class AzureObjectStoreFileStorageTest {
     private void setupDeleteMethods(BlobItem... blobItems) {
         when(pagedIterable.stream()).thenReturn(Stream.of(blobItems));
         when(blobContainerClient.listBlobs(any(), any())).thenReturn(pagedIterable);
-        when(blobContainerClient.listBlobs()).thenReturn(pagedIterable);
         when(blobClient.deleteIfExists()).thenReturn(true);
     }
 
@@ -281,14 +279,18 @@ class AzureObjectStoreFileStorageTest {
         long currentMillis = System.currentTimeMillis();
         long pastMoment = currentMillis - 1000 * 60 * 15; // before 15min
         return createBlobItem(TEST_ID, TEST_SPACE_ID, NAMESPACE,
-                              LocalDateTime.ofInstant(Instant.ofEpochMilli(pastMoment), ZoneId.systemDefault()));
+                              LocalDateTime.ofInstant(Instant.ofEpochMilli(pastMoment), getZoneId()));
     }
 
     private BlobItem createSecondTestBlobItem() {
         long currentMillis = System.currentTimeMillis();
         long pastMoment = currentMillis - 1000 * 60 * 15; // before 15min
         return createBlobItem(TEST_ID_2, TEST_SPACE_ID_2, NAMESPACE_2,
-                              LocalDateTime.ofInstant(Instant.ofEpochMilli(pastMoment), ZoneId.systemDefault()));
+                              LocalDateTime.ofInstant(Instant.ofEpochMilli(pastMoment), getZoneId()));
+    }
+
+    private ZoneId getZoneId() {
+        return ZoneId.of("UTC");
     }
 
     private BlobItem createBlobItem(String name, String spaceId, String namespace, LocalDateTime modificationTime) {

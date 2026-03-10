@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -155,7 +154,7 @@ public class AzureObjectStoreFileStorage implements FileStorage {
 
     public String getContainerUriEndpoint(Map<String, Object> credentials) {
         if (!credentials.containsKey(CONTAINER_URI)) {
-            return null;
+            throw new IllegalStateException(Messages.MISSING_CONTAINER_URI_IN_THE_CREDENTIALS);
         }
         try {
             URL containerUri = new URL((String) credentials.get(CONTAINER_URI));
@@ -178,26 +177,24 @@ public class AzureObjectStoreFileStorage implements FileStorage {
 
     private int removeBlobsByFilter(Predicate<? super BlobItem> filter) {
         Set<String> blobNames = getEntryNames(filter);
-        List<Boolean> deletedBlobsResults = new ArrayList<>();
+        int deletedBlobsResult = 0;
 
         if (blobNames.isEmpty()) {
-            return 0;
+            return deletedBlobsResult;
         }
         for (String blobName : blobNames) {
             BlobClient blobClient = containerClient.getBlobClient(blobName);
-            deletedBlobsResults.add(blobClient.deleteIfExists());
+            if (blobClient.deleteIfExists()) {
+                deletedBlobsResult++;
+            }
         }
 
-        deletedBlobsResults.removeIf(Boolean.FALSE::equals);
-
-        return deletedBlobsResults.size();
+        return deletedBlobsResult;
     }
 
     protected Set<String> getEntryNames(Predicate<? super BlobItem> filter) {
-        ListBlobsOptions listBlobsOptions = new ListBlobsOptions();
-        BlobListDetails blobListDetails = new BlobListDetails();
-        blobListDetails.setRetrieveMetadata(true);
-        listBlobsOptions.setDetails(blobListDetails);
+        BlobListDetails blobListDetails = new BlobListDetails().setRetrieveMetadata(true);
+        ListBlobsOptions listBlobsOptions = new ListBlobsOptions().setDetails(blobListDetails);
 
         return containerClient.listBlobs(listBlobsOptions, ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
                               .stream()
@@ -207,7 +204,8 @@ public class AzureObjectStoreFileStorage implements FileStorage {
     }
 
     public Set<String> getAllEntriesNames() {
-        return containerClient.listBlobs()
+        ListBlobsOptions listOptions = new ListBlobsOptions();
+        return containerClient.listBlobs(listOptions, ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
                               .stream()
                               .map(BlobItem::getName)
                               .collect(Collectors.toSet());

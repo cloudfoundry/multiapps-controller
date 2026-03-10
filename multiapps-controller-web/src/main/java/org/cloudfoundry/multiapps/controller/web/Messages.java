@@ -58,6 +58,8 @@ public final class Messages {
 
     // WARN log messages
 
+    public static final String NO_OBJECTSTORE_PROVIDER_FOUND = "No ObjectStore provider found!";
+
     // INFO log messages
     public static final String ALM_SERVICE_ENV_INITIALIZED = "Deploy service environment initialized";
     public static final String STORING_TOKEN_FOR_USER_WITH_GUID_0_WHICH_EXPIRES_AT_1 = "Storing token for user with GUID \"{0}\" which expires at: {1}";
