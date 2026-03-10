@@ -1,8 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -29,6 +26,8 @@ import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessE
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
+import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
+import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
@@ -46,6 +45,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 class StartProcessListenerTest {
 
@@ -88,15 +90,19 @@ class StartProcessListenerTest {
     private FlowableFacade flowableFacade;
     @Mock
     private ProcessLoggerPersister processLoggerPersister;
+    @Mock
+    private OperationLogsExporter operationLogsExporter;
+    @Mock
+    private CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider;
 
     private StartProcessListener listener;
 
     static Stream<Arguments> testVerify() {
         return Stream.of(
-                         // (0) Create Operation for process undeploy
-                         Arguments.of("process-instance-id", ProcessType.UNDEPLOY),
-                         // (1) Create Operation for process deploy
-                         Arguments.of("process-instance-id", ProcessType.DEPLOY));
+            // (0) Create Operation for process undeploy
+            Arguments.of("process-instance-id", ProcessType.UNDEPLOY),
+            // (1) Create Operation for process deploy
+            Arguments.of("process-instance-id", ProcessType.DEPLOY));
     }
 
     @BeforeEach
@@ -114,7 +120,9 @@ class StartProcessListenerTest {
                                             operationService,
                                             operationMetadataMapper,
                                             dynatracePublisher,
-                                            fileService);
+                                            fileService,
+                                            operationLogsExporter,
+                                            cloudLoggingServiceLogsProvider);
     }
 
     @ParameterizedTest
@@ -132,7 +140,7 @@ class StartProcessListenerTest {
 
     private void prepare() {
         prepareContext();
-        Mockito.when(stepLoggerFactory.create(any(), any(), any(), any()))
+        Mockito.when(stepLoggerFactory.create(any(), any(), any(), any(), any()))
                .thenReturn(stepLogger);
         Mockito.when(operationService.createQuery())
                .thenReturn(operationQuery);

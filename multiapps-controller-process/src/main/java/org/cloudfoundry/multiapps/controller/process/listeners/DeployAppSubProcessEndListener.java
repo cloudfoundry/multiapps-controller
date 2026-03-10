@@ -13,6 +13,8 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessag
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
+import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
+import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -27,9 +29,17 @@ public class DeployAppSubProcessEndListener extends AbstractProcessExecutionList
     protected DeployAppSubProcessEndListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
                                              ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                                              HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
-                                             ApplicationConfiguration configuration) {
-        super(progressMessageService, stepLoggerFactory, processLoggerProvider, processLoggerPersister, historicOperationEventService,
-              flowableFacade, configuration);
+                                             ApplicationConfiguration configuration, OperationLogsExporter operationLogsExporter,
+                                             CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
+        super(progressMessageService,
+              stepLoggerFactory,
+              processLoggerProvider,
+              processLoggerPersister,
+              historicOperationEventService,
+              flowableFacade,
+              configuration,
+              operationLogsExporter,
+              cloudLoggingServiceLogsProvider);
     }
 
     @Override

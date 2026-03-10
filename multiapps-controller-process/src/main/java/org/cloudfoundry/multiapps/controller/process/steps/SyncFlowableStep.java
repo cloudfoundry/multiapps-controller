@@ -23,6 +23,8 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.security.resolver.SecretTokenKeyResolver;
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStore;
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStoreFactory;
+import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
+import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper.CloudComponents;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
@@ -65,6 +67,10 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     private StepLogger stepLogger;
     @Inject
     private ProcessHelper processHelper;
+    @Inject
+    private OperationLogsExporter operationLogsExporter;
+    @Inject
+    private CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider;
 
     @Override
     public void execute(DelegateExecution execution) {
@@ -204,7 +210,8 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     }
 
     protected void initializeStepLogger(DelegateExecution execution) {
-        stepLogger = stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, logger);
+        stepLogger = stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, logger,
+                                              cloudLoggingServiceLogsProvider);
     }
 
     protected Exception getWithProperMessage(Exception e) {
@@ -220,6 +227,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
                                                    .progressMessageService(getProgressMessageService())
                                                    .stepLogger(getStepLogger())
                                                    .processLoggerPersister(processLoggerPersister)
+                                                   .operationLogsExporter(operationLogsExporter)
                                                    .processEngineConfiguration(processEngineConfiguration)
                                                    .processHelper(processHelper)
                                                    .build();

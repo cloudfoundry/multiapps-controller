@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.text.MessageFormat;
 
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
@@ -12,14 +11,15 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
+import org.slf4j.event.Level;
 
 /**
  * The purpose of this class is to group logging of progress messages and process logs in a single place.
- *
  */
 public class StepLogger implements UserMessageLogger {
 
@@ -27,13 +27,16 @@ public class StepLogger implements UserMessageLogger {
     protected final ProgressMessageService progressMessageService;
     protected final ProcessLoggerProvider processLoggerProvider;
     protected final Logger simpleStepLogger;
+    private final CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider;
 
     public StepLogger(DelegateExecution execution, ProgressMessageService progressMessageService,
-                      ProcessLoggerProvider processLoggerProvider, Logger simpleStepLogger) {
+                      ProcessLoggerProvider processLoggerProvider, Logger simpleStepLogger,
+                      CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
         this.execution = execution;
         this.progressMessageService = progressMessageService;
         this.processLoggerProvider = processLoggerProvider;
         this.simpleStepLogger = simpleStepLogger;
+        this.cloudLoggingServiceLogsProvider = cloudLoggingServiceLogsProvider;
     }
 
     public void logFlowableTask() {
@@ -46,7 +49,10 @@ public class StepLogger implements UserMessageLogger {
 
     public void infoWithoutProgressMessage(String message) {
         simpleStepLogger.info(message);
-        getProcessLogger().info(getPrefix(simpleStepLogger) + message);
+
+        ProcessLogger processLogger = getProcessLogger();
+        processLogger.info(getPrefix(simpleStepLogger) + message);
+        cloudLoggingServiceLogsProvider.logMessage(execution, processLogger.getLogMessage(), Level.INFO.toString());
     }
 
     public void info(String pattern, Object... arguments) {
@@ -72,7 +78,10 @@ public class StepLogger implements UserMessageLogger {
 
     public void errorWithoutProgressMessage(String message) {
         simpleStepLogger.error(message);
-        getProcessLogger().error(getPrefix(simpleStepLogger) + message);
+
+        ProcessLogger processLogger = getProcessLogger();
+        processLogger.error(getPrefix(simpleStepLogger) + message);
+        cloudLoggingServiceLogsProvider.logMessage(execution, processLogger.getLogMessage(), Level.ERROR.toString());
     }
 
     public void error(Exception e, String pattern, Object... arguments) {
@@ -98,7 +107,9 @@ public class StepLogger implements UserMessageLogger {
 
     public void warnWithoutProgressMessage(Exception e, String message) {
         simpleStepLogger.warn(message, e);
-        getProcessLogger().warn(getPrefix(simpleStepLogger) + message, e);
+        ProcessLogger processLogger = getProcessLogger();
+        processLogger.warn(getPrefix(simpleStepLogger) + message);
+        cloudLoggingServiceLogsProvider.logMessage(execution, processLogger.getLogMessage(), Level.WARN.toString());
     }
 
     public void warnWithoutProgressMessage(String pattern, Object... arguments) {
@@ -107,7 +118,10 @@ public class StepLogger implements UserMessageLogger {
 
     public void warnWithoutProgressMessage(String message) {
         simpleStepLogger.warn(message);
-        getProcessLogger().warn(getPrefix(simpleStepLogger) + message);
+
+        ProcessLogger processLogger = getProcessLogger();
+        processLogger.warn(getPrefix(simpleStepLogger) + message);
+        cloudLoggingServiceLogsProvider.logMessage(execution, processLogger.getLogMessage(), Level.WARN.toString());
     }
 
     public void warn(Exception e, String pattern, Object... arguments) {
@@ -139,7 +153,10 @@ public class StepLogger implements UserMessageLogger {
 
     public void debug(String message) {
         simpleStepLogger.debug(message);
-        getProcessLogger().debug(getPrefix(simpleStepLogger) + message);
+
+        ProcessLogger processLogger = getProcessLogger();
+        processLogger.debug(getPrefix(simpleStepLogger) + message);
+        cloudLoggingServiceLogsProvider.logMessage(execution, processLogger.getLogMessage(), Level.DEBUG.toString());
     }
 
     public void trace(String pattern, Object... arguments) {
@@ -148,7 +165,9 @@ public class StepLogger implements UserMessageLogger {
 
     public void trace(String message) {
         simpleStepLogger.trace(message);
-        getProcessLogger().trace(getPrefix(simpleStepLogger) + message);
+        ProcessLogger processLogger = getProcessLogger();
+        processLogger.trace(getPrefix(simpleStepLogger) + message);
+        cloudLoggingServiceLogsProvider.logMessage(execution, processLogger.getLogMessage(), Level.TRACE.toString());
     }
 
     private static String getExtendedMessage(String message, Exception e) {
@@ -170,7 +189,10 @@ public class StepLogger implements UserMessageLogger {
                                                                .build());
 
         } catch (SLException e) {
-            getProcessLogger().error(e);
+
+            ProcessLogger processLogger = getProcessLogger();
+            processLogger.error(e);
+            cloudLoggingServiceLogsProvider.logMessage(execution, processLogger.getLogMessage(), Level.ERROR.toString());
         }
     }
 
@@ -191,8 +213,9 @@ public class StepLogger implements UserMessageLogger {
     public static class Factory {
 
         public StepLogger create(DelegateExecution execution, ProgressMessageService progressMessageService,
-                                 ProcessLoggerProvider processLoggerProvider, Logger logger) {
-            return new StepLogger(execution, progressMessageService, processLoggerProvider, logger);
+                                 ProcessLoggerProvider processLoggerProvider, Logger logger,
+                                 CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
+            return new StepLogger(execution, progressMessageService, processLoggerProvider, logger, cloudLoggingServiceLogsProvider);
         }
 
     }

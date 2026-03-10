@@ -1,5 +1,16 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -11,6 +22,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceIn
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
@@ -27,7 +39,6 @@ import org.cloudfoundry.multiapps.controller.core.cf.v2.ServicesCloudModelBuilde
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
-import org.cloudfoundry.multiapps.controller.core.model.ExternalLoggingServiceConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
@@ -56,17 +67,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -86,6 +87,9 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     private TokenService tokenService;
     @Inject
     private WebClientFactory webClientFactory;
+
+    @Inject
+    private CloudControllerClientFactory clientFactory;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildCloudDeployModelStep.class);
 
@@ -158,9 +162,9 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.BATCHES_TO_PROCESS, batchesToProcess);
         getStepLogger().debug(Messages.CALCULATING_RESOURCE_BATCHES_COMPLETE);
 
-        List<ExternalLoggingServiceConfiguration> externalLoggingServiceConfigurations = calculateExternalLoggingServiceConfigurations(
+        WebClient externalLoggingServiceConfigurations = calculateExternalLoggingServiceConfigurations(
             context, deploymentDescriptor);
-        context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATIONS, externalLoggingServiceConfigurations);
+        context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_WEB_CLIENT, externalLoggingServiceConfigurations);
         getStepLogger().debug("External logging service configurations: {0}",
                               SecureSerialization.toJson(externalLoggingServiceConfigurations));
 
@@ -444,11 +448,11 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         return new CustomServiceKeysClient(configuration, webClientFactory, credentials, correlationId);
     }
 
-    private List<ExternalLoggingServiceConfiguration> calculateExternalLoggingServiceConfigurations(ProcessContext context,
-                                                                                                    DeploymentDescriptor deploymentDescriptor) {
+    private WebClient calculateExternalLoggingServiceConfigurations(ProcessContext context,
+                                                                    DeploymentDescriptor deploymentDescriptor) {
         ExternalLoggingServiceConfigurationsCalculator calculator = new ExternalLoggingServiceConfigurationsCalculator(
-            context.getControllerClient());
-        return calculator.calculateExternalLoggingServiceConfigurations(deploymentDescriptor.getResources());
+            getStepLogger(), clientFactory, context, tokenService);
+        return calculator.exportOperationLogsToExternalSystem(deploymentDescriptor.getResources());
     }
 
 }

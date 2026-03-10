@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -14,6 +13,8 @@ import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessE
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.ImmutableDynatraceProcessEvent;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
+import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
+import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInFinalStateHandler;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
@@ -35,14 +36,18 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
                               ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                               HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                               ApplicationConfiguration configuration, OperationInFinalStateHandler eventHandler,
-                              DynatracePublisher dynatracePublisher, ProcessTypeParser processTypeParser) {
+                              DynatracePublisher dynatracePublisher, ProcessTypeParser processTypeParser,
+                              OperationLogsExporter operationLogsExporter,
+                              CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration);
+              configuration,
+              operationLogsExporter,
+              cloudLoggingServiceLogsProvider);
         this.eventHandler = eventHandler;
         this.dynatracePublisher = dynatracePublisher;
         this.processTypeParser = processTypeParser;
@@ -61,7 +66,8 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
                                                                             .processId(VariableHandling.get(execution,
                                                                                                             Variables.CORRELATION_ID))
                                                                             .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
-                                                                            .createdBy(VariableHandling.get(execution, Variables.MTA_ARCHIVE_CREATED_BY))
+                                                                            .createdBy(VariableHandling.get(execution,
+                                                                                                            Variables.MTA_ARCHIVE_CREATED_BY))
                                                                             .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
                                                                             .eventType(DynatraceProcessEvent.EventType.FINISHED)
                                                                             .processType(processType)

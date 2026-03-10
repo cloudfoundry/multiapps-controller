@@ -12,6 +12,8 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
+import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
+import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -53,6 +55,11 @@ class ManageAppServiceBindingEndListenerTest {
     private ProcessLoggerPersister processLoggerPersister;
     @Mock
     private ApplicationConfiguration configuration;
+    @Mock
+    private OperationLogsExporter operationLogsExporter;
+    @Mock
+    private CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider;
+
     private ManageAppServiceBindingEndListener manageAppServiceBindingEndListener;
 
     @BeforeEach
@@ -66,7 +73,9 @@ class ManageAppServiceBindingEndListenerTest {
                                                                                     historicOperationEventService,
                                                                                     flowableFacade,
                                                                                     configuration,
-                                                                                    processTypeParser);
+                                                                                    processTypeParser,
+                                                                                    operationLogsExporter,
+                                                                                    cloudLoggingServiceLogsProvider);
     }
 
     // @formatter:off

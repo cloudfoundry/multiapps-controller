@@ -58,6 +58,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires org.slf4j;
     requires spring.context;
     requires spring.core;
+    requires spring.webflux;
 
     requires static java.compiler;
     requires static org.immutables.value;

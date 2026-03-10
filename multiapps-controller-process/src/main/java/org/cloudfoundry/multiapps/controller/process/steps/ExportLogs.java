@@ -18,7 +18,6 @@ import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactor
 import org.cloudfoundry.multiapps.controller.core.model.ExternalLoggingServiceConfiguration;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
-import org.cloudfoundry.multiapps.controller.process.util.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +64,8 @@ public class ExportLogs extends SyncFlowableStep {
                 : externalLoggingServiceConfiguration.getTargetSpace();
 
             if (!targetOrg.equals(currentTargetOrg) || !targetSpace.equals(currentTargetSpace)) {
-                client = clientFactory.createClient(tokenService.getToken(null, context.getVariable(Variables.USER_GUID)), targetOrg,
-                                                    targetSpace, context.getVariable(Variables.CORRELATION_ID));
+                //                client = clientFactory.createClient(tokenService.getToken(null, context.getVariable(Variables.USER_GUID)), targetOrg,
+                //                                                    targetSpace, context.getVariable(Variables.CORRELATION_ID));
             }
             exportOperationLogsToExternalSystem(context, client, serviceInstanceName, serviceKeyName);
         }
@@ -96,11 +95,11 @@ public class ExportLogs extends SyncFlowableStep {
             return;
         }
         try {
-            OperationLogsExporter exporter = new OperationLogsExporter(processLogsPersistenceService,
-                                                                       createWebClientWithMtls(endpoint, serverCa, ingestMtlsCert,
-                                                                                               ingestMtlsKey));
-            exporter.exportLogs(spaceId, correlationId, endpoint, serverCa, ingestMtlsCert, ingestMtlsKey);
-            getStepLogger().info("Export of operation logs to external service instance \"{0}\" was successful", serviceInstanceName);
+            //            OperationLogsExporter exporter = new OperationLogsExporter(processLogsPersistenceService,
+            //                                                                       createWebClientWithMtls(endpoint, serverCa, ingestMtlsCert,
+            //                                                                                               ingestMtlsKey));
+            //            exporter.exportLogs(spaceId, correlationId, endpoint, serverCa, ingestMtlsCert, ingestMtlsKey);
+            //            getStepLogger().info("Export of operation logs to external service instance \"{0}\" was successful", serviceInstanceName);
         } catch (Exception e) {
             getStepLogger().warn(e, "Export of operation logs to external service instance \"{0}\" failed: {1}", serviceInstanceName,
                                  e.getMessage());
