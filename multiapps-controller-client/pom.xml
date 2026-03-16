@@ -154,6 +154,14 @@
                             <groupId>org.slf4j</groupId>
                             <artifactId>jcl-over-slf4j</artifactId>
                         </exclusion>
+                         <!--
+                             Excluding jackson-databind because the Cloud Foundry client pulls in
+                             an old Jackson 2.13.x version that conflicts with Spring WebFlux 6.2.x
+                             and causes DefaultExchangeStrategiesBuilder to fail initialization. -->
+                        <exclusion>
+                            <groupId>com.fasterxml.jackson.core</groupId>
+                            <artifactId>jackson-databind</artifactId>
+                        </exclusion>
                     </exclusions>
                 </dependency>
                 <!-- https://mvnrepository.com/artifact/commons-logging/commons-logging-->
