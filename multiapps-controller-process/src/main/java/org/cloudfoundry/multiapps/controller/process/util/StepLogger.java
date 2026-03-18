@@ -209,6 +209,10 @@ public class StepLogger implements UserMessageLogger {
         return "[" + name.substring(name.lastIndexOf('.') + 1) + "] ";
     }
 
+    public CloudLoggingServiceLogsProvider getCloudLoggingServiceLogsProvider() {
+        return cloudLoggingServiceLogsProvider;
+    }
+
     @Named
     public static class Factory {
 

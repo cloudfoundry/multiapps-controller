@@ -11,7 +11,7 @@ import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessE
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
-import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInFinalStateHandler;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;

@@ -235,5 +235,9 @@
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-controller-client</artifactId>
+        </dependency>
     </dependencies>
 </project>

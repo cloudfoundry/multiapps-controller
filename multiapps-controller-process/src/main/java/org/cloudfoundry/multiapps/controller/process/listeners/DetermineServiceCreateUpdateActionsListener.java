@@ -13,7 +13,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessag
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
-import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;

@@ -21,16 +21,20 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.UploadStatusCallb
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationEnvironmentUpdater;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
+import org.cloudfoundry.multiapps.controller.core.model.ExternalLoggingServiceConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.context.ApplicationToUploadContext;
 import org.cloudfoundry.multiapps.controller.process.context.ImmutableApplicationToUploadContext;
-import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveContext;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationZipBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
+import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
@@ -259,8 +263,33 @@ public class UploadAppAsyncExecution implements AsyncExecution {
             stepLogger.debug(Messages.UPLOAD_STATUS_0, status);
             if (status.equals(Status.READY.toString())) {
                 FileUtils.cleanUp(file, LOGGER);
-                processLoggerPersister.persistLogs(correlationId, taskId);
-                operationLogsExporter.sendLogsToCloudLoggingService(execution);
+                if (VariableHandling.get(execution,
+                                         Variables.EXTERNAL_LOGGING_SERVICE_WEB_CLIENT) != null) {
+
+                    ExternalLoggingServiceConfiguration externalLoggingServiceConfiguration = VariableHandling.get(execution,
+                                                                                                                   Variables.EXTERNAL_LOGGING_SERVICE_WEB_CLIENT);
+
+                    LoggingConfiguration loggingConfiguration = ImmutableLoggingConfiguration.builder()
+                                                                                             .endpointUrl(
+                                                                                                 externalLoggingServiceConfiguration.getEndpointUrl())
+                                                                                             .targetSpace(
+                                                                                                 externalLoggingServiceConfiguration.getTargetSpace())
+                                                                                             .clientCert(
+                                                                                                 externalLoggingServiceConfiguration.getClientCert())
+                                                                                             .clientKey(
+                                                                                                 externalLoggingServiceConfiguration.getClientKey())
+                                                                                             .targetOrg(
+                                                                                                 externalLoggingServiceConfiguration.getTargetOrg())
+                                                                                             .serverCa(
+                                                                                                 externalLoggingServiceConfiguration.getServerCa())
+                                                                                             .operationId(
+                                                                                                 externalLoggingServiceConfiguration.getOperationId())
+                                                                                             .build();
+                    processLoggerPersister.persistLogs(loggingConfiguration, correlationId, taskId);
+                } else {
+                    processLoggerPersister.persistLogs(null, correlationId, taskId);
+                }
+
             }
             return false;
         }

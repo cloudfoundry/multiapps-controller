@@ -24,7 +24,7 @@ import org.cloudfoundry.multiapps.controller.core.security.serialization.Dynamic
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
-import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveContext;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationDigestCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;

@@ -2,8 +2,12 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.model.ExternalLoggingServiceConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
@@ -11,10 +15,10 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessag
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
-import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.ExecutionListener;
 import org.slf4j.Logger;
@@ -72,8 +76,33 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     protected void finalizeLogs(DelegateExecution execution) {
         String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
         String taskId = VariableHandling.get(execution, Variables.TASK_ID);
-        processLoggerPersister.persistLogs(correlationId, taskId);
-        operationLogsExporter.sendLogsToCloudLoggingService(execution);
+        DeploymentDescriptor deploymentDescriptor = VariableHandling.get(execution, Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+
+        if (VariableHandling.get(execution,
+                                 Variables.EXTERNAL_LOGGING_SERVICE_WEB_CLIENT) != null) {
+            ExternalLoggingServiceConfiguration externalLoggingServiceConfiguration = VariableHandling.get(execution,
+                                                                                                           Variables.EXTERNAL_LOGGING_SERVICE_WEB_CLIENT);
+
+            LoggingConfiguration loggingConfiguration = ImmutableLoggingConfiguration.builder()
+                                                                                     .endpointUrl(
+                                                                                         externalLoggingServiceConfiguration.getEndpointUrl())
+                                                                                     .targetSpace(
+                                                                                         externalLoggingServiceConfiguration.getTargetSpace())
+                                                                                     .clientCert(
+                                                                                         externalLoggingServiceConfiguration.getClientCert())
+                                                                                     .clientKey(
+                                                                                         externalLoggingServiceConfiguration.getClientKey())
+                                                                                     .targetOrg(
+                                                                                         externalLoggingServiceConfiguration.getTargetOrg())
+                                                                                     .serverCa(
+                                                                                         externalLoggingServiceConfiguration.getServerCa())
+                                                                                     .operationId(correlationId)
+                                                                                     .build();
+
+            processLoggerPersister.persistLogs(loggingConfiguration, correlationId, taskId);
+        } else {
+            processLoggerPersister.persistLogs(null, correlationId, taskId);
+        }
     }
 
     private void initializeMustHaveVariables(DelegateExecution execution) {
