@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.core.model;
+package org.cloudfoundry.multiapps.controller.persistence.model;
 
 import java.util.List;
 
@@ -8,15 +8,9 @@ import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 
 @Value.Immutable
-@JsonSerialize(as = ImmutableExternalLoggingServiceConfiguration.class)
-@JsonDeserialize(as = ImmutableExternalLoggingServiceConfiguration.class)
-public interface ExternalLoggingServiceConfiguration {
-
-    @Nullable
-    String getServiceInstanceName();
-
-    @Nullable
-    String getServiceKeyName();
+@JsonSerialize(as = ImmutableLoggingConfiguration.class)
+@JsonDeserialize(as = ImmutableLoggingConfiguration.class)
+public interface LoggingConfiguration {
 
     @Nullable
     String getTargetOrg();

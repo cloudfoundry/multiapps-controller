@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,6 +15,8 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.model.ExternalLoggingServiceConfiguration;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableExternalLoggingServiceConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
@@ -39,7 +42,7 @@ public class ExternalLoggingServiceConfigurationsCalculator {
         this.tokenService = tokenService;
     }
 
-    public WebClient exportOperationLogsToExternalSystem(List<Resource> resources) {
+    public ExternalLoggingServiceConfiguration exportOperationLogsToExternalSystem(List<Resource> resources) {
 
         Resource cloudLoggingExistingServiceKey = getCloudLoggingExistingServiceKey(resources);
         String serviceInstanceName = (String) cloudLoggingExistingServiceKey.getParameters()
@@ -50,8 +53,8 @@ public class ExternalLoggingServiceConfigurationsCalculator {
         String spaceId = context.getVariable(Variables.SPACE_GUID);
         CloudServiceKey loggingServiceKey = client1.getServiceKey(serviceInstanceName, cloudLoggingExistingServiceKey.getName());
         if (loggingServiceKey == null) {
-            stepLogger.warn("No logging service key found for operation {0}, skipping log export", correlationId);
-            return null;
+            throw new IllegalStateException(
+                MessageFormat.format("No logging service key found for operation {0}, skipping log export", correlationId));
         }
         Map<String, Object> credentials = loggingServiceKey.getCredentials();
         String endpoint = (String) credentials.get("ingest-mtls-endpoint");
@@ -61,21 +64,27 @@ public class ExternalLoggingServiceConfigurationsCalculator {
 
         // Validate that all required credentials are present
         if (endpoint == null || serverCa == null || ingestMtlsCert == null || ingestMtlsKey == null) {
-            stepLogger.warn(
+            throw new IllegalArgumentException(
                 "Missing required credentials for SAP Cloud Logging export. Required: endpoint, server-ca, ingest-mtls-cert, ingest-mtls-key");
-            return null;
         }
         try {
             //            OperationLogsExporter exporter = new OperationLogsExporter(createWebClientWithMtls(endpoint, serverCa, ingestMtlsCert,
             //                                                                                               ingestMtlsKey));
             //            exporter.exportLogs(spaceId, correlationId, endpoint, serverCa, ingestMtlsCert, ingestMtlsKey);
-            stepLogger.info("Export of operation logs to external service instance \"{0}\" was successful", serviceInstanceName);
-            return createWebClientWithMtls(endpoint, serverCa, ingestMtlsCert,
-                                           ingestMtlsKey);
+            //            return createWebClientWithMtls(endpoint, serverCa, ingestMtlsCert,
+            //                                           ingestMtlsKey);
+
+            return ImmutableExternalLoggingServiceConfiguration.builder()
+                                                               .endpointUrl(endpoint)
+                                                               .operationId(correlationId)
+                                                               .serverCa(serverCa)
+                                                               .targetSpace(spaceId)
+                                                               .clientCert(ingestMtlsCert)
+                                                               .clientKey(ingestMtlsKey)
+                                                               .build();
         } catch (Exception e) {
-            stepLogger.warn(e, "Export of operation logs to external service instance \"{0}\" failed: {1}", serviceInstanceName,
-                            e.getMessage());
-            throw new SLException(e, e.getMessage());
+            throw new SLException("Export of operation logs to external service instance \"{0}\" failed: {1}", serviceInstanceName,
+                                  e.getMessage(), e.getMessage());
         }
     }
 

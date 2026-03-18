@@ -24,7 +24,7 @@ import org.cloudfoundry.multiapps.controller.process.security.resolver.SecretTok
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStore;
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStoreFactory;
 import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
-import org.cloudfoundry.multiapps.controller.process.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper.CloudComponents;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
@@ -228,6 +228,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
                                                    .stepLogger(getStepLogger())
                                                    .processLoggerPersister(processLoggerPersister)
                                                    .operationLogsExporter(operationLogsExporter)
+                                                   .cloudLoggingServiceLogsProvider(cloudLoggingServiceLogsProvider)
                                                    .processEngineConfiguration(processEngineConfiguration)
                                                    .processHelper(processHelper)
                                                    .build();

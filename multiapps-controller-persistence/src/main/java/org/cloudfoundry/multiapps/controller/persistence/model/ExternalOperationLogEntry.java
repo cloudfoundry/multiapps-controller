@@ -21,5 +21,12 @@ public interface ExternalOperationLogEntry {
     @Nullable
     String getCorrelationId();
 
+    @JsonProperty("operation_log_name")
+    @Nullable
+    String getOperationLogName();
+
+    @Nullable
+    String getLevel();
+
     String getId();
 }

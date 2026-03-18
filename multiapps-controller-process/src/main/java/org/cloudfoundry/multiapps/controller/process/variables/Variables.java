@@ -46,7 +46,6 @@ import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.VersionRule;
-import org.springframework.web.reactive.function.client.WebClient;
 
 public interface Variables {
 
@@ -972,8 +971,17 @@ public interface Variables {
                                                                                                                                  .defaultValue(
                                                                                                                                      Collections.emptyList())
                                                                                                                                  .build();
-    Variable<WebClient> EXTERNAL_LOGGING_SERVICE_WEB_CLIENT = ImmutableSimpleVariable.<WebClient> builder()
-                                                                                     .name("externalLoggingServiceWebClient")
-                                                                                     .defaultValue(null)
-                                                                                     .build();
+    Variable<ExternalLoggingServiceConfiguration> EXTERNAL_LOGGING_SERVICE_WEB_CLIENT = ImmutableJsonStringVariable.<ExternalLoggingServiceConfiguration> builder()
+                                                                                                                   .name(
+                                                                                                                       "externalLoggingServiceWebClient")
+                                                                                                                   .type(
+                                                                                                                       Variable.typeReference(
+                                                                                                                           ExternalLoggingServiceConfiguration.class))
+                                                                                                                   .defaultValue(null)
+                                                                                                                   .build();
+
+    Variable<Boolean> IS_LOG_CACHE_CLEARED = ImmutableSimpleVariable.<Boolean> builder()
+                                                                    .name("isLogCacheCleared")
+                                                                    .defaultValue(false)
+                                                                    .build();
 }
