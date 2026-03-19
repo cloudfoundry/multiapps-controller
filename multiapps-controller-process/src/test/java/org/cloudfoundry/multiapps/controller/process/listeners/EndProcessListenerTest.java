@@ -4,14 +4,13 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessEvent;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
-import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInFinalStateHandler;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
@@ -54,8 +53,6 @@ class EndProcessListenerTest {
     private ProcessLoggerPersister processLoggerPersister;
     @Mock
     private OperationLogsExporter operationLogsExporter;
-    @Mock
-    private CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider;
 
     @Test
     void testNotifyInternal() {
@@ -68,9 +65,7 @@ class EndProcessListenerTest {
                                                                        configuration,
                                                                        eventHandler,
                                                                        dynatracePublisher,
-                                                                       processTypeParser,
-                                                                       operationLogsExporter,
-                                                                       cloudLoggingServiceLogsProvider);
+                                                                       processTypeParser);
         // set the process as root process
         VariableHandling.set(execution, Variables.CORRELATION_ID, execution.getProcessInstanceId());
         VariableHandling.set(execution, Variables.SPACE_GUID, SPACE_ID);

@@ -18,6 +18,7 @@ import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
@@ -26,8 +27,6 @@ import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessE
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
-import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
@@ -92,8 +91,6 @@ class StartProcessListenerTest {
     private ProcessLoggerPersister processLoggerPersister;
     @Mock
     private OperationLogsExporter operationLogsExporter;
-    @Mock
-    private CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider;
 
     private StartProcessListener listener;
 
@@ -120,9 +117,7 @@ class StartProcessListenerTest {
                                             operationService,
                                             operationMetadataMapper,
                                             dynatracePublisher,
-                                            fileService,
-                                            operationLogsExporter,
-                                            cloudLoggingServiceLogsProvider);
+                                            fileService);
     }
 
     @ParameterizedTest
@@ -140,7 +135,7 @@ class StartProcessListenerTest {
 
     private void prepare() {
         prepareContext();
-        Mockito.when(stepLoggerFactory.create(any(), any(), any(), any(), any()))
+        Mockito.when(stepLoggerFactory.create(any(), any(), any(), any()))
                .thenReturn(stepLogger);
         Mockito.when(operationService.createQuery())
                .thenReturn(operationQuery);

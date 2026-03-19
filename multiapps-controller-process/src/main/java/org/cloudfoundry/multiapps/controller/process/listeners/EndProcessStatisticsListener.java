@@ -8,8 +8,6 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
-import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.flowable.engine.delegate.DelegateExecution;
 
@@ -22,17 +20,14 @@ public class EndProcessStatisticsListener extends AbstractProcessExecutionListen
     protected EndProcessStatisticsListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
                                            ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                                            HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
-                                           ApplicationConfiguration configuration, OperationLogsExporter operationLogsExporter,
-                                           CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
+                                           ApplicationConfiguration configuration) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration,
-              operationLogsExporter,
-              cloudLoggingServiceLogsProvider);
+              configuration);
     }
 
     @Override

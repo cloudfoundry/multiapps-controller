@@ -11,8 +11,6 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
-import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
@@ -30,18 +28,14 @@ public class ManageAppServiceBindingEndListener extends AbstractProcessExecution
     protected ManageAppServiceBindingEndListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
                                                  ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                                                  HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
-                                                 ApplicationConfiguration configuration, ProcessTypeParser processTypeParser,
-                                                 OperationLogsExporter operationLogsExporter,
-                                                 CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
+                                                 ApplicationConfiguration configuration, ProcessTypeParser processTypeParser) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration,
-              operationLogsExporter,
-              cloudLoggingServiceLogsProvider);
+              configuration);
         this.processTypeParser = processTypeParser;
     }
 

@@ -8,12 +8,11 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplicati
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
-import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -57,8 +56,6 @@ class ManageAppServiceBindingEndListenerTest {
     private ApplicationConfiguration configuration;
     @Mock
     private OperationLogsExporter operationLogsExporter;
-    @Mock
-    private CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider;
 
     private ManageAppServiceBindingEndListener manageAppServiceBindingEndListener;
 
@@ -73,9 +70,7 @@ class ManageAppServiceBindingEndListenerTest {
                                                                                     historicOperationEventService,
                                                                                     flowableFacade,
                                                                                     configuration,
-                                                                                    processTypeParser,
-                                                                                    operationLogsExporter,
-                                                                                    cloudLoggingServiceLogsProvider);
+                                                                                    processTypeParser);
     }
 
     // @formatter:off

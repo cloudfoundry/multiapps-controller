@@ -47,20 +47,29 @@ public class OperationLogsExporter {
         this.processLogsPersistenceService = processLogsPersistenceService;
     }
 
-    //    @Async("cloudLoggingServiceAsyncExecutor")
     public OperationLogEntry sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, OperationLogEntry operationLogEntry) {
         if (loggingConfiguration == null) {
             return null;
         }
-        //        Map<String, List<String>> logs = getLogsFromOperationLogEntry(loggingConfiguration, operationLogEntry);
+        List<List<ExternalOperationLogEntry>> externalOperationLogEntryBatches = getExternalOperationLogEntryBatches(loggingConfiguration,
+                                                                                                                     operationLogEntry);
+
+        WebClient cloudLogginServiceWebClient = getCloudLogginServiceWebClient(loggingConfiguration, operationLogEntry);
+        if (cloudLogginServiceWebClient == null) {
+            return null;
+        }
+
+        sendLogsToCloudLoggingService(externalOperationLogEntryBatches, cloudLogginServiceWebClient, loggingConfiguration);
+        return ImmutableOperationLogEntry.copyOf(operationLogEntry)
+                                         .withIsSendToCloudLoggingService(true);
+    }
+
+    private List<List<ExternalOperationLogEntry>> getExternalOperationLogEntryBatches(LoggingConfiguration loggingConfiguration,
+                                                                                      OperationLogEntry operationLogEntry) {
         Map<String, List<String>> logs = getLogsFromOperationLogEntry(loggingConfiguration, operationLogEntry);
         List<ExternalOperationLogEntry> externalOperationLogEntries = new ArrayList<>();
 
         for (Map.Entry<String, List<String>> log : logs.entrySet()) {
-            //            if (!loggingConfiguration.getLogLevels()
-            //                                     .contains(log.getKey())) {
-            //                continue;
-            //            }
             for (String logg : log.getValue()) {
                 ExternalOperationLogEntry externalOperationLogEntry = convertToExternalLogEntry(loggingConfiguration.getOperationId(),
                                                                                                 operationLogEntry.getModified(), logg,
@@ -69,8 +78,12 @@ public class OperationLogsExporter {
                 externalOperationLogEntries.add(externalOperationLogEntry);
             }
         }
-        List<List<ExternalOperationLogEntry>> externalOperationLogEntryBatches = getLogEntryBatches(externalOperationLogEntries);
+        return getLogEntryBatches(externalOperationLogEntries);
+    }
+
+    private WebClient getCloudLogginServiceWebClient(LoggingConfiguration loggingConfiguration, OperationLogEntry operationLogEntry) {
         WebClient webClient = null;
+
         if (!clientCache.containsKey(loggingConfiguration.getOperationId())) {
             try {
                 webClient = createWebClientWithMtls(loggingConfiguration);
@@ -86,8 +99,12 @@ public class OperationLogsExporter {
         } else {
             webClient = clientCache.get(loggingConfiguration.getOperationId());
         }
-        //        List<List<ExternalOperationLogEntry>> logEntryBatches = getLogEntryBatches(externalLogEntries);
 
+        return webClient;
+    }
+
+    private void sendLogsToCloudLoggingService(List<List<ExternalOperationLogEntry>> externalOperationLogEntryBatches,
+                                               WebClient webClient, LoggingConfiguration loggingConfiguration) {
         for (List<ExternalOperationLogEntry> logEntryBatch : externalOperationLogEntryBatches) {
             ResponseEntity<Void> response = webClient.post()
                                                      .header("Content-Type", CONTENT_TYPE_JSON)
@@ -103,9 +120,6 @@ public class OperationLogsExporter {
                 }
             }
         }
-
-        return ImmutableOperationLogEntry.copyOf(operationLogEntry)
-                                         .withIsSendToCloudLoggingService(true);
     }
 
     private ExternalOperationLogEntry convertToExternalLogEntry(String operationId, LocalDateTime timestamp, String operationLog,
@@ -145,8 +159,6 @@ public class OperationLogsExporter {
         return batches;
     }
 
-    //    private Map<String, List<String>> getLogsFromOperationLogEntry(LoggingConfiguration loggingConfiguration,
-    //                                                                   OperationLogEntry operationLogEntry) {
     private Map<String, List<String>> getLogsFromOperationLogEntry(LoggingConfiguration loggingConfiguration,
                                                                    OperationLogEntry operationLogEntry) {
         List<String> logs = new ArrayList<>();

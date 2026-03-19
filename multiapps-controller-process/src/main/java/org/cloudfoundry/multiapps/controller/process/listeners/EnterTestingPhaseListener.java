@@ -12,8 +12,6 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
-import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -30,18 +28,14 @@ public class EnterTestingPhaseListener extends AbstractProcessExecutionListener 
     protected EnterTestingPhaseListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
                                         ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                                         HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
-                                        ApplicationConfiguration configuration, OperationService operationService,
-                                        OperationLogsExporter operationLogsExporter,
-                                        CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
+                                        ApplicationConfiguration configuration, OperationService operationService) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration,
-              operationLogsExporter,
-              cloudLoggingServiceLogsProvider);
+              configuration);
         this.operationService = operationService;
     }
 
