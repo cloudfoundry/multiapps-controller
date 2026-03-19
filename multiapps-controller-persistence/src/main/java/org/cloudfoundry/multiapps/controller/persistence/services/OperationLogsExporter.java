@@ -18,13 +18,16 @@ import javax.net.ssl.SSLException;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ExternalOperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableExternalOperationLogEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
@@ -45,15 +48,19 @@ public class OperationLogsExporter {
     }
 
     //    @Async("cloudLoggingServiceAsyncExecutor")
-    public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, OperationLogEntry operationLogEntry) {
+    public OperationLogEntry sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, OperationLogEntry operationLogEntry) {
         if (loggingConfiguration == null) {
-            return;
+            return null;
         }
         //        Map<String, List<String>> logs = getLogsFromOperationLogEntry(loggingConfiguration, operationLogEntry);
         Map<String, List<String>> logs = getLogsFromOperationLogEntry(loggingConfiguration, operationLogEntry);
         List<ExternalOperationLogEntry> externalOperationLogEntries = new ArrayList<>();
 
         for (Map.Entry<String, List<String>> log : logs.entrySet()) {
+            //            if (!loggingConfiguration.getLogLevels()
+            //                                     .contains(log.getKey())) {
+            //                continue;
+            //            }
             for (String logg : log.getValue()) {
                 ExternalOperationLogEntry externalOperationLogEntry = convertToExternalLogEntry(loggingConfiguration.getOperationId(),
                                                                                                 operationLogEntry.getModified(), logg,
@@ -70,7 +77,11 @@ public class OperationLogsExporter {
                 clientCache.put(loggingConfiguration.getOperationId(), webClient);
 
             } catch (SSLException e) {
-                throw new RuntimeException(e);
+                if (!loggingConfiguration.isFailSafe()) {
+                    throw new SLException(e);
+                }
+                LOGGER.error("wrong config, I guessx");
+                return null;
             }
         } else {
             webClient = clientCache.get(loggingConfiguration.getOperationId());
@@ -78,14 +89,23 @@ public class OperationLogsExporter {
         //        List<List<ExternalOperationLogEntry>> logEntryBatches = getLogEntryBatches(externalLogEntries);
 
         for (List<ExternalOperationLogEntry> logEntryBatch : externalOperationLogEntryBatches) {
-            webClient.post()
-                     .header("Content-Type", CONTENT_TYPE_JSON)
-                     .bodyValue(JsonUtil.toJson(logEntryBatch))
-                     .retrieve()
-                     .bodyToMono(Void.class)
-                     .block();
+            ResponseEntity<Void> response = webClient.post()
+                                                     .header("Content-Type", CONTENT_TYPE_JSON)
+                                                     .bodyValue(JsonUtil.toJson(logEntryBatch))
+                                                     .retrieve()
+                                                     .toBodilessEntity()
+                                                     .block();
+            if (response.getStatusCode()
+                        .value() > 299 || response.getStatusCode()
+                                                  .value() < 200) {
+                if (!loggingConfiguration.isFailSafe()) {
+                    throw new SLException("Something went wrong");
+                }
+            }
         }
 
+        return ImmutableOperationLogEntry.copyOf(operationLogEntry)
+                                         .withIsSendToCloudLoggingService(true);
     }
 
     private ExternalOperationLogEntry convertToExternalLogEntry(String operationId, LocalDateTime timestamp, String operationLog,

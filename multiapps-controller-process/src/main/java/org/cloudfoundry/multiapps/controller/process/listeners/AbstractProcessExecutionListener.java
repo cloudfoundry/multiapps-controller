@@ -96,6 +96,10 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
                                                                                          externalLoggingServiceConfiguration.getTargetOrg())
                                                                                      .serverCa(
                                                                                          externalLoggingServiceConfiguration.getServerCa())
+                                                                                     .isFailSafe(
+                                                                                         externalLoggingServiceConfiguration.isFailSafe())
+                                                                                     .logLevels(
+                                                                                         externalLoggingServiceConfiguration.getLogLevels())
                                                                                      .operationId(correlationId)
                                                                                      .build();
 

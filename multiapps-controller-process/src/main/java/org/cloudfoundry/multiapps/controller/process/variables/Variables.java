@@ -36,6 +36,7 @@ import org.cloudfoundry.multiapps.controller.core.model.SubprocessPhase;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.process.DeployStrategy;
 import org.cloudfoundry.multiapps.controller.process.steps.StepPhase;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
@@ -971,14 +972,14 @@ public interface Variables {
                                                                                                                                  .defaultValue(
                                                                                                                                      Collections.emptyList())
                                                                                                                                  .build();
-    Variable<ExternalLoggingServiceConfiguration> EXTERNAL_LOGGING_SERVICE_WEB_CLIENT = ImmutableJsonStringVariable.<ExternalLoggingServiceConfiguration> builder()
-                                                                                                                   .name(
-                                                                                                                       "externalLoggingServiceWebClient")
-                                                                                                                   .type(
-                                                                                                                       Variable.typeReference(
-                                                                                                                           ExternalLoggingServiceConfiguration.class))
-                                                                                                                   .defaultValue(null)
-                                                                                                                   .build();
+    Variable<LoggingConfiguration> EXTERNAL_LOGGING_SERVICE_CONFIGURATION = ImmutableJsonStringVariable.<LoggingConfiguration> builder()
+                                                                                                       .name(
+                                                                                                           "externalLoggingServiceConfigurations")
+                                                                                                       .type(
+                                                                                                           Variable.typeReference(
+                                                                                                               LoggingConfiguration.class))
+                                                                                                       .defaultValue(null)
+                                                                                                       .build();
 
     Variable<Boolean> IS_LOG_CACHE_CLEARED = ImmutableSimpleVariable.<Boolean> builder()
                                                                     .name("isLogCacheCleared")

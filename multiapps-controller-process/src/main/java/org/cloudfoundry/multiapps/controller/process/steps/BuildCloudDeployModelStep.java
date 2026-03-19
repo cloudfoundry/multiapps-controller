@@ -40,13 +40,13 @@ import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
-import org.cloudfoundry.multiapps.controller.core.model.ExternalLoggingServiceConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
+import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.DeprecatedBuildpackChecker;
@@ -95,11 +95,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.BUILDING_CLOUD_MODEL);
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
-
-        //        ExternalLoggingServiceConfiguration externalLoggingServiceConfigurations = calculateExternalLoggingServiceConfigurations(
-        //            context, deploymentDescriptor);
-        //        context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_WEB_CLIENT, externalLoggingServiceConfigurations);
-
+        //        setExternalLoggingServiceConfigurationIfRequired(context, deploymentDescriptor);
         // Get module sets:
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
         List<DeployedMtaApplication> deployedApplications = (deployedMta != null) ? deployedMta.getApplications() : Collections.emptyList();
@@ -442,11 +438,42 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         return new CustomServiceKeysClient(configuration, webClientFactory, credentials, correlationId);
     }
 
-    protected ExternalLoggingServiceConfiguration calculateExternalLoggingServiceConfigurations(ProcessContext context,
-                                                                                                DeploymentDescriptor deploymentDescriptor) {
+    protected void setExternalLoggingServiceConfigurationIfRequired(ProcessContext context,
+                                                                    DeploymentDescriptor deploymentDescriptor) {
+        if (!isCloudLoggingEnabled(deploymentDescriptor)) {
+            return;
+        }
         ExternalLoggingServiceConfigurationsCalculator calculator = new ExternalLoggingServiceConfigurationsCalculator(
             getStepLogger(), clientFactory, context, tokenService);
-        return calculator.exportOperationLogsToExternalSystem(deploymentDescriptor.getResources());
+        LoggingConfiguration loggingConfiguration = calculator.exportOperationLogsToExternalSystem(
+            getLoggingServiceResource(deploymentDescriptor.getResources()));
+        context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_WEB_CLIENT, loggingConfiguration);
+
+        getStepLogger().debug("Export of operation logs to external service instance \"{0}\" was successful");
     }
 
+    private boolean isCloudLoggingEnabled(DeploymentDescriptor deploymentDescriptor) {
+        if (deploymentDescriptor.getResources()
+                                .isEmpty()) {
+            return false;
+        }
+
+        return deploymentDescriptor.getResources()
+                                   .stream()
+                                   .anyMatch(BuildCloudDeployModelStep::isCloudLoggingServiceResource);
+    }
+
+    private Resource getLoggingServiceResource(List<Resource> resources) {
+        return resources.stream()
+                        .filter(BuildCloudDeployModelStep::isCloudLoggingServiceResource)
+                        .findFirst()
+                        .get();
+    }
+
+    private static boolean isCloudLoggingServiceResource(Resource resource) {
+        return resource.getParameters()
+                       .get("export-logs")
+                       .toString()
+                       .equals("true");
+    }
 }

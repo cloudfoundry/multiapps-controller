@@ -35,4 +35,7 @@ public interface LoggingConfiguration {
 
     @Nullable
     List<String> getLogLevels();
+
+    @Nullable
+    Boolean isFailSafe();
 }
