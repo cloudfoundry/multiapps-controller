@@ -18,7 +18,6 @@ open module org.cloudfoundry.multiapps.controller.process {
     exports org.cloudfoundry.multiapps.controller.process.security.util;
     exports org.cloudfoundry.multiapps.controller.process.security.resolver;
     exports org.cloudfoundry.multiapps.controller.process.security.store;
-    exports org.cloudfoundry.multiapps.controller.process.services;
 
     requires transitive flowable.engine;
     requires transitive org.cloudfoundry.multiapps.controller.api;

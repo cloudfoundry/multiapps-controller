@@ -33,8 +33,6 @@ import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublishe
 import org.cloudfoundry.multiapps.controller.process.dynatrace.ImmutableDynatraceProcessEvent;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
-import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.util.OperationFileIdsUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
@@ -64,18 +62,14 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
                                 HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                                 ApplicationConfiguration configuration, ProcessTypeParser processTypeParser,
                                 OperationService operationService, ProcessTypeToOperationMetadataMapper operationMetadataMapper,
-                                DynatracePublisher dynatracePublisher, FileService fileService,
-                                OperationLogsExporter operationLogsExporter,
-                                CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
+                                DynatracePublisher dynatracePublisher, FileService fileService) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration,
-              operationLogsExporter,
-              cloudLoggingServiceLogsProvider);
+              configuration);
         this.processTypeParser = processTypeParser;
         this.operationService = operationService;
         this.operationMetadataMapper = operationMetadataMapper;

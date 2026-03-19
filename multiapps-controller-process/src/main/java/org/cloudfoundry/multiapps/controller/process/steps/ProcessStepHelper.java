@@ -7,23 +7,18 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
-import org.cloudfoundry.multiapps.controller.core.model.ExternalLoggingServiceConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
-import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessLoggerPersisterUtil;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
-import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.runtime.Execution;
@@ -43,44 +38,12 @@ public abstract class ProcessStepHelper {
     }
 
     protected void postExecuteStep(ProcessContext context, StepPhase state) {
-        logDebug(context, MessageFormat.format(Messages.STEP_FINISHED, context.getExecution()
-                                                                              .getCurrentFlowElement()
-                                                                              .getName()));
+        logDebug(MessageFormat.format(Messages.STEP_FINISHED, context.getExecution()
+                                                                     .getCurrentFlowElement()
+                                                                     .getName()));
 
-        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
-        if (VariableHandling.get(context.getExecution(),
-                                 Variables.EXTERNAL_LOGGING_SERVICE_WEB_CLIENT) != null) {
-
-            ExternalLoggingServiceConfiguration externalLoggingServiceConfiguration = VariableHandling.get(context.getExecution(),
-                                                                                                           Variables.EXTERNAL_LOGGING_SERVICE_WEB_CLIENT);
-
-            LoggingConfiguration loggingConfiguration = ImmutableLoggingConfiguration.builder()
-                                                                                     .endpointUrl(
-                                                                                         externalLoggingServiceConfiguration.getEndpointUrl())
-                                                                                     .targetSpace(
-                                                                                         externalLoggingServiceConfiguration.getTargetSpace())
-                                                                                     .clientCert(
-                                                                                         externalLoggingServiceConfiguration.getClientCert())
-                                                                                     .clientKey(
-                                                                                         externalLoggingServiceConfiguration.getClientKey())
-                                                                                     .targetOrg(
-                                                                                         externalLoggingServiceConfiguration.getTargetOrg())
-                                                                                     .serverCa(
-                                                                                         externalLoggingServiceConfiguration.getServerCa())
-                                                                                     .operationId(
-                                                                                         externalLoggingServiceConfiguration.getOperationId())
-                                                                                     .isFailSafe(
-                                                                                         externalLoggingServiceConfiguration.isFailSafe())
-                                                                                     .logLevels(
-                                                                                         externalLoggingServiceConfiguration.getLogLevels())
-                                                                                     .build();
-
-            getProcessLoggerPersister().persistLogs(loggingConfiguration, context.getVariable(Variables.CORRELATION_ID),
-                                                    context.getVariable(Variables.TASK_ID));
-        } else {
-            getProcessLoggerPersister().persistLogs(null, context.getVariable(Variables.CORRELATION_ID),
-                                                    context.getVariable(Variables.TASK_ID));
-        }
+        getProcessLoggerPersister().persistLogs(
+            ProcessLoggerPersisterUtil.createProcessLoggerPersisterConfiguration(context.getExecution()));
         context.setVariable(Variables.STEP_EXECUTION, state.toString());
     }
 
@@ -112,10 +75,7 @@ public abstract class ProcessStepHelper {
 
     private void logException(ProcessContext context, Throwable t) {
         LOGGER.error(Messages.EXCEPTION_CAUGHT, t);
-
-        ProcessLogger processLogger = getProcessLogger();
-        processLogger.error(Messages.EXCEPTION_CAUGHT, t);
-        getCloudLoggingServiceLogsProvider().logMessage(context.getExecution(), processLogger.getLogMessage(), "debug");
+        getProcessLogger().error(Messages.EXCEPTION_CAUGHT, t);
 
         if (t instanceof ContentException) {
             context.setVariable(Variables.ERROR_TYPE, ErrorType.CONTENT_ERROR);
@@ -133,10 +93,7 @@ public abstract class ProcessStepHelper {
                                                                     .text(throwable.getMessage())
                                                                     .build());
         } catch (SLException e) {
-            ProcessLogger processLogger = getProcessLogger();
-            processLogger.error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
-            getCloudLoggingServiceLogsProvider().logMessage(context.getExecution(), processLogger.getLogMessage(), "error");
-
+            getProcessLogger().error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
         }
     }
 
@@ -158,13 +115,8 @@ public abstract class ProcessStepHelper {
                                                .getActivityId();
     }
 
-    private void logDebug(ProcessContext context, String message) {
-        if (message.equals("Step \"Prepare To Execute Tasks\" finished")) {
-            System.out.println();
-        }
-        ProcessLogger processLogger = getProcessLogger();
-        processLogger.debug(message);
-        getCloudLoggingServiceLogsProvider().logMessage(context.getExecution(), processLogger.getLogMessage(), "debug");
+    private void logDebug(String message) {
+        getProcessLogger().debug(message);
     }
 
     private ProcessLogger getProcessLogger() {
@@ -184,8 +136,6 @@ public abstract class ProcessStepHelper {
     public abstract StepLogger getStepLogger();
 
     public abstract ProcessLoggerPersister getProcessLoggerPersister();
-
-    public abstract CloudLoggingServiceLogsProvider getCloudLoggingServiceLogsProvider();
 
     public abstract OperationLogsExporter getOperationLogsExporter();
 

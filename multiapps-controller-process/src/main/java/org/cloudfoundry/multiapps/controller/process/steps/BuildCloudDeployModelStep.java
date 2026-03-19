@@ -452,7 +452,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
             getStepLogger(), clientFactory, context, tokenService);
         LoggingConfiguration loggingConfiguration = calculator.exportOperationLogsToExternalSystem(
             getLoggingServiceResource(deploymentDescriptor.getResources()));
-        context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_WEB_CLIENT, loggingConfiguration);
+        context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
 
         getStepLogger().debug("Export of operation logs to external service instance \"{0}\" was successful");
     }

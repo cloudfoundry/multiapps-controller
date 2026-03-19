@@ -105,7 +105,7 @@ class OperationInFinalStateHandlerTest {
     public void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                .thenReturn(stepLogger);
         Mockito.when(secretTokenStoreFactory.createSecretTokenStoreDeletionRelated())
                .thenReturn(secretTokenStoreDeletion);

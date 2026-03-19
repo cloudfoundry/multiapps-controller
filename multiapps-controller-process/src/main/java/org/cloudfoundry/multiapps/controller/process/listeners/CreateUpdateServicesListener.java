@@ -18,8 +18,6 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
-import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
@@ -35,17 +33,14 @@ public class CreateUpdateServicesListener extends AbstractProcessExecutionListen
     protected CreateUpdateServicesListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
                                            ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                                            HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
-                                           ApplicationConfiguration configuration, OperationLogsExporter operationLogsExporter,
-                                           CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
+                                           ApplicationConfiguration configuration) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration,
-              operationLogsExporter,
-              cloudLoggingServiceLogsProvider);
+              configuration);
     }
 
     @Override

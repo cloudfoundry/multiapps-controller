@@ -29,7 +29,6 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
-import org.cloudfoundry.multiapps.controller.core.model.ExternalLoggingServiceConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.IncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.model.SubprocessPhase;
@@ -963,15 +962,6 @@ public interface Variables {
                                                                                            .defaultValue(false)
                                                                                            .build();
 
-    Variable<List<ExternalLoggingServiceConfiguration>> EXTERNAL_LOGGING_SERVICE_CONFIGURATIONS = ImmutableJsonStringListVariable.<ExternalLoggingServiceConfiguration> builder()
-                                                                                                                                 .name(
-                                                                                                                                     "externalLoggingServiceConfigurations")
-                                                                                                                                 .type(
-                                                                                                                                     Variable.typeReference(
-                                                                                                                                         ExternalLoggingServiceConfiguration.class))
-                                                                                                                                 .defaultValue(
-                                                                                                                                     Collections.emptyList())
-                                                                                                                                 .build();
     Variable<LoggingConfiguration> EXTERNAL_LOGGING_SERVICE_CONFIGURATION = ImmutableJsonStringVariable.<LoggingConfiguration> builder()
                                                                                                        .name(
                                                                                                            "externalLoggingServiceConfigurations")
@@ -980,6 +970,11 @@ public interface Variables {
                                                                                                                LoggingConfiguration.class))
                                                                                                        .defaultValue(null)
                                                                                                        .build();
+
+    Variable<Boolean> IS_EXTERNAL_LOGGING_SERVICE_ENABLED = ImmutableSimpleVariable.<Boolean> builder()
+                                                                                   .name("isExternalLoggingServiceEnabled")
+                                                                                   .defaultValue(false)
+                                                                                   .build();
 
     Variable<Boolean> IS_LOG_CACHE_CLEARED = ImmutableSimpleVariable.<Boolean> builder()
                                                                     .name("isLogCacheCleared")

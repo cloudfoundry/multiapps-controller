@@ -93,7 +93,7 @@ class EnterTestingPhaseListenerTest {
     }
 
     private void prepareStepLogger() {
-        Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                .thenReturn(stepLogger);
     }
 

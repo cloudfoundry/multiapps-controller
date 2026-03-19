@@ -13,8 +13,6 @@ import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessE
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.ImmutableDynatraceProcessEvent;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
-import org.cloudfoundry.multiapps.controller.process.services.CloudLoggingServiceLogsProvider;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInFinalStateHandler;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
@@ -36,18 +34,14 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
                               ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                               HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                               ApplicationConfiguration configuration, OperationInFinalStateHandler eventHandler,
-                              DynatracePublisher dynatracePublisher, ProcessTypeParser processTypeParser,
-                              OperationLogsExporter operationLogsExporter,
-                              CloudLoggingServiceLogsProvider cloudLoggingServiceLogsProvider) {
+                              DynatracePublisher dynatracePublisher, ProcessTypeParser processTypeParser) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration,
-              operationLogsExporter,
-              cloudLoggingServiceLogsProvider);
+              configuration);
         this.eventHandler = eventHandler;
         this.dynatracePublisher = dynatracePublisher;
         this.processTypeParser = processTypeParser;

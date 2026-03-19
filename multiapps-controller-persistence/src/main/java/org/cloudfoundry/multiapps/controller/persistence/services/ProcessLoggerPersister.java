@@ -9,8 +9,8 @@ import java.util.UUID;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperationLogEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ProcessLoggerPersisterConfiguration;
 
 @Named("processLoggerPersister")
 public class ProcessLoggerPersister {
@@ -29,8 +29,10 @@ public class ProcessLoggerPersister {
     }
 
     //    @Async("asyncExecutor")
-    public void persistLogs(LoggingConfiguration loggingConfiguration, String correlationId, String taskId) {
-        List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(correlationId, taskId);
+    public void persistLogs(ProcessLoggerPersisterConfiguration processLoggerPersisterConfiguration) {
+
+        List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(processLoggerPersisterConfiguration.correlationId(),
+                                                                                      processLoggerPersisterConfiguration.taskId());
         Map<String, StringBuilder> processLogsMessages = new HashMap<>();
 
         if (processLoggers.isEmpty()) {
@@ -63,10 +65,11 @@ public class ProcessLoggerPersister {
                                                                             .withOperationLogName(processLogsMessage.getKey())
                                                                             .withOperationLog(processLogsMessage.getValue()
                                                                                                                 .toString())
+                                                                            .withIsSendToCloudLoggingService(false)
                                                                             .withModified(LocalDateTime.now());
 
-            OperationLogEntry operationLogEntry2 = operationLogsExporter.sendLogsToCloudLoggingService(loggingConfiguration,
-                                                                                                       operationLogEntry);
+            OperationLogEntry operationLogEntry2 = operationLogsExporter.sendLogsToCloudLoggingService(
+                processLoggerPersisterConfiguration.loggingConfiguration(), operationLogEntry);
             if (operationLogEntry2 != null) {
                 operationLogEntry = operationLogEntry2;
             }
