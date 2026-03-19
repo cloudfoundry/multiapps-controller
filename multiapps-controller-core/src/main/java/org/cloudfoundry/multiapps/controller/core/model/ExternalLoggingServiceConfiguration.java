@@ -41,4 +41,7 @@ public interface ExternalLoggingServiceConfiguration {
 
     @Nullable
     List<String> getLogLevels();
+
+    @Nullable
+    Boolean isFailSafe();
 }

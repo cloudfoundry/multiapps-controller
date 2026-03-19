@@ -69,6 +69,10 @@ public abstract class ProcessStepHelper {
                                                                                          externalLoggingServiceConfiguration.getServerCa())
                                                                                      .operationId(
                                                                                          externalLoggingServiceConfiguration.getOperationId())
+                                                                                     .isFailSafe(
+                                                                                         externalLoggingServiceConfiguration.isFailSafe())
+                                                                                     .logLevels(
+                                                                                         externalLoggingServiceConfiguration.getLogLevels())
                                                                                      .build();
 
             getProcessLoggerPersister().persistLogs(loggingConfiguration, context.getVariable(Variables.CORRELATION_ID),

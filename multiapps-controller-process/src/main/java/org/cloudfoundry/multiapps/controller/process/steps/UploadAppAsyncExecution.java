@@ -284,6 +284,10 @@ public class UploadAppAsyncExecution implements AsyncExecution {
                                                                                                  externalLoggingServiceConfiguration.getServerCa())
                                                                                              .operationId(
                                                                                                  externalLoggingServiceConfiguration.getOperationId())
+                                                                                             .isFailSafe(
+                                                                                                 externalLoggingServiceConfiguration.isFailSafe())
+                                                                                             .logLevels(
+                                                                                                 externalLoggingServiceConfiguration.getLogLevels())
                                                                                              .build();
                     processLoggerPersister.persistLogs(loggingConfiguration, correlationId, taskId);
                 } else {

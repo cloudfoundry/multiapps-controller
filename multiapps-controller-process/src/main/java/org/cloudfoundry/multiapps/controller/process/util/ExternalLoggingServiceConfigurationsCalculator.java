@@ -4,21 +4,21 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import javax.net.ssl.SSLException;
 
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
-import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
-import org.cloudfoundry.multiapps.controller.core.model.ExternalLoggingServiceConfiguration;
-import org.cloudfoundry.multiapps.controller.core.model.ImmutableExternalLoggingServiceConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Resource;
@@ -42,16 +42,15 @@ public class ExternalLoggingServiceConfigurationsCalculator {
         this.tokenService = tokenService;
     }
 
-    public ExternalLoggingServiceConfiguration exportOperationLogsToExternalSystem(List<Resource> resources) {
-
-        Resource cloudLoggingExistingServiceKey = getCloudLoggingExistingServiceKey(resources);
-        String serviceInstanceName = (String) cloudLoggingExistingServiceKey.getParameters()
-                                                                            .get("service-name");
-        CloudControllerClient client1 = calculateExternalLoggingServiceConfiguration(cloudLoggingExistingServiceKey);
+    public LoggingConfiguration exportOperationLogsToExternalSystem(Resource resource) {
+        String serviceInstanceName = (String) resource.getParameters()
+                                                      .get("service-name");
+        CloudControllerClient client1 = calculateExternalLoggingServiceConfiguration(resource);
 
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
         String spaceId = context.getVariable(Variables.SPACE_GUID);
-        CloudServiceKey loggingServiceKey = client1.getServiceKey(serviceInstanceName, cloudLoggingExistingServiceKey.getName());
+        String orgId = context.getVariable(Variables.ORGANIZATION_GUID);
+        CloudServiceKey loggingServiceKey = client1.getServiceKey(serviceInstanceName, resource.getName());
         if (loggingServiceKey == null) {
             throw new IllegalStateException(
                 MessageFormat.format("No logging service key found for operation {0}, skipping log export", correlationId));
@@ -67,25 +66,30 @@ public class ExternalLoggingServiceConfigurationsCalculator {
             throw new IllegalArgumentException(
                 "Missing required credentials for SAP Cloud Logging export. Required: endpoint, server-ca, ingest-mtls-cert, ingest-mtls-key");
         }
-        try {
-            //            OperationLogsExporter exporter = new OperationLogsExporter(createWebClientWithMtls(endpoint, serverCa, ingestMtlsCert,
-            //                                                                                               ingestMtlsKey));
-            //            exporter.exportLogs(spaceId, correlationId, endpoint, serverCa, ingestMtlsCert, ingestMtlsKey);
-            //            return createWebClientWithMtls(endpoint, serverCa, ingestMtlsCert,
-            //                                           ingestMtlsKey);
 
-            return ImmutableExternalLoggingServiceConfiguration.builder()
-                                                               .endpointUrl(endpoint)
-                                                               .operationId(correlationId)
-                                                               .serverCa(serverCa)
-                                                               .targetSpace(spaceId)
-                                                               .clientCert(ingestMtlsCert)
-                                                               .clientKey(ingestMtlsKey)
-                                                               .build();
-        } catch (Exception e) {
-            throw new SLException("Export of operation logs to external service instance \"{0}\" failed: {1}", serviceInstanceName,
-                                  e.getMessage(), e.getMessage());
-        }
+        Map<String, Object> logConfig = MiscUtil.cast(resource.getParameters()
+                                                              .get("log-structure"));
+
+        String spaceName = MiscUtil.cast(logConfig.get("space-name"));
+        String orgName = MiscUtil.cast(logConfig.get("org-name"));
+        Boolean isFailSafe = MiscUtil.cast(logConfig.get("is-fail-safe"));
+
+        List<String> logLevels = Arrays.stream(logConfig.get("log-levels")
+                                                        .toString()
+                                                        .split(", "))
+                                       .toList();
+
+        return ImmutableLoggingConfiguration.builder()
+                                            .endpointUrl(endpoint)
+                                            .operationId(correlationId)
+                                            .serverCa(serverCa)
+                                            .targetSpace(spaceName == null ? spaceId : spaceName)
+                                            .targetOrg(orgName == null ? orgId : orgName)
+                                            .clientCert(ingestMtlsCert)
+                                            .clientKey(ingestMtlsKey)
+                                            .logLevels(logLevels)
+                                            .isFailSafe(isFailSafe)
+                                            .build();
     }
 
     private CloudControllerClient calculateExternalLoggingServiceConfiguration(Resource cloudLoggingExistingServiceKey) {
@@ -110,18 +114,6 @@ public class ExternalLoggingServiceConfigurationsCalculator {
         }
 
         return client;
-    }
-
-    public Resource getCloudLoggingExistingServiceKey(List<Resource> resources) {
-        Optional<Resource> externalLoggingServiceKey = resources.stream()
-                                                                .filter(resource -> "org.cloudfoundry.existing-service-key".equals(
-                                                                    resource.getType()))
-                                                                .filter(resource -> "test-service-key".equals(resource.getName()))
-                                                                .findFirst();
-        if (externalLoggingServiceKey.isEmpty()) {
-            throw new RuntimeException("NOPE NYAMA SERVICE KEY");
-        }
-        return externalLoggingServiceKey.get();
     }
 
     private WebClient createWebClientWithMtls(String endpointUrl, String serverCa, String clientCert, String clientKey)
