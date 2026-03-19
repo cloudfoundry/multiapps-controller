@@ -71,6 +71,27 @@ public class Constants {
         public static final String PURGE = "/purge";
     }
 
+    public static class ApiEndpointsNames {
+
+        private ApiEndpointsNames() {
+        }
+
+        // Files API
+        public static final String GET_FILES = "getFiles";
+        public static final String UPLOAD_FILE = "uploadFile";
+        public static final String START_UPLOAD_FROM_URL = "startUploadFromUrl";
+        public static final String GET_UPLOAD_FROM_URL_JOB = "getUploadFromUrlJob";
+
+        // Operations API
+        public static final String GET_OPERATIONS = "getOperations";
+        public static final String START_OPERATION = "startOperation";
+        public static final String GET_OPERATION = "getOperation";
+        public static final String GET_OPERATION_ACTIONS = "getOperationActions";
+        public static final String GET_OPERATION_LOGS = "getOperationLogs";
+        public static final String GET_OPERATION_LOG_CONTENT = "getOperationLogContent";
+        public static final String EXECUTE_OPERATION_ACTION = "executeOperationAction";
+    }
+
     public static final Set<String> NAMES_OF_SERVICE_PARAMETERS = Set.of(
         VARIABLE_NAME_SERVICE_ID, Variables.USER.getName(),
         Variables.USER_GUID.getName(), Variables.SPACE_NAME.getName(), Variables.SPACE_GUID.getName(),

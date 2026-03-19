@@ -37,6 +37,7 @@ import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegis
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.cloudfoundry.multiapps.controller.process.util.OperationsHelper;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.controller.web.monitoring.ApiUsageLogger;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -85,6 +86,8 @@ class OperationsApiServiceImplTest {
     private ProcessAction processAction;
     @Mock
     private OperationsApiServiceAuditLog operationsApiServiceAuditLog;
+    @Mock
+    private ApiUsageLogger apiUsageLogger;
 
     @InjectMocks
     private OperationsApiServiceImpl operationsApiService = new OperationsApiServiceImpl();
