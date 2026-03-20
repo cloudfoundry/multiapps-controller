@@ -1,5 +1,19 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
+import java.text.MessageFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.persistence.NoResultException;
@@ -24,6 +38,7 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.OperationsApiServ
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
+import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
@@ -39,9 +54,7 @@ import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegis
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.cloudfoundry.multiapps.controller.process.util.OperationsHelper;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
-import org.cloudfoundry.multiapps.controller.web.monitoring.ApiUsageLogger;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
@@ -50,21 +63,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.MessageFormat;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static org.cloudfoundry.multiapps.controller.persistence.Constants.VARIABLE_NAME_SERVICE_ID;
 import static org.cloudfoundry.multiapps.controller.web.Constants.NAMES_OF_SERVICE_PARAMETERS;
 
 @Named
@@ -91,14 +89,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private ProcessActionRegistry processActionRegistry;
     @Inject
     private OperationsApiServiceAuditLog operationsApiServiceAuditLog;
-    @Inject
-    private ApiUsageLogger apiUsageLogger;
-    @Inject
-    private HttpServletRequest httpServletRequest;
 
     @Override
     public ResponseEntity<List<Operation>> getOperations(String spaceGuid, String mtaId, List<String> stateStrings, Integer last) {
-        apiUsageLogger.logOperationsReadCall(spaceGuid, Constants.ApiEndpointsNames.GET_OPERATIONS, null, httpServletRequest);
         operationsApiServiceAuditLog.logGetOperations(SecurityContextUtil.getUsername(), spaceGuid, mtaId);
         List<Operation.State> states = getStates(stateStrings);
         List<Operation> operations = filterByQueryParameters(last, states, spaceGuid, mtaId);
@@ -108,8 +101,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<Void> executeOperationAction(String spaceGuid, String operationId, String actionId) {
-        apiUsageLogger.logOperationsMutatingCall(spaceGuid, Constants.ApiEndpointsNames.EXECUTE_OPERATION_ACTION, operationId,
-                                                 httpServletRequest);
         operationsApiServiceAuditLog.logExecuteOperationAction(SecurityContextUtil.getUsername(), spaceGuid, operationId, actionId);
         Operation operation = getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
         List<String> availableOperations = getAvailableActions(operation);
@@ -128,8 +119,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Override
     public ResponseEntity<List<Log>> getOperationLogs(String spaceGuid, String operationId) {
         try {
-            apiUsageLogger.logOperationsReadCall(spaceGuid, Constants.ApiEndpointsNames.GET_OPERATION_LOGS, operationId,
-                                                 httpServletRequest);
             operationsApiServiceAuditLog.logGetOperationLogs(SecurityContextUtil.getUsername(), spaceGuid, operationId);
             getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
             List<String> logIds = logsService.getLogNames(spaceGuid, operationId);
@@ -149,8 +138,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Override
     public ResponseEntity<String> getOperationLogContent(String spaceGuid, String operationId, String logId) {
         try {
-            apiUsageLogger.logOperationsReadCall(spaceGuid, Constants.ApiEndpointsNames.GET_OPERATION_LOG_CONTENT, operationId,
-                                                 httpServletRequest);
             operationsApiServiceAuditLog.logGetOperationLogContent(SecurityContextUtil.getUsername(), spaceGuid, operationId, logId);
             String content = logsService.getOperationLog(spaceGuid, operationId, logId);
 
@@ -163,7 +150,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<Operation> startOperation(String spaceGuid, Operation operation, HttpServletRequest httpServletRequest) {
-        apiUsageLogger.logOperationsMutatingCall(spaceGuid, Constants.ApiEndpointsNames.START_OPERATION, null, httpServletRequest);
         operationsApiServiceAuditLog.logStartOperation(SecurityContextUtil.getUsername(), spaceGuid, operation);
         UserInfo authenticatedUser = getAuthenticatedUser();
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
@@ -181,7 +167,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<Operation> getOperation(String spaceGuid, String operationId, String embed) {
-        apiUsageLogger.logOperationsReadCall(spaceGuid, Constants.ApiEndpointsNames.GET_OPERATION, operationId, httpServletRequest);
         operationsApiServiceAuditLog.logGetOperation(SecurityContextUtil.getUsername(), spaceGuid, operationId, embed);
         Operation operation = getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
         if (!operation.getSpaceId()
@@ -228,7 +213,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<List<String>> getOperationActions(String spaceGuid, String operationId) {
-        apiUsageLogger.logOperationsReadCall(spaceGuid, Constants.ApiEndpointsNames.GET_OPERATION_ACTIONS, operationId, httpServletRequest);
         operationsApiServiceAuditLog.logGetOperationActions(spaceGuid, SecurityContextUtil.getUsername(), operationId);
         Operation operation = getOperationByOperationGuidAndSpaceGuid(operationId, spaceGuid);
         return ResponseEntity.ok()
@@ -273,7 +257,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
 
-        parameters.put(VARIABLE_NAME_SERVICE_ID, processDefinitionKey);
+        parameters.put(Constants.VARIABLE_NAME_SERVICE_ID, processDefinitionKey);
         parameters.put(Variables.USER.getName(), user);
         parameters.put(Variables.USER_GUID.getName(), userGuid);
         parameters.put(Variables.SPACE_NAME.getName(), space.getName());

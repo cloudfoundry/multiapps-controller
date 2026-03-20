@@ -25,6 +25,7 @@ public final class Messages {
     public static final String MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER = "Missing properties for creating the specific provider!";
     public static final String DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID = "Credentials to {0} are wrong. Make sure that they are correct. Job id: {1}";
     public static final String JOB_NOT_UPDATED_FOR_0_SECONDS = "Job not updated for {0} seconds";
+
     public static final String FAILED_TO_CREATE_BLOB_STORE_CONTEXT = "Failed to create BlobStoreContext";
 
     // Audit log messages
