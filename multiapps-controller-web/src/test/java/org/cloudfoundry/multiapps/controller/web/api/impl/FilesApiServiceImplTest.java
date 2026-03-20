@@ -30,7 +30,6 @@ import org.cloudfoundry.multiapps.controller.persistence.query.AsyncUploadJobsQu
 import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
-import org.cloudfoundry.multiapps.controller.web.monitoring.ApiUsageLogger;
 import org.cloudfoundry.multiapps.controller.web.upload.AsyncUploadJobOrchestrator;
 import org.cloudfoundry.multiapps.controller.web.upload.exception.RejectedAsyncUploadJobException;
 import org.junit.jupiter.api.AfterEach;
@@ -77,8 +76,6 @@ class FilesApiServiceImplTest {
     private final FilesApiServiceImpl testedClass = new FilesApiServiceImpl();
     @Mock
     private FilesApiServiceAuditLog filesApiServiceAuditLog;
-    @Mock
-    private ApiUsageLogger apiUsageLogger;
     @Mock(name = "fileStorageThreadPool")
     private ExecutorService fileStorageThreadPool;
     @Mock
