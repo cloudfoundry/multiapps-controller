@@ -6,8 +6,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.v3.routes.Route;
-import org.immutables.value.Value;
-
 import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
@@ -15,6 +13,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableRouteDestination;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.RouteDestination;
+import org.immutables.value.Value;
 
 @Value.Immutable
 public abstract class RawCloudRoute extends RawCloudEntity<CloudRoute> {
@@ -47,6 +46,8 @@ public abstract class RawCloudRoute extends RawCloudEntity<CloudRoute> {
                                   .url(route.getUrl())
                                   .destinations(destinations)
                                   .requestedProtocol(computeRequestedProtocol(destinations))
+                                  .options(route.getOptions()
+                                                .getValues())
                                   .build();
     }
 
@@ -56,7 +57,7 @@ public abstract class RawCloudRoute extends RawCloudEntity<CloudRoute> {
                   .isEmpty()) {
             domain = domain.substring(route.getHost()
                                            .length()
-                + 1);
+                                          + 1);
         }
         if (!route.getPath()
                   .isEmpty()) {
@@ -73,7 +74,8 @@ public abstract class RawCloudRoute extends RawCloudEntity<CloudRoute> {
                          .stream()
                          .map(destination -> ImmutableRouteDestination.builder()
                                                                       .metadata(ImmutableCloudMetadata.builder()
-                                                                                                      .guid(UUID.fromString(destination.getDestinationId()))
+                                                                                                      .guid(UUID.fromString(
+                                                                                                          destination.getDestinationId()))
                                                                                                       .build())
                                                                       .applicationGuid(UUID.fromString(destination.getApplication()
                                                                                                                   .getApplicationId()))

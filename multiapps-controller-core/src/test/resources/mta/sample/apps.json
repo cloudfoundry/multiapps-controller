@@ -29,6 +29,7 @@
         },
         "host": "www",
         "path": "",
+        "options": {},
         "url": "www.bestprice.sap.com"
       }
     ],
@@ -88,6 +89,7 @@
         },
         "host": "api",
         "path": "",
+        "options": {},
         "url": "api.bestprice.sap.com"
       }
     ],
@@ -147,6 +149,7 @@
         },
         "host": "pricing-db",
         "path": "",
+        "options": {},
         "url": "pricing-db.cfapps.neo.ondemand.com"
       }
     ],

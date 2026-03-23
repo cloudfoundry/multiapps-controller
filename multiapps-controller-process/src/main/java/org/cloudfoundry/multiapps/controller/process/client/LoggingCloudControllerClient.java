@@ -67,9 +67,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void addRoute(String host, String domainName, String path) {
-        logger.debug(Messages.ADDING_ROUTE_WITH_HOST_0_DOMAIN_1_AND_PATH_2, host, domainName, path);
-        delegate.addRoute(host, domainName, path);
+    public void addRoute(String host, String domainName, String path, Map<String, Object> options) {
+        logger.debug(Messages.ADDING_ROUTE_WITH_HOST_0_DOMAIN_1_AND_PATH_2, host, domainName, path, dynamicSecureSerialization.toJson(options));
+        delegate.addRoute(host, domainName, path, options);
     }
 
     @Override

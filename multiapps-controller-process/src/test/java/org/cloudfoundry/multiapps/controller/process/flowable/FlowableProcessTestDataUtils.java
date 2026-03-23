@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.flowable;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -347,7 +348,7 @@ public class FlowableProcessTestDataUtils {
 
     private static List<CloudRoute> createRoutes(String... routes) {
         return Stream.of(routes)
-                     .map(route -> new ApplicationURI(route, false, null).toCloudRoute())
+                     .map(route -> new ApplicationURI(route, false, null, Collections.emptyMap()).toCloudRoute())
                      .collect(Collectors.toList());
     }
 

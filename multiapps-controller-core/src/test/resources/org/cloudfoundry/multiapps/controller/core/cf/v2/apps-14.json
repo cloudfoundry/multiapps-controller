@@ -31,6 +31,7 @@
         },
         "host": "abc",
         "path": "",
+        "options": {},
         "url": "abc.cfapps.domain.com"
       },
       {
@@ -40,6 +41,7 @@
         },
         "host": "cba",
         "path": "",
+        "options": {},
         "url": "cba.cfapps.domain.com"
       },
       {
@@ -49,6 +51,7 @@
         },
         "host": "abc",
         "path": "",
+        "options": {},
         "url": "abc.cfapps.domain.moc"
       },
       {
@@ -58,6 +61,7 @@
         },
         "host": "cba",
         "path": "",
+        "options": {},
         "url": "cba.cfapps.domain.moc"
       }
     ],

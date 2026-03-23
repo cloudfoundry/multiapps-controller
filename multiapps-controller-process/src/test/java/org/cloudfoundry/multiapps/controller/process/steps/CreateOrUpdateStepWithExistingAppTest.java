@@ -348,7 +348,16 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
         return Stream.of(Arguments.of(Collections.emptySet(), constructRoutes("example.com"), true),
                          Arguments.of(constructRoutes("example.com"), Collections.emptySet(), true),
                          Arguments.of(constructRoutes("example.com"), constructRoutes("example.com", "example1.com"), true),
-                         Arguments.of(constructRoutes("example.com"), constructRoutes("example.com"), false));
+                         Arguments.of(constructRoutes("example.com"), constructRoutes("example.com"), false),
+                         // route with options added -> update needed
+                         Arguments.of(constructRoutes("example.com"),
+                                      constructRoutesWithOptions("example.com", Map.of("loadbalancing", "round-robin")), true),
+                         // route options changed -> update needed
+                         Arguments.of(constructRoutesWithOptions("example.com", Map.of("loadbalancing", "round-robin")),
+                                      constructRoutesWithOptions("example.com", Map.of("loadbalancing", "least-connection")), true),
+                         // route options unchanged -> no update
+                         Arguments.of(constructRoutesWithOptions("example.com", Map.of("loadbalancing", "round-robin")),
+                                      constructRoutesWithOptions("example.com", Map.of("loadbalancing", "round-robin")), false));
     }
 
     @ParameterizedTest
@@ -374,8 +383,12 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
 
     private static Set<CloudRoute> constructRoutes(String... uriStrings) {
         return Stream.of(uriStrings)
-                     .map(uri -> new ApplicationURI(uri, false, null).toCloudRoute())
+                     .map(uri -> new ApplicationURI(uri, false, null, Collections.emptyMap()).toCloudRoute())
                      .collect(Collectors.toSet());
+    }
+
+    private static Set<CloudRoute> constructRoutesWithOptions(String uri, Map<String, Object> options) {
+        return Set.of(new ApplicationURI(uri, false, null, options).toCloudRoute());
     }
 
     static Stream<Arguments> testHandleApplicationServices() {

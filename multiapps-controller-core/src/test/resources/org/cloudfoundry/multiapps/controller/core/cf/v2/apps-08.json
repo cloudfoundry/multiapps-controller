@@ -29,6 +29,7 @@
         },
         "host": "module-1",
         "path": "",
+        "options": {},
         "url": "module-1.sofd60245639a"
       }
     ],

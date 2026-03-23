@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.client.facade.adapters;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.cloudfoundry.client.v3.Relationship;
@@ -8,14 +9,14 @@ import org.cloudfoundry.client.v3.ToOneRelationship;
 import org.cloudfoundry.client.v3.routes.Application;
 import org.cloudfoundry.client.v3.routes.Destination;
 import org.cloudfoundry.client.v3.routes.Route;
+import org.cloudfoundry.client.v3.routes.RouteOptions;
 import org.cloudfoundry.client.v3.routes.RouteRelationships;
 import org.cloudfoundry.client.v3.routes.RouteResource;
-import org.junit.jupiter.api.Test;
-
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudDomain;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
+import org.junit.jupiter.api.Test;
 
 class RawCloudRouteTest {
 
@@ -44,6 +45,7 @@ class RawCloudRouteTest {
                                   .path("")
                                   .appsUsingRoute(APPS_USING_ROUTE)
                                   .url(HOST + "." + DOMAIN_NAME)
+                                  .options(Map.of("loadbalancing", "round-robin"))
                                   .build();
     }
 
@@ -67,6 +69,9 @@ class RawCloudRouteTest {
                             .path("")
                             .url(HOST + "." + DOMAIN_NAME)
                             .addAllDestinations(DESTINATIONS)
+                            .options(RouteOptions.builder()
+                                                 .value("loadbalancing", "round-robin")
+                                                 .build())
                             .build();
     }
 
