@@ -13,6 +13,10 @@
         <param-name>contextConfigLocation</param-name>
         <param-value>org.cloudfoundry.multiapps.controller.web.configuration.SecurityConfiguration</param-value>
     </context-param>
+    <context-param>
+        <param-name>contextInitializerClasses</param-name>
+        <param-value>org.cloudfoundry.multiapps.controller.web.bootstrap.StrictCircularReferencesInitializer</param-value>
+    </context-param>
 
     <servlet>
         <description>BootstrapServlet</description>
