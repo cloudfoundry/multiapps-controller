@@ -40,6 +40,8 @@ class FileServiceTest extends DatabaseFileServiceTest {
         Mockito.doAnswer(invocationOnMock -> IOUtils.consume((InputStream) invocationOnMock.getArgument(1)))
                .when(fileStorage)
                .addFile(Mockito.any(), Mockito.any());
+        Mockito.when(fileStorage.getExistingFileEntries(Mockito.anyList()))
+               .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Test
@@ -150,6 +152,56 @@ class FileServiceTest extends DatabaseFileServiceTest {
         super.testOpenInputStream();
         Mockito.verify(fileStorage)
                .openInputStream(anyString(), anyString());
+    }
+
+    @Test
+    void listFilesReturnsOnlyEntriesExistingInObjectStore() throws Exception {
+        FileEntry existingInBoth = addTestFile(SPACE_1, NAMESPACE_1);
+        addTestFile(SPACE_1, NAMESPACE_1); // exists in DB but not in object store
+
+        Mockito.when(fileStorage.getExistingFileEntries(Mockito.anyList()))
+               .thenAnswer(invocation -> {
+                   List<FileEntry> entries = invocation.getArgument(0);
+                   return entries.stream()
+                                 .filter(entry -> entry.getId()
+                                                       .equals(existingInBoth.getId()))
+                                 .toList();
+               });
+
+        List<FileEntry> result = fileService.listFiles(SPACE_1, NAMESPACE_1);
+
+        assertEquals(1, result.size());
+        assertEquals(existingInBoth.getId(), result.get(0)
+                                                   .getId());
+    }
+
+    @Test
+    void listFilesReturnsAllEntriesWhenAllExistInObjectStore() throws Exception {
+        FileEntry fileEntry1 = addTestFile(SPACE_1, NAMESPACE_1);
+        FileEntry fileEntry2 = addTestFile(SPACE_1, NAMESPACE_1);
+
+        List<FileEntry> result = fileService.listFiles(SPACE_1, NAMESPACE_1);
+
+        assertEquals(2, result.size());
+        assertTrue(result.stream()
+                         .anyMatch(entry -> entry.getId()
+                                                 .equals(fileEntry1.getId())));
+        assertTrue(result.stream()
+                         .anyMatch(entry -> entry.getId()
+                                                 .equals(fileEntry2.getId())));
+    }
+
+    @Test
+    void listFilesReturnsEmptyListWhenNoEntriesExistInObjectStore() throws Exception {
+        addTestFile(SPACE_1, NAMESPACE_1);
+        addTestFile(SPACE_1, NAMESPACE_1);
+
+        Mockito.when(fileStorage.getExistingFileEntries(Mockito.anyList()))
+               .thenReturn(List.of());
+
+        List<FileEntry> result = fileService.listFiles(SPACE_1, NAMESPACE_1);
+
+        assertEquals(0, result.size());
     }
 
     @Test

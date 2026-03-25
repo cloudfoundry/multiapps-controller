@@ -1,17 +1,19 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
+import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.options.StreamFetchingOptions;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.BlobSqlFileQueryProvider;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFileQueryProvider;
+
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class DatabaseFileService extends FileService {
 
@@ -28,14 +30,26 @@ public class DatabaseFileService extends FileService {
     }
 
     @Override
+    public List<FileEntry> listFiles(String space, String namespace) throws FileStorageException {
+        try {
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesQuery(space, namespace));
+        } catch (SQLException e) {
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_WITH_SPACE_AND_NAMESPACE, space, namespace),
+                                           e);
+        }
+    }
+
+    @Override
     public <T> T processFileContentWithOffset(FileContentToProcess fileContentToProcess, FileContentProcessor<T> fileContentProcessor)
         throws FileStorageException {
         try {
-            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getProcessFileWithContentQueryWithOffsetQuery(fileContentToProcess.getSpaceGuid(),
-                                                                                                                         fileContentToProcess.getGuid(),
-                                                                                                                         new StreamFetchingOptions(fileContentToProcess.getStartOffset(),
-                                                                                                                                                   fileContentToProcess.getEndOffset()),
-                                                                                                                         fileContentProcessor));
+            return getSqlQueryExecutor().execute(
+                getSqlFileQueryProvider().getProcessFileWithContentQueryWithOffsetQuery(fileContentToProcess.getSpaceGuid(),
+                                                                                        fileContentToProcess.getGuid(),
+                                                                                        new StreamFetchingOptions(
+                                                                                            fileContentToProcess.getStartOffset(),
+                                                                                            fileContentToProcess.getEndOffset()),
+                                                                                        fileContentProcessor));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }

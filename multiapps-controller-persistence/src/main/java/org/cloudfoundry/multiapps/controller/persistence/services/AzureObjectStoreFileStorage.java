@@ -1,16 +1,5 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.okhttp.OkHttpAsyncHttpClientBuilder;
 import com.azure.core.http.policy.ExponentialBackoffOptions;
@@ -30,14 +19,31 @@ import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreConstants;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
+import org.springframework.beans.factory.DisposableBean;
 
-public class AzureObjectStoreFileStorage implements FileStorage {
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+public class AzureObjectStoreFileStorage implements FileStorage, DisposableBean {
 
     private static final String SAS_TOKEN = "sas_token";
     private static final String CONTAINER_NAME = "container_name";
     private static final String CONTAINER_URI = "container_uri";
     private final HttpClient httpClient;
     private final BlobContainerClient containerClient;
+    private final ExecutorService virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
     public AzureObjectStoreFileStorage(Map<String, Object> credentials) {
         this.containerClient = createContainerClient(credentials);
@@ -64,6 +70,27 @@ public class AzureObjectStoreFileStorage implements FileStorage {
         return fileEntries.stream()
                           .filter(fileEntry -> !existingFiles.contains(fileEntry.getId()))
                           .toList();
+    }
+
+    @Override
+    public List<FileEntry> getExistingFileEntries(List<FileEntry> fileEntries) throws FileStorageException {
+        if (fileEntries.isEmpty()) {
+            return List.of();
+        }
+        List<CompletableFuture<FileEntry>> existenceChecks = fileEntries.stream()
+                                                                        .map(fileEntry -> CompletableFuture.supplyAsync(
+                                                                            () -> existsInBlobStore(fileEntry),
+                                                                            virtualThreadExecutor))
+                                                                        .toList();
+        return existenceChecks.stream()
+                              .map(CompletableFuture::join)
+                              .filter(Objects::nonNull)
+                              .toList();
+    }
+
+    private FileEntry existsInBlobStore(FileEntry fileEntry) {
+        return containerClient.getBlobClient(fileEntry.getId())
+                              .exists() ? fileEntry : null;
     }
 
     @Override
@@ -209,5 +236,10 @@ public class AzureObjectStoreFileStorage implements FileStorage {
                               .stream()
                               .map(BlobItem::getName)
                               .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void destroy() {
+        virtualThreadExecutor.shutdown();
     }
 }

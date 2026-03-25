@@ -1,19 +1,5 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.Channels;
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -31,6 +17,21 @@ import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreConstan
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
 import org.springframework.http.MediaType;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.channels.Channels;
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class GcpObjectStoreFileStorage implements FileStorage {
 
@@ -101,6 +102,24 @@ public class GcpObjectStoreFileStorage implements FileStorage {
                                                    .collect(Collectors.toSet());
         return fileEntries.stream()
                           .filter(fileEntry -> !existingFiles.contains(fileEntry.getId()))
+                          .toList();
+    }
+
+    @Override
+    public List<FileEntry> getExistingFileEntries(List<FileEntry> fileEntries) {
+        if (fileEntries.isEmpty()) {
+            return List.of();
+        }
+        List<BlobId> blobIds = fileEntries.stream()
+                                          .map(fileEntry -> BlobId.of(bucketName, fileEntry.getId()))
+                                          .toList();
+        List<Blob> blobs = storage.get(blobIds);
+        Set<String> existingBlobNames = blobs.stream()
+                                             .filter(Objects::nonNull)
+                                             .map(Blob::getName)
+                                             .collect(Collectors.toSet());
+        return fileEntries.stream()
+                          .filter(fileEntry -> existingBlobNames.contains(fileEntry.getId()))
                           .toList();
     }
 

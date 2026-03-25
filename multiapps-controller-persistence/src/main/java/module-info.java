@@ -47,6 +47,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires google.cloud.nio;
     requires google.cloud.storage;
     requires jakarta.xml.bind;
+    requires jakarta.annotation;
     requires jakarta.inject;
     requires liquibase.core;
     requires org.apache.logging.log4j;
@@ -59,6 +60,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires org.cloudfoundry.multiapps.common;
     requires org.eclipse.persistence.core;
     requires org.slf4j;
+    requires spring.beans;
     requires spring.context;
     requires spring.core;
 

@@ -1,18 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.MessageFormat;
-import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.FutureTask;
-import java.util.stream.Stream;
-
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.FileMimeTypeValidator;
@@ -27,6 +14,18 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
+
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.MessageFormat;
+import java.time.Duration;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.FutureTask;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -113,7 +112,7 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
         this.stepInput = stepInput;
         this.isArchiveChunked = isArchiveChunked;
         prepareContext();
-        prepareFileService(stepInput.appArchiveId);
+        prepareFileService();
         prepareArchiveMerger();
         prepareConfiguration();
     }
@@ -128,7 +127,7 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
         context.setVariable(Variables.MTA_NAMESPACE, "namespace");
     }
 
-    private void prepareFileService(String appArchiveId) throws FileStorageException {
+    private void prepareFileService() throws FileStorageException {
         when(fileService.getFile("space-id", EXISTING_FILE_ID))
             .thenReturn(createFileEntry(EXISTING_FILE_ID, "some-file-entry-name", 1024 * 1024L));
         when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.0"))
@@ -161,20 +160,6 @@ class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDepl
             .thenReturn(null);
         when(fileService.addFile(any(FileEntry.class), any(InputStream.class)))
             .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024L));
-        if (appArchiveId.contains(EXCEEDING_FILE_SIZE_ID)) {
-            List<FileEntry> fileEntries = List.of(createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.0", EXCEEDING_FILE_SIZE_ID + ".part.0",
-                                                                  1024 * 1024 * 1024),
-                                                  createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.1", EXCEEDING_FILE_SIZE_ID + ".part.1",
-                                                                  1024 * 1024 * 1024),
-                                                  createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.2", EXCEEDING_FILE_SIZE_ID + ".part.2",
-                                                                  1024 * 1024 * 1024),
-                                                  createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.3", EXCEEDING_FILE_SIZE_ID + ".part.3",
-                                                                  1024 * 1024 * 1024),
-                                                  createFileEntry(EXCEEDING_FILE_SIZE_ID + ".part.4", EXCEEDING_FILE_SIZE_ID + ".part.4",
-                                                                  1024 * 1024 * 1024));
-            when(fileService.listFilesBySpaceAndOperationId(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(fileEntries);
-        }
     }
 
     private void prepareArchiveMerger() {
