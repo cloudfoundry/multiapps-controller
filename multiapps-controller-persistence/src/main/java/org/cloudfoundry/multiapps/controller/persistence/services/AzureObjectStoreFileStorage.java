@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -38,34 +37,30 @@ public class AzureObjectStoreFileStorage implements FileStorage {
     private static final String SAS_TOKEN = "sas_token";
     private static final String CONTAINER_NAME = "container_name";
     private static final String CONTAINER_URI = "container_uri";
+    private static final long MAX_SINGLE_UPLOAD_SIZE = 50L * 1024 * 1024; // 50MB
+    private static final long BLOCK_SIZE = 50L * 1024 * 1024; // 50MB
+    private static final int MAX_CONCURRENCY = 25;
     private final HttpClient httpClient;
     private final BlobContainerClient containerClient;
 
     public AzureObjectStoreFileStorage(Map<String, Object> credentials) {
         this.containerClient = createContainerClient(credentials);
-        this.httpClient = new OkHttpAsyncHttpClientBuilder()
-            //        this.httpClient = new OkHttpAsyncHttpClientBuilder().connectionTimeout(Duration.ofSeconds(30))
-            //                                                            .readTimeout(ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
-            //                                                            .writeTimeout(ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
-            //                                                            .responseTimeout(
-            //                                                                ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
-            //                                                            .callTimeout(ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
-            .build();
+        this.httpClient = new OkHttpAsyncHttpClientBuilder().build();
     }
 
     @Override
     public void addFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
         BlobClient blobClient = containerClient.getBlobClient(fileEntry.getId());
         try {
-            ParallelTransferOptions pto = new ParallelTransferOptions().setBlockSizeLong(50L * 1024 * 1024)
-                                                                       .setMaxConcurrency(25)
-                                                                       .setMaxSingleUploadSizeLong(50L * 1024 * 1024);
+            ParallelTransferOptions pto = new ParallelTransferOptions().setMaxSingleUploadSizeLong(MAX_SINGLE_UPLOAD_SIZE)
+                                                                       .setMaxConcurrency(MAX_CONCURRENCY)
+                                                                       .setBlockSizeLong(BLOCK_SIZE);
 
             BlobParallelUploadOptions blobParallelUploadOptions = new BlobParallelUploadOptions(content);
             blobParallelUploadOptions.setParallelTransferOptions(pto);
             blobParallelUploadOptions.setMetadata(ObjectStoreMapper.createFileEntryMetadata(fileEntry));
 
-            blobClient.uploadWithResponse(blobParallelUploadOptions, Duration.ofMinutes(40),
+            blobClient.uploadWithResponse(blobParallelUploadOptions, ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES,
                                           null);
         } catch (BlobStorageException e) {
             throw new FileStorageException(e);
