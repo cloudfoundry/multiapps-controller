@@ -236,8 +236,8 @@
             <artifactId>jaxb-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.cloudfoundry.multiapps</groupId>
-            <artifactId>multiapps-controller-client</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
         </dependency>
     </dependencies>
 </project>

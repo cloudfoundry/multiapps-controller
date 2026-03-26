@@ -1,9 +1,9 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +13,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.net.ssl.SSLException;
 
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -39,8 +38,8 @@ public class OperationLogsExporter {
     private static final String CONTENT_TYPE_JSON = "application/json";
     private static final long MAX_LIMIT_REQUEST_SIZE_BYTES = 3 * 1024 * 1024 + 512 * 1024; // 3.5MB
     private static final Map<String, WebClient> clientCache = new ConcurrentHashMap<>();
-
     private final Pattern pattern = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#", Pattern.MULTILINE);
+
     private final ProcessLogsPersistenceService processLogsPersistenceService;
 
     public OperationLogsExporter(ProcessLogsPersistenceService processLogsPersistenceService) {
@@ -54,7 +53,7 @@ public class OperationLogsExporter {
         List<List<ExternalOperationLogEntry>> externalOperationLogEntryBatches = getExternalOperationLogEntryBatches(loggingConfiguration,
                                                                                                                      operationLogEntry);
 
-        WebClient cloudLogginServiceWebClient = getCloudLogginServiceWebClient(loggingConfiguration, operationLogEntry);
+        WebClient cloudLogginServiceWebClient = getCloudLogginServiceWebClient(loggingConfiguration);
         if (cloudLogginServiceWebClient == null) {
             return null;
         }
@@ -64,38 +63,29 @@ public class OperationLogsExporter {
                                          .withIsSendToCloudLoggingService(true);
     }
 
+    public void removeClientFromCache(String operationId) {
+        clientCache.remove(operationId);
+    }
+
     private List<List<ExternalOperationLogEntry>> getExternalOperationLogEntryBatches(LoggingConfiguration loggingConfiguration,
                                                                                       OperationLogEntry operationLogEntry) {
-        Map<String, List<String>> logs = getLogsFromOperationLogEntry(loggingConfiguration, operationLogEntry);
+        Map<String, List<String>> operationLogs = getLogsFromOperationLogEntry(loggingConfiguration, operationLogEntry);
         List<ExternalOperationLogEntry> externalOperationLogEntries = new ArrayList<>();
 
-        for (Map.Entry<String, List<String>> log : logs.entrySet()) {
-            for (String logg : log.getValue()) {
-                ExternalOperationLogEntry externalOperationLogEntry = convertToExternalLogEntry(loggingConfiguration.getOperationId(),
-                                                                                                operationLogEntry.getModified(), logg,
-                                                                                                operationLogEntry.getOperationLogName(),
-                                                                                                log.getKey());
-                externalOperationLogEntries.add(externalOperationLogEntry);
+        for (Map.Entry<String, List<String>> operationLog : operationLogs.entrySet()) {
+            for (String log : operationLog.getValue()) {
+                externalOperationLogEntries.add(convertToExternalLogEntry(operationLogEntry, log, operationLog.getKey()));
             }
         }
         return getLogEntryBatches(externalOperationLogEntries);
     }
 
-    private WebClient getCloudLogginServiceWebClient(LoggingConfiguration loggingConfiguration, OperationLogEntry operationLogEntry) {
+    private WebClient getCloudLogginServiceWebClient(LoggingConfiguration loggingConfiguration) {
         WebClient webClient = null;
 
         if (!clientCache.containsKey(loggingConfiguration.getOperationId())) {
-            try {
-                webClient = createWebClientWithMtls(loggingConfiguration);
-                clientCache.put(loggingConfiguration.getOperationId(), webClient);
-
-            } catch (SSLException e) {
-                if (!loggingConfiguration.isFailSafe()) {
-                    throw new SLException(e);
-                }
-                LOGGER.error("wrong config, I guessx");
-                return null;
-            }
+            webClient = createWebClientWithMtls(loggingConfiguration);
+            clientCache.put(loggingConfiguration.getOperationId(), webClient);
         } else {
             webClient = clientCache.get(loggingConfiguration.getOperationId());
         }
@@ -120,19 +110,6 @@ public class OperationLogsExporter {
                 }
             }
         }
-    }
-
-    private ExternalOperationLogEntry convertToExternalLogEntry(String operationId, LocalDateTime timestamp, String operationLog,
-                                                                String operationLogName, String level) {
-        return ImmutableExternalOperationLogEntry.builder()
-                                                 .timestamp(String.valueOf(timestamp.atOffset(ZoneOffset.UTC)))
-                                                 .message(operationLog)
-                                                 .id(UUID.randomUUID()
-                                                         .toString())
-                                                 .operationLogName(operationLogName)
-                                                 .correlationId(operationId)
-                                                 .level(level)
-                                                 .build();
     }
 
     private List<List<ExternalOperationLogEntry>> getLogEntryBatches(List<ExternalOperationLogEntry> externalLogEntries) {
@@ -161,58 +138,11 @@ public class OperationLogsExporter {
 
     private Map<String, List<String>> getLogsFromOperationLogEntry(LoggingConfiguration loggingConfiguration,
                                                                    OperationLogEntry operationLogEntry) {
-        List<String> logs = new ArrayList<>();
+        List<OperationLogEntry> operationLogEntries = getUnsendProcessLogs(loggingConfiguration);
         Map<String, List<String>> logsMap = new HashMap<>();
 
-        if (loggingConfiguration == null) {
-            return null;
-        }
-        List<OperationLogEntry> operationLogEntries = null;
-        try {
-            operationLogEntries = processLogsPersistenceService.listOperationLogsBySpaceAndOperationIdAndIsSendToCloudLoggingService(
-                loggingConfiguration.getTargetSpace(),
-                loggingConfiguration.getOperationId());
-        } catch (FileStorageException e) {
-            throw new RuntimeException(e);
-        }
-
         for (OperationLogEntry ope : operationLogEntries) {
-            String[] splittedString = ope.getOperationLog()
-                                         .split("(?m)^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#(?:\\r?\\n)?");
-
-            Matcher matcher = pattern.matcher(ope.getOperationLog());
-
-            List<String> logLevels = new ArrayList<>();
-
-            if (ope.getOperationLog()
-                   .contains("Step")) {
-                System.out.println("asda");
-            }
-            while (matcher.find()) {
-                logLevels.add(matcher.group(1));
-            }
-
-            for (int i = 0; i < splittedString.length; i++) {
-                String s = splittedString[i];
-                if (!s.isEmpty() && !s.isBlank()) {
-                    s = s.substring(s.indexOf("]") + 1)
-                         .trim();
-                    s = s.substring(0, s.length() - 1);
-
-                    String level = logLevels.get(i - 1);
-
-                    if (logsMap.containsKey(level)) {
-                        logsMap.get(level)
-                               .add(s);
-                    } else {
-                        List<String> log = new ArrayList<>();
-                        log.add(s);
-                        logsMap.put(level, log);
-                    }
-
-                    logs.add(s);
-                }
-            }
+            doSomethingMethod(ope.getOperationLog(), logsMap);
             try {
                 processLogsPersistenceService.updateIsSendToCloudLoggingService(ope.getId(), true);
             } catch (FileStorageException e) {
@@ -220,60 +150,63 @@ public class OperationLogsExporter {
             }
         }
 
-        String[] splittedString = operationLogEntry.getOperationLog()
-                                                   .split("(?m)^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#(?:\\r?\\n)?");
+        doSomethingMethod(operationLogEntry.getOperationLog(), logsMap);
+        return logsMap;
+    }
 
+    private void doSomethingMethod(String log, Map<String, List<String>> logsMap) {
+        String[] messages = log.split("(?m)^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#(?:\\r?\\n)?");
+
+        List<String> logLevels = getLogLevels(log);
+
+        int levelIndex = 0;
+        for (String message : messages) {
+            if (message.isBlank()) {
+                continue;
+            }
+
+            String cleanedMessage = extractMessage(message);
+            String level = logLevels.get(levelIndex);
+
+            logsMap.computeIfAbsent(level, key -> new ArrayList<>())
+                   .add(cleanedMessage);
+            levelIndex++;
+        }
+    }
+
+    private List<String> getLogLevels(String log) {
+        Matcher matcher = pattern.matcher(log);
         List<String> logLevels = new ArrayList<>();
 
-        Matcher matcher = pattern.matcher(operationLogEntry.getOperationLog());
         while (matcher.find()) {
             logLevels.add(matcher.group(1));
         }
 
-        if (operationLogEntry.getOperationLog()
-                             .contains("Step")) {
-            System.out.println("asda");
-        }
-
-        for (int i = 0; i < splittedString.length; i++) {
-            String s = splittedString[i];
-            if (!s.isEmpty() && !s.isBlank()) {
-                s = s.substring(s.indexOf("]") + 1)
-                     .trim();
-                s = s.substring(0, s.length() - 1);
-
-                String level = logLevels.get(i - 1);
-
-                if (logsMap.containsKey(level)) {
-                    logsMap.get(level)
-                           .add(s);
-                } else {
-                    List<String> log = new ArrayList<>();
-                    log.add(s);
-                    logsMap.put(level, log);
-                }
-
-                logs.add(s);
-            }
-        }
-        return logsMap;
+        return logLevels;
     }
 
-    private WebClient createWebClientWithMtls(LoggingConfiguration loggingConfiguration) throws SSLException {
+    private String extractMessage(String message) {
+        String trimmed = message.substring(message.indexOf("]") + 1)
+                                .trim();
+        return trimmed.substring(0, trimmed.length() - 1);
+    }
+
+    private List<OperationLogEntry> getUnsendProcessLogs(LoggingConfiguration loggingConfiguration) {
+        try {
+            return processLogsPersistenceService.listOperationLogsBySpaceAndOperationIdAndIsSendToCloudLoggingService(
+                loggingConfiguration.getTargetSpace(), loggingConfiguration.getOperationId());
+        } catch (FileStorageException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private WebClient createWebClientWithMtls(LoggingConfiguration loggingConfiguration) {
         LOGGER.debug("Creating WebClient with mTLS configuration for endpoint: {}", loggingConfiguration.getEndpointUrl());
 
-        InputStream serverCaStream = new ByteArrayInputStream(loggingConfiguration.getServerCa()
-                                                                                  .getBytes(StandardCharsets.UTF_8));
-        InputStream clientCertStream = new ByteArrayInputStream(loggingConfiguration.getClientCert()
-                                                                                    .getBytes(StandardCharsets.UTF_8));
-        InputStream clientKeyStream = new ByteArrayInputStream(loggingConfiguration.getClientKey()
-                                                                                   .getBytes(StandardCharsets.UTF_8));
-
-        SslContext sslContext = SslContextBuilder.forClient()
-                                                 .keyManager(clientCertStream, clientKeyStream)
-                                                 .trustManager(serverCaStream)
-                                                 .build();
-
+        SslContext sslContext = getSslContext(loggingConfiguration);
+        if (sslContext == null) {
+            return null;
+        }
         HttpClient httpClient = HttpClient.create()
                                           .secure(sslSpec -> sslSpec.sslContext(sslContext));
 
@@ -281,5 +214,41 @@ public class OperationLogsExporter {
                         .baseUrl(loggingConfiguration.getEndpointUrl())
                         .clientConnector(new ReactorClientHttpConnector(httpClient))
                         .build();
+    }
+
+    private SslContext getSslContext(LoggingConfiguration loggingConfiguration) {
+        try {
+            InputStream serverCaStream = getCredentialInputStream(loggingConfiguration.getServerCa());
+            InputStream clientCertStream = getCredentialInputStream(loggingConfiguration.getClientCert());
+            InputStream clientKeyStream = getCredentialInputStream(loggingConfiguration.getClientKey());
+            return SslContextBuilder.forClient()
+                                    .keyManager(clientCertStream, clientKeyStream)
+                                    .trustManager(serverCaStream)
+                                    .build();
+        } catch (IOException e) {
+            if (!loggingConfiguration.isFailSafe()) {
+                throw new SLException(e);
+            } else {
+                LOGGER.error("ERROR");
+                return null;
+            }
+        }
+    }
+
+    private InputStream getCredentialInputStream(String credential) {
+        return new ByteArrayInputStream((credential.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private ExternalOperationLogEntry convertToExternalLogEntry(OperationLogEntry operationLogEntry, String operationLog, String level) {
+        return ImmutableExternalOperationLogEntry.builder()
+                                                 .timestamp(String.valueOf(operationLogEntry.getModified()
+                                                                                            .atOffset(ZoneOffset.UTC)))
+                                                 .message(operationLog)
+                                                 .id(UUID.randomUUID()
+                                                         .toString())
+                                                 .operationLogName(operationLogEntry.getOperationLogName())
+                                                 .correlationId(operationLogEntry.getOperationId())
+                                                 .level(level)
+                                                 .build();
     }
 }

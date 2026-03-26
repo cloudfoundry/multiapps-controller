@@ -95,7 +95,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.BUILDING_CLOUD_MODEL);
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
-        //        setExternalLoggingServiceConfigurationIfRequired(context, deploymentDescriptor);
+        setExternalLoggingServiceConfigurationIfRequired(context, deploymentDescriptor);
         // Get module sets:
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
         List<DeployedMtaApplication> deployedApplications = (deployedMta != null) ? deployedMta.getApplications() : Collections.emptyList();
@@ -443,8 +443,9 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         if (!isCloudLoggingEnabled(deploymentDescriptor)) {
             return;
         }
-        ExternalLoggingServiceConfigurationsCalculator calculator = new ExternalLoggingServiceConfigurationsCalculator(
-            getStepLogger(), clientFactory, context, tokenService);
+        ExternalLoggingServiceConfigurationsCalculator calculator = new ExternalLoggingServiceConfigurationsCalculator(clientFactory,
+                                                                                                                       context,
+                                                                                                                       tokenService);
         LoggingConfiguration loggingConfiguration = calculator.exportOperationLogsToExternalSystem(
             getLoggingServiceResource(deploymentDescriptor.getResources()));
         context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
