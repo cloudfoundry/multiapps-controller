@@ -9,7 +9,8 @@ import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 
 public enum ResourceType {
     MANAGED_SERVICE("managed-service", SupportedParameters.SERVICE, SupportedParameters.SERVICE_PLAN), USER_PROVIDED_SERVICE(
-        "user-provided-service"), EXISTING_SERVICE("existing-service"), EXISTING_SERVICE_KEY("existing-service-key");
+        "user-provided-service"), EXISTING_SERVICE("existing-service"), EXISTING_SERVICE_KEY("existing-service-key"),
+    CLOUD_LOGGING_SERVICE("cloud-logging-service");
 
     private final String name;
     private final Set<String> requiredParameters = new HashSet<>();

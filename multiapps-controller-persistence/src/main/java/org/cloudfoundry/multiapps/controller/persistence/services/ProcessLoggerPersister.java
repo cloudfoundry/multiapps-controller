@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,29 +34,12 @@ public class ProcessLoggerPersister {
 
         List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(processLoggerPersisterConfiguration.correlationId(),
                                                                                       processLoggerPersisterConfiguration.taskId());
-        Map<String, StringBuilder> processLogsMessages = new HashMap<>();
-
-        if (processLoggers.isEmpty()) {
+        Map<String, StringBuilder> processLogsMessages = getProcessLogsMessages(processLoggers);
+        if (processLogsMessages.isEmpty()) {
             return;
         }
 
-        for (ProcessLogger processLogger : processLoggers) {
-            if (processLogsMessages.containsKey(processLogger.getOperationLogEntry()
-                                                             .getOperationLogName())) {
-                processLogsMessages.get(processLogger.getOperationLogEntry()
-                                                     .getOperationLogName())
-                                   .append(processLogger.getLogMessage());
-            } else {
-                StringBuilder logMessage = new StringBuilder();
-                logMessage.append(processLogger.getLogMessage());
-                processLogsMessages.put(processLogger.getOperationLogEntry()
-                                                     .getOperationLogName(), logMessage);
-            }
-
-            processLoggerProvider.removeProcessLoggerFromCache(processLogger);
-        }
-
-        OperationLogEntry operationLogEntryWithExistingData = processLoggers.get(0)
+        OperationLogEntry operationLogEntryWithExistingData = processLoggers.getFirst()
                                                                             .getOperationLogEntry();
 
         for (var processLogsMessage : processLogsMessages.entrySet()) {
@@ -76,5 +60,30 @@ public class ProcessLoggerPersister {
 
             processLogsPersistenceService.persistLog(operationLogEntry);
         }
+    }
+
+    public Map<String, StringBuilder> getProcessLogsMessages(List<ProcessLogger> processLoggers) {
+        if (processLoggers.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, StringBuilder> processLogsMessages = new HashMap<>();
+
+        for (ProcessLogger processLogger : processLoggers) {
+            if (processLogsMessages.containsKey(processLogger.getOperationLogEntry()
+                                                             .getOperationLogName())) {
+                processLogsMessages.get(processLogger.getOperationLogEntry()
+                                                     .getOperationLogName())
+                                   .append(processLogger.getLogMessage());
+            } else {
+                StringBuilder logMessage = new StringBuilder();
+                logMessage.append(processLogger.getLogMessage());
+                processLogsMessages.put(processLogger.getOperationLogEntry()
+                                                     .getOperationLogName(), logMessage);
+            }
+
+            processLoggerProvider.removeProcessLoggerFromCache(processLogger);
+        }
+        return processLogsMessages;
     }
 }

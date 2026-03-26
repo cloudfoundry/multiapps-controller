@@ -27,6 +27,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBack
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
@@ -64,6 +65,8 @@ public class OperationInFinalStateHandler {
     private DynatracePublisher dynatracePublisher;
     @Inject
     private SecretTokenStoreFactory secretTokenStoreFactory;
+    @Inject
+    private OperationLogsExporter operationLogsExporter;
 
     private final SafeExecutor safeExecutor = new SafeExecutor();
 
@@ -81,6 +84,7 @@ public class OperationInFinalStateHandler {
         safeExecutor.execute(() -> deletePreviousBackupDescriptors(execution, processType, state));
         safeExecutor.execute(() -> deleteSecretTokensForProcess(correlationId));
         safeExecutor.execute(() -> trackOperationDuration(correlationId, execution, processType, state));
+        operationLogsExporter.removeClientFromCache(correlationId);
     }
 
     protected void deleteDeploymentFiles(String correlationId, DelegateExecution execution) throws FileStorageException {
