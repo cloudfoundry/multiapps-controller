@@ -24,6 +24,7 @@ import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.ListBlobsOptions;
+import com.azure.storage.blob.models.ParallelTransferOptions;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -36,6 +37,9 @@ public class AzureObjectStoreFileStorage implements FileStorage {
     private static final String SAS_TOKEN = "sas_token";
     private static final String CONTAINER_NAME = "container_name";
     private static final String CONTAINER_URI = "container_uri";
+    private static final long MAX_SINGLE_UPLOAD_SIZE = 50L * 1024 * 1024; // 50MB
+    private static final long BLOCK_SIZE = 50L * 1024 * 1024; // 50MB
+    private static final int MAX_CONCURRENCY = 25;
     private final HttpClient httpClient;
     private final BlobContainerClient containerClient;
 
@@ -48,7 +52,12 @@ public class AzureObjectStoreFileStorage implements FileStorage {
     public void addFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
         BlobClient blobClient = containerClient.getBlobClient(fileEntry.getId());
         try {
+            ParallelTransferOptions pto = new ParallelTransferOptions().setMaxSingleUploadSizeLong(MAX_SINGLE_UPLOAD_SIZE)
+                                                                       .setMaxConcurrency(MAX_CONCURRENCY)
+                                                                       .setBlockSizeLong(BLOCK_SIZE);
+
             BlobParallelUploadOptions blobParallelUploadOptions = new BlobParallelUploadOptions(content);
+            blobParallelUploadOptions.setParallelTransferOptions(pto);
             blobParallelUploadOptions.setMetadata(ObjectStoreMapper.createFileEntryMetadata(fileEntry));
 
             blobClient.uploadWithResponse(blobParallelUploadOptions, ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES,
