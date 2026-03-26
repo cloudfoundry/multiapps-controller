@@ -31,6 +31,8 @@ import static org.mockito.Mockito.when;
 class GcpObjectStoreFileStorageTest extends JCloudsObjectStoreFileStorageTest {
 
     private Storage storage;
+    private Storage mockedStorage;
+    private GcpObjectStoreFileStorage mockedGcpFileStorage;
 
     @Override
     @BeforeEach
@@ -43,18 +45,18 @@ class GcpObjectStoreFileStorageTest extends JCloudsObjectStoreFileStorageTest {
             protected Storage createObjectStoreStorage(Map<String, Object> credentials) {
                 return storage;
             }
-
-            @Override
-            public List<FileEntry> getExistingFileEntries(List<FileEntry> fileEntries) {
-                return fileEntries.stream()
-                                  .filter(fileEntry -> storage.get(CONTAINER, fileEntry.getId()) != null)
-                                  .toList();
-            }
         };
         spaceId = UUID.randomUUID()
                       .toString();
         namespace = UUID.randomUUID()
                         .toString();
+        mockedStorage = mock(Storage.class);
+        mockedGcpFileStorage = new GcpObjectStoreFileStorage(Map.of("bucket", CONTAINER)) {
+            @Override
+            protected Storage createObjectStoreStorage(Map<String, Object> credentials) {
+                return mockedStorage;
+            }
+        };
     }
 
     @Override
@@ -96,17 +98,14 @@ class GcpObjectStoreFileStorageTest extends JCloudsObjectStoreFileStorageTest {
         assertEquals(exceptedFileExist, blobExists);
     }
 
+    @Override
     @Test
-    void getExistingFileEntriesWhenAllEntriesExist() {
-        Storage mockedStorage = mock(Storage.class);
-        GcpObjectStoreFileStorage gcpFileStorage = gcpFileStorageWithMockedStorage(mockedStorage);
+    void getExistingFileEntriesAllExist() {
         FileEntry firstEntry = createFileEntryWithRandomId();
         FileEntry secondEntry = createFileEntryWithRandomId();
-        Blob firstBlob = blobWithName(firstEntry.getId());
-        Blob secondBlob = blobWithName(secondEntry.getId());
-        when(mockedStorage.get(anyList())).thenReturn(List.of(firstBlob, secondBlob));
+        mockStorageGetToReturn(List.of(blobWithName(firstEntry.getId()), blobWithName(secondEntry.getId())));
 
-        List<FileEntry> result = gcpFileStorage.getExistingFileEntries(List.of(firstEntry, secondEntry));
+        List<FileEntry> result = mockedGcpFileStorage.getExistingFileEntries(List.of(firstEntry, secondEntry));
 
         assertEquals(2, result.size());
         List<String> returnedIds = result.stream()
@@ -116,29 +115,26 @@ class GcpObjectStoreFileStorageTest extends JCloudsObjectStoreFileStorageTest {
         assertTrue(returnedIds.contains(secondEntry.getId()));
     }
 
+    @Override
     @Test
-    void getExistingFileEntriesWhenNoEntriesExist() {
-        Storage mockedStorage = mock(Storage.class);
-        GcpObjectStoreFileStorage gcpFileStorage = gcpFileStorageWithMockedStorage(mockedStorage);
+    void getExistingFileEntriesNoneExist() {
         FileEntry firstEntry = createFileEntryWithRandomId();
         FileEntry secondEntry = createFileEntryWithRandomId();
-        when(mockedStorage.get(anyList())).thenReturn(Arrays.asList(null, null));
+        mockStorageGetToReturn(Arrays.asList(null, null));
 
-        List<FileEntry> result = gcpFileStorage.getExistingFileEntries(List.of(firstEntry, secondEntry));
+        List<FileEntry> result = mockedGcpFileStorage.getExistingFileEntries(List.of(firstEntry, secondEntry));
 
         assertTrue(result.isEmpty());
     }
 
+    @Override
     @Test
-    void getExistingFileEntriesWhenSomeEntriesExist() {
-        Storage mockedStorage = mock(Storage.class);
-        GcpObjectStoreFileStorage gcpFileStorage = gcpFileStorageWithMockedStorage(mockedStorage);
+    void getExistingFileEntriesSomeExist() {
         FileEntry existingEntry = createFileEntryWithRandomId();
         FileEntry nonExistingEntry = createFileEntryWithRandomId();
-        Blob existingBlob = blobWithName(existingEntry.getId());
-        when(mockedStorage.get(anyList())).thenReturn(Arrays.asList(existingBlob, null));
+        mockStorageGetToReturn(Arrays.asList(blobWithName(existingEntry.getId()), null));
 
-        List<FileEntry> result = gcpFileStorage.getExistingFileEntries(List.of(existingEntry, nonExistingEntry));
+        List<FileEntry> result = mockedGcpFileStorage.getExistingFileEntries(List.of(existingEntry, nonExistingEntry));
 
         assertEquals(1, result.size());
         assertEquals(existingEntry.getId(), result.getFirst()
@@ -147,23 +143,16 @@ class GcpObjectStoreFileStorageTest extends JCloudsObjectStoreFileStorageTest {
 
     @Test
     void getExistingFileEntriesPassesCorrectBlobIdsToStorage() {
-        Storage mockedStorage = mock(Storage.class);
-        GcpObjectStoreFileStorage gcpFileStorage = gcpFileStorageWithMockedStorage(mockedStorage);
         FileEntry entry = createFileEntryWithRandomId();
-        when(mockedStorage.get(anyList())).thenReturn(List.of());
+        mockStorageGetToReturn(List.of());
 
-        gcpFileStorage.getExistingFileEntries(List.of(entry));
+        mockedGcpFileStorage.getExistingFileEntries(List.of(entry));
 
         verify(mockedStorage).get(List.of(BlobId.of(CONTAINER, entry.getId())));
     }
 
-    private GcpObjectStoreFileStorage gcpFileStorageWithMockedStorage(Storage mockedStorage) {
-        return new GcpObjectStoreFileStorage(Map.of("bucket", CONTAINER)) {
-            @Override
-            protected Storage createObjectStoreStorage(Map<String, Object> credentials) {
-                return mockedStorage;
-            }
-        };
+    private void mockStorageGetToReturn(List<Blob> blobs) {
+        when(mockedStorage.get(anyList())).thenReturn(blobs);
     }
 
     private FileEntry createFileEntryWithRandomId() {

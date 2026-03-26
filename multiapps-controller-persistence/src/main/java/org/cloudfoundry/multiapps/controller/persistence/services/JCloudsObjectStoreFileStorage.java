@@ -17,7 +17,6 @@ import org.jclouds.http.HttpResponseException;
 import org.jclouds.io.Payload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
@@ -28,13 +27,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class JCloudsObjectStoreFileStorage implements FileStorage, DisposableBean {
+public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JCloudsObjectStoreFileStorage.class);
     private static final int MAX_RETRIES_COUNT = 3;
@@ -42,7 +38,6 @@ public class JCloudsObjectStoreFileStorage implements FileStorage, DisposableBea
 
     private final BlobStore blobStore;
     private final String container;
-    private final ExecutorService virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
     public JCloudsObjectStoreFileStorage(BlobStore blobStore, String container) {
         this.blobStore = blobStore;
@@ -81,20 +76,8 @@ public class JCloudsObjectStoreFileStorage implements FileStorage, DisposableBea
     }
 
     @Override
-    public List<FileEntry> getExistingFileEntries(List<FileEntry> fileEntries) {
-        List<CompletableFuture<FileEntry>> existenceChecks = fileEntries.stream()
-                                                                        .map(fileEntry -> CompletableFuture.supplyAsync(
-                                                                            () -> existsInBlobStore(fileEntry),
-                                                                            virtualThreadExecutor))
-                                                                        .toList();
-        return existenceChecks.stream()
-                              .map(CompletableFuture::join)
-                              .filter(Objects::nonNull)
-                              .toList();
-    }
-
-    private FileEntry existsInBlobStore(FileEntry fileEntry) {
-        return blobStore.blobMetadata(container, fileEntry.getId()) != null ? fileEntry : null;
+    protected boolean existsInObjectStore(FileEntry fileEntry) {
+        return blobStore.blobMetadata(container, fileEntry.getId()) != null;
     }
 
     @Override
@@ -268,10 +251,5 @@ public class JCloudsObjectStoreFileStorage implements FileStorage, DisposableBea
             entries.addAll(responseResult);
         }
         return entries;
-    }
-
-    @Override
-    public void destroy() {
-        virtualThreadExecutor.shutdown();
     }
 }
