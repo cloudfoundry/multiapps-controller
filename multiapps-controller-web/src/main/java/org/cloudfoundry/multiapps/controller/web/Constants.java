@@ -71,6 +71,20 @@ public class Constants {
         public static final String PURGE = "/purge";
     }
 
+    public static class ApiEndpointsNames {
+
+        private ApiEndpointsNames() {
+        }
+
+        // Files API
+        public static final String UPLOAD_FILE = "uploadFile";
+        public static final String START_UPLOAD_FROM_URL = "startUploadFromUrl";
+
+        // Operations API
+        public static final String START_OPERATION = "startOperation";
+        public static final String EXECUTE_OPERATION_ACTION = "executeOperationAction";
+    }
+
     public static final Set<String> NAMES_OF_SERVICE_PARAMETERS = Set.of(
         VARIABLE_NAME_SERVICE_ID, Variables.USER.getName(),
         Variables.USER_GUID.getName(), Variables.SPACE_NAME.getName(), Variables.SPACE_GUID.getName(),
