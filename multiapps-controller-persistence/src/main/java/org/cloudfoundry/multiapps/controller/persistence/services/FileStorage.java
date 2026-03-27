@@ -13,6 +13,8 @@ public interface FileStorage {
     @Deprecated // This method is not reliable for aws as BlobStore::list might not return a complete list
     List<FileEntry> getFileEntriesWithoutContent(List<FileEntry> fileEntries) throws FileStorageException;
 
+    List<FileEntry> getExistingFileEntries(List<FileEntry> fileEntries) throws FileStorageException;
+
     void deleteFile(String id, String space) throws FileStorageException;
 
     void deleteFilesBySpaceIds(List<String> spaceIds) throws FileStorageException;

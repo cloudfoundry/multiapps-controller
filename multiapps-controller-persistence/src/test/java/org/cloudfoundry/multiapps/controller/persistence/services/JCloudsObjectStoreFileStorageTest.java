@@ -1,5 +1,18 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import jakarta.xml.bind.DatatypeConverter;
+import org.cloudfoundry.multiapps.common.util.DigestHelper;
+import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.jclouds.ContextBuilder;
+import org.jclouds.blobstore.BlobStore;
+import org.jclouds.blobstore.BlobStoreContext;
+import org.jclouds.blobstore.domain.Blob;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,23 +29,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import jakarta.xml.bind.DatatypeConverter;
-import org.cloudfoundry.multiapps.common.util.DigestHelper;
-import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
-import org.jclouds.ContextBuilder;
-import org.jclouds.blobstore.BlobStore;
-import org.jclouds.blobstore.BlobStoreContext;
-import org.jclouds.blobstore.domain.Blob;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JCloudsObjectStoreFileStorageTest {
 
@@ -168,6 +169,52 @@ class JCloudsObjectStoreFileStorageTest {
     protected void assertBlobDoesNotExist(String blobWithNoMetadataId) {
         assertNull(blobStoreContext.getBlobStore()
                                    .getBlob(CONTAINER, blobWithNoMetadataId));
+    }
+
+    @Test
+    void getExistingFileEntriesAllExist() throws Exception {
+        FileEntry firstFile = addFile(TEST_FILE_LOCATION);
+        FileEntry secondFile = addFile(SECOND_FILE_TEST_LOCATION);
+
+        List<FileEntry> existingEntries = fileStorage.getExistingFileEntries(List.of(firstFile, secondFile));
+
+        assertEquals(2, existingEntries.size());
+        List<String> returnedIds = existingEntries.stream()
+                                                  .map(FileEntry::getId)
+                                                  .toList();
+        assertTrue(returnedIds.contains(firstFile.getId()));
+        assertTrue(returnedIds.contains(secondFile.getId()));
+    }
+
+    @Test
+    void getExistingFileEntriesNoneExist() throws FileStorageException {
+        FileEntry nonExistingFile1 = createFileEntryWithRandomId();
+        FileEntry nonExistingFile2 = createFileEntryWithRandomId();
+
+        List<FileEntry> existingEntries = fileStorage.getExistingFileEntries(List.of(nonExistingFile1, nonExistingFile2));
+
+        assertTrue(existingEntries.isEmpty());
+    }
+
+    @Test
+    void getExistingFileEntriesSomeExist() throws Exception {
+        FileEntry existingFile = addFile(TEST_FILE_LOCATION);
+        FileEntry nonExistingFile = createFileEntryWithRandomId();
+
+        List<FileEntry> existingEntries = fileStorage.getExistingFileEntries(List.of(existingFile, nonExistingFile));
+
+        assertEquals(1, existingEntries.size());
+        assertEquals(existingFile.getId(), existingEntries.get(0)
+                                                          .getId());
+    }
+
+    private FileEntry createFileEntryWithRandomId() {
+        return ImmutableFileEntry.builder()
+                                 .id(UUID.randomUUID()
+                                         .toString())
+                                 .space(spaceId)
+                                 .namespace(namespace)
+                                 .build();
     }
 
     @Test

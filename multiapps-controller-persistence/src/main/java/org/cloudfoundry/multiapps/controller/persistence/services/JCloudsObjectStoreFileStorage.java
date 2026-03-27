@@ -1,16 +1,5 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -30,7 +19,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 
-public class JCloudsObjectStoreFileStorage implements FileStorage {
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JCloudsObjectStoreFileStorage.class);
     private static final int MAX_RETRIES_COUNT = 3;
@@ -73,6 +73,11 @@ public class JCloudsObjectStoreFileStorage implements FileStorage {
         return fileEntries.stream()
                           .filter(fileEntry -> !existingFiles.contains(fileEntry.getId()))
                           .collect(Collectors.toList());
+    }
+
+    @Override
+    protected boolean existsInObjectStore(FileEntry fileEntry) {
+        return blobStore.blobMetadata(container, fileEntry.getId()) != null;
     }
 
     @Override

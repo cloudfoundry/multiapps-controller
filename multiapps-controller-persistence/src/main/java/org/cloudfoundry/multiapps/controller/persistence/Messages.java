@@ -8,14 +8,11 @@ public final class Messages {
     // Exception messages:
     public static final String FILE_UPLOAD_FAILED = "Upload of file \"{0}\" to \"{1}\" failed";
     public static final String FILE_NOT_FOUND = "File \"{0}\" not found";
-    public static final String FAILED_TO_UPDATE_SQL_QUERY = "Failed to update SQL query";
     public static final String ERROR_FINDING_FILE_TO_UPLOAD = "Error finding file to upload with name {0}: {1}";
     public static final String ERROR_READING_FILE_CONTENT = "Error reading content of file {0}: {1}";
     public static final String FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST = "File with ID \"{0}\" and space \"{1}\" does not exist.";
     public static final String ERROR_GETTING_FILES_WITH_SPACE_AND_NAMESPACE = "Error getting files with space {0} and namespace {1}";
-    public static final String ERROR_GETTING_FILES_WITH_SPACE_AND_OPERATION_ID = "Error getting files with space {0} and operation id {1}";
     public static final String ERROR_GETTING_LOGS_WITH_SPACE_AND_OPERATION_ID = "Error getting logs with space {0} and operation id {1}";
-    public static final String ERROR_GETTING_FILES_WITH_SPACE_OPERATION_ID_AND_NAME = "Error getting files with space {0} operation id {1} and file name {2}";
     public static final String ERROR_GETTING_LOGS_WITH_SPACE_OPERATION_ID_AND_NAME = "Error getting logs with space {0} operation id {1} and file name {2}";
     public static final String ERROR_GETTING_ALL_FILES = "Error getting all files";
     public static final String ERROR_LOG_FILE_NOT_FOUND = "Log file with name \"{0}\" for operation \"{1}\" in space \"{2}\" was not found";
@@ -61,16 +58,12 @@ public final class Messages {
     public static final String COULD_NOT_CLOSE_RESULT_SET = "Could not close result set.";
     public static final String COULD_NOT_CLOSE_STATEMENT = "Could not close statement.";
     public static final String COULD_NOT_CLOSE_CONNECTION = "Could not close connection.";
-    public static final String COULD_NOT_CLOSE_LOGGER_CONTEXT = "Could not close logger context";
-    public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
-    public static final String COULD_NOT_PERSIST_LOGS_FILE = "Could not persist logs file: {0}";
     public static final String ATTEMPT_TO_UPLOAD_BLOB_FAILED = "Attempt [{0}/{1}] to upload blob to ObjectStore failed with \"{2}\"";
     public static final String ATTEMPT_TO_DOWNLOAD_MISSING_BLOB = "Attempt [{0}/{1}] to download missing blob {2} from ObjectStore";
     public static final String USER_METADATA_OF_BLOB_0_EMPTY_AND_WILL_BE_DELETED = "User metadata of blob \"{0}\" is empty and will be deleted";
     public static final String DATE_METADATA_OF_BLOB_0_IS_NOT_IN_PROPER_FORMAT_AND_WILL_BE_DELETED = "Date metadata of blob \"{0}\" is not in a proper format and will be deleted";
 
     // INFO log messages:
-    public static final String DEFAULT_CONSOLE = "DefaultConsole";
     public static final String DELETING_FILES_WITHOUT_CONTENT_WITH_IDS_0 = "Deleting files without content with ids: {0}";
 
     // DEBUG log messages:

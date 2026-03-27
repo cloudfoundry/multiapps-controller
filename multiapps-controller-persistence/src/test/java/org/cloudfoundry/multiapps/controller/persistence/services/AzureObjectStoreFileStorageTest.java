@@ -27,9 +27,11 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -258,6 +260,49 @@ class AzureObjectStoreFileStorageTest {
         fileStorage.deleteFilesByIds(List.of(TEST_ID));
 
         verify(blobClient).deleteIfExists();
+    }
+
+    @Test
+    void getExistingFileEntriesWhenAllEntriesExist() throws FileStorageException {
+        when(blobClient.exists()).thenReturn(true);
+        FileEntry firstEntry = createFileEntry(TEST_SPACE_ID, TEST_ID);
+        FileEntry secondEntry = createFileEntry(TEST_SPACE_ID_2, TEST_ID_2);
+
+        List<FileEntry> result = fileStorage.getExistingFileEntries(List.of(firstEntry, secondEntry));
+
+        assertEquals(2, result.size());
+        List<String> returnedIds = result.stream()
+                                         .map(FileEntry::getId)
+                                         .toList();
+        assertTrue(returnedIds.contains(TEST_ID));
+        assertTrue(returnedIds.contains(TEST_ID_2));
+    }
+
+    @Test
+    void getExistingFileEntriesWhenNoEntriesExist() throws FileStorageException {
+        when(blobClient.exists()).thenReturn(false);
+        FileEntry firstEntry = createFileEntry(TEST_SPACE_ID, TEST_ID);
+        FileEntry secondEntry = createFileEntry(TEST_SPACE_ID_2, TEST_ID_2);
+
+        List<FileEntry> result = fileStorage.getExistingFileEntries(List.of(firstEntry, secondEntry));
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getExistingFileEntriesWhenSomeEntriesExist() throws FileStorageException {
+        when(blobContainerClient.getBlobClient(TEST_ID)).thenReturn(blobClient);
+        BlobClient nonExistingBlobClient = mock(BlobClient.class);
+        when(blobContainerClient.getBlobClient(TEST_ID_2)).thenReturn(nonExistingBlobClient);
+        when(blobClient.exists()).thenReturn(true);
+        when(nonExistingBlobClient.exists()).thenReturn(false);
+        FileEntry existingEntry = createFileEntry(TEST_SPACE_ID, TEST_ID);
+        FileEntry nonExistingEntry = createFileEntry(TEST_SPACE_ID_2, TEST_ID_2);
+
+        List<FileEntry> result = fileStorage.getExistingFileEntries(List.of(existingEntry, nonExistingEntry));
+
+        assertEquals(1, result.size());
+        assertEquals(TEST_ID, result.getFirst().getId());
     }
 
     private void setupDeleteMethods(BlobItem... blobItems) {
