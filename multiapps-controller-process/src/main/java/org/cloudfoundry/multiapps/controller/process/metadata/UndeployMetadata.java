@@ -5,6 +5,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableParameterMetadat
 import org.cloudfoundry.multiapps.controller.api.model.OperationMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ParameterType;
 import org.cloudfoundry.multiapps.controller.process.Constants;
+import org.cloudfoundry.multiapps.controller.process.metadata.parameters.TimeoutParameterConverter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
 public class UndeployMetadata {
@@ -48,6 +49,18 @@ public class UndeployMetadata {
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.ABORT_ON_ERROR.getName())
                                                                                  .type(ParameterType.BOOLEAN)
+                                                                                 .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName())
+                                                                                 .type(ParameterType.INTEGER)
+                                                                                 .customConverter(new TimeoutParameterConverter(
+                                                                                     Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE))
+                                                                                 .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.UNBIND_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName())
+                                                                                 .type(ParameterType.INTEGER)
+                                                                                 .customConverter(new TimeoutParameterConverter(
+                                                                                     Variables.UNBIND_SERVICE_TIMEOUT_PROCESS_VARIABLE))
                                                                                  .build())
                                          .build();
     }

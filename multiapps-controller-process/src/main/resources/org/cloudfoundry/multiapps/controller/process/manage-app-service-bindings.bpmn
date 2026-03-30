@@ -26,8 +26,10 @@
     <sequenceFlow id="sid-297C30EF-2F6E-42A7-AE45-F3C6C975DF88" sourceRef="sid-3DD45EF2-BB87-406C-98BC-507B59E921D8" targetRef="bindServiceToApplicationTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${shouldBindServiceToApp}]]></conditionExpression>
     </sequenceFlow>
+    <serviceTask id="setGlobalServiceBindingTimeoutsTask" name="Set Global Service Binding Timeouts" flowable:async="true" flowable:delegateExpression="${setGlobalServiceBindingTimeoutsStep}"></serviceTask>
     <serviceTask id="checkForServiceBindingOperationInProgress" name="Check For Service Binding Operation In Progress" flowable:async="true" flowable:delegateExpression="${checkServiceBindingOperationStep}"></serviceTask>
-    <sequenceFlow id="sid-2F192239-9810-4794-8AD5-82FDE7513CCD" sourceRef="startEvent" targetRef="checkForServiceBindingOperationInProgress"></sequenceFlow>
+    <sequenceFlow id="sid-2F192239-9810-4794-8AD5-82FDE7513CCD" sourceRef="setGlobalServiceBindingTimeoutsTask" targetRef="checkForServiceBindingOperationInProgress"></sequenceFlow>
+    <sequenceFlow id="setGlobalServiceBindingTimeoutsFlow" sourceRef="startEvent" targetRef="setGlobalServiceBindingTimeoutsTask"></sequenceFlow>
     <intermediateCatchEvent id="sid-23BDFA15-4E1C-4CBA-9F12-82B2207151A7" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>

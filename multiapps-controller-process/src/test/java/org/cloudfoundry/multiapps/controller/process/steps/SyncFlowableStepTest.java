@@ -235,7 +235,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         }
         context.setVariable(Variables.APP_TO_PROCESS, app);
 
-        when(timeoutType.getProcessVariableAndGlobalLevelParamName()).thenReturn(SupportedParameters.APPS_UPLOAD_TIMEOUT);
+        when(timeoutType.getGlobalLevelParamName()).thenReturn(SupportedParameters.APPS_UPLOAD_TIMEOUT);
 
         Map<String, Object> timeoutGlobalLevelParameters = new HashMap<>();
         timeoutGlobalLevelParameters.put(timeoutGlobalParameter, timeoutGlobalLevel);

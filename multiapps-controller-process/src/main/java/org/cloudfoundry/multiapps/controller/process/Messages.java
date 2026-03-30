@@ -545,6 +545,8 @@ public class Messages {
     public static final String DELETING_ERROR_TYPE_O_FOR_PROCESS_1 = "Deleting error type \"{0}\" for process \"{1}\"";
     public static final String TIMEOUT_MESSAGE = "Application {0} timeout is set by \"{1}\" parameter to {2} seconds";
     public static final String TIMEOUT_DEFAULT_VALUE_MESSAGE = "Application {0} timeout is default one: {1} seconds";
+    public static final String OPERATION_TIMEOUT_MESSAGE = "{0} timeout is set by \"{1}\" parameter to {2} seconds";
+    public static final String OPERATION_TIMEOUT_DEFAULT_VALUE_MESSAGE = "{0} timeout is default one: {1} seconds";
     public static final String PROVIDED_EXTENSION_DESCRIPTORS = "Provided extension descriptors: {0}";
     public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";

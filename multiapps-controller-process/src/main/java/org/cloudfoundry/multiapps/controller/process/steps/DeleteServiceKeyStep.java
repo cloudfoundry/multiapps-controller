@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredent
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceKeyPollingFactory;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -20,7 +22,7 @@ import org.springframework.http.HttpStatus;
 
 @Named("deleteServiceKeyStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteServiceKeyStep extends AsyncFlowableStep {
+public class DeleteServiceKeyStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) throws Exception {
@@ -94,4 +96,8 @@ public class DeleteServiceKeyStep extends AsyncFlowableStep {
         return MessageFormat.format(Messages.ERROR_WHILE_DELETING_SERVICE_KEY_0, serviceKeyToDelete.getName());
     }
 
+    @Override
+    public Duration getTimeout(ProcessContext context) {
+        return calculateTimeout(context, TimeoutType.DELETE_SERVICE_KEY);
+    }
 }

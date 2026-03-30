@@ -105,6 +105,9 @@
             <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
             <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
             <flowable:in source="mtaId" target="mtaId"></flowable:in>
+            <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
+            <flowable:in source="mtaDeploymentDescriptorWithSystemParameters" target="mtaDeploymentDescriptorWithSystemParameters"></flowable:in>
+            <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
           </extensionElements>
           <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceBindingsToDelete" flowable:elementVariable="serviceBindingToDelete">
             <extensionElements>
