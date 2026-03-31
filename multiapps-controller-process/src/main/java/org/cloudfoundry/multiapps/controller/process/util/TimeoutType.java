@@ -108,6 +108,35 @@ public enum TimeoutType {
         return serviceContextVariable;
     }
 
+    public TimeoutScope getTimeoutScope() {
+        return inferTimeoutScope();
+    }
+
+    private TimeoutScope inferTimeoutScope() {
+        if (parameterNames.moduleLevelParamName() != null) {
+            return TimeoutScope.MODULE;
+        }
+        return serviceContextVariable != null ? TimeoutScope.SERVICE : TimeoutScope.SERVICE_KEY;
+    }
+
+    public boolean isModuleScoped() {
+        return getTimeoutScope() == TimeoutScope.MODULE;
+    }
+
+    public boolean isServiceScoped() {
+        return getTimeoutScope() != TimeoutScope.MODULE;
+    }
+
+    public String getEntityLevelParamName() {
+        return isModuleScoped() ? getModuleLevelParamName() : getResourceLevelParamName();
+    }
+
+    public enum TimeoutScope {
+        MODULE,
+        SERVICE,
+        SERVICE_KEY
+    }
+
     public record TimeoutParameterNames(String moduleLevelParamName, String resourceLevelParamName, String globalLevelParamName) {
     }
 }

@@ -39,7 +39,7 @@ public class TimeoutValueResolver {
 
     public TimeoutResolution resolveTimeout(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
         this.logger = logger;
-        List<TimeoutSource> timeoutSources = isServiceTimeoutType(timeoutType) ? serviceTimeoutSources : defaultTimeoutSources;
+        List<TimeoutSource> timeoutSources = getTimeoutSources(timeoutType);
         for (TimeoutSource timeoutSource : timeoutSources) {
             TimeoutResolution resolvedTimeout = timeoutSource.resolve(context, timeoutType);
             if (resolvedTimeout != null) {
@@ -47,11 +47,6 @@ public class TimeoutValueResolver {
             }
         }
         return resolveDefaultTimeout(timeoutType);
-    }
-
-    public String resolveTimeoutTypeName(TimeoutType timeoutType) {
-        return Optional.ofNullable(timeoutType.getModuleLevelParamName())
-                       .orElseGet(timeoutType::getResourceLevelParamName);
     }
 
     private TimeoutResolution resolveProcessVariableTimeout(ProcessContext context, TimeoutType timeoutType) {
@@ -67,11 +62,6 @@ public class TimeoutValueResolver {
                                      DEFAULT_TIMEOUT);
     }
 
-    private String resolveResourceLevelParamName(TimeoutType timeoutType) {
-        return Optional.ofNullable(timeoutType.getResourceLevelParamName())
-                       .orElseGet(timeoutType::getModuleLevelParamName);
-    }
-
     private TimeoutResolution extractTimeoutFromAppAttributes(ProcessContext context, TimeoutType timeoutType) {
         CloudApplicationExtended app = getAppToProcess(context);
         String moduleLevelParamName = timeoutType.getModuleLevelParamName();
@@ -84,14 +74,14 @@ public class TimeoutValueResolver {
     }
 
     private TimeoutResolution extractTimeoutFromResourceParameters(ProcessContext context, TimeoutType timeoutType) {
-        String paramName = resolveResourceLevelParamName(timeoutType);
+        String paramName = timeoutType.getEntityLevelParamName();
         if (paramName == null) {
             return null;
         }
         DeploymentDescriptor descriptor = getDeploymentDescriptor(context);
         Resource resource = timeoutServiceResourceNameResolver.resolveResource(context, timeoutType, descriptor, this.logger);
         if (resource == null) {
-            if (isServiceTimeoutType(timeoutType)) {
+            if (timeoutType.isServiceScoped()) {
                 logger.warn("Could not resolve descriptor resource for timeout type {0}; resource-level timeout parameter {1} cannot be applied",
                             timeoutType,
                             paramName);
@@ -106,7 +96,7 @@ public class TimeoutValueResolver {
         String paramName = timeoutType.getGlobalLevelParamName();
         DeploymentDescriptor descriptor = getDeploymentDescriptor(context);
         if (descriptor == null) {
-            if (isServiceTimeoutType(timeoutType)) {
+            if (timeoutType.isServiceScoped()) {
                 logger.warn("Deployment descriptor is missing; global timeout parameter {0} cannot be applied for timeout type {1}",
                             paramName,
                             timeoutType);
@@ -137,7 +127,7 @@ public class TimeoutValueResolver {
         return parameters != null ? parameters.get(parameterName) : null;
     }
 
-    private Duration toDuration(Object timeout, String timeoutParameterName, Integer maxAllowedValue) {
+    public Duration toDuration(Object timeout, String timeoutParameterName, Integer maxAllowedValue) {
         if (timeout == null) {
             return null;
         }
@@ -163,7 +153,15 @@ public class TimeoutValueResolver {
         return context.getVariable(Variables.APP_TO_PROCESS);
     }
 
-    private DeploymentDescriptor getDeploymentDescriptor(ProcessContext context) {
+    private List<TimeoutSource> getTimeoutSources(TimeoutType timeoutType) {
+        return switch (timeoutType.getTimeoutScope()) {
+            case MODULE -> defaultTimeoutSources;
+            case SERVICE, SERVICE_KEY -> serviceTimeoutSources;
+        };
+    }
+
+    public DeploymentDescriptor getDeploymentDescriptor(ProcessContext context, StepLogger stepLogger) {
+        StepLogger effectiveLogger = stepLogger != null ? stepLogger : logger;
         DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         if (descriptor != null) {
             return descriptor;
@@ -179,17 +177,17 @@ public class TimeoutValueResolver {
             return completeDescriptor;
         }
 
-        logger.warn("No deployment descriptor found in context variables: {0}, {1}, {2}",
-                    Variables.DEPLOYMENT_DESCRIPTOR.getName(),
-                    Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS.getName(),
-                    Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR.getName());
+        if (effectiveLogger != null) {
+            effectiveLogger.warn("No deployment descriptor found in context variables: {0}, {1}, {2}",
+                                 Variables.DEPLOYMENT_DESCRIPTOR.getName(),
+                                 Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS.getName(),
+                                 Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR.getName());
+        }
         return null;
     }
 
-    private boolean isServiceTimeoutType(TimeoutType timeoutType) {
-        return timeoutType == TimeoutType.CREATE_SERVICE || timeoutType == TimeoutType.DELETE_SERVICE
-            || timeoutType == TimeoutType.UPDATE_SERVICE || timeoutType == TimeoutType.BIND_SERVICE
-            || timeoutType == TimeoutType.UNBIND_SERVICE || timeoutType == TimeoutType.CREATE_SERVICE_KEY
-            || timeoutType == TimeoutType.DELETE_SERVICE_KEY;
+    private DeploymentDescriptor getDeploymentDescriptor(ProcessContext context) {
+        return getDeploymentDescriptor(context, logger);
     }
+
 }
